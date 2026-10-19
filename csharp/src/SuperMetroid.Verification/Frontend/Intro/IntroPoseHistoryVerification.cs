@@ -24,19 +24,19 @@ internal static class IntroPoseHistoryVerification
         var entries = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) entries[16 * 16 + x] = 0x8000;
         var room = CreateRoom(new(16, 32), entries, new byte[entries.Length]);
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
         var history = samus.PoseHistory;
         history.PreviousPose = samus.Pose;
         history.PreviousDirectionAndMovement = 4;
         history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
         history.LastDifferentDirectionAndMovement = 0x0308;
-        IntroSamusDemoMovement.StepGroundedLeft(bus, room, samus, 0, 0, 0);
+        IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 0);
         AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "idle intro frame does not shift history");
         AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "idle intro retains older metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "idle intro retains previous pose");
         AssertEqual(4, history.PreviousDirectionAndMovement, "idle intro retains previous metadata");
-        IntroSamusDemoMovement.StepGroundedLeft(bus, room, samus, SnesButton.Left, SnesButton.Left, 1);
+        IntroSamusDemoMovement.StepGroundedLeft(room, samus, SnesButton.Left, SnesButton.Left, 1);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro fixture starts running left");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, history.LastDifferentPose, "intro run transition shifts prior pose");
         AssertEqual(4, history.LastDifferentDirectionAndMovement, "intro run transition shifts prior metadata");
@@ -45,7 +45,7 @@ internal static class IntroPoseHistoryVerification
         samus.HorizontalSpeed.BaseSpeed = 2;
         history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
         history.LastDifferentDirectionAndMovement = 0x0308;
-        IntroSamusDemoMovement.StepGroundedLeft(bus, room, samus, 0, 0, 2);
+        IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 2);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro release fixture retains running during deceleration");
         AssertEqual(samus.Pose, history.LastDifferentPose, "intro same-pose fallback shifts history");
         AssertEqual(0x0104, history.LastDifferentDirectionAndMovement, "intro same-pose fallback shifts running metadata");
@@ -57,7 +57,7 @@ internal static class IntroPoseHistoryVerification
     private static void VerifyIntroScenePoseHistory()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var intro = CreateRetailIntroFixture(bus);
+        var intro = CreateRetailIntroFixture();
         var failures = new List<string>();
         int transitions = 0;
         bool setup = false, terminal = false, handoff = false;
@@ -67,9 +67,9 @@ internal static class IntroPoseHistoryVerification
             SamusState? before = intro.flashbackSamus;
             SamusPoseId? oldPose = before?.Pose;
             SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
-            ushort priorMetadata = before?.PoseHistory.PreviousDirectionAndMovement ?? 0;
+            int priorMetadata = before?.PoseHistory.PreviousDirectionAndMovement ?? 0;
             SamusPoseId olderPose = before?.PoseHistory.LastDifferentPose ?? 0;
-            ushort olderMetadata = before?.PoseHistory.LastDifferentDirectionAndMovement ?? 0;
+            int olderMetadata = before?.PoseHistory.LastDifferentDirectionAndMovement ?? 0;
             bool demoEnabled = intro.flashbackDemoInput?.Enabled == true;
             bool hurtExpiry = before is { KnockbackTimer.IsZero: true, KnockbackDirection: not 0 };
             intro.Render();
@@ -114,7 +114,7 @@ internal static class IntroPoseHistoryVerification
                 continue;
             }
             var history = after.PoseHistory;
-            ushort metadata = (ushort)(SnesLittleEndian.Word(after.PoseMetadata.ReadPoseXDirection(bus), (byte)after.PoseMetadata.ReadMovementType(bus)));
+            ushort metadata = (ushort)(SnesLittleEndian.Word(after.PoseMetadata.ReadPoseXDirection(), (byte)after.PoseMetadata.ReadMovementType()));
             if (history.LastDifferentPose != priorPose || history.LastDifferentDirectionAndMovement != priorMetadata ||
                 history.PreviousPose != after.Pose || history.PreviousDirectionAndMovement != metadata)
                 failures.Add($"tick {tick}: {context} did not perform the native four-word history shift");

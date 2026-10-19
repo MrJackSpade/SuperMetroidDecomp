@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Draygon's pre-battle X-Ray masking and later combat visibility.</summary>
 internal static class DraygonPrebattleXrayVerification
@@ -25,19 +26,19 @@ internal static class DraygonPrebattleXrayVerification
         AssertSequenceEqual(nativeOffscreenTm, Enumerable.Range(0, nativeOffscreenTm.Length)
             .Select(offset => bus.ReadCartridgeByte(0x88e01a + offset)),
             "native offscreen HDMA table enables BG1/OBJ without BG2 below the HUD");
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(456, 459));
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.XrayScope;
-        samus.SelectedHudItem = SamusXrayRomData.SelectedHudItem;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.EquippedItems = SamusEquipmentFlags.XrayScope;
+        samus.SelectedHudItem = HudItem.XRay;
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
         runtime.StepFrame(0);
         runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         AssertTrue(samus.Xray.IsActive, "bottom-right arena position activates X-Ray through held Run");

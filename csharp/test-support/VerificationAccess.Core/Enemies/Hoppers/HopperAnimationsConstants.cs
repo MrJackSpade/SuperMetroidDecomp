@@ -13,5 +13,5 @@ internal static class HopperAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params HopperProgram[] programs) =>
         programs.SelectMany(program => HopperAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => HopperFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => HopperFrameToolingDefinitions.Spritemap(step.Frame));
 }

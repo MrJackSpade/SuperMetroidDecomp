@@ -17,6 +17,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks Dachora's default, speed, and shine palette frames against installed art and native selectors.</summary>
 internal static class EnemyTileArtworkDachoraColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Exercises edited RGB5 colors through live CGRAM updates while preserving phase and next-frame selection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Dachora colors and selector pointers")]
@@ -45,7 +48,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         string file = Path.Combine(stockDirectory, DachoraColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         DachoraColorDocument visual = JsonSerializer.Deserialize<DachoraColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Dachora color JSON is null.");
         visual.Normal[5] = ChangeRed(visual.Normal[5]);
         foreach (PaletteRgb5[] frame in visual.Speed)
@@ -83,36 +86,35 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             address => $"Live Dachora read migrated color/selector ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0x0200;
         slot.Position = slot.Position.WithWhole(new(96, 96));
         slot.Radius = new(8, 8);
-        var state = new DachoraEnemyState(slot);
+        var state = new DachoraEnemyState();
         enemies.DachoraBehavior.LoadDachoraPalette(slot, DachoraPalettePhase.Default, 0);
         CheckLive(DachoraPalettePhase.Default, 0);
 
         var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
         {
-            state.Speed = 8;
-            state.Subspeed = 0;
-            state.PaletteAnimationTimer = SnesLittleEndian.Word(1, unchecked((byte)frame));
+            state.Speed = SnesSignedSixteenSixteen.FromParts(8, 0);
+            state.SetPaletteCycle(frame, ticks: 1);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
             CheckLive(DachoraPalettePhase.Speed, frame);
         }
 
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
         {
-            state.PaletteAnimationTimer = SnesLittleEndian.Word(0, unchecked((byte)frame));
+            state.SetPaletteCycle(frame, ticks: 0);
             enemies.DachoraBehavior.StepDachoraShinePalette(slot, state);
             CheckLive(DachoraPalettePhase.Shine, frame);
-            AssertEqual(SnesLittleEndian.Word(0, unchecked((byte)((frame + 1) % 4))),
-                state.PaletteAnimationTimer,
+            AssertEqual((frame + 1) % 4, state.PaletteFrame,
                 $"Dachora shine frame {frame} retains native next-frame selection");
+            AssertEqual(0, state.PaletteTicks,
+                $"Dachora shine frame {frame} keeps no speed ticks");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Dachora color consumers avoid RGB5 and selector ROM reads");

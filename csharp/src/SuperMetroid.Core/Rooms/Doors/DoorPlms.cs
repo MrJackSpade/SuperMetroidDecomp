@@ -8,8 +8,15 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Coloured and blue door PLMs: their setup, shot reactions, opening and the door-closing spawn after a transition.</summary>
-internal sealed class DoorPlms
+internal sealed class DoorPlms : IPlmFamilySource
 {
+    /// <summary>Registers the ColoredDoor family, which has no step of its own: its slots take the shared path.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.ColoredDoor, static (_, _) => PlmStepOutcome.Shared);
+    }
+
     /// <summary>Supplies the room's door-bit persistence owner.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Draws closed and flashing door caps into level data and the background streamer.</summary>
@@ -43,12 +50,10 @@ internal sealed class DoorPlms
     /// for non-closing directions or native pool exhaustion.
     /// </returns>
     public bool TrySpawnDoorClosingPlm(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         CartridgeDoorHeader door,
         Bank80SystemState system)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(level);
         Ensure.NotNull(door);
         Ensure.NotNull(system);
@@ -89,7 +94,7 @@ internal sealed class DoorPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = fallback.Header;
             slot.BlockIndex = blockIndex;
@@ -111,7 +116,7 @@ internal sealed class DoorPlms
     internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, PlmSlot slot)
     {
         var levelWord = new RoomLevelWord(
-            level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord);
+            level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw);
         RoomCollisionType deactivatedType = levelWord.CollisionTypeValue >=
             (byte)RoomCollisionType.SolidBlock
                 ? RoomCollisionType.SolidBlock
@@ -126,7 +131,7 @@ internal sealed class DoorPlms
     {
         // Setup `$84:C7B1` preserves the visual twelve bits, installs shootable-solid
         // collision, and selects BTS $44 so subsequent projectiles find this resident PLM.
-        ushort originalWord = level.GetPlmCollisionBlockByIndex(blockIndex).LevelWord;
+        ushort originalWord = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         level.SetPlmForegroundEntry(
             blockIndex,
             new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
@@ -143,7 +148,7 @@ internal sealed class DoorPlms
         ColoredDoorOrientation orientation)
     {
         ApplyColoredDoorSetup(level, slot.BlockIndex);
-        slot.ColoredDoor = new ColoredDoorPlmState(color);
+        slot.Family = new ColoredDoorPlmState(color);
         slot.StartAnimation(new ColoredDoorPlmAnimation(color, orientation, ColoredDoorProgram.Waiting));
     }
 
@@ -151,15 +156,13 @@ internal sealed class DoorPlms
     /// The coloured cap's shot wake (<c>$84:BD26</c>, <c>$BD50</c>, <c>$BD88</c>): a hit by the colour's projectile wakes
     /// the cap at its hit program; any other hit queues the dud sound. Either way the hit word is consumed.
     /// </summary>
-    internal void RunColoredDoorPreInstruction(PlmSlot slot)
+    internal void RunColoredDoorWake(PlmSlot slot, ColoredDoorPreInstruction preInstruction)
     {
-        if (slot.ColoredDoor is not { } door)
+        ColoredDoorPlmState door = slot.Family as ColoredDoorPlmState
+            ?? throw new InvalidOperationException("A coloured cap's wake ran without its door state.");
+        if (slot.LoopTimer == 0)
             return;
-        ColoredDoorPreInstruction preInstruction = ClosedNativeWords.Decode<ColoredDoorPreInstruction>(
-            slot.PreInstruction, "coloured-door pre-instruction");
-        if (preInstruction == ColoredDoorPreInstruction.None || slot.LoopTimer == 0)
-            return;
-        SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
+        SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         bool accepted = preInstruction switch
         {
             ColoredDoorPreInstruction.WakeOnPowerBomb => family == SamusProjectileFamily.PowerBomb,
@@ -210,15 +213,15 @@ internal sealed class DoorPlms
             system.SetOpenedDoorBit(slot.RoomArgument);
             slot.RoomArgument = (ushort)(NonPersistentArgumentBit | system.GetOpenedDoorWordRaw(slot.RoomArgument >> 3));
         }
-        slot.PreInstruction = 0;
+        slot.PreInstruction = PlmPreInstructions.Inert;
     }
 
     /// <summary><c>$84:8A91</c>: counts a hit on a coloured cap; true when it opens the door.</summary>
     internal bool CountColoredDoorHit(PlmSlot slot)
     {
-        ColoredDoorPlmState door = slot.ColoredDoor
+        ColoredDoorPlmState door = (slot.Family as ColoredDoorPlmState)
             ?? throw new InvalidOperationException("A coloured cap's hit reached a slot without its door state.");
-        door.HitCounter = unchecked((byte)(door.HitCounter + 1));
+        door.HitCounter++;
         if (door.HitCounter < ColoredDoorPlmProgramDefinitions.HitThresholdOf(door.Color))
             return false;
         MarkDoorOpened(slot);
@@ -318,22 +321,22 @@ internal sealed class DoorPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = headerPointer;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
             slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Opening(orientation)));
             slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.PreInstruction = 0;
+            slot.PreInstruction = PlmPreInstructions.Inert;
             slot.RoomArgument = 0;
             slot.LoopTimer = 0;
-            slot.Item = null;
+            slot.Family = null;
 
             // `$84:C7D3-$C7DD` is a direct LevelData write, not a PLM draw. The first
             // animated draw occurs on this actor's next handler pass and owns the VRAM
             // update, while collision observes the type-$8 origin immediately.
-            ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+            ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
             level.SetForegroundEntry(blockIndex, new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.SolidBlock).Raw);
             return true;
         }

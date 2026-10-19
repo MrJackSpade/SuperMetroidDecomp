@@ -147,19 +147,19 @@ internal sealed class RidleyProjectiles
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
         afterburn.Velocity = velocity;
         afterburn.RemainingAfterburns = source.RemainingAfterburns;
-        afterburn.NextAfterburnKind = (ushort)kind;
+        afterburn.NextAfterburnKind = kind;
     }
 
     /// <summary>Decrements the native low-byte chain counter and repeats the branch while its sign bit remains clear.</summary>
     internal void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
     {
-        NativeLowByteCounterStep step = NativeWordCounter.DecrementLowByte(source.RemainingAfterburns);
+        NativeLowByteCounterStep step = NativeWordCounter.DecrementLowByte(checked((ushort)source.RemainingAfterburns));
         source.RemainingAfterburns = step.Remaining;
         if (step.IsNegative)
             return;
         SpawnDirectionalAfterburn(
             source,
-            (RoomEnemyProjectileKind)source.NextAfterburnKind,
+            source.NextAfterburnKind,
             source.Velocity);
     }
 
@@ -183,7 +183,7 @@ internal sealed class RidleyProjectiles
             if (horizontalCollision || verticalCollision)
             {
                 Position16<RoomPixels> impact = context.Projectile.Position.Whole;
-                ushort count = context.Projectile.RemainingAfterburns;
+                ushort count = checked((ushort)context.Projectile.RemainingAfterburns);
                 context.Projectile.Clear();
                 if (count != 0)
                 {
@@ -219,15 +219,16 @@ internal sealed class RidleyProjectiles
     /// <summary>Carries out the cues of the fireball and afterburn programs: motion, the afterburn spawns and deletion.</summary>
     internal void RegisterFireballCues(EnemyProjectileHandlerTable table)
     {
-        table.RegisterCue<RidleyFireballCue>((projectile, samus, cue) =>
+        table.RegisterCue<RidleyFireballCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case RidleyFireballCue.ClearPreInstruction:
-                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                     return;
                 case RidleyFireballCue.BeginFlight:
-                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RidleyFireball;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.RidleyFireball;
                     return;
                 case RidleyFireballCue.SpawnHorizontalAfterburns:
                     SpawnAfterburnPair(projectile, horizontal: true);

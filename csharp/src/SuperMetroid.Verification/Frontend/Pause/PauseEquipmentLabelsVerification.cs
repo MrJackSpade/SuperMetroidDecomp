@@ -32,15 +32,15 @@ internal static class PauseEquipmentLabelsVerification
         SamusState[] inventories =
         [
             new(),
-            new() { CollectedBeams = 0x100f, EquippedBeams = 0x1005,
-                CollectedItems = 0xf32f, EquippedItems = 0x3205, MaxReserveEnergy = 100 },
-            new() { HyperBeam = 1, CollectedBeams = ushort.MaxValue, EquippedBeams = ushort.MaxValue,
-                CollectedItems = ushort.MaxValue, EquippedItems = ushort.MaxValue },
+            new() { CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)0x1005,
+                CollectedItems = (SamusEquipmentFlags)0xf32f, EquippedItems = (SamusEquipmentFlags)0x3205, MaxReserveEnergy = 100 },
+            new() { HyperBeamEnabled = true, CollectedBeams = (SamusBeamFlags)ushort.MaxValue, EquippedBeams = (SamusBeamFlags)ushort.MaxValue,
+                CollectedItems = (SamusEquipmentFlags)ushort.MaxValue, EquippedItems = (SamusEquipmentFlags)ushort.MaxValue },
         ];
         foreach (SamusState inventory in inventories)
         {
-            byte[] expected = EquipmentPage(new PauseMenuState(bus, new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
-            byte[] actual = EquipmentPage(new PauseMenuState(guard, new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
+            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
+            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
             AssertTrue(expected.SequenceEqual(actual),
                 "installed equipment labels match native tilemap with label ROM sources forbidden");
         }
@@ -57,9 +57,9 @@ internal static class PauseEquipmentLabelsVerification
             PauseEquipmentLabelPresentation.Write(output, editedDocument);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
 
-        var liveSamus = new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge,
-            EquippedBeams = (ushort)SamusBeamFlags.Charge };
-        var live = new PauseMenuState(guard, new PauseMenuEntry { Samus = liveSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var liveSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge,
+            EquippedBeams = SamusBeamFlags.Charge };
+        var live = new PauseMenuState(new PauseMenuEntry { Samus = liveSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         byte[] before = EquipmentPage(live);
         live.BindMapPresentation(edited);
         byte[] after = live.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
@@ -71,9 +71,9 @@ internal static class PauseEquipmentLabelsVerification
 
         // Exercise the retail nine-word Boots-to-Plasma copy after an asset-identity
         // change. The first four Varia words must remain the contiguous source tail.
-        var glitchSamus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300,
-            CollectedBeams = 0x100f, EquippedBeams = 4 };
-        var glitch = new PauseMenuState(guard, new PauseMenuEntry { Samus = glitchSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var glitchSamus = new SamusState { CollectedItems = (SamusEquipmentFlags)0x3300, EquippedItems = (SamusEquipmentFlags)0x3300,
+            CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
+        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = glitchSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         EquipmentPage(glitch);
         SelectPauseBoots(glitch);
         glitch.Step(0, (SnesButton.Left | SnesButton.A));
@@ -126,7 +126,7 @@ internal static class PauseEquipmentLabelsVerification
             EquippedBeams = value.EquippedBeams,
             CollectedItems = value.CollectedItems,
             EquippedItems = value.EquippedItems,
-            HyperBeam = value.HyperBeam,
+            HyperBeamEnabled = value.HyperBeamEnabled,
             MaxReserveEnergy = value.MaxReserveEnergy,
         };
     }

@@ -26,19 +26,19 @@ internal static class MissileEdgeVerification
             for (int row = 0; row < 16; row++) blocks[row * 64 + 32] = 0x8000;
             var room = CreateRoom(new(64, 16), blocks, new byte[blocks.Length]);
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(497, 128)),
-                SelectedHudItem = 1, Missiles = 5, MaxMissiles = 5 };
+                SelectedHudItem = HudItem.Missile, Missiles = 5, MaxMissiles = 5 };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             for (int frame = 0; frame < 20; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, input, input);
-                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(edge == 1 ? 192 : 384), 0), shared);
-                if (frame == 0) AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
+                shared.StepFrame(new SamusTerrain { Level = room }, samus, input, input);
+                projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(edge == 1 ? 192 : 384), 0), shared);
+                if (frame == 0) AssertEqual(4, (int)samus.Missiles,
                     "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Slots[0];
                 ushort[] actual = [shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
-                    unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.Type, shot.InstructionPointer];
+                    unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.PackedType.Raw, checked((ushort)shot.InstructionPointer)];
                 AssertTrue(actual.SequenceEqual(native[(edge, frame)]),
                     $"Missile edge={edge} frame={frame} native comparison: {string.Join(',', actual.Select(v => v.ToString("X4")))}");
                 compared++;

@@ -13,9 +13,6 @@ public static class SamusRenderingRomData
         /// <summary>Bank containing drawing offsets and arm-cannon metadata.</summary>
         public const int Movement = 0x900000;
 
-        /// <summary>Bank containing spritemaps and Samus DMA definitions.</summary>
-        public const int GraphicsDefinitions = 0x920000;
-
         /// <summary>Bank containing decompressed-source character data.</summary>
         public const int CharacterData = 0x9a0000;
     }

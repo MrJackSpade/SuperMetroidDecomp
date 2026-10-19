@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Sbug.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -7,8 +8,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>The Sbug species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class SbugBehavior : IEnemySpecies
+internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Sbug, EnemyDefinitionId.Sbug2];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SbugEntity(this, slot, common);
+
     /// <summary>Provides the shared random seed and draws for wandering variants.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves wall and floor collisions for random movement segments.</summary>
@@ -30,11 +37,8 @@ internal sealed class SbugBehavior : IEnemySpecies
     /// <summary>Both axes must be at least six blocks from Samus for the special reversal.</summary>
     private const int SbugReverseDistance = 96;
 
-    /// <summary>Slot-indexed activation, velocity, and animation state for room Sbugs.</summary>
-    internal readonly SbugEnemyState?[] _sbugStates = new SbugEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Sbug</c> at $A3:A14D.</summary>
-    internal void InitializeSbug(RoomEnemySlot slot)
+    internal static void InitializeSbug(RoomEnemySlot slot)
     {
         byte behavior = SnesLittleEndian.HighByte(slot.Parameter2);
         if (behavior > (byte)SbugActivationBehavior.MoveAwayFromSamus)
@@ -51,40 +55,41 @@ internal sealed class SbugBehavior : IEnemySpecies
             InstalledProgram = null,
             Function = SbugEnemyFunction.WaitForSamus,
         };
-        _sbugStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // $A3:A183 uses the cartridge-derived unsigned quarter-circle magnitudes and lets
         // $A0:B691 apply signs later from the original angle. The side velocities instead use the signed,
         // intentionally imperfect eight-bit multiply routine at $A0:B0B2/$B0C6.
+        byte speed = checked((byte)state.Speed);
+        SnesAngle leftAngle = state.InitialAngle.AddTableUnits(-EnemyByteAngleDefinitions.EighthTurn);
+        SnesAngle rightAngle = state.InitialAngle.AddTableUnits(EnemyByteAngleDefinitions.EighthTurn);
         state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
-            state.InitialAngle,
-            state.Speed,
+            state.InitialAngle.TableIndex,
+            speed,
             phase: EnemyByteAngleDefinitions.QuarterTurn);
         state.ForwardYVelocity = CalculateUnsignedSbugMagnitude(
-            state.InitialAngle,
-            state.Speed,
+            state.InitialAngle.TableIndex,
+            speed,
             phase: EnemyByteAngleDefinitions.HalfTurn);
         CalculateSignedSbugVelocities(
-            unchecked((byte)(state.InitialAngle - EnemyByteAngleDefinitions.EighthTurn)),
-            state.Speed,
+            leftAngle.TableIndex,
+            speed,
             out SbugVelocityWords leftX,
             out SbugVelocityWords leftY);
         state.LeftXVelocity = leftX;
         state.LeftYVelocity = leftY;
         CalculateSignedSbugVelocities(
-            unchecked((byte)(state.InitialAngle + EnemyByteAngleDefinitions.EighthTurn)),
-            state.Speed,
+            rightAngle.TableIndex,
+            speed,
             out SbugVelocityWords rightX,
             out SbugVelocityWords rightY);
         state.RightXVelocity = rightX;
         state.RightYVelocity = rightY;
 
-        state.ForwardInstructionIndex = CalculateSbugInstructionIndex(state.InitialAngle);
-        state.LeftInstructionIndex = CalculateSbugInstructionIndex(
-            unchecked((byte)(state.InitialAngle - EnemyByteAngleDefinitions.EighthTurn)));
-        state.RightInstructionIndex = CalculateSbugInstructionIndex(
-            unchecked((byte)(state.InitialAngle + EnemyByteAngleDefinitions.EighthTurn)));
-        SetSbugFacing(slot, state, state.ForwardInstructionIndex);
+        state.ForwardFacing = CalculateSbugFacing(state.InitialAngle);
+        state.LeftFacing = CalculateSbugFacing(leftAngle);
+        state.RightFacing = CalculateSbugFacing(rightAngle);
+        SetSbugFacing(slot, state, state.ForwardFacing);
     }
 
     /// <summary>Ports <c>MainAI_Sbug</c> and its complete indirect dispatch table.</summary>
@@ -155,7 +160,7 @@ internal sealed class SbugBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Sbug function $A3:{(ushort)state.Function:X4} is not translated.");
+                    $"Sbug function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -183,7 +188,8 @@ internal sealed class SbugBehavior : IEnemySpecies
         // adding $80 selects the exact opposite direction for behavior six.
         byte cartridgeAngle = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
-        state.CustomAngle = unchecked((byte)(EnemyByteAngleDefinitions.QuarterTurn - cartridgeAngle + (away ? EnemyByteAngleDefinitions.HalfTurn : 0)));
+        state.FaceCustomHeading(SnesAngle.NormalizeTableIndex(
+            EnemyByteAngleDefinitions.QuarterTurn - cartridgeAngle + (away ? EnemyByteAngleDefinitions.HalfTurn : 0)));
         RecalculateSbugCustomDirection(slot, state);
         state.Function = away
             ? SbugEnemyFunction.MoveAwayFromSamus
@@ -197,12 +203,12 @@ internal sealed class SbugBehavior : IEnemySpecies
         // legs. It is sampled before the scheduler increments it for the current frame.
         if ((slot.FrameCounter & SbugDefinitions.ZigZagLegFrameBit) == 0)
         {
-            SetSbugFacing(slot, state, state.LeftInstructionIndex);
+            SetSbugFacing(slot, state, state.LeftFacing);
             AddSbugVelocity(slot, state.LeftXVelocity, state.LeftYVelocity);
         }
         else
         {
-            SetSbugFacing(slot, state, state.RightInstructionIndex);
+            SetSbugFacing(slot, state, state.RightFacing);
             AddSbugVelocity(slot, state.RightXVelocity, state.RightYVelocity);
         }
     }
@@ -283,11 +289,11 @@ internal sealed class SbugBehavior : IEnemySpecies
         SbugEnemyState state,
         bool reverseWhenFar)
     {
-        // AND #$00FF / SBC #$0040 / AND #$00FF creates an unsigned byte delta. Adding
-        // that to the full word is intentional; all later trigonometry masks the low byte.
-        ushort randomLow = unchecked((byte)_room.Random.Generate());
-        ushort angleDelta = unchecked((byte)(randomLow - EnemyByteAngleDefinitions.QuarterTurn));
-        state.CustomAngle = unchecked((ushort)(state.CustomAngle + angleDelta));
+        // AND #$00FF / SBC #$0040 / AND #$00FF creates an unsigned byte delta; the later
+        // trigonometry reads only the heading's low byte, which the turn wraps within.
+        int randomLow = unchecked((byte)_room.Random.Generate());
+        int angleDelta = unchecked((byte)(randomLow - EnemyByteAngleDefinitions.QuarterTurn));
+        state.TurnCustomHeading(angleDelta);
         RecalculateSbugCustomDirection(slot, state);
         state.MovementTimer = NativeCountdown.Start(SbugMovementSegmentFrames);
         state.Function = reverseWhenFar
@@ -299,15 +305,14 @@ internal sealed class SbugBehavior : IEnemySpecies
     private static void RecalculateSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         CalculateSignedSbugVelocities(
-            unchecked((byte)state.CustomAngle),
-            state.Speed,
+            state.CustomHeading.TableIndex,
+            checked((byte)state.Speed),
             out SbugVelocityWords customX,
             out SbugVelocityWords customY);
         state.CustomXVelocity = customX;
         state.CustomYVelocity = customY;
-        state.CustomInstructionIndex = CalculateSbugInstructionIndex(
-            unchecked((byte)state.CustomAngle));
-        SetSbugFacing(slot, state, state.CustomInstructionIndex);
+        state.CustomFacing = CalculateSbugFacing(state.CustomHeading);
+        SetSbugFacing(slot, state, state.CustomFacing);
     }
 
     /// <summary>Preserves the native independent word negation and odd animation-index mask on reversal.</summary>
@@ -319,11 +324,11 @@ internal sealed class SbugBehavior : IEnemySpecies
         state.CustomXVelocity = NegateSbugWordsIndependently(state.CustomXVelocity);
         state.CustomYVelocity = NegateSbugWordsIndependently(state.CustomYVelocity);
 
-        // $A3:A565 masks with $0007 rather than the expected $000E. Preserve that oddity:
-        // normal even indexes remain even, but directions in the upper half fold down.
-        state.CustomInstructionIndex = unchecked((ushort)(
-            (state.CustomInstructionIndex + 4) & SbugDefinitions.CustomFacingFoldMask));
-        SetSbugFacing(slot, state, state.CustomInstructionIndex);
+        // $A3:A565 advances the facing table's byte offset by four and masks it with $0007
+        // rather than the expected $000E. Preserve that oddity: the facing advances by two
+        // and folds into the first four facings.
+        state.CustomFacing = (state.CustomFacing + SbugDefinitions.ReversalFacingStep) % SbugDefinitions.FoldedFacingCount;
+        SetSbugFacing(slot, state, state.CustomFacing);
     }
 
     /// <summary>Negates pixel and subpixel words separately, retaining the cartridge's fractional error.</summary>
@@ -337,8 +342,9 @@ internal sealed class SbugBehavior : IEnemySpecies
     {
         // MoveEnemyAccordingToAngleAndXYSpeeds applies signs to the unsigned magnitudes by
         // testing the original mathematical angle independently for X and Y.
-        bool subtractX = ((state.InitialAngle + EnemyByteAngleDefinitions.QuarterTurn) & EnemyByteAngleDefinitions.HalfTurn) != 0;
-        bool subtractY = ((state.InitialAngle + EnemyByteAngleDefinitions.HalfTurn) & EnemyByteAngleDefinitions.HalfTurn) != 0;
+        int initialAngle = state.InitialAngle.TableIndex;
+        bool subtractX = ((initialAngle + EnemyByteAngleDefinitions.QuarterTurn) & EnemyByteAngleDefinitions.HalfTurn) != 0;
+        bool subtractY = ((initialAngle + EnemyByteAngleDefinitions.HalfTurn) & EnemyByteAngleDefinitions.HalfTurn) != 0;
         slot.Position = slot.Position.WithX(AddRawSbugVelocity(
             slot.Position.X,
             state.ForwardXVelocity.RawFixed,
@@ -424,23 +430,17 @@ internal sealed class SbugBehavior : IEnemySpecies
         return new SbugVelocityWords(pixel, subpixel);
     }
 
-    /// <summary>Quantizes an angle to one of eight two-byte facing-table offsets.</summary>
-    private static ushort CalculateSbugInstructionIndex(byte angle) =>
-        unchecked((ushort)(2 * (unchecked((byte)(angle - SbugDefinitions.FacingQuantizationOffset)) >> 5)));
+    /// <summary>Quantizes a heading to one of the eight facing loops, after rotating it back by the cartridge's quantization offset.</summary>
+    private static int CalculateSbugFacing(SnesAngle heading) =>
+        heading.AddTableUnits(-SbugDefinitions.FacingQuantizationOffset).TableIndex / SbugDefinitions.TableUnitsPerFacing;
 
     /// <summary>Restarts the selected animation only when its facing list differs from the installed one.</summary>
     private static void SetSbugFacing(
         RoomEnemySlot slot,
         SbugEnemyState state,
-        ushort instructionIndex)
+        int facing)
     {
-        // The index is a byte offset, not an element number. ReverseSbugCustomDirection's
-        // retail mask can fold it to $0000-$0007, so do not normalize it to even values.
-        // Native code indexes a word table with [index >> 1]. Multiplying that element
-        // index back into a byte address clears bit zero. This only matters after the
-        // cartridge's odd `(index + 4) & 7` reversal mask; the compiled selector must
-        // choose the same word rather than treating an odd index as a distinct direction.
-        state.RequestedProgram = SbugMovementDefinitions.FacingProgram(instructionIndex);
+        state.RequestedProgram = SbugMovementDefinitions.FacingProgram(facing);
         if (state.RequestedProgram == state.InstalledProgram)
             return;
 
@@ -457,50 +457,30 @@ internal sealed class SbugBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a Sbug dispatch before its slot's initializer has run.</summary>
-    private SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>
-        _sbugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>
+        slot.SpeciesState<SbugEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Sbug state.");
 
-    /// <summary>Runs Sbug's directional loops as typed programs (#641).</summary>
-    internal void RegisterSbugTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireSbugState(slot);
-            AnimationProgramCursor<SbugProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, SbugAnimations.Programs, ref cursor, SbugFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Routes both Sbug definitions through the parameter-selected initializer.</summary>
-    internal void RegisterSbugInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Sbug's typed animation.</summary>
+    internal static void AdvanceSbugTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Sbug, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeSbug(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireSbugState(slot);
+        AnimationProgramCursor<SbugProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, SbugAnimations.Programs, ref cursor, SbugFrameDefinitions.ShownFrames.Of);
+        state.Program = cursor;
     }
 
-    /// <summary>Advances either Sbug definition through its active movement function.</summary>
-    internal void RegisterSbugMainAi(EnemyAiTable table)
+    /// <summary>Ports Sbug's initialization AI.</summary>
+    internal static void RunSbugInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Sbug, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunSbugMain(slot, frame.Samus, frame.Level);
-        });
+        InitializeSbug(slot);
     }
 
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    /// <summary>Ports Sbug's main AI.</summary>
+    internal void RunSbugMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        Array.Clear(_sbugStates);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
+        RunSbugMain(slot, frame.Samus, frame.Level);
     }
 }

@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public sealed record RoomPlmPlacement(
     RoomPlmHeaderDefinition Header,
     Position16<RoomBlocks> Block,
-    ushort RoomArgument,
+    int RoomArgument,
     ReadOnlyMemory<byte> ScrollProgram = default,
     RoomPlmDynamicCollectibleGraphic? DynamicGraphic = null)
 {
     /// <summary>Internal retail identity; constructed placements must still supply validated decoded pairs.</summary>
-    internal ushort? CompiledScrollSource { get; init; }
+    internal int? CompiledScrollSource { get; init; }
 }

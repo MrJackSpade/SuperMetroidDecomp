@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Runtime;
 public static class GameplayDisplayCapture
 {
     /// <summary>The TM and TMW bits that admit a layer: the four backgrounds and OBJ.</summary>
-    private const int TmLayerBits = (int)(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Bg3 |
-        SnesMainScreenLayers.Bg4 | SnesMainScreenLayers.Obj);
+    private const SnesMainScreenLayers TmLayerBits = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Bg3 |
+        SnesMainScreenLayers.Bg4 | SnesMainScreenLayers.Obj;
 
     /// <summary>
     /// Captures the full currently modeled gameplay composition, including mixed video-mode bands,
@@ -118,13 +118,13 @@ public static class GameplayDisplayCapture
         ushort character = scene.UsesCeresRidleyCharacterBase ? GameplayRenderDefinitions.CeresCharacterWord : (ushort)0;
         GameplayWindowRegisterSnapshot displayedWindows = latched.Windows;
         SnesMainScreenLayers displayedMainScreen =
-            (SnesMainScreenLayers)(displayedWindows.MainScreen & TmLayerBits);
+            displayedWindows.MainScreen & TmLayerBits;
         var registers = new OrdinaryGameplayRegisters(bg1Scroll,
             new Position16<Bg2Pixels>(kraidBg2Scroll is { } kraidX ? Add(kraidX.X, shake.Bg2.X)
                 : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
                 kraidBg2Scroll is { } kraidY ? Add(kraidY.Y, shake.Bg2.Y)
                 : crocomireBg2Scroll is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
-                : sky is { } skyRegisters ? Add(skyRegisters.VerticalScroll, shake.Bg2.Y) : bg2Scroll.Y),
+                : sky is { } skyRegisters ? Add(skyRegisters.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
             kraidBg2Scroll is not null ? new Extent16<TilemapCells>(KraidBackgroundRomData.TilemapWidthInTiles, KraidBackgroundRomData.TilemapHeightInTiles)
                 : bosses.MotherBrainBg2ScrollOverride ? new Extent16<TilemapCells>(32, 32)
                 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
@@ -138,8 +138,8 @@ public static class GameplayDisplayCapture
             ppu.Bg2FirstScanline, ppu.Bg2EndScanline,
             Windows: displayedWindows.Windows,
             MainScreenWindowMask:
-                (SnesMainScreenLayers)(displayedWindows.MainScreenWindow & TmLayerBits),
-            Bg2Mosaic: BackgroundMosaicSampling.ForBg2(latched.Phantoon?.Mosaic ?? 0));
+                displayedWindows.MainScreenWindow & TmLayerBits,
+            Bg2Mosaic: latched.Phantoon is { } phantoonDisplay ? new BackgroundMosaicSampling(phantoonDisplay.MosaicBlockSize) : default);
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
         IReadOnlyList<ushort>? phantoonScrolls = latched.Phantoon?.Scrolls;
@@ -296,9 +296,9 @@ public static class GameplayDisplayCapture
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
         GameplayNmiDisplayLatch latched = frame.Latched;
         GameplayLatchedSceneRegisters scene = latched.Scene;
-        ushort roomPointer = scene.RoomPointer ?? throw new InvalidOperationException("X-ray has no room.");
+        RoomHeaderDefinition xrayRoom = scene.Room ?? throw new InvalidOperationException("X-ray has no room.");
         var ppu = latched.Ppu;
-        var mode = XrayRoomDisplayRules.Select(roomPointer, scene.FxType, scene.BossId);
+        var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.BossId);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
         byte[] bytes = basis.Memory.Vram.ToArray();
         var registers = ordinary.Registers;
@@ -322,7 +322,7 @@ public static class GameplayDisplayCapture
         }
         registers = registers with
         {
-            MainScreenLayers = XrayRoomDisplayRules.RemovesBg2(roomPointer) && mode == XrayRoomBlendMode.PreserveBackgrounds
+            MainScreenLayers = XrayRoomDisplayRules.RemovesBg2(xrayRoom) && mode == XrayRoomBlendMode.PreserveBackgrounds
                 ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
                 : SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
         };
@@ -351,7 +351,7 @@ public static class GameplayDisplayCapture
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
         var control = XrayRoomDisplayRules.ColorMath(mode, subtract);
         FixedColorRegisterSnapshot fixedColor = latched.FixedColors.Shared;
-        byte red = fixedColor.RedIntensity, green = fixedColor.GreenIntensity, blue = fixedColor.BlueIntensity;
+        int red = fixedColor.RedIntensity, green = fixedColor.GreenIntensity, blue = fixedColor.BlueIntensity;
         if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
             red = green = blue = XrayWindowRenderDefinitions.FixedColorComponent;
         // Phase five deletes the HDMA object but its blend bits have already been

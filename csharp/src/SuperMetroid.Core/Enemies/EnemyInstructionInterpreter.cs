@@ -84,17 +84,14 @@ internal sealed class EnemyInstructionInterpreter
     private readonly EnemyPresentation _presentation;
     /// <summary>Provides installed visual assets and room scratch memory.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Supplies species-owned private instruction handlers.</summary>
-    private readonly IEnemyDispatch _dispatch;
 
-    /// <summary>Captures visual, room, encounter, and species dispatch owners for instruction execution.</summary>
-    internal EnemyInstructionInterpreter(CrocomireBehavior crocomireBehavior, MotherBrainEncounter motherBrainEncounter, EnemyPresentation presentation, EnemyRoomBinding room, IEnemyDispatch dispatch)
+    /// <summary>Captures visual, room and encounter owners for instruction execution.</summary>
+    internal EnemyInstructionInterpreter(CrocomireBehavior crocomireBehavior, MotherBrainEncounter motherBrainEncounter, EnemyPresentation presentation, EnemyRoomBinding room)
     {
         _crocomireBehavior = crocomireBehavior;
         _motherBrainEncounter = motherBrainEncounter;
         _presentation = presentation;
         _room = room;
-        _dispatch = dispatch;
     }
     /// <summary>
     /// Draws the BG2 half of the already resolved visual frame. The common writer
@@ -107,33 +104,10 @@ internal sealed class EnemyInstructionInterpreter
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         string? family = null;
         bool found = false;
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
-            slot.Definition.Bank == MotherBrainBodyVisualDefinitions.Bank &&
-            MotherBrainBodyVisualDefinitions.HasBg2(selected))
+        if (slot.Entity is IEnemyBg2Frames owner)
         {
-            family = "Mother Brain body";
-            found = _room.InstalledArtwork.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
-        }
-        else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
-            slot.Definition.Bank == CrocomireBodyVisualDefinitions.Bank &&
-            CrocomireBodyVisualDefinitions.HasBg2(selected))
-        {
-            family = "Crocomire body";
-            found = _room.InstalledArtwork.CrocomireBg2Frames?.TryGet(selected, out writes) == true;
-        }
-        else if (PhantoonBehavior.IsPhantoonPartDefinition(slot.EnemyDefinitionPointer) &&
-            slot.Definition.Bank == PhantoonBg2FrameDefinitions.Bank &&
-            PhantoonBg2FrameDefinitions.IsFrame(selected))
-        {
-            family = "Phantoon";
-            found = _room.InstalledArtwork.PhantoonBg2Frames?.TryGet(selected, out writes) == true;
-        }
-        else if (DraygonBehavior.IsDraygonDefinition(slot.EnemyDefinitionPointer) &&
-            slot.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
-            DraygonBg2FrameDefinitions.IsFrame(selected))
-        {
-            family = "Draygon";
-            found = _room.InstalledArtwork.DraygonBg2Frames?.TryGet(selected, out writes) == true;
+            if (owner.FindBg2Frame(selected, _room) is { } lookup)
+                (family, found, writes) = lookup;
         }
         if (family is null)
             return;
@@ -158,7 +132,7 @@ internal sealed class EnemyInstructionInterpreter
             words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));
         if (_motherBrainEncounter.MotherBrain is not null)
         {
-            WorkRamWordTable bg2 = _room.Scratch.EnemyBg2Tilemap;
+            StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
             for (int index = 0; index < words.Length; index++)
                 bg2[destinationWord + index] = words[index];
         }
@@ -169,19 +143,19 @@ internal sealed class EnemyInstructionInterpreter
     /// Advances one enemy's typed animation (#641). Every enemy that processes instructions runs a typed program; one
     /// without is a missing conversion and fails here rather than reading cartridge instruction lists.
     /// </summary>
-    internal void ProcessInstructions(
+    internal static void ProcessInstructions(
         RoomEnemySlot slot,
         SamusState? samus,
         RoomLevelData? level,
         Position16<RoomPixels> camera,
         SnesButton controllerInput)
     {
-        if (!_dispatch.Ai.HasTypedAnimation(slot))
+        if ((slot.Entity as IEnemyTypedAnimation)?.FindTypedAnimation() is not { } advance)
         {
             throw new InvalidDataException(
                 $"Enemy {slot.EnemyDefinitionPointer} processes instructions but has no typed animation.");
         }
-        _dispatch.Ai.AdvanceTypedAnimation(slot, new EnemyInstructionContext
+        advance(slot, new EnemyInstructionContext
             { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput });
     }
 }

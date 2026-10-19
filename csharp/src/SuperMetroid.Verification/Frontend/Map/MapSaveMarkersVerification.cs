@@ -95,14 +95,13 @@ internal static class MapSaveMarkersVerification
             var typedArea = (AreaId)area;
             if (!MapSaveMarkerDefinitions.Indices(typedArea).Contains(index))
             {
-                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus,
-                    typedArea, index, original.SaveMarkers), "cartridge rejects unused marker index");
-                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(guard, typedArea, index, original.SaveMarkers), "compiled definition rejects same unused marker index");
+                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(typedArea, index, original.SaveMarkers), "cartridge rejects unused marker index");
+                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(typedArea, index, original.SaveMarkers), "compiled definition rejects same unused marker index");
                 continue;
             }
-            var native = new FileSelectStationMarker(bus, typedArea, index,
+            var native = new FileSelectStationMarker(typedArea, index,
                 original.SaveMarkers);
-            var installed = new FileSelectStationMarker(guard, typedArea, index, original.SaveMarkers);
+            var installed = new FileSelectStationMarker(typedArea, index, original.SaveMarkers);
             AssertEqual(native.MapPosition, installed.MapPosition, "stock selected marker coordinates");
             for (int frame = 0; frame < 128; frame++)
             {
@@ -111,10 +110,10 @@ internal static class MapSaveMarkersVerification
             }
             valid++;
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(guard, AreaId.Ceres, 0, original.SaveMarkers), "Ceres marker rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Ceres, 0, original.SaveMarkers), "Ceres marker rejected");
         foreach (int invalid in new[] { -1, MapSaveMarkerDefinitions.SlotsPerArea })
-            AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(guard, AreaId.Crateria, invalid, original.SaveMarkers), "out-of-range marker rejected");
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original));
+            AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Crateria, invalid, original.SaveMarkers), "out-of-range marker rejected");
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<MapSaveMarkerDocument>(File.ReadAllBytes(Path.Combine(stock, MapSaveMarkerFormat.FileName)), options);
         var points = new Dictionary<string, Position16<MapPixels>>(document.Markers);
@@ -125,14 +124,14 @@ internal static class MapSaveMarkersVerification
         byte[] bytes = File.ReadAllBytes(path);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "save marker edit changes content identity");
-        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.MapStationBytes[(int)AreaId.Maridia] = 1;
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
-        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
-        var menu = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, edited);
+        var control = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
+        var menu = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, edited);
         for (int frame = 0; frame < 104; frame++)
         {
             SnesButton input = frame == 48 ? SnesButton.Start : (ushort)0;

@@ -19,32 +19,12 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ExplodingZebesFadePaletteFxColorDefinitions
 {
 
-    /// <summary>The first timed record at <c>$8D:CAAE</c>.</summary>
-    public const ushort FirstFramePointer = 0xcaae;
-
     /// <summary>The one-shot fade contains seven timed records.</summary>
     public const int FrameCount = 7;
 
     /// <summary>Each record writes eight live BGR555 colors.</summary>
     public const int ColorsPerFrame = 8;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 20;
-
-    /// <summary>Returns one timed-record pointer.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
-
-    /// <summary>Returns one presentation-owned BGR555 word in a timed record.</summary>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(86, FrameCount, ColorsPerFrame);
 }

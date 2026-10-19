@@ -22,6 +22,8 @@ cbuffer TileParameters : register(b0)
     uint4 ScanlineParameters[224];
 };
 StructuredBuffer<uint> Memory : register(t0);
+// Published background layers (D3D11BgLayerBuffer): count, 6-word records, cells, then artwork characters.
+StructuredBuffer<uint> BgLayers : register(t2);
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> Objects : register(u1);
 
@@ -41,6 +43,32 @@ uint ReadWord(uint address)
 {
     address = (address & 32767) * 2;
     return ReadByte(address) | (ReadByte(address + 1) << 8);
+}
+uint BgLayerByte(uint wordOffset, uint byteIndex)
+{
+    uint word = BgLayers[wordOffset + (byteIndex >> 2)];
+    if ((byteIndex & 2) != 0) word >>= 16;
+    if ((byteIndex & 1) != 0) word >>= 8;
+    return word & 255;
+}
+// The palette index (0 transparent) background layer `layer` shows at a screen pixel.
+uint BgLayerColor(uint layer, uint2 screen)
+{
+    uint record = 1 + layer * 6;
+    uint origin = BgLayers[record], size = BgLayers[record + 1], band = BgLayers[record + 2];
+    uint bpp = BgLayers[record + 3], cells = BgLayers[record + 4], artwork = BgLayers[record + 5];
+    if (screen.y < (band & 65535) || screen.y >= (band >> 16)) return 0;
+    int lx = (int)screen.x - ((int)(origin << 16) >> 16), ly = (int)screen.y - ((int)origin >> 16);
+    uint width = size & 65535, height = size >> 16;
+    if (lx < 0 || ly < 0 || lx >= (int)(width * 8) || ly >= (int)(height * 8)) return 0;
+    uint cell = BgLayers[cells + (uint)(ly >> 3) * width + (uint)(lx >> 3)];
+    uint px = (cell & (1u << 20)) != 0 ? 7 - (uint)(lx & 7) : (uint)(lx & 7);
+    uint py = (cell & (1u << 21)) != 0 ? 7 - (uint)(ly & 7) : (uint)(ly & 7);
+    uint row = (cell & 65535) * bpp * 8 + py * 2;
+    uint color = ((BgLayerByte(artwork, row) >> (7 - px)) & 1) | (((BgLayerByte(artwork, row + 1) >> (7 - px)) & 1) << 1);
+    if (bpp == 4)
+        color |= (((BgLayerByte(artwork, row + 16) >> (7 - px)) & 1) << 2) | (((BgLayerByte(artwork, row + 17) >> (7 - px)) & 1) << 3);
+    return color == 0 ? 0 : ((cell >> 16) & 7) * (1u << bpp) + color;
 }
 uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha << 24); }
 uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
@@ -105,15 +133,8 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (Operation == OpXrayGameplay) { Output[id.xy] = XrayGameplay(id.xy); return; }
     if (Operation == OpMessage)
     {
-        if (id.y < TilemapWord || id.y >= TilemapWord + HorizontalScroll * 8) return;
-        uint y = id.y - TilemapWord;
-        uint entry = ScanlineParameters[(y >> 3) * 32 + (id.x >> 3)].x;
-        uint px = (entry & 16384) != 0 ? 7 - (id.x & 7) : id.x & 7;
-        uint py = (entry & 32768) != 0 ? 7 - (y & 7) : y & 7;
-        uint row = ((CharacterWord + (entry & 1023) * 8) & 32767) * 2 + py * 2;
-        uint color = ((ReadByte(row) >> (7 - px)) & 1) | (((ReadByte(row + 1) >> (7 - px)) & 1) << 1);
-        if (color == 0) return;
-        uint index = ((entry >> 10) & 7) * 4 + color;
+        uint index = BgLayerColor(TilemapWord, id.xy);
+        if (index == 0) return;
         if (index == AddB || index == ObjectCount)
         {
             uint word = index == AddB ? AddR : AddG;

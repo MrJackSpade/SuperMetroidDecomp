@@ -379,7 +379,7 @@ internal static class SpcSoundEffectTables
     /// SpcLibrary1Policy/SpcLibrary2Policy/SpcLibrary3Policy. Library-three cancellation
     /// and low-health mode both allocate one voice. Unknown manifest bytes are rejected,
     /// and unsupported library indices preserve ArgumentOutOfRangeException.</remarks>
-    internal static int GetVoiceCount(int libraryIndex, byte configuration) => libraryIndex switch
+    internal static int GetVoiceCount(int libraryIndex, int configuration) => libraryIndex switch
     {
         0 => (SpcLibrary1Policy)configuration switch
         {

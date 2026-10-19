@@ -14,9 +14,10 @@ internal static class CeresRidleyGetawayDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Ridley getaway")]
     internal static void VerifyCompiledCeresRidleyGetaway(SuperMetroidAddressSpace rom)
     {
-        for (ushort offset = 0; offset <= 224; offset += 2)
+        for (int index = 0; index <= 112; index++)
         {
-            var frame = CeresRidleyGetawayDefinitions.FromByteIndex(offset);
+            int offset = index * 2;
+            var frame = CeresRidleyGetawayDefinitions.FromIndex(index);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6ae4d + offset)), frame.Zoom, "Ceres getaway exact native zoom");
             if (offset == 224)
             {
@@ -26,8 +27,8 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6af2f + offset))), frame.Velocity.Y, "Ceres getaway exact native Y increment");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), frame.Velocity.X, "Ceres getaway exact native X subtraction");
         }
-        foreach (ushort invalid in new ushort[] { 1, 223, 225, 226, 65535 })
-            AssertThrows<InvalidDataException>(() => CeresRidleyGetawayDefinitions.FromByteIndex(invalid), "Ceres invalid curve index");
+        foreach (int invalid in new[] { -1, 113, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => CeresRidleyGetawayDefinitions.FromIndex(invalid), "Ceres invalid curve index");
         Suite(nameof(VerifyCompiledCeresRidleyMode7Transfers), () => VerifyCompiledCeresRidleyMode7Transfers(rom));
         Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match, including irregular zoom steps and terminal frame.");
     }
@@ -58,7 +59,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
                     "Ceres Mode 7 native VRAM increment mode");
                 AssertEqual(size, transfer.TileNumbers.Length,
                     "Ceres Mode 7 compiled byte count");
-                AssertEqual(destination, transfer.DestinationWord,
+                AssertEqual((int)destination, transfer.DestinationWord,
                     "Ceres Mode 7 compiled VRAM destination");
                 for (int index = 0; index < size; index++)
                 {

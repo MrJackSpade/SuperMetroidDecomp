@@ -15,6 +15,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Hud;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks automatic reserve recovery through the game frontend, including freeze timing, HUD updates, and health-warning audio.</summary>
 internal static class ReserveAutoFrontendVerification
@@ -40,20 +41,20 @@ internal static class ReserveAutoFrontendVerification
     internal static void VerifyReserveAutoFrontend()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb);
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
         samus.Health = 0; samus.MaxHealth = 99;
-        samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = 1;
-        var game = new SuperMetroidGame(bus);
-        game.runtime = runtime;
-        var recovery = game.reserveRecovery;
+        samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = ReserveTankMode.Auto;
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        game.Session.runtime = runtime;
+        var recovery = game.Session.reserveRecovery;
         // Enter through actual state-eight routing, not by calling recovery.Begin:
         // the zero-health gameplay frame must publish recovery without consuming
         // the first reserve point early or letting Start replace it with pause.
@@ -69,7 +70,7 @@ internal static class ReserveAutoFrontendVerification
         AssertTrue(entry.Snapshot is not null,
             "entry preserves the completed gameplay presentation instead of a blank frame");
         runtime.BombProjectiles.SetSharedCooldown(10);
-        ushort lockedAnimationFrame = samus.AnimationFrame;
+        int lockedAnimationFrame = samus.AnimationFrame;
         ushort lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
         game.StepCaptured(0, ++hostSequence, 1);
         AssertEqual(lockedAnimationFrame, samus.AnimationFrame,
@@ -89,15 +90,15 @@ internal static class ReserveAutoFrontendVerification
             "completion unfreezes the gameplay projectile pass on the same frame");
         AssertTrue(runtime.Player.LastGroundedSamusMovement is not null,
             "native $82:DC18 unfreezes BEFORE the completion frame gameplay/movement pass");
-        var audio = game.audio;
+        var audio = game.Session.audio;
         samus.HealthWarning.Update(99, audio);
         samus.Health = 0; samus.ReserveEnergy = 33;
         // Seed the display at the pre-transfer health. Each subsequent gameplay
         // pass queues its HUD update for the next accepted NMI, including while
         // automatic recovery freezes movement. Inspect presentation, not just HP.
-        runtime.Hud.UpdateGameplayCounters(bus, samus);
-        runtime.Hud.QueueUpload(bus, runtime.VramWrites);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.Hud.UpdateGameplayCounters(samus);
+        runtime.Hud.QueueUpload(runtime.VramWrites);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var digitImages = new Dictionary<int, Rgba32[]>();
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
         lockedAnimationFrame = samus.AnimationFrame;
@@ -121,8 +122,7 @@ internal static class ReserveAutoFrontendVerification
             else
                 AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked,
                     "completion restores the normal animation handler on the same frame");
-            AssertTrue(capture.Snapshot is not null, "automatic recovery publishes a gameplay render packet");
-            var pixels = SoftwareFrameSnapshotRenderer.Render((capture.Snapshot ?? throw new InvalidOperationException("Verification requires capture.Snapshot.")));
+            var pixels = SoftwareFrameSnapshotRenderer.Render(capture.Snapshot);
             foreach ((int index, int digit) in new[] { (70, frame / 10), (71, frame % 10) })
             {
                 AssertEqual(ReadRetailHudDigitTile(bus, digit), runtime.Vram.ReadWord(HudState.VramDestination + index),
@@ -172,8 +172,9 @@ internal static class ReserveAutoFrontendVerification
         samus = runtime.Player.Samus;
         AssertTrue(!runtime.Enemies.GunshipHealthBehavior.HasGunshipHealthHandler, "initial post-Ceres descent does not install command 1A");
         var ship = runtime.Enemies.SlotTable.Slots[0];
-        ship.VariableF = (ushort)GunshipFunction.WaitForEntranceToOpen;
-        ship.VariableA = 100;
+        GunshipPartState shipPart = GunshipPartState.Of(ship);
+        shipPart.Function = GunshipFunction.WaitForEntranceToOpen;
+        shipPart.FunctionTimer = 100;
         (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, audio);
         samus.Health = 30; samus.InputLocked = true;
         audio.Reset(); game.StepCaptured(0, ++hostSequence, 1);

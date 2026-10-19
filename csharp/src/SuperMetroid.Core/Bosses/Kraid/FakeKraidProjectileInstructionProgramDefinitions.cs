@@ -1,60 +1,12 @@
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Compiled control for Fake Kraid's spit and left/right spike projectile poses.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Fake Kraid's spit and left/right spike projectile programs. Each native list shows one pose for
+/// <see cref="PoseDuration"/> passes and then sleeps; <see cref="FakeKraidProjectileAnimation"/> plays them typed.
 /// </summary>
 internal abstract class FakeKraidProjectileInstructionProgramDefinitions
 {
-    /// <summary><c>InstList_EnemyProjectile_MiniKraidSpit</c> at $86:9DDA.</summary>
-    internal const ushort Spit = 0x9dda;
 
-    /// <summary><c>InstList_EnemyProjectile_MiniKraidSpikes_Left</c> at $86:9DE0.</summary>
-    internal const ushort SpikeLeft = 0x9de0;
-
-    /// <summary><c>InstList_EnemyProjectile_MiniKraidSpikes_Right</c> at $86:9DE6.</summary>
-    internal const ushort SpikeRight = 0x9de6;
-
-    /// <summary><c>Instruction_EnemyProjectile_Sleep</c> in the spit list at $86:9DDE.</summary>
-    internal const ushort SpitSleep = 0x9dde;
-
-    /// <summary>
-    /// <c>Instruction_EnemyProjectile_Sleep</c> in the left-spike list at $86:9DE4.
-    /// </summary>
-    internal const ushort SpikeLeftSleep = 0x9de4;
-
-    /// <summary>
-    /// <c>Instruction_EnemyProjectile_Sleep</c> in the right-spike list at $86:9DEA.
-    /// </summary>
-    internal const ushort SpikeRightSleep = 0x9dea;
-    /// <summary>Spit and each left/right spike pose have one live spritemap operand.</summary>
-    public static int PresentationWordCount => 3;
-
-    /// <summary>Locates the visual operand two bytes into each six-byte Fake Kraid projectile pose.</summary>
-    public static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount)
-            throw new IndexOutOfRangeException();
-        return (ushort)(Spit + 6 * index + 2);
-    }
-
-    /// <summary>Limits this catalog to Fake Kraid's spit and two directional spike projectile kinds.</summary>
-    internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
-        RoomEnemyProjectileKind.FakeKraidSpit or
-        RoomEnemyProjectileKind.FakeKraidSpikeLeft or
-        RoomEnemyProjectileKind.FakeKraidSpikeRight;
-
-    /// <summary>Resolves one control word by its byte position from <see cref="Spit"/>.</summary>
-    internal static ushort ReadMechanicsWord(ushort address) => (address - Spit) switch
-    {
-        0 or SpikeLeft - Spit or SpikeRight - Spit => 0x7fff,
-        SpitSleep - Spit or SpikeLeftSleep - Spit or SpikeRightSleep - Spit =>
-            (ushort)EnemyProjectileInstruction.Sleep,
-        _ => throw new InvalidDataException(
-            $"Fake Kraid projectile instruction mechanics pointer $86:{address:X4} " +
-            "is not compiled."),
-    };
+    /// <summary>Projectile passes each pose shows before its list's terminal sleep.</summary>
+    internal const int PoseDuration = 0x7fff;
 }

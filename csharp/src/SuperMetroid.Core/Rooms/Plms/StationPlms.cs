@@ -9,8 +9,16 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Save, refill, map and recharge station PLMs: activation, lockout, collision notification and their draws.</summary>
-internal sealed class StationPlms
+internal sealed class StationPlms : IPlmFamilySource
 {
+    /// <summary>Registers the Station family's step.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.Station, (slot, context) =>
+            TryStepStation(context.Level, context.Streamer, slot, context.View) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
+    }
+
     /// <summary>Provides the live Samus and persistent area state used by station activation.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Applies the station and access-arm draw lists to the room tilemap.</summary>
@@ -52,7 +60,7 @@ internal sealed class StationPlms
         {
             // Unpause can arrive before the final access-art hold expires. Keep that
             // remaining animation; only a station waiting for the map returns to idle.
-            if (slot.Active && slot.Station is { Kind: StationKind.Map } station &&
+            if (slot.Active && slot.Family is StationPlmState { Kind: StationKind.Map } station &&
                 station.OperationPhase == StationOperationPhase.AwaitingMapUnpause)
                 station.OperationPhase = StationOperationPhase.Idle;
         }
@@ -76,9 +84,8 @@ internal sealed class StationPlms
     /// animation frame. The declined route jumps to `$B008`, which still installs the
     /// once-per-room-entry lockout. Returns the first frame's tilemap updates.
     /// </summary>
-    public SaveStationConfirmationResult ResolveSaveStationConfirmation(ISnesAddressSpace bus, StationActivationEvent activation, bool accepted, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
+    public SaveStationConfirmationResult ResolveSaveStationConfirmation(StationActivationEvent activation, bool accepted, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(level);
         Ensure.NotNull(streamer);
         StationPlmState station = FindSaveStation(activation);
@@ -100,7 +107,7 @@ internal sealed class StationPlms
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
         // Rounds Samus to the nearest block boundary.
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)(((samus.Position.X.Whole + 8) >> 4) << 4)));
-        samus.PoseMetadata.ApplyForwardFacingPoseSetup(bus);
+        samus.PoseMetadata.ApplyForwardFacingPoseSetup();
         samus.InputLocked = true;
 
         station.SavePhase = SaveStationPhase.Animating;
@@ -110,7 +117,7 @@ internal sealed class StationPlms
         // `$84:AFF4` queues library-one sound $2E right after centring Samus.
         _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6));
         _drawing._tilemapUpdates.Clear();
-        DrawSaveStationFrame(bus, level, streamer, activation.BlockIndex, station, view);
+        DrawSaveStationFrame(level, streamer, activation.BlockIndex, station, view);
         return new SaveStationConfirmationResult(true, _drawing._tilemapUpdates.ToArray());
     }
 
@@ -137,7 +144,7 @@ internal sealed class StationPlms
     {
         StationPlmState[] matches = _slotTable._slots
             .Where(slot => slot.Active && slot.RoomArgument == activation.StationIndex)
-            .Select(slot => slot.Station)
+            .Select(slot => slot.Family as StationPlmState)
             .OfType<StationPlmState>()
             .Where(station => station.Kind == StationKind.Save && station.AreaIndex == activation.AreaIndex)
             .ToArray();
@@ -167,13 +174,12 @@ internal sealed class StationPlms
             case PlmHeaderId.ElevatorPlatform:
             {
                 // Setup_DeactivatePLM clears collision bits 12..14 but deliberately retains
-                // bit 15 and the visual payload. The list at $AFB6 is then handled by the
-                // ordinary timer/draw interpreter without an elevator-specific animation.
-                ushort word = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
+                // bit 15 and the visual payload; the platform then runs its idle loop.
+                slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ElevatorPlatform));
+                ushort word = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
                 ushort deactivated = new RoomLevelWord(word).WithPlmDeactivation().Raw;
                 level.SetForegroundEntry(slot.BlockIndex, deactivated);
                 streamer.SetLevelEntry(slot.BlockIndex, deactivated);
-                slot.IsElevatorPlatform = true;
                 return true;
             }
 
@@ -203,7 +209,7 @@ internal sealed class StationPlms
         PlmSlot slot,
         StationKind kind)
     {
-        ushort original = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
+        ushort original = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
         if (kind == StationKind.Save)
         {
             WriteStationBlock(
@@ -214,8 +220,8 @@ internal sealed class StationPlms
                 RoomCollisionType.SpecialBlock,
                 new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
             StationAnimationList saveList = ClosedNativeWords.Decode<StationAnimationList>(
-                slot.InstructionPointer, "save-station animation list");
-            slot.Station = new StationPlmState(
+                RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction, "save-station animation list");
+            slot.Family = new StationPlmState(
                 kind,
                 area,
                 saveList,
@@ -240,12 +246,12 @@ internal sealed class StationPlms
         WriteAccessBlock(level, streamer, slot.BlockIndex + leftOffset, leftBts);
 
         StationAnimationList normalAnimationList = ClosedNativeWords.Decode<StationAnimationList>(
-            unchecked((ushort)(slot.InstructionPointer + StationNormalAnimationOffset)),
+            unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction + StationNormalAnimationOffset)),
             "station animation list");
         StationAnimationList completedAnimationList = kind switch
         {
             StationKind.Map => ClosedNativeWords.Decode<StationAnimationList>(
-                unchecked((ushort)(slot.InstructionPointer + MapStationAcquiredAnimationOffset)),
+                unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction + MapStationAcquiredAnimationOffset)),
                 "map-station acquired animation list"),
             StationKind.Energy or StationKind.Missile => normalAnimationList,
             _ => throw new InvalidOperationException(),
@@ -253,7 +259,7 @@ internal sealed class StationPlms
         StationAnimationList initialAnimationList = kind == StationKind.Map && system.HasAreaMap(area)
             ? completedAnimationList
             : normalAnimationList;
-        slot.Station = new StationPlmState(
+        slot.Family = new StationPlmState(
             kind,
             area,
             initialAnimationList,
@@ -273,7 +279,7 @@ internal sealed class StationPlms
             throw new InvalidDataException(
                 $"Station access setup targets out-of-room block index {blockIndex}.");
         }
-        ushort original = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+        ushort original = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         WriteStationBlock(
             level,
             streamer,
@@ -343,7 +349,7 @@ internal sealed class StationPlms
 
         foreach (PlmSlot slot in _slotTable._slots)
         {
-            if (!slot.Active || slot.BlockIndex != parentBlockIndex || slot.Station is null)
+            if (!slot.Active || slot.BlockIndex != parentBlockIndex || slot.Family is not StationPlmState station)
                 continue;
 
             bool setupAccepted = bypassSetupGate || access switch
@@ -369,27 +375,27 @@ internal sealed class StationPlms
                     IsSaveStationTriggerCentered(slot.BlockIndex, roomWidthInBlocks),
                 _ => throw new InvalidOperationException($"Undefined station access {access}."),
             };
-            if (setupAccepted && slot.Station.OperationPhase == StationOperationPhase.Idle &&
-                (slot.Station.Kind != StationKind.Save ||
-                    (slot.Station.SavePhase == SaveStationPhase.Idle && !_saveStationLockedOut)))
+            if (setupAccepted && station.OperationPhase == StationOperationPhase.Idle &&
+                (station.Kind != StationKind.Save ||
+                    (station.SavePhase == SaveStationPhase.Idle && !_saveStationLockedOut)))
             {
                 // Recharge setup rejects an already-full resource before command six
                 // takes control. Rejecting it later leaves a locked Samus with no access
                 // animation running to release her. Collision itself remains solid.
-                if (slot.Station.Kind is StationKind.Energy or StationKind.Missile)
+                if (station.Kind is StationKind.Energy or StationKind.Missile)
                 {
                     SamusState samus = _bindings.Samus?.Current
                         ?? throw new InvalidOperationException("Recharge setup has no live Samus owner.");
-                    if (slot.Station.Kind == StationKind.Energy
+                    if (station.Kind == StationKind.Energy
                         ? samus.Health == samus.MaxHealth
                         : samus.Missiles == samus.MaxMissiles)
                     {
                         return true;
                     }
                 }
-                slot.Station.Triggered = true;
-                slot.Station.AccessBlockIndex = accessBlockIndex;
-                slot.Station.AccessBehavior = access;
+                station.Triggered = true;
+                station.AccessBlockIndex = accessBlockIndex;
+                station.AccessBehavior = access;
 
                 // ActivateStationIfSamusArmCannonLinedUp runs command six in setup,
                 // before the common PLM handler advances the resident access list. This
@@ -397,11 +403,11 @@ internal sealed class StationPlms
                 // or finish the animation, but Samus is already movement-locked and the
                 // station therefore softlocks. Save trigger $B590 only advances its
                 // resident list and does not execute command six at this setup seam.
-                if (slot.Station.Kind != StationKind.Save)
+                if (station.Kind != StationKind.Save)
                 {
                     SamusState samus = _bindings.Samus?.Current
                         ?? throw new InvalidOperationException(
-                            $"{slot.Station.Kind} station setup has no live Samus owner.");
+                            $"{station.Kind} station setup has no live Samus owner.");
                     samus.ScriptLocks.LockIntoRefillStation();
                 }
             }
@@ -421,9 +427,9 @@ internal sealed class StationPlms
     }
 
     /// <summary>Advances station draw timers, access-arm phases, and activation messages during the PLM pass.</summary>
-    internal bool TryStepStation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
+    internal bool TryStepStation(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
-        StationPlmState? station = slot.Station;
+        StationPlmState? station = slot.Family as StationPlmState;
         if (station is null)
             return false;
 
@@ -469,11 +475,11 @@ internal sealed class StationPlms
                 station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                 operationStartedThisPass = true;
                 _sounds._soundRequests.Add(_sounds.CreateSoundRequest(RoomPlmSounds.StationExtension, MaximumQueued: 6));
-                DrawStationAccess(bus, level, streamer, station, extended: false, view: view);
+                DrawStationAccess(level, streamer, station, extended: false, view: view);
             }
         }
 
-        if (station.Kind == StationKind.Save && StepSaveStationAnimation(bus, level, streamer, slot, station, view))
+        if (station.Kind == StationKind.Save && StepSaveStationAnimation(level, streamer, slot, station, view))
         {
             return true;
         }
@@ -487,7 +493,7 @@ internal sealed class StationPlms
                 switch (station.OperationPhase)
                 {
                     case StationOperationPhase.Extending:
-                        DrawStationAccess(bus, level, streamer, station, extended: true, view: view);
+                        DrawStationAccess(level, streamer, station, extended: true, view: view);
                         station.OperationPhase = StationOperationPhase.Extended;
                         station.OperationTimer = NativeCountdown.Start(StationAccessExtendedHoldFrames);
                         break;
@@ -507,7 +513,7 @@ internal sealed class StationPlms
                         station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
                     case StationOperationPhase.Retracting:
-                        DrawStationAccess(bus, level, streamer, station, extended: false, view: view);
+                        DrawStationAccess(level, streamer, station, extended: false, view: view);
                         station.OperationPhase = StationOperationPhase.FinalRetractionHold;
                         station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
@@ -547,7 +553,7 @@ internal sealed class StationPlms
                 $"{station.Kind} station animation $84:{(int)station.AnimationList:X4} " +
                 $"frame {station.AnimationFrame} does not begin with a timed draw.");
         }
-        _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, draw, view);
+        _drawing.DrawPlmInstruction(level, streamer, slot.BlockIndex, draw, view);
         station.AnimationTimer = timer;
         station.InitialDrawCompleted = true;
         station.AnimationFrame = (station.AnimationFrame + 1) % station.AnimationFrameCount;
@@ -555,7 +561,7 @@ internal sealed class StationPlms
     }
 
     /// <summary>Runs the accepted save's two-frame loop until the saved-game message can be published.</summary>
-    private bool StepSaveStationAnimation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, StationPlmState station, PlmView view)
+    private bool StepSaveStationAnimation(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, StationPlmState station, PlmView view)
     {
         if (station.SavePhase is SaveStationPhase.Idle or
             SaveStationPhase.AwaitingConfirmation)
@@ -588,12 +594,12 @@ internal sealed class StationPlms
                 slot.BlockIndex));
             return true;
         }
-        DrawSaveStationFrame(bus, level, streamer, slot.BlockIndex, station, view);
+        DrawSaveStationFrame(level, streamer, slot.BlockIndex, station, view);
         return true;
     }
 
     /// <summary>Draws the next of the two four-frame electricity frames (`$84:AFFA`/`$AFFE`).</summary>
-    private void DrawSaveStationFrame(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, StationPlmState station, PlmView view)
+    private void DrawSaveStationFrame(RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, StationPlmState station, PlmView view)
     {
         StationAnimationList list = station.AnimationFrame == 0
             ? StationAnimationList.SaveFirstFrame
@@ -605,7 +611,7 @@ internal sealed class StationPlms
             throw new InvalidDataException(
                 $"Save-station animation list $84:{(int)list:X4} has timer {frame.Duration}, expected 4.");
         }
-        _drawing.DrawPlmInstruction(bus, level, streamer, blockIndex, frame.DrawPointer, view);
+        _drawing.DrawPlmInstruction(level, streamer, blockIndex, frame.DrawPointer, view);
         station.AnimationTimer = NativeCountdown.FromRaw(frame.Duration);
         station.AnimationFrame ^= 1;
         if (station.AnimationFrame == 0)
@@ -658,14 +664,14 @@ internal sealed class StationPlms
     }
 
     /// <summary>Draws the station access arm at its captured collision block in the short or extended pose.</summary>
-    private void DrawStationAccess(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, StationPlmState station, bool extended, PlmView view)
+    private void DrawStationAccess(RoomLevelData level, BackgroundTilemapStreamer streamer, StationPlmState station, bool extended, PlmView view)
     {
         StationAccessBehavior accessBehavior = station.AccessBehavior
             ?? throw new InvalidDataException("Station access has no BTS owner.");
         StationAccessPlmDefinition definition =
             StationAccessPlmDefinitions.Resolve(accessBehavior);
         ushort drawPointer = definition.DrawPointer(extended);
-        _drawing.DrawPlmInstruction(bus, level, streamer, station.AccessBlockIndex, drawPointer, view);
+        _drawing.DrawPlmInstruction(level, streamer, station.AccessBlockIndex, drawPointer, view);
     }
 
     /// <summary>Resident PLM state for station appearance, access-arm timing, and save confirmation.</summary>
@@ -674,8 +680,11 @@ internal sealed class StationPlms
         AreaId area,
         StationAnimationList animationList,
         StationAnimationList completedAnimationList,
-        int animationFrameCount)
+        int animationFrameCount) : PlmFamilyState
     {
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.Station;
+
         /// <summary>Determines whether activation opens the map, refills a resource, or starts a save.</summary>
         public StationKind Kind { get; } = kind;
         /// <summary>Area whose map-acquired or save-station state is affected.</summary>

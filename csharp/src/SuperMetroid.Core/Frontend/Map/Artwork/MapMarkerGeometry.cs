@@ -124,7 +124,7 @@ internal static class MapMarkerGeometry
                 throw new InvalidOperationException($"Undefined MapSpriteId {id}.");
         }
         var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
-        return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+        return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
             SnesObjAttributeWord.Create(tile, 0, priority, flips), true);
     }
 
@@ -145,7 +145,7 @@ internal static class MapMarkerGeometry
         {
             var basis = Part(id, index);
             var visual = parts[index];
-            if (visual is null || visual.OffsetX != basis.X.SignedOffset || visual.OffsetY != unchecked((sbyte)basis.Y) ||
+            if (visual is null || visual.OffsetX != basis.X.SignedOffset || visual.OffsetY != basis.Y.SignedOffset ||
                 visual.Size != 8 || visual.Palette is not null || visual.Priority != basis.Attributes.Priority ||
                 visual.TileColumn != basis.Attributes.TileNumber % 16 || visual.TileRow != basis.Attributes.TileNumber / 16 ||
                 visual.FlipX != basis.Attributes.FlipHorizontally || visual.FlipY != basis.Attributes.FlipVertically) return false;

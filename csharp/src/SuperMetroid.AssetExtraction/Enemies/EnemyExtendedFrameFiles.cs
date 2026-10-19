@@ -17,6 +17,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 [CpuBusBoundary("codec: ROM extended enemy spritemap component records → enemy extended frame files")]
 internal static class EnemyExtendedFrameFiles
 {
+    /// <summary>JSON options: Camel-case property names, indented output.</summary>
+    private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
+
     /// <summary>Exports declared extended OAM roots as editable JSON and reloads the result to validate the produced document.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
@@ -37,11 +40,7 @@ internal static class EnemyExtendedFrameFiles
                 DisplayFrames = EnemyExtendedFrameDefinitions.Frames
                     .ToDictionary(frame => frame.Name, frame => frame.Name,
                         StringComparer.Ordinal),
-            }, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true,
-            });
+            }, CamelCaseIndentedJson);
         _ = EnemyExtendedFrameCatalog.Load(new MemoryStream(json, writable: false));
         return json;
     }

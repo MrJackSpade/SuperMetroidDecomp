@@ -54,6 +54,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Compares installed enemy-projectile drawing compositions with native OAM and guards their runtime visual reads.</summary>
 internal static class EnemyTileArtworkProjectileSpritemapsVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>The graphics index the drawing fixtures give every projectile: palette five, tile offset $0004.</summary>
     private const ushort FixtureGraphicsIndex = 0x0a04;
 
@@ -141,7 +144,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         Suite(nameof(VerifyBurstVisuals), () => VerifyBurstVisuals(stock));
         Suite(nameof(VerifySharedProgramVisuals), () => VerifySharedProgramVisuals(stock));
-        ushort ceresOperand = RidleyFireballVisualDefinitions.PresentationKey(RidleyFireballVisualDefinitions.ProjectileFrames[0]);
+        ushort ceresOperand = EnemyProjectileFrames.ProgramFrameKey(RidleyFireballVisualDefinitions.ShownProjectileFrames[RidleyFireballVisualDefinitions.ProjectileFrames[0]]);
         OamBuffer nativeCeres = DrawReferenceProgramFrame(ceresOperand, bus,
             RoomEnemyProjectileKind.CeresRidleyFireball);
         OamBuffer installedCeres = DrawProgramFrame(stock, ceresOperand,
@@ -154,7 +157,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
              index < AlcoonFireballFrameDefinitions.PoseCount;
              index++)
         {
-            ushort operand = AlcoonFireballFrameDefinitions.PresentationKey(new(index));
+            ushort operand = EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]);
             OamBuffer nativeAlcoon = DrawReferenceProgramFrame(operand, bus,
                 RoomEnemyProjectileKind.AlcoonFireball);
             OamBuffer installedAlcoon = DrawProgramFrame(stock, operand,
@@ -245,10 +248,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             ("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup,
                 EnemyDeathProjectileFrameDefinitions.PoseCount - EnemyProjectilePresentationFrameDefinitions.DeathFrameCount,
-                index => EnemyDeathProjectileFrameDefinitions.PresentationKey(new(EnemyProjectilePresentationFrameDefinitions.DeathFrameCount + index))),
+                index => EnemyProjectileFrames.ProgramFrameKey(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(EnemyProjectilePresentationFrameDefinitions.DeathFrameCount + index)])),
             ("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
                 EnemyProjectilePresentationFrameDefinitions.DeathFrameCount,
-                index => EnemyDeathProjectileFrameDefinitions.PresentationKey(new(index))),
+                index => EnemyProjectileFrames.ProgramFrameKey(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(index)])),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in genericDeathFamilies)
@@ -269,37 +272,37 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             ("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebrisLight,
                 CeresFallingDebrisVisualDefinitions.Frames.Count,
-                index => CeresFallingDebrisVisualDefinitions.PresentationKey(CeresFallingDebrisVisualDefinitions.Frames[index])),
+                index => EnemyProjectileFrames.ProgramFrameKey(CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[CeresFallingDebrisVisualDefinitions.Frames[index]])),
             ("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity,
                 SaveStationElectricityFrameDefinitions.PoseCount,
-                index => SaveStationElectricityFrameDefinitions.PresentationKey(new(index))),
+                index => EnemyProjectileFrames.ProgramFrameKey(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)])),
             ("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
                 GunshipDustVisualDefinitions.Frames.Count,
-                index => GunshipDustVisualDefinitions.PresentationKey(GunshipDustVisualDefinitions.Frames[index])),
+                index => EnemyProjectileFrames.ProgramFrameKey(GunshipDustVisualDefinitions.ShownProjectileFrames[GunshipDustVisualDefinitions.Frames[index]])),
             ("falling spark", RoomEnemyProjectileKind.FallingSpark,
                 FallingSparkFrameDefinitions.PoseCount,
-                index => FallingSparkFrameDefinitions.PresentationKey(new(index))),
+                index => EnemyProjectileFrames.ProgramFrameKey(FallingSparkFrameDefinitions.ShownProjectileFrames[new(index)])),
             ("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite,
                 MagdolliteLavaFrameDefinitions.PoseCount,
-                index => MagdolliteLavaFrameDefinitions.PresentationKey(new(index))),
+                index => EnemyProjectileFrames.ProgramFrameKey(MagdolliteLavaFrameDefinitions.ShownProjectileFrames[new(index)])),
             ("Chozo/Tourian dust", RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
                 ChozoTourianDustFrameDefinitions.PoseCount,
-                index => ChozoTourianDustFrameDefinitions.PresentationKey(new(index))),
+                index => EnemyProjectileFrames.ProgramFrameKey(ChozoTourianDustFrameDefinitions.ShownProjectileFrames[new(index)])),
             ("eye-door sweat", RoomEnemyProjectileKind.EyeDoorSweat,
                 EyeDoorSweatFrameDefinitions.PoseCount,
-                index => EyeDoorSweatFrameDefinitions.PresentationKey(new(index))),
+                index => EnemyProjectileFrames.ProgramFrameKey(EyeDoorSweatFrameDefinitions.ShownProjectileFrames[new(index)])),
             ("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpitLeft,
                 KiHunterAcidSpitFrameDefinitions.PoseCount,
-                index => KiHunterAcidSpitFrameDefinitions.PresentationKey(new(index))),
+                index => EnemyProjectileFrames.ProgramFrameKey(KiHunterAcidSpitFrameDefinitions.ShownProjectileFrames[new(index)])),
             ("Fune/Namihe fireball", RoomEnemyProjectileKind.FuneFireball,
-                FuneNamiheFireballFrameDefinitions.PoseCount,
-                index => FuneNamiheFireballFrameDefinitions.PresentationKey(new(index))),
+                FuneNamiheFireballFrameToolingDefinitions.PoseCount,
+                index => EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
             ("Dragon fireball", RoomEnemyProjectileKind.DragonFireball,
                 DragonFireballFrameDefinitions.PoseCount,
-                index => DragonFireballFrameDefinitions.PresentationKey(new(index))),
+                index => EnemyProjectileFrames.ProgramFrameKey(DragonFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
             ("Powamp spike", RoomEnemyProjectileKind.PowampSpike,
                 PowampSpikeFrameDefinitions.PoseCount,
-                index => PowampSpikeFrameDefinitions.PresentationKey(new(index))),
+                index => EnemyProjectileFrames.ProgramFrameKey(PowampSpikeFrameDefinitions.ShownProjectileFrames[new(index)])),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in environmentAndAttackFamilies)
@@ -323,16 +326,16 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 TorizoFrameKey(TorizoProjectileFamily.StatueFragment)),
             ("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard,
                 MotherBrainGlassVisualDefinitions.ProjectileFrameCount,
-                index => MotherBrainGlassVisualDefinitions.PresentationKey(MotherBrainGlassVisualDefinitions.ProjectileFrames[index])),
+                index => EnemyProjectileFrames.ProgramFrameKey(MotherBrainGlassVisualDefinitions.ShownProjectileFrames[MotherBrainGlassVisualDefinitions.ProjectileFrames[index]])),
             ("Mother Brain hand beam", RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
                 MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
-                index => MotherBrainHandBeamVisualDefinitions.PresentationKey(MotherBrainHandBeamVisualDefinitions.ProjectileFrames[index])),
+                index => EnemyProjectileFrames.ProgramFrameKey(MotherBrainHandBeamVisualDefinitions.ShownProjectileFrames[MotherBrainHandBeamVisualDefinitions.ProjectileFrames[index]])),
             ("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube,
-                MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount,
-                MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordAddress),
+                MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordCount,
+                MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordAddress),
             ("Mother Brain turret", RoomEnemyProjectileKind.MotherBrainRoomTurret,
                 MotherBrainTurretVisualDefinitions.ProjectileFrameCount,
-                index => MotherBrainTurretVisualDefinitions.PresentationKey(MotherBrainTurretVisualDefinitions.ProjectileFrames[index])),
+                index => EnemyProjectileFrames.ProgramFrameKey(MotherBrainTurretVisualDefinitions.ShownProjectileFrames[MotherBrainTurretVisualDefinitions.ProjectileFrames[index]])),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in motherBrainAndStatueFamilies)
@@ -357,7 +360,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
 
         var installedSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0)) };
         var installedArrival = new CeresElevatorArrivalState(
-            NewEnemyProjectileVisualGuard(bus), installedSamus, installed);
+            installedSamus, installed);
         for (int frame = 0; frame < 3; frame++)
         {
             installedArrival.Step(installedSamus);
@@ -389,31 +392,30 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         SpriteVisualPart[] skree = document.Frames["skree_debris"];
         skree[0] = skree[0] with { OffsetX = skree[0].OffsetX + 1 };
         EnemyProjectilePresentationFrameDefinition editableProgramFrame =
-            EnemyProjectileFirstProgramFrameManifest.Frames[0];
+            EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames[0];
         SpriteVisualPart[] shared = (document.ProgramFrames ?? throw new InvalidOperationException("Verification requires document.ProgramFrames."))[editableProgramFrame.Name];
         shared[0] = shared[0] with { OffsetX = shared[0].OffsetX + 1 };
-        string ceresFrameName = EnemyProjectilePresentationFrameDefinitions.All
+        string ceresFrameName = EnemyProjectilePresentationFrameSets.All
             .Single(frame => frame.OperandAddress == ceresOperand).Name;
         SpriteVisualPart[] ceres = document.ProgramFrames[ceresFrameName];
         ceres[0] = ceres[0] with { OffsetX = ceres[0].OffsetX + 1 };
-        ushort alcoonOperand = AlcoonFireballFrameDefinitions
-            .PresentationKey(new(0));
-        string alcoonFrameName = EnemyProjectilePresentationFrameDefinitions.All
+        ushort alcoonOperand = EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(0)]);
+        string alcoonFrameName = EnemyProjectilePresentationFrameSets.All
             .Single(frame => frame.OperandAddress == alcoonOperand).Name;
         SpriteVisualPart[] alcoon = document.ProgramFrames[alcoonFrameName];
         alcoon[0] = alcoon[0] with { OffsetX = alcoon[0].OffsetX + 1 };
         ushort goldenMissileOperand = TorizoFrameKey(TorizoProjectileFamily.SuperMissile)(0);
-        string goldenMissileFrameName = EnemyProjectilePresentationFrameDefinitions.All
+        string goldenMissileFrameName = EnemyProjectilePresentationFrameSets.All
             .Single(frame => frame.OperandAddress == goldenMissileOperand).Name;
         SpriteVisualPart[] goldenMissile = document.ProgramFrames[goldenMissileFrameName];
         goldenMissile[0] = goldenMissile[0] with { OffsetX = goldenMissile[0].OffsetX + 1 };
         ushort goldenEyeOperand = TorizoFrameKey(TorizoProjectileFamily.EyeBeam)(0);
-        string goldenEyeFrameName = EnemyProjectilePresentationFrameDefinitions.All
+        string goldenEyeFrameName = EnemyProjectilePresentationFrameSets.All
             .Single(frame => frame.OperandAddress == goldenEyeOperand).Name;
         SpriteVisualPart[] goldenEye = document.ProgramFrames[goldenEyeFrameName];
         goldenEye[0] = goldenEye[0] with { OffsetX = goldenEye[0].OffsetX + 1 };
         ushort goldenEggOperand = TorizoFrameKey(TorizoProjectileFamily.Egg)(0);
-        string goldenEggFrameName = EnemyProjectilePresentationFrameDefinitions.All
+        string goldenEggFrameName = EnemyProjectilePresentationFrameSets.All
             .Single(frame => frame.OperandAddress == goldenEggOperand).Name;
         SpriteVisualPart[] goldenEgg = document.ProgramFrames[goldenEggFrameName];
         goldenEgg[0] = goldenEgg[0] with { OffsetX = goldenEgg[0].OffsetX + 1 };
@@ -425,7 +427,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameDefinitions.All
+                string frameName = EnemyProjectilePresentationFrameSets.All
                     .Single(frame => frame.OperandAddress == operand).Name;
                 SpriteVisualPart[] frame = document.ProgramFrames[frameName];
                 if (frame.Length == 0)
@@ -444,7 +446,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameDefinitions.All
+                string frameName = EnemyProjectilePresentationFrameSets.All
                     .Single(frame => frame.OperandAddress == operand).Name;
                 SpriteVisualPart[] frame = document.ProgramFrames[frameName];
                 if (frame.Length == 0)
@@ -463,7 +465,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameDefinitions.All
+                string frameName = EnemyProjectilePresentationFrameSets.All
                     .Single(frame => frame.OperandAddress == operand).Name;
                 SpriteVisualPart[] frame = document.ProgramFrames[frameName];
                 if (frame.Length == 0)
@@ -482,7 +484,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameDefinitions.All
+                string frameName = EnemyProjectilePresentationFrameSets.All
                     .Single(frame => frame.OperandAddress == operand).Name;
                 SpriteVisualPart[] frame = document.ProgramFrames[frameName];
                 if (frame.Length == 0)
@@ -602,7 +604,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.Current,
                 Frames = incompleteCurrent,
                 ProgramFrames = document.ProgramFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
             () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(invalidCurrentJson),
                 installed),
@@ -616,7 +618,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.Current,
                 Frames = document.Frames,
                 ProgramFrames = incompleteProgramFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
             () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(invalidProgramJson),
                 installed),
@@ -630,7 +632,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             {
                 Version = 1,
                 Frames = legacyFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
             () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(legacyJson)),
             "a partial version-one composition cannot stand alone as stock content");
@@ -652,7 +654,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             {
                 Version = 2,
                 Frames = document.Frames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionTwoJson);
         EnemyTileArtworkCatalog migratedV2 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -665,7 +667,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     editableProgramFrame.OperandAddress,
                     NewEnemyProjectileVisualGuard(bus)).LowTable),
             "version-two edits inherit stock shared-program frames");
-        var versionThreeFrames = EnemyProjectileFirstProgramFrameManifest.Frames
+        var versionThreeFrames = EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames
             .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionThreeJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -674,7 +676,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = 3,
                 Frames = document.Frames,
                 ProgramFrames = versionThreeFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionThreeJson);
         EnemyTileArtworkCatalog migratedV3 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -690,9 +692,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "version-three overrides inherit newly extracted Ceres Ridley frames");
         var alcoonOperands = Enumerable.Range(0,
                 AlcoonFireballFrameDefinitions.PoseCount)
-            .Select(index => AlcoonFireballFrameDefinitions.PresentationKey(new(index)))
+            .Select(index => EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]))
             .ToHashSet();
-        var versionFourFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
+        var versionFourFrames = EnemyProjectilePresentationFrameSets.PreGoldenTorizo
             
             .WhereToArray(frame => !alcoonOperands.Contains(frame.OperandAddress))
             .ToDictionary(frame => frame.Name,
@@ -703,7 +705,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreAlcoon,
                 Frames = document.Frames,
                 ProgramFrames = versionFourFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionFourJson);
         EnemyTileArtworkCatalog migratedV4 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -721,7 +723,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball).LowTable),
             "version-four overrides inherit newly extracted Alcoon fireball frames");
-        var versionFiveFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
+        var versionFiveFrames = EnemyProjectilePresentationFrameSets.PreGoldenTorizo
             .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionFiveJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -730,7 +732,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreGoldenTorizo,
                 Frames = document.Frames,
                 ProgramFrames = versionFiveFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionFiveJson);
         EnemyTileArtworkCatalog migratedV5 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -755,7 +757,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"version-five overrides inherit extracted Golden Torizo {family} frames");
         }
-        var versionSixFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg
+        var versionSixFrames = EnemyProjectilePresentationFrameSets.PreGoldenTorizoEgg
             .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionSixJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -764,7 +766,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg,
                 Frames = document.Frames,
                 ProgramFrames = versionSixFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionSixJson);
         EnemyTileArtworkCatalog migratedV6 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -782,7 +784,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
             "version-six overrides inherit extracted Golden Torizo egg frames");
-        var versionSevenFrames = EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects
+        var versionSevenFrames = EnemyProjectilePresentationFrameSets.PreTorizoEffects
             .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionSevenJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -791,7 +793,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreTorizoEffects,
                 Frames = document.Frames,
                 ProgramFrames = versionSevenFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionSevenJson);
         EnemyTileArtworkCatalog migratedV7 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -812,7 +814,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"version-seven overrides inherit Torizo {family} frames");
         }
-        var versionEightFrames = EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath
+        var versionEightFrames = EnemyProjectilePresentationFrameSets.PreGenericEnemyDeath
             .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionEightJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -821,7 +823,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreGenericEnemyDeath,
                 Frames = document.Frames,
                 ProgramFrames = versionEightFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionEightJson);
         EnemyTileArtworkCatalog migratedV8 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -843,7 +845,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"version-eight overrides inherit {family} frames");
         }
-        var versionNineFrames = EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack
+        var versionNineFrames = EnemyProjectilePresentationFrameSets.PreEnvironmentAndAttack
             .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionNineJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -852,7 +854,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreEnvironmentAndAttack,
                 Frames = document.Frames,
                 ProgramFrames = versionNineFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionNineJson);
         EnemyTileArtworkCatalog migratedV9 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -874,7 +876,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"version-nine overrides inherit {family} frames");
         }
-        var versionTenFrames = EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue
+        var versionTenFrames = EnemyProjectilePresentationFrameSets.PreMotherBrainAndStatue
             .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionTenJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -883,7 +885,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreMotherBrainAndStatue,
                 Frames = document.Frames,
                 ProgramFrames = versionTenFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionTenJson);
         EnemyTileArtworkCatalog migratedV10 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -906,13 +908,13 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 $"version-ten overrides inherit {family} frames");
         }
         Console.WriteLine($"  Enemy projectile visuals: " +
-            $"{EnemyProjectilePresentationFrameDefinitions.All.Length} catalogued timed/flicker frames " +
+            $"{EnemyProjectilePresentationFrameSets.All.Length} catalogued timed/flicker frames " +
             "match native OAM; installed draws, editable frames, and v1-v10 migrations pass.");
 
         void VerifySharedProgramVisuals(EnemyTileArtworkCatalog artwork)
         {
             ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> frames =
-                EnemyProjectilePresentationFrameDefinitions.All;
+                EnemyProjectilePresentationFrameSets.All;
             AssertTrue(frames.Length > 300,
                 "translated enemy projectile programs expose their complete catalogued visual frame set");
             foreach (EnemyProjectilePresentationFrameDefinition frame in frames)
@@ -938,7 +940,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                         nativeOam.ImageEquals(installedOam),
                         $"installed shared frame $86:{frame.OperandAddress:X4} matches ROM OAM at {originX:X4},{originY:X4}");
                 }
-                if (EnemyProjectileFirstProgramFrameManifest.Frames.Any(manifest => manifest.OperandAddress == frame.OperandAddress))
+                if (EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames.Any(manifest => manifest.OperandAddress == frame.OperandAddress))
                 {
                     AssertTrue(DrawReferenceProgramFrame(frame.OperandAddress, bus)
                             .LowTable.SequenceEqual(DrawSharedFrame(artwork,
@@ -996,12 +998,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawBurst(EnemyTileArtworkCatalog artwork, ushort program,
             ISnesAddressSpace source)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            enemies.BindFixtureBus(source);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
                 ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
-            var enemy = new RoomEnemySlot(0)
+            var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
                 VramTilesIndex = 0x0200,
@@ -1028,37 +1029,23 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawProgramFrame(EnemyTileArtworkCatalog artwork,
             ushort operand, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
-            // Typed programs (#641) present their frames by key; the rest still run their native lists.
-            if (TypedProgramKinds.Contains(kind) || EnemyProjectileTypedStarts.Initial(kind) is not null)
-                return DrawPresentedFrame(artwork, operand, source, kind);
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            enemies.BindFixtureBus(source);
-            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
-            slot.Kind = kind;
-            slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.GraphicsIndex = FixtureGraphicsIndex;
-            slot.InstructionPointer = unchecked((ushort)(operand - 2));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);
-            var oam = new OamBuffer();
-            oam.BeginFrame();
-            enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
-            return oam;
+            // Typed programs (#641) present their frames by key.
+            return TypedProgramKinds.Contains(kind) || EnemyProjectileTypedStarts.Initial(kind) is not null
+                ? DrawPresentedFrame(artwork, operand, source, kind)
+                : throw new InvalidOperationException($"Projectile {kind} plays no typed program.");
         }
 
         static OamBuffer DrawPresentedFrame(EnemyTileArtworkCatalog artwork,
             ushort presentationKey, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            enemies.BindFixtureBus(source);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.GraphicsIndex = FixtureGraphicsIndex;
-            // As the typed runner does when it shows a frame: the key selects the art, the blank map marks it drawn.
-            slot.PresentationOperandAddress = presentationKey;
-            slot.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
+            // As the typed runner does when it shows the program frame the key installs.
+            slot.Frame = EnemyProjectileSlotFrameAccess.ProgramFrameAt(presentationKey);
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
@@ -1068,9 +1055,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawNoobTubeShard(EnemyTileArtworkCatalog artwork,
             ISnesAddressSpace source)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            enemies.BindFixtureBus(source);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
             slot.Variable1 = 128;
@@ -1093,8 +1079,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 ushort low = unchecked((ushort)address);
                 return (SnesAddressMath.BankBase(address)) == 0x8d0000 ||
                     (SnesAddressMath.BankBase(address)) == 0x860000 &&
-                    (EnemyProjectilePresentationFrameDefinitions.Contains(low) ||
-                     EnemyProjectilePresentationFrameDefinitions.Contains(
+                    (EnemyProjectilePresentationFrameSetsTooling.Contains(low) ||
+                     EnemyProjectilePresentationFrameSetsTooling.Contains(
                          unchecked((ushort)(low - 1))) ||
                      low is (ushort)SkreeMetareeParticleOperand.Skree or
                         (ushort)SkreeMetareeParticleOperand.Metaree ||
@@ -1108,5 +1094,5 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
 
     /// <summary>The installed artwork key of each frame of Torizo projectile family <paramref name="family"/>, by index.</summary>
     private static Func<int, ushort> TorizoFrameKey(TorizoProjectileFamily family) =>
-        index => TorizoProjectileVisualDefinitions.PresentationKey(TorizoProjectileVisualDefinitions.Frames(family)[index]);
+        index => EnemyProjectileFrames.ProgramFrameKey(TorizoProjectileVisualDefinitions.ShownProjectileFrames[TorizoProjectileVisualDefinitions.Frames(family)[index]]);
 }

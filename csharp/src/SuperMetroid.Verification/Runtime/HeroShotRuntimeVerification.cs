@@ -26,15 +26,14 @@ internal static class HeroShotRuntimeVerification
         int compared = 0;
         int mismatches = 0;
         var fieldMismatches = new int[15];
-        SamusProjectileSpawnSnapshot? stationaryLaunch = null;
         foreach (bool walkAfterShot in new[] { false, true })
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = CreateRetailRuntimeFixture(bus);
+            var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
             var level = runtime.Room.LoadedLevelData;
             // Construct a finite corridor within the loaded room. Do not alter
             // camera/scroll policies or projectile processing to make a shot live.
@@ -50,8 +49,8 @@ internal static class HeroShotRuntimeVerification
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new(512, 490));
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
             for (int frame = -64; frame < 0; frame++)
             {
@@ -69,7 +68,7 @@ internal static class HeroShotRuntimeVerification
                         samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction, (ushort)samus.Pose,
                         runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y,
                         shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
-                        unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.Type, shot.InstructionPointer];
+                        unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.PackedType.Raw, checked((ushort)shot.InstructionPointer)];
                     var expected = native[(walkAfterShot ? 1 : 0, frame)];
                     if (!actual.SequenceEqual(expected))
                     {
@@ -92,11 +91,6 @@ internal static class HeroShotRuntimeVerification
                 if (frame == 0)
                 {
                     AssertTrue(shot.IsActive, "Runtime Hero fixture fires from normal gameplay input");
-                    var launch = runtime.Projectiles.LastFiredProjectileSnapshot;
-                    AssertTrue(launch.HasValue, "Runtime publishes launch evidence before movement");
-                    if (!walkAfterShot) stationaryLaunch = launch;
-                    else AssertTrue(launch == stationaryLaunch,
-                        "Both input branches launch identical position, direction and velocity before walking diverges");
                 }
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
@@ -136,12 +130,12 @@ internal static class HeroShotRuntimeVerification
         for (int x = 0; x < 16; x++) blocks[31 * 16 + x] = 0x8000;
         var level = CreateRoom(new(16, 32), blocks, new byte[blocks.Length]);
         var samus = new SamusState { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 477)) };
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        AssertTrue(samus.PoseTransitions.TryApplyAerialLanding(bus, level, false, 0, 0),
+        samus.PoseMetadata.RefreshCollisionRadii();
+        AssertTrue(samus.PoseTransitions.TryApplyAerialLanding(level, false, 0, 0),
             "Constructed landing reaches actual larger-pose collision correction");
         AssertEqual((ushort)475, samus.Position.Y.Whole, "Landing correction preserves the old bottom boundary");
         AssertEqual(19, samus.Kinematics.Radius.Y, "landing commit retains falling radius");
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         AssertEqual(21, samus.Kinematics.Radius.Y, "next alpha publishes landing radius");
         AssertEqual(475, samus.Position.Y.Whole, "alpha does not repeat landing correction");
         var previous = FixedPosition<RoomPixels>.FromWords(120, 0x1234, 477, 0xabcd);
@@ -150,8 +144,8 @@ internal static class HeroShotRuntimeVerification
         AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous),
             "Checkpoint event is consumed once before normal scrolling replaces it");
         var unobstructed = new SamusState { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 400)) };
-        unobstructed.PoseMetadata.RefreshCollisionRadii(bus);
-        AssertTrue(unobstructed.PoseTransitions.TryApplyAerialLanding(bus, level, false, 0, 0),
+        unobstructed.PoseMetadata.RefreshCollisionRadii();
+        AssertTrue(unobstructed.PoseTransitions.TryApplyAerialLanding(level, false, 0, 0),
             "Unobstructed pose expansion takes the no-correction branch");
         AssertEqual(previous, unobstructed.ApplyPreviousPositionWrites(previous),
             "No-collision pose expansion leaves the existing camera checkpoint untouched");

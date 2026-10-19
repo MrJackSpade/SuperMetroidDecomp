@@ -7,10 +7,14 @@ namespace SuperMetroid.Core.Audio;
 public readonly record struct MusicCommandDelay
 {
     /// <summary>Stores the effective countdown after native minimum-delay handling.</summary>
-    internal MusicCommandDelay(ushort frames) => Frames = frames;
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frames"/> is outside 0 through 65,535.</exception>
+    internal MusicCommandDelay(int frames) => Frames = Ensure.BetweenInclusive(0, ushort.MaxValue, frames);
 
-    /// <summary>Effective native countdown frames.</summary>
-    public ushort Frames { get; }
+    /// <summary>
+    /// Music-handler calls the command waits before dispatch, 0 through 65,535; zero marks an empty
+    /// queue slot. The music timer starts at this count.
+    /// </summary>
+    public int Frames { get; }
 
     /// <summary>The fixed delay installed by <c>QueueMusic_Delayed8</c>.</summary>
     public static MusicCommandDelay EightFrames { get; } =

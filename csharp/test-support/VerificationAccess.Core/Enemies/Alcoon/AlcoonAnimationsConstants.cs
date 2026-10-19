@@ -13,5 +13,5 @@ internal static class AlcoonAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params AlcoonProgram[] programs) =>
         programs.SelectMany(program => AlcoonAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => AlcoonFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => AlcoonFrameToolingDefinitions.Spritemap(step.Frame));
 }

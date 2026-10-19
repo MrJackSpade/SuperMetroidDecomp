@@ -20,18 +20,19 @@ internal static class GunshipMotionDefinitionsVerification
         Suite(nameof(VerifyGunshipBrakeAlgorithm), () => VerifyGunshipBrakeAlgorithm(rom));
         Suite(nameof(VerifyGunshipHoverTimerAlgorithm), () => VerifyGunshipHoverTimerAlgorithm(rom));
         Suite(nameof(VerifyGunshipHoverDeltaSelection), () => VerifyGunshipHoverDeltaSelection(rom));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort frame = 0; frame < 17; frame++)
         {
             short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2a622 + frame * 2)));
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(new GunshipMotionFixtureGuard(rom));
+            enemies.BindFixtureDefinitions(new GunshipMotionFixtureGuard(rom));
             var applyBrake = new Action<RoomEnemySlot, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
-            top.VariableE = frame;
+            var part = new GunshipPartState();
+            top.SetSpeciesState(part, part.ClearWithRecord);
+            part.LandingBrakeStep = frame;
             enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
             enemies.SlotTable.Slots[2].Position = enemies.SlotTable.Slots[2].Position.WithWholeY(0x2200);
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
@@ -55,20 +56,22 @@ internal static class GunshipMotionDefinitionsVerification
             sbyte expectedDelta = unchecked((sbyte)GunshipMotionDefinitionsRomByte(rom, address + 1));
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(new GunshipMotionFixtureGuard(rom));
+            enemies.BindFixtureDefinitions(new GunshipMotionFixtureGuard(rom));
             var stepBob = new Action<RoomEnemySlot>(enemies.GunshipBehavior.StepGunshipBob);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
-            top.VariableC = phase;
-            top.VariableD = 1;
+            var part = new GunshipPartState();
+            top.SetSpeciesState(part, part.ClearWithRecord);
+            part.BobPhase = phase;
+            part.BobTimer = 1;
             top.Position = top.Position.WithWholeY(0x2000);
             enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
             enemies.SlotTable.Slots[2].Position = enemies.SlotTable.Slots[2].Position.WithWholeY(0x2200);
 
             stepBob(top);
 
-            AssertEqual((ushort)expectedTimer, top.VariableD,
+            AssertEqual((int)expectedTimer, part.BobTimer,
                 $"gunship production bob timer {phase}");
-            AssertEqual(unchecked((ushort)((phase + 1) & 3)), top.VariableC,
+            AssertEqual((phase + 1) & 3, part.BobPhase,
                 $"gunship production bob phase {phase}");
             AssertEqual(unchecked((ushort)(0x2000 + expectedDelta)), top.Position.Y.Whole,
                 $"gunship production bob top Y {phase}");
@@ -128,7 +131,7 @@ internal static class GunshipMotionDefinitionsVerification
     /// The shared cartridge-read guard that also forwards enemy fixture lookups, so a sparse
     /// fixture's constructed population still reaches the production loader.
     /// </summary>
-    internal sealed class GunshipMotionFixtureGuard : CartridgeReadGuard, IRoomEnemyFixtureSource
+    internal sealed class GunshipMotionFixtureGuard : CartridgeReadGuard, IRoomEnemyDefinitionSource
     {
         /// <summary>Underlying source for fixture enemy definitions outside the forbidden motion tables.</summary>
         private readonly ISnesAddressSpace source;
@@ -144,21 +147,13 @@ internal static class GunshipMotionDefinitionsVerification
 
         /// <summary>Forwards enemy definitions to the fixture source or compiled catalog.</summary>
         public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
-            source is IRoomEnemyFixtureSource fixture
+            source is IRoomEnemyDefinitionSource fixture
                 ? fixture.ReadEnemyDefinition(pointer)
                 : RoomEnemyDefinitionCatalog.Get(pointer);
 
-        /// <summary>Forwards population data to the fixture source or compiled catalog.</summary>
-        public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
-            source is IRoomEnemyFixtureSource fixture
-                ? fixture.ReadEnemyPopulation(pointer)
-                : RoomEnemyPopulationDefinitions.Get(pointer);
-
-        /// <summary>Forwards graphics-set data to the fixture source or compiled catalog.</summary>
-        public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer) =>
-            source is IRoomEnemyFixtureSource fixture
-                ? fixture.ReadEnemyGraphicsSet(pointer)
-                : RoomEnemyGraphicsSetDefinitions.Get(pointer);
+    /// <summary>Uses the compiled falling-tube placement; this fixture constructs none.</summary>
+    public RoomEnemyPopulationRecord ReadFallingTubePopulation(SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTubePiece piece) =>
+        CompiledRoomEnemyDefinitions.Instance.ReadFallingTubePopulation(piece);
     }
 
     /// <summary>Runs gunship motion and post-Ceres landing checks against the retail ROM.</summary>

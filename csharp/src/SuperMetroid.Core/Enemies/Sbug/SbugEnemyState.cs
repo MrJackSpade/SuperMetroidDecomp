@@ -4,56 +4,55 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>
-/// Typed debugger view of Sbug's common-slot words and its parallel WRAM extension arrays.
-/// The names follow the behavior established by $A3:A14D-$A67C rather than the anonymous
-/// var00/var20 labels required by the raw decompilation.
+/// The state of an Sbug, with its parallel WRAM extension arrays. The names follow the behavior established by
+/// $A3:A14D-$A67C rather than the anonymous var00/var20 labels required by the raw decompilation. The values the
+/// cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class SbugEnemyState
 {
-    /// <summary>Live enemy slot backing Sbug's four common variables and population parameters.</summary>
+    /// <summary>The Sbug's slot, whose population parameters the state reads.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Projects Sbug's existing slot into named AI and motion state.</summary>
+    /// <summary>Creates the state for an Sbug's slot.</summary>
     internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Variable A; the long lifetime used only by behavior four.</summary>
-    public NativeCountdown StraightMovementTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableA);
-        internal set => _slot.VariableA = value.RawValue;
-    }
+    /// <summary>The long lifetime used only by behavior four.</summary>
+    public NativeCountdown StraightMovementTimer { get; internal set; }
 
-    /// <summary>Variable B; the current same-bank AI dispatch pointer.</summary>
-    public SbugEnemyFunction Function
-    {
-        get => (SbugEnemyFunction)_slot.VariableB;
-        internal set => _slot.VariableB = (ushort)value;
-    }
-
-    /// <summary>Variable C; a standard-mathematics byte angle retained in a word.</summary>
-    public ushort CustomAngle
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Variable F; the 32-frame segment/wait countdown.</summary>
-    public NativeCountdown MovementTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableF);
-        internal set => _slot.VariableF = value.RawValue;
-    }
-
-    /// <summary>Parameter one low byte, multiplied by the ROM trigonometry tables.</summary>
-    public byte Speed => unchecked((byte)_slot.Parameter1);
+    /// <summary>The current same-bank AI dispatch pointer; none once a kill has emptied the record.</summary>
+    public SbugEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Parameter one high byte. Zero points right, $40 up, $80 left, and $C0 down.
+    /// The custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up). The cartridge
+    /// adds random turns to a whole word whose high byte nothing steers by; the heading is its low byte. It changes
+    /// only through <see cref="FaceCustomHeading"/> and <see cref="TurnCustomHeading"/>.
     /// </summary>
-    public byte InitialAngle => SnesLittleEndian.HighByte(_slot.Parameter1);
+    public SnesAngle CustomHeading { get; private set; }
 
-    /// <summary>Parameter two low byte; both-axis proximity needed for activation.</summary>
-    public byte ActivationRadius => unchecked((byte)_slot.Parameter2);
+    /// <summary>Sets the custom heading outright, as the toward- and away-from-Samus activations do.</summary>
+    internal void FaceCustomHeading(SnesAngle heading) => CustomHeading = heading;
+
+    /// <summary>
+    /// Turns the custom heading by <paramref name="tableUnits"/> 256ths of a turn (0 through 255), wrapping around the
+    /// turn.
+    /// </summary>
+    internal void TurnCustomHeading(int tableUnits) =>
+        CustomHeading = CustomHeading.AddTableUnits(Ensure.BetweenInclusive(0, byte.MaxValue, tableUnits));
+
+    /// <summary>The 32-frame segment/wait countdown.</summary>
+    public NativeCountdown MovementTimer { get; internal set; }
+
+    /// <summary>Parameter one's low byte, 0 through 255: the speed the trigonometry tables are multiplied by.</summary>
+    public int Speed => SnesLittleEndian.LowByte(_slot.Parameter1);
+
+    /// <summary>
+    /// Parameter one's high byte as a heading: a table index of zero points right, 64 up, 128 left and 192 down.
+    /// </summary>
+    public SnesAngle InitialAngle => SnesAngle.FromTableIndex(SnesLittleEndian.HighByte(_slot.Parameter1));
+
+    /// <summary>Parameter two's low byte, 0 through 255: the pixel distance Samus must be within on both axes for activation.</summary>
+    public int ActivationRadius => SnesLittleEndian.LowByte(_slot.Parameter2);
 
     /// <summary>Parameter two high byte; the activation-table selector.</summary>
     public SbugActivationBehavior ActivationBehavior =>
@@ -76,14 +75,14 @@ public sealed class SbugEnemyState
     /// <summary>Current signed 16.16 vertical displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
     public SbugVelocityWords CustomYVelocity { get; internal set; }
 
-    /// <summary>Even byte offsets into the eight-entry instruction-pointer table.</summary>
-    public ushort ForwardInstructionIndex { get; internal set; }
-    /// <summary>Spawn-computed even byte offset $00-$0E into <c>$A3:A111</c> for angle <c>InitialAngle - $20</c>; used by the left zigzag leg.</summary>
-    public ushort LeftInstructionIndex { get; internal set; }
-    /// <summary>Spawn-computed even byte offset $00-$0E into <c>$A3:A111</c> for angle <c>InitialAngle + $20</c>; used by the right zigzag leg.</summary>
-    public ushort RightInstructionIndex { get; internal set; }
-    /// <summary>Custom-direction byte offset into <c>$A3:A111</c>; normally even $00-$0E, but reversal preserves the native <c>(index + 4) &amp; $0007</c> mask.</summary>
-    public ushort CustomInstructionIndex { get; internal set; }
+    /// <summary>Spawn-computed facing, 0 through 7 counter-clockwise from right, for the spawn heading; selects the forward loop.</summary>
+    public int ForwardFacing { get; internal set; }
+    /// <summary>Spawn-computed facing, 0 through 7, for the spawn heading less an eighth of a turn; used by the left zigzag leg.</summary>
+    public int LeftFacing { get; internal set; }
+    /// <summary>Spawn-computed facing, 0 through 7, for the spawn heading plus an eighth of a turn; used by the right zigzag leg.</summary>
+    public int RightFacing { get; internal set; }
+    /// <summary>Facing, 0 through 7, for the custom heading; a reversal folds it into the first four facings as the cartridge does.</summary>
+    public int CustomFacing { get; internal set; }
 
     /// <summary>The loop most recently requested by direction-selection code.</summary>
     internal SbugProgram? RequestedProgram { get; set; }
@@ -93,4 +92,13 @@ public sealed class SbugEnemyState
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<SbugProgram> Program { get; set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        StraightMovementTimer = NativeCountdown.Start(0);
+        Function = null;
+        CustomHeading = SnesAngle.FromTableIndex(0);
+        MovementTimer = NativeCountdown.Start(0);
+    }
 }

@@ -38,11 +38,11 @@ internal static class RenderingAndRoomsVerification
 /// seeded bytes. This preserves native padding behavior without a cartridge reader.
 /// </summary>
 private static RoomScrollGrid LoadExplicitScrollFixture(
-    TestAddressSpace bus, ReadOnlySpan<byte> source, Extent16<RoomScreens> size)
+    ReadOnlySpan<byte> source, Extent16<RoomScreens> size)
 {
     byte[] storage = new byte[RoomScrollGrid.StorageByteCount];
     source[..Math.Min(source.Length, storage.Length)].CopyTo(storage);
-    return RoomScrollGrid.LoadCompiled(bus, storage, size);
+    return RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), storage, size);
 }
 
 /// <summary>An explicit scroll table whose 50 copied bytes are all blue (one).</summary>
@@ -127,9 +127,9 @@ internal static void VerifyHudStateAndBg3Rendering()
     // State-$05's direct BG3-page DMA is part of HUD initialization even though only its
     // first four rows contain the visible HUD. The remaining rows must name blank
     // character $6F; zero names the orange `1` glyph and becomes visible above water/acid.
-    var runtime = CreateRetailRuntimeFixture(bus);
+    var runtime = CreateRetailRuntimeFixture();
     runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-    runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+    runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
     AssertEqual(RoomFxRomData.Layer3.PaddingTilemapWord,
         runtime.Vram.ReadWord(RoomFxRomData.Layer3.ClearDestinationWord),
         "gameplay BG3 first padding word uses cartridge blank character");
@@ -146,12 +146,12 @@ internal static void VerifyHudStateAndBg3Rendering()
     var hud = new HudState();
     hud.BindPresentation(GameplayHudPresentation.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus))));
-    hud.Initialize(bus, HudSnapshot.CeresDebug);
+    hud.Initialize(HudSnapshot.CeresDebug);
     AssertEqual(0x2d09, hud.Tiles[0x8c / 2], "HUD health tens digit from ROM table");
     AssertEqual(0x2d09, hud.Tiles[0x8e / 2], "HUD health ones digit from ROM table");
 
     var damagedSamus = new SamusState { Health = 94, MaxHealth = 99 };
-    hud.UpdateGameplayCounters(bus, damagedSamus);
+    hud.UpdateGameplayCounters(damagedSamus);
     AssertEqual(0x2d09, hud.Tiles[0x8c / 2], "live HUD damage tens digit");
     AssertEqual(0x2d04, hud.Tiles[0x8e / 2], "live HUD damage ones digit");
 
@@ -160,17 +160,17 @@ internal static void VerifyHudStateAndBg3Rendering()
     // proves both palette directions and the one-frame QueueSfx publication.
     damagedSamus.MaxMissiles = 5;
     damagedSamus.Missiles = 5;
-    damagedSamus.SelectedHudItem = 1;
-    hud.UpdateGameplayCounters(bus, damagedSamus);
+    damagedSamus.SelectedHudItem = HudItem.Missile;
+    hud.UpdateGameplayCounters(damagedSamus);
     AssertEqual(0x1000, hud.Tiles[0x14 / 2] & 0x1c00,
         "live HUD selects missile icon with palette four");
     AssertTrue(hud.SelectionSoundRequestedThisFrame,
         "live HUD publishes cartridge selection sound on change");
-    hud.UpdateGameplayCounters(bus, damagedSamus);
+    hud.UpdateGameplayCounters(damagedSamus);
     AssertTrue(!hud.SelectionSoundRequestedThisFrame,
         "stable HUD selection does not repeat the selection sound");
-    damagedSamus.SelectedHudItem = 0;
-    hud.UpdateGameplayCounters(bus, damagedSamus);
+    damagedSamus.SelectedHudItem = HudItem.Beam;
+    hud.UpdateGameplayCounters(damagedSamus);
     AssertEqual(0x1400, hud.Tiles[0x14 / 2] & 0x1c00,
         "live HUD restores deselected missile icon to palette five");
 
@@ -182,13 +182,13 @@ internal static void VerifyHudStateAndBg3Rendering()
 
     var mapSystem = new Bank80SystemState();
     mapSystem.SetAreaMapAcquired(0);
-    hud.UpdateMinimap(bus, mapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(mapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(new Position16<MapTiles>(27, 5), hud.MinimapCenter, "minimap Landing Site absolute tile");
     AssertEqual(0x2c99, hud.Tiles[26], "minimap top-left unvisited map-station tile");
     AssertEqual(0x28bb, hud.Tiles[60], "minimap explored center tile");
 
     var noMapSystem = new Bank80SystemState();
-    hud.UpdateMinimap(bus, noMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(noMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(0x3cbb, hud.Tiles[60], "minimap blinking center palette");
     AssertEqual(0x2c1f, hud.Tiles[26], "minimap hides unvisited tile without map station");
 
@@ -204,10 +204,10 @@ internal static void VerifyHudStateAndBg3Rendering()
         ushort savedAbove = ReadFixtureMapWord(bus, aboveTile);
         SeedFixtureMapWord(bus, currentTile, slope);
         SeedFixtureMapWord(bus, aboveTile, 0x0029);
-        hud.UpdateMinimap(bus, slopeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new((byte)x, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+        hud.UpdateMinimap(slopeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new((byte)x, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
         AssertTrue(slopeSystem.IsMapTileExplored(0, new(checked((ushort)x), 4)), "sloped hallway explores its upper corner on either map page");
         AssertEqual(0x2c1f, hud.Tiles[28], "upper corner remains blank on native discovery update");
-        hud.UpdateMinimap(bus, slopeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new((byte)x, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+        hud.UpdateMinimap(slopeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new((byte)x, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
         AssertEqual(0x2829, hud.Tiles[28], "upper corner displays its explored palette on following update");
         SeedFixtureMapWord(bus, currentTile, savedCurrent);
         SeedFixtureMapWord(bus, aboveTile, savedAbove);
@@ -218,7 +218,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     Position16<MapTiles> ordinaryTile = new(30, 5);
     ushort ordinarySaved = ReadFixtureMapWord(bus, ordinaryTile);
     SeedFixtureMapWord(bus, ordinaryTile, 0x0029);
-    hud.UpdateMinimap(bus, ordinaryCornerSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(30, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(ordinaryCornerSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(30, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, new(30, 4)), "ordinary map character does not explore upper corner");
     SeedFixtureMapWord(bus, ordinaryTile, ordinarySaved);
 
@@ -230,21 +230,21 @@ internal static void VerifyHudStateAndBg3Rendering()
     const int publicHudX = 26;
     ClearFixtureMapStationBit(bus, new(secretHudX, secretHudY));
     var overrideSystem = new Bank80SystemState();
-    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Public, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Public, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual((ushort)MapTileWords.HudBlank, hud.Tiles[26],
         "Public HUD override excludes cartridge secret-only cell");
     AssertEqual(0x2c00, hud.Tiles[27] & 0x3c00,
         "Public HUD override reveals station cell as unentered");
-    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(0x2c00, hud.Tiles[26] & 0x3c00,
         "Secret HUD override reveals cartridge secret-only cell as unentered");
     overrideSystem.MarkExploredMapTile(AreaId.Crateria, new(secretHudX, secretHudY));
-    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(0x2800, hud.Tiles[26] & 0x3c00,
         "Secret HUD keeps entered secret cell visually distinct");
     AssertEqual(0x2c00, hud.Tiles[27] & 0x3c00,
         "Secret HUD leaves override-only public cell unentered");
-    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.None, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.None, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual((ushort)MapTileWords.HudBlank, hud.Tiles[27],
         "returning HUD override to None immediately hides unentered public cell");
     AssertTrue(!overrideSystem.HasAreaMap(AreaId.Crateria),
@@ -261,7 +261,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     ResetFixtureMapStationBitsToSingleTile(bus, new(rightPageNeighborX, rightPageCenterY));
     var rightPageSystem = new Bank80SystemState();
     rightPageSystem.SetAreaMapAcquired(AreaId.Crateria);
-    hud.UpdateMinimap(bus, rightPageSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(34, 18), RoomSize = new(2 * 16, 16), Samus = new(0x0080, 0x0080), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(rightPageSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(34, 18), RoomSize = new(2 * 16, 16), Samus = new(0x0080, 0x0080), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(new Position16<MapTiles>(34, rightPageCenterY), hud.MinimapCenter, "right-page minimap absolute tile");
     AssertEqual(0x2e63, hud.Tiles[61],
         "right-page minimap reads the same eastern cell as pause map");
@@ -270,11 +270,11 @@ internal static void VerifyHudStateAndBg3Rendering()
 
     var queue = new VramWriteQueue();
     var vram = new SnesVram();
-    hud.QueueUpload(bus, queue);
+    hud.QueueUpload(queue);
     AssertEqual(HudState.MutableByteCount, (int)queue.Entries[0].SizeInBytes, "HUD queue transfer size");
-    AssertEqual(HudState.WorkRamAddress, queue.Entries[0].SourceAddress, "HUD queue WRAM source");
-    AssertEqual(HudState.VramDestination, queue.Entries[0].EncodedVramDestination, "HUD queue VRAM destination");
-    queue.DrainTo(vram, ReferenceMutableMemory.From(bus));
+    AssertEqual(HudState.WorkRamAddress, queue.Entries[0].SourceAddress, "HUD queue keeps the native $7E:C608 source on its record");
+    AssertEqual(HudState.VramDestination, queue.Entries[0].Destination.Encoded, "HUD queue VRAM destination");
+    queue.DrainTo(vram);
     AssertEqual(0x0f, vram.ReadByte(HudState.VramDestination * 2), "HUD first tilemap low byte reaches VRAM");
     AssertEqual(0x2c, vram.ReadByte(HudState.VramDestination * 2 + 1), "HUD first tilemap high byte reaches VRAM");
 
@@ -429,10 +429,9 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     for (int index = 6; index < RoomScrollGrid.StorageByteCount; index++)
         source[index] = (byte)(0x80 + index);
 
-    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
+    RoomScrollGrid grid = LoadExplicitScrollFixture(source, new Extent16<RoomScreens>(3, 2));
     AssertEqual(0x86, grid.Storage[6], "scroll loader retains first nonlogical byte");
     AssertEqual(0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
-    AssertEqual(0x86, new RoomScrollMemory(bus).Zones[6], "scroll loader mirrors WRAM padding");
 
     // Single Chamber's neighboring room uses a four-byte explicit table for a 4x2 room.
     // The native fixed-size copy makes the following room header ($1F,$02,$1D,$04) its
@@ -442,7 +441,6 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     var shortTableBus = new TestAddressSpace();
     byte[] shortTableAndFollowingHeader = [2, 2, 2, 2, 0x1f, 0x02, 0x1d, 0x04];
     RoomScrollGrid shortTableGrid = LoadExplicitScrollFixture(
-        shortTableBus,
         shortTableAndFollowingHeader,
         new Extent16<RoomScreens>(4, 2));
     AssertEqual(0x1f, shortTableGrid.ReadStorage(4),
@@ -491,7 +489,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorSetupCode.DoorASM_Scroll_0_Green_1_Blue,
-        DoorPointers.ConstructionZoneFromFirstMissile,
+        DoorDefinitions.Get(DoorPointers.ConstructionZoneFromFirstMissile).Name,
         grid);
     AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(0),
         "$8F:BE25 writes Construction Zone screen zero green");
@@ -500,7 +498,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetStorage(6, RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorSetupCode.DoorCode_Scroll6_Green,
-        DoorPointers.ParlorFromClimb,
+        DoorDefinitions.Get(DoorPointers.ParlorFromClimb).Name,
         grid);
     AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(6),
         "$8F:B981 writes early-route screen six green");
@@ -512,7 +510,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetStorage(7, RoomScrollState.Blue);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorSetupCode.DoorASM_FromCeresElevatorShaft,
-        DoorPointers.FromCeresElevatorShaft,
+        DoorDefinitions.Get(DoorPointers.FromCeresElevatorShaft).Name,
         grid);
     AssertEqual((byte)RoomScrollState.Blue, grid.ReadStorage(7),
         "$8F:E513 preserves destination scroll storage");
@@ -528,7 +526,7 @@ internal static void VerifyMovedSamusCameraTracking()
 {
     var bus = new TestAddressSpace();
     byte[] source = AllBlueExplicitScrollTable();
-    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
+    RoomScrollGrid grid = LoadExplicitScrollFixture(source, new Extent16<RoomScreens>(3, 2));
     var camera = new ScrollBoundaryCamera(grid);
 
     // Facing right, normal forward movement, distance slot zero targets Samus X-$60.
@@ -539,7 +537,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
-        new HorizontalCameraContext(0, MovementType: 0, XAccelerationMode: 0, PoseXDirection: 8, CameraDistanceIndex: 0));
+        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
     AssertEqual(108, camera.IdealPosition.X, "camera facing-right ideal X");
     AssertEqual(5, camera.Speed.X.WholeWord, "camera X distance includes one pixel");
     AssertEqual(105, camera.PixelPosition.X, "camera X follows by calculated speed");
@@ -552,7 +550,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
-        new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
+        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
     AssertEqual(1, camera.Speed.X.WholeWord, "camera fixed X speed integer");
     AssertEqual(0xc000, camera.Speed.X.Fraction, "camera fixed X speed fraction");
     AssertEqual(101, camera.PixelPosition.X, "camera fixed X position integer");
@@ -581,7 +579,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
+        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
     AssertEqual(1, camera.Speed.X.WholeWord, "stationary camera X speed still includes one");
     AssertEqual(0x0023, camera.PixelPosition.X, "$80:A528 red-cell rightward drift");
 
@@ -591,7 +589,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
+        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
     AssertEqual(0, camera.PixelPosition.X, "$80:A528 adjacent-red horizontal rounding");
 
     // The time-frozen flag short-circuits autoscrolling after bank $90 has calculated the
@@ -601,7 +599,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0),
+        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking),
         timeIsFrozen: true);
     AssertEqual(0x0020, camera.PixelPosition.X, "$80:A528 time-frozen return");
 
@@ -610,7 +608,6 @@ internal static void VerifyMovedSamusCameraTracking()
     // a zero byte there makes the blue bottom row clamp to Y=$0400 without an array error.
     var bottomEdgeBus = new TestAddressSpace();
     RoomScrollGrid bottomEdgeGrid = LoadExplicitScrollFixture(
-        bottomEdgeBus,
         source,
         new Extent16<RoomScreens>(9, 5));
     var bottomEdgeCamera = new ScrollBoundaryCamera(bottomEdgeGrid);
@@ -625,7 +622,6 @@ internal static void VerifyMovedSamusCameraTracking()
     // three-row grid leaves the cell below blue so the candidate remains unrounded.
     var verticalBus = new TestAddressSpace();
     RoomScrollGrid verticalGrid = LoadExplicitScrollFixture(
-        verticalBus,
         source,
         new Extent16<RoomScreens>(3, 3));
     verticalGrid.SetLogicalState(new(0, 0), RoomScrollState.RedBoundary);
@@ -639,6 +635,28 @@ internal static void VerifyMovedSamusCameraTracking()
     AssertEqual(1, verticalCamera.Speed.Y.WholeWord, "stationary camera Y speed still includes one");
     AssertEqual(0x0023, verticalCamera.PixelPosition.Y, "$80:A731 red-cell downward drift");
 
+    // Whether Samus is knocked back, and her native acceleration-mode and pose-facing values, decode to the context the
+    // camera reads: a knockback reverses the target, only the turn mode keeps the old momentum, and
+    // the pose byte is the facing.
+    AssertTrue(new HorizontalCameraContext(true, SamusMovementType.Standing, 0, 8, CameraDistanceMode.NormalTracking).KnockedBack,
+        "a knockback reverses the camera target");
+    AssertTrue(new HorizontalCameraContext(false, SamusMovementType.Standing, 1, 8, CameraDistanceMode.NormalTracking).TurningAgainstMomentum,
+        "acceleration mode one is the momentum-keeping turn");
+    AssertTrue(!new HorizontalCameraContext(false, SamusMovementType.Standing, SamusHorizontalAccelerationModes.Decelerating, 8,
+        CameraDistanceMode.NormalTracking).TurningAgainstMomentum, "plain deceleration does not reverse the camera target");
+    AssertTrue(new HorizontalCameraContext(false, SamusMovementType.Standing, 0, 4, CameraDistanceMode.NormalTracking).FacesLeft,
+        "pose facing four is left");
+    AssertTrue(!new HorizontalCameraContext(false, SamusMovementType.Standing, 0, 0, CameraDistanceMode.NormalTracking).FacesLeft,
+        "a front-view pose takes the right-facing target");
+
+    // The scrollers are room-header bytes: the whole byte range is kept, anything outside it is rejected.
+    AssertEqual(byte.MaxValue, new VerticalCameraContext(SamusVerticalDirection.None, byte.MaxValue, byte.MaxValue).DownScroller,
+        "the largest down-scroller is kept");
+    AssertThrows<ArgumentOutOfRangeException>(() => _ = new VerticalCameraContext(SamusVerticalDirection.None, byte.MaxValue + 1, 0),
+        "an up-scroller above a byte is rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => _ = new VerticalCameraContext(SamusVerticalDirection.None, 0, -1),
+        "a negative down-scroller is rejected");
+
     Console.WriteLine("  Camera: bank $90 tracking and bank $80 stationary autoscroll agree.");
 }
 
@@ -651,7 +669,7 @@ internal static void VerifyBackgroundScrollState()
     var state = new BackgroundScrollState
     {
         Layer1Position = new(0x1234, 0x0200),
-        Layer2Scroll = new(0x80, 0), // Horizontal 128/256 = one-half parallax.
+        Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0), // Horizontal 128/256 = one-half parallax.
         Bg1Offset = new(0x0010, unchecked((short)0xfff0)),
         Bg2Offset = new(3, 4),
     };
@@ -688,7 +706,7 @@ internal static void VerifyBackgroundScrollState()
     // low bit suppresses both BG2 stream directions.
     ushort oldLayer2X = state.Layer2Position.X;
     ushort oldBg2X = state.Bg2Scroll.X;
-    state.Layer2Scroll = new(1, 1);
+    state.Layer2Scroll = Layer2ScrollModes.FromHeader(1, 1);
     state.Layer1Position = new(0x1300, 0x0300);
     requests = state.StepScrolling();
     AssertEqual(oldLayer2X, state.Layer2Position.X, "fixed BG2 X position remains unchanged");
@@ -709,7 +727,7 @@ internal static void VerifyBackgroundScrollState()
 
     var destinationParallax = new BackgroundScrollState
     {
-        Layer2Scroll = new(0x80, 0x40),
+        Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0x40),
     };
     destinationParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0200), new(0x0400, 0x0200));
     AssertEqual((ushort)0x0200, destinationParallax.Layer2Position.X,
@@ -720,7 +738,7 @@ internal static void VerifyBackgroundScrollState()
         "door setup publishes the whole destination layer-one position");
 
     // Upward doors derive BG2 from destination+$1F while layer one keeps the destination.
-    var upwardParallax = new BackgroundScrollState { Layer2Scroll = new(0x80, 0x40) };
+    var upwardParallax = new BackgroundScrollState { Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0x40) };
     upwardParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0220), new(0x0400, 0x021f));
     AssertEqual(new Position16<Bg2Pixels>(0x0200, 0x0087), upwardParallax.Layer2Position,
         "upward door setup calculates BG2 from its separate parallax basis");
@@ -839,19 +857,19 @@ internal static void VerifyLevelBlockTilemapExpansion()
         RoomCollisionType.HorizontalExtension);
 
     AssertEqual(
-        new ExpandedBlockTiles(0x0123, 0x4567, 0x89ab, 0xcdef),
+        new ExpandedBlockTiles((ushort)0x0123, (ushort)0x4567, (ushort)0x89ab, (ushort)0xcdef),
         LevelBlockTilemapExpander.Expand(unflipped, definitions),
         "unflipped block expansion");
     AssertEqual(
-        new ExpandedBlockTiles(0x0567, 0x4123, 0x8def, 0xc9ab),
+        new ExpandedBlockTiles((ushort)0x0567, (ushort)0x4123, (ushort)0x8def, (ushort)0xc9ab),
         LevelBlockTilemapExpander.Expand(horizontalSlope, definitions),
         "horizontally flipped slope expansion ignores collision nibble");
     AssertEqual(
-        new ExpandedBlockTiles(0x09ab, 0x4def, 0x8123, 0xc567),
+        new ExpandedBlockTiles((ushort)0x09ab, (ushort)0x4def, (ushort)0x8123, (ushort)0xc567),
         LevelBlockTilemapExpander.Expand(verticalExtension, definitions),
         "vertically flipped extension expansion ignores collision nibble");
     AssertEqual(
-        new ExpandedBlockTiles(0x0def, 0x49ab, 0x8567, 0xc123),
+        new ExpandedBlockTiles((ushort)0x0def, (ushort)0x49ab, (ushort)0x8567, (ushort)0xc123),
         LevelBlockTilemapExpander.Expand(doubleFlipHorizontalExtension, definitions),
         "doubly flipped horizontal extension expansion ignores collision nibble");
 
@@ -881,8 +899,8 @@ internal static void VerifyRoomLevelData()
 
     RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
     AssertEqual(4, block.Index, "room collision row-major index");
-    AssertEqual(0xe002, block.LevelWord, "room collision level word");
-    AssertEqual(0x22, block.Behavior, "room collision parallel BTS byte");
+    AssertEqual(0xe002, block.PackedWord.Raw, "room collision level word");
+    AssertEqual(0x22, block.Bts.Value, "room collision parallel BTS byte");
     AssertEqual(RoomCollisionType.GrappleBlock, block.CollisionType,
         "room collision high-nibble dispatcher type");
     AssertEqual(2, block.VisualBlockIndex, "room collision visual block index");
@@ -954,33 +972,33 @@ internal static void VerifyCartridgeRoomStateSelection()
     // All five state headers may remain zero-filled: State.Pointer alone proves which
     // branch won, and TestAddressSpace returns zero for every unwritten payload byte.
     AssertEqual(defaultStatePointer,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer),
         "room selector default inline state");
 
     var eventBytes = new byte[Bank80SystemState.EventByteCount];
     eventBytes[0] = 1;
     AssertEqual((ushort)0x9100,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
-            new RoomStateSelectionContext(eventBytes, BossBits.None, false, false)).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
+            new RoomStateSelectionContext(eventBytes, BossBits.None, false, false)),
         "room selector event branch");
     AssertEqual((ushort)0x9120,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.AreaTorizo, false, false)).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.AreaTorizo, false, false)),
         "room selector boss branch");
     AssertEqual((ushort)0x9140,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, true, false)).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, true, false)),
         "room selector Morph Ball and missiles branch");
     AssertEqual((ushort)0x9160,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, false, true)).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, false, true)),
         "room selector power-bomb branch");
 
     // The interpreter must return at the first successful command; later facts do not
     // override the event-selected pointer merely because they are also true.
     AssertEqual((ushort)0x9100,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
-            new RoomStateSelectionContext(eventBytes, BossBits.AreaTorizo, true, true)).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
+            new RoomStateSelectionContext(eventBytes, BossBits.AreaTorizo, true, true)),
         "room selector preserves cartridge priority");
 
     // The Tourian-specific routine owns its boss-bit operand in executable code rather
@@ -989,12 +1007,12 @@ internal static void VerifyCartridgeRoomStateSelection()
     SeedRoomStateSelectorWords(bus, roomPointer,
         (ushort)RoomStateSelectorCode.MainAreaBossIsDead, 0x9180, (ushort)RoomStateSelectorCode.Finish);
     AssertEqual((ushort)0x9180,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
             new RoomStateSelectionContext(
                 Array.Empty<byte>(),
                 RoomStateSelectorOperands.MainAreaBoss,
                 false,
-                false)).State.Pointer,
+                false)),
         "room selector main-area boss implicit operand");
 
     // Known unused callbacks remain deliberately unsupported, while an arbitrary word is
@@ -1002,11 +1020,11 @@ internal static void VerifyCartridgeRoomStateSelection()
     // through to a fabricated default state.
     SeedRoomStateSelectorWords(bus, roomPointer, (ushort)RoomStateSelectorCode.UnusedDoor);
     AssertThrows<NotSupportedException>(
-        () => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
+        () => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer),
         "known unused room selector fails loudly");
     SeedRoomStateSelectorWords(bus, roomPointer, 0xdead);
     AssertThrows<InvalidDataException>(
-        () => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
+        () => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer),
         "unknown room selector fails loudly");
 
     Console.WriteLine(
@@ -1190,7 +1208,7 @@ internal static void VerifyFourBitBackgroundRendering()
     var scroll = new BackgroundScrollState
     {
         Layer1Position = new(0x0120, 0x0230),
-        Layer2Scroll = new(0x81, 1),
+        Layer2Scroll = Layer2ScrollModes.FromHeader(0x81, 1),
     };
     IReadOnlyList<BackgroundUpdateRequest> initial = scroll.BuildInitialViewportRequests();
     AssertEqual(17, initial.Count, "$80:A176 initial BG1 column count");
@@ -1290,25 +1308,25 @@ internal static void VerifyPowerBombColorMathWindow()
     // Spawn happens after the native HDMA pass. Even though status is already `$8000`,
     // the host must not invent an explosion table on this frame.
     Rgba32[] spawnFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(spawnFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+    SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(spawnFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
     AssertEqual(new Rgba32(0, 0, 0, 255),
         spawnFrame[centerY * SnesGameplayFrameRenderer.Width + centerX],
         "power-bomb spawn frame has no premature HDMA window");
 
-    explosion.StepFrame(bus);
+    explosion.StepFrame();
     AssertEqual(PowerBombExplosionPhase.Inactive, explosion.RenderedPhase,
         "first HDMA pass initializes the list without generating a window");
     // The first pre-instruction draws radius `$04.00`, then advances the live state to
     // `$34.00`. `$04 * $BF >> 8` gives a two-line vertical extent and `$04 * $FF >> 8`
     // gives a three-pixel center half-width. Testing beyond both extents catches use of
     // the already-updated `$34.00` radius as well as floating-point ellipse substitution.
-    explosion.StepFrame(bus);
-    AssertEqual(0x0400, explosion.RenderedPreExplosionRadius,
+    explosion.StepFrame();
+    AssertEqual(0x0400, explosion.RenderedPreExplosionRadius.RawValue,
         "power-bomb renderer retains pre-update radius");
-    AssertEqual(0x3400, explosion.PreExplosionRadius,
+    AssertEqual(0x3400, explosion.PreExplosionRadius.RawValue,
         "power-bomb logic advances next-frame radius");
     Rgba32[] scaledFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(scaledFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+    SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(scaledFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
     Rgba32 fixedColor = new(8, 16, 24, 255);
     AssertEqual(fixedColor,
         scaledFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 3],
@@ -1323,14 +1341,14 @@ internal static void VerifyPowerBombColorMathWindow()
     // A pre-scaled record is a center-outward half-profile. Native HDMA mirrors it around
     // the explosion Y coordinate; it is not indexed by adding a screen-space midpoint.
     while (explosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
-        explosion.StepFrame(bus);
+        explosion.StepFrame();
     var shapeReference = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    explosion.StepFrame(bus);
+    explosion.StepFrame();
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
     Rgba32[] shapeFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(shapeFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
-    AssertEqual(0x9f06, explosion.RenderedShapeDefinitionPointer,
+    SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(shapeFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+    AssertEqual<PowerBombShapeCursor?>(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), explosion.RenderedShape,
         "first yellow frame selects the native profile");
     for (int y = 0; y < SnesGameplayFrameRenderer.Height; y++)
     {
@@ -1374,23 +1392,23 @@ internal static void VerifyScrollingSkyState()
     var writes = new VramWriteQueue();
     sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: false, writes);
 
-    AssertEqual(0x041f, sky.VerticalScroll, "$88:AFB2 BG2 vertical scroll");
+    AssertEqual(new Position16<Bg2Pixels>(0, 0x041f), sky.Bg2Scroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
     AssertEqual(4, writes.Entries.Count, "$88:AFA3 four sky transfers");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ad1c0, 0x4820), writes.Entries[0], "sky upper first row");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ad200, 0x4840), writes.Entries[1], "sky upper second row");
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ad1c0, VramDmaDestination.FromNative(0x4820)), writes.Entries[0], "sky upper first row");
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ad200, VramDmaDestination.FromNative(0x4840)), writes.Entries[1], "sky upper second row");
 
     // Chunk index five is the intentional table-adjacency wrap to tilemap zero.
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab1c0, 0x4c20), writes.Entries[2], "sky wrapped lower first row");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab200, 0x4c40), writes.Entries[3], "sky wrapped lower second row");
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ab1c0, VramDmaDestination.FromNative(0x4c20)), writes.Entries[2], "sky wrapped lower first row");
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ab200, VramDmaDestination.FromNative(0x4c40)), writes.Entries[3], "sky wrapped lower second row");
 
     // At camera Y=0, the native indexed read reaches the fixed word at $88:AF9A.
     // The compiled catalog preserves that top-of-room overread without a ROM bus.
     var topSky = new ScrollingSkyState();
     var topWrites = new VramWriteQueue();
     topSky.ProcessFrame(layer1YPosition: 0, timeIsFrozen: false, topWrites);
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab526, 0x4fc0), topWrites.Entries[0],
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ab526, VramDmaDestination.FromNative(0x4fc0)), topWrites.Entries[0],
         "sky Y=0 wrapped compiled pointer");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab900, 0x4bc0), topWrites.Entries[2],
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ab900, VramDmaDestination.FromNative(0x4bc0)), topWrites.Entries[2],
         "sky Y=0 lower row remains in chunk zero");
 
     // The $02E0 section aliases data slot eight, which already received the $0238 row's
@@ -1426,12 +1444,28 @@ internal static void VerifyScrollingSkyState()
         return 0;
     }
 
+    /// <summary>Runs the background scroll-state checks.</summary>
+    [VerificationCommand("--background-scroll-state")]
+    internal static int BackgroundScrollStateCommand()
+    {
+        Suite(nameof(VerifyBackgroundScrollState), () => VerifyBackgroundScrollState());
+        return 0;
+    }
+
     /// <summary>Runs room tilemap streaming and scrolling-sky checks.</summary>
     [VerificationCommand("--room-sky-tilemaps")]
     internal static int RoomSkyTilemapsCommand()
     {
         Suite(nameof(VerifyScrollingSkyState), () => VerifyScrollingSkyState());
         Suite(nameof(VerifyRoomSkyTilemaps), () => VerifyRoomSkyTilemaps());
+        return 0;
+    }
+
+    /// <summary>Runs the moved-Samus camera tracking and camera-context checks.</summary>
+    [VerificationCommand("--moved-samus-camera-tracking")]
+    internal static int MovedSamusCameraTrackingCommand()
+    {
+        Suite(nameof(VerifyMovedSamusCameraTracking), () => VerifyMovedSamusCameraTracking());
         return 0;
     }
 }

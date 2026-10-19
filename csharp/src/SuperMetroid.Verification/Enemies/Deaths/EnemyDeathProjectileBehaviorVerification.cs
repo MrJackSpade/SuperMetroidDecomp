@@ -27,7 +27,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         {
             EnemyDropFixture variant = CreateEnemyDropFixture(CreateDropTestSamus(), randomValues: []);
             RoomEnemySlot enemy = variant.System.SlotTable.Slots[0];
-            enemy.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
+            enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
             variant.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, animation);
             RoomEnemyProjectileSlot explosion = variant.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(EnemyDeathExplosionDefinitions.Program(animation), ProgramOf(explosion), $"death variant {animation} starts its program");
@@ -39,7 +39,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         const ushort enemyHeader = 36864;
         SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
         RoomEnemySlot killed = fixture.System.SlotTable.Slots[0];
-        killed.EnemyDefinitionPointer = (EnemyDefinitionId)enemyHeader;
+        killed.Bind((EnemyDefinitionId)enemyHeader, killed.Definition);
         killed.Position = killed.Position.WithWhole(new(320, 120));
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, (ushort)EnemyDeathAnimation.SmallExplosion);
         RoomEnemyProjectileSlot dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
@@ -50,7 +50,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
             AssertTrue(++updates < 64, "the small explosion converts within its six frames");
         }
         AssertEqual(EnemyDeathProjectileProgram.SmallEnergy, ProgramOf(dying), "the conversion continues at the rolled small-energy drop");
-        AssertEqual(EnemyDeathProjectileFrameDefinitions.PresentationKey(new(EnemyProjectilePresentationFrameDefinitions.DeathFrameCount)),
+        AssertEqual(EnemyProjectileFrames.ProgramFrameKey(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(EnemyProjectilePresentationFrameDefinitions.DeathFrameCount)]),
             dying.PresentationOperandAddress, "the drop's first frame shows on the conversion's own pass");
 
         dying.Variable1 = 1;

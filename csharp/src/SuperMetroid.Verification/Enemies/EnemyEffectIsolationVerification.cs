@@ -37,12 +37,12 @@ internal static class EnemyEffectIsolationVerification
             AssertTrue(!baseline.Effect.MeltingGraphics.SequenceEqual(edited.Effect.MeltingGraphics), "authored melt pixels reach scratch");
             AssertTrue(tail.SequenceEqual(baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..]),
                 "native overlapping copies retain the unwritten scratch tail");
-            ushort phase = (ushort)baseline.Actor.DeathSequenceIndex;
+            CrocomireDeathPhase phase = baseline.Actor.DeathSequenceIndex;
             for (int record = 0; record <= pass.Uploads.Length; record++)
             {
                 baseline.Call(c => c.UploadNextCrocomireMeltingGraphicsSlice); edited.Call(c => c.UploadNextCrocomireMeltingGraphicsSlice);
                 AssertCrocomireEffectMechanics(baseline, edited, "melt upload " + record);
-                AssertEqual((ushort)(phase + (record == pass.Uploads.Length ? 2 : 0)), (ushort)baseline.Actor.DeathSequenceIndex,
+                AssertEqual(record == pass.Uploads.Length ? phase.Next() : phase, baseline.Actor.DeathSequenceIndex,
                     "only the native transfer terminator advances the phase");
                 if (record < pass.Uploads.Length)
                 {
@@ -54,7 +54,7 @@ internal static class EnemyEffectIsolationVerification
             }
 
             baseline.Call(c => c.BeginCrocomireMelting); edited.Call(c => c.BeginCrocomireMelting);
-            phase = (ushort)baseline.Actor.DeathSequenceIndex;
+            phase = baseline.Actor.DeathSequenceIndex;
             // The compiled slope starts at 256, grows by 384 to 20480, then completes on
             // the following call. This explicit bound comes from the source, not a probe.
             int calls = (20480 - 256 + 383) / 384 + 1;
@@ -64,7 +64,7 @@ internal static class EnemyEffectIsolationVerification
                 baseline.Dissolve(); edited.Dissolve();
                 AssertCrocomireEffectMechanics(baseline, edited, "melt dissolve call " + call);
                 AssertEqual(call < calls, baseline.Effect.MeltingHdmaActive, "exact HDMA lifetime");
-                AssertEqual((ushort)(phase + (call == calls ? 2 : 0)), (ushort)baseline.Actor.DeathSequenceIndex, "exact dissolve phase handoff");
+                AssertEqual(call == calls ? phase.Next() : phase, baseline.Actor.DeathSequenceIndex, "exact dissolve phase handoff");
                 AssertEqual((ushort)Math.Min(call - 1, CrocomireMeltingDefinitions.ColumnCount),
                     baseline.Effect.MeltingColumnCursor, "fixed erase-column cadence");
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,
@@ -87,16 +87,18 @@ internal static class EnemyEffectIsolationVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainRotIsolation()
     {
-        var baseline = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var edited = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var baselineVram = new SnesVram(); var editedVram = new SnesVram();
+        RoomEnemySystem baselineEnemies = CorpseRamEnemies(baselineVram);
+        RoomEnemySystem editedEnemies = CorpseRamEnemies(editedVram);
+        EnemyStagingSurfaces baseline = baselineEnemies.Room.Staging;
+        EnemyStagingSurfaces edited = editedEnemies.Room.Staging;
         var baselineRot = new MotherBrainCorpseRottingState();
         var editedRot = new MotherBrainCorpseRottingState();
         baselineRot.Initialize(baseline, CorpseEffectArtwork(0x55));
         editedRot.Initialize(edited, CorpseEffectArtwork(0xaa));
-        AssertTrue(!baseline.WorkRam.SequenceEqual(edited.WorkRam), "different installed corpse pixels reach WRAM");
-        var baselineVram = new SnesVram(); var editedVram = new SnesVram();
-        Action<MotherBrainSpriteTileTransferRequest> baselineTransfer = CorpseRamTransfer(baseline, baselineVram);
-        Action<MotherBrainSpriteTileTransferRequest> editedTransfer = CorpseRamTransfer(edited, editedVram);
+        AssertTrue(!baseline._rottingHeap.Bytes.SequenceEqual(edited._rottingHeap.Bytes), "different installed corpse pixels reach the rotting heap");
+        Action<MotherBrainSpriteTileTransferRequest> baselineTransfer = baselineEnemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer;
+        Action<MotherBrainSpriteTileTransferRequest> editedTransfer = editedEnemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer;
         int finished = 0;
         // Entry i waits 2*i calls and needs max(1,ceil(i/2)) destructive moves. The last
         // entry therefore completes on 94+24=118; different pixels cannot alter that.
@@ -106,8 +108,8 @@ internal static class EnemyEffectIsolationVerification
             short[] rowYBefore = Enumerable.Range(0, MotherBrainCorpseRottingState.EntryCount)
                 .Select(index => MotherBrainCorpseRottingState.ReadEntry(baseline, index).YOffset)
                 .ToArray();
-            var expected = baselineRot.Step(baseline, new Position16<RoomPixels>(100, 120), seed, (ushort)call);
-            var actual = editedRot.Step(edited, new Position16<RoomPixels>(100, 120), seed, (ushort)call);
+            var expected = baselineRot.Step(baseline, new Position16<RoomPixels>(100, 120), MotherBrainRandomSample.FromGenerator(seed), (ushort)call);
+            var actual = editedRot.Step(edited, new Position16<RoomPixels>(100, 120), MotherBrainRandomSample.FromGenerator(seed), (ushort)call);
             AssertEqual(call < 118, expected.StillRotting, "exact corpse lifetime");
             AssertEqual(expected.StillRotting, actual.StillRotting, "corpse lifetime independent of pixels");
             AssertAnimationValues(baselineRot, editedRot, "corpse counters at call " + call);
@@ -133,17 +135,16 @@ internal static class EnemyEffectIsolationVerification
             for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
                 AssertEqual(MotherBrainCorpseRottingState.ReadEntry(baseline, index),
                     MotherBrainCorpseRottingState.ReadEntry(edited, index), "every corpse row's Y/delay is independent of artwork");
-            int artStart = MotherBrainCorpseRottingState.GraphicsBufferAddress & 0x1ffff;
-            int artEnd = artStart + MotherBrainCorpseRottingState.GraphicsBufferSize;
-            AssertTrue(baseline.WorkRam[..artStart].SequenceEqual(edited.WorkRam[..artStart]) &&
-                baseline.WorkRam[artEnd..].SequenceEqual(edited.WorkRam[artEnd..]), "corpse art changes only its graphics buffer");
+            int artEnd = MotherBrainCorpseRottingState.GraphicsBufferSize;
+            AssertTrue(baseline._rottingHeap.Bytes[artEnd..].SequenceEqual(edited._rottingHeap.Bytes[artEnd..]) &&
+                baseline._bg2.Bytes.SequenceEqual(edited._bg2.Bytes), "corpse art changes only its graphics buffer");
             foreach (var request in expected.VramTransfers) baselineTransfer(request);
             foreach (var request in actual.VramTransfers) editedTransfer(request);
             foreach (var request in expected.VramTransfers)
             {
-                int source = checked((int)request.SourceAddress) & 0x1ffff;
+                int source = checked((int)request.SourceAddress) - MotherBrainCorpseRottingState.GraphicsBufferAddress;
                 AssertTrue(baselineVram.Bytes.Slice(request.VramDestination * 2, request.Size)
-                    .SequenceEqual(baseline.WorkRam.Slice(source, request.Size)), "production mutable-RAM DMA uploads current rot pixels");
+                    .SequenceEqual(baseline._rottingHeap.Bytes.Slice(source, request.Size)), "production staging DMA uploads current rot pixels");
             }
         }
         AssertEqual(MotherBrainCorpseRottingState.EntryCount, finished, "each of the 48 completion callbacks fires exactly once");
@@ -151,14 +152,13 @@ internal static class EnemyEffectIsolationVerification
         Console.WriteLine("  Mother Brain replacement: 118 exact calls, 48 row completions, 702 RAM DMA uploads, dust/audio timing unchanged.");
     }
 
-    /// <summary>Binds the production rainbow tile transfer to the fixture memory and VRAM for corpse upload checks.</summary>
-    private static Action<MotherBrainSpriteTileTransferRequest> CorpseRamTransfer(SuperMetroidAddressSpace memory, SnesVram vram)
+    /// <summary>An enemy system bound to a cartridge-free fixture and <paramref name="vram"/>, for corpse upload checks.</summary>
+    private static RoomEnemySystem CorpseRamEnemies(SnesVram vram)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(memory);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
-        return new Action<MotherBrainSpriteTileTransferRequest>(enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer);
+        return enemies;
     }
 
     /// <summary>Runs the Crocomire melt and Mother Brain corpse artwork isolation checks.</summary>

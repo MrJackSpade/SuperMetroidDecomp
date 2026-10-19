@@ -1,16 +1,25 @@
-﻿using SuperMetroid.Core.Enemies.Drawing;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Stoke.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>The Stoke species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class StokeBehavior : IEnemySpecies
+internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Stoke];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new StokeEntity(this, slot, common);
+
     /// <summary>Supplies the shared room RNG for Stoke's fireball attack branch.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Probes the floor and resolves Stoke's horizontal collision and turn.</summary>
@@ -32,7 +41,7 @@ internal sealed class StokeBehavior : IEnemySpecies
         switch (cue.Kind)
         {
             case StokeCueKind.SpawnFireball:
-                SpawnStokeProjectile(slot, cue.Value);
+                SpawnStokeProjectile(slot, cue.FireballDirection);
                 break;
             case StokeCueKind.SetMovingLeft:
                 SetStokeMovingLeft(state);
@@ -49,12 +58,8 @@ internal sealed class StokeBehavior : IEnemySpecies
     /// <summary>Two-pixel downward probe used to test for a solid floor without moving Stoke.</summary>
     private const int StokeFloorProbeDisplacement = 2 << 16;
 
-    /// <summary>Typed movement and attack state indexed by native enemy slot.</summary>
-    internal readonly StokeEnemyState?[] _stokeStates =
-        new StokeEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Stoke</c> at <c>$A2:89AD</c>.</summary>
-    internal void InitializeStoke(RoomEnemySlot slot)
+    internal static void InitializeStoke(RoomEnemySlot slot)
     {
         if (slot.Parameter2 >= EnemyLinearSpeedDefinitions.RecordCount)
         {
@@ -68,21 +73,19 @@ internal sealed class StokeBehavior : IEnemySpecies
         int speedOffset = slot.Parameter2 * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedOffset);
         var left = EnemyLinearSpeedDefinitions.Read(speedOffset + 4);
-        var state = new StokeEnemyState(slot)
+        var state = new StokeEnemyState
         {
-            RightVelocity = unchecked((ushort)right.Whole),
-            RightSubvelocity = right.Fraction,
-            LeftVelocity = unchecked((ushort)left.Whole),
-            LeftSubvelocity = left.Fraction,
+            RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
+            LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
             Function = StokeAiFunction.MovingLeft,
             Direction = (StokeDirection)slot.Parameter1,
         };
-        _stokeStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Initialization writes the common empty map, then picks the left list by default.
         // A nonzero init0 takes the native right-facing branch. The room-loader tail later
         // restores the transient empty map, and the first instruction tick supplies art.
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         SetStokeProgram(slot, state, StokeProgram.MovingLeft);
         if (slot.Parameter1 != 0)
         {
@@ -107,7 +110,7 @@ internal sealed class StokeBehavior : IEnemySpecies
                     slot,
                     state,
                     level,
-                    (SnesSixteenSixteen.FromWhole((int)(short)state.LeftVelocity)) | state.LeftSubvelocity,
+                    state.LeftVelocity.RawValue,
                     StokeProgram.AttackingLeft);
                 return;
 
@@ -116,13 +119,13 @@ internal sealed class StokeBehavior : IEnemySpecies
                     slot,
                     state,
                     level,
-                    (SnesSixteenSixteen.FromWhole((int)(short)state.RightVelocity)) | state.RightSubvelocity,
+                    state.RightVelocity.RawValue,
                     StokeProgram.AttackingRight);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Stoke main-AI pointer $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Stoke main-AI function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -138,7 +141,7 @@ internal sealed class StokeBehavior : IEnemySpecies
 
         // GenerateRandomNumber advances the global seed before the comparison. Only low
         // byte sums zero and one attack; byte wrapping is intentional and observable.
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         byte attackRoll = unchecked((byte)((byte)slot.FrameCounter + (byte)random));
         if (attackRoll >= 2)
             return;
@@ -193,8 +196,8 @@ internal sealed class StokeBehavior : IEnemySpecies
     }
 
     /// <summary>Looks up initialized Stoke dispatch state, failing if a slot reached AI before initialization.</summary>
-    private StokeEnemyState RequireStokeState(RoomEnemySlot slot) =>
-        _stokeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static StokeEnemyState RequireStokeState(RoomEnemySlot slot) =>
+        slot.SpeciesState<StokeEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Stoke state.");
 
     /// <summary>Instruction <c>$A2:8990</c>: resume leftward movement.</summary>
@@ -221,45 +224,36 @@ internal sealed class StokeBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.StokeFireball);
     }
 
-    /// <summary>Registers bank-$A2 Stoke initialization for matching enemy definitions.</summary>
-    internal void RegisterStokeInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Stoke's initialization AI.</summary>
+    internal static void RunStokeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Stoke, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeStoke(slot);
-        });
+        InitializeStoke(slot);
     }
 
-    /// <summary>Registers Stoke's per-frame movement and random fireball attack dispatcher.</summary>
-    internal void RegisterStokeMainAi(EnemyAiTable table)
+    /// <summary>Ports Stoke's main AI.</summary>
+    internal void RunStokeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Stoke, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunStokeMain(slot, RequireStokeState(slot), frame.Level);
-        });
+        RunStokeMain(slot, RequireStokeState(slot), frame.Level);
     }
 
-    /// <summary>Runs Stoke's walking and fire-spitting animations as typed programs (#641).</summary>
-    internal void RegisterStokeTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireStokeState(slot);
-            AnimationProgramCursor<StokeProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, StokeAnimations.Programs, ref cursor, StokeFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyStokeCue(slot, state, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Advances Stoke's typed animation.</summary>
+    internal void AdvanceStokeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireStokeState(slot);
+        AnimationProgramCursor<StokeProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, StokeAnimations.Programs, ref cursor, StokeFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyStokeCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> followed by Stoke projectile
     /// initializer <c>$86:DB18</c>. Direction zero selects the intentionally odd left branch,
     /// which reads the signed speed from Y velocity while still moving on the X axis.
     /// </summary>
-    internal void SpawnStokeProjectile(RoomEnemySlot stoke, ushort direction)
+    internal void SpawnStokeProjectile(RoomEnemySlot stoke, StokeDirection direction)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -269,8 +263,8 @@ internal sealed class StokeBehavior : IEnemySpecies
             projectile,
             RoomEnemyProjectileKind.StokeProjectile,
             unchecked((ushort)(stoke.PaletteIndex | stoke.VramTilesIndex)));
-        projectile.DirectionParameter = direction;
-        projectile.Variable0 = direction == 0
+        projectile.DirectionParameter = (ushort)direction;
+        projectile.Variable0 = direction == StokeDirection.Left
             ? (ushort)StokeProjectileFunction.MoveLeft
             : (ushort)StokeProjectileFunction.MoveRight;
         projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(unchecked((ushort)(stoke.Position.Y.Whole + 2)), stoke.Position.Y.Fraction));
@@ -282,7 +276,7 @@ internal sealed class StokeBehavior : IEnemySpecies
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        ushort horizontalVelocity = ClosedNativeWords.Decode<StokeProjectileFunction>(projectile.Variable0, "Stoke projectile movement function") switch
+        ushort horizontalVelocity = ClosedNativeWords.Decode<StokeProjectileFunction>(checked((ushort)projectile.Variable0), "Stoke projectile movement function") switch
         {
             // This is not a typo: $DB62 reads EnemyProjectile_YVelocity, producing -1 px.
             StokeProjectileFunction.MoveLeft => projectile.Velocity.Y.RawValue,
@@ -295,16 +289,5 @@ internal sealed class StokeBehavior : IEnemySpecies
 
         // Stoke's $DBB6 helper is another byte-for-byte clone of Cacatac's $DAC2 cull.
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        Array.Clear(_stokeStates);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

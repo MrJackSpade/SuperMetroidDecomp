@@ -11,10 +11,10 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
     /// before tilemap wrapping.
     /// </summary>
     public ReadOnlySpan<Position16<BgPlanePixels>> Scrolls => scrolls;
-    /// <summary>VRAM word address of the 32-column background tilemap, not a byte address.</summary>
-    public ushort TilemapWord { get; }
-    /// <summary>VRAM word address of the 2-bpp character data; each 8-by-8 character occupies eight words.</summary>
-    public ushort CharacterWord { get; }
+    /// <summary>VRAM word address of the 32-column background tilemap, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
+    public int TilemapWord { get; }
+    /// <summary>VRAM word address of the 2-bpp character data, 0 through <c>VramWordRange.MaximumWord</c>; each 8-by-8 character occupies eight words.</summary>
+    public int CharacterWord { get; }
     /// <summary>Tilemap height of 32 or 64 eight-pixel rows, determining vertical wrapping; the plane has a fixed width of 32 tiles.</summary>
     public int MapHeightTiles { get; }
     /// <summary>First participating physical output scanline, inclusive; lines before it are untouched, and 224 disables the plane for the entire frame.</summary>
@@ -29,7 +29,7 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
     /// <param name="firstScanline">Inclusive first physical scanline from 0 through 224; 224 means no visible lines participate.</param>
     /// <param name="operation">Addition or subtraction for the standalone expanded-byte compositor.</param>
     /// <param name="scrolls">Exactly 224 register pairs, indexed by physical output scanline; the constructor takes an owned copy.</param>
-    public Bg2BppColorMathRenderLayer(ushort tilemapWord, ushort characterWord, int mapHeightTiles,
+    public Bg2BppColorMathRenderLayer(int tilemapWord, int characterWord, int mapHeightTiles,
         int firstScanline, ExpandedColorMathOperation operation, ReadOnlySpan<Position16<BgPlanePixels>> scrolls)
     {
         if (mapHeightTiles is not (32 or 64)) throw new ArgumentOutOfRangeException(nameof(mapHeightTiles));
@@ -38,8 +38,8 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
         if (operation is not (ExpandedColorMathOperation.Add or ExpandedColorMathOperation.Subtract))
             throw new ArgumentOutOfRangeException(nameof(operation));
         Ensure.LengthEqual(scrolls, SnesPpuLayout.ScreenHeightPixels);
-        TilemapWord = tilemapWord;
-        CharacterWord = characterWord;
+        TilemapWord = VramWordRange.Require(tilemapWord);
+        CharacterWord = VramWordRange.Require(characterWord);
         MapHeightTiles = mapHeightTiles;
         FirstScanline = firstScanline;
         Operation = operation;

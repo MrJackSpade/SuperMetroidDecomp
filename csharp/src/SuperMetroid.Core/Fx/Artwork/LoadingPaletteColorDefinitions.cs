@@ -1,9 +1,10 @@
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Calculated repeated-row identities in the three suit-loading palettes.</summary>
-/// <remarks>Supported NTSC J/U programs $8D:DB62/DCC8/DE2E contain nine
+/// <remarks>Each suit's loading program contains nine
 /// sixteen-color records. Every even record repeats the normal palette; record3
 /// repeats record1. Records5 and7 contain distinct shades. The mapping is checked
 /// against complete original rows, including transparent entries, for #1165.
@@ -21,20 +22,52 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// full-body palette families still require their own review.</remarks>
 public static class LoadingPaletteColorDefinitions
 {
-    /// <summary>Maps a color address to its earliest identical native row.</summary>
-    /// <remarks>First color words are $8D:DB6B/DCD1/DE37. Counted groups
-    /// advance79 bytes with records36 bytes apart; the final row is313 bytes
-    /// after the first. Only the32 color bytes in each record are owned.
-    /// Non-color addresses return false and zero, including wrong byte parity.</remarks>
-    public static bool TryCanonicalPointer(ushort pointer, out ushort canonical) =>
-        TryProgram(pointer, 0xdb6b, out canonical) ||
-        TryProgram(pointer, 0xdcd1, out canonical) ||
-        TryProgram(pointer, 0xde37, out canonical);
+    /// <summary>The final record, which repeats the normal palette.</summary>
+    private const int FinalRow = 8;
+
+    /// <summary>The nine records of <paramref name="suit"/>'s loading program.</summary>
+    internal static PaletteFxColorRows Rows(PaletteFxHeatSuit suit) => suit switch
+    {
+        PaletteFxHeatSuit.Power => SamusLoadingSuitPaletteFxColorDefinitions.All[0].Rows,
+        PaletteFxHeatSuit.Varia => SamusLoadingSuitPaletteFxColorDefinitions.All[1].Rows,
+        PaletteFxHeatSuit.Gravity => SamusLoadingSuitPaletteFxColorDefinitions.All[2].Rows,
+        _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown loading suit."),
+    };
+
+    /// <summary>The suit whose loading program writes <paramref name="key"/>, with its row and slot.</summary>
+    private static bool TryLocate(PaletteFxColorKey key, out PaletteFxHeatSuit suit, out int row, out int slot)
+    {
+        foreach (PaletteFxHeatSuit candidate in (ReadOnlySpan<PaletteFxHeatSuit>)[PaletteFxHeatSuit.Power, PaletteFxHeatSuit.Varia, PaletteFxHeatSuit.Gravity])
+        {
+            if (Rows(candidate).TryLocate(key, out row, out slot))
+            {
+                suit = candidate;
+                return true;
+            }
+        }
+        suit = default;
+        row = slot = 0;
+        return false;
+    }
+
+    /// <summary>Maps a loading color to its earliest identical native row.</summary>
+    /// <remarks>Rows zero through seven are four counted groups of a normal record and a shade record; row eight is
+    /// the final record. Even rows and the final row repeat the normal row, row three repeats row one, and rows five
+    /// and seven are the distinct shades.</remarks>
+    public static bool TryCanonical(PaletteFxColorKey key, out PaletteFxColorKey canonical)
+    {
+        canonical = default;
+        if (!TryLocate(key, out PaletteFxHeatSuit suit, out int row, out int slot)) return false;
+        int group = row / 2;
+        int canonicalRow = row == FinalRow || row % 2 == 0 ? 0 : group < 2 ? 1 : row;
+        canonical = ShareSuit(suit, canonicalRow, slot);
+        return true;
+    }
 
     /// <summary>Resolves an explicit edit before following a calculated loading alias.</summary>
-    internal static bool TryReadColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value) =>
-        colors.TryGetValue(pointer, out value) ||
-        (TryCanonicalPointer(pointer, out ushort canonical) &&
+    internal static bool TryReadColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value) =>
+        colors.TryGetValue(key, out value) ||
+        (TryCanonical(key, out PaletteFxColorKey canonical) &&
          (colors.TryGetValue(canonical, out value) || TryCalculatedColor(canonical, colors, out value)));
 
     /// <summary>Calculates the shared blue/green loading tint from normal suit colors.</summary>
@@ -51,33 +84,30 @@ public static class LoadingPaletteColorDefinitions
     /// Independent endpoint components are documented by LoadingPaletteInputView.
     /// Remaining base inks and tint components have the specific dispositions
     /// on this catalog and LoadingPaletteInputView; unrelated palettes are not exempt.</remarks>
-    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
     {
         value = Bgr555.Black;
-        int first = pointer >= 0xde37 ? 0xde37 : pointer >= 0xdcd1 ? 0xdcd1 : 0xdb6b;
-        int offset = pointer - first;
-        if ((uint)offset >= 4 * 79) return false;
-        int group = offset / 79;
-        int within = offset % 79 - 36;
-        if (group == 1 || (uint)within >= 32 || (within & 1) != 0) return false;
-        int slot = within / 2;
+        if (!TryLocate(key, out PaletteFxHeatSuit suit, out int row, out int slot) || row is not (1 or 5 or 7)) return false;
+        PaletteFxColorRows rows = Rows(suit);
+        int group = row / 2;
         int shade = group == 0 ? 0 : group - 1;
-        if (first == 0xdb6b && group == 3 && slot == 0)
-            return TryReadColor((ushort)(first + 2 * 79 + 36), colors, out value);
-        if (first == 0xdb6b && group == 3 && slot is 10 or 11)
+        bool power = suit == PaletteFxHeatSuit.Power;
+        if (power && group == 3 && slot == 0)
+            return TryReadColor(rows.Color(5, 0), colors, out value);
+        if (power && group == 3 && slot is 10 or 11)
         {
-            if (!TryReadColor((ushort)(first + 2 * slot), colors, out Bgr555 normal) ||
-                !TryReadColor((ushort)(first + 3 * 79 + 36 + 2 * 2), colors, out Bgr555 blueSource)) return false;
+            if (!TryReadColor(rows.Color(0, slot), colors, out Bgr555 normal) ||
+                !TryReadColor(rows.Color(7, 2), colors, out Bgr555 blueSource)) return false;
             value = normal.WithBlue(blueSource.Blue);
             return true;
         }
-        if (first == 0xdb6b && slot == 9 && group != 0)
+        if (power && slot == 9 && group != 0)
         {
-            if (!TryReadColor((ushort)(first + 2 * slot), colors, out Bgr555 normal)) return false;
+            if (!TryReadColor(rows.Color(0, slot), colors, out Bgr555 normal)) return false;
             Bgr555 tint = TintColor(normal, shade);
             if (group == 2)
             {
-                if (!TryReadColor((ushort)(first + 36 + 2 * slot), colors, out Bgr555 bright)) return false;
+                if (!TryReadColor(rows.Color(1, slot), colors, out Bgr555 bright)) return false;
                 tint = tint.WithBlue(bright.Blue);
             }
             value = tint;
@@ -85,19 +115,19 @@ public static class LoadingPaletteColorDefinitions
         }
         // These tracks brighten an independently chosen dim tint, rather than
         // the normal suit color. The dim endpoint remains an editable input.
-        if (group != 3 && (first == 0xdb6b ? slot is 1 or 2 or 10 or 11 or 12 :
-            first == 0xdcd1 ? slot == 12 : slot == 2))
+        if (group != 3 && (power ? slot is 1 or 2 or 10 or 11 or 12 :
+            suit == PaletteFxHeatSuit.Varia ? slot == 12 : slot == 2))
         {
-            if (!TryReadColor((ushort)(first + 3 * 79 + 36 + 2 * slot), colors, out Bgr555 dim)) return false;
-            bool plateau = first == 0xde37 || (first == 0xdb6b && slot is 1 or 12);
-            int greenPeak = plateau ? 15 : first == 0xdb6b && slot is 10 or 11 ? 5 : 0;
+            if (!TryReadColor(rows.Color(7, slot), colors, out Bgr555 dim)) return false;
+            bool plateau = suit == PaletteFxHeatSuit.Gravity || (power && slot is 1 or 12);
+            int greenPeak = plateau ? 15 : power && slot is 10 or 11 ? 5 : 0;
             value = BrightenDimColor(dim, shade, greenPeak, plateau);
             return true;
         }
-        bool varia = first == 0xdcd1;
-        if (!(first == 0xdb6b ? slot is >= 3 and <= 8 or >= 13 and <= 15 :
+        bool varia = suit == PaletteFxHeatSuit.Varia;
+        if (!(power ? slot is >= 3 and <= 8 or >= 13 and <= 15 :
             varia ? slot is 1 or 2 || (group != 0 && slot is 10 or 11) : slot is 10 or 11)) return false;
-        if (!TryReadColor((ushort)(first + 2 * slot), colors, out Bgr555 original)) return false;
+        if (!TryReadColor(rows.Color(0, slot), colors, out Bgr555 original)) return false;
         value = varia ? VariaTintColor(original, shade) : TintColor(original, shade);
         return true;
     }
@@ -132,17 +162,31 @@ public static class LoadingPaletteColorDefinitions
         return new(original.Red, green, blue);
     }
 
-    /// <summary>The normal-suit color word ($9B bank) each calculated loading tint endpoint derives from.</summary>
-    internal static ushort NormalSource(LoadingSuitColor slot) => slot switch
+    /// <summary>The loading color <paramref name="slot"/> names.</summary>
+    internal static PaletteFxColorKey Key(LoadingSuitColor slot) => slot switch
     {
-        LoadingSuitColor.PowerDim1 => 0xdb6d,
-        LoadingSuitColor.PowerDim2 => 0xdb6f,
-        LoadingSuitColor.PowerBright9 => 0xdb7d,
-        LoadingSuitColor.PowerDim12 => 0xdb83,
-        LoadingSuitColor.VariaBright10 => 0xdce5,
-        LoadingSuitColor.VariaBright11 => 0xdce7,
-        LoadingSuitColor.VariaDim12 => 0xdce9,
-        LoadingSuitColor.GravityDim2 => 0xde3b,
+        LoadingSuitColor.PowerDim1 => Rows(PaletteFxHeatSuit.Power).Color(7, 1),
+        LoadingSuitColor.PowerDim2 => Rows(PaletteFxHeatSuit.Power).Color(7, 2),
+        LoadingSuitColor.PowerBright9 => Rows(PaletteFxHeatSuit.Power).Color(1, 9),
+        LoadingSuitColor.PowerDim12 => Rows(PaletteFxHeatSuit.Power).Color(7, 12),
+        LoadingSuitColor.VariaBright10 => Rows(PaletteFxHeatSuit.Varia).Color(1, 10),
+        LoadingSuitColor.VariaBright11 => Rows(PaletteFxHeatSuit.Varia).Color(1, 11),
+        LoadingSuitColor.VariaDim12 => Rows(PaletteFxHeatSuit.Varia).Color(7, 12),
+        LoadingSuitColor.GravityDim2 => Rows(PaletteFxHeatSuit.Gravity).Color(7, 2),
+        _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, "Not a calculated loading tint endpoint."),
+    };
+
+    /// <summary>The normal-suit color each calculated loading tint endpoint derives from.</summary>
+    internal static PaletteFxColorKey NormalSource(LoadingSuitColor slot) => slot switch
+    {
+        LoadingSuitColor.PowerDim1 => Rows(PaletteFxHeatSuit.Power).Color(0, 1),
+        LoadingSuitColor.PowerDim2 => Rows(PaletteFxHeatSuit.Power).Color(0, 2),
+        LoadingSuitColor.PowerBright9 => Rows(PaletteFxHeatSuit.Power).Color(0, 9),
+        LoadingSuitColor.PowerDim12 => Rows(PaletteFxHeatSuit.Power).Color(0, 12),
+        LoadingSuitColor.VariaBright10 => Rows(PaletteFxHeatSuit.Varia).Color(0, 10),
+        LoadingSuitColor.VariaBright11 => Rows(PaletteFxHeatSuit.Varia).Color(0, 11),
+        LoadingSuitColor.VariaDim12 => Rows(PaletteFxHeatSuit.Varia).Color(0, 12),
+        LoadingSuitColor.GravityDim2 => Rows(PaletteFxHeatSuit.Gravity).Color(0, 2),
         _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, "Not a calculated loading tint endpoint."),
     };
 
@@ -157,7 +201,7 @@ public static class LoadingPaletteColorDefinitions
         return new(original.Red, green, blue);
     }
 
-    /// <summary>Shares identical suit slots with the Power palette for the same shade.</summary>
+    /// <summary>Chooses the independent suit ink or its identical Power counterpart; Varia normal slot zero aliases Power bright black rather than Power normal's payload.</summary>
     /// <remarks>Original complete RGB5 words establish each equality. Varia's
     /// normal row differs at0/2/10/11 and bright rows at1/2/10/11/12. Gravity's
     /// normal row differs at2/10/11/12 and bright rows at2/10/11. All other slots
@@ -165,36 +209,12 @@ public static class LoadingPaletteColorDefinitions
     /// Varia normal slot0 also shares Power bright slot0 (both black); the
     /// differing Power normal slot0 payload remains separate.
     /// Differing custom colors remain explicit overrides before this mapping.</remarks>
-    /// <summary>Chooses the independent suit ink or its identical Power counterpart; Varia normal slot zero aliases Power bright black rather than Power normal's payload.</summary>
-    private static ushort ShareSuit(int first, int rowOffset, int colorOffset)
+    private static PaletteFxColorKey ShareSuit(PaletteFxHeatSuit suit, int row, int slot)
     {
-        int slot = colorOffset / 2;
-        if (first == 0xdcd1 && rowOffset == 0 && slot == 0) return 0xdb8f;
-        bool distinct = first == 0xdb6b || (first == 0xdcd1
-            ? (rowOffset == 0 ? slot is 0 or 2 or 10 or 11 : slot is 1 or 2 or 10 or 11 or 12)
-            : (rowOffset == 0 ? slot is 2 or 10 or 11 or 12 : slot is 2 or 10 or 11));
-        return (ushort)((distinct ? first : 0xdb6b) + rowOffset + colorOffset);
-    }
-
-    /// <summary>Recognizes one suit program's color-word positions, excluding instruction bytes and odd addresses, then maps repeated rows to their earliest ink.</summary>
-    private static bool TryProgram(ushort pointer, int first, out ushort canonical)
-    {
-        canonical = 0;
-        int offset = pointer - first;
-        int finalColor = offset - 313;
-        if ((uint)finalColor < 32 && (finalColor & 1) == 0)
-        {
-            canonical = ShareSuit(first, 0, finalColor);
-            return true;
-        }
-        if ((uint)offset >= 4 * 79) return false;
-        int group = offset / 79;
-        int within = offset % 79;
-        int record = within / 36;
-        int color = within % 36;
-        if (record >= 2 || color >= 32 || (color & 1) != 0) return false;
-        canonical = ShareSuit(first, record == 0 ? 0 :
-            (group < 2 ? 36 : group * 79 + 36), color);
-        return true;
+        if (suit == PaletteFxHeatSuit.Varia && row == 0 && slot == 0) return Rows(PaletteFxHeatSuit.Power).Color(1, 0);
+        bool distinct = suit == PaletteFxHeatSuit.Power || (suit == PaletteFxHeatSuit.Varia
+            ? (row == 0 ? slot is 0 or 2 or 10 or 11 : slot is 1 or 2 or 10 or 11 or 12)
+            : (row == 0 ? slot is 2 or 10 or 11 or 12 : slot is 2 or 10 or 11));
+        return Rows(distinct ? suit : PaletteFxHeatSuit.Power).Color(row, slot);
     }
 }

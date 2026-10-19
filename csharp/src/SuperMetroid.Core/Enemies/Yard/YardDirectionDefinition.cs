@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// </summary>
 internal readonly record struct YardDirectionDefinition(
     YardProgram CrawlingProgram,
-    ushort PropertyBits,
+    byte PropertyBits,
     YardProgram HidingProgram,
     ushort AirborneFacingDirection,
     ushort OppositeDirection,

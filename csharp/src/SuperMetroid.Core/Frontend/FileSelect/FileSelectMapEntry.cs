@@ -90,24 +90,4 @@ public sealed class FileSelectMapEntry
         }
     }
 
-    /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias the area scene.</summary>
-    public Rgba32[] Render(ReadOnlySpan<Rgba32> areaScene, Rgba32[] pixels)
-    {
-        Ensure.NotNull(pixels);
-        if (areaScene.Length != FrontendFrame.Width * FrontendFrame.Height || pixels.Length != areaScene.Length)
-            throw new ArgumentException("Area reveal requires a complete frontend frame and output.", nameof(areaScene));
-        if (IsComplete)
-        {
-            areaScene.CopyTo(pixels);
-            return pixels;
-        }
-        Array.Fill(pixels, new Rgba32(0, 0, 0));
-        if (Phase == FileSelectMapEntryPhase.Revealing)
-            for (int y = Top; y < Bottom; y++)
-            {
-                int offset = y * FrontendFrame.Width + Left;
-                areaScene.Slice(offset, Right - Left + 1).CopyTo(pixels.AsSpan(offset));
-            }
-        return pixels;
-    }
 }

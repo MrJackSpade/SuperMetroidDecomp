@@ -21,32 +21,15 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ZebesExplosionGunshipPaletteFxColorDefinitions
 {
 
-    /// <summary>The first timed record at <c>$8D:D6BE</c>.</summary>
-    public const ushort FirstFramePointer = 0xd6be;
-
     /// <summary>The one-shot reveal contains sixteen timed records.</summary>
     public const int FrameCount = 16;
 
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 36;
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(201, FrameCount, ColorsPerFrame);
 
-    /// <summary>Frames0..15 occupy36-byte records atD6BE: duration,16 colors, wait.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
-
-    /// <summary>Color0..15 begins two bytes after its frame duration and advances by two.</summary>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

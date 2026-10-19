@@ -16,7 +16,6 @@ internal static class MotherBrainTurretDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain turret definitions")]
     internal static void VerifyMotherBrainTurretDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewMotherBrainTurretReadGuard(rom);
 
         for (ushort parameter = 0; parameter < 12; parameter++)
@@ -46,7 +45,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             }
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => 0));
             enemies.MotherBrainBehavior.SpawnMotherBrainTurret(parameter);
 
@@ -120,7 +119,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"Mother Brain turret bullet Y velocity {direction}");
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var turret = new RoomEnemyProjectileSlot(0)
             {
                 Position = new(new(0x0400, 0), new(0x0200, direction)),

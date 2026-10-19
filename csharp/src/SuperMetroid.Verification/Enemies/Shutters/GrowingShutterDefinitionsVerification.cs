@@ -17,29 +17,30 @@ internal static class GrowingShutterDefinitionsVerification
         Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledGrowingShuttersRomByte(rom, address), CompiledGrowingShuttersRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
-        Action<RoomEnemySlot> initialize = enemies.ShuttersBehavior.InitializeGrowingShutter;
+        Action<RoomEnemySlot> initialize = ShuttersBehavior.InitializeGrowingShutter;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.ShutterGrowing, slot.Definition);
         for (ushort selector = 0; selector < 4; selector++)
         {
             for (int high = 0; high < 256; high++)
             {
                 for (int speed = 0; speed < 24; speed++)
                 {
-                    slot.ExtraProperties = (ushort)(selector >> 1);
+                    slot.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)(selector >> 1)));
                     slot.CurrentInstruction = (ushort)(selector & 1);
                     slot.Parameter2 = (ushort)((high << 8) | speed);
                     slot.Position = slot.Position.WithWholeY(selector < 2 ? (ushort)65530 : (ushort)5);
                     initialize(slot);
                     GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
-                    AssertEqual(Word(0xa2ea4e + selector * 2), (ushort)(state ?? throw new InvalidOperationException("Verification requires state.")).Function, "Shutter real dispatch without bus");
-                    AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), state.GrowthVelocity, "Shutter native whole speed");
-                    AssertEqual(Word(0xa2ea58 + speed * 4), state.GrowthSubvelocity, "Shutter native fractional speed");
+                    AssertEqual(Word(0xa2ea4e + selector * 2), (ushort)(state.Function ?? throw new InvalidOperationException("The initialized shutter has no behaviour.")), "Shutter real dispatch without bus");
+                    AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), state.GrowthSpeed.WholePixels, "Shutter native whole speed");
+                    AssertEqual(Word(0xa2ea58 + speed * 4), state.GrowthSpeed.Fraction, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;
-                    AssertEqual(slot.Position.Y.Whole, state.GrowthLevel0OriginY, "Shutter base origin");
-                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 8)), state.GrowthLevel1OriginY, "Shutter wrapped origin one");
-                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 16)), state.GrowthLevel2OriginY, "Shutter wrapped origin two");
-                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 24)), state.GrowthLevel3OriginY, "Shutter wrapped origin three");
-                    AssertEqual((ushort)0, slot.ExtraProperties, "Shutter consumes initial direction word");
+                    AssertEqual(slot.Position.Y.Whole, state.GrowthLevel0Origin.Y, "Shutter base origin");
+                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 8)), state.GrowthLevel1Origin.Y, "Shutter wrapped origin one");
+                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 16)), state.GrowthLevel2Origin.Y, "Shutter wrapped origin two");
+                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 24)), state.GrowthLevel3Origin.Y, "Shutter wrapped origin three");
+                    AssertEqual((ushort)0, slot.ExtraProperties.ToNativeWord(), "Shutter consumes initial direction word");
                 }
             }
         }

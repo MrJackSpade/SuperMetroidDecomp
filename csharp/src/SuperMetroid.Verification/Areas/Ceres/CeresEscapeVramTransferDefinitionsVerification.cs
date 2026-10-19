@@ -63,14 +63,15 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay }),
             Presentation = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
         };
-        system.BindFixtureBus(NewCeresEscapeTransferReadGuard(rom));
-        foreach (ushort start in new[]
+        system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        // Each typed list must queue exactly the ROM-checked records from its native list start to its terminator.
+        foreach ((ushort start, CeresEscapeTransferCursor cursor) in new[]
                  {
-                     CeresEscapeVramTransferDefinitions.TimerSprites,
-                     CeresEscapeVramTransferDefinitions.TimerBackgrounds,
+                     (CeresEscapeVramTransferDefinitions.TimerSprites, CeresEscapeTransferCursor.TimerSprites),
+                     (CeresEscapeVramTransferDefinitions.TimerBackgrounds, CeresEscapeTransferCursor.TimerBackgrounds),
                  })
         {
-            var state = new RidleyEnemyState { CeresEscapeTransferListPointer = start };
+            var state = new RidleyEnemyState { CeresEscapeTransfers = cursor };
             var queue = new VramWriteQueue();
             CeresEscapeVramTransferDefinition[] list = records
                 .SkipWhile(record => record.Pointer != start)
@@ -89,7 +90,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
                 VramWriteEntry entry = queue.Entries[index];
                 AssertEqual(expected.ByteCount, entry.SizeInBytes,
                     $"Ceres transfer ${expected.Pointer:X4} queued byte count");
-                AssertEqual(expected.DestinationWord, entry.EncodedVramDestination,
+                AssertEqual(expected.DestinationWord, entry.Destination.Encoded,
                     $"Ceres transfer ${expected.Pointer:X4} queued destination");
                 if (expected.Pointer is 0xc4cb or 0xc4d2)
                 {
@@ -117,7 +118,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
                 $"Ceres Japanese transfer {index} byte count");
             AssertEqual(expected.SourceAddress, actual.SourceAddress,
                 $"Ceres Japanese transfer {index} source");
-            AssertEqual(expected.DestinationWord, actual.EncodedVramDestination,
+            AssertEqual(expected.DestinationWord, actual.Destination.Encoded,
                 $"Ceres Japanese transfer {index} destination");
         }
         system.Presentation.EscapeTimerArtwork = null;
@@ -125,8 +126,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         {
             system.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(new RidleyEnemyState
                     {
-                        CeresEscapeTransferListPointer =
-                            CeresEscapeVramTransferDefinitions.TimerSprites,
+                        CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites,
                     }, new VramWriteQueue());
             throw new InvalidOperationException(
                 "Installed Ceres escape accepted missing timer PNG artwork.");
@@ -140,11 +140,6 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             "both installed timer lists and Japanese overlay execute with descriptor reads blocked.");
     }
 
-    /// <summary>Rejects native descriptor reads while installed Ceres transfer lists are queued.</summary>
-    private static CartridgeReadGuard NewCeresEscapeTransferReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address),
-                address => $"Installed Ceres transfer read native descriptor ${address:X6}.");
 
     /// <summary>Imports indexed character pages needed to run the installed Ceres escape transfer path.</summary>
     [CpuBusBoundary("exact bus test: imports the Ceres escape tile pages from their retail ROM source addresses")]

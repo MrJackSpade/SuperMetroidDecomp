@@ -14,19 +14,19 @@ using SuperMetroid.Verification.Harness;
 internal static class ElevatorBehaviorVerification
 {
     /// <summary>The real initializer starts the Loop program, which the runtime then plays through once and back.</summary>
-    internal static void VerifyElevatorBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyElevatorBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Elevator;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = ElevatorFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = ElevatorFrameToolingDefinitions.Bank });
         enemies.ElevatorBehavior.InitializeElevator(slot, null);
-        AssertEqual(AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop), (enemies.ElevatorBehavior._elevatorStates[0] ?? throw new InvalidOperationException("The elevator has no state.")).Program,
+        AssertEqual(AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop), (enemies.SlotTable.Slots[0].EntityState<ElevatorEntity, ElevatorEnemyState>() ?? throw new InvalidOperationException("The elevator has no state.")).Program,
             "elevator initializer animation");
         slot.InstructionTimer = NativeCountdown.Start(1);
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Programs, ElevatorProgram.Loop, ElevatorFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Programs, ElevatorProgram.Loop)),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Programs, ElevatorProgram.Loop, ElevatorFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Programs, ElevatorProgram.Loop)),
             "elevator runs its loop and returns through its goto");
         Console.WriteLine("  elevator behavior: the initializer starts and runs its loop.");
     }
@@ -36,7 +36,7 @@ internal static class ElevatorBehaviorVerification
     internal static int ElevatorBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyElevatorBehavior), () => VerifyElevatorBehavior(rom));
+        Suite(nameof(VerifyElevatorBehavior), () => VerifyElevatorBehavior());
         Suite(nameof(ElevatorAnimationsVerification.VerifyElevatorAnimations), () => ElevatorAnimationsVerification.VerifyElevatorAnimations(rom));
         return 0;
     }

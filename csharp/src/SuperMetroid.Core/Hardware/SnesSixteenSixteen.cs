@@ -25,8 +25,10 @@ public static class SnesSixteenSixteen
     /// <inheritdoc cref="FromEightEight(int)"/>
     public static uint FromEightEight(uint raw) => raw << (FractionBits - 8);
 
-    /// <summary>The raw 16.16 value of a whole word and a fraction word.</summary>
-    public static uint Compose(ushort whole, ushort fraction) => (uint)whole << FractionBits | fraction;
+    /// <summary>The raw 16.16 value of a whole word and a fraction word, each 0 through 65535.</summary>
+    public static uint Compose(int whole, int fraction) =>
+        (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, whole) << FractionBits |
+        (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
 
     /// <summary><paramref name="value"/> times a 16.16 factor, truncated to whole units (arithmetic shift).</summary>
     public static int Multiply(int value, int factor) => value * factor >> FractionBits;

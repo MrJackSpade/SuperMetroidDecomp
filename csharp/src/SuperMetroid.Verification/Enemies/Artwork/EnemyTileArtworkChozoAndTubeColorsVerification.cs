@@ -18,6 +18,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Chozo statue and n00b-tube palette bands against native RGB5 data and live CGRAM initialization.</summary>
 internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Checks three editable color bands, persistent overrides, and real initializers while preserving native instructions and PLM requests.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo and tube palette bands")]
@@ -37,7 +40,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         byte[] stockJson = File.ReadAllBytes(file);
         ChozoAndTubeColorDocument visual =
             JsonSerializer.Deserialize<ChozoAndTubeColorDocument>(stockJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Chozo/tube color JSON is null.");
         visual.TubeCracks[5] = ChangeRed(visual.TubeCracks[5]);
         visual.WreckedShip[5] = ChangeRed(visual.WreckedShip[5]);
@@ -61,7 +64,6 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 
         // Every live initializer must use the installed data, while variant selection,
         // instruction identity and native PLM requests remain engine-owned.
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
         Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveTubeCracks,
@@ -105,7 +107,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         {
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem { TileArtwork = edited };
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._cgram = cgram;
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.Parameter2 = variant;
@@ -117,7 +119,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             if (expectedProgram is not null)
             {
                 AssertEqual(AnimationProgramCursor<ChozoStatueProgram>.Start(expectedProgram.Value),
-                    (enemies.ChozoStatueBehavior._chozoStatueStates[statue.SlotIndex]
+                    (statue.SpeciesState<ChozoStatueState>()
                         ?? throw new InvalidOperationException($"{name} has no statue state.")).Program,
                     $"{name} keeps native animation selection");
                 AssertTrue(enemies.ChozoStatuePlmRequests.Count != 0,

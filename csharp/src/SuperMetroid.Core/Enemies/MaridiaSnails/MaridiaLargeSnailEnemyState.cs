@@ -3,26 +3,23 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
-/// Typed debugger projection of Oum's six common enemy words and ten family-extra words.
-/// Common variables remain backed by the physical enemy slot; family-extra values are named
-/// host fields because this family has no cross-slot WRAM aliases.
+/// The state of Oum, with its ten family-extra values. The values the cartridge keeps in the enemy's common record are
+/// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class MaridiaLargeSnailEnemyState
 {
-    /// <summary>Common enemy slot backing Oum's native variables A-F.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects Oum's common words and family-extra state from its live enemy slot.</summary>
-    internal MaridiaLargeSnailEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<MaridiaLargeSnailProgram> Program { get; set; }
 
-    /// <summary>Extra word $00: requested index into the eight-entry list table at $CB77.</summary>
-    public ushort RequestedInstructionListIndex { get; internal set; }
+    /// <summary>
+    /// Extra word $00: the requested animation, 0 through 7, an index into the eight-entry selector table at $CB77.
+    /// Its lowest bit selects the left-facing program, and the idle, roll and attack transitions set, clear and toggle
+    /// its upper two bits, which never carries it outside the table.
+    /// </summary>
+    public int RequestedInstructionListIndex { get; internal set; }
 
-    /// <summary>Extra word $01: last list-table index accepted by <c>SetOumInstList</c>.</summary>
-    public ushort InstalledInstructionListIndex { get; internal set; }
+    /// <summary>Extra word $01: the last requested animation <c>SetOumInstList</c> installed, 0 through 7.</summary>
+    public int InstalledInstructionListIndex { get; internal set; }
 
     /// <summary>Extra word $02: set by instruction $CCB3 when the attack animation ends.</summary>
     public bool AttackAnimationFinished { get; internal set; }
@@ -43,57 +40,46 @@ public sealed class MaridiaLargeSnailEnemyState
     public Position16<RoomPixels> PreviousPosition { get; internal set; }
 
     /// <summary>
-    /// Extra word $0A is cleared by initialization and otherwise unused by the retail code.
-    /// It remains visible so a debugger can prove that the untranslated-looking write exists.
-    /// </summary>
-    public ushort UnusedExtra0A { get; internal set; }
-
-    /// <summary>
     /// Extra word $0B: movement suppression produced after AI and consumed on the next frame.
     /// This one-frame pipeline is intentional cartridge ordering, not input latency invented
     /// by the host translation.
     /// </summary>
     public bool StopMovementNextFrame { get; internal set; }
 
-    /// <summary>Common variable A: outer behavior function.</summary>
-    public MaridiaLargeSnailEnemyFunction Function
+    /// <summary>Outer behavior function; none once a kill has emptied the record.</summary>
+    public MaridiaLargeSnailEnemyFunction? Function { get; internal set; }
+
+    /// <summary>
+    /// The bounce arc's quadratic-speed record in 256ths, stepped by 384 per update. Falling caps it at 16384; an
+    /// impact removes 4096 and may leave it below zero, which ends the bounces, and rising stores zero once it would go
+    /// below zero. It therefore stays within -3712 through 16384.
+    /// </summary>
+    public int YSpeedTableIndex
     {
-        get => (MaridiaLargeSnailEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
+        get;
+        internal set => field = checked((short)value);
     }
 
-    /// <summary>Common variable B: $0180-stepped index used by the bounce arc.</summary>
-    public ushort YSpeedTableIndex
-    {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
+    /// <summary>Signed-underflow attack cooldown, initialized to 128.</summary>
+    public NativeCountdown AttackCooldown { get; internal set; }
 
-    /// <summary>Common variable C: signed-underflow attack cooldown, initialized to 128.</summary>
-    public NativeCountdown AttackCooldown
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableC);
-        internal set => _slot.VariableC = value.RawValue;
-    }
+    /// <summary>Whether the snail moves left rather than right.</summary>
+    public bool MovingLeft { get; internal set; }
 
-    /// <summary>Common variable D: zero moves right; one moves left.</summary>
-    public bool MovingLeft
-    {
-        get => _slot.VariableD != 0;
-        internal set => _slot.VariableD = value ? (ushort)1 : (ushort)0;
-    }
+    /// <summary>Remaining landing impacts before Oum is settled.</summary>
+    public NativeCountdown RemainingBounces { get; internal set; }
 
-    /// <summary>Common variable E: remaining landing impacts before Oum is settled.</summary>
-    public NativeCountdown RemainingBounces
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableE);
-        internal set => _slot.VariableE = value.RawValue;
-    }
+    /// <summary>Falling/rising half of the quadratic bounce; none once a kill has emptied the record.</summary>
+    public MaridiaLargeSnailBounceFunction? BounceFunction { get; internal set; }
 
-    /// <summary>Common variable F: falling/rising half of the quadratic bounce.</summary>
-    public MaridiaLargeSnailBounceFunction BounceFunction
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => (MaridiaLargeSnailBounceFunction)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
+        Function = null;
+        YSpeedTableIndex = 0;
+        AttackCooldown = NativeCountdown.Start(0);
+        MovingLeft = false;
+        RemainingBounces = NativeCountdown.Start(0);
+        BounceFunction = null;
     }
 }

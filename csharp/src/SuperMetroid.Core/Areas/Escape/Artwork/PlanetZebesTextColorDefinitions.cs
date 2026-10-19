@@ -2,20 +2,17 @@ using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Areas.Escape.Artwork;
 
-/// <summary>Native $8D:C914..C95E and C96A..C9B4 PLANET ZEBES text colors from three independently required bright endpoints.</summary>
+/// <summary>PLANET ZEBES text colors from three independently required bright endpoints.</summary>
 internal static class PlanetZebesTextColorDefinitions
 {
-    /// <summary>Decodes a bank-$8D text-color word into its fade owner, frame, and RGB endpoint slot when aligned and in range.</summary>
-    internal static bool TryCoordinates(ushort pointer, out PlanetZebesTextPaletteFxProgramOwner owner, out int frame, out int color)
+    /// <summary>The fade owner, frame, and RGB endpoint slot of a text color.</summary>
+    internal static bool TryCoordinates(PaletteFxColorKey key, out PlanetZebesTextPaletteFxProgramOwner owner, out int frame, out int color)
     {
         foreach (var program in PlanetZebesTextPaletteFxColorDefinitions.All)
         {
-            int offset = pointer - program.ColorPointer(0, 0);
-            int stride = PlanetZebesTextPaletteFxColorDefinitions.FrameByteCount;
-            if (offset >= 0 && offset < stride * PlanetZebesTextPaletteFxColorDefinitions.FrameCount
-                && (offset & 1) == 0 && offset % stride < 2 * PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame)
+            if (program.Rows.TryLocate(key, out frame, out color))
             {
-                owner = program.Owner; frame = offset / stride; color = offset % stride / 2;
+                owner = program.Owner;
                 return true;
             }
         }
@@ -23,16 +20,16 @@ internal static class PlanetZebesTextColorDefinitions
         return false;
     }
 
-    /// <summary>$8D:C95A/C95C/C95E: REQUIRED selected bright text endpoints. No color or intensity exception is claimed.</summary>
-    internal static ushort EndpointPointer(int color) => PlanetZebesTextPaletteFxColorDefinitions.All[0]
-        .ColorPointer(PlanetZebesTextPaletteFxColorDefinitions.FrameCount - 1, color);
+    /// <summary>The fade-in's last row: REQUIRED selected bright text endpoints. No color or intensity exception is claimed.</summary>
+    internal static PaletteFxColorKey Endpoint(int color) => PlanetZebesTextPaletteFxColorDefinitions.All[0]
+        .Color(PlanetZebesTextPaletteFxColorDefinitions.FrameCount - 1, color);
 
     /// <summary>Round each RGB5 endpoint channel to nearest over seven native intervals; fade-out reverses the phase.</summary>
-    internal static bool TryCalculate(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> inputs, out Bgr555 color)
+    internal static bool TryCalculate(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> inputs, out Bgr555 color)
     {
         color = Bgr555.Black;
-        if (!TryCoordinates(pointer, out var owner, out int frame, out int index)
-            || !inputs.TryGetValue(EndpointPointer(index), out Bgr555 endpoint)) return false;
+        if (!TryCoordinates(key, out var owner, out int frame, out int index)
+            || !inputs.TryGetValue(Endpoint(index), out Bgr555 endpoint)) return false;
         int intervals = PlanetZebesTextPaletteFxColorDefinitions.FrameCount - 1;
         int phase = owner == PlanetZebesTextPaletteFxProgramOwner.FadeIn ? frame : intervals - frame;
         int red = ((endpoint.Red) * phase + intervals / 2) / intervals;

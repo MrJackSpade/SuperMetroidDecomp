@@ -78,20 +78,20 @@ internal static class BotwoonWallPlmsVerification
             $"Botwoon {(clear ? "clear" : "crumble")} PLM allocates");
         var guarded = NewBotwoonWallSourceGuard(new TestAddressSpace());
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            guarded, new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
+            new RoomScrollStorage(), new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         int soundCount = 0;
         for (int frame = 0; frame < 220 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
             soundCount += plms.Sounds.SoundRequests.Count(request =>
                 request.SoundEffect == BotwoonWallPlmProgramDefinitions.CrumbleSound);
             if (clear && frame == 0)
             {
                 for (int y = 4; y <= 12; y++)
                     AssertEqual((ushort)0x00ff,
-                        level.GetCollisionBlockByIndex(y * width + 15).LevelWord,
+                        level.GetCollisionBlockByIndex(y * width + 15).PackedWord.Raw,
                         $"Botwoon clear row {y}");
             }
             if (!clear && frame >= 63 && frame <= 203 &&
@@ -107,7 +107,7 @@ internal static class BotwoonWallPlmsVerification
                     _ => 0x00ff,
                 };
                 AssertEqual(appearance,
-                    level.GetCollisionBlockByIndex((4 + row) * width + 15).LevelWord,
+                    level.GetCollisionBlockByIndex((4 + row) * width + 15).PackedWord.Raw,
                     $"Botwoon crumble frame {frame}, row {row}");
                 if (row == 0 && phase == 0)
                 {

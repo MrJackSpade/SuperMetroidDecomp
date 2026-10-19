@@ -26,7 +26,7 @@ internal static class IntroRinkaDefinitionsVerification
         {
             IntroRinkaActorDefinition actual = actors[index].Actor;
             int address = IntroRinkaDefinitions.NativeBank | actors[index].NativePointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), actual.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), actual.PreInstruction.NativeAddress,
                 $"intro Rinka actor {index} pre-instruction callback");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
                 $"intro Rinka actor {index} instruction list");
@@ -54,7 +54,7 @@ internal static class IntroRinkaDefinitionsVerification
         };
         for (int frame = 0; frame < 220; frame++)
         {
-            system.Step(guarded, samus, motherBrainExploding: false, explosionsAllocated: false);
+            system.Step(samus, motherBrainExploding: false, explosionsAllocated: false);
             int expectedCount = frame < 74 ? 0 : frame < 202 ? 2 : 4;
             AssertEqual(expectedCount, system.LiveRinkas.Count,
                 $"intro Rinka two-wave spawn count at frame {frame}");
@@ -71,7 +71,7 @@ internal static class IntroRinkaDefinitionsVerification
                         1 => (ushort)0x8c8d,
                         _ => (ushort)0x8cb9,
                     };
-                AssertEqual(expectedSprite, system.Rinka(0).SpriteMapPointer,
+                AssertEqual(expectedSprite, CinematicSpritePoseSpritemaps.Of(system.Rinka(0).Pose),
                     $"intro first Rinka selects its native frame at call {frame}");
             }
         }
@@ -81,7 +81,7 @@ internal static class IntroRinkaDefinitionsVerification
             "all intro Rinkas remain active before Mother Brain explodes");
 
         for (int frame = 0; frame < 100; frame++)
-            system.Step(guarded, samus, motherBrainExploding: true, explosionsAllocated: false);
+            system.Step(samus, motherBrainExploding: true, explosionsAllocated: false);
         AssertEqual(0, system.ActiveCount,
             "all intro Rinkas retire after Mother Brain begins exploding");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

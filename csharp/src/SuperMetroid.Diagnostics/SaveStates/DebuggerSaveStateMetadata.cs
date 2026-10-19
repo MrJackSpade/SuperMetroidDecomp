@@ -7,6 +7,6 @@ internal readonly record struct DebuggerSaveStateMetadata(
     DateTimeOffset SavedUtc,
     ushort FrameNumber,
     SuperMetroidGameState GameState,
-    ushort? RoomPointer,
-    ushort? RoomStatePointer,
+    string? Room,
+    string? RoomState,
     string Path);

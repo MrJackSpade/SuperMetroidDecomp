@@ -25,15 +25,14 @@ internal static class FileCopyArrowVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var installation = RepositoryInstallation.Installation;
         var art = InstalledFixtures.Maps;
-        // All SRAM changes belong to this private imported address space.
-        var saves = new SuperMetroidSaveRam(rom, RetailPresentationFixture());
+        // All save changes belong to this private store.
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         for (int slot = 0; slot < 3; slot++)
             saves.SaveSlot(slot, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (var pair in new[] { (0, 2), (0, 1), (1, 2), (2, 0), (1, 0), (2, 1) }.Select((slots, row) => (slots, row)))
         {
             saves.SelectSlot(0);
-            var menu = new FileSelectMenuState(rom, mapPresentation: art);
+            var menu = new FileSelectMenuState(saves, mapPresentation: art);
             void Press(SnesButton button) { menu.Step(0); menu.Step(button); }
             void Until(FileSelectPhase phase)
             {
@@ -69,8 +68,8 @@ internal static class FileCopyArrowVerification
             for (int part = 0; part < count; part++)
             {
                 int address = spritemap + 2 + part * 5;
-                expected.AddOnScreenSpritePart((SnesSpritemapXWord)ReadVerificationWord(rom, address),
-                    FileCopyArrowRomByte(rom, address + 2), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<OamPixels>(originX, originY));
+                expected.AddOnScreenSpritePart(new SnesSpritemapXWord(ReadVerificationWord(rom, address)),
+                    new SnesSpritemapYByte(FileCopyArrowRomByte(rom, address + 2)), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<OamPixels>(originX, originY));
                 AssertEqual(expected.GetEntry(part), actual.GetEntry(noArrowCount + part),
                     $"copy {pair.slots}: exact arrow position, tile, flip, palette and priority, part {part}");
             }

@@ -7,4 +7,8 @@ internal static class PowerBombShapeReferenceData
     internal const int Width = 0x88a266;
     /// <summary>$88:A286, PowerBombExplosion_ShapeDefinitionTable_Unscaled_topOffset: 32 inclusive boundaries.</summary>
     internal const int TopOffset = 0x88a286;
+    /// <summary>$88:9246, the seventeen pre-scaled white window shapes, 192 bytes each.</summary>
+    internal const int PreScaledWhite = 0x889246;
+    /// <summary>$88:9F06, the four pre-scaled yellow window shapes that follow the white ones.</summary>
+    internal const int PreScaledYellow = 0x889f06;
 }

@@ -2,6 +2,7 @@ using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
@@ -22,7 +23,7 @@ internal static class CeresZebesActorMetadataVerification
             int spawnOperand = 0x8bc811 + 6 * index;
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperand - 1), "native spawn LDY");
             ushort pointer = CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperand);
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 2)), actor.ActivePreInstruction,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 2)), actor.ActivePreInstruction.NativeAddress,
                 "native reveal callback, which the initializer leaves unchanged");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Program), "native reveal program");
             AssertEqual(0, actor.HorizontalDelta, "reveal actor has no horizontal motion");
@@ -38,7 +39,7 @@ internal static class CeresZebesActorMetadataVerification
 
         CeresDestructionActorDefinition planet =
             CeresDestructionActorDefinitions.ZebesActor(0);
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc857), planet.SlidePreInstruction,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc857), planet.SlidePreInstruction.NativeAddress,
             "Zebes planet slide callback");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc862), planet.SlideAcceleration,
             "Zebes planet slide acceleration");
@@ -46,14 +47,14 @@ internal static class CeresZebesActorMetadataVerification
         {
             CeresDestructionActorDefinition star =
                 CeresDestructionActorDefinitions.ZebesActor(index);
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc902), star.SlidePreInstruction,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc902), star.SlidePreInstruction.NativeAddress,
                 $"Zebes star {index + 1} slide callback");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc90d), star.SlideAcceleration,
                 $"Zebes star {index + 1} slide acceleration");
         }
         CeresDestructionActorDefinition completionStar =
             CeresDestructionActorDefinitions.ZebesActor(4);
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc8b3), completionStar.SlidePreInstruction,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc8b3), completionStar.SlidePreInstruction.NativeAddress,
             "Zebes completion star slide callback");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc8be), completionStar.SlideAcceleration,
             "Zebes completion star slide acceleration");
@@ -61,7 +62,7 @@ internal static class CeresZebesActorMetadataVerification
             "Zebes stars 5 retains scene-completion ownership");
         CeresDestructionActorDefinition title =
             CeresDestructionActorDefinitions.ZebesActor(5);
-        AssertEqual((ushort)0, title.SlidePreInstruction,
+        AssertEqual((ushort)0, title.SlidePreInstruction.NativeAddress,
             "PLANET ZEBES title cannot enter slide motion");
         AssertEqual((ushort)0, title.SlideAcceleration,
             "PLANET ZEBES title has no slide acceleration");

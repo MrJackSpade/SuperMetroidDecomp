@@ -16,65 +16,104 @@ internal static class MagdolliteApexThresholdVerification
     /// Confirms issue #1269: the $A8:B259 maximum-rise branch compares arm height with
     /// <c>MagdolliteArmHeightThreshold + EnemyIndex</c> ($A0:9073) before loading the growth
     /// index into Y. The recorded Crateria arm in slot two reads $AE9D and grows one final
-    /// pillar segment at the apex.
+    /// pillar segment at the apex. For every enemy slot, the cartridge's signed comparison of each rise an arm can
+    /// reach the apex with (the maximum rise plus at most one step of the fastest speed record) against the overread
+    /// word must give the production table's answer.
     /// </summary>
     internal static void VerifyMagdolliteApexThreshold()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         VerifyMagdollitePhaseDefinitions(rom);
-        for (int slot = 0; slot < MagdollitePhaseDefinitions.ApexThresholdSlotCount; slot++)
+        const int largestStep = 5;
+        for (int slot = 0; slot < MagdollitePhaseDefinitions.ApexEnemySlotCount; slot++)
         {
             int address = 0xa80000 | MagdollitePhaseDefinitions.ArmHeightThresholdTable + slot * 0x40;
-            AssertEqual(ReadMagdolliteWord(rom, address), MagdollitePhaseDefinitions.ApexThreshold(slot),
-                $"Magdollite apex threshold overread for slot {slot}");
+            ushort overread = ReadMagdolliteWord(rom, address);
+            for (int rise = MagdollitePhaseDefinitions.MaximumRise; rise <= MagdollitePhaseDefinitions.MaximumRise + largestStep; rise++)
+            {
+                AssertEqual(unchecked((short)(rise - overread)) >= 0, MagdollitePhaseDefinitions.ApexGrowsFinalPhase(slot),
+                    $"Magdollite apex growth for slot {slot} at a rise of {rise}");
+            }
         }
         AssertThrows<InvalidDataException>(
-            () => MagdollitePhaseDefinitions.ApexThreshold(MagdollitePhaseDefinitions.ApexThresholdSlotCount),
-            "Magdollite apex threshold beyond the enemy slots");
+            () => MagdollitePhaseDefinitions.ApexGrowsFinalPhase(MagdollitePhaseDefinitions.ApexEnemySlotCount),
+            "Magdollite apex growth beyond the enemy slots");
 
+        VerifyRiseCarry();
         // Slot two (the movie): $006C - $AE9D wraps positive, so BPL grows to phase eight.
         VerifyApex(headSlot: 1, grows: true);
         // Slot one: $006C - $20AF is negative, so the arm stops at phase seven.
         VerifyApex(headSlot: 0, grows: false);
         Console.WriteLine("Magdollite apex threshold: the maximum-rise branch compares against the enemy-index overread.");
 
+        // The rising arm adds the head's 16.16 upward velocity of one and a half pixels: the first update moves two
+        // whole pixels and leaves half a pixel, the second carries it and moves one, and the rise displacement
+        // accumulates exactly the whole-pixel moves.
+        static void VerifyRiseCarry()
+        {
+            const int onePixel = 65536;
+            var enemies = new RoomEnemySystem();
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+            for (int part = 0; part < 3; part++)
+            {
+                RoomEnemySlot member = enemies.SlotTable.Slots[part];
+                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
+                member.Parameter1 = (ushort)part;
+                member.Parameter2 = 0;
+                member.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
+                enemies.MagdolliteBehavior.InitializeMagdollite(member, null);
+            }
+            MagdolliteEnemyState head = enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Magdollite head has no state.");
+            head.UpwardVelocity = SnesSignedSixteenSixteen.Zero - SnesSignedSixteenSixteen.FromRaw(onePixel + onePixel / 2);
+            RoomEnemySlot body = enemies.SlotTable.Slots[1];
+            MagdolliteEnemyState state = enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Magdollite arm has no state.");
+            state.Function = MagdolliteEnemyFunction.BodyRising;
+            state.BodyPhase = 1;
+            state.RiseDisplacement = Offset16<RoomPixels>.Zero;
+            body.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
+
+            rise(body, state, null);
+            AssertEqual(new SnesFixedPosition(670, onePixel / 2), body.Position.Y, "Magdollite arm's first rise leaves half a pixel");
+            AssertEqual(new Offset16<RoomPixels>(0, -2), state.RiseDisplacement, "Magdollite arm's first rise is two whole pixels");
+            rise(body, state, null);
+            AssertEqual(new SnesFixedPosition(669, 0), body.Position.Y, "Magdollite arm's second rise carries the half pixel");
+            AssertEqual(new Offset16<RoomPixels>(0, -3), state.RiseDisplacement, "Magdollite arm's rise displacement counts whole-pixel moves");
+            AssertEqual(1, state.BodyPhase, "Magdollite arm stays in its first phase below sixteen pixels");
+        }
+
         static void VerifyApex(int headSlot, bool grows)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewMagdolliteApexGuard(new TestAddressSpace()));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
             Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
             for (int part = 0; part < 3; part++)
             {
                 RoomEnemySlot member = enemies.SlotTable.Slots[headSlot + part];
-                member.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
+                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
                 member.Parameter1 = (ushort)part;
                 member.Parameter2 = 0;
                 member.Position = member.Position.WithWhole(new(0x01d8, 0x02a0));
                 initialize(member, null);
             }
             MagdolliteEnemyState head = (enemies.MagdolliteStates[headSlot] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot]."));
-            (head ?? throw new InvalidOperationException("Verification requires head.")).NegativeSpeedWhole = head.NegativeSpeedFraction = 0;
+            (head ?? throw new InvalidOperationException("Verification requires head.")).UpwardVelocity = SnesSignedSixteenSixteen.Zero;
             RoomEnemySlot body = enemies.SlotTable.Slots[headSlot + 1];
             MagdolliteEnemyState state = (enemies.MagdolliteStates[headSlot + 1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot + 1]."));
             (state ?? throw new InvalidOperationException("Verification requires state.")).Function = MagdolliteEnemyFunction.BodyRising;
-            state.BodyPhaseOffset = 14;
+            state.BodyPhase = 7;
             body.Position = body.Position.WithWholeY(0x02a0);
-            state.VerticalWholeDisplacement = unchecked((ushort)-MagdollitePhaseDefinitions.MaximumRise);
+            state.RiseDisplacement = new(0, -MagdollitePhaseDefinitions.MaximumRise);
 
             rise(body, state, null);
             string context = $"Magdollite body in slot {body.SlotIndex}";
             AssertEqual(MagdolliteEnemyFunction.NoOpAtApex, state.Function, $"{context} reaches its apex");
-            AssertEqual((ushort)(grows ? 16 : 14), state.BodyPhaseOffset, $"{context} apex phase");
+            AssertEqual(grows ? 8 : 7, state.BodyPhase, $"{context} apex phase");
             AssertEqual((ushort)(grows ? 0x02a8 : 0x02a0), body.Position.Y.Whole, $"{context} apex Y");
         }
     }
 
-    /// <summary>Blocks live reads of the migrated Magdollite threshold range during the apex reproduction.</summary>
-    private static CartridgeReadGuard NewMagdolliteApexGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).ForbidRange(0xa8af55, 0xa8b717 - 0xa8af55,
-            address => $"Magdollite attempted a migrated threshold read ${address:X6}.");
 
     /// <summary>Runs the focused slot-indexed Magdollite apex comparison.</summary>
     [VerificationCommand("--magdollite-apex-threshold")]

@@ -11,5 +11,5 @@ namespace SuperMetroid.Core.Audio;
 public sealed record SoundEffectClipLayer(
     AudioClipFile Clip,
     long? LoopStart,
-    byte Voices,
+    SoundEffectVoices Voices,
     IReadOnlyList<long> KeyOnFrames);

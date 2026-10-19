@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
@@ -65,13 +66,12 @@ internal static class RoomSkyTilemapsVerification
             new ScrollingSkyState().ProcessFrame((ushort)cameraY, false, queued, callback);
             foreach (VramWriteEntry transfer in queued.Entries)
             {
-                // Ocean's wrapped top-of-room pointer deliberately selects the
-                // low-half bank-$8A WRAM mirror, not an editable ROM sky page.
-                // That transfer must remain live bus data at NMI time.
-                if ((SnesAddressMath.OffsetInBank(transfer.SourceAddress)) < SnesBusLayout.WorkRamMirrorEnd)
+                // Ocean's wrapped top-of-room pointer selects live WRAM the port does not
+                // keep there; those rows behind the HUD upload blank (#1318).
+                if (transfer.ZeroFill)
                 {
                     AssertTrue(callback == RoomMainCallback.ScrollingSkyOcean && cameraY < 16,
-                        $"only ocean's wrapped top row may stream live WRAM (${transfer.SourceAddress:X6})");
+                        $"only ocean's wrapped top row uploads blank (camera Y=${cameraY:X4})");
                     continue;
                 }
                 AssertTrue(stock.TryResolve(transfer.SourceAddress, transfer.SizeInBytes,
@@ -85,7 +85,7 @@ internal static class RoomSkyTilemapsVerification
             .Where(source => source.ListPointer ==
                 unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
             .ToArray();
-        LibraryBackgroundProgram landingProgram = LibraryBackgroundProgramDefinitionsTooling.Get(
+        LibraryBackgroundProgram landingProgram = LibraryBackgroundProgramDefinitions.Get(
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress));
         AssertEqual(landingProgram.Instructions.Count, landingSources.Length,
             "compiled Landing Site transfer count matches the native list");
@@ -93,9 +93,10 @@ internal static class RoomSkyTilemapsVerification
         {
             LibraryBackgroundSource native = landingSources[index];
             LibraryBackgroundInstruction compiled = landingProgram.Instructions[index];
+            CartridgeDoorHeader compiledDoor = compiled.Door ?? throw new InvalidOperationException("Verification requires compiled.Door.");
             AssertEqual(LibraryBackgroundCommand.TransferForDoor, native.Command,
                 $"Landing Site command {index} is door-selected");
-            AssertEqual(compiled.DoorPointer, (native.DoorPointer ?? throw new InvalidOperationException("Verification requires native.DoorPointer.")),
+            AssertEqual(DoorDefinitions.PointerOf(compiledDoor), (native.DoorPointer ?? throw new InvalidOperationException("Verification requires native.DoorPointer.")),
                 $"Landing Site command {index} door");
             AssertEqual(compiled.SourceAddress, native.SourceAddress,
                 $"Landing Site command {index} sky source");
@@ -104,17 +105,17 @@ internal static class RoomSkyTilemapsVerification
             AssertEqual(compiled.ByteCount, (native.TransferByteCount ?? throw new InvalidOperationException("Verification requires native.TransferByteCount.")),
                 $"Landing Site command {index} transfer size");
             _ = LandingSiteEntryState.Load(
-                NewSkyPageReadGuard(bus, blockLandingList: true), compiled.DoorPointer);
+                NewSkyPageReadGuard(bus, blockLandingList: true), DoorDefinitions.PointerOf(compiledDoor));
             AssertEqual(compiled.SourceAddress,
                 LibraryBackgroundProgramDefinitions.GetDoorTransfer(
                     unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
-                    compiled.DoorPointer).SourceAddress,
+                    DoorDefinitions.PointerOf(compiledDoor)).SourceAddress,
                 $"Landing Site door {index} uses compiled sky selection without list ROM reads");
             var expectedVram = new SnesVram();
             expectedVram.LoadBytes(compiled.Destination * 2,
                 ReadRetailSkyBytes(bus, compiled.SourceAddress, compiled.ByteCount));
             var compiledVram = new SnesVram();
-            LibraryBackgroundLoader.Execute(NewSkyPageReadGuard(bus, blockLandingList: true), compiledVram, unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), compiled.DoorPointer, new LibraryBackgroundArtwork { SkyArt = stock });
+            LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), compiledVram, LibraryBackgroundProgramDefinitions.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)), compiledDoor, new LibraryBackgroundArtwork { SkyArt = stock });
             AssertTrue(expectedVram.ImageEquals(compiledVram),
                 $"Landing Site door {index} uploads the exact stock sky page without visual/list ROM reads");
         }
@@ -124,7 +125,7 @@ internal static class RoomSkyTilemapsVerification
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
             LandingSiteRomData.LandingCutsceneDoorPointer);
-        LibraryBackgroundLoader.Execute(NewSkyPageReadGuard(bus, blockLandingList: true), installedDoorVram, unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), LandingSiteRomData.LandingCutsceneDoorPointer, new LibraryBackgroundArtwork { SkyArt = stock });
+        LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), installedDoorVram, LibraryBackgroundProgramDefinitions.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)), DoorDefinitions.Get(LandingSiteRomData.LandingCutsceneDoorPointer), new LibraryBackgroundArtwork { SkyArt = stock });
         AssertTrue(nativeDoorVram.ImageEquals(installedDoorVram),
             "Landing Site door-selected sky upload uses installed pages without ROM visual reads");
 
@@ -137,7 +138,7 @@ internal static class RoomSkyTilemapsVerification
         var nativeRowVram = new SnesVram();
         var installedRowVram = new SnesVram();
         ImportedVramOracle.Drain(nativeRows, nativeRowVram, bus);
-        installedRows.DrainTo(installedRowVram, ReferenceMutableMemory.From(guard), new SkyPageProvider(stock));
+        installedRows.DrainTo(installedRowVram, new SkyPageProvider(stock));
         AssertTrue(nativeRowVram.ImageEquals(installedRowVram),
             "per-frame sky rows use installed pages without ROM visual reads");
         foreach (ushort cameraY in new ushort[] { 0x0000, 0x04f0 })
@@ -149,7 +150,7 @@ internal static class RoomSkyTilemapsVerification
             var nativeEdgeVram = new SnesVram();
             var installedEdgeVram = new SnesVram();
             ImportedVramOracle.Drain(nativeEdgeRows, nativeEdgeVram, bus);
-            installedEdgeRows.DrainTo(installedEdgeVram, ReferenceMutableMemory.From(guard),
+            installedEdgeRows.DrainTo(installedEdgeVram,
                 new SkyPageProvider(stock));
             AssertTrue(nativeEdgeVram.ImageEquals(installedEdgeVram),
                 $"camera Y=${cameraY:X4} preserves native sky-row overread and wrap parity");
@@ -164,18 +165,21 @@ internal static class RoomSkyTilemapsVerification
                 RoomMainCallback.ScrollingSkyOcean);
             VramWriteEntry wrappedRow = nativeOceanRows.Entries[0];
             if (cameraY == 0)
-                MarkWrappedSkyRowWram(bus, wrappedRow);
+                MarkWrappedSkyRowWram(bus);
             var nativeOceanVram = new SnesVram();
             var installedOceanVram = new SnesVram();
             ImportedVramOracle.Drain(nativeOceanRows, nativeOceanVram, bus);
-            installedOceanRows.DrainTo(installedOceanVram, ReferenceMutableMemory.From(guard),
+            installedOceanRows.DrainTo(installedOceanVram,
                 new SkyPageProvider(stock));
             AssertTrue(nativeOceanVram.ImageEquals(installedOceanVram),
-                $"ocean camera Y=${cameraY:X4} uses installed sky rows and live wrapped WRAM with exact native NMI output");
+                $"ocean camera Y=${cameraY:X4} uses installed sky rows and a blank wrapped top row");
             if (cameraY == 0)
-                AssertEqual((byte)0x5a,
-                    installedOceanVram.Bytes[(wrappedRow.EncodedVramDestination & 0x7fff) * 2],
-                    "ocean top row DMA reads live WRAM mirror instead of a compiled sky page");
+            {
+                AssertTrue(wrappedRow.ZeroFill, "ocean wrapped top row is queued blank");
+                AssertEqual((byte)0,
+                    installedOceanVram.Bytes[(wrappedRow.Destination.Encoded & 0x7fff) * 2],
+                    "ocean wrapped top row ignores the WRAM its native pointer names");
+            }
         }
 
         var editedQueue = new VramWriteQueue();
@@ -193,19 +197,23 @@ internal static class RoomSkyTilemapsVerification
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(editedDocument)),
             RoomSkyTilemapFormat.PageByteCount);
         var editedRowVram = new SnesVram();
-        editedQueue.DrainTo(editedRowVram, ReferenceMutableMemory.From(guard),
+        editedQueue.DrainTo(editedRowVram,
             new SkyPageProvider(new RoomSkyTilemapCatalog(pages)));
-        AssertTrue(editedRowVram.ReadWord(firstRow.EncodedVramDestination) !=
-                nativeRowVram.ReadWord(firstRow.EncodedVramDestination),
+        AssertTrue(editedRowVram.ReadWord(firstRow.Destination.Encoded) !=
+                nativeRowVram.ReadWord(firstRow.Destination.Encoded),
             "editing a sky page changes the visible queued row at its native destination");
         Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +
-            "per-frame NMI transfers use installed art and native wrapped WRAM, and an edit reaches the queued row.");
+            "per-frame NMI transfers use installed art, ocean's wrapped top row is blank, and an edit reaches the queued row.");
     }
 
-    /// <summary>Marks the bank-$7E byte an ocean sky row's wrapped NMI source reads, so its live WRAM is observable.</summary>
-    [CpuBusBoundary("exact bus test: seeds the live WRAM byte a wrapped ocean sky-row transfer reads")]
-    private static void MarkWrappedSkyRowWram(SuperMetroidAddressSpace bus, VramWriteEntry wrappedRow) =>
-        bus.WriteByte(0x7e0000 | (SnesAddressMath.OffsetInBank(wrappedRow.SourceAddress)), 0x5a);
+    /// <summary>
+    /// Marks the bank-$7E byte the native ocean wrapped top row (camera Y 0) DMAs from, so a transfer that still read it
+    /// would be observable.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: seeds the live WRAM byte the native wrapped ocean sky-row pointer names")]
+    private static void MarkWrappedSkyRowWram(SuperMetroidAddressSpace bus) =>
+        bus.WriteByte(0x7e0000 | unchecked((ushort)(ScrollingSkyChunkDefinitions.OceanWrappedTop +
+            SnesLittleEndian.LowByte(unchecked((ushort)(0 - RoomFxRomData.ScrollingSky.UpperRowCameraOffset))) * 8)), 0x5a);
 
     /// <summary>Reads original bank-relative sky page bytes for the independent VRAM comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky tilemap pages and Landing Site transfers")]
@@ -222,9 +230,8 @@ internal static class RoomSkyTilemapsVerification
         if (blockLandingList)
             guard.Forbid(address => address >= LandingSiteRomData.LibraryBackgroundListAddress &&
                     address < LandingSiteRomData.LibraryBackgroundListAddress +
-                        LibraryBackgroundProgramDefinitionsTooling.Get(
-                            unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
-                            .NativeByteCount,
+                        LibraryBackgroundProgramImporter.ByteSpan(source,
+                            unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)),
                 address => $"Landing Site entry reread compiled transfer list ${address:X6}.");
         return guard;
     }

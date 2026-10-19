@@ -37,7 +37,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
     {
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, AlcoonInstructionAuditRoom);
         var installation = RepositoryInstallation.Installation;
-        CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room,
+        CartridgeRoomAssets assets = LoadFixtureRoomAssets(room,
             installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
             installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
@@ -45,7 +45,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
         var enemies = new RoomEnemySystem { TileArtwork = installedArt ?? InstalledFixtures.EnemyTiles };
-        enemies.Load(new RoomEnemyLoadRequest(rom, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { Level = assets.LevelData });
+        enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { Level = assets.LevelData });
 
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         AlcoonEnemyState state = enemies.AlcoonStates[0] ??
@@ -55,10 +55,10 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             Health = 999,
             MaxHealth = 999,
             Pose = SamusPoseId.FacingRightNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), state.LandingYPosition)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), state.LandingPosition.Y)),
         };
-        samus.PoseMetadata.RefreshCollisionRadii(rom);
-        samus.Presentation.InitializeAnimation(rom);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
 
         bool sawLeftFireball = false;
         bool sawRightFireball = false;
@@ -80,7 +80,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             }
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
-                (state.Velocity.X.WholePixels < 0 ? -32 : 32))), state.LandingYPosition));
+                (state.Velocity.X.WholePixels < 0 ? -32 : 32))), state.LandingPosition.Y));
             foreach (RoomEnemyProjectileSlot projectile in enemies.Projectiles.EnemyProjectiles.Where(
                          projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball))
             {

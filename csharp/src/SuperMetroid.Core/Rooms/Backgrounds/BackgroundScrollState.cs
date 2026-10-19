@@ -22,10 +22,10 @@ public sealed class BackgroundScrollState
     public Position16<Bg2Pixels> Layer2Position { get; set; }
 
     /// <summary>
-    /// The room header's per-axis layer-2 scroll modes. Zero copies BG1; one freezes the axis;
-    /// every other value uses its even portion as a fixed-point parallax multiplier over 128.
+    /// The room state's per-axis layer-2 scroll. Before a room state sets it, both axes copy layer one and stream,
+    /// as the cartridge's cleared mode bytes select.
     /// </summary>
-    public Layer2ScrollModes Layer2Scroll { get; set; }
+    public Layer2ScrollModes Layer2Scroll { get; set; } = Layer2ScrollModes.CopiesLayer1;
 
     // These offsets are separate native variables despite the confusing adjacency of the
     // BG1 X offset and Layer2ScrollY in WRAM ($091F is addressed as Layer2ScrollY+1).
@@ -267,7 +267,7 @@ public sealed class BackgroundScrollState
     {
         CalculateGameplayScrolls();
         CalculateBlockCoordinates();
-        bool streamsLayer2 = (Layer2Scroll.Horizontal & 1) == 0;
+        bool streamsLayer2 = Layer2Scroll.Horizontal.Streams;
         var requests = new List<BackgroundUpdateRequest>(streamsLayer2 ? 34 : 17);
         var nextColumn = new Offset16<RoomBlocks>(1, 0);
         var nextTilemapColumn = new Offset16<TilemapBlocks>(1, 0);
@@ -364,7 +364,7 @@ public sealed class BackgroundScrollState
 
         // Odd layer-2 scroll modes suppress dynamic tilemap updates on that axis. Mode one
         // is fixed; other odd values still calculate parallax with bit zero masked away.
-        if ((Layer2Scroll.Horizontal & 1) == 0 && Layer2Block.X != PreviousLayer2Block.X)
+        if (Layer2Scroll.Horizontal.Streams && Layer2Block.X != PreviousLayer2Block.X)
         {
             short distance = SignedDifference(Layer2Block.X, PreviousLayer2Block.X) < 0 ? (short)0 : (short)16;
             PreviousLayer2Block = PreviousLayer2Block.WithX(Layer2Block.X);
@@ -388,7 +388,7 @@ public sealed class BackgroundScrollState
                 Bg1Block + new Offset16<TilemapBlocks>(0, distance)));
         }
 
-        if ((Layer2Scroll.Vertical & 1) == 0 && Layer2Block.Y != PreviousLayer2Block.Y)
+        if (Layer2Scroll.Vertical.Streams && Layer2Block.Y != PreviousLayer2Block.Y)
         {
             short distance = SignedDifference(Layer2Block.Y, PreviousLayer2Block.Y) < 0 ? (short)1 : (short)15;
             PreviousLayer2Block = PreviousLayer2Block.WithY(Layer2Block.Y);
@@ -413,25 +413,27 @@ public sealed class BackgroundScrollState
         Layer2Block = Layer2Position.ToSourceBlocks();
     }
 
-    /// <summary>Copies, freezes, or parallax-scales one layer-two axis using the room header's native mode byte.</summary>
-    private static bool TryCalculateLayer2Position(ushort layer1Position, byte scrollMode, out ushort result)
+    /// <summary>Copies, freezes, or parallax-scales one layer-two axis as the room state's scroll selects.</summary>
+    private static bool TryCalculateLayer2Position(ushort layer1Position, Layer2AxisScroll scroll, out ushort result)
     {
-        if (scrollMode == 1)
+        switch (scroll.Kind)
         {
-            result = 0;
-            return false;
-        }
-
-        if (scrollMode == 0)
-        {
-            result = layer1Position;
-            return true;
+            case Layer2ScrollKind.Fixed:
+                result = 0;
+                return false;
+            case Layer2ScrollKind.CopiesLayer1:
+                result = layer1Position;
+                return true;
+            case Layer2ScrollKind.Parallax:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(Layer2ScrollKind)} {scroll.Kind}.");
         }
 
         // The hardware implementation performs two 8x8 multiplies: factor*low contributes
         // its high product byte, and factor*high contributes its low product word. Together
-        // they equal floor(position * (mode & $FE) / $100), modulo 16 bits.
-        uint factor = (uint)(scrollMode & ~1);
+        // they equal floor(position * factor / 256), modulo 16 bits.
+        uint factor = (uint)scroll.Factor;
         result = unchecked((ushort)SnesEightEight.WholeOf((uint)layer1Position * factor));
         return true;
     }

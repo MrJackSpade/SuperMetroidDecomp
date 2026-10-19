@@ -5,8 +5,15 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's wall-turret PLMs: header identification and the cannon state Draygon's grab fight drives.</summary>
-internal sealed class DraygonCannonPlms
+internal sealed class DraygonCannonPlms : IPlmFamilySource
 {
+    /// <summary>Registers the DraygonCannon family, which has no step of its own: its slots take the shared path.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.DraygonCannon, static (_, _) => PlmStepOutcome.Shared);
+    }
+
     /// <summary>Enemy control-word writer notified when a cannon is destroyed.</summary>
     private readonly PlmRoomBindings _bindings;
 
@@ -35,15 +42,15 @@ internal sealed class DraygonCannonPlms
                 nameof(slot), slot.HeaderPointer, "Not a retail Draygon cannon header."),
         };
 
-        ushort variablePointer = slot.RoomArgument;
-        if (!DraygonCannonWorkRamAddresses.TryDecode(variablePointer, out _))
+        ushort variablePointer = checked((ushort)slot.RoomArgument);
+        if (!DraygonCannonWorkRamAddresses.TryDecode(variablePointer, out DraygonCannonControlWord controlWord))
         {
             throw new InvalidDataException(
                 $"Draygon cannon header $84:{(int)slot.HeaderPointer:X4} has invalid control " +
                 $"word ${variablePointer:X4}.");
         }
 
-        slot.DraygonCannon = new DraygonCannonPlmState(variablePointer);
+        slot.Family = new DraygonCannonPlmState(controlWord);
         if (slot.HeaderPointer == PlmHeaderId.DraygonCannonFacingRightDestroyed)
         {
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
@@ -68,18 +75,12 @@ internal sealed class DraygonCannonPlms
     /// <summary>Accepts pending missile hits, treating a Super Missile as enough damage to reach the destruction threshold.</summary>
     internal static void RunDraygonCannonPreInstruction(PlmSlot slot)
     {
-        DraygonCannonPlmState? state = slot.DraygonCannon;
-        if (state is null || slot.PreInstruction == 0)
-            return;
-        if (slot.PreInstruction != DraygonCannonRomData.MissileHitPreInstruction)
-        {
-            throw new InvalidDataException(
-                $"Draygon cannon reached untranslated pre-instruction $84:{slot.PreInstruction:X4}.");
-        }
+        DraygonCannonPlmState state = slot.Family as DraygonCannonPlmState
+            ?? throw new InvalidOperationException("A Draygon cannon's hit ran without its cannon state.");
         if (!state.HasPendingHit)
             return;
 
-        SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
+        SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         if (family == SamusProjectileFamily.SuperMissile)
             slot.RoomArgument = DraygonCannonRomData.SuperMissileHitCounterSeed;
         else if (family != SamusProjectileFamily.Missile)
@@ -103,7 +104,7 @@ internal sealed class DraygonCannonPlms
             return false;
         }
         slot.RoomArgument = ushort.MaxValue;
-        slot.PreInstruction = 0;
+        slot.PreInstruction = PlmPreInstructions.Inert;
         return true;
     }
 
@@ -113,11 +114,11 @@ internal sealed class DraygonCannonPlms
         RoomLevelData level,
         PlmSlot slot)
     {
-        DraygonCannonPlmState state = slot.DraygonCannon
+        DraygonCannonPlmState state = (slot.Family as DraygonCannonPlmState)
             ?? throw new InvalidOperationException("Draygon cannon damage reached a slot without cannon state.");
         (_bindings.Enemies ?? throw new InvalidOperationException(
             "Draygon cannon bytecode has no enemy-control-word writer.")).DisableDraygonCannon(
-                DraygonCannonWorkRamAddresses.Decode(state.VariablePointer));
+                state.ControlWord);
         WriteDraygonCannonTypeAndBts(
             level,
             slot.BlockIndex,
@@ -135,7 +136,7 @@ internal sealed class DraygonCannonPlms
         int blockIndex,
         ushort typeAndBts)
     {
-        ushort original = level.GetPlmCollisionBlockByIndex(blockIndex).LevelWord;
+        ushort original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         level.SetPlmForegroundEntry(
             blockIndex,
             new RoomLevelWord(original).WithCollisionType(new RoomLevelWord(typeAndBts).CollisionType).Raw);
@@ -144,10 +145,13 @@ internal sealed class DraygonCannonPlms
 
     /// <summary>Per-slot cannon enemy control-word identity, destruction state, and queued hit flag.</summary>
     internal sealed class DraygonCannonPlmState(
-        ushort variablePointer)
+        DraygonCannonControlWord controlWord) : PlmFamilyState
     {
-        /// <summary>Bank-$A5 word written when this physical cannon stops firing.</summary>
-        public ushort VariablePointer { get; } = variablePointer;
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.DraygonCannon;
+
+        /// <summary>The cannon whose firing Draygon stops when this physical cannon is destroyed, decoded from the room's PLM argument at setup.</summary>
+        public DraygonCannonControlWord ControlWord { get; } = controlWord;
         /// <summary>Marks that this cannon's terrain and firing control have been disabled.</summary>
         public bool Destroyed { get; set; }
         /// <summary>Indicates a projectile collision awaiting missile-family filtering.</summary>

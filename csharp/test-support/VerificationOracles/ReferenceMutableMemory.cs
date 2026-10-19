@@ -18,8 +18,6 @@ internal static class ReferenceMutableMemory
     {
         /// <summary>Reads WRAM only after confirming the requested address maps to work memory.</summary>
         public byte ReadWorkRamByte(int address) => Read(address, SnesDmaSourceKind.WorkRam);
-        /// <summary>Reads SRAM only after confirming the requested address maps to save memory.</summary>
-        public byte ReadSaveRamByte(int address) => Read(address, SnesDmaSourceKind.SaveRam);
 
         /// <summary>Rejects mismatched regions before forwarding a mutable-memory read to the diagnostic bus.</summary>
         private byte Read(int address, SnesDmaSourceKind kind)

@@ -1,4 +1,7 @@
-﻿using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
+using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -8,8 +11,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>The Fune/Namihe species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class FuneNamiheBehavior : IEnemySpecies
+internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FuneNamiheEntity(this, slot, common);
+
     /// <summary>Allocates the shared directional fireball fired by either species' animation list.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
@@ -50,52 +59,35 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         return null;
     }
 
-    /// <summary>Cooldown, proximity, list-cursor, and species state indexed by native enemy slot.</summary>
-    internal readonly FuneNamiheEnemyState?[] _funeNamiheStates =
-        new FuneNamiheEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>
     /// Most recent library-two spit sound requested by opcode $A8:9625. Audio mixing is an
     /// outer frontend concern, so the actor publishes the exact sound number for that seam.
     /// </summary>
-    public ushort? LastFuneNamiheSoundEffect { get; private set; }
-
-    /// <summary>Restricts the shared initializer, main AI, and private opcodes to Fune or Namihe enemy definitions.</summary>
-    internal static bool IsFuneNamiheDefinition(EnemyDefinitionId definitionPointer) =>
-        definitionPointer is EnemyDefinitionId.Fune or
-            EnemyDefinitionId.Namihe;
+    public SoundEffectId? LastFuneNamiheSoundEffect { get; private set; }
 
     /// <summary>Decodes species, facing, cooldown, and Y proximity from population parameters, then installs the corresponding idle list.</summary>
-    internal void InitializeFuneNamihe(RoomEnemySlot slot)
+    internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {
-        FuneNamiheEnemyState state = new(slot)
+        FuneNamiheEnemyState state = new()
         {
-            InstructionListPointerTableCursor = FuneNamiheDefinitions.FuneIdleLeftCursor,
+            ShowsActiveAnimation = false,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
-            VariantIndex = unchecked((ushort)(slot.Parameter1 & FuneNamiheParameterMasks.VariantBits)),
+            VariantIndex = slot.Parameter1 & FuneNamiheParameterMasks.VariantBits,
             YProximity = SnesLittleEndian.HighByte(slot.Parameter2),
             CooldownTime = SnesLittleEndian.HighByte(slot.Parameter1),
             CooldownTimer = 0,
+            // Any bit in parameter one's upper low-byte nibble selects right-facing art. The
+            // code does not mask to a single direction flag before making this decision.
+            FacingRight = (slot.Parameter1 & FuneNamiheParameterMasks.RightFacingBits) != 0,
         };
 
         // Species is encoded in the population parameter rather than inferred from the
         // enemy header. This sounds redundant, but preserving it lets malformed/custom ROM
         // populations exhibit the same cross-species behavior as the retail routine.
         if (state.IsNamihe)
-        {
-            state.InstructionListPointerTableCursor = FuneNamiheDefinitions.NamiheIdleLeftCursor;
             state.Function = FuneNamiheEnemyFunction.NamiheWaitForSamus;
-        }
 
-        // Any bit in parameter one's upper low-byte nibble selects right-facing art. The
-        // code does not mask to a single direction flag before making this decision.
-        if ((slot.Parameter1 & FuneNamiheParameterMasks.RightFacingBits) != 0)
-        {
-            state.InstructionListPointerTableCursor = unchecked((ushort)(
-                state.InstructionListPointerTableCursor + FuneNamiheDefinitions.FacingRightCursorDelta));
-        }
-
-        _funeNamiheStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         InstallFuneNamiheInstructionList(slot, state);
     }
 
@@ -115,8 +107,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
                 if (unchecked((short)(state.CooldownTimer - state.CooldownTime)) < 0)
                     return;
 
-                state.InstructionListPointerTableCursor = unchecked((ushort)(
-                    state.InstructionListPointerTableCursor - FuneNamiheDefinitions.ActiveCursorDelta));
+                state.ShowsActiveAnimation = true;
                 InstallFuneNamiheInstructionList(slot, state);
                 state.Function = FuneNamiheEnemyFunction.FuneActivityNoOp;
                 state.CooldownTimer = 0;
@@ -134,13 +125,12 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
                 if (!EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.Y.Whole,
                         slot.Position.Y.Whole,
-                        state.YProximity))
+                        checked((ushort)state.YProximity)))
                 {
                     return;
                 }
 
-                state.InstructionListPointerTableCursor = unchecked((ushort)(
-                    state.InstructionListPointerTableCursor - FuneNamiheDefinitions.ActiveCursorDelta));
+                state.ShowsActiveAnimation = true;
                 InstallFuneNamiheInstructionList(slot, state);
                 state.Function = FuneNamiheEnemyFunction.NamiheActivityNoOp;
                 return;
@@ -153,13 +143,13 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
 
             default:
                 throw new InvalidDataException(
-                    $"Fune/Namihe function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Fune/Namihe function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
     /// <summary>
-    /// Models <c>SetFuneNamiheInstList</c>: the state word points to a ROM word which in
-    /// turn points to the actual bytecode list. Both instruction timers are reset together.
+    /// Models <c>SetFuneNamiheInstList</c>: installs the animation the species, activity and facing select. Both
+    /// instruction timers are reset together.
     /// </summary>
     private static void InstallFuneNamiheInstructionList(
         RoomEnemySlot slot,
@@ -167,16 +157,22 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
     {
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        state.Program = AnimationProgramCursor<FuneNamiheProgram>.Start(ReadFuneNamiheInstructionList(
-            state.InstructionListPointerTableCursor));
+        state.Program = AnimationProgramCursor<FuneNamiheProgram>.Start(SelectFuneNamiheProgram(state));
     }
 
-    /// <summary>
-    /// The table lives at $A8:96D3; callers carry a same-bank cursor. This overload makes
-    /// that two-stage address explicit without allowing a host addition to cross banks.
-    /// </summary>
-    private static FuneNamiheProgram ReadFuneNamiheInstructionList(ushort tableCursor) =>
-        FuneNamiheDefinitions.InstructionList(tableCursor);
+    /// <summary>The animation for <paramref name="state"/>'s species, activity and facing.</summary>
+    internal static FuneNamiheProgram SelectFuneNamiheProgram(FuneNamiheEnemyState state) =>
+        (state.IsNamihe, state.ShowsActiveAnimation, state.FacingRight) switch
+        {
+            (false, true, false) => FuneNamiheProgram.FuneActiveLeft,
+            (false, true, true) => FuneNamiheProgram.FuneActiveRight,
+            (false, false, false) => FuneNamiheProgram.FuneIdleLeft,
+            (false, false, true) => FuneNamiheProgram.FuneIdleRight,
+            (true, true, false) => FuneNamiheProgram.NamiheActiveLeft,
+            (true, true, true) => FuneNamiheProgram.NamiheActiveRight,
+            (true, false, false) => FuneNamiheProgram.NamiheIdleLeft,
+            (true, false, true) => FuneNamiheProgram.NamiheIdleRight,
+        };
 
     /// <summary>Publishes the shared library-two spit cue for the outer enemy audio queue.</summary>
     private void QueueFuneNamiheSpitSound() =>
@@ -185,16 +181,15 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
     /// <summary>Moves the list-table cursor back to idle and restores the species-specific waiting function after the active animation.</summary>
     private static void FinishFuneNamiheActivity(FuneNamiheEnemyState state)
     {
-        state.InstructionListPointerTableCursor = unchecked((ushort)(
-            state.InstructionListPointerTableCursor + FuneNamiheDefinitions.ActiveCursorDelta));
+        state.ShowsActiveAnimation = false;
         state.Function = state.IsNamihe
             ? FuneNamiheEnemyFunction.NamiheWaitForSamus
             : FuneNamiheEnemyFunction.FuneWaitForCooldown;
     }
 
     /// <summary>Rejects a family AI or finish opcode before the slot's variant state has been initialized.</summary>
-    private FuneNamiheEnemyState RequireFuneNamiheState(RoomEnemySlot slot) =>
-        _funeNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static FuneNamiheEnemyState RequireFuneNamiheState(RoomEnemySlot slot) =>
+        slot.SpeciesState<FuneNamiheEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fune/Namihe state.");
 
     /// <summary>Binds the shared fireball pre-instruction to 8.8 horizontal travel and inclusive camera culling.</summary>
@@ -207,42 +202,33 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.NamiFuneFireball);
     }
 
-    /// <summary>Registers the shared initializer only for Fune and Namihe records.</summary>
-    internal void RegisterFuneNamiheInitializationAi(EnemyAiTable table)
+    /// <summary>Ports FuneNamihe's initialization AI.</summary>
+    internal static void RunFuneNamiheInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Fune_Namihe, slot => IsFuneNamiheDefinition(slot.EnemyDefinitionPointer), (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeFuneNamihe(slot);
-        });
+        InitializeFuneNamihe(slot);
     }
 
-    /// <summary>Registers the shared cooldown/proximity dispatcher for both family definitions.</summary>
-    internal void RegisterFuneNamiheMainAi(EnemyAiTable table)
+    /// <summary>Ports FuneNamihe's main AI.</summary>
+    internal static void RunFuneNamiheMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Fune_Namihe, slot => IsFuneNamiheDefinition(slot.EnemyDefinitionPointer), (slot, frame, nmiFrameCounter8) =>
-        {
-            RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), frame.Samus);
-        });
+        RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), frame.Samus);
     }
 
-    /// <summary>Runs the Fune's and Namihe's animations as typed programs (#641).</summary>
-    internal void RegisterFuneNamiheTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsFuneNamiheDefinition(slot.EnemyDefinitionPointer), (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireFuneNamiheState(slot);
-            AnimationProgramCursor<FuneNamiheProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, FuneNamiheAnimations.Programs, ref cursor, FuneNamiheFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyFuneNamiheCue(slot, state, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Advances FuneNamihe's typed animation.</summary>
+    internal void AdvanceFuneNamiheTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireFuneNamiheState(slot);
+        AnimationProgramCursor<FuneNamiheProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, FuneNamiheAnimations.Programs, ref cursor, FuneNamiheFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyFuneNamiheCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Shared projectile movement callback installed for both Fune and Namihe fireballs.</summary>
-    private const ushort NamiFuneFireballPreInstruction =
-        (ushort)EnemyProjectilePreInstruction.NamiFuneFireball;
+    private const EnemyProjectilePreInstruction NamiFuneFireballPreInstruction =
+        EnemyProjectilePreInstruction.NamiFuneFireball;
 
     /// <summary>
     /// Ports the shared projectile initializer at $86:DED6. The source population's low
@@ -277,7 +263,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         if ((source.Parameter1 & FuneNamiheParameterMasks.VariantBits) != 0)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
 
-        var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(source.Parameter2);
+        var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(checked((ushort)source.Parameter2));
         projectile.Velocity = new(new SnesSignedEightEight(velocities.Right), new SnesSignedEightEight(velocities.Left));
     }
 
@@ -286,7 +272,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        switch (ClosedNativeWords.Decode<NamiFuneFireballFunction>(projectile.Variable0, "Fune/Namihe fireball function"))
+        switch (ClosedNativeWords.Decode<NamiFuneFireballFunction>(checked((ushort)projectile.Variable0), "Fune/Namihe fireball function"))
         {
             case NamiFuneFireballFunction.MovingLeft:
                 // Yes, this is YVelocity. The retail initializer and mover agree on this
@@ -312,7 +298,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastFuneNamiheSoundEffect = null;
-        Array.Clear(_funeNamiheStates);
     }
 
     /// <inheritdoc/>
@@ -324,6 +309,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastFuneNamiheSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastFuneNamiheSoundEffect, maximumQueued: 6);
     }
 }

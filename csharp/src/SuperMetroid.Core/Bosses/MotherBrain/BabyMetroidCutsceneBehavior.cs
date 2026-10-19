@@ -1,15 +1,25 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid cutscene species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class BabyMetroidCutsceneBehavior
+internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroidCutscene];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BabyMetroidCutsceneEntity(this, slot, common);
+
     /// <summary>Initializes the dynamically allocated Baby through ordinary enemy dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Supplies current room bus, RNG, and installed Baby artwork.</summary>
@@ -66,16 +76,16 @@ internal sealed class BabyMetroidCutsceneBehavior
         }
 
         RoomEnemySlot babySlot = _slotTable._slots[slotIndex];
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, population.DefinitionPointer);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(babySlot, population, definition);
         _dispatch.RunInitializationAi(babySlot);
 
         // SpawnEnemy installs the canonical empty map after init when property $2000 is set.
         // The actor's list is still live and produces its first visible map on its first
         // scheduled turn; the active-index array was frozen before this allocation.
-        babySlot.SpritemapPointer = babySlot.Properties.HasAny(EnemyProperties.ProcessInstructions)
-            ? CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap
-            : (ushort)0;
+        babySlot.Frame = babySlot.Properties.HasAny(EnemyProperties.ProcessInstructions)
+            ? EnemyFrameId.Empty
+            : null;
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
         _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
     }
@@ -99,7 +109,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(baby.Program);
 
         CopyBabyMetroidActorToPhysicalSlot(slot, baby);
-        slot.InstructionTimer = NativeCountdown.FromRaw(baby.InstructionTimer);
+        slot.InstructionTimer = baby.InstructionTimer;
         slot.Timer = NativeCountdown.Start(0);
 
         // The writer receives byte index $01E2 and count $000F. Color zero is deliberately
@@ -149,18 +159,16 @@ internal sealed class BabyMetroidCutsceneBehavior
             state.LastSoundEffect = ShitroidSoundDefinitions.DrainCry;
         }
         BabyMetroidCutsceneStepResult step = baby.Step(
-            _room.LoadedBus,
             target,
             sequence,
             state.Head.Position.Whole,
             layer1: camera,
             enemyFrameCounter: slot.FrameCounter,
             randomNumber: _room.Random.Read());
-        state.LastBabyMetroidStep = step;
         // Both outcomes of the native heal helper call the sound helper after the
         // energy write. Use the phase that ran, including its final full-health call.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
-            unchecked((short)(target.Health - MotherBrainHealthSounds.MinimumEnergy)) >= 0 &&
+            target.Health >= MotherBrainHealthSounds.MinimumEnergy &&
             (_frameContext._randomEnemyCounter & MotherBrainHealthSounds.EnemyClockMask) == 0)
             _audio.QueueEnemySound(MotherBrainHealthSounds.IncrementalEnergy, maximumQueued: 3);
 
@@ -192,8 +200,8 @@ internal sealed class BabyMetroidCutsceneBehavior
     {
         slot.Position = baby.Position;
         slot.Properties = baby.Properties;
-        slot.PaletteIndex = baby.Palette;
-        slot.VramTilesIndex = baby.GraphicsOffset;
+        slot.PaletteIndex = baby.HitFlashPaletteShown ? (ushort)0 : EnemyPaletteBits.Palette7;
+        slot.VramTilesIndex = baby.GraphicsOffset.Raw;
         slot.Health = baby.Health;
     }
 
@@ -281,30 +289,23 @@ internal sealed class BabyMetroidCutsceneBehavior
                 colors.FadeColor(palette.PaletteIndex, color));
     }
 
-    /// <summary>Binds Baby cutscene setup only to its physical enemy-definition ID.</summary>
-    internal void RegisterBabyMetroidCutsceneInitializationAi(EnemyAiTable table)
+    /// <summary>Ports BabyMetroidCutscene's initialization AI.</summary>
+    internal void RunBabyMetroidCutsceneInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_BabyMetroidCutscene, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMotherBrainBabyMetroid(slot);
-        });
+        InitializeMotherBrainBabyMetroid(slot);
     }
 
-    /// <summary>Binds the later-slot Baby update to its native main-AI routine.</summary>
-    internal void RegisterBabyMetroidCutsceneMainAi(EnemyAiTable table)
+    /// <summary>Ports BabyMetroidCutscene's main AI.</summary>
+    internal void RunBabyMetroidCutsceneMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_BabyMetroidCutscene, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMotherBrainBabyMetroidMain(slot, frame.Samus, frame.Camera);
-        });
+        RunMotherBrainBabyMetroidMain(slot, frame.Samus, frame.Camera);
     }
 
-    /// <summary>Binds the Baby's typed program (#641) to the enemy instruction stage.</summary>
-    internal void RegisterBabyMetroidCutsceneTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene,
-            (slot, context) => AdvanceBabyMetroidCutsceneAnimation(slot));
+    /// <summary>Advances BabyMetroidCutscene's typed animation.</summary>
+    internal void AdvanceBabyMetroidCutsceneTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceBabyMetroidCutsceneAnimation(slot);
+    }
 
     /// <summary>
     /// Runs the Baby's program where the enemy instruction interpreter would: the frame expires on the update its
@@ -332,7 +333,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         {
             case AnimationProgramAdvanceKind.Show:
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.SpritemapPointer = advance.Frame.Spritemap;
+                slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(advance.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:

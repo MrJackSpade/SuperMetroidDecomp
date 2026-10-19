@@ -29,7 +29,7 @@ internal static class ZoaSpeedDefinitionsVerification
         var enemies = new RoomEnemySystem();
         Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>> shoot = ZoaBehavior.RunZoaShooting;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
-        var state = new ZoaEnemyState(actor);
+        var state = new ZoaEnemyState();
         for (ushort offset = 0; offset <= 16; offset += 4)
         {
             int address = 0xa3b415 + offset;

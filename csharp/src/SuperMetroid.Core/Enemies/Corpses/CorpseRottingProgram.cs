@@ -1,35 +1,18 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>A corpse's native rotting program: its tables, VRAM copy and move routines, and progress limits (#633).</summary>
+/// <summary>
+/// The row schedule a corpse's rotting runs with: the exclusive pixel-row limit, the first entry that moves its row
+/// rather than copying it during its last delay calls, and the byte displacement that carries pixel rows 6 and 7 into
+/// the next tile row (#633).
+/// </summary>
 internal sealed record CorpseRottingProgram
 {
-    /// <summary>Table pointer.</summary>
-    public required ushort TablePointer { get; init; }
+    /// <summary>Exclusive pixel-row limit of the two-pixel advance, and the final entry index: the corpse height less one.</summary>
+    public required int YLimit { get; init; }
 
-    /// <summary>Vram table pointer.</summary>
-    public required ushort VramTablePointer { get; init; }
+    /// <summary>First entry index that moves its row, rather than copying it, during its last delay calls: the corpse height less two.</summary>
+    public required int LateMoveEntryIndex { get; init; }
 
-    /// <summary>Copy function.</summary>
-    public required ushort CopyFunction { get; init; }
-
-    /// <summary>Move function.</summary>
-    public required ushort MoveFunction { get; init; }
-
-    /// <summary>Rotation table pointer.</summary>
-    public required ushort RotationTablePointer { get; init; }
-
-    /// <summary>Finish function.</summary>
-    public required ushort FinishFunction { get; init; }
-
-    /// <summary>Entry count.</summary>
-    public required ushort EntryCount { get; init; }
-
-    /// <summary>Y limit.</summary>
-    public required ushort YLimit { get; init; }
-
-    /// <summary>Late move entry index.</summary>
-    public required ushort LateMoveEntryIndex { get; init; }
-
-    /// <summary>Wrap offset.</summary>
-    public required ushort WrapOffset { get; init; }
+    /// <summary>Byte displacement added to the destination of pixel rows 6 and 7 so their two-pixel fall lands in the next tile row.</summary>
+    public required int WrapOffset { get; init; }
 }

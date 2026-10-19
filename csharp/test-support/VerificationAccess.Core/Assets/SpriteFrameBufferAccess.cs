@@ -72,7 +72,7 @@ internal static class SpriteFrameBufferAccess
                 {
                     OamEntry oam = sprites.Oam.GetEntry(index);
                     var flips = (oam.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (oam.FlipY ? SnesTileFlipFlags.Vertical : 0);
-                    Write(oam.X, oam.Y, SnesObjAttributeWord.Create(oam.TileNumber, oam.Palette, oam.Priority, flips), oam.IsLarge);
+                    Write(oam.Position.X, oam.Position.Y, SnesObjAttributeWord.Create(oam.TileNumber, oam.Palette, oam.Priority, flips), oam.IsLarge);
                 }
             }
             if (parkUnused)

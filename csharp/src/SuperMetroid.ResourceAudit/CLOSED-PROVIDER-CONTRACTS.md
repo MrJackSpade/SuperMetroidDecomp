@@ -336,9 +336,8 @@ map arrow directions, and thirteen map-screen pages. Each proof lists
 the providers and their identity/layout definitions. Sparse sprite IDs, non-None
 escape IDs, sequence/page enums and separate row/direction bounds are checked.
 
-Credits has an alternate internal verification constructor with variable row
-count. Any Core reference to that factory outside its provider revokes the
-fixed production row proof. The production loader itself enforces 520 rows;
+Credits' variable-row verification constructor lives in test-support, which
+Core cannot reference. The production loader itself enforces 520 rows;
 this rule does not infer retail dimensions solely from the provider's type.
 Escape programs expose mutable line arrays: their rule proves complete program
 membership, not line/glyph integrity after publication.
@@ -352,8 +351,7 @@ certify arbitrary caller input or VRAM placement.
 
 Twenty-eight constructed source calls first reproduce absent adapters. Fifteen
 then classify, twelve invalid or unknown selections remain unresolved, and one
-absent named page remains missing. Additional source-only checks confirm that
-alternate credits construction and a changed map factory revoke their proofs.
+absent named page remains missing.
 Compilation and prior checks pass. No assets, ROM, saves, menus, cinematics,
 map navigation or gameplay were opened/executed; visual fidelity and timing are
 not asserted.
@@ -437,16 +435,18 @@ before public construction. Native zero pointers and unsupported Try queries
 validly return false. Membership is not a claim about exposed part arrays after
 publication, mutable-memory fallbacks, timing or pixel placement.
 
-Cannon coverage is limited to the production Load path. External Core references
-to its internal unvalidated FromPlacement factory or mutable TileSourcePointers
-revoke that proof. Every provider's source declaration must also be among its
+Cannon coverage is limited to the validated loaders: production and the reviewed
+Tooling Load both admit placement through LoadPlacement and an exact-size tile
+atlas. Any other Core or Tooling reference to the internal unvalidated
+FromPlacement factory revokes that proof. TileSourcePointers is a computed,
+immutable sequence, so no mutation guard applies. Every provider's source declaration must also be among its
 reviewed files: adding a partial implementation that can access private state
 invalidates coverage even when the original files have not changed.
 
 Twenty-three constructed source calls expose absent adapters first. Thirteen
-classify; nine invalid indices and one body Frame call stay unresolved. Three
-separate source fixtures confirm alternate factory, mutable IDs and partial
-declaration revocation. Build and earlier checks pass. Body Frame/DefinitionAt
+classify; nine invalid indices and one body Frame call stay unresolved. Two
+separate source fixtures confirm alternate factory and partial declaration
+revocation. Build and earlier checks pass. Body Frame/DefinitionAt
 closure is not inferred from offset-array lengths. No ROM, saves, artwork,
 rendering, movement or gameplay runs; production is unchanged.
 
@@ -568,14 +568,12 @@ Production construction now requires a matching nonnull layout for every source
 in the immutable compiled room-state domain, then independently copies the keys.
 The former constructor admitted any subset; a constructed missing-source fixture
 reproduced that gap before the production change. The importer already required
-complete installation. Small content-identity fixtures now use an explicitly
-internal partial factory, whose use outside the reviewed provider in Core revokes
-the rule through semantic symbol ownership rather than a text-only name check.
+complete installation. Small content-identity fixtures use a partial factory in
+test-support, which Core cannot reference.
 
 Missing/null/mismatched source entries and dictionary independence are confirmed.
 Three constructed source calls expose absent adapters first; two qualify and the
-known unowned key stays unresolved. A constructed production partial-factory call
-revokes all three classifications. Both affected projects build and all auditor
+known unowned key stays unresolved. Both affected projects build and all auditor
 checks pass. No ROM, saves, installed layouts, rooms, rendering or gameplay was
 opened. Membership does not certify caller source selection, geometry, collision
 data, binding, destination placement or pixels.
@@ -611,12 +609,12 @@ The importer already required room-overlay identities, but public catalog
 construction admitted an empty room dictionary. A constructed eight-item catalog
 with no overlays reproduced that admission gap before the fix. Public construction
 now requires every nonzero key selected by immutable compiled room states and
-independently copies all tiles. Partial synthetic overlays use a separate internal
-factory; a semantic symbol guard revokes production closure if Core uses it.
+independently copies all tiles. Partial synthetic overlays use a separate
+test-support factory, which Core cannot reference.
 
 Three constructed source calls expose absent adapters first; two qualify and zero
 stays unresolved as a resource key. Caller-array independence and missing-overlay
-rejection pass, and a constructed Core partial-factory caller revokes the proof.
+rejection pass.
 The shared-source item/reveal contracts were re-reviewed and their prior invalid
 item/kind checks still pass. Audit/Verification builds and all auditor checks pass.
 No ROM, saves, installed reveals, room, renderer or gameplay ran. Only required
@@ -648,7 +646,7 @@ DMA aliases are derived from compiled headers, or validated if supplied; the two
 complete Ceres tile and overlay providers are mandatory. Dictionaries are copied.
 The former public constructor admitted empty/partial dictionaries; a focused
 fixture reproduced that gap before the production change. Partial fixtures now
-use an internal factory whose Core use revokes the completeness rule.
+use a test-support factory, which Core cannot reference.
 
 LoadTo/LoadPaletteTo cover valid required definition identities. TryResolve covers
 complete ordinary native sheets, bounded positive Ceres tile slices and exact
@@ -660,8 +658,7 @@ Other optional boss attachments are outside this rule's proof.
 Constructed zero-art sheets confirm admission, dictionary independence and exact
 VRAM/CGRAM transfers with unchanged neighbors. Fifteen source calls expose absent
 adapters first; nine qualify and six invalid selectors/lengths remain findings.
-Removing size admission, using the partial fixture factory in Core, or adding
-metadata declarations revokes the rule. Audit self-checks and Audit, Verification
+Removing size admission or adding metadata declarations revokes the rule. Audit self-checks and Audit, Verification
 and Windows Desktop Release builds pass. No ROM, save, installed artwork, rendering
 or gameplay ran. Caller selection, destinations, clocks and pixels are not certified.
 

@@ -14,20 +14,21 @@ namespace SuperMetroid.Core.Audio;
 public readonly record struct SoundEffectId
 {
     /// <summary>Creates a library-qualified sound effect identity.</summary>
-    public SoundEffectId(SoundEffectLibrary library, byte value)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is outside 0 through 255.</exception>
+    public SoundEffectId(SoundEffectLibrary library, int value)
     {
         // Enum casts can forge undefined values, so validate at construction even though
         // ordinary callers use one of the three named enum members.
         _ = SoundEffectLibraries.ToQueueIndex(library);
         Library = library;
-        Value = value;
+        Value = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
     /// <summary>The exclusive cartridge SFX library containing this sequence.</summary>
     public SoundEffectLibrary Library { get; }
 
-    /// <summary>The library-relative byte written to the corresponding SPC input port.</summary>
-    public byte Value { get; }
+    /// <summary>The library-relative request number, 0 through 255, written to the corresponding SPC input port.</summary>
+    public int Value { get; }
 
     /// <summary>
     /// Preserves a cartridge value after proving that it is a valid byte-sized SPC sequence

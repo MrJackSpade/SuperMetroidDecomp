@@ -29,6 +29,7 @@ internal static class PhantoonCasualFlamesVerification
         var body = enemies.SlotTable.Slots[0];
         var mouth = enemies.SlotTable.Slots[3];
         var state = new PhantoonEnemyState(body) { Eye = enemies.SlotTable.Slots[1], Tentacles = enemies.SlotTable.Slots[2], Mouth = mouth };
+        enemies.PhantoonBehavior.Phantoon = state;
         void step(RoomEnemySlot _) => enemies.PhantoonBehavior.StepPhantoonCasualFlameSchedule(state);
         ushort random = 0;
         int calls = 0;
@@ -37,14 +38,14 @@ internal static class PhantoonCasualFlamesVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
-            mouth.VariableB = 0;
-            mouth.VariableC = 0xffff;
+            state.Parts[mouth.SlotIndex].CasualFlameHold = 0;
+            state.Parts[mouth.SlotIndex].CasualFlameCount = 0xffff;
             int before = calls;
             step(mouth);
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + (raw & 3) * 2));
-            AssertEqual((ushort)(raw & 3), mouth.VariableA, "Actual casual RNG pattern selector");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer), mouth.VariableC, "Actual casual initial remaining count");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 1) * 2)), mouth.VariableB, "Actual casual reverse initial timer");
+            AssertEqual((ushort)(raw & 3), state.Parts[mouth.SlotIndex].CasualFlamePattern, "Actual casual RNG pattern selector");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer), state.Parts[mouth.SlotIndex].CasualFlameCount, "Actual casual initial remaining count");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 1) * 2)), state.Parts[mouth.SlotIndex].CasualFlameHold, "Actual casual reverse initial timer");
             AssertEqual(before + 1, calls, "Casual selection consumes exactly one RNG call");
         }
         // Trace multiple complete schedules. Native $CFFF branches on zero as well
@@ -52,9 +53,9 @@ internal static class PhantoonCasualFlamesVerification
         for (int pattern = 0; pattern < 4; pattern++)
         {
             random = (ushort)pattern;
-            mouth.VariableA = (ushort)pattern;
-            mouth.VariableB = 0;
-            mouth.VariableC = 0xffff;
+            state.Parts[mouth.SlotIndex].CasualFlamePattern = (ushort)pattern;
+            state.Parts[mouth.SlotIndex].CasualFlameHold = 0;
+            state.Parts[mouth.SlotIndex].CasualFlameCount = 0xffff;
             ushort timer = 0, count = 0xffff;
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
             for (int frame = 0; frame < 2048; frame++)
@@ -83,8 +84,8 @@ internal static class PhantoonCasualFlamesVerification
                     }
                 }
                 step(mouth);
-                AssertEqual(timer, mouth.VariableB, "Actual casual frame timer");
-                AssertEqual(count, mouth.VariableC, "Actual casual frame remaining count");
+                AssertEqual(timer, state.Parts[mouth.SlotIndex].CasualFlameHold, "Actual casual frame timer");
+                AssertEqual(count, state.Parts[mouth.SlotIndex].CasualFlameCount, "Actual casual frame remaining count");
                 AssertEqual(draw ? AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.MouthSpawnFlame) : default, state.PartProgram(mouth), "Exact casual mouth animation trigger frame");
                 AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.InstructionTimer.RawValue, "Exact casual instruction timer reset");
             }

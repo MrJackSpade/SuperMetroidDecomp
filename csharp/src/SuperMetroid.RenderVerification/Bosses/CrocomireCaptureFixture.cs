@@ -3,8 +3,6 @@ namespace SuperMetroid.RenderVerification.Bosses;
 /// <summary>Retail room and actor positions that trigger and complete Crocomire's death sequence.</summary>
 internal static class CrocomireCaptureFixture
 {
-    /// <summary>Retail bank-$8F Crocomire room header, shared with the production death audit.</summary>
-    internal const ushort Room = 0xa98d;
     /// <summary>Right arena viewport used by the retail Crocomire audit.</summary>
     internal const ushort CameraX = 0x0400;
     /// <summary>Stationary audit actor's initial world X.</summary>

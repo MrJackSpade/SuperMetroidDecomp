@@ -19,6 +19,7 @@ using SuperMetroid.Rendering.Direct3D11.Presentation;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Hidden-window checks for D3D11 swapchain presentation, worker recovery and bounded frame publication.</summary>
 internal static partial class SwapchainTests
@@ -192,7 +193,7 @@ internal static partial class SwapchainTests
 
     /// <summary>Checks that a blocked GPU consumer does not let a queued gameplay door transition corrupt frame identity or progress.</summary>
     internal static void VerifyBlockedDoor(D3D11RenderDevice device, D3D11FrameRenderer renderer,
-        SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort door, ushort destination, string context)
+        SuperMetroidRuntime runtime, ushort door, RoomHeaderDefinition destination, string context)
     {
         nint window = CreateWindowExW(0, "STATIC", "Hidden door backlog verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
         if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -213,7 +214,7 @@ internal static partial class SwapchainTests
             PumpUntil(() => entered.IsSet);
             var clock = Stopwatch.StartNew();
             RenderFrameSnapshot? latest = null;
-            RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = door, Destination = destination }, context, packet =>
+            RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = door, Destination = destination }, context, packet =>
                 {
                     latest = new(new(++sequence, 1, packet.Identity.SimulationFrame), (packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")), packet.BrightnessPasses);
                     worker.Publish(latest);
@@ -228,7 +229,7 @@ internal static partial class SwapchainTests
             RenderMailboxCounterView resumed = mailbox.VerificationCounters;
             if (resumed.HasPendingFrame || resumed.Taken != 2)
                 throw new InvalidOperationException("Resumed door consumer did not skip superseded transition packets.");
-            PixelComparison.Verify(latest, SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()),
+            PixelComparison.Verify(latest, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(latest), $"{device.Kind}: retained destination after blocked {context} door");
             Console.WriteLine($"{device.Kind}: blocked {context} door completed; {sequence - 2} replaced frames, latest destination consumed.");
         }
@@ -287,19 +288,19 @@ internal static partial class SwapchainTests
     /// <summary>Compares real desktop audio under normal and blocked GPU consumption in two recorded room slices.</summary>
     internal static void RunSlowConsumerAudio(D3D11RenderDevice selection)
     {
-        foreach (ushort room in new[] { SlowConsumerFixture.AlphaPowerBombRoom, SlowConsumerFixture.MaridiaTubeRoom })
+        foreach (RoomHeaderDefinition room in new[] { RoomHeaderDefinitions.AlphaPowerBomb, RoomHeaderDefinitions.GlassTunnel })
             foreach (bool blockConsumer in new[] { false, true })
                 RunSlowConsumerAudioRoom(selection, room, blockConsumer);
     }
 
     /// <summary>Runs one room-local controller and pause slice through legacy, captured and headless audio paths.</summary>
-    private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, ushort room, bool blockConsumer)
+    private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, RoomHeaderDefinition room, bool blockConsumer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
-        var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
-        var captured = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
-        var headless = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
+        var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var captured = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var headless = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         // Each session synthesizes through its own Core audio session, as the desktop host does;
         // do not substitute a second hand-written queue-to-PCM implementation.
         var audioAssets = DesktopAccess.LoadAudioClips();
@@ -316,7 +317,7 @@ internal static partial class SwapchainTests
             var actual = captured.StepCaptured(input, ++sequence, 1);
             // No raster request, GPU publication, or reference render for this owner.
             var undrawn = headless.StepCaptured(input, sequence, 1);
-            if (undrawn.UsedLegacyRaster || undrawn.Frame.GameState != actual.Frame.GameState ||
+            if (undrawn.Frame.GameState != actual.Frame.GameState ||
                 undrawn.Frame.Phase != actual.Frame.Phase || undrawn.Frame.FrameNumber != actual.Frame.FrameNumber ||
                 !headless.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
                 throw new InvalidOperationException($"Headless frame/command divergence at {sequence}.");
@@ -345,7 +346,7 @@ internal static partial class SwapchainTests
         foreach (var game in new[] { legacy, captured, headless })
         {
             game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-            game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0, true);
+            game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         }
         nint window = CreateWindowExW(0, "STATIC", "Hidden slow-consumer test", 0, 0, 0, 640, 480, 0, 0, 0, 0);
         if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -360,7 +361,7 @@ internal static partial class SwapchainTests
                 if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Slow-consumer release missing.");
             });
             PumpUntil(() => worker.Ready.IsCompleted); worker.Ready.GetAwaiter().GetResult();
-            worker.Publish((Step(0).Snapshot ?? throw new InvalidOperationException("Verification requires Step(0).Snapshot.")));
+            worker.Publish(Step(0).Snapshot);
             PumpUntil(() => entered.IsSet);
             CompareRuntimeGraphs("before room slice");
             var blockedTime = System.Diagnostics.Stopwatch.StartNew();
@@ -368,7 +369,7 @@ internal static partial class SwapchainTests
             for (int tick = 0; tick < 160; tick++)
             {
                 var actual = Step(tick is 10 or >= 100 and <= 105 ? SnesButton.Start : SnesButton.None);
-                worker.Publish(actual.Snapshot ?? throw new InvalidOperationException("Capture fell back to raster."));
+                worker.Publish(actual.Snapshot);
                 paused |= actual.Frame.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
                 if (tick % 40 == 39) CompareRuntimeGraphs($"room slice tick {tick}");
             }
@@ -389,7 +390,7 @@ internal static partial class SwapchainTests
                     _ => 0,
                 };
                 var actual = Step(input);
-                worker.Publish(actual.Snapshot ?? throw new InvalidOperationException("Movement capture fell back to raster."));
+                worker.Publish(actual.Snapshot);
                 positions.Add((legacy.GameplaySamusX, legacy.GameplaySamusY));
                 poses.Add(legacy.GameplaySamusPose);
                 if (legacy.GameplayActiveRoomIdentity != roomBeforeMovement)
@@ -405,7 +406,7 @@ internal static partial class SwapchainTests
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
             if (blockConsumer && worker.MailboxMetrics.Replaced < 223) throw new InvalidOperationException("Blocked visuals were not superseded as expected.");
             CompareRuntimeGraphs("after GPU resumes");
-            Console.WriteLine($"{selection.Kind}: room {room:X4}, software/GPU/headless agree; deliberate GPU block={blockConsumer}; 160 room/pause + 64 movement/input frames; {positions.Count} positions, {poses.Count} poses; {pcmSamples} exact PCM samples ({nonzero} nonzero); latest frame consumed.");
+            Console.WriteLine($"{selection.Kind}: room {room.Name}, software/GPU/headless agree; deliberate GPU block={blockConsumer}; 160 room/pause + 64 movement/input frames; {positions.Count} positions, {poses.Count} poses; {pcmSamples} exact PCM samples ({nonzero} nonzero); latest frame consumed.");
         }
         finally
         {

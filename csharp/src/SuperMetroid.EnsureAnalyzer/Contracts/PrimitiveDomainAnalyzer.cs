@@ -65,7 +65,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor EnumNumericFormatRule = new(
         EnumNumericFormatId,
         "Enum interpolated with a numeric format string",
-        "'{0}' is a {1} formatted as '{2}'; enums accept only G, D, X and F, so this throws FormatException. Format the underlying value instead",
+        "'{0}' is a {1} formatted as '{2}'; enums accept only G, D, X and F, so this throws FormatException. Format the underlying value instead.",
         "Correctness",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
@@ -275,7 +275,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         if (candidates.IsEmpty)
             return;
         var uses = new Dictionary<IParameterSymbol, List<ITypeSymbol?>>(SymbolEqualityComparer.Default);
-        var gate = new Lock();
+        var gate = new object();
         context.RegisterOperationAction(operationContext =>
         {
             var reference = (IParameterReferenceOperation)operationContext.Operation;
@@ -312,7 +312,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeMaskedComparisons(OperationBlockStartAnalysisContext context)
     {
         var tests = new Dictionary<ILocalSymbol, HashSet<object?>>(SymbolEqualityComparer.Default);
-        var gate = new Lock();
+        var gate = new object();
         context.RegisterOperationAction(operationContext =>
         {
             var binary = (IBinaryOperation)operationContext.Operation;
@@ -409,7 +409,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     private sealed class CompilationDomainFlow
     {
         /// <summary>Serializes evidence collected by concurrent operation callbacks.</summary>
-        private readonly Lock _gate = new();
+        private readonly object _gate = new();
         /// <summary>Groups named-constant comparisons by storage symbol and declaring catalog.</summary>
         private readonly Dictionary<(ISymbol Subject, INamedTypeSymbol Catalog), (HashSet<string> Names, Location First)> _comparisons =
             new(new SubjectCatalogComparer());
@@ -491,7 +491,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             // Only repository-declared storage can be retyped; a library member such as Length
             // pools unrelated arrays and is never one domain.
             if (!IsIntegral(subject.Type) || Subject(subject) is not { } symbol ||
-                !symbol.Locations.Any(location => location.IsInSource))
+                !RepositoryOwnership.Owns(symbol))
                 return;
             if (constant is not IFieldReferenceOperation { Field: { IsConst: true } field } ||
                 !IsOwned(field.ContainingType) || field.ContainingType.TypeKind == TypeKind.Enum)
@@ -552,7 +552,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         private void ReportLiteralDomain(CompilationAnalysisContext context, ISymbol symbol,
             List<(ITypeSymbol? Domain, Location Site, bool Stepped, object? Constant)> writes)
         {
-            if (symbol is ILocalSymbol || !symbol.Locations.Any(location => location.IsInSource) ||
+            if (symbol is ILocalSymbol || !RepositoryOwnership.Owns(symbol) ||
                 _ordered.Contains(symbol) || writes.Any(write => write.Stepped || write.Constant is null))
                 return;
             var written = new HashSet<object>(writes.Select(write => write.Constant).OfType<object>());
@@ -578,7 +578,11 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         {
             if (Subject(operation) is { } symbol && IsIntegral(operation.Type))
                 lock (_gate)
-                    _domainUses.TryAdd(symbol, how);
+                {
+                    // The first use wins (netstandard2.0 has no Dictionary.TryAdd).
+                    if (!_domainUses.ContainsKey(symbol))
+                        _domainUses.Add(symbol, how);
+                }
         }
 
         /// <summary>Reconciles compilation-wide evidence and reports catalog comparisons, literal domains, and primitive interludes.</summary>
@@ -840,9 +844,8 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     private static Location DefaultLocation(ISwitchCaseOperation section) =>
         section.Clauses.First(clause => clause.CaseKind == CaseKind.Default).Syntax.GetLocation();
 
-    /// <summary>Limits closed-domain diagnostics to types declared in the analyzed source compilation.</summary>
-    private static bool IsOwned(INamedTypeSymbol type) =>
-        type.Locations.Any(location => location.IsInSource);
+    /// <summary>Limits closed-domain diagnostics to types this repository declares, in any of its projects.</summary>
+    private static bool IsOwned(INamedTypeSymbol type) => RepositoryOwnership.Owns(type);
 
     /// <summary>Excludes composable flags enums from exhaustive closed-enum handling.</summary>
     private static bool IsFlags(INamedTypeSymbol type) =>

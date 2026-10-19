@@ -19,6 +19,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Retail write and collision comparisons for Phantoon's installed BG2 frame artwork.</summary>
 internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Checks 22 BG2 selectors and native tile writes, then proves an override changes live VRAM without changing engine hitboxes or the new-frame gate.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon BG2 frames")]
     internal static void VerifyInstalledPhantoonBg2Frames(
@@ -92,7 +95,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             PhantoonBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath,
             JsonSerializer.SerializeToUtf8Bytes(document,
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+                CamelCaseJson));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue((edited.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.PhantoonBg2Frames.")).TryGet(
@@ -111,10 +114,8 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitions.Bank, firstPointer,
             newInstructionFrame: true);
         var noCartridge = NewFrontendCartridgeReadGuard(rom);
-        byte[] stockVram = DrawPhantoonBg2(stock, noCartridge,
-            firstPointer, newInstructionFrame: true);
-        byte[] editedVram = DrawPhantoonBg2(edited, noCartridge,
-            firstPointer, newInstructionFrame: true);
+        byte[] stockVram = DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: true);
+        byte[] editedVram = DrawPhantoonBg2(edited, firstPointer, newInstructionFrame: true);
         AssertTrue(nativeVram.SequenceEqual(stockVram),
             "installed Phantoon frame draws native BG2 without cartridge reads");
         int changedVramByte = (PhantoonBg2FrameDefinitions.VramBase +
@@ -122,10 +123,9 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertEqual((ushort)(originalTile ^ 1),
             BitConverter.ToUInt16(editedVram, changedVramByte),
             "Phantoon BG2 override changes the live rendered tile word");
-        AssertTrue(DrawPhantoonBg2(edited, noCartridge,
-                firstPointer, newInstructionFrame: false).All(value => value == 0),
+        AssertTrue(DrawPhantoonBg2(edited, firstPointer, newInstructionFrame: false).All(value => value == 0),
             "Phantoon BG2 override retains the native new-frame producer gate");
-        Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, noCartridge, stock, edited));
+        Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, stock, edited));
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue((reloaded.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.PhantoonBg2Frames.")).TryGet(
@@ -137,7 +137,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         document.Frames[frameName][0] = first with { X = 32 };
         using var invalid = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(document,
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+                CamelCaseJson));
         AssertThrows<InvalidDataException>(
             () => PhantoonBg2FrameCatalog.Load(invalid),
             "Phantoon BG2 frame outside tilemap fails loudly");
@@ -147,8 +147,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     /// <summary>Compares compiled frame components and three hitbox lists with retail data while checking stock and edited artwork select the same callbacks.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon collision definitions")]
     private static void VerifyPhantoonCollisionDefinitions(
-        SuperMetroidAddressSpace rom, ISnesAddressSpace guardedBus,
-        EnemyTileArtworkCatalog stock, EnemyTileArtworkCatalog edited)
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock, EnemyTileArtworkCatalog edited)
     {
         var checkedLists = new HashSet<ushort>();
         foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
@@ -166,16 +165,15 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                     $"Phantoon {frame.Name} component X");
                 AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), component.Offset.Y,
                     $"Phantoon {frame.Name} component Y");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), component.HitboxPointer,
-                    $"Phantoon {frame.Name} engine hitbox list");
-                if (!checkedLists.Add(component.HitboxPointer))
-                    continue;
-                int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, component.HitboxPointer));
-                PhantoonCollisionDefinitions.HitboxSequence hitboxes =
-                    PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer);
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), (ushort)hitboxes.Length,
-                    $"Phantoon ${component.HitboxPointer:X4} rectangle count");
-                for (int hitboxIndex = 0; hitboxIndex < hitboxes.Length; hitboxIndex++)
+                // The ROM names the component's hitbox list by address; every compiled component must hold exactly
+                // the rectangles and reactions of the list the ROM names.
+                ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
+                checkedLists.Add(listPointer);
+                int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, listPointer));
+                IReadOnlyList<PhantoonCollisionHitbox> hitboxes = component.Hitboxes;
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), checked((ushort)hitboxes.Count),
+                    $"Phantoon {frame.Name} component {index} rectangle count");
+                for (int hitboxIndex = 0; hitboxIndex < hitboxes.Count; hitboxIndex++)
                 {
                     int address = listAddress + 2 + hitboxIndex * 12;
                     PhantoonCollisionHitbox hitbox = hitboxes[hitboxIndex];
@@ -187,50 +185,43 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                         "Phantoon compiled right bound");
                     AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), hitbox.Bottom,
                         "Phantoon compiled bottom bound");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)), hitbox.TouchAi,
-                        "Phantoon compiled touch callback");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)), hitbox.ShotAi,
-                        "Phantoon compiled shot callback");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)),
+                        PhantoonHitboxCallbackCodec.ToCallbackWord(hitbox.Touch), "Phantoon compiled touch reaction");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)),
+                        PhantoonHitboxCallbackCodec.ToCallbackWord(hitbox.Shot), "Phantoon compiled shot reaction");
                 }
             }
-            _ = FindPhantoonHitboxCallback(stock, guardedBus,
-                frame.Pointer, new(0x0080, 0x0080), selectShot: true);
-            _ = FindPhantoonHitboxCallback(stock, guardedBus,
-                frame.Pointer, new(0x0080, 0x00a0), selectShot: false);
+            _ = FindPhantoonHitboxCallback(stock, frame.Pointer, new(0x0080, 0x0080), selectShot: true);
+            _ = FindPhantoonHitboxCallback(stock, frame.Pointer, new(0x0080, 0x00a0), selectShot: false);
         }
         AssertEqual(3, checkedLists.Count,
             "Phantoon uses the three compiled retail hitbox lists");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi,
-            FindPhantoonHitboxCallback(stock, guardedBus,
-                (ushort)PhantoonCollisionFrame.BodyFullHitbox,
+            FindPhantoonHitboxCallback(stock, (ushort)PhantoonCollisionFrame.BodyFullHitbox,
                 new(0x0080, 0x0080), selectShot: true),
             "Phantoon full-body frame selects native shot callback");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi,
-            FindPhantoonHitboxCallback(edited, guardedBus,
-                (ushort)PhantoonCollisionFrame.BodyFullHitbox,
+            FindPhantoonHitboxCallback(edited, (ushort)PhantoonCollisionFrame.BodyFullHitbox,
                 new(0x0080, 0x0080), selectShot: true),
             "Phantoon BG2 artwork edit does not move or replace hitbox callbacks");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi,
-            FindPhantoonHitboxCallback(edited, guardedBus,
-                (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
+            FindPhantoonHitboxCallback(edited, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
                 new(0x0080, 0x0099), selectShot: true),
             "Phantoon eye-only frame selects native vulnerable eye callback");
     }
 
     /// <summary>Invokes the production extended-hitbox walker for a selected Phantoon frame and returns its touch or shot callback.</summary>
     internal static ushort FindPhantoonHitboxCallback(
-        EnemyTileArtworkCatalog? art, ISnesAddressSpace bus,
-        ushort pointer, Position16<RoomPixels> target, bool selectShot)
+        EnemyTileArtworkCatalog? art, ushort pointer, Position16<RoomPixels> target, bool selectShot)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
-        slot.Definition = default(RoomEnemyDefinition) with
+        slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = PhantoonBg2FrameDefinitions.Bank,
-        };
+        });
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
@@ -242,20 +233,19 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     /// <summary>Draws a Phantoon BG2 frame into fresh VRAM, optionally setting the native new-instruction-frame upload bit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog art,
-        ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)
+        ushort pointer, bool newInstructionFrame)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
         var vram = new SnesVram();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
-        slot.Definition = default(RoomEnemyDefinition) with
+        slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = PhantoonBg2FrameDefinitions.Bank,
-        };
+        });
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         if (newInstructionFrame)

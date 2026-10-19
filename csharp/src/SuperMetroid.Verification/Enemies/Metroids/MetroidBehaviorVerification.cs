@@ -17,13 +17,13 @@ internal static class MetroidBehaviorVerification
     /// The real initializer starts the chasing pulse; the chasing loop's cue advances the RNG once for a random cry and
     /// the draining loop's cue plays the draining sound without touching the RNG; both loops run on time.
     /// </summary>
-    internal static void VerifyMetroidBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyMetroidBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = MetroidFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MetroidFrameToolingDefinitions.Bank });
         // The room spawn primes the instruction timer before the species initializer runs.
         slot.InstructionTimer = NativeCountdown.Start(1);
         enemies.MetroidBehavior.InitializeMetroid(slot);
@@ -36,8 +36,8 @@ internal static class MetroidBehaviorVerification
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 0; };
             state.Program = AnimationProgramCursor<MetroidProgram>.Start(loop);
             slot.InstructionTimer = NativeCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(MetroidAnimations.Programs, loop, MetroidFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Programs, loop)), $"Metroid {loop} loop");
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(MetroidAnimations.Programs, loop, MetroidFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Programs, loop)), $"Metroid {loop} loop");
             AssertEqual(cries, randomCalls, $"Metroid {loop} loop's RNG use");
             AssertTrue(enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 is not null, $"Metroid {loop} loop plays its sound");
         }
@@ -49,7 +49,7 @@ internal static class MetroidBehaviorVerification
     internal static int MetroidBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyMetroidBehavior), () => VerifyMetroidBehavior(rom));
+        Suite(nameof(VerifyMetroidBehavior), () => VerifyMetroidBehavior());
         Suite(nameof(MetroidAnimationsVerification.VerifyMetroidAnimations), () => MetroidAnimationsVerification.VerifyMetroidAnimations(rom));
         return 0;
     }

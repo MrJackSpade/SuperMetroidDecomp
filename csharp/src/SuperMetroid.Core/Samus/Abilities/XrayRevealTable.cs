@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class XrayRevealTable
 {
     /// <summary>Returns null when the cartridge leaves this block's copied BG1 art unchanged.</summary>
-    public static XrayRevealDefinition? Find(RoomCollisionType type, byte bts) =>
+    public static XrayRevealDefinition? Find(RoomCollisionType type, int bts) =>
         XrayRevealDefinitions.Find(type, bts);
 }

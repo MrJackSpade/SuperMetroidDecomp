@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks compiled palette-FX definitions, area selection, and production spawn metadata.</summary>
 internal static class RoomPaletteFxDefinitionsVerification
@@ -81,19 +82,19 @@ internal static class RoomPaletteFxDefinitionsVerification
         }
 
         var guardedRom = NewRoomPaletteFxDefinitionGuard(rom, forbidden);
-        Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(guardedRom, pointers));
+        Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(pointers));
 
         const ushort fxPointer = 0x9000;
         for (int area = 0; area < AreaIds.RetailCount; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {
-            var definition = new RoomFxRecordDefinition(fxPointer, 0, 0, 0, 0,
+            var definition = new RoomFxRecordDefinition(null, false, 0, 0, 0,
                 0, 0, 0, 0, 0, unchecked((byte)(1 << bit)), 0, 0);
             var system = new RoomPaletteFxSystem();
-            system.LoadDefinition(guardedRom, definition, (AreaId)area,
+            system.LoadDefinition(definition, (AreaId)area,
                 equippedItems: 0, areaMiniBossDefeated: false);
             AssertEqual(
-                RoomPaletteFxDefinitions.GetAreaDefinition(area, bit),
+                PaletteFxObjectAccess.NativeAddress(RoomPaletteFxDefinitions.GetAreaDefinition(area, bit)),
                 ActivePaletteFxSlot(system).Id,
                 $"area {area} bit {bit} production room load");
         }
@@ -102,12 +103,12 @@ internal static class RoomPaletteFxDefinitionsVerification
         hyperBeam.Spawn();
         var hyperColors = SuperMetroid.Core.Samus.Artwork.HyperBeamFxColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorExtractor.Extract(rom)));
-        hyperBeam.Step(guardedRom, new SnesCgram(), hyperColors);
+        hyperBeam.Step(new SnesCgram(), hyperColors);
         AssertEqual(0, hyperBeam.CurrentFrameIndex,
             "specialized Hyper Beam owner executes with its definition bytes forbidden");
 
         AssertThrows<InvalidDataException>(
-            () => RoomPaletteFxDefinitions.Get(0),
+            () => PaletteFxObjectAccess.FromNative(0),
             "zero palette-FX definition is outside the authored domain");
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxDefinitions.Get(
@@ -128,21 +129,21 @@ internal static class RoomPaletteFxDefinitionsVerification
     }
 
     /// <summary>Checks each definition's live slot ID, timer, pre-instruction, and initial list.</summary>
-    internal static void VerifyPaletteFxDispatchSpawns(ISnesAddressSpace guardedRom, IEnumerable<ushort> pointers)
+    internal static void VerifyPaletteFxDispatchSpawns(IEnumerable<ushort> pointers)
     {
         foreach (ushort pointer in pointers)
         {
             RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(pointer);
             var system = new RoomPaletteFxSystem();
-            system.SpawnDefinition(guardedRom, pointer, equippedItems: 0);
+            system.SpawnDefinition(pointer, equippedItems: 0);
             var slot = ActivePaletteFxSlot(system);
             AssertEqual(pointer, slot.Id, $"${pointer:X4} production ID");
             AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
                 $"${pointer:X4} production timer");
             AssertEqual(
                 definition.SetupCallback == PaletteFxSetup.Intro
-                    ? (ushort)PaletteFxPreInstruction.Intro
-                    : (ushort)PaletteFxPreInstruction.Null,
+                    ? PaletteFxPreInstruction.Intro
+                    : PaletteFxPreInstruction.Null,
                 slot.PreInstruction,
                 $"${pointer:X4} production pre-instruction");
             AssertEqual(

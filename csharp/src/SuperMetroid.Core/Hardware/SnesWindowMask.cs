@@ -11,7 +11,7 @@ public static class SnesWindowMask
     /// and main/subscreen layer masking are separate consumers of this result.
     /// </summary>
     public static bool Contains(SnesWindowSelection selection, SnesWindowLogic logic,
-        byte x, byte firstLeft, byte firstRight, byte secondLeft, byte secondRight)
+        int x, int firstLeft, int firstRight, int secondLeft, int secondRight)
     {
         const SnesWindowSelection known = SnesWindowSelection.InvertFirst | SnesWindowSelection.EnableFirst |
             SnesWindowSelection.InvertSecond | SnesWindowSelection.EnableSecond;

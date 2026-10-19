@@ -8,6 +8,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 /// <summary>Checks escape-room explosion sprites, earthquake offsets, and rescue exit behavior.</summary>
@@ -19,12 +20,12 @@ internal static class EscapeRoomEffectsVerification
         foreach (ushort room in new ushort[] { 0xde4d, 0xde7a, 0xdea7, 0xdede, 0x92fd, 0x9804 })
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
-            runtime.LoadCartridgeRoomForDebug(room);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(room));
             runtime.Player.IntroducedSamus.InputLocked = true;
             int explosionFrames = 0;
             bool visibleExplosion = false, visibleShake = false;
@@ -32,7 +33,7 @@ internal static class EscapeRoomEffectsVerification
             for (int frame = 0; frame < 80; frame++)
             {
                 runtime.StepFrame(0);
-                if (runtime.Enemies.RoomSpriteObjects.Any(s => s.IsActive && s.SpritemapPointer != 0)) explosionFrames++;
+                if (runtime.Enemies.RoomSpriteObjects.Any(s => s.IsActive)) explosionFrames++;
                 var shake = runtime.Enemies.Earthquake.LastRoomShake;
                 offsets.Add((shake.Bg1.X, shake.Bg1.Y));
                 if (frame % 10 == 9)
@@ -76,7 +77,7 @@ internal static class EscapeRoomEffectsVerification
             {
                 var level = runtime.Room.LoadedLevelData;
                 int origin = level.GetBlockIndex(new(15, 10));
-                AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Behavior, "retail room loader installs rescue wall");
+                AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Bts.Value, "retail room loader installs rescue wall");
                 runtime.Plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 1, true);
                 for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
                 AssertTrue(runtime.System.HasEvent(EventNumber.CrittersEscaped), "live rescue room publishes escaped event");
@@ -89,9 +90,9 @@ internal static class EscapeRoomEffectsVerification
                 samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(48, 112));
                 samus.Kinematics.Radius = new(5, 16);
                 for (int frame = 0; frame < 32 && !runtime.RoomLoader.HasPendingDoorTransition; frame++)
-                    SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -(1 << 16) });
+                    SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = runtime.Plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -(1 << 16) });
                 AssertTrue(runtime.RoomLoader.HasPendingDoorTransition, "Samus can cross opened rescue exit and trigger room transition");
-                AssertEqual((ushort)184, runtime.RoomLayer3Fx.TargetYPosition, "rescue liquid target matches retail FX header");
+                AssertEqual((ushort)184, runtime.RoomLayer3Fx.TargetSurface.Y, "rescue liquid target matches retail FX header");
             }
             Console.WriteLine($"Escape {room:X4}: {explosionFrames} explosion frames, {offsets.Count} shake offsets.");
         }

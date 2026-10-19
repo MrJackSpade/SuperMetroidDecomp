@@ -34,24 +34,23 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         {
             Inner = new EnemyAnimationFixture(artwork, golden: false);
             EnemyDefinitionId bodyId = EnemyDefinitionId.MotherBrainBody;
-            Body.EnemyDefinitionPointer = bodyId;
-            Body.Definition = RoomEnemyDefinitionCatalog.Get(bodyId);
-            Body.AiBank = Body.Definition.Bank;
+            Body.Bind(bodyId, Body.Definition);
+            Body.Bind(Body.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(bodyId));
             Body.Position = Body.Position.WithWhole(new(128, 128));
             Body.PaletteIndex = Body.VramTilesIndex = 0;
-            State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = 3 };
+            State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = MotherBrainForm.DrainedByBabyMetroid };
             Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
             Inner.Enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)ScrollCalls.Add;
             Inner.Enemies.Drawing.Enqueue(0, Body.NativeIndex);
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(Inner.Enemies.Instructions.ProcessInstructions);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
         }
 
         /// <summary>Selects a body frame and optionally marks it as a new instruction frame.</summary>
         internal void SetFrame(ushort frame, bool fresh)
         {
             Body.SpritemapPointer = frame;
-            Body.ExtraProperties = (ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
-                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0));
+            Body.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
+                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0))));
         }
 
         /// <summary>Starts a body program at its next one-tick dispatch.</summary>

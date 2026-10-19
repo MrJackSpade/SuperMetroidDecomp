@@ -3,39 +3,31 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>
-/// Debugger-facing projection of Spark's three private words. The actor uses common enemy
-/// variable B for its indirect function, variable E for the population-supplied base time,
-/// and variable F for the live countdown.
+/// The state of one Spark. The function, base time and countdown are values the cartridge keeps in the enemy's
+/// common record, so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class SparkEnemyState
 {
-    /// <summary>Physical enemy slot carrying Spark's function and countdown words.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects Spark's three private words from its occupied enemy slot.</summary>
-    internal SparkEnemyState(RoomEnemySlot slot) => _slot = slot;
-
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer; none when the selected list word is not an animation.</summary>
+    /// <summary>Where the typed animation (#641) resumes; none when the selected list word is not an animation.</summary>
     internal AnimationProgramCursor<SparkProgram>? Program { get; set; }
 
-    /// <summary>Variable B holds the literal bank-$A8 indirect main-function address.</summary>
-    public SparkEnemyFunction Function
-    {
-        get => (SparkEnemyFunction)_slot.VariableB;
-        internal set => _slot.VariableB = (ushort)value;
-    }
+    /// <summary>The always-active, intermittent or falling-spark behaviour; none once a kill has emptied the record.</summary>
+    public SparkEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Variable E supplies a base delay or a negative request for a randomized delay.</summary>
-    public ushort BaseFunctionTime
-    {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
-    }
+    /// <summary>
+    /// Population parameter two (0 through 65535): the base delay, or, when its word's sign bit is set, a request for a
+    /// randomized delay. The delay it gives wraps at the word boundary when an extra delay is added.
+    /// </summary>
+    public int BaseFunctionTime { get; internal set; }
 
-    /// <summary>Variable F is the wrapping countdown decremented with native <c>DEC; BEQ</c> semantics.</summary>
-    public ushort FunctionTimer
+    /// <summary>The countdown decremented with the cartridge's <c>DEC; BEQ</c>: reaching zero expires it, and one that starts from zero wraps instead.</summary>
+    public NativeCountdown FunctionTimer { get; internal set; }
+
+    /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        Function = null;
+        BaseFunctionTime = 0;
+        FunctionTimer = NativeCountdown.Start(0);
     }
 }

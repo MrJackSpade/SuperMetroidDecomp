@@ -24,20 +24,19 @@ internal static class UnpauseStationLockReleaseVerification
     internal static void VerifyUnpauseStationLockRelease()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.ScriptLocks.LockIntoRefillStation();
-        runtime.NmiHandler.RunNmi(0, true);
-        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
-        var game = new SuperMetroidGame(bus);
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        game.runtime = runtime;
-        game.pauseMenu = pause;
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        game.Session.runtime = runtime;
+        game.Session.pauseMenu = pause;
         game.GameState = SuperMetroidGameState.PausedB;
         long sequence = 0;
 

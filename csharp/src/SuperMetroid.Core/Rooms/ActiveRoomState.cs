@@ -54,8 +54,6 @@ internal sealed class ActiveRoomState
     /// <summary>Landing Site's ROM-backed bank-$80 tilemap producer after room initialization.</summary>
     public BackgroundTilemapStreamer? BackgroundStreamer { get; internal set; }
 
-    /// <summary>Row/column updates produced by the most recent camera-to-BG pass.</summary>
-    public int LastBackgroundUpdateCount { get; internal set; }
 
     /// <summary>
     /// Active room's decompressed BG1/BTS/BG2 allocation. Rendering and collision must

@@ -1,15 +1,25 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>The Cacatac species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class CacatacBehavior : IEnemySpecies
+internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Cacatac];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CacatacEntity(this, slot, common);
+
     /// <summary>Supplies shared room RNG for the three-in-256 spike attack gate.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates spike projectiles with source position and OBJ attributes.</summary>
@@ -34,7 +44,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
                 PlayCacatacSpikeSound();
                 break;
             case CacatacCueKind.SpawnSpike:
-                SpawnCacatacSpike(slot, cue.Value);
+                SpawnCacatacSpike(slot, cue.Direction);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CacatacCueKind)} {cue.Kind}.");
@@ -42,16 +52,11 @@ internal sealed class CacatacBehavior : IEnemySpecies
         return null;
     }
 
-
-    /// <summary>Typed patrol and attack state indexed by native enemy slot.</summary>
-    internal readonly CacatacEnemyState?[] _cacatacStates =
-        new CacatacEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Last library-two spike-release sound requested in this enemy frame.</summary>
-    public ushort? LastCacatacSoundEffect { get; private set; }
+    public SoundEffectId? LastCacatacSoundEffect { get; private set; }
 
     /// <summary>Ports <c>InitAI_Cacatac</c> at $A2:9F48.</summary>
-    internal void InitializeCacatac(RoomEnemySlot slot)
+    internal static void InitializeCacatac(RoomEnemySlot slot)
     {
         var direction = (CacatacDirection)SnesLittleEndian.LowByte(slot.Parameter1);
         int distanceIndex = SnesLittleEndian.LowByte(slot.Parameter2);
@@ -76,18 +81,17 @@ internal sealed class CacatacBehavior : IEnemySpecies
         }
 
         bool upsideUp = (SnesLittleEndian.HighByteInPlace(slot.Parameter1)) != 0;
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
 
-        ushort distance = CacatacMovementDefinitions.TravelDistance((byte)distanceIndex);
+        var travel = new Offset16<RoomPixels>(checked((short)CacatacMovementDefinitions.TravelDistance((byte)distanceIndex)), 0);
+        Position16<RoomPixels> spawn = slot.Position.Whole;
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
         var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
-        var state = new CacatacEnemyState(slot)
+        var state = new CacatacEnemyState
         {
-            RightVelocity = unchecked((ushort)right.Whole),
-            RightSubvelocity = right.Fraction,
-            LeftVelocity = unchecked((ushort)left.Whole),
-            LeftSubvelocity = left.Fraction,
+            RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
+            LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
             Direction = direction,
             Function = direction switch
             {
@@ -96,11 +100,11 @@ internal sealed class CacatacBehavior : IEnemySpecies
                 CacatacDirection.InitialStop => CacatacEnemyFunction.Stopped,
                 _ => throw new InvalidOperationException($"Undefined Cacatac direction {direction}."),
             },
-            MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + distance)),
-            MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - distance)),
+            RightPatrolLimit = spawn + travel,
+            LeftPatrolLimit = spawn - travel,
             UpsideUp = upsideUp,
         };
-        _cacatacStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle);
     }
 
@@ -121,39 +125,31 @@ internal sealed class CacatacBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Cacatac function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Cacatac function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
-    /// <summary>Ports the split-word additions at $A2:9FBA and $A2:9FEC.</summary>
+    /// <summary>
+    /// Ports the split-word additions at $A2:9FBA and $A2:9FEC: the 16.16 velocity is added to X with the
+    /// fraction's carry into the whole, then the wrapped signed distance to the patrol limit decides the turn.
+    /// </summary>
     private static void MoveCacatac(
         RoomEnemySlot slot,
         CacatacEnemyState state,
         bool movingRight)
     {
-        ushort subvelocity = movingRight
-            ? state.RightSubvelocity
-            : state.LeftSubvelocity;
-        ushort velocity = movingRight
-            ? state.RightVelocity
-            : state.LeftVelocity;
-
-        uint fractionalSum = (uint)slot.Position.X.Fraction + subvelocity;
-        slot.Position = slot.Position.WithFractionX(unchecked((ushort)fractionalSum));
-        if (fractionalSum > ushort.MaxValue)
-            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + 1)));
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + velocity)));
+        slot.Position = slot.Position.AdvanceX(movingRight ? state.RightVelocity : state.LeftVelocity);
 
         if (!movingRight)
         {
-            if (!EnemyMath.IsNegative16(unchecked((ushort)(slot.Position.X.Whole - state.MinimumXPosition))))
+            if ((slot.Position.Whole - state.LeftPatrolLimit).X >= 0)
                 return;
             state.Function = CacatacEnemyFunction.MovingRight;
             state.Direction = CacatacDirection.Right;
             return;
         }
 
-        if (EnemyMath.IsNegative16(unchecked((ushort)(slot.Position.X.Whole - state.MaximumXPosition))))
+        if ((slot.Position.Whole - state.RightPatrolLimit).X < 0)
             return;
         state.Function = CacatacEnemyFunction.MovingLeft;
         state.Direction = CacatacDirection.Left;
@@ -181,7 +177,8 @@ internal sealed class CacatacBehavior : IEnemySpecies
     }
 
     /// <summary>Animation instruction $A2:9F2A: publish library-two sound $34.</summary>
-    private void PlayCacatacSpikeSound() => LastCacatacSoundEffect = EnemySoundEffectDefinitions.CacatacSpikeSound;
+    private void PlayCacatacSpikeSound() =>
+        LastCacatacSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.CacatacSpikeSound);
 
     /// <summary>Starts a patrol or attack animation on the next instruction tick.</summary>
     internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
@@ -192,8 +189,8 @@ internal sealed class CacatacBehavior : IEnemySpecies
     }
 
     /// <summary>Requires an initialized typed state before a Cacatac AI or list callback runs.</summary>
-    private CacatacEnemyState RequireCacatacState(RoomEnemySlot slot) =>
-        _cacatacStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static CacatacEnemyState RequireCacatacState(RoomEnemySlot slot) =>
+        slot.SpeciesState<CacatacEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Cacatac state.");
 
     /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>
@@ -206,51 +203,38 @@ internal sealed class CacatacBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.CacatacSpike);
     }
 
-    /// <summary>Routes bank-$A2 initialization only to Cacatac definitions.</summary>
-    internal void RegisterCacatacInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Cacatac's initialization AI.</summary>
+    internal static void RunCacatacInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Cacatac, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCacatac(slot);
-        });
+        InitializeCacatac(slot);
     }
 
-    /// <summary>Routes Cacatac's three-state patrol and attack dispatcher through the enemy table.</summary>
-    internal void RegisterCacatacMainAi(EnemyAiTable table)
+    /// <summary>Ports Cacatac's main AI.</summary>
+    internal void RunCacatacMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Cacatac, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunCacatacMain(slot, RequireCacatacState(slot));
-        });
+        RunCacatacMain(slot, RequireCacatacState(slot));
     }
 
-    /// <summary>Runs Cacatac's idle and spike-attack animations as typed programs (#641).</summary>
-    internal void RegisterCacatacTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireCacatacState(slot);
-            AnimationProgramCursor<CacatacProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, CacatacAnimations.Programs, ref cursor, CacatacFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyCacatacCue(slot, state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Cacatac's typed animation.</summary>
+    internal void AdvanceCacatacTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireCacatacState(slot);
+        AnimationProgramCursor<CacatacProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, CacatacAnimations.Programs, ref cursor, CacatacFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyCacatacCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> and initializer $86:D992.
     /// The source actor supplies both origin subpixels and its combined palette/tile index.
     /// </summary>
-    internal void SpawnCacatacSpike(RoomEnemySlot source, ushort rawDirection)
+    internal void SpawnCacatacSpike(RoomEnemySlot source, CacatacSpikeDirection direction)
     {
-        if ((rawDirection & 1) != 0 || rawDirection > (ushort)CacatacSpikeDirection.DownRight)
-        {
-            throw new InvalidDataException(
-                $"Cacatac spike direction ${rawDirection:X4} is outside ten even table offsets.");
-        }
+        // Rejects an odd or out-of-table direction before allocating, as the native selector check does.
+        CacatacProjectileProgram program = CacatacProjectileDefinitions.Program(direction);
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -260,13 +244,12 @@ internal sealed class CacatacBehavior : IEnemySpecies
             projectile,
             RoomEnemyProjectileKind.CacatacSpike,
             unchecked((ushort)(source.PaletteIndex | source.VramTilesIndex)));
-        projectile.DirectionParameter = rawDirection;
-        projectile.Variable0 = rawDirection;
-        var direction = (CacatacSpikeDirection)rawDirection;
-        projectile.InstallAnimation(new CacatacProjectileAnimation(CacatacProjectileDefinitions.Program(direction)));
+        projectile.DirectionParameter = (ushort)direction;
+        projectile.Variable0 = (ushort)direction;
+        projectile.InstallAnimation(new CacatacProjectileAnimation(program));
         projectile.Position = source.Position;
         CacatacSpikeSpeedPair speeds = CacatacProjectileDefinitions.SpeedPair(direction);
-        projectile.Velocity = new(new SnesSignedEightEight(speeds.Positive), new SnesSignedEightEight(speeds.Negative));
+        projectile.Velocity = new(speeds.Positive, speeds.Negative);
     }
 
     /// <summary>
@@ -359,12 +342,6 @@ internal sealed class CacatacBehavior : IEnemySpecies
     }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        Array.Clear(_cacatacStates);
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastCacatacSoundEffect = null;
@@ -373,6 +350,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastCacatacSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastCacatacSoundEffect is { } sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

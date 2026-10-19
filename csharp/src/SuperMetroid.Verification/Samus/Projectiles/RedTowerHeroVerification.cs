@@ -21,22 +21,21 @@ internal static class RedTowerHeroVerification
     /// </summary>
     internal static void VerifyControlledRedTowerHeroShot()
     {
-        SamusProjectileSpawnSnapshot? stationaryLaunch = null;
         foreach (bool followShot in new[] { false, true })
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = CreateRetailRuntimeFixture(bus);
+            var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.RedTower);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RedTower);
             var level = runtime.Room.LoadedLevelData;
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimUpRightPose;
             samus.Position = samus.Position.WithWhole(new(116, 587));
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
 
             // Preserve every retail enemy and terrain block. Activate the upper
             // Rippers before settling the lower viewport; otherwise their initial
@@ -64,10 +63,6 @@ internal static class RedTowerHeroVerification
                 if (frame == 0)
                 {
                     AssertTrue(shot.IsActive, "Retail target probe launches its single shot");
-                    var launch = runtime.Projectiles.LastFiredProjectileSnapshot;
-                    AssertTrue(launch.HasValue, "Retail probe publishes launch evidence");
-                    if (!followShot) stationaryLaunch = launch;
-                    else AssertTrue(launch == stationaryLaunch, "Camera branches launch identical shots");
                 }
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {

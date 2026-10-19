@@ -8,11 +8,14 @@ public readonly record struct SpeedBoosterPaletteFrame
     /// <summary>Movement type.</summary>
     public required SamusMovementType MovementType { get; init; }
 
-    /// <summary>Animation frame.</summary>
-    public required ushort AnimationFrame { get; init; }
+    /// <summary>
+    /// Samus's current animation frame index, copied from her animation state; the palette compares it with zero,
+    /// three and twenty-seven.
+    /// </summary>
+    public required int AnimationFrame { get; init; }
 
     /// <summary>Equipped items.</summary>
-    public required ushort EquippedItems { get; init; }
+    public required SuperMetroid.Core.Samus.SamusEquipmentFlags EquippedItems { get; init; }
 
     /// <summary>Suppress active speed booster palette.</summary>
     public bool SuppressActiveSpeedBoosterPalette { get; init; }

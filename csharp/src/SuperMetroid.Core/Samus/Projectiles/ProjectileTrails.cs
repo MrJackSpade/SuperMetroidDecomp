@@ -7,6 +7,10 @@ internal sealed class ProjectileTrails
     /// <summary>Projectile-owned left and right trail pairs shared with the slot allocator.</summary>
     private readonly ProjectileSlotTable _slotTable;
 
+    /// <summary>The installed cartridge bytes a trail reads past its selector and coordinate tables; null until bound.</summary>
+    [field: NonSerialized]
+    internal SamusOverreadCatalog? Overreads { get; set; }
+
     /// <summary>Uses the owning projectile table so trail allocation and drawing see the same slots.</summary>
     internal ProjectileTrails(ProjectileSlotTable slotTable)
     {
@@ -14,7 +18,7 @@ internal sealed class ProjectileTrails
     }
 
     /// <summary>Selects native trail lists and positions both sides from the shot's current animation record.</summary>
-    internal void SpawnTrail(ISnesAddressSpace bus, SamusProjectileSlot projectile)
+    internal void SpawnTrail(SamusProjectileSlot projectile)
     {
         int pointerIndex;
         if (projectile.PackedType.IsFamily(SamusProjectileFamily.Beam))
@@ -27,11 +31,49 @@ internal sealed class ProjectileTrails
         {
             // Missiles and supers map families $01/$02 to table entries $20/$21. Other
             // projectile families return carry set and do not consume a trail slot.
-            int family = SnesLittleEndian.HighByte(projectile.PackedType.FamilyValue);
+            int family = SamusProjectileFamilies.IndexOf(projectile.PackedType.Raw);
             if (family >= 3)
                 return;
             pointerIndex = family + 31;
         }
+
+        ushort leftProgram = ProjectileTrailDefinitions.ReadSelector(
+            SamusProjectileRomData.Trails.LeftInstructionPointers + pointerIndex * 2, Overreads);
+        ushort rightProgram = ProjectileTrailDefinitions.ReadSelector(
+            SamusProjectileRomData.Trails.RightInstructionPointers + pointerIndex * 2, Overreads);
+
+        // Retail reads the previously installed record, even when the animation timer
+        // will expire later this frame. Reading ahead advances Spazer's trail spread early.
+        ushort animationFrame = GetTrailAnimationFrame(projectile);
+        int direction = projectile.PackedDirection.DirectionIndex;
+        int familyTable = (projectile.Type & 1 << 5) != 0
+            ? SamusProjectileRomData.Trails.SpazerSbaOffsetFamilies
+            : projectile.PackedType.IsChargedBeam
+                ? SamusProjectileRomData.Trails.ChargedOffsetFamilies
+                : SamusProjectileRomData.Trails.UnchargedOffsetFamilies;
+        ushort directionTable = ProjectileTrailCoordinateDefinitions.ReadFamilyPointer(
+            familyTable + projectile.PackedType.BeamCombination.TableIndex * 2, Overreads);
+
+        // An empty trail family (a glitch beam) points its programs, direction list or coordinate operands into the
+        // low halves of banks $90/$9B, which hold direct-page scratch. Its exact appearance would need direct-page
+        // emulation the port does not model, so it is exempt (owner decision on #1318) and draws no trail.
+        // Native performs WORD reads and consumes their high bytes after XBA.
+        if (!ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | leftProgram, out _) ||
+            !ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | rightProgram, out _) ||
+            !ProjectileTrailCoordinateDefinitions.TryReadDirectionPointer(
+                SamusProjectileRomData.Banks.PaletteAndTrailData | unchecked((ushort)(directionTable + direction * 2)),
+                Overreads, out ushort offsetList))
+            return;
+        ushort y = (ushort)(SamusProjectileRomData.Banks.PaletteAndTrailData | unchecked((ushort)(offsetList + animationFrame * 4)));
+        if (!ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, y, Overreads, out ushort leftYWord) ||
+            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, unchecked((ushort)(y - 1)), Overreads, out ushort leftXWord) ||
+            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(2, y, Overreads, out ushort rightYWord) ||
+            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(1, y, Overreads, out ushort rightXWord))
+            return;
+        byte leftY = SnesLittleEndian.HighByte(leftYWord);
+        byte leftX = SnesLittleEndian.HighByte(leftXWord);
+        byte rightY = SnesLittleEndian.HighByte(rightYWord);
+        byte rightX = SnesLittleEndian.HighByte(rightXWord);
 
         SamusProjectileTrailSlot? trail = null;
         for (int slotIndex = SamusProjectileSystem.TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
@@ -50,39 +92,8 @@ internal sealed class ProjectileTrails
 
         trail.Left.InstructionTimer = NativeCountdown.Start(1);
         trail.Right.InstructionTimer = NativeCountdown.Start(1);
-        trail.Left.InstructionPointer = ProjectileTrailDefinitions.ReadSelector(
-            SamusProjectileRomData.Trails.LeftInstructionPointers + pointerIndex * 2);
-        trail.Right.InstructionPointer = ProjectileTrailDefinitions.ReadSelector(
-            SamusProjectileRomData.Trails.RightInstructionPointers + pointerIndex * 2);
-
-        // Retail reads the previously installed record, even when the animation timer
-        // will expire later this frame. Reading ahead advances Spazer's trail spread early.
-        ushort animationFrame = GetTrailAnimationFrame(projectile);
-        int direction = projectile.PackedDirection.DirectionIndex;
-        int familyTable = (projectile.Type & 1 << 5) != 0
-            ? SamusProjectileRomData.Trails.SpazerSbaOffsetFamilies
-            : projectile.PackedType.IsChargedBeam
-                ? SamusProjectileRomData.Trails.ChargedOffsetFamilies
-                : SamusProjectileRomData.Trails.UnchargedOffsetFamilies;
-        ushort directionTable = ProjectileTrailCoordinateDefinitions.ReadFamilyPointer(
-            familyTable + projectile.PackedType.BeamCombination.TableIndex * 2);
-        ushort offsetList = ProjectileTrailCoordinateDefinitions.ReadDirectionPointer(
-            bus,
-            SamusProjectileRomData.Banks.PaletteAndTrailData |
-                unchecked((ushort)(directionTable + direction * 2)));
-        int offsets = SamusProjectileRomData.Banks.PaletteAndTrailData |
-            unchecked((ushort)(offsetList + animationFrame * 4));
-
-        // Native performs WORD reads and consumes their high bytes after XBA.
-        // Reflection can expose the word preceding a freshly installed animation
-        // list, sending this lookup into reserved B-bus space. Preserve the actual
-        // operand-driven open bus there instead of changing trail timing or hiding
-        // every unsupported hardware read behind a zero fallback.
-        ushort y = (ushort)offsets;
-        byte leftY = SnesLittleEndian.HighByte(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 0, y));
-        byte leftX = SnesLittleEndian.HighByte(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 0, unchecked((ushort)(y - 1))));
-        byte rightY = SnesLittleEndian.HighByte(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 2, y));
-        byte rightX = SnesLittleEndian.HighByte(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 1, y));
+        trail.Left.InstructionPointer = leftProgram;
+        trail.Right.InstructionPointer = rightProgram;
         trail.Left.Position = trail.Left.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, leftX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, leftY, -4));
         trail.Right.Position = trail.Right.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, rightX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, rightY, -4));
     }
@@ -102,7 +113,6 @@ internal sealed class ProjectileTrails
 
     /// <summary>Advances one side's instruction stream unless time is frozen.</summary>
     internal static void AdvanceTrailSide(
-        ISnesAddressSpace bus,
         SamusProjectileTrailSlot pair,
         bool timeIsFrozen,
         bool isLeft,
@@ -117,11 +127,10 @@ internal sealed class ProjectileTrails
             side.InstructionTimer = side.InstructionTimer.Decrement().Remaining;
             if (side.InstructionTimer.IsZero)
             {
-                ushort pointer = side.InstructionPointer;
+                ushort pointer = checked((ushort)side.InstructionPointer);
                 while (true)
                 {
                     ushort instructionOrTimer = ProjectileTrailProgramDefinitions.Read(
-                        bus,
                         SamusProjectileRomData.Banks.Movement | pointer);
                     if (!ProjectileTrailProgramDefinitions.IsInstruction(instructionOrTimer))
                     {
@@ -130,8 +139,7 @@ internal sealed class ProjectileTrails
                             return;
 
                         side.TileNumberAttributes = artwork is not null ? artwork.Resolve(pointer) :
-                            ProjectileTrailProgramDefinitions.Read(bus,
-                                SamusProjectileRomData.Banks.Movement |
+                            ProjectileTrailProgramDefinitions.Read(SamusProjectileRomData.Banks.Movement |
                                 unchecked((ushort)(pointer + 2)));
                         side.InstructionPointer = unchecked((ushort)(pointer + 4));
                         break;
@@ -193,7 +201,7 @@ internal sealed class ProjectileTrails
             return;
 
         SnesObjAttributeWord attributes = artwork is null
-            ? side.TileNumberAttributes : artwork.ResolveCurrent(side.InstructionPointer, side.TileNumberAttributes);
+            ? side.TileNumberAttributes : artwork.ResolveCurrent(checked((ushort)side.InstructionPointer), side.TileNumberAttributes);
         sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (isLeft ? 0 : 1)),
             ObjPartFrames.SmallObject(attributes, 0), objects.Page,
             new Position16<ScreenPixels>(screenX, screenY), default, 0, 0));

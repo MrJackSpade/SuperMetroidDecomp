@@ -20,12 +20,13 @@ internal static class IntroRinkaSpriteArtworkVerification
     /// <summary>Draws a live intro actor from cartridge spritemap data with native origin clipping.</summary>
     internal static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
     {
-        if (!actor.IsActive || actor.SpriteMapPointer == 0) return;
+        ushort spritemap = CinematicSpritePoseSpritemaps.Of(actor.Pose);
+        if (!actor.IsActive || spritemap == 0) return;
         ushort y = actor.WholePosition.Y;
         if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >= CinematicSpriteDrawDefinitions.BiasedOriginYLimit) return;
         DrawImportedSpritemap(bus, oam,
-            ((int)new SnesAddress(            IntroCinematicRomData.Banks.Spritemaps, actor.SpriteMapPointer)),
-            new(actor.WholePosition.X, y), actor.PaletteBits,
+            ((int)new SnesAddress(            IntroCinematicRomData.Banks.Spritemaps, spritemap)),
+            new(actor.WholePosition.X, y), actor.Attributes.Raw,
             originIsOnScreen: ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0);
     }
     /// <summary>Compares installed Rinka OAM and flashback pixels with native art, then verifies a palette override and rebinding.</summary>
@@ -77,7 +78,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         var rinkas = new IntroRinkaSystem();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)) };
         for (int frame = 0; frame <= 75; frame++)
-            rinkas.Step(guarded, samus, motherBrainExploding: false, explosionsAllocated: false);
+            rinkas.Step(samus, motherBrainExploding: false, explosionsAllocated: false);
         AssertEqual(2, rinkas.LiveRinkas.Count,
             "intro Rinka first two-wave actors exist for installed artwork test");
         var stockOam = new OamBuffer();
@@ -102,9 +103,8 @@ internal static class IntroRinkaSpriteArtworkVerification
                     .SequenceEqual(editedOam.LowTable.Slice(part * 4, 2)),
                 $"intro Rinka palette edit preserves native part {part} X/Y");
 
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
-        var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
+        var stockState = CreateRetailIntroFixture(characterArtwork: stock);
+        var editedState = CreateRetailIntroFixture(characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
             state.SetupFirstIllustratedPage();

@@ -14,6 +14,6 @@ internal sealed class RidleyFireballAnimation(RidleyFireballProgram program)
         RidleyFireballAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(RidleyFireballFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(RidleyFireballVisualDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(RidleyFireballFrame frame) =>
+        RidleyFireballVisualDefinitions.ShownProjectileFrames[frame];
 }

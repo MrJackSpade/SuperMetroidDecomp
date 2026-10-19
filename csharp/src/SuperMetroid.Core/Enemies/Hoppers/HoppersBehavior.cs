@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Hoppers.Artwork;
@@ -8,8 +9,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>The Hoppers species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class HoppersBehavior : IEnemySpecies
+internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new HoppersEntity(this, slot, common);
+
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves vertical and horizontal collisions in both floor and ceiling hops.</summary>
@@ -34,8 +41,7 @@ internal sealed class HoppersBehavior : IEnemySpecies
                 slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                 break;
             case HopperCueKind.PlaySound:
-                // Audio playback is an outer concern; publishing the exact word keeps the event observable.
-                LastHopperSoundEffect = cue.Value;
+                LastHopperSoundEffect = cue.Sound ?? throw new InvalidOperationException("A hopper sound cue has no sound.");
                 break;
             case HopperCueKind.ReadyToHop:
                 state.ReadyToHop = true;
@@ -49,19 +55,7 @@ internal sealed class HoppersBehavior : IEnemySpecies
     /// <summary>Native global RNG seed written when a Hopper initializes.</summary>
     private const ushort HopperRandomSeed = 37;
     /// <summary>Terminal quadratic-speed table index used to cap the falling half of a hop.</summary>
-    private const ushort MaximumHopperYSpeedTableIndex = 64;
-
-    /// <summary>Per-slot hop phase, direction and animation state cleared at room load.</summary>
-    internal readonly HopperEnemyState?[] _hopperStates =
-        new HopperEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
-    /// <summary>Recognizes the Sidehopper and Dessgeega variants served by this shared bank-$A3 AI.</summary>
-    internal static bool IsHopperDefinition(EnemyDefinitionId definitionPointer) => definitionPointer is
-        EnemyDefinitionId.Sidehopper or
-        EnemyDefinitionId.Dessgeega or
-        EnemyDefinitionId.SidehopperLarge or
-        EnemyDefinitionId.SidehopperTourian or
-        EnemyDefinitionId.DessgeegaLarge;
+    private const int MaximumHopperYSpeedTableIndex = 64;
 
     /// <summary>Ports <c>InitAI_Hopper</c> at $A3:AB09.</summary>
     internal void InitializeHopper(RoomEnemySlot slot)
@@ -78,16 +72,15 @@ internal sealed class HoppersBehavior : IEnemySpecies
         _room.Random.Seed(HopperRandomSeed);
         _room.Random.Generate();
 
-        var state = new HopperEnemyState(slot)
+        var state = new HopperEnemyState
         {
             Falling = false,
             ReadyToHop = false,
-            HopTableIndex = slot.Definition.VariantIndex == 0 ? (ushort)0 : (ushort)2,
-            VariantTableOffset = unchecked((ushort)(slot.Definition.VariantIndex * 2)),
+            Variant = slot.Definition.VariantIndex,
             UpsideDown = slot.Parameter1 != 0,
             Function = HopperEnemyFunction.ChooseHopSize,
         };
-        _hopperStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         SetHopperProgram(slot, state, ReadHopperProgram(
             state, state.UpsideDown, jumping: false));
@@ -163,7 +156,7 @@ internal sealed class HoppersBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Hopper function $A3:{(ushort)state.Function:X4} is not translated.");
+                    $"Hopper function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -177,7 +170,7 @@ internal sealed class HoppersBehavior : IEnemySpecies
     /// <summary>Selects big or small quadratic-speed parameters and routes to the facing choice for the next hop.</summary>
     private static void PrepareHopperHop(HopperEnemyState state, bool bigHop)
     {
-        state.YSpeedTableIndexDelta = bigHop ? (ushort)4 : (ushort)3;
+        state.YSpeedTableIndexDelta = bigHop ? 4 : 3;
         state.XVelocity = 3;
         state.YSpeedTableIndex = bigHop
             ? state.BigHopInitialYSpeedTableIndex
@@ -252,7 +245,7 @@ internal sealed class HoppersBehavior : IEnemySpecies
         // each actor collide with its starting surface and then migrate to the opposite one.
         bool useNegativeSpeed = upsideDown != movingAwayFromSurface;
         int verticalDisplacement = EnemyMath.ReadQuadraticEnemySpeed(
-            state.YSpeedTableIndex,
+            checked((ushort)state.YSpeedTableIndex),
             negative: useNegativeSpeed);
 
         // Every native movement entry resolves Y first. A collision while rising reverses
@@ -288,22 +281,26 @@ internal sealed class HoppersBehavior : IEnemySpecies
 
         if (movingAwayFromSurface)
         {
-            ushort next = unchecked((ushort)(
-                state.YSpeedTableIndex - state.YSpeedTableIndexDelta));
-            state.YSpeedTableIndex = next;
-            if ((short)next < 0)
+            // The cartridge stores the decremented record and branches on its sign: a record below zero is the apex,
+            // replaced by zero as the hop turns back toward the surface.
+            int next = state.YSpeedTableIndex - state.YSpeedTableIndexDelta;
+            if (next < 0)
             {
                 state.YSpeedTableIndex = 0;
                 state.Falling = true;
             }
+            else
+            {
+                state.YSpeedTableIndex = next;
+            }
             return;
         }
 
-        ushort fallingIndex = unchecked((ushort)(
-            state.YSpeedTableIndex + state.YSpeedTableIndexDelta));
-        state.YSpeedTableIndex = unchecked((short)(fallingIndex - MaximumHopperYSpeedTableIndex)) < 0
-            ? fallingIndex
-            : MaximumHopperYSpeedTableIndex;
+        // The cartridge caps the returning record by the sign of its word difference from the cap; both stay far
+        // below the word's sign bit, so that is the ordinary minimum.
+        state.YSpeedTableIndex = Math.Min(
+            state.YSpeedTableIndex + state.YSpeedTableIndexDelta,
+            MaximumHopperYSpeedTableIndex);
     }
 
     /// <summary>Accumulates the native unaligned quadratic-speed words until the authored jump height is reached.</summary>
@@ -335,8 +332,7 @@ internal sealed class HoppersBehavior : IEnemySpecies
         HopperEnemyState state,
         bool upsideDown,
         bool jumping) =>
-        HopperAnimationDefinitions.Program(
-            (ushort)(state.VariantTableOffset >> 1), upsideDown, jumping);
+        HopperAnimationDefinitions.Program(state.Variant, upsideDown, jumping);
 
     /// <summary>Starts a new animation with a one-tick countdown.</summary>
     private static void SetHopperProgram(
@@ -350,51 +346,41 @@ internal sealed class HoppersBehavior : IEnemySpecies
     }
 
     /// <summary>Requires initialized per-slot hop state before dispatching AI or private animation commands.</summary>
-    private HopperEnemyState RequireHopperState(RoomEnemySlot slot) =>
-        _hopperStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static HopperEnemyState RequireHopperState(RoomEnemySlot slot) =>
+        slot.SpeciesState<HopperEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Hopper state.");
 
-    /// <summary>Routes bank-$A3 initialization to the five Sidehopper and Dessgeega identities.</summary>
-    internal void RegisterHoppersInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Hoppers's initialization AI.</summary>
+    internal void RunHoppersInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Hopper, slot => IsHopperDefinition(slot.EnemyDefinitionPointer), (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeHopper(slot);
-        });
+        InitializeHopper(slot);
     }
 
-    /// <summary>Routes the shared hop state machine through the enemy AI table.</summary>
-    internal void RegisterHoppersMainAi(EnemyAiTable table)
+    /// <summary>Ports Hoppers's main AI.</summary>
+    internal void RunHoppersMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Hopper, slot => IsHopperDefinition(slot.EnemyDefinitionPointer), (slot, frame, nmiFrameCounter8) =>
-        {
-            RunHopperMain(slot, frame.Samus, frame.Level);
-        });
+        RunHopperMain(slot, frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs the Sidehoppers' and Dessgeegas' animations as typed programs (#641).</summary>
-    internal void RegisterHopperTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsHopperDefinition(slot.EnemyDefinitionPointer), (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            HopperEnemyState state = RequireHopperState(slot);
-            AnimationProgramCursor<HopperProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, HopperAnimations.Programs, ref cursor, HopperFrameDefinitions.Spritemap,
-                (cue, _) => ApplyHopperCue(slot, state, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Advances Hoppers's typed animation.</summary>
+    internal void AdvanceHoppersTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        HopperEnemyState state = RequireHopperState(slot);
+        AnimationProgramCursor<HopperProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, HopperAnimations.Programs, ref cursor, HopperFrameDefinitions.ShownFrames.Of,
+            (cue, _) => ApplyHopperCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
-    /// <summary>Last library-two sound operand emitted by a Hopper instruction this enemy pass, admitted through the native Max6 queue entry; null means no request.</summary>
-    public ushort? LastHopperSoundEffect { get; private set; }
+    /// <summary>Last library-two sound emitted by a Hopper instruction this enemy pass, admitted through the native Max6 queue entry; null means no request.</summary>
+    public SoundEffectId? LastHopperSoundEffect { get; private set; }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastHopperSoundEffect = null;
-        Array.Clear(_hopperStates);
     }
 
     /// <inheritdoc/>
@@ -406,6 +392,7 @@ internal sealed class HoppersBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastHopperSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastHopperSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

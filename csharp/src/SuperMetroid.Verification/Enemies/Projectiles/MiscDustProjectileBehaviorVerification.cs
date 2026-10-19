@@ -30,7 +30,7 @@ internal static class MiscDustProjectileBehaviorVerification
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
         foreach (MiscDustAnimation animation in Enum.GetValues<MiscDustAnimation>())
         {
-            RoomEnemySystem enemies = CreateRoomEnemySystem(guard);
+            RoomEnemySystem enemies = CreateRoomEnemySystem();
             enemies.Projectiles.SpawnRoomGraphicsDustExplosion(new Position16<RoomPixels>(128, 96), animation);
             RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
@@ -55,7 +55,7 @@ internal static class MiscDustProjectileBehaviorVerification
             AssertTrue(!dust.IsActive, $"room-system finite misc-dust animation {animation} reaches delete");
         }
 
-        RoomEnemySystem smokeEnemies = CreateRoomEnemySystem(guard);
+        RoomEnemySystem smokeEnemies = CreateRoomEnemySystem();
         smokeEnemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Smoke, Parameter: 3, PlmBlockIndex: 4 * 16 + 7, DoorBit: 0),
             roomWidthInBlocks: 16,
@@ -76,11 +76,11 @@ internal static class MiscDustProjectileBehaviorVerification
         NativeEnemyProjectileListGuard.Forbidding(rom, MiscDustProjectileNativeListAddresses.Extent, "misc dust")
             .AlsoForbidding(SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEffectNativeListAddresses.Extent, "Mother Brain effect");
 
-    /// <summary>A room enemy system on <paramref name="bus"/> whose random reads and draws return zero.</summary>
-    internal static RoomEnemySystem CreateRoomEnemySystem(ISnesAddressSpace bus)
+    /// <summary>A room enemy system whose random reads and draws return zero.</summary>
+    internal static RoomEnemySystem CreateRoomEnemySystem()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         return enemies;
@@ -107,7 +107,7 @@ internal static class MiscDustProjectileBehaviorVerification
         if (!projectile.IsActive || !selectsFrame || projectile.InstructionTimer.IsZero || projectile.PresentationOperandAddress == 0)
             return;
         ushort operand = projectile.PresentationOperandAddress;
-        AssertTrue(EnemyProjectilePresentationFrameDefinitions.Contains(operand), "the shown frame is an installed-art identity");
+        AssertTrue(EnemyProjectilePresentationFrameSetsTooling.Contains(operand), "the shown frame is an installed-art identity");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, projectile.SpritemapPointer,
             "the shown frame leaves spritemap resolution to installed content");
         AssertEqual(ReadNativeEnemyProjectileProgramWord(rom, unchecked((ushort)(operand - 2))), projectile.InstructionTimer.RawValue,

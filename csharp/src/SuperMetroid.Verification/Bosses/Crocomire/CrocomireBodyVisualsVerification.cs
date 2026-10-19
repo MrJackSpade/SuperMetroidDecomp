@@ -21,13 +21,16 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 /// <summary>Retail comparisons for Crocomire's mixed OAM/BG2 body frames and installed editable artwork.</summary>
 internal static class CrocomireBodyVisualsVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Derives the 50 selected body roots from bank-$A4 instructions and checks frame ordering, component counts, and the 42-frame BG2 domain.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire body frame geometry")]
     internal static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var original = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body));
         AssertEqual(50, original.Count, "native body frame selection count");
-        AssertEqual(50, CrocomireBodyVisualDefinitions.Frames.Length, "calculated body frame count");
+        AssertEqual(50, CrocomireBodyVisualDefinitions.Frames.Count, "calculated body frame count");
         ushort[] expected = original.ToArray();
         for (int index = 0; index < expected.Length; index++)
         {
@@ -178,7 +181,7 @@ internal static class CrocomireBodyVisualsVerification
         string overridePath = Path.Combine(overrideDirectory,
             CrocomireBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(authored,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            CamelCaseJson));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         var editedGuard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> editedGuardBlockFrame);
@@ -205,16 +208,15 @@ internal static class CrocomireBodyVisualsVerification
         static (OamBuffer Oam, byte[] Vram) Draw(EnemyTileArtworkCatalog art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = art };
             var vram = new SnesVram();
-            enemies.BindFixtureBus(bus);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._vram = vram;
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
-            slot.Definition = default(RoomEnemyDefinition) with
-                { Bank = CrocomireBodyVisualDefinitions.Bank };
+            slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+                { Bank = CrocomireBodyVisualDefinitions.Bank });
             slot.ExtraProperties = slot.ExtraProperties.With(
                 EnemyExtraProperties.UsesExtendedSpritemap);
             if (newFrame)

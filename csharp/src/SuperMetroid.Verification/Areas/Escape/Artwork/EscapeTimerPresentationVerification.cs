@@ -16,6 +16,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Compares installed escape-timer artwork, tile transfers, and digit layout with the cartridge.</summary>
 internal static class EscapeTimerPresentationVerification
@@ -55,12 +56,12 @@ internal static class EscapeTimerPresentationVerification
             "timer PNG first record uses typed installed artwork");
         AssertEqual(VramAssetId.EscapeTimerSecondTiles, queued.Entries[1].AssetId,
             "timer PNG second record uses typed installed artwork");
-        AssertEqual(EscapeTimerTileAtlasFormat.FirstDestinationWord, queued.Entries[0].EncodedVramDestination,
+        AssertEqual(EscapeTimerTileAtlasFormat.FirstDestinationWord, queued.Entries[0].Destination.Encoded,
             "timer PNG first record retains native destination");
-        AssertEqual(EscapeTimerTileAtlasFormat.SecondDestinationWord, queued.Entries[1].EncodedVramDestination,
+        AssertEqual(EscapeTimerTileAtlasFormat.SecondDestinationWord, queued.Entries[1].Destination.Encoded,
             "timer PNG second record retains native destination");
         var timerVram = new SnesVram();
-        queued.DrainTo(timerVram, ReferenceMutableMemory.From(NewForbiddenMapBus()), original);
+        queued.DrainTo(timerVram, original);
         AssertTrue(nativeFirstTiles.SequenceEqual(ReadVram(timerVram,
             EscapeTimerTileAtlasFormat.FirstDestinationWord * 2, nativeFirstTiles.Length)),
             "typed first timer record publishes exact stock VRAM");
@@ -85,7 +86,7 @@ internal static class EscapeTimerPresentationVerification
             EscapeTimerTileAtlasFormat.SecondDestinationWord * 2, nativeSecondTiles.Length)),
             "Mother Brain synchronous second timer transfer uses installed artwork");
 
-        var restoredQueueRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        var restoredQueueRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
             EscapeTimerTileRomData.FirstSourceAddress, VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.FirstDestinationWord));
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,

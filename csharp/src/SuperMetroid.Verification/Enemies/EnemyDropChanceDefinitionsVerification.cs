@@ -55,7 +55,7 @@ internal static class EnemyDropChanceDefinitionsVerification
             MaxHealth = 99,
         };
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
-        fixture.System.BindFixtureBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
+        fixture.System.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var projectile = new RoomEnemyProjectileSlot(1);
 
         for (int record = 0; record < EnemyDropChanceDefinitions.RecordCount; record++)
@@ -63,21 +63,18 @@ internal static class EnemyDropChanceDefinitionsVerification
             ushort pointer = checked((ushort)(
                 EnemyDropChanceDefinitions.FirstPointer +
                 record * EnemyDropChanceDefinitions.RecordSize));
-            projectile.ItemDropChancesPointerOverride = pointer;
+            projectile.DropChancesOverride = EnemyDropChanceDefinitions.At(pointer);
             EnemyPickupKind selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile);
             AssertTrue(Enum.IsDefined(selected),
                 $"production enemy drop record ${pointer:X4} returns a defined kind");
         }
 
-        projectile.ItemDropChancesPointerOverride = unchecked((ushort)(
-            EnemyDropChanceDefinitions.FirstPointer + 1));
         AssertThrows<InvalidDataException>(
-            () => fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
-            "production enemy drop rejects an unaligned restored probability pointer");
-        projectile.ItemDropChancesPointerOverride = 0x8000;
+            () => EnemyDropChanceDefinitions.At(unchecked((ushort)(EnemyDropChanceDefinitions.FirstPointer + 1))),
+            "production enemy drop rejects an unaligned probability pointer");
         AssertThrows<InvalidDataException>(
-            () => fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
-            "production enemy drop rejects an external restored probability pointer");
+            () => EnemyDropChanceDefinitions.At(0x8000),
+            "production enemy drop rejects an external probability pointer");
         Console.WriteLine(
             "Enemy drop chance definitions: all 118 native records match ROM and execute " +
             "through production selection with RAM-only memory; invalid pointers reject without a ROM fallback.");

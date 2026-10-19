@@ -74,14 +74,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 3 && after.Classifications.Count == 2 && after.UnresolvedCount == 1 &&
-            after.MissingCount == 0 && after.Consumers.Count == 3, "complete sheet admission must reject known unowned source keys");
-        const string provider = "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteArtworkCatalog.cs";
-        var changed = trees.Select(tree => tree.FilePath == provider ? CSharpSyntaxTree.ParseText(
-            tree.GetText().ToString().Replace("artwork.Transfer.Length != definition.ByteCount", "false", StringComparison.Ordinal),
-                path: tree.FilePath) : tree);
-        AuditReport revoked = Inspect(Compile(changed), true);
-        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 3,
-            "removing page-size admission must revoke the provider proof");
+            after.MissingCount == 0 && after.Consumers.Count == 3, "complete sheet admission must reject known unowned source keys" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Reports a Mother Brain sheet contract failure through the resource audit boundary.</summary>

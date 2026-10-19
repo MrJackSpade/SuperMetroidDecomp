@@ -48,7 +48,7 @@ internal static class DefinitionAudit
             exports.Add(ResourceDomains.EnemyDisplay, key);
         }
         CompiledEnemyDisplayAudit.Install(root, exports, report);
-        foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
+        foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
             exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, frame.OperandAddress));
         foreach ((ushort pointer, _) in EnemyProjectileSpritemapDefinitions.Frames)
             exports.Add(ResourceDomains.EnemyProjectileSprite, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, pointer));
@@ -96,10 +96,10 @@ internal static class DefinitionAudit
         string relative = calculated
             ? bank == 0x86
                 ? AlcoonFireballFrameDefinitions.TryFrame((ushort)address, out _)
-                    ? "csharp/src/SuperMetroid.Core/Enemies/Alcoon/Artwork/AlcoonFireballFrameDefinitions.cs"
-                    : "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/Artwork/FuneNamiheFireballFrameDefinitions.cs"
+                    ? "csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/Artwork/AlcoonFireballFrameToolingDefinitions.cs"
+                    : "csharp/src/SuperMetroid.Tooling/Core/Enemies/FuneNamihe/Artwork/FuneNamiheFireballFrameToolingDefinitions.cs"
                 : "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidVisualDefinitions.cs"
-            : $"csharp/src/SuperMetroid.Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";
+            : $"csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";
         int line = 0;
         foreach (string text in File.ReadLines(Path.Combine(root, relative)))
         {

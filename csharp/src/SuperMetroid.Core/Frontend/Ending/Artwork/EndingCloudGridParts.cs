@@ -42,7 +42,7 @@ internal sealed class EndingCloudGridParts : IReadOnlyList<CompiledSpritePart>
             int firstTile = Side ? SnesCharacterGrid.Cell(16, 0) : role is Role.UpperPattern or Role.LowerPattern ? SnesCharacterGrid.Cell(8, 0) : 0;
             SnesTileFlipFlags flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) |
                 (upper ? SnesTileFlipFlags.Vertical : 0);
-            return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(firstTile + row * 4 * SnesCharacterGrid.CharactersPerRow + column * 4, 0, 3, flips), true);
         }
     }

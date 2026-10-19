@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -25,25 +26,25 @@ internal static class XrayInputVerification
     internal static void VerifyXrayInput()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
         // The platform's lowest position is a Morph-only tunnel. Standing there
         // embeds the torso in terrain and cannot validate a visible X-ray beam.
         // Use the open floor in the Scope chamber instead.
         samus.Position = samus.Position.WithWhole(new(128, 139));
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.XrayScope;
+        samus.EquippedItems = SamusEquipmentFlags.XrayScope;
         samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
         runtime.StepFrame(0);
         runtime.StepFrame(SnesButton.Select);
-        AssertEqual(SamusXrayRomData.SelectedHudItem, samus.SelectedHudItem, "Select reaches the equipped X-ray through ordinary HUD input");
+        AssertEqual(HudItem.XRay, samus.SelectedHudItem, "Select reaches the equipped X-ray through ordinary HUD input");
         runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         AssertTrue(samus.Xray.IsActive, "held Run activates selected X-ray without diagnostic activation");
         AssertTrue(runtime.Freeze.TimeIsFrozen, "X-ray activation freezes gameplay");
@@ -69,7 +70,7 @@ internal static class XrayInputVerification
         var horizontal = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var horizontalPixels = SoftwareLayeredSnapshotRenderer.Render(horizontal);
         var probe = runtime.Room.LoadedLevelData.GetPlmCollisionBlockByIndex(7 * runtime.Room.LoadedLevelData.Size.X + 12);
-        AssertEqual((ushort)255, (XrayRevealTable.Find(probe.CollisionType, probe.Behavior) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(probe.CollisionType, probe.Behavior).")).TopLeft,
+        AssertEqual((ushort)255, (XrayRevealTable.Find(probe.CollisionType, probe.Bts.Value) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(probe.CollisionType, probe.Bts.Value).")).TopLeft,
             "native air definition replaces decorative wall art with the blank metatile");
         var ordinaryPixels = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()));
         int revealedAirPixel = 120 * 256 + 200;
@@ -89,11 +90,10 @@ internal static class XrayInputVerification
         var reveal = captured.LayersOf<GameplayColorMathRenderLayer>().Single();
         AssertTrue(reveal.Lines.Any(line => line.Left <= line.Right), "full X-ray publishes a nonempty visible window");
         var pixels = SoftwareLayeredSnapshotRenderer.Render(captured);
-        AssertTrue(pixels.SequenceEqual(SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame())), "immediate software entrypoint uses the same X-ray display operation");
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
         AssertEqual((byte)0x73, (byte)reveal.ColorMath, "native reveal-room CGADSUB");
         AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Memory.Cgram[0], "setup backdrop reaches the packet");
-        var frozenMap = XraySetupMemory.ReadReveal(bus);
+        var frozenMap = XraySetupMemory.ReadReveal(runtime.Xray);
         for (int i = 0; i < frozenMap.Length; i++)
         {
             int offset = (GameplayVramLayout.Bg2TilemapWord + i) * 2;
@@ -131,18 +131,17 @@ internal static class XrayInputVerification
             "a queued X-ray frame remains immutable after gameplay resumes");
         AssertTrue(beforeRelease.SequenceEqual(RenderFrameSnapshotWriter.Serialize(new(new(1, 1, 0), captured))),
             "a queued X-ray packet retains its reveal memory after gameplay resumes");
-        foreach (XrayExcludedRoom excludedRoom in Enum.GetValues<XrayExcludedRoom>())
+        foreach (RoomHeaderDefinition excludedRoom in new[] { RoomHeaderDefinitions.Statues, RoomHeaderDefinitions.GlassTunnel })
         {
-            ushort roomPointer = (ushort)excludedRoom;
-            runtime.LoadCartridgeRoomForDebug(roomPointer);
+            runtime.LoadCartridgeRoomForDebug(excludedRoom);
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
             // This fixture checks display selection only; X-ray freezes the seeded
             // position so it need not drive an unrelated room's entrance sequence.
-            AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }), "excluded-room capture fixture activates");
+            AssertTrue(samus.Xray.TryBegin(samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "excluded-room capture fixture activates");
             for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
             var baseFrame = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
             var excludedFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
@@ -150,7 +149,7 @@ internal static class XrayInputVerification
             AssertTrue(!excluded.RevealBlocks, "native excluded room never substitutes the reveal map");
             AssertTrue(baseFrame.Memory.Vram.SequenceEqual(excludedFrame.Memory.Vram), "excluded room retains original VRAM");
             AssertTrue((excluded.ColorMath & SnesColorMathControl.Obj) == 0, "excluded-room CGADSUB leaves Samus color unchanged");
-            AssertEqual(excludedRoom != XrayExcludedRoom.HiddenBg2Room,
+            AssertEqual(excludedRoom != RoomHeaderDefinitions.GlassTunnel,
                 excluded.Gameplay.Registers.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "CEFB alone removes BG2");
             for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         }

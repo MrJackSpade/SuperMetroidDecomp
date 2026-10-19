@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Cacatac;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Cacatac;
 internal static class CacatacProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, CacatacProjectileAnimations.Programs, CacatacProjectileFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, CacatacProjectileAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(CacatacProjectileFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyCacatacProjectileAnimations(SuperMetroidAddressSpace rom)

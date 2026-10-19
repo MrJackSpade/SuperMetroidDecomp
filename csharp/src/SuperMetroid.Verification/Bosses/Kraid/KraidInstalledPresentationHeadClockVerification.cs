@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 
@@ -19,13 +20,12 @@ internal static class KraidInstalledPresentationHeadClockVerification
 {
     /// <summary>Replacing every head image must not replace the compiled clock, callback or mouth window.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    internal static void VerifyKraidInstalledHeadIsolation(string directory, EnemyTileArtworkCatalog stock)
+    internal static void VerifyKraidInstalledHeadIsolation(CartridgeImportAddressSpace source, string directory, EnemyTileArtworkCatalog stock)
     {
+        var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(source));
         string overrides = Path.Combine(directory, "kraid-head-clock-overrides");
         Directory.CreateDirectory(overrides);
-        ushort[] pointers = KraidHeadInstructionDefinitions.All
-            .Where(command => command.Kind == KraidHeadInstructionKind.Frame)
-            .Select(command => command.Tilemap).Distinct().ToArray();
+        ushort[] pointers = [.. KraidHeadFrameDefinitions.PresentationKeys];
         for (int index = 0; index < pointers.Length; index++)
         {
             ReadOnlySpan<ushort> replacement = (stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(pointers[(index + 1) % pointers.Length]);
@@ -43,15 +43,14 @@ internal static class KraidInstalledPresentationHeadClockVerification
         int frames = 0, ticks = 0, callbacks = 0, collisions = 0;
         var shot = new SamusProjectileSystem().Slots[0];
         shot.Radius = new(2, 2);
-        var commands = new List<KraidHeadInstructionDefinition>();
-        foreach (KraidHeadInstructionDefinition command in KraidHeadInstructionDefinitions.All)
+        int programsRun = 0;
+        foreach (KraidHeadProgram program in Enum.GetValues<KraidHeadProgram>())
         {
-            commands.Add(command);
-            if (command.Kind != KraidHeadInstructionKind.Terminate) continue;
+            List<KraidHeadNativeRecord> commands = [.. native.Records.Where(record => record.Cursor.Program == program)];
             var baseline = new KraidHeadClockFixture(stock);
             var changed = new KraidHeadClockFixture(edited);
-            baseline.Body.VariableB = changed.Body.VariableB = commands[0].Pointer;
-            baseline.Body.VariableC = changed.Body.VariableC = 1;
+            baseline.State.HeadProgram = changed.State.HeadProgram = commands[0].Cursor;
+            baseline.State.Parts[0].HeadTimer = changed.State.Parts[0].HeadTimer = 1;
             int nextEvent = 0, cursor = 0, soundCount = 0, uploadCount = 0;
             ushort outer = 0, inner = 0, physical = 0;
             var expectedStock = baseline.Vram.Bytes.ToArray();
@@ -64,6 +63,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 AssertEqual(stockResult, editedResult, "head interpretation result is not editable");
                 AssertAnimationValues(baseline.Body, changed.Body, "Kraid head tick " + tick);
                 AssertAnimationValues(baseline.State, changed.State, "Kraid head tick " + tick);
+                AssertEqual(baseline.State.DisplayedHeadFrame, changed.State.DisplayedHeadFrame,
+                    "Kraid head tick " + tick + " displayed head frame is not editable");
                 AssertTrue(workingBody.SequenceEqual(baseline.State.BackgroundTilemapWords) &&
                     workingBody.SequenceEqual(changed.State.BackgroundTilemapWords),
                     "head DMA must not overwrite the WRAM body-map source");
@@ -71,38 +72,41 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     "head art does not alter sound publication");
                 if (tick == nextEvent)
                 {
-                    while (commands[cursor].Kind is KraidHeadInstructionKind.RoarSound or KraidHeadInstructionKind.DyingSound)
+                    while (!commands[cursor].IsPose && !commands[cursor].IsTerminator)
                     {
-                        KraidHeadInstructionDefinition sound = commands[cursor++];
-                        AssertEqual((byte)sound.SoundId, (baseline.Enemies.KraidBehavior.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires baseline.Enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect.Value,
+                        KraidHeadNativeRecord sound = commands[cursor++];
+                        AssertEqual((byte)sound.Sound, (baseline.Enemies.KraidBehavior.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires baseline.Enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect.Value,
                             "sound callback fires at the exact head admission tick");
-                        if (sound.Kind == KraidHeadInstructionKind.RoarSound) soundCount++;
+                        if (sound.Opcode == KraidHeadNativeCursors.RoarCryCall) soundCount++;
                         callbacks++;
                     }
-                    KraidHeadInstructionDefinition admission = commands[cursor++];
-                    if (admission.Kind == KraidHeadInstructionKind.Terminate)
+                    KraidHeadNativeRecord admission = commands[cursor++];
+                    if (admission.IsTerminator)
                     {
                         AssertEqual(ushort.MaxValue, stockResult, "terminator on the exact sum-of-durations tick");
-                        AssertEqual(admission.Pointer, baseline.Body.VariableB, "termination retains native cursor");
-                        AssertEqual((ushort)0, baseline.Body.VariableC, "termination consumes the last timer tick");
+                        AssertEqual(admission.Cursor, baseline.State.HeadProgram, "termination retains native cursor");
+                        AssertEqual((ushort)0, baseline.State.Parts[0].HeadTimer, "termination consumes the last timer tick");
                         AssertTrue(expectedStock.SequenceEqual(baseline.Vram.Bytes) &&
                             expectedEdited.SequenceEqual(changed.Vram.Bytes), "termination emits no tilemap upload");
                         break;
                     }
                     AssertEqual((ushort)1, stockResult, "frame admission result");
-                    nextEvent += admission.Duration;
-                    physical = admission.Tilemap; outer = admission.VulnerableHitbox; inner = admission.InvulnerableHitbox;
+                    nextEvent += admission.Opcode;
+                    physical = admission.Tilemap; outer = admission.OuterShape; inner = admission.InnerShape;
                     uploadCount++; frames++;
                     KraidHeadClockFixture.ExpectedUpload(expectedStock, (stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(physical));
                     KraidHeadClockFixture.ExpectedUpload(expectedEdited, (edited.KraidBackground ?? throw new InvalidOperationException("Verification requires edited.KraidBackground.")).HeadWords(physical));
                     AssertTrue(!baseline.Vram.ImageEquals(changed.Vram), "replacement head is actually visible");
                 }
-                AssertEqual((ushort)(nextEvent - tick), baseline.Body.VariableC, "native countdown on every hold tick");
-                KraidHeadInstructionDefinition displayed = commands.Take(cursor).Last(item => item.Kind == KraidHeadInstructionKind.Frame);
-                AssertEqual((ushort)(displayed.Pointer + 8), baseline.Body.VariableB, "head cursor holds until next event");
-                AssertEqual(physical, baseline.State.CurrentHeadTilemap, "compiled physical head selector survives art replacement");
-                AssertEqual(outer, baseline.State.VulnerableMouthHitbox, "outer mouth window follows compiled admission");
-                AssertEqual(inner, baseline.State.InvulnerableMouthHitbox, "inner mouth window follows compiled admission");
+                AssertEqual((ushort)(nextEvent - tick), baseline.State.Parts[0].HeadTimer, "native countdown on every hold tick");
+                KraidHeadNativeRecord displayed = commands.Take(cursor).Last(item => item.IsPose);
+                AssertEqual(native.CursorAt((ushort)(displayed.Pointer + 8)), baseline.State.HeadProgram, "head cursor holds until next event");
+                KraidHeadFrame shown = baseline.State.DisplayedHeadFrame
+                    ?? throw new InvalidOperationException("Verification requires a displayed Kraid head frame.");
+                AssertEqual(physical, KraidHeadFrameDefinitions.PresentationKey(shown), "compiled physical head selector survives art replacement");
+                AssertEqual(outer, (ushort)shown.VulnerableShape, "outer mouth window follows compiled admission");
+                AssertEqual(inner, shown.InvulnerableShape is { } innerShape ? (ushort)innerShape : ushort.MaxValue,
+                    "inner mouth window follows compiled admission");
                 AssertEqual(soundCount, baseline.State.RoarRequestCount, "roar callback count on every tick");
                 AssertEqual(uploadCount, baseline.State.HeadTilemapUploadCount, "no extra head upload during hold");
                 AssertTrue(expectedStock.SequenceEqual(baseline.Vram.Bytes), "exact stock head DMA and untouched VRAM");
@@ -114,16 +118,16 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 for (int y = -144; y <= -64; y += 8)
                 {
                     shot.Position = shot.Position.WithWhole(new((ushort)(baseline.Body.Position.X.Whole + x), (ushort)(baseline.Body.Position.Y.Whole + y)));
-                    (short left, short top, _, short bottom) = KraidMouthHitboxDefinitions.Resolve(hitbox);
+                    (short left, short top, _, short bottom) = KraidMouthHitboxDefinitionsConstants.Resolve(hitbox);
                     bool expected = y - shot.Radius.Y - 1 < bottom && y + shot.Radius.Y >= top && x + shot.Radius.X >= left;
                     AssertEqual(expected, baseline.Hit(hitbox, shot), "stock native mouth geometry");
                     AssertEqual(expected, changed.Hit(hitbox, shot), "authored head does not move physical mouth geometry");
                     collisions++;
                 }
             }
-            commands.Clear();
+            programsRun++;
         }
-        AssertEqual(0, commands.Count, "all four native head programs terminate");
+        AssertEqual(4, programsRun, "all four native head programs terminate");
         Console.WriteLine($"PASS Kraid head isolation: {ticks} paired production ticks, {frames} exact admissions, " +
             $"{callbacks} timed sound callbacks, {collisions} mouth samples; four installed replacements retain native control/VRAM cadence.");
     }
@@ -153,13 +157,12 @@ internal static class KraidInstalledPresentationHeadClockVerification
         [PpuLayoutBoundary("exact hardware test: fills VRAM with a sentinel image before the head transfer")]
         internal KraidHeadClockFixture(EnemyTileArtworkCatalog art)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             Enemies = new RoomEnemySystem { TileArtwork = art };
             State = BuildKraidWorkingMap(art);
-            Enemies.BindFixtureBus(Memory);
+            Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Enemies.Presentation._vram = Vram;
             step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.ProcessKraidHeadInstruction);
-            hit = Enemies.KraidMouthHitboxOverlapsShot;
+            hit = CoreAccess.KraidMouthHitboxOverlapsShot;
             transfer = new Action<KraidEnemyState, ushort>(Enemies.KraidBehavior.TransferKraidHeadTilemap);
             Body.Position = Body.Position.WithWhole(new(512, 512));
             byte[] sentinel = new byte[SnesVram.ByteCount]; Array.Fill(sentinel, (byte)0xcd); Vram.LoadBytes(0, sentinel);

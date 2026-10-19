@@ -123,7 +123,7 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         }
         int size = large ? 16 : 8;
         if (rotate) { x = -x - size; y = -y - size; }
-        part = new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+        part = new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
             SnesObjAttributeWord.Create(tile, 0, 3, rotate
                 ? SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical : 0), true);
         return true;

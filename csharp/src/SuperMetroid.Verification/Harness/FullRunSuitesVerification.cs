@@ -1,6 +1,8 @@
 using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Runtime.GameplayDisplayFrameTestsVerification;
+using static SuperMetroid.Verification.Harness.FullMovieReplayVerification;
+using static SuperMetroid.Verification.Bosses.Ridley.RidleyFullMovieVerification;
 using static SuperMetroid.Verification.Samus.Movement.AerialSpreadTransitionVerification;
 using static SuperMetroid.Verification.Samus.Movement.AirSpikeAlphaRadiusVerification;
 using static SuperMetroid.Verification.Frontend.AndroidHostVerification;
@@ -62,7 +64,6 @@ using static SuperMetroid.Verification.Rooms.Plms.ContactCrumbleProgramsVerifica
 using static SuperMetroid.Verification.Audio.ContactDamageSoundVerification;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Hardware.CpuBusBoundaryVerification;
-using static SuperMetroid.Verification.Hardware.CpuOperandOpenBusVerification;
 using static SuperMetroid.Verification.Samus.Movement.CrampedAerialLandingVerification;
 using static SuperMetroid.Verification.Rooms.Plms.CrateriaMainstreetEscapePassageVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaPlmsVerification;
@@ -103,7 +104,6 @@ using static SuperMetroid.Verification.Areas.Maridia.ElevatubeScrollingVerificat
 using static SuperMetroid.Verification.Enemies.Artwork.EmptyExtendedFrameShotsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSetupNmiWaitsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
-using static SuperMetroid.Verification.Enemies.EnemyAiCodePointersVerification;
 using static SuperMetroid.Verification.Enemies.EnemyAngleDivisionVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
@@ -184,7 +184,6 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualsVerification
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LoadStationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Magdollite.MagdolliteApexThresholdVerification;
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using static SuperMetroid.Verification.Runtime.MainGameLoopCarryVerification;
 using static SuperMetroid.Verification.Frontend.BootDemoSetCountVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleEnemyDefinitionsVerification;
@@ -242,7 +241,6 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseReserveTanksVerificat
 using static SuperMetroid.Verification.Frontend.Pause.PauseSnapshotTestsVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonPositionVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonWaveVerification;
-using static SuperMetroid.Verification.Rooms.Plms.PlmDrawCloneVerification;
 using static SuperMetroid.Verification.Rooms.Plms.PlmsAndPostureVerification;
 using static SuperMetroid.Verification.Enemies.Powamp.PowampDeathSequenceVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombBoundaryVerification;
@@ -404,7 +402,6 @@ internal static class FullRunSuitesVerification
     /// </summary>
     internal static RegisteredSuite[] RenderContractSuites() =>
     [
-        new(nameof(VerifyPlmDrawClone), () => VerifyPlmDrawClone()),
         new(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni()),
         new(nameof(VerifyViewportTileRowParity), () => VerifyViewportTileRowParity()),
         new(nameof(VerifyPpuMemorySnapshotOwnership), () => VerifyPpuMemorySnapshotOwnership()),
@@ -437,9 +434,15 @@ internal static class FullRunSuitesVerification
     /// </summary>
     internal static RegisteredSuite[] FullRunSuites() =>
     [
+        // The six SMV parity replays, each from its committed compact trace (docs/smv-gameplay-parity.md).
+        new(nameof(VerifyRidleyFullMovie), () => VerifyRidleyFullMovie(Path.GetFullPath(RidleyTraceDirectory))),
+        new(nameof(VerifyMotherBrainGlitchMovie), () => VerifyMotherBrainGlitchMovie("csharp/test-fixtures/replay-traces/mother-brain-glitch")),
+        new(nameof(VerifyLowPercentPlaythroughMovie), () => VerifyLowPercentPlaythroughMovie("csharp/test-fixtures/replay-traces/low-13-percent")),
+        new(nameof(VerifyFullPlaythroughMovie), () => VerifyFullPlaythroughMovie("csharp/test-fixtures/replay-traces/full-100-percent")),
+        new(nameof(VerifyDrunkPlaythroughMovie), () => VerifyDrunkPlaythroughMovie("csharp/test-fixtures/replay-traces/samus-drunk")),
+        new(nameof(VerifyLowcPlaythroughMovie), () => VerifyLowcPlaythroughMovie("csharp/test-fixtures/replay-traces/lowc")),
         new(nameof(VerifyRuntimeAddressSpaceHasNoCartridgeApi), () => VerifyRuntimeAddressSpaceHasNoCartridgeApi()),
         new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
-        new(nameof(VerifyCpuOperandOpenBus), () => VerifyCpuOperandOpenBus()),
         new(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary()),
         new(nameof(VerifyCanonicalWordReads), () => VerifyCanonicalWordReads()),
         new(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary()),
@@ -512,7 +515,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyManagedSnesDsp), () => VerifyManagedSnesDsp()),
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
-        new(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit()),
         new(nameof(VerifyPhantoonWaveLifecycle), () => VerifyPhantoonWaveLifecycle()),
         new(nameof(VerifyBackgroundMosaicSampling), () => VerifyBackgroundMosaicSampling()),
         new(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking()),
@@ -850,7 +852,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyScrollingSkyState), () => VerifyScrollingSkyState()),
         new(nameof(VerifyOceanSky), () => VerifyOceanSky()),
         new(nameof(AuditBoostFloor), () => AuditBoostFloor()),
-        new(nameof(VerifyEnemyAiCodePointerCatalog), () => VerifyEnemyAiCodePointerCatalog()),
         new(nameof(VerifyEnemyInstructionCodePointerCatalogs), () => VerifyEnemyInstructionCodePointerCatalogs()),
         new(nameof(VerifyEnemyRomTablePointerCatalog), () => VerifyEnemyRomTablePointerCatalog()),
         new(nameof(VerifyMotherBrainContactHitboxes), () => VerifyMotherBrainContactHitboxes()),

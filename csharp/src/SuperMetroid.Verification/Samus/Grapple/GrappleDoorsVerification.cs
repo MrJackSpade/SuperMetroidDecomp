@@ -43,9 +43,9 @@ internal static class GrappleDoorsVerification
             };
             // Seed an extending beam exactly at each cap tile. Collision still traverses
             // the real StepFiring substeps and extension-chain resolver, not a PLM shortcut.
-            SeedStationaryGrappleCollisionProbe(bus, samus);
+            SeedStationaryGrappleCollisionProbe(samus);
             var plms = new RoomPlmSystem();
-            var result = SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X, plms);
+            var result = SamusGrappleMovement.StepFiring(level, samus, SnesButton.X, plms);
             AssertTrue(result.Phase == GrapplePhase.CancelPending, $"grapple cancels on blue {orientation} cap {hitOffset}");
             AssertEqual(1, plms.SlotTable.ActiveCount, "grapple allocates one blue-door opening actor");
             AssertEqual(RoomCollisionType.SolidBlock, level.GetCollisionBlockByIndex(origin).CollisionType,
@@ -54,7 +54,7 @@ internal static class GrappleDoorsVerification
             bool heardOpening = false;
             for (int frame = 0; frame < 19; frame++)
             {
-                plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
                 heardOpening |= plms.Sounds.SoundRequests.Any(r => r == new PlmSoundRequest(
                     SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
             }
@@ -67,11 +67,11 @@ internal static class GrappleDoorsVerification
     }
 
     /// <summary>Seeds an endpoint collision probe without an impossible forward-facing firing pose.</summary>
-    internal static void SeedStationaryGrappleCollisionProbe(ISnesAddressSpace bus, SamusState samus)
+    internal static void SeedStationaryGrappleCollisionProbe(SamusState samus)
     {
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Grapple.Phase = GrapplePhase.Firing;
-        samus.Grapple.FireDirection = samus.PoseMetadata.ReadShotDirection(bus);
+        samus.Grapple.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)samus.PoseMetadata.ReadShotDirection();
     }
 
     /// <summary>Runs door opening and grapple pose-refire checks together.</summary>

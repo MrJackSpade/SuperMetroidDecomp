@@ -13,5 +13,5 @@ internal static class FuneNamiheAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params FuneNamiheProgram[] programs) =>
         programs.SelectMany(program => FuneNamiheAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => FuneNamiheFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => FuneNamiheFrameToolingDefinitions.Spritemap(step.Frame));
 }

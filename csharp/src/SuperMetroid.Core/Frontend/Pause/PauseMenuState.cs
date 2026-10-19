@@ -25,8 +25,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// </remarks>
 internal sealed class PauseMenuState
 {
-    /// <summary>Address space supplying native menu pose and timing data.</summary>
-    private readonly ISnesAddressSpace bus;
+
     /// <summary>Queues menu navigation and animation sounds when a live frontend owns audio.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Advances the map highlight colors once per accepted menu update.</summary>
@@ -89,20 +88,22 @@ internal sealed class PauseMenuState
     private bool plasmaLabelOverrunActive;
     /// <summary>Last selected map marker or equipment selector origin for diagnostics.</summary>
     internal Position16<OamPixels> lastIndicatorOrigin;
-    /// <summary>Last native marker or selector sprite identity for diagnostics.</summary>
-    internal ushort lastIndicatorSpritemapId;
+    /// <summary>Pose of the Samus map marker when it was the last indicator drawn, for diagnostics; null after a selector draw.</summary>
+    internal MapSpriteId? lastMapIndicatorSprite;
+    /// <summary>Category of the equipment selector when it was the last indicator drawn, for diagnostics; null after a map-marker draw.</summary>
+    internal PauseEquipmentCategory? lastSelectorCategory;
 
     /// <summary>Creates the isolated pause PPU image and initial map/equipment state from live gameplay.</summary>
-    public PauseMenuState(ISnesAddressSpace bus, PauseMenuEntry entry)
+    public PauseMenuState(PauseMenuEntry entry)
     {
-        this.bus = Ensure.NotNull(bus);
+
         this.mapPresentation = entry.MapPresentation ?? throw new InvalidOperationException(
             "Pause menu requires installed map and equipment presentation assets.");
         this.samus = Ensure.NotNull(entry.Samus);
         this.system = Ensure.NotNull(entry.System);
         this.audio = entry.Audio;
-        mapArrows = new FileSelectMapAnimations(bus, entry.MapPresentation.Arrows);
-        paletteAnimation = new MapPaletteAnimation(bus);
+        mapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
+        paletteAnimation = new MapPaletteAnimation();
         paletteAnimation.Bind(entry.MapPresentation.HighlightCycle);
         area = entry.AreaIndex;
         _ = AreaIds.ToIndex(entry.AreaIndex);
@@ -169,7 +170,7 @@ internal sealed class PauseMenuState
     /// The runtime supplies its accepted-NMI byte counter for cartridge palette phase;
     /// standalone diagnostic callers may leave that phase at zero.
     /// </summary>
-    public bool Step(SnesButton delayedHeldInput, SnesButton newlyPressedInput, SnesButton? heldInput = null, byte nmiFrameCounter8 = 0)
+    public bool Step(SnesButton delayedHeldInput, SnesButton newlyPressedInput, SnesButton? heldInput = null, int nmiFrameCounter8 = 0)
     {
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
@@ -246,7 +247,7 @@ internal sealed class PauseMenuState
     /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
     /// once per emulated frame so inspection cannot change cartridge-visible timing.
     /// </remarks>
-    public void AdvanceAnimations(byte nmiFrameCounter8 = 0, bool fadingOut = false, bool advancePalette = true)
+    public void AdvanceAnimations(int nmiFrameCounter8 = 0, bool fadingOut = false, bool advancePalette = true)
     {
         // $82:9156 and $82:9353 emit destination labels before map icons during fade-out.
         mapLabelsBeforeIcons = fadingOut || transition == PauseMenuTransition.MapToEquipmentFadeOut;
@@ -261,49 +262,6 @@ internal sealed class PauseMenuState
             StepMapIndicatorAnimation();
         else
             StepItemSelectorAnimation();
-    }
-
-    /// <summary>Reusable OBJ color raster, excluded from saved state.</summary>
-    [NonSerialized] private Rgba32[]? objScratchPixels;
-    /// <summary>Reusable OBJ priority raster, excluded from saved state.</summary>
-    [NonSerialized] private byte[]? objScratchPriorities;
-    /// <summary>Reusable BG3 priority plane, rebuilt after state restoration.</summary>
-    [NonSerialized] private Rgba32[]? bg3ScratchPlane;
-
-    /// <summary>Composites BG and OBJ priorities in Mode-1 order and applies page-transition brightness.</summary>
-    public Rgba32[] Render()
-    {
-        Rgba32[] output = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
-        // SetupPpuForPauseMenu writes BGMODE=$09 and TM=$17. The old host compositor drew
-        // complete BG2 followed by complete BG1, which ignored tile priority and allowed
-        // the low-priority full-area map to paint over BG2's high-priority holder/chrome.
-        // Build OAM first and then follow the literal Mode-1-with-BG3-priority ladder.
-        PrepareRenderOam();
-        objScratchPixels ??= new Rgba32[256 * 224];
-        objScratchPriorities ??= new byte[256 * 224];
-        SnesObjRenderer.RenderResolved(ObjSpriteImage.OamOnly(oam), vram, cgram, PauseMenuLayout.ObjectSelection, new ObjRasterTargets(objScratchPixels, objScratchPriorities));
-        var objects = new ResolvedObjFrame(objScratchPixels, objScratchPriorities);
-
-        // Back to front for BGMODE=$09:
-        // OBJ0, BG3-low, OBJ1, BG2-low, BG1-low, OBJ2, BG2-high, BG1-high,
-        // OBJ3, BG3-high. BG3's retained gameplay tilemap supplies the pause HUD.
-        CompositeResolvedObjPriority(output, objects, priority: 0);
-        CompositePauseBg3(output, priority: false);
-        CompositeResolvedObjPriority(output, objects, priority: 1);
-        CompositePauseBg(output, PauseMenuLayout.Bg2TilemapWord, 32, priority: false);
-        CompositePauseBg(output, PauseMenuLayout.Bg1TilemapWord, 64, priority: false);
-        CompositeResolvedObjPriority(output, objects, priority: 2);
-        CompositePauseBg(output, PauseMenuLayout.Bg2TilemapWord, 32, priority: true);
-        CompositePauseBg(output, PauseMenuLayout.Bg1TilemapWord, 64, priority: true);
-        CompositeResolvedObjPriority(output, objects, priority: 3);
-        CompositePauseBg3(output, priority: true);
-
-        // Menu subindexes 2/4/5/7 fade the current page during an L/R transition. The
-        // outer game-state fades are applied by SuperMetroidGame because they also cover
-        // the gameplay frame before setup and after restoration.
-        if (transition != PauseMenuTransition.None)
-            MasterBrightnessFilter.Apply(output, transitionBrightness);
-        return output;
     }
 
     /// <summary>Prepares OAM on the simulation owner, then captures without raster work.</summary>
@@ -354,43 +312,6 @@ internal sealed class PauseMenuState
             DrawReserveTanks();
         }
         oam.FinalizeFrame();
-    }
-
-    /// <summary>Composites one priority half of the scrolling BG1 map or fixed BG2 backdrop.</summary>
-    private void CompositePauseBg(
-        Span<Rgba32> output,
-        ushort tilemapBaseWord,
-        int tilemapWidthInTiles,
-        bool priority)
-    {
-        bool isMapLayer = tilemapBaseWord == PauseMenuLayout.Bg1TilemapWord;
-        SnesBgTilemapRenderer.Composite4BppViewport(output, vram, cgram, new BgVramAddresses { TilemapBaseWord = tilemapBaseWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(isMapLayer && ScreenMode == 0 ? mapScrollPosition.X : (ushort)0, unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline))), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(checked((ushort)tilemapWidthInTiles), 32) }, priority: priority);
-    }
-
-    /// <summary>Renders one priority half of the retained gameplay HUD BG3 layer.</summary>
-    [PpuLayoutBoundary("rendering view: the retained gameplay HUD BG3 layer")]
-    private void CompositePauseBg3(Span<Rgba32> output, bool priority)
-    {
-        Rgba32[] plane = bg3ScratchPlane ??= new Rgba32[32 * 8 * 32 * 8];
-        // The renderer skips tiles of the other priority, so clear the reused plane first.
-        plane.AsSpan().Clear();
-        SnesBgTilemapRenderer.Render2Bpp(plane, vram, cgram, new BgVramAddresses { TilemapBaseWord = GameplayVramLayout.HudTilemapWord, CharacterBaseWord = GameplayVramLayout.HudCharacterWord }, rowCount: 32, transparentColorZero: true, priority: priority);
-        SnesLayerCompositor.Composite(output, plane.AsSpan(
-            SnesPpuLayout.FirstVisibleBackgroundScanline * SnesPpuLayout.ScreenWidthPixels,
-            output.Length));
-    }
-
-    /// <summary>Copies only OBJ pixels matching one native priority rung.</summary>
-    private static void CompositeResolvedObjPriority(
-        Span<Rgba32> output,
-        ResolvedObjFrame objects,
-        byte priority)
-    {
-        for (int pixel = 0; pixel < output.Length; pixel++)
-        {
-            if (objects.Priorities[pixel] == priority)
-                output[pixel] = objects.Pixels[pixel];
-        }
     }
 
     /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
@@ -466,10 +387,9 @@ internal sealed class PauseMenuState
         foreach (PauseEquipmentCategory categoryIndex in PauseEquipmentCategories.InventoryCategories)
         {
             PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Get(categoryIndex);
-            ushort collected = GetCollectedBits(categoryIndex);
             for (int item = 0; item < category.ItemCount; item++)
             {
-                if ((collected & ReadCategoryMask(category, item)) == 0)
+                if (!ReadCategoryMask(category, item).IsSetIn(samus.CollectedBeams, samus.CollectedItems))
                     continue;
                 selectedCategory = categoryIndex;
                 selectedItem = item;
@@ -481,14 +401,6 @@ internal sealed class PauseMenuState
         selectedItem = 0;
     }
 
-    /// <summary>Reads collected beam or item bits from live Samus inventory.</summary>
-    private ushort GetCollectedBits(PauseEquipmentCategory category) =>
-        category == PauseEquipmentCategory.Beams ? samus.CollectedBeams : samus.CollectedItems;
-
-    /// <summary>Reads equipped beam or item bits from live Samus inventory.</summary>
-    private ushort GetEquippedBits(PauseEquipmentCategory category) =>
-        category == PauseEquipmentCategory.Beams ? samus.EquippedBeams : samus.EquippedItems;
-
     /// <summary>Rebuilds the equipment page from its template and current inventory state.</summary>
     private void RebuildEquipmentTilemap()
     {
@@ -499,7 +411,7 @@ internal sealed class PauseMenuState
             .PauseEquipmentBase.CreateTilemap().CopyTo(equipmentTilemap, 0);
         mapPresentation.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
             samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
-            samus.EquippedItems, samus.HyperBeam != 0);
+            samus.EquippedItems, samus.HyperBeamEnabled);
 
         plasmaLabelOverrunActive = false;
 
@@ -668,7 +580,8 @@ internal sealed class PauseMenuState
         Position16<OamPixels> origin = SamusMapCell().ToMapPixels().ToScreen(mapScrollPosition).ToOam();
         lastIndicatorOrigin = origin;
         MapSpriteId indicator = PauseMapIndicatorAnimation.SpritemapId(mapIndicatorAnimationFrame);
-        lastIndicatorSpritemapId = (ushort)indicator;
+        lastMapIndicatorSprite = indicator;
+        lastSelectorCategory = null;
         DrawMenuSpritemap(
             indicator,
             origin,
@@ -726,9 +639,10 @@ internal sealed class PauseMenuState
             "Pause selector requires installed presentation assets.")).PauseSelectors;
         var point = selector.Anchor(selectedCategory, selectedItem);
         lastIndicatorOrigin = point;
-        // Diagnostic identity denotes the native category binding, not an
-        // author-supplied ROM index. Custom phases may use different artwork.
-        lastIndicatorSpritemapId = PauseSelectorDefinitions.NativeSpriteId(selectedCategory);
+        // The diagnostic records the category binding, not the authored artwork,
+        // because custom phases may draw different compositions.
+        lastSelectorCategory = selectedCategory;
+        lastMapIndicatorSprite = null;
         selector.Draw(oam, selectedCategory, selectedItem, itemSelectorAnimationFrame);
     }
 
@@ -815,11 +729,11 @@ internal sealed class PauseMenuState
         new PauseVram(vram).Bg1Tilemap.Load(equipmentTilemap);
 
     /// <summary>Gets the inventory bit represented by an item in an equipment category.</summary>
-    private static ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
+    private static PauseEquipmentBit ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);
 
     /// <summary>Dispatches reserve input or moves and toggles equipment in native update order.</summary>
-    private void HandleEquipmentInput(SnesButton pressed, byte nmiFrameCounter8)
+    private void HandleEquipmentInput(SnesButton pressed, int nmiFrameCounter8)
     {
         PauseEquipmentCategory dispatchedCategory = selectedCategory;
         if (dispatchedCategory == PauseEquipmentCategory.Reserves)
@@ -840,32 +754,31 @@ internal sealed class PauseMenuState
         // Dispatch precedes movement. Boots->Plasma therefore retains the Boots copy
         // length and bypasses the Weapons handler's Spazer/Plasma exclusion. Do not use
         // upstream C's 'Fixed var bug' category guard: it is absent from retail ROM.
-        ushort previousBeams = samus.EquippedBeams;
+        SamusBeamFlags previousBeams = samus.EquippedBeams;
         var target = PauseEquipmentCategories.Get(selectedCategory);
-        ushort mask = ReadCategoryMask(target, selectedItem);
-        bool wasEquipped = (GetEquippedBits(selectedCategory) & mask) != 0;
-        if (selectedCategory == PauseEquipmentCategory.Beams)
-            samus.EquippedBeams ^= mask;
-        else
-            samus.EquippedItems ^= mask;
+        PauseEquipmentBit mask = ReadCategoryMask(target, selectedItem);
+        bool wasEquipped = mask.IsSetIn(samus.EquippedBeams, samus.EquippedItems);
+        // The bit belongs to its own category's set, so toggling both sets toggles exactly that upgrade.
+        samus.EquippedBeams ^= mask.Beam;
+        samus.EquippedItems ^= mask.Item;
 
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
         UpdateEquipmentLabel(selectedCategory, selectedItem,
             PauseEquipmentCategories.Get(dispatchedCategory).LabelWordCount, wasEquipped);
         if (dispatchedCategory == PauseEquipmentCategory.Beams)
         {
-            SamusBeamFlags added = (SamusBeamFlags)(samus.EquippedBeams & ~previousBeams);
+            SamusBeamFlags added = samus.EquippedBeams & ~previousBeams;
             if ((added & SamusBeamFlags.Spazer) != 0 &&
-                (samus.EquippedBeams & (ushort)SamusBeamFlags.Plasma) != 0)
+                (samus.EquippedBeams & SamusBeamFlags.Plasma) != 0)
             {
-                samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Plasma);
+                samus.EquippedBeams &= ~SamusBeamFlags.Plasma;
                 UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
                     PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
             }
             else if ((added & SamusBeamFlags.Plasma) != 0 &&
-                (samus.EquippedBeams & (ushort)SamusBeamFlags.Spazer) != 0)
+                (samus.EquippedBeams & SamusBeamFlags.Spazer) != 0)
             {
-                samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Spazer);
+                samus.EquippedBeams &= ~SamusBeamFlags.Spazer;
                 UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.SpazerItem,
                     PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
             }
@@ -892,12 +805,12 @@ internal sealed class PauseMenuState
     /// <summary>Scans collected items in one category and moves the selector to the first eligible item.</summary>
     private bool TrySelectEquipment(PauseEquipmentCategory categoryIndex, int start, int step)
     {
-        if (categoryIndex == PauseEquipmentCategory.Beams && samus.HyperBeam != 0)
+        if (categoryIndex == PauseEquipmentCategory.Beams && samus.HyperBeamEnabled)
             return false;
         var category = PauseEquipmentCategories.Get(categoryIndex);
         for (int item = start; item >= 0 && item < category.ItemCount; item += step)
         {
-            if ((GetCollectedBits(categoryIndex) & ReadCategoryMask(category, item)) == 0)
+            if (!ReadCategoryMask(category, item).IsSetIn(samus.CollectedBeams, samus.CollectedItems))
             {
                 // $82:B4B7 checks byte offset ten only AFTER an unsuccessful probe.
                 // Thus directly entering the final suit item can succeed, but scanning
@@ -975,7 +888,7 @@ internal sealed class PauseMenuState
                 else if (down)
                 {
                     if (SelectedReserveItem == PauseReserveItem.Transfer ||
-                        samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode)
+                        samus.ReserveTankMode == ReserveTankMode.Auto)
                         TrySelectEquipment(beams, 0, 1);
                     else
                     {
@@ -1002,7 +915,7 @@ internal sealed class PauseMenuState
         AreaMapPresentationCatalog? previousCatalog = mapPresentation;
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Pause menu requires installed map presentation assets.");
-        mapArrows ??= new FileSelectMapAnimations(bus, catalog.Arrows);
+        mapArrows ??= new FileSelectMapAnimations(catalog.Arrows);
         mapArrows.BindPresentation(catalog.Arrows);
         paletteAnimation.Bind(catalog.HighlightCycle);
         catalog.PauseTiles.LoadTo(new PauseVram(vram).InterfaceCharacters);
@@ -1024,7 +937,7 @@ internal sealed class PauseMenuState
             catalog.PauseEquipmentBase.RebindBeforeInventoryRefreshInto(equipmentTilemap);
             catalog.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
                 samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
-                samus.EquippedItems, samus.HyperBeam != 0);
+                samus.EquippedItems, samus.HyperBeamEnabled);
             if (plasmaLabelOverrunActive)
                 catalog.PauseEquipmentLabels.ApplyLabel(equipmentTilemap,
                     PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
@@ -1095,21 +1008,21 @@ internal sealed class PauseMenuState
     private bool reserveArrowLatchedEnabled;
     /// <summary>Whether the last arrow color request used its animated palette.</summary>
     private bool reserveArrowLatchedAnimated;
-    /// <summary>NMI frame retained for reproducing the arrow's current color on rebind.</summary>
-    private byte reserveArrowLatchedFrame;
+    /// <summary>Eight-bit frame phase (zero through 255) retained for reproducing the arrow's current color on rebind.</summary>
+    private int reserveArrowLatchedFrame;
 
     /// <summary>Runs $82:AD0A after the tank input handler and D-pad response.</summary>
-    private void UpdateReserveArrow(byte nmiFrameCounter8)
+    private void UpdateReserveArrow(int nmiFrameCounter8)
     {
         bool inTanks = selectedCategory == PauseEquipmentCategory.Reserves;
         bool animated = inTanks && SelectedReserveItem == PauseReserveItem.Mode &&
-            samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode;
+            samus.ReserveTankMode == ReserveTankMode.Auto;
         bool enabled = animated || inTanks && SelectedReserveItem == PauseReserveItem.Transfer;
         SetReserveArrow(enabled, animated, nmiFrameCounter8);
     }
 
     /// <summary>Applies reserve-arrow tile and palette state, then latches it for content rebinds.</summary>
-    private void SetReserveArrow(bool enabled, bool animated = false, byte nmiFrameCounter8 = 0)
+    private void SetReserveArrow(bool enabled, bool animated = false, int nmiFrameCounter8 = 0)
     {
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
@@ -1138,14 +1051,14 @@ internal sealed class PauseMenuState
         presentation.ApplyLabel(equipmentTilemap, "ReserveTank");
         // Native setup retains the initial MANUAL label for the zero/uninitialized
         // mode and patches its first four characters only after a nonzero mode exists.
-        if (samus.ReserveTankMode != 0)
+        if (samus.ReserveTankMode != ReserveTankMode.None)
             presentation.ApplyLabel(equipmentTilemap,
-                samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode ? "Auto" : "Manual",
+                samus.ReserveTankMode == ReserveTankMode.Auto ? "Auto" : "Manual",
                 preserveAttributes: true);
     }
 
-    /// <summary>Accepted NMI phase retained so repeated renders cannot advance tank fill flicker.</summary>
-    private byte pauseNmiFrameCounter8;
+    /// <summary>Accepted eight-bit frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker.</summary>
+    private int pauseNmiFrameCounter8;
 
     /// <summary>Ports $82:B2AA's full/partial/empty strip and final cap.</summary>
     private void DrawReserveTanks()
@@ -1195,8 +1108,8 @@ internal sealed class PauseMenuState
             case PauseReserveItem.Mode:
                 if ((pressed & SnesButton.A) == 0 || samus.MaxReserveEnergy == 0) return;
                 audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
-                samus.ReserveTankMode = samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode
-                    ? PauseReserveTransferRomData.ManualMode : PauseReserveLabelRomData.AutoMode;
+                samus.ReserveTankMode = samus.ReserveTankMode == ReserveTankMode.Auto
+                    ? ReserveTankMode.Manual : ReserveTankMode.Auto;
                 WriteReserveLabels();
                 return;
             case PauseReserveItem.Transfer:
@@ -1217,15 +1130,16 @@ internal sealed class PauseMenuState
             audio?.QueueSound(PauseReserveTransferRomData.RefillSound, PauseReserveTransferRomData.MaximumQueuedSounds);
 
         ushort amount = PauseEquipmentRules.ReserveEnergyPerFrame;
-        samus.Health = unchecked((ushort)(samus.Health + amount));
-        if (unchecked((short)(samus.Health - samus.MaxHealth)) >= 0)
+        samus.Health += amount;
+        if (samus.Health >= samus.MaxHealth)
             samus.Health = samus.MaxHealth;
         else
         {
-            samus.ReserveEnergy = unchecked((ushort)(samus.ReserveEnergy - amount));
-            if (unchecked((short)samus.ReserveEnergy) > 0) return;
+            // Reserves may undershoot zero by less than one transfer; the shortfall comes back off health.
+            samus.ReserveEnergy -= amount;
+            if (samus.ReserveEnergy > 0) return;
             if (samus.ReserveEnergy != 0)
-                samus.Health = unchecked((ushort)(samus.Health + samus.ReserveEnergy));
+                samus.Health += samus.ReserveEnergy;
         }
 
         // Retail exhausts ALL reserves even when only a small top-up was needed.

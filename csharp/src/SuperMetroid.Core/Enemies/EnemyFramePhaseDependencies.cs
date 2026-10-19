@@ -41,7 +41,7 @@ internal sealed record EnemyFramePhaseDependencies
     public required GameplayTimeFreeze Freeze { get; init; }
 
     /// <summary>Nmi.</summary>
-    public required NmiClock Nmi { get; init; }
+    public required FrameClock Clock { get; init; }
 
     /// <summary>Oam.</summary>
     public required OamBuffer Oam { get; init; }
@@ -64,6 +64,4 @@ internal sealed record EnemyFramePhaseDependencies
     /// <summary>Vram writes.</summary>
     public required VramWriteQueue VramWrites { get; init; }
 
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
 }

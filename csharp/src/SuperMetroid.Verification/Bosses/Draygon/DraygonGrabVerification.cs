@@ -25,7 +25,7 @@ internal static class DraygonGrabVerification
         var (runtime, samus, draygon) = GrabSamus(spiralYFraction: 0, pendingPose: SamusPoseId.RunningAimDiagonalUpLeftPose);
         AssertEqual(draygon.FacingRight ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose,
             samus.Pose, "Draygon grabs Samus");
-        AssertTrue(runtime.Enemies.RoomStatus.DraygonDiscardedSamusPoseRequestsThisFrame,
+        AssertTrue(runtime.Enemies.LastEnemyFrame.DraygonDiscardedSamusPoseRequests,
             "the grab publishes that alpha's pose requests are discarded");
         AssertTrue(samus.PendingTransitionalPose is null, "the grab empties Samus's super-special pose request");
         Console.WriteLine("Draygon grab pose requests: the grab discards the pose requests alpha chose.");
@@ -51,11 +51,11 @@ internal static class DraygonGrabVerification
         ushort spiralYFraction, SamusPoseId? pendingPose)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Draygon);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MovingLeftNormalPose;
         samus.XSpeedDivisor = 1;

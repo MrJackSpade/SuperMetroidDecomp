@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Verification.Fx.PaletteFx;
 
@@ -28,7 +29,7 @@ internal static class LookupPaletteFxAreasVerification
             {
                 ushort nativeList = ReadVerificationWord(rom, 0x83ac46 + 2 * area);
                 ushort expected = ReadVerificationWord(rom, 0x830000 | (nativeList + 2 * bit));
-                AssertEqual(expected, RoomPaletteFxDefinitions.GetAreaDefinition(area, bit),
+                AssertEqual(expected, PaletteFxObjectAccess.NativeAddress(RoomPaletteFxDefinitions.GetAreaDefinition(area, bit)),
                     "Original palette-FX area/bit dispatch");
             }
             else

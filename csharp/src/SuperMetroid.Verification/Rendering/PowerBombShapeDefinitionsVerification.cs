@@ -36,12 +36,40 @@ internal static class PowerBombShapeDefinitionsVerification
                 "Power Bomb top offset bounds");
     }
 
+    /// <summary>
+    /// Reads every row of all 21 pre-scaled window shapes through their stream cursor and compares each byte with the
+    /// cartridge table the cursor names, then rejects a cursor past the end of either stream.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pre-scaled power bomb window shapes")]
+    internal static void VerifyPowerBombPreScaledShapes(SuperMetroidAddressSpace rom)
+    {
+        AssertEqual(17, PowerBombShapeCursor.CountOf(PowerBombShapeStream.White), "seventeen white shapes");
+        AssertEqual(4, PowerBombShapeCursor.CountOf(PowerBombShapeStream.Yellow), "four yellow shapes");
+        foreach ((PowerBombShapeStream stream, int table) in new[]
+        {
+            (PowerBombShapeStream.White, PowerBombShapeReferenceData.PreScaledWhite),
+            (PowerBombShapeStream.Yellow, PowerBombShapeReferenceData.PreScaledYellow),
+        })
+        {
+            for (int index = 0; index < PowerBombShapeCursor.CountOf(stream); index++)
+            for (int row = 0; row < 192; row++)
+                AssertEqual(rom.ReadCartridgeByte(table + index * 192 + row),
+                    PowerBombShapeDefinitions.ReadPreScaledHalfWidth(new PowerBombShapeCursor(stream, index), row),
+                    $"Power Bomb {stream} shape {index} row {row}");
+            AssertThrows<InvalidOperationException>(
+                () => PowerBombShapeDefinitions.ReadPreScaledHalfWidth(
+                    new PowerBombShapeCursor(stream, PowerBombShapeCursor.CountOf(stream)), 0),
+                $"a {stream} shape past the stream is rejected");
+        }
+    }
+
     /// <summary>Checks signed scanline profiles and clipped rendered pixels across radii and centers.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb shape")]
     internal static void VerifyCompiledPowerBombShape(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyPowerBombWidthAlgorithm), () => VerifyPowerBombWidthAlgorithm(rom));
         Suite(nameof(VerifyPowerBombTopOffsetAlgorithm), () => VerifyPowerBombTopOffsetAlgorithm(rom));
+        Suite(nameof(VerifyPowerBombPreScaledShapes), () => VerifyPowerBombPreScaledShapes(rom));
         byte[] widths = new byte[32], tops = new byte[32];
         for (int i = 0; i < 32; i++)
         {
@@ -70,8 +98,8 @@ internal static class PowerBombShapeDefinitionsVerification
             explosion.RenderedPhase = phase;
             for (int radius = 0; radius < 256; radius++)
             {
-                explosion.RenderedPreExplosionRadius = (ushort)(SnesEightEight.FromWhole(radius) | 123);
-                explosion.RenderedExplosionRadius = (ushort)(SnesEightEight.FromWhole(radius) | 234);
+                explosion.RenderedPreExplosionRadius = PowerBombRadius.FromRaw(SnesEightEight.FromWhole(radius) | 123);
+                explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(SnesEightEight.FromWhole(radius) | 234);
                 int[] expected = Profile(radius);
                 for (int y = -192; y <= 192; y++)
                     AssertEqual(expected[Math.Abs(y)], read(explosion, y), "Power Bomb complete signed band profile without bus");
@@ -84,10 +112,10 @@ internal static class PowerBombShapeDefinitionsVerification
         {
             explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
             explosion.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
-            explosion.RenderedExplosionRadius = (ushort)SnesEightEight.FromWhole(radius);
-            explosion.FixedColorRed = (byte)31;
+            explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(SnesEightEight.FromWhole(radius));
+            explosion.FixedColorRed = 31;
             var frame = Enumerable.Repeat(new Rgba32(0, 0, 0, 255), 256 * 224).ToArray();
-            SnesGameplayFrameRenderer.ApplyPowerBombColorMath(frame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+            SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(frame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
             int[] profile = Profile(radius);
             for (int y = 0; y < 224; y++)
             for (int x = 0; x < 256; x++)

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks that a directionless jump skips horizontal movement and its slope alignment.</summary>
 internal static class JumpNoXMovementVerification
@@ -18,16 +19,16 @@ internal static class JumpNoXMovementVerification
     internal static void VerifyJumpNoXMovement()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RedFish);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RedFish);
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
         samus.Position = samus.Position.WithWhole(new(0x0225, 0x004a));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = 0;
@@ -35,7 +36,7 @@ internal static class JumpNoXMovementVerification
         samus.Kinematics.YSubacceleration = 0x1c00;
         samus.HorizontalSpeed.AccelerationMode = 0;
 
-        SamusAerialMovement.StepNormalJump(bus, runtime.Room.LoadedLevelData, samus,
+        SamusAerialMovement.StepNormalJump(runtime.Room.LoadedLevelData, samus,
             (SnesButton.A | SnesButton.B), nmiFrameCounter: 0);
         AssertEqual((ushort)0x004a, samus.Position.Y.Whole, "no horizontal move means no slope alignment");
         AssertEqual((ushort)0x0225, samus.Position.X.Whole, "X is unchanged");

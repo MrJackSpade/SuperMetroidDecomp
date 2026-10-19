@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -13,13 +14,11 @@ public sealed class RoomSandAnimatedTilesState
     internal readonly List<RoomFxAnimatedTilesState> objects = [];
 
     /// <summary>Clears the previous room and spawns selected ceiling/falling-sand definitions in native order.</summary>
-    public void LoadRoom(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer, AreaId area)
+    public void LoadRoom(RoomFxDefinition? fx, CartridgeDoorHeader? door, AreaId area)
     {
         objects.Clear();
-        if (fxPointer == 0) return;
-        ushort record = RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
-        if (record == 0) return;
-        byte bits = RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
+        if (fx?.Select(door) is not { } record) return;
+        byte bits = record.AnimatedTileBitset;
         for (int bit = 0; bit < 8; bit++)
         {
             if ((bits & (1 << bit)) == 0) continue;
@@ -27,14 +26,14 @@ public sealed class RoomSandAnimatedTilesState
             if (definition is not (AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
                 continue;
             var animation = new RoomFxAnimatedTilesState();
-            animation.LoadDefinition(bus, definition);
+            animation.LoadDefinition(definition);
             objects.Add(animation);
         }
     }
 
     /// <summary>Advances the shared timed-list interpreter and queues the ROM-authored character frames for NMI.</summary>
-    public void Step(ISnesAddressSpace bus, SnesVram vram, VramWriteQueue writes)
+    public void Step(SnesVram vram, VramWriteQueue writes)
     {
-        foreach (var animation in objects) animation.Step(bus, vram, writes);
+        foreach (var animation in objects) animation.Step(vram, writes);
     }
 }

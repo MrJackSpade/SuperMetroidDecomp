@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -14,20 +15,16 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </remarks>
 internal sealed class EndingBackgroundTextState
 {
-    /// <summary>Address space retained by the ending text host's scene contract.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Mutable 32-by-32 staging tilemap uploaded after each revealed glyph.</summary>
     private readonly ushort[] tilemap;
     /// <summary>Collected ammo and item counts used for the final item-percentage message.</summary>
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Selects the Japanese subtitle row during the percentage hold.</summary>
     private readonly bool japaneseText;
-    /// <summary>Native bank-$8C instruction cursor retained for debugger state.</summary>
-    private ushort instructionPointer;
     /// <summary>Remaining calls until the next installed character or hold transition.</summary>
     internal NativeCountdown instructionTimer = NativeCountdown.Start(1);
-    /// <summary>Scene-selected VRAM word destination for the staging tilemap transfer.</summary>
-    private readonly ushort tilemapDestination;
+    /// <summary>Scene-selected background map the staging tilemap is uploaded into.</summary>
+    private readonly EndingTextTilemap destinationTilemap;
     /// <summary>The installed ending text presentation; it is rebound after state restoration.</summary>
     [field: NonSerialized]
     [AllowNull]
@@ -47,15 +44,13 @@ internal sealed class EndingBackgroundTextState
     private bool installedHoldStarted;
 
     /// <summary>Binds installed typewriter art and an existing scene tilemap without advancing its pacing.</summary>
-    public EndingBackgroundTextState(ISnesAddressSpace bus, EndingBackgroundTextSetup setup)
+    public EndingBackgroundTextState(EndingBackgroundTextSetup setup)
     {
-        this.bus = Ensure.NotNull(bus);
         this.tilemap = Ensure.NotNull(setup.Tilemap);
         Ensure.LengthEqual(setup.Tilemap, EndingCreditsRomData.Rendering.TilemapWords);
-        this.instructionPointer = setup.InstructionPointer;
         this.inventory = setup.Inventory;
         this.japaneseText = setup.JapaneseText;
-        this.tilemapDestination = setup.TilemapDestination;
+        this.destinationTilemap = setup.DestinationTilemap;
         Presentation = setup.Presentation;
         this.installedSequence = setup.InstalledSequence;
         if (setup.Presentation is null || setup.InstalledSequence is null)
@@ -106,9 +101,9 @@ internal sealed class EndingBackgroundTextState
         {
             EndingTextCharacter character = InstalledProgram[installedCharacterIndex++];
             int target = character.Row * EndingTextDefinitions.TilemapWidth + character.Column;
-            tilemap[target] = character.TopWord;
+            tilemap[target] = character.TopWord.Raw;
             if (character.BottomWord is { } bottom)
-                tilemap[target + EndingTextDefinitions.TilemapWidth] = bottom;
+                tilemap[target + EndingTextDefinitions.TilemapWidth] = bottom.Raw;
             instructionTimer = NativeCountdown.Start(EndingTextDefinitions.CharacterDelayFrames);
             Upload(vram);
             return;
@@ -144,10 +139,10 @@ internal sealed class EndingBackgroundTextState
                   + inventory.MaxMissiles / 5
                   + inventory.MaxSuperMissiles / 5
                   + inventory.MaxPowerBombs / 5;
-        count += BitOperations.PopCount((uint)(
-            inventory.CollectedItems & EndingCreditsRomData.Text.CollectibleItemMask));
-        count += BitOperations.PopCount((uint)(
-            inventory.CollectedBeams & EndingCreditsRomData.Text.CollectibleBeamMask));
+        count += BitOperations.PopCount(
+            (inventory.CollectedItems & EndingCreditsRomData.Text.CollectibleItemMask).ToNativeWord());
+        count += BitOperations.PopCount(
+            (inventory.CollectedBeams & EndingCreditsRomData.Text.CollectibleBeamMask).ToNativeWord());
         count = Math.Clamp(count, 0, 100);
 
         int hundreds = count / 100;
@@ -174,12 +169,12 @@ internal sealed class EndingBackgroundTextState
             unchecked((ushort)(EndingCreditsRomData.Text.DigitBottomTile + digit));
     }
 
-    /// <summary>Transfers the current staging tilemap to the selected VRAM word address.</summary>
+    /// <summary>Transfers the current staging tilemap to the selected background map.</summary>
     [PpuLayoutBoundary("codec: ending text staging tilemap DMA to its scene-selected VMADD")]
     private void Upload(SnesVram vram) =>
         vram.ExecuteWordTransfer(
             tilemap,
-            tilemapDestination,
+            EndingVram.TextTilemapWord(destinationTilemap),
             wordIncrement: 1);
 
 }

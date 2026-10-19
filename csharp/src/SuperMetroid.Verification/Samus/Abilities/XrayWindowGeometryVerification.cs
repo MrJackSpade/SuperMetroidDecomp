@@ -23,11 +23,11 @@ internal static class XrayWindowGeometryVerification
             SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(184, 171)) };
-            AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }), "geometry fixture enters native X-ray posture");
+            AssertTrue(samus.Xray.TryBegin(samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "geometry fixture enters native X-ray posture");
             for (int frame = 0; frame < 330; frame++)
             {
                 SnesButton input = (SnesButton.B | (frame < 90 ? 0 : frame < 170 ? SnesButton.Up : SnesButton.Down));
-                samus.Xray.StepBeam(bus, samus, input);
+                samus.Xray.StepBeam(samus, input);
                 VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
             }
         }
@@ -44,7 +44,7 @@ internal static class XrayWindowGeometryVerification
             SnesGameplayFrameRenderer.ApplyXrayWindowColorMath(reference, bus, samus.Xray, samus,
                 new Position16<RoomPixels>((ushort)scroll.Item1, (ushort)scroll.Item2));
             var lines = SnesGameplayFrameRenderer.CaptureXrayWindowLines(
-                SamusXrayDisplaySnapshot.Capture(samus, null, bus) ?? throw new InvalidOperationException("Active X-ray has no display snapshot."),
+                SamusXrayDisplaySnapshot.Capture(samus, null) ?? throw new InvalidOperationException("Active X-ray has no display snapshot."),
                 new Position16<RoomPixels>((ushort)scroll.Item1, (ushort)scroll.Item2));
             for (int y = 32; y < 224; y++)
             for (int x = 0; x < 256; x++)

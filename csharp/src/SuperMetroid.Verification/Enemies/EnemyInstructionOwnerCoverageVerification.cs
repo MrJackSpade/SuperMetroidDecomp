@@ -38,8 +38,6 @@ internal static class EnemyInstructionOwnerCoverageVerification
             ReadRetailEnemyPopulationRecords(rom);
         EnemyDefinitionId[] definitions = ReadNamedRetailEnemyDefinitions();
 
-        const BindingFlags flags = BindingFlags.Static | BindingFlags.Instance |
-            BindingFlags.NonPublic;
 
         var translated = new HashSet<EnemyDefinitionId>();
         var owned = new HashSet<EnemyDefinitionId>();
@@ -52,7 +50,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             IReadOnlyList<RoomEnemyPopulationRecord> records =
                 populations.TryGetValue(definitionPointer, out List<RoomEnemyPopulationRecord>? found)
                     ? found
-                    : [new RoomEnemyPopulationRecord(definitionPointer, new(128, 128), 0, 0, 0, 0, 0)];
+                    : [new RoomEnemyPopulationRecord(definitionPointer, new(128, 128), 0, default, default, 0, 0)];
 
             bool definitionTranslated = false;
             bool definitionNeedsOwner = false;
@@ -60,31 +58,38 @@ internal static class EnemyInstructionOwnerCoverageVerification
             foreach (RoomEnemyPopulationRecord population in records)
             {
                 var enemies = new RoomEnemySystem();
-                enemies.BindFixtureBus(rom);
+                enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 enemies.Presentation._vram = new SnesVram();
                 enemies.Presentation._cgram = new SnesCgram();
                 enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => 0));
                 enemies.VerificationServices().ReadRandom = ((Func<ushort>)(() => 0));
 
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-                slot.EnemyDefinitionPointer = definitionPointer;
-                slot.Definition = definition;
+                try
+                {
+                    slot.Bind(definitionPointer, slot.Definition);
+                }
+                catch (InvalidDataException exception) when (IsUnportedSpecies(exception, definitionPointer))
+                {
+                    // The registry refuses a room-placed header whose species AI no code ports.
+                    continue;
+                }
+                slot.Bind(slot.EnemyDefinitionPointer, definition);
                 slot.Radius = new(definition.Radius.X, definition.Radius.Y);
                 slot.Health = definition.Health;
                 slot.Layer = definition.Layer;
                 slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
-                slot.CurrentInstruction = population.InitializationParameter;
+                slot.CurrentInstruction = checked((ushort)population.InitializationParameter);
                 slot.Properties = population.Properties;
                 slot.ExtraProperties = population.ExtraProperties;
-                slot.Parameter1 = population.Parameter1;
-                slot.Parameter2 = population.Parameter2;
+                slot.Parameter1 = checked((ushort)population.Parameter1);
+                slot.Parameter2 = checked((ushort)population.Parameter2);
                 slot.InstructionTimer = NativeCountdown.Start(1);
-                slot.AiBank = definition.Bank;
 
                 bool translatedRecord = true;
                 try
                 {
-                    enemies.RunInitializationAi(slot, null, new SamusState(), (ushort)0, (ushort)0);
+                    RoomEnemySystem.RunInitializationAi(slot, null, new SamusState(), (ushort)0, (ushort)0);
                 }
                 catch (Exception exception)
                     when (IsUntranslatedEnemyInitializer(
@@ -107,14 +112,14 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is
                 // removed by the scheduler before any AI or instruction frame.
                 bool processesInstructions =
-                    (slot.Properties & (ushort)EnemyProperties.ProcessInstructions) != 0 &&
-                    (slot.Properties & (ushort)EnemyProperties.Deleted) == 0;
+                    slot.Properties.HasAny(EnemyProperties.ProcessInstructions) &&
+                    !slot.Properties.HasAny(EnemyProperties.Deleted);
                 if (!processesInstructions)
                     continue;
 
                 // Every instruction-processing enemy runs a typed program (#641); none reads cartridge lists.
                 definitionNeedsOwner = true;
-                if (enemies.Ai.HasTypedAnimation(slot))
+                if ((slot.Entity as IEnemyTypedAnimation)?.FindTypedAnimation() is not null)
                     definitionHasOwner = true;
                 else
                     unresolved.Add($"${(int)definitionPointer:X4} has no typed animation");
@@ -143,12 +148,12 @@ internal static class EnemyInstructionOwnerCoverageVerification
             string.Join(", ", unresolved.Distinct()));
 
         var unknownEnemies = new RoomEnemySystem();
-        unknownEnemies.BindFixtureBus(rom);
+        unknownEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot unknown = unknownEnemies.SlotTable.Slots[0];
-        unknown.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
-        unknown.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        unknown.Bind((EnemyDefinitionId)0x9000, unknown.Definition);
+        unknown.Bind(unknown.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         InvalidDataException unknownException = AssertThrows<InvalidDataException>(
-            () => EnemyInstructionRunner.Process(unknownEnemies, [unknown, null, null, Position16<RoomPixels>.Zero, SnesButton.None]),
+            () => EnemyInstructionRunner.Process([unknown, null, null, Position16<RoomPixels>.Zero, SnesButton.None]),
             "an instruction-processing enemy without a typed animation fails instead of reading cartridge lists");
         AssertTrue(
             unknownException.Message.Contains("has no typed animation", StringComparison.Ordinal),
@@ -170,6 +175,10 @@ internal static class EnemyInstructionOwnerCoverageVerification
             $"Enemy ${(int)definitionPointer:X4} initialization AI $",
             StringComparison.Ordinal) &&
         invalid.Message.EndsWith(" is not translated.", StringComparison.Ordinal);
+
+    /// <summary>Whether binding <paramref name="definitionPointer"/> failed because its species AI is not ported.</summary>
+    private static bool IsUnportedSpecies(InvalidDataException exception, EnemyDefinitionId definitionPointer) =>
+        exception.Message.EndsWith($" holds {definitionPointer}, whose species AI is not ported.", StringComparison.Ordinal);
 
     /// <summary>Extracts distinct bank-$A0 enemy headers named in the pinned symbol inventory.</summary>
     private static EnemyDefinitionId[] ReadNamedRetailEnemyDefinitions()
@@ -200,7 +209,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         var records = new Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>>();
 
         foreach (ushort populationPointer in states
-                     .Select(state => state.EnemyPopulationPointer)
+                     .Select(state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation))
                      .Distinct())
         {
             int cursor = RoomEnemyRomLayout.PopulationBank | populationPointer;
@@ -213,7 +222,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                     break;
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(definitionPointerWord);
 
-                var record = new RoomEnemyPopulationRecord(definitionPointer, new(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 6)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 8)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 10)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 12)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 14)));
+                var record = new RoomEnemyPopulationRecord(definitionPointer, new(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 6)), EnemyPropertyWord.FromNativeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 8))), EnemyExtraPropertyWord.FromNativeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 10))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 12)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 14)));
                 if (!records.TryGetValue(
                     definitionPointer,
                     out List<RoomEnemyPopulationRecord>? definitionRecords))

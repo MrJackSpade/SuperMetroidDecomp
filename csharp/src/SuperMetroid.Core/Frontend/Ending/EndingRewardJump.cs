@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Native reward jump/landing actor owner, ending at F604's screen-shot request.</summary>
 internal sealed class EndingRewardJump
 {
-    /// <summary>Address space used when advancing the jump actors' instruction lists.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Selects the armored head offsets used during the launch animation.</summary>
     private readonly bool helmeted;
     /// <summary>Queues one ending graphics sheet per landing update until all sheets are installed.</summary>
@@ -22,15 +20,14 @@ internal sealed class EndingRewardJump
     private int uploads;
     /// <summary>Whether the shooting instruction has requested the ending screen capture.</summary>
     public bool ShotRequested { get; private set; }
-    /// <summary>OBJ selection set when the body crosses the graphics sheet switch height.</summary>
-    public byte ObjectSelection { get; private set; }
+    /// <summary>Set when the body crosses the graphics sheet switch height and Samus is drawn from her falling sheet.</summary>
+    public bool FallingSheetSelected { get; private set; }
     /// <summary>Whole-pixel body height used to select the falling and landed instruction lists.</summary>
     public short BodyY => unchecked((short)body.WholePosition.Y);
 
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
-    public EndingRewardJump(ISnesAddressSpace bus, EndingReward reward, Action<int> queueGraphicsUpload)
+    public EndingRewardJump(EndingReward reward, Action<int> queueGraphicsUpload)
     {
-        this.bus = bus;
         this.queueGraphicsUpload = Ensure.NotNull(queueGraphicsUpload);
         helmeted = reward == EndingReward.Armored;
         if (reward != EndingReward.Suitless)
@@ -45,26 +42,26 @@ internal sealed class EndingRewardJump
         // Both pre-instructions use the shared Samus velocity, so each call accelerates it.
         if (head is { IsActive: true })
         {
-            if (InstalledPreInstruction(head) == EndingRewardJumpPreInstruction.HeadFlight)
+            if (head.PreInstruction == CinematicSpritePreInstruction.RewardHeadFlight)
             {
                 Move(head);
                 if (unchecked((short)head.WholePosition.Y) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
             }
             head.Step(HandleCue);
         }
-        EndingRewardJumpPreInstruction? bodyPreInstruction = InstalledPreInstruction(body);
-        if (bodyPreInstruction == EndingRewardJumpPreInstruction.BodyFlight)
+        CinematicSpritePreInstruction? bodyPreInstruction = body.PreInstruction;
+        if (bodyPreInstruction == CinematicSpritePreInstruction.RewardBodyFlight)
         {
             Move(body);
             if (BodyY < EndingRewardJumpDefinitions.SheetSwitchY)
             {
-                ObjectSelection = 3;
+                FallingSheetSelected = true;
                 body.SetAttributes(SnesObjPalettes.Index6);
                 body.Start(CinematicSpriteProgram.Falling);
-                body.PreInstructionPointerForDiscovery((ushort)EndingRewardJumpPreInstruction.Landing);
+                body.InstallPreInstruction(CinematicSpritePreInstruction.RewardLanding);
             }
         }
-        else if (bodyPreInstruction == EndingRewardJumpPreInstruction.Landing)
+        else if (bodyPreInstruction == CinematicSpritePreInstruction.RewardLanding)
         {
             if (uploads < EndingRewardJumpDefinitions.UploadCount) queueGraphicsUpload(uploads++);
             Move(body);
@@ -72,7 +69,7 @@ internal sealed class EndingRewardJump
             {
                 body.WholePosition = body.WholePosition.WithY(EndingRewardJumpDefinitions.LandingY);
                 body.Start(CinematicSpriteProgram.Landing);
-                body.PreInstructionPointerForDiscovery(0);
+                body.InstallPreInstruction(null);
             }
         }
         body.Step(HandleCue);
@@ -120,10 +117,6 @@ internal sealed class EndingRewardJump
         }
     }
 
-    /// <summary>The jump-owned pre-instruction an actor runs, or null while it runs the shared no-op or none.</summary>
-    private static EndingRewardJumpPreInstruction? InstalledPreInstruction(IntroDiscoverySprite actor) =>
-        CinematicInstructionWords.TryDecode(actor.PreInstructionPointer, out EndingRewardJumpPreInstruction installed)
-            ? installed : null;
 
     /// <summary>Requires a suited jump's head actor when a head-specific instruction runs.</summary>
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
@@ -137,7 +130,7 @@ internal sealed class EndingRewardJump
             new((ushort)x, (ushort)y),
             (ushort)palette,
             record.Program);
-        actor.PreInstructionPointerForDiscovery(record.PreInstruction);
+        actor.InstallPreInstruction(record.PreInstruction);
         return actor;
     }
 }

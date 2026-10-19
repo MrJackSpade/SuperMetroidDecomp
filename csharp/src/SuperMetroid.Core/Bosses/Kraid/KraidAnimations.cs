@@ -2,6 +2,7 @@ using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Kraid.KraidPartCue;
 using P = SuperMetroid.Core.Bosses.Kraid.KraidPartProgram;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -326,7 +327,7 @@ internal static class KraidAnimations
     internal static IEnumerable<ushort> Spritemaps(params KraidPartProgram[] programs) =>
         programs.SelectMany(program => Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => step.Frame.Spritemap);
+            .Select(step => KraidPartFrameDefinitions.Spritemap(step.Frame));
 
     /// <summary>The foot's standing pose.</summary>
     private static KraidPartFrame FootStanding() => new(KraidPartFrameKind.FootStanding, 0);

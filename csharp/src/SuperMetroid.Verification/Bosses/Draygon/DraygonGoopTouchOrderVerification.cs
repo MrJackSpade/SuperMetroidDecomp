@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
@@ -29,11 +30,11 @@ internal static class DraygonGoopTouchOrderVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach ((bool powerBombed, ushort goopX, ushort samusX) in new[] { (true, (ushort)170, (ushort)178), (false, (ushort)514, (ushort)504) })
         {
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Draygon);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
             SamusState samus = runtime.Player.IntroducedSamus;
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 385));
             samus.InvincibilityTimer = NativeCountdown.Start(96);
@@ -42,14 +43,14 @@ internal static class DraygonGoopTouchOrderVerification
             var enemies = runtime.Enemies;
             var goop = enemies.Projectiles.EnemyProjectiles[^1];
             goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
-            goop.PreInstruction = (ushort)EnemyProjectilePreInstruction.DraygonGoop;
+            goop.PreInstruction = EnemyProjectilePreInstruction.DraygonGoop;
             goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.Goop));
             goop.Position = FixedPosition<RoomPixels>.FromWhole(new(goopX, 391));
             var powerBomb = runtime.BombProjectiles.PowerBombExplosion;
             if (powerBombed)
             {
                 powerBomb.Spawn(goop.Position.Whole);
-                powerBomb.ExplosionRadius = 8192; // 32 pixels in 8.8
+                powerBomb.ExplosionRadius = PowerBombRadius.FromRaw(8192); // 32 pixels in 8.8
             }
             enemies.Audio.PowerBomb = powerBomb;
 

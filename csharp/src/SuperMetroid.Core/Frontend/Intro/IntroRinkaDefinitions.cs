@@ -4,9 +4,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroRinkaDefinitions
 {
 
-    /// <summary><c>$8B:93D9</c>, the shared cinematic-sprite no-op callback.</summary>
-    public const ushort SharedNoOp = CinematicCodePointers.CinematicSpriteObject_PreInstruction_NoOp;
-
     /// <summary><c>$8B:CF21</c>, intro Rinka initialization, no-op pre-instruction, and initial list.</summary>
     /// <remarks>
     /// Issues #625 and #990: its $8B:CDEB..CE0C instruction program has
@@ -31,7 +28,7 @@ internal static class IntroRinkaDefinitions
     /// spritemaps or adjacent visual data.
     /// </remarks>
     public static IntroRinkaActorDefinition RinkaActor =>
-        new(SharedNoOp, CinematicSpriteProgram.IntroRinka);
+        new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.IntroRinka);
 
     /// <summary><c>$8B:CF27</c>, Rinka-spawner no-op callbacks and initial list.</summary>
     /// <remarks>
@@ -47,7 +44,7 @@ internal static class IntroRinkaDefinitions
     /// recurrence or infer a third wave from adjacent data.
     /// </remarks>
     public static IntroRinkaActorDefinition SpawnerActor =>
-        new(SharedNoOp, CinematicSpriteProgram.IntroRinkaSpawner);
+        new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.IntroRinkaSpawner);
 
     /// <summary>
     /// Returns one complete parameter-selected physical definition. <c>$8B:B896</c>

@@ -23,6 +23,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Ceres Ridley's private door quake offsets and editable overlay art.</summary>
 internal static class CeresDoorQuakeDefinitionsVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Compares four native offsets, timer aliases, real OAM phases, and an isolated sprite edit.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door quake definitions")]
     internal static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
@@ -47,16 +50,16 @@ internal static class CeresDoorQuakeDefinitionsVerification
         var guarded = NewCeresDoorQuakeReadGuard(rom);
         var enemies = new RoomEnemySystem
         {
-            RidleyEncounter = { CeresStatus = 1 },
+            RidleyEncounter = { CeresStatus = CeresEscapeStatus.RidleyEscaped },
             TileArtwork = InstalledFixtures.EnemyTiles,
         };
-        enemies.SlotTable.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(guarded);
-        enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = 0 };
+        enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
         RoomEnemySlot door = enemies.SlotTable.Slots[1];
-        door.EnemyDefinitionPointer = EnemyDefinitionId.CeresDoor;
-        door.VariableB = 1;
+        door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
+        var doorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };
+        door.SetSpeciesState(doorState, doorState.ClearWithRecord);
         door.Position = door.Position.WithWhole(new(100, 80));
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
@@ -71,16 +74,16 @@ internal static class CeresDoorQuakeDefinitionsVerification
             oam.BeginFrame();
             enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(oam, new(0, 0));
             oam.FinalizeFrame();
-            baseX ??= oam.GetEntry(0).X;
-            AssertEqual(baseX.Value + expectedOffsets[phase], oam.GetEntry(0).X,
+            baseX ??= oam.GetEntry(0).Position.X;
+            AssertEqual(baseX.Value + expectedOffsets[phase], oam.GetEntry(0).Position.X,
                 $"Ceres private door production OAM phase {phase}");
         }
 
-        enemies.BindFixtureBus(NewCeresDoorQuakeReadGuard(rom, blockOverlay: true));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(0);
         var nativeOverlay = new OamBuffer();
         nativeOverlay.BeginFrame();
-        DrawImportedEnemySpritemap(rom, nativeOverlay, new EnemySpritemapDraw { Bank = 0xa6, Pointer = 0xa329, Origin = new(100, 80), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
+        DrawImportedEnemySpritemap(rom, nativeOverlay, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = 0xa329, Origin = new(100, 80), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
         nativeOverlay.FinalizeFrame();
         var installedOverlay = new OamBuffer();
         installedOverlay.BeginFrame();
@@ -97,18 +100,18 @@ internal static class CeresDoorQuakeDefinitionsVerification
             OffsetY = first.OffsetY + 1,
         };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            CamelCaseJson);
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = EnemySpritemapCatalog.Load(
                 new MemoryStream(editedJson, writable: false)) });
         var editedOverlay = new OamBuffer();
         editedOverlay.BeginFrame();
         enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(editedOverlay, new(0, 0));
         editedOverlay.FinalizeFrame();
-        AssertEqual(nativeOverlay.GetEntry(0).X, editedOverlay.GetEntry(0).X,
+        AssertEqual(nativeOverlay.GetEntry(0).Position.X, editedOverlay.GetEntry(0).Position.X,
             "private-overlay visual edit preserves the native quake/X coordinate");
-        AssertEqual(nativeOverlay.GetEntry(0).Y + 1, editedOverlay.GetEntry(0).Y,
+        AssertEqual(nativeOverlay.GetEntry(0).Position.Y + 1, editedOverlay.GetEntry(0).Position.Y,
             "private-overlay visual edit changes only its authored Y offset");
-        AssertEqual((ushort)1, door.VariableB,
+        AssertTrue(doorState.HandsDrawingToRidley,
             "private-overlay visual edit preserves the door's control flag");
 
         Console.WriteLine(

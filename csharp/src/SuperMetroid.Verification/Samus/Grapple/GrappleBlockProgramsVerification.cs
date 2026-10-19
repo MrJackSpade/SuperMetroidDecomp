@@ -117,7 +117,7 @@ internal static class GrappleBlockProgramsVerification
         entries[0] = new(pointers[0],0x0058);
         entries[4] = new(pointers[4],0x0453);
         var mixed = new RoomPlmGrappleBlockVisualCatalog(entries);
-        var expected = entries.ToDictionary(entry => entry.DrawPointer,entry => entry.VisualWord);
+        var expected = entries.ToDictionary(entry => checked((ushort)entry.DrawPointer),entry => checked((ushort)entry.VisualWord));
         AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGrappleBlockVisualCatalog),expected),
             mixed.ContentIdentity,"Grapple mixed stock/override identity");
         entries[0] = new(pointers[0],0x0054);
@@ -158,17 +158,17 @@ internal static class GrappleBlockProgramsVerification
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 300; frame++)
             {
-                native.Plms.Step(rom, native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                native.Plms.Step(native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                compiled.Plms.Step(compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(native.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"Grapple BTS {bts} active count, frame {frame}");
                 AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
                     $"Grapple BTS {bts} sound count, frame {frame}");
-                AssertEqual(native.Level.GetCollisionBlockByIndex(27).LevelWord,
-                    compiled.Level.GetCollisionBlockByIndex(27).LevelWord,
+                AssertEqual(native.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
+                    compiled.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
                     $"Grapple BTS {bts} level word, frame {frame}");
-                AssertEqual(native.Level.GetCollisionBlockByIndex(27).Behavior,
-                    compiled.Level.GetCollisionBlockByIndex(27).Behavior,
+                AssertEqual(native.Level.GetCollisionBlockByIndex(27).Bts.Value,
+                    compiled.Level.GetCollisionBlockByIndex(27).Bts.Value,
                     $"Grapple BTS {bts} BTS, frame {frame}");
             }
 
@@ -178,7 +178,7 @@ internal static class GrappleBlockProgramsVerification
                 $"Grapple BTS {bts} finishes its cartridge timeline");
         }
 
-        Suite(nameof(VerifyGrappleBlockVisualSeparation), () => VerifyGrappleBlockVisualSeparation(rom, forbidden));
+        Suite(nameof(VerifyGrappleBlockVisualSeparation), () => VerifyGrappleBlockVisualSeparation());
         Suite(nameof(VerifyGrappleBlockVisualInstallation), () => VerifyGrappleBlockVisualInstallation(rom));
 
         Console.WriteLine($"Grapple-block PLMs: 19 control words, 2 sound bytes, and 5 draw lists match ROM; both programs run with source reads forbidden.");
@@ -186,7 +186,7 @@ internal static class GrappleBlockProgramsVerification
 
     /// <summary>Confirms a first-frame tile edit changes immediate and streamed visuals while retaining the same grapple collision word.</summary>
     private static void VerifyGrappleBlockVisualSeparation(
-        SuperMetroidAddressSpace rom, HashSet<int> forbidden)
+)
     {
         RoomPlmGrappleBlockVisualEntry[] entries =
             RoomPlmGrappleBlockDrawDefinitions.All.Select(draw =>
@@ -216,10 +216,10 @@ internal static class GrappleBlockProgramsVerification
             var plms = new RoomPlmSystem { Drawing = { GrappleBlockVisuals = visuals } };
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
                 "visual test starts the real respawning Grapple PLM");
-            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "first Grapple draw publishes one immediate tile upload");
-            return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 plms.TilemapUpdates[0].TopRow[0],
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                     blockIndex, 0).TopRow[0]);

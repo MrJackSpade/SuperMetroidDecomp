@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed record XrayBeginConditions
 {
     /// <summary>Live game state at <c>$0998</c>; setup rejects every state but main gameplay.</summary>
-    public required ushort GameState { get; init; }
+    public required SuperMetroid.Core.Gameplay.SuperMetroidGameState GameState { get; init; }
 
-    /// <summary>Power bomb explosion status.</summary>
-    public ushort PowerBombExplosionStatus { get; init; } = 0;
+    /// <summary>Whether a power bomb explosion's status is set; any set status rejects X-ray activation.</summary>
+    public bool PowerBombExplosionActive { get; init; } = false;
 
-    /// <summary>Projectile cooldown timer.</summary>
-    public ushort ProjectileCooldownTimer { get; init; } = 0;
+    /// <summary>The shared projectile cooldown; exactly seven, with five bombs and divisor two, rejects activation.</summary>
+    public NativeCountdown ProjectileCooldownTimer { get; init; } = NativeCountdown.Start(0);
 
-    /// <summary>Bomb counter.</summary>
-    public ushort BombCounter { get; init; } = 0;
+    /// <summary>The number of live bombs, a count of bomb slots; exactly five, with that cooldown, rejects activation.</summary>
+    public int BombCounter { get; init; } = 0;
 }

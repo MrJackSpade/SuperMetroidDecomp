@@ -12,5 +12,5 @@ internal static class BoulderAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params BoulderProgram[] programs) =>
         programs.SelectMany(program => BoulderAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => BoulderFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => BoulderFrameToolingDefinitions.Spritemap(step.Frame));
 }

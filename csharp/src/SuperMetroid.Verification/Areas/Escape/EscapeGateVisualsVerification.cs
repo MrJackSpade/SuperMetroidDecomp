@@ -88,7 +88,7 @@ internal static class EscapeGateVisualsVerification
         // draw payloads are compiled and therefore guarded below.
         SeedPlmProgramWords(bus, 0xc8ca, 0xb3c1,
             RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed,
-            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
+            RoomPlmInstructionListsConstants.MotherBrainEscapeRoomGateClosing);
         SeedRoomPlmPopulation(bus, population,
         [
             0xca, 0xc8, gateX, gateY, 0x00, 0x80,
@@ -104,11 +104,11 @@ internal static class EscapeGateVisualsVerification
         RoomLevelData closedLevel = CreateLevel();
         BackgroundTilemapStreamer closedStreamer = closedLevel.CreateBackgroundStreamer();
         var closed = new RoomPlmSystem { Drawing = { EscapeGateVisuals = edited } };
-        AssertEqual(1, closed.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, closedLevel, closedStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, closed.PopulationLoader.LoadRoomPopulation(new PlmRoom(closedLevel, closedStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape gate loads its real resident header");
-        closed.Step(guarded, closedLevel, closedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        closed.Step(closedLevel, closedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x830f,
-            closedLevel.GetCollisionBlockByIndex(origin).LevelWord,
+            closedLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "edited closed gate preserves native physical collision");
         AssertEqual((ushort)0x0053, closed.TilemapUpdates[0].TopRow[0],
             "edited closed gate reaches immediate visible tilemap update");
@@ -120,23 +120,23 @@ internal static class EscapeGateVisualsVerification
         RoomLevelData closingLevel = CreateLevel();
         BackgroundTilemapStreamer closingStreamer = closingLevel.CreateBackgroundStreamer();
         var closing = new RoomPlmSystem { Drawing = { EscapeGateVisuals = edited } };
-        AssertEqual(1, closing.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, closingLevel, closingStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, closing.PopulationLoader.LoadRoomPopulation(new PlmRoom(closingLevel, closingStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape closure loads resident gate");
         var enteringDoor = new CartridgeDoorHeader(
-            Pointer: 0xaa8c,
-            DestinationRoomPointer: 0xde4d,
+            Name: nameof(DoorDefinitions.MotherBrain1),
+            DestinationRoom: RoomHeaderDefinitions.TourianEscape1,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             PlmBlock: new(gateX, gateY),
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
             SetupCodePointer: DoorSetupCode.None);
-        AssertTrue(closing.DoorPlms.TrySpawnDoorClosingPlm(guarded, closingLevel,
+        AssertTrue(closing.DoorPlms.TrySpawnDoorClosingPlm(closingLevel,
                 enteringDoor, system),
             "edited escape closure selects the real secondary instruction list");
         for (int frame = 0; frame < 3; frame++)
-            closing.Step(guarded, closingLevel, closingStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            closing.Step(closingLevel, closingStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x830f,
-            closingLevel.GetCollisionBlockByIndex(origin).LevelWord,
+            closingLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "edited half-closed gate preserves native physical collision");
         AssertEqual((ushort)0x0054, closing.TilemapUpdates[0].TopRow[0],
             "edited half-closed gate reaches immediate visible tilemap update");

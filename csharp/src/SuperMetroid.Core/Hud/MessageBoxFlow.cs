@@ -44,8 +44,6 @@ internal sealed class MessageBoxFlow
     private readonly SnesVram _vram;
     /// <summary>Queues HUD graphics when message completion runs outside a suspended frame.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Provides the active address space for station, collectible, and HUD completion.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Retains the runtime owners needed to resolve message outcomes after NMI-only execution.</summary>
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)
@@ -63,7 +61,6 @@ internal sealed class MessageBoxFlow
         _system = dependencies.System;
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
-        _addressSpace = dependencies.AddressSpace;
     }
     /// <summary>Suit transformation to start when its item message returns to the PLM.</summary>
     internal SamusSuitPickupKind? _pendingSuitPickup;
@@ -82,7 +79,7 @@ internal sealed class MessageBoxFlow
     /// </summary>
     /// <remarks>
     /// Message boxes advance through an NMI-only path and therefore do not increment
-    /// <see cref="NmiHandler.CompletedGameplayAudioPublication"/>. Giving this publisher explicit
+    /// <see cref="AcceptedFrameBoundary.CompletedGameplayAudioPublication"/>. Giving this publisher explicit
     /// consume semantics keeps it audible once without reopening stale gameplay lists.
     /// </remarks>
     public bool ConsumeMessageBoxSelectionSoundRequest()
@@ -108,11 +105,11 @@ internal sealed class MessageBoxFlow
     internal void ResolveClosedMessageBox(bool frameSuspended)
     {
 
-        if (_enemies.GunshipBehavior.GunshipSavePromptPending)
+        if (_enemies.Gunship.SavePromptPending)
         {
             bool accepted = _messageBox.ConsumeConfirmationResult()
                 ?? throw new InvalidDataException("Gunship message closed without a save selection.");
-            _enemies.GunshipBehavior.AnswerGunshipSavePrompt(accepted);
+            _enemies.Gunship.AnswerSavePrompt(accepted);
             _gunshipExitSoundRequested = true;
             if (accepted)
             {
@@ -135,7 +132,7 @@ internal sealed class MessageBoxFlow
                 "A save-station message returned without active room level data.");
             if (_room.BackgroundStreamer is null || _room.Camera is null)
                 throw new InvalidOperationException("A save-station message returned without an active room.");
-            SaveStationConfirmationResult confirmation = _plms.Stations.ResolveSaveStationConfirmation(_addressSpace, saveStation, accepted.Value, level, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) });
+            SaveStationConfirmationResult confirmation = _plms.Stations.ResolveSaveStationConfirmation(saveStation, accepted.Value, level, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) });
             foreach (PlmTilemapUpdate update in confirmation.TilemapUpdates)
                 update.ExecuteTo(_vram);
             if (confirmation.Saving)
@@ -161,15 +158,15 @@ internal sealed class MessageBoxFlow
 
         if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.Camera is null)
             throw new InvalidOperationException("A message box returned without an active room.");
-        foreach (PlmTilemapUpdate update in _plms.CollectiblePlms.CompleteCollectibleMessage(_addressSpace, _room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }))
+        foreach (PlmTilemapUpdate update in _plms.CollectiblePlms.CompleteCollectibleMessage(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }))
             update.ExecuteTo(_vram);
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.
         if (_player.Samus is not null && !frameSuspended)
-            _hud.UpdateGameplayCounters(_addressSpace, _player.Samus, _freeze.TimeIsFrozen,
+            _hud.UpdateGameplayCounters(_player.Samus, _freeze.TimeIsFrozen,
                 soundSuppressed: _bombProjectiles.PowerBombExplosion.IsActive);
         if (!frameSuspended)
-            _hud.QueueUpload(_addressSpace, _vramWrites);
+            _hud.QueueUpload(_vramWrites);
 
         // The routine returns directly to the suspended item-PLM instruction list.
         // Varia/Gravity immediately call their shared setup routine; for other items the
@@ -181,9 +178,8 @@ internal sealed class MessageBoxFlow
                 throw new InvalidOperationException(
                     "A pending suit transformation requires an active Samus and room camera.");
             }
-            _enemies.ElevatorBehavior.SetElevatorStatusForDebugging(0);
+            _enemies.Elevator.ResetStatus();
             _suitPickup.Begin(
-                _addressSpace,
                 _player.Samus,
                 _room.Camera.PixelPosition,
                 pendingSuit,

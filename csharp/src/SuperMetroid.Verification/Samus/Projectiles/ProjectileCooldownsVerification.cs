@@ -39,8 +39,8 @@ internal static class ProjectileCooldownsVerification
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = beam };
-            var result = projectiles.Firing.TryFireBeam(bus, room, samus, edge, shared, null, charged);
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = (SamusBeamFlags)beam };
+            var result = projectiles.Firing.TryFireBeam(room, samus, edge, shared, null, charged);
             AssertEqual((int?)0, result.Slot, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
             AssertEqual((ushort)retail.ReadCartridgeByte(address), shared.CooldownTimer.RawValue,
@@ -53,10 +53,10 @@ internal static class ProjectileCooldownsVerification
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             var samus = new SamusState { Pose = SamusPoseId.NormalJumpGunExtendedLeftPose,
-                Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (ushort)(chargeEquipped ? 0x1009 : 9) };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (SamusBeamFlags)((ushort)(chargeEquipped ? 0x1009 : 9)) };
             samus.PoseTransitionShotDirection = (ushort)0x8007;
             SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
-            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? (ushort)0 : SnesButton.X }, new(0, 0), shared);
+            projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? (ushort)0 : SnesButton.X }, new(0, 0), shared);
             AssertEqual((int?)0, slotsBefore.FiredSlot(projectiles),
                 "native handoff/previous-edge shot is produced");
             AssertEqual((ushort)15, shared.CooldownTimer.RawValue, "Charge equipment or previous Shoot edge selects ordinary cooldown");
@@ -65,14 +65,14 @@ internal static class ProjectileCooldownsVerification
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = beam };
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = (SamusBeamFlags)beam };
             var frames = new List<int>();
             for (int frame = 0; frame < 70; frame++)
             {
                 // Actual shared cooldown owner advances before humanoid fire dispatch.
-                shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, SnesButton.X, frame == 0 ? SnesButton.X : (ushort)0);
-                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), shared);
-                if (projectiles.LastFiredProjectileSnapshot is not null) frames.Add(frame);
+                shared.StepFrame(new SamusTerrain { Level = room }, samus, SnesButton.X, frame == 0 ? SnesButton.X : (ushort)0);
+                projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), shared);
+                if (projectiles.LastFrameResult.QueuedSoundEffect is not null) frames.Add(frame);
             }
             int firstDelay = beam == 10 ? 12 : 15;
             AssertTrue(frames.SequenceEqual(new[] { 0, firstDelay, firstDelay + 25, firstDelay + 50 }),
@@ -83,8 +83,8 @@ internal static class ProjectileCooldownsVerification
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                EquippedBeams = beam, SelectedHudItem = 3, PowerBombs = 10 };
-            AssertTrue(projectiles.Combos.TryActivateCombo(bus, samus, shared, out _),
+                EquippedBeams = (SamusBeamFlags)beam, SelectedHudItem = HudItem.PowerBomb, PowerBombs = 10 };
+            AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
             AssertEqual((ushort)retail.ReadCartridgeByte(0x90c254 + (projectiles.Slots[0].Type & 0x3f)),
                 shared.CooldownTimer.RawValue, "Combo retains six-bit index into padding/non-beam neighbors");

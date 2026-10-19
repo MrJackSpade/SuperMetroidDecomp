@@ -14,7 +14,7 @@ internal static class SbugAnimationsVerification
     internal static void VerifySbugAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, SbugAnimations.Programs,
-            SbugFrameDefinitions.Spritemap,
+            SbugFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  Sbug programs: {Entries.Length} programs ({steps} steps) match bank $A3.");

@@ -72,9 +72,9 @@ internal static class DynamicCollectibleArtVerification
                 "edited item palette offset reaches the loaded catalog");
 
             (byte[] stockVram, ushort stockTileWord, CollectiblePlmSnapshot stockItem) =
-                LoadRetailBombsWithArt(rom, stock);
+                LoadRetailBombsWithArt(stock);
             (byte[] editedVram, ushort editedTileWord, CollectiblePlmSnapshot editedItem) =
-                LoadRetailBombsWithArt(rom, edited);
+                LoadRetailBombsWithArt(edited);
             AssertTrue(!stockVram.SequenceEqual(editedVram),
                 "edited permanent-item PNG reaches production VRAM");
             AssertEqual((ushort)(stockTileWord + 0x0400), editedTileWord,
@@ -122,14 +122,13 @@ internal static class DynamicCollectibleArtVerification
     /// <summary>Loads the retail Bombs PLM with selected art and captures its VRAM tile bytes, block word, and pickup state.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static (byte[] Vram, ushort TileWord, CollectiblePlmSnapshot Item)
-        LoadRetailBombsWithArt(ISnesAddressSpace bus,
-            RoomPlmDynamicCollectibleArtCatalog art)
+        LoadRetailBombsWithArt(RoomPlmDynamicCollectibleArtCatalog art)
     {
         const int width = 64;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new byte[0x400 * 8]);
         var vram = new SnesVram();
         var plms = new RoomPlmSystem { Drawing = { DynamicCollectibleArt = art } };
-        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), vram, new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, level.CreateBackgroundStreamer(), vram, new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinitions.Get(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         CollectiblePlmSnapshot item = plms.CollectiblePlms.Collectibles.Single();
         byte[] tiles = vram.Bytes.Slice(0x3e00 * 2, 0x100).ToArray();
         ushort firstWord = BinaryPrimitives.ReadUInt16LittleEndian(

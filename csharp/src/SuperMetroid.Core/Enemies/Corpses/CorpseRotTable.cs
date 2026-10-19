@@ -10,22 +10,24 @@ public readonly struct CorpseRotTable
     public const int EntryByteCount = 4;
 
     /// <summary>Byte-addressed view of the shared corpse-rotting heap.</summary>
-    private readonly WorkRamByteTable bytes;
+    private readonly StagingByteView bytes;
     /// <summary>Start of this enemy's rot entries within the heap view.</summary>
     private readonly int firstByte;
 
     /// <summary>Creates a nonempty table view at the caller's validated heap offset.</summary>
-    internal CorpseRotTable(WorkRamByteTable bytes, int firstByte, ushort entryCount)
+    internal CorpseRotTable(StagingByteView bytes, int firstByte, int entryCount)
     {
-        if (entryCount == 0)
-            throw new ArgumentOutOfRangeException(nameof(entryCount));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(entryCount);
         this.bytes = bytes;
         this.firstByte = firstByte;
         EntryCount = entryCount;
     }
 
-    /// <summary>The number of entries processed in ascending index order.</summary>
-    public ushort EntryCount { get; }
+    /// <summary>
+    /// The number of entries processed in ascending index order: the corpse's height in pixel rows, an authored
+    /// count that is always positive and never changes after the table is located.
+    /// </summary>
+    public int EntryCount { get; }
 
     /// <summary>Entry <paramref name="entry"/>'s signed pixel-row word.</summary>
     public ushort YOffset(int entry) => bytes.ReadWord(EntryOffset(entry));

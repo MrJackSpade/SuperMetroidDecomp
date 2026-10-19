@@ -24,12 +24,12 @@ internal static class GrapplePoseRefireVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
             };
             PrepareRetailSamusFixture(samus);
-            SamusGrappleMovement.BeginFiring(bus, samus);
+            SamusGrappleMovement.BeginFiring(samus);
             for (int frame = 1; frame < changeFrame; frame++)
-                SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X);
+                SamusGrappleMovement.StepFiring(level, samus, SnesButton.X);
             samus.Pose = left ? SamusPoseId.StandingAimDiagonalUpLeftPose : SamusPoseId.StandingAimDiagonalUpRightPose;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X);
+            SamusGrappleMovement.StepFiring(level, samus, SnesButton.X);
             if (changeFrame == 10)
             {
                 AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "expired direction change cancels in same call");
@@ -37,7 +37,8 @@ internal static class GrapplePoseRefireVerification
             }
             var grapple = samus.Grapple;
             AssertEqual(GrapplePhase.Firing, grapple.Phase, "early direction change refires");
-            AssertEqual(samus.PoseMetadata.ReadShotDirection(bus), grapple.FireDirection, "refire uses current pose direction");
+            AssertEqual((SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)samus.PoseMetadata.ReadShotDirection(), grapple.FireDirection,
+                "refire uses current pose direction");
             AssertEqual(10, grapple.PoseChangeAutoFireTimer.RawValue, "refire resets native ten-frame timer");
             AssertTrue(samus.LiquidPhysics.SoundRequests.SequenceEqual(new[] {
                 SamusGrappleRomData.Sounds.RestartStop, SamusGrappleRomData.Sounds.Fire }), "refire publishes native stop/start sound order and queue limits");
@@ -46,7 +47,7 @@ internal static class GrapplePoseRefireVerification
             AssertEqual(0, grapple.EndpointOffset.Y.RawValue, "restart clears old Y endpoint displacement");
             AssertEqual(samus.Position.X.Whole + grapple.OriginOffset.X, grapple.Anchor.X, "restart hand origin X");
             AssertEqual(samus.Position.Y.Whole + grapple.OriginOffset.Y, grapple.Anchor.Y, "restart hand origin Y");
-            SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X);
+            SamusGrappleMovement.StepFiring(level, samus, SnesButton.X);
             AssertTrue(grapple.Anchor.Y < samus.Position.Y.Whole + grapple.OriginOffset.Y, "restarted beam actually travels up");
             AssertTrue(left ? grapple.EndpointOffset.X.RawValue < 0 : grapple.EndpointOffset.X.RawValue > 0, "restarted beam travels toward aimed side");
         }

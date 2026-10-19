@@ -65,23 +65,23 @@ internal static class DraygonCannonPlmProgramVerification
         entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = 0x0053;
         entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = 0x0054;
         plms.Drawing.DraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
-        AssertEqual(4, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
+        AssertEqual(4, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
             "four retail cannon headers load with cartridge program lists");
 
         static void Step(RoomPlmSystem plms, ISnesAddressSpace bus,
             RoomLevelData level, BackgroundTilemapStreamer streamer) =>
             // Keep both upper and lower shield origins inside the visible
             // tilemap ring so their immediate redraws are observable.
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0x00e0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0x00e0), Bg1XOffset = 0 });
 
         Step(plms, guarded, level, streamer);
         int rightShieldBlock = 18 * width + 2;
         int leftShieldBlock = 15 * width + 29;
         AssertEqual((ushort)0xc514,
-            level.GetCollisionBlockByIndex(rightShieldBlock).LevelWord,
+            level.GetCollisionBlockByIndex(rightShieldBlock).PackedWord.Raw,
             "edited right shield retains native physical collision and tile reference");
         // The immediate redraw is identified by its BG1 ring destination (bg1XOffset 0).
-        ushort rightShieldDestination = streamer.BuildPlmLevelBlockUpdate(
+        int rightShieldDestination = streamer.BuildPlmLevelBlockUpdate(
             rightShieldBlock, bg1XOffset: 0).TopRowDestination;
         AssertEqual((ushort)0x0053,
             plms.TilemapUpdates.Last(update =>
@@ -92,7 +92,7 @@ internal static class DraygonCannonPlmProgramVerification
                 rightShieldBlock, 0).TopRow[0],
             "edited right shield survives later room streaming");
         AssertEqual((ushort)0xc114,
-            level.GetCollisionBlockByIndex(leftShieldBlock).LevelWord,
+            level.GetCollisionBlockByIndex(leftShieldBlock).PackedWord.Raw,
             "edited left shield retains native physical collision and tile reference");
         AssertEqual((ushort)0x0054,
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
@@ -108,7 +108,7 @@ internal static class DraygonCannonPlmProgramVerification
         {
             Step(plms, guarded, level, streamer);
             seenRightDamageWords.Add(
-                level.GetCollisionBlockByIndex(rightBlock).LevelWord);
+                level.GetCollisionBlockByIndex(rightBlock).PackedWord.Raw);
         }
         foreach (ushort word in new ushort[] { 0xa580, 0xa581, 0xa582, 0xa583 })
             AssertTrue(seenRightDamageWords.Contains(word),
@@ -123,7 +123,7 @@ internal static class DraygonCannonPlmProgramVerification
         {
             Step(plms, guarded, level, streamer);
             seenLeftDamageWords.Add(
-                level.GetCollisionBlockByIndex(leftBlock).LevelWord);
+                level.GetCollisionBlockByIndex(leftBlock).PackedWord.Raw);
         }
         foreach (ushort word in new ushort[] { 0xa180, 0xa181, 0xa182, 0xa183 })
             AssertTrue(seenLeftDamageWords.Contains(word),

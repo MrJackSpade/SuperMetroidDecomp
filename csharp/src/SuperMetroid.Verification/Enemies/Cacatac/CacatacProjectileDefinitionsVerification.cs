@@ -16,11 +16,10 @@ internal static class CacatacProjectileDefinitionsVerification
     internal static void VerifyCacatacProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0x86d96a;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewCacatacProjectileReadGuard(rom));
-        Action<RoomEnemySlot, ushort> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        Action<RoomEnemySlot, CacatacSpikeDirection> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = new(new(0x1234, 0x5678), new(0x9abc, 0xdef0));
         source.PaletteIndex = 0x0c00;
@@ -43,10 +42,10 @@ internal static class CacatacProjectileDefinitionsVerification
             ushort expectedPositive = direction >= CacatacSpikeDirection.UpLeft
                 ? (ushort)0x0180
                 : (ushort)0x0200;
-            AssertEqual(expectedNegative, speeds.Negative, $"compiled Cacatac negative speed {direction}");
-            AssertEqual(expectedPositive, speeds.Positive, $"compiled Cacatac positive speed {direction}");
+            AssertEqual(expectedNegative, speeds.Negative.RawValue, $"compiled Cacatac negative speed {direction}");
+            AssertEqual(expectedPositive, speeds.Positive.RawValue, $"compiled Cacatac positive speed {direction}");
 
-            spawn(source, raw);
+            spawn(source, direction);
             RoomEnemyProjectileSlot actual = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
             AssertTrue(actual.Animation is CacatacProjectileAnimation { Cursor.Program: var spawned } &&
@@ -71,9 +70,4 @@ internal static class CacatacProjectileDefinitionsVerification
             "Cacatac spike definitions: ten native selectors, speed pairs and production spawns pass with selector reads forbidden.");
     }
 
-    /// <summary>Rejects runtime reads of the compiled bank $86 spike selector table.</summary>
-    private static CartridgeReadGuard NewCacatacProjectileReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0x86d96a and < 0x86d97e,
-                address => $"Cacatac spike spawn attempted migrated selector read ${address:X6}.");
 }

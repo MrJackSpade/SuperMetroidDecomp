@@ -17,7 +17,7 @@ internal static class PlasmaPenetrationVerification
             var shots = new SamusProjectileSystem();
             var slot = shots.Slots[0];
             ushort type = SamusProjectileTypeWord.CreateBeam(
-                (ushort)(combination | (ushort)SamusBeamFlags.Plasma), charged);
+                (SamusBeamFlags)combination | SamusBeamFlags.Plasma, charged);
             slot.Type = type;
             slot.Damage = 100;
             slot.Direction = (ushort)SamusProjectileDirection.Right;
@@ -26,7 +26,7 @@ internal static class PlasmaPenetrationVerification
             var bombs = new SamusBombProjectileSystem();
             for (int hit = 0; hit < 2; hit++)
             {
-                AssertTrue(shots.EnemyImpacts.TryStartEnemyImpact(bus, bombs, 0), "penetrating enemy hit accepted");
+                AssertTrue(shots.EnemyImpacts.TryStartEnemyImpact(bombs, 0), "penetrating enemy hit accepted");
                 AssertEqual(type, slot.Type, "Plasma preserves live beam type instead of explosion");
                 AssertEqual((ushort)100, slot.Damage, "Plasma preserves original damage");
                 AssertEqual((ushort)SamusProjectileDirection.Right, slot.Direction, "Plasma does not acquire deletion marker");

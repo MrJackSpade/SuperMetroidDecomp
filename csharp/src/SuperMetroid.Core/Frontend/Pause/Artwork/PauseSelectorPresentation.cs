@@ -15,13 +15,13 @@ public sealed class PauseSelectorPresentation
     internal readonly Dictionary<int, int>? durationOverrides;
     /// <summary>Dwell time before the selector enters its cyclic animation.</summary>
     public int InitialDurationTicks { get; }
-    /// <summary>Selected three-bit OBJ palette in the attribute-word bit position.</summary>
-    public ushort PaletteBits { get; }
+    /// <summary>Object attributes selecting the authored OBJ palette, with no tile, priority or flip.</summary>
+    public SnesObjAttributeWord ObjectPalette { get; }
     /// <summary>Number of phases used to wrap the live selector counter.</summary>
     public int PhaseCount { get; }
     /// <summary>Retains only authored anchor, composition, and timing differences.</summary>
     private PauseSelectorPresentation(PauseSelectorParts parts)
-    { this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; PaletteBits = SnesObjAttributeWord.Create(0, parts.Palette, 0).PaletteBits; }
+    { this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; ObjectPalette = SnesObjAttributeWord.Create(0, parts.Palette, 0); }
     /// <summary>Applies a named screen-pixel override to the category and item's compiled stock anchor.</summary>
     public Position16<OamPixels> Anchor(PauseEquipmentCategory category, int item)
     {
@@ -50,7 +50,7 @@ public sealed class PauseSelectorPresentation
             PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
             _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
         }).Get(normalized);
-        composition.DrawOnScreen(oam, point, PaletteBits);
+        composition.DrawOnScreen(oam, point, ObjectPalette.PaletteBits);
     }
     /// <summary>Loads and validates equipment-selector anchors, frames, animation, palette, and timing.</summary>
     public static PauseSelectorPresentation Load(Stream json)

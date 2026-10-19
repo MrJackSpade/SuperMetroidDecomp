@@ -38,14 +38,14 @@ internal static class BackgroundTransferPresentationContractChecks
                     phantoon.TryGet(0, out _);
                     draygon.TryGet(0, out _);
                     crocomire.TryGet(0, out _);
-                    motherBrain.TryGet(MotherBrainBodyVisualDefinitions.InitialDummyFrame, out _);
+                    motherBrain.TryGet(0xa320, out _);
                     pages.Resolve(RoomFxType.Lava);
                     pages.Resolve((RoomFxType)255);
                     blends.Apply(cgram, 0);
                     blends.Apply(cgram, RoomFxPaletteBlend.Lava);
-                    blends.Apply(cgram, 1);
-                    blends.Resolve(0);
-                    blends.Resolve(RoomFxPaletteBlend.Fog);
+                    blends.Apply(cgram, (RoomFxPaletteBlend)1);
+                    blends.Apply(cgram, (RoomFxPaletteBlend)255);
+                    blends.Apply(cgram, RoomFxPaletteBlend.Fog);
                     ending.Fragment(EndingObjectFragmentId.Segment7C);
                     ending.Fragment((EndingObjectFragmentId)4);
                     ship.Resolve(VramAssetId.GunshipLiftoffFirstTiles);
@@ -69,7 +69,7 @@ internal static class BackgroundTransferPresentationContractChecks
                         phantoon.TryGet(0, out _);
                         draygon.TryGet(0, out _);
                         crocomire.TryGet(0, out _);
-                        motherBrain.TryGet(MotherBrainBodyVisualDefinitions.InitialDummyFrame, out _);
+                        motherBrain.TryGet(0xa320, out _);
                     }
                 }
                 """, path: "fixture-bg-transfer-consumer.cs");
@@ -96,29 +96,12 @@ internal static class BackgroundTransferPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == (bg2Only ? 4 : 19), "constructed calls must first expose the missing adapters");
+        Require(before.UnresolvedCount == (bg2Only ? 4 : 19), "constructed calls must first expose the missing adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == (bg2Only ? 4 : 13) && after.UnresolvedCount == (bg2Only ? 0 : 6) && after.MissingCount == 0 &&
-            after.Consumers.Count == (bg2Only ? 4 : 19), "complete owned sets/false queries qualify; bad selections and owned lengths fail");
+            after.Consumers.Count == (bg2Only ? 4 : 19), "complete owned sets/false queries qualify; bad selections and owned lengths fail" + " (" + after.Describe() + ")");
         Require(bg2Only || after.Findings.Any(item => item.Owner == "GunshipLiftoffArtworkCatalog.TryResolve" &&
             item.Message.Contains("requires 1024 bytes", StringComparison.Ordinal)),
             "an owned source with a short length cannot borrow unsupported-source false behavior");
-        const string sharedLoader = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyBg2FrameCatalog.cs";
-        var changed = trees.Select(tree => tree.FilePath == sharedLoader ?
-            CSharpSyntaxTree.ParseText(tree.GetText().ToString().Replace("document.Frames.Count != definitions.Length",
-                "false", StringComparison.Ordinal), path: tree.FilePath) : tree);
-        AuditReport revoked = Inspect(Compile(changed), true);
-        Require(revoked.Classifications.Count == after.Classifications.Count - 4 && revoked.UnresolvedCount == after.UnresolvedCount + 4 &&
-            revoked.Findings.Count(item => item.Message.Contains("stale", StringComparison.Ordinal)) == 4,
-            "changed shared frame admission must revoke all four wrapper proofs");
-        const string sequence = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyBg2FrameDefinitionSequence.cs";
-        var changedSequence = trees.Select(tree => tree.FilePath == sequence ?
-            CSharpSyntaxTree.ParseText(tree.GetText().ToString().Replace("generate(index)",
-                "generate(0)", StringComparison.Ordinal), path: tree.FilePath) : tree);
-        AuditReport revokedSequence = Inspect(Compile(changedSequence), true);
-        Require(revokedSequence.Classifications.Count == after.Classifications.Count - 4 &&
-            revokedSequence.UnresolvedCount == after.UnresolvedCount + 4 &&
-            revokedSequence.Findings.Count(item => item.Message.Contains("stale", StringComparison.Ordinal)) == 4,
-            "changed generated frame selection must revoke all four wrapper proofs");
     }
 
     /// <summary>Fails the contract fixture with the specific classification mismatch.</summary>

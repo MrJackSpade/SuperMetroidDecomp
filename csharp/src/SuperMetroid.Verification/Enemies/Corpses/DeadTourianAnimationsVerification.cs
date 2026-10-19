@@ -14,7 +14,7 @@ internal static class DeadTourianAnimationsVerification
     internal static void VerifyDeadTourianAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, DeadTourianAnimations.Programs,
-            DeadTourianFrameDefinitions.Spritemap,
+            DeadTourianFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

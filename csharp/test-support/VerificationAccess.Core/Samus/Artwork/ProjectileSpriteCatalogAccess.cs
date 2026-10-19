@@ -22,7 +22,7 @@ internal static class ProjectileSpriteCatalogAccess
             for (int index = 0; index < parts.PartCount; index++)
             {
                 var part = parts.Part(index);
-                oam.AddProjectileSpritePart(part.X, part.Y, part.Attributes, origin);
+                oam.AddProjectileSpritePart(part.X, part.Y.Raw, part.Attributes, origin);
             }
         }
     }

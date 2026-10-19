@@ -4,6 +4,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks the liquid HDMA callback's use of shared RNG across freeze and room reload boundaries.</summary>
 internal static class RoomFxSharedRandomVerification
@@ -29,7 +30,7 @@ internal static class RoomFxSharedRandomVerification
         fx.AdvanceHdmaSharedState(system, true);
         fx.AdvanceHdmaSharedState(system, false);
         AssertEqual(swaps ? 0x3412 : 0x1234, system.RandomNumber, $"{type} frozen startup still installs callback");
-        fx.Load(bus, vram, cgram, 0, 0, 0);
+        fx.Load(vram, cgram, null, null, 0);
         system.SetRandomNumber(0x1234);
         fx.AdvanceHdmaSharedState(system, false);
         fx.AdvanceHdmaSharedState(system, false);

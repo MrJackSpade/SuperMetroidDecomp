@@ -10,8 +10,16 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>In-world collectible PLMs: item and tank setup, pickup, fanfare and the dynamic collectible graphics slots.</summary>
-internal sealed class CollectiblePlms
+internal sealed class CollectiblePlms : IPlmFamilySource
 {
+    /// <summary>Registers the Collectible family's step.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.Collectible, (slot, context) =>
+            TryStepCollectible(context.Level, context.Streamer, slot, context.View) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
+    }
+
     /// <summary>Supplies Samus, persistence, and room-FX owners at pickup time.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Updates level blocks and queues their tilemap draws.</summary>
@@ -47,7 +55,7 @@ internal sealed class CollectiblePlms
         get
         {
             foreach (PlmSlot slot in _slotTable._slots)
-                if (slot.Active && slot.Item?.Phase == CollectiblePhase.AwaitingMessage)
+                if (slot.Active && (slot.Family as CollectiblePlmState)?.Phase == CollectiblePhase.AwaitingMessage)
                     return true;
             return false;
         }
@@ -58,15 +66,15 @@ internal sealed class CollectiblePlms
     /// the empty block and deletes itself within the same PLM_Handler call. Returns that
     /// draw's tilemap updates.
     /// </summary>
-    internal IReadOnlyList<PlmTilemapUpdate> CompleteCollectibleMessage(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
+    internal IReadOnlyList<PlmTilemapUpdate> CompleteCollectibleMessage(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
     {
         _drawing._tilemapUpdates.Clear();
         foreach (PlmSlot slot in _slotTable._slots)
         {
-            if (!slot.Active || slot.Item?.Phase != CollectiblePhase.AwaitingMessage)
+            if (!slot.Active || slot.Family is not CollectiblePlmState { Phase: CollectiblePhase.AwaitingMessage } item)
                 continue;
-            slot.Item.Phase = CollectiblePhase.ResumeAfterMessage;
-            FinishCollectiblePickup(bus, level, streamer, slot, view);
+            item.Phase = CollectiblePhase.ResumeAfterMessage;
+            FinishCollectiblePickup(level, streamer, slot, view);
         }
         CompleteSpeedBoosterPickupContinuation();
         return _drawing._tilemapUpdates;
@@ -106,7 +114,7 @@ internal sealed class CollectiblePlms
     /// <summary>Every currently allocated permanent-item PLM in native slot order.</summary>
     public IReadOnlyList<CollectiblePlmSnapshot> Collectibles => _slotTable._slots
         .Where(slot => slot.Active)
-        .SelectMany(slot => slot.Item is { } item
+        .SelectMany(slot => slot.Family is CollectiblePlmState { } item
             ? [new CollectiblePlmSnapshot(slot.HeaderPointer, slot.BlockIndex, slot.RoomArgument, item.Kind, item.GraphicsSlot)]
             : Array.Empty<CollectiblePlmSnapshot>())
         .ToArray();
@@ -120,20 +128,20 @@ internal sealed class CollectiblePlms
     {
         foreach (PlmSlot slot in _slotTable._slots)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Item is null)
+            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not CollectiblePlmState item)
                 continue;
             // The pickup message retains both the visible block and its physical owner.
             // On message return, movement can touch that block before PLM_Handler runs
             // the pending empty draw/delete. Native $EEAB matches the block index without
             // filtering the instruction phase; acknowledge this owner without collecting
             // again or disturbing its message-return continuation.
-            if (slot.Item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage or
+            if (item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage or
                 CollectiblePhase.EmptyAwaitingDelete)
                 return true;
-            if (slot.Item.Phase is not (
+            if (item.Phase is not (
                     CollectiblePhase.Visible or CollectiblePhase.ShotBlockVisible))
                 return false;
-            slot.Item.Triggered = true;
+            item.Triggered = true;
             return true;
         }
         return false;
@@ -145,22 +153,20 @@ internal sealed class CollectiblePlms
     /// collision producer generically and reduces it to the same $00FF trigger word.
     /// </summary>
     public bool TryNotifyCollectibleProjectileHit(
-        int blockIndex,
-        SamusProjectileTypeWord projectileType)
+        int blockIndex)
     {
         foreach (PlmSlot slot in _slotTable._slots)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Item is null)
+            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not CollectiblePlmState item)
                 continue;
-            if (slot.Item.Phase is not (
+            if (item.Phase is not (
                     CollectiblePhase.ChozoOrb or
                     CollectiblePhase.ShotBlock or
                     CollectiblePhase.CollectedShotBlock))
             {
                 return false;
             }
-            slot.Item.LastTriggerProjectileType = projectileType;
-            slot.Item.Triggered = true;
+            item.Triggered = true;
             return true;
         }
         return false;
@@ -200,7 +206,7 @@ internal sealed class CollectiblePlms
                 level, streamer, vram, kind, suppliedGraphic)
             : -1;
 
-        ushort setupWord = new RoomLevelWord(original.LevelWord).WithCollisionType(
+        ushort setupWord = original.PackedWord.WithCollisionType(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air).Raw;
         level.SetForegroundEntry(slot.BlockIndex, setupWord);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.CollectibleTrigger);
@@ -222,7 +228,7 @@ internal sealed class CollectiblePlms
             };
         // Both native item setup paths increment the saved load counter, even for collected items.
         system.LoadedItemCount = unchecked((ushort)(system.LoadedItemCount + 1));
-        slot.Item = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
+        slot.Family = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
     }
 
     /// <summary>
@@ -318,9 +324,9 @@ internal sealed class CollectiblePlms
     }
 
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
-    internal bool TryStepCollectible(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
+    internal bool TryStepCollectible(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
-        CollectiblePlmState? item = slot.Item;
+        CollectiblePlmState? item = slot.Family as CollectiblePlmState;
         if (item is null)
             return false;
 
@@ -347,7 +353,7 @@ internal sealed class CollectiblePlms
                 return true;
 
             case CollectiblePhase.ResumeAfterMessage:
-                FinishCollectiblePickup(bus, level, streamer, slot, view);
+                FinishCollectiblePickup(level, streamer, slot, view);
                 return true;
 
             case CollectiblePhase.EmptyAwaitingDelete:
@@ -357,7 +363,7 @@ internal sealed class CollectiblePlms
                 return true;
 
             case CollectiblePhase.CollectedEmpty:
-                DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+                DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
                 slot.Active = false;
                 slot.HeaderPointer = 0;
                 return true;
@@ -368,7 +374,7 @@ internal sealed class CollectiblePlms
                     AcquireCollectible(slot);
                     return true;
                 }
-                DrawCollectible(bus, level, streamer, slot, GetVisibleCollectibleDraw(item), view);
+                DrawCollectible(level, streamer, slot, GetVisibleCollectibleDraw(item), view);
                 item.AnimationIndex ^= 1;
                 item.Timer = 4;
                 return true;
@@ -379,7 +385,7 @@ internal sealed class CollectiblePlms
                     AcquireCollectible(slot);
                     return true;
                 }
-                DrawCollectible(bus, level, streamer, slot, GetVisibleCollectibleDraw(item), view);
+                DrawCollectible(level, streamer, slot, GetVisibleCollectibleDraw(item), view);
                 if (item.AnimationIndex == 1 && --item.VisibleFramePairsRemaining == 0)
                 {
                     item.Phase = CollectiblePhase.ShotBlockReconceal;
@@ -399,11 +405,11 @@ internal sealed class CollectiblePlms
                     item.Triggered = false;
                     item.Phase = CollectiblePhase.ChozoOrbBurst;
                     item.AnimationIndex = 0;
-                    DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+                    DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
                     item.Timer = 3;
                     return true;
                 }
-                DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.OrbFrame(item.AnimationIndex), view);
+                DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.OrbFrame(item.AnimationIndex), view);
                 item.Timer = item.AnimationIndex is 0 or 2 ? 20 : 10;
                 item.AnimationIndex = (item.AnimationIndex + 1) & 3;
                 return true;
@@ -412,13 +418,13 @@ internal sealed class CollectiblePlms
                 item.AnimationIndex++;
                 if (item.AnimationIndex == 1)
                 {
-                    DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.OrbBurst, view);
+                    DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.OrbBurst, view);
                     item.Timer = 3;
                     return true;
                 }
                 if (item.AnimationIndex == 2)
                 {
-                    DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+                    DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
                     item.Timer = 3;
                     return true;
                 }
@@ -434,7 +440,7 @@ internal sealed class CollectiblePlms
                 item.WasCollectedBeforeReveal = item.Phase == CollectiblePhase.CollectedShotBlock;
                 item.Phase = CollectiblePhase.ShotBlockReveal;
                 item.AnimationIndex = 0;
-                DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(0), view);
+                DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(0), view);
                 _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6));
                 item.Timer = 4;
                 return true;
@@ -443,7 +449,7 @@ internal sealed class CollectiblePlms
                 item.AnimationIndex++;
                 if (item.AnimationIndex < 3)
                 {
-                    DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex), view);
+                    DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex), view);
                     item.Timer = 4;
                     return true;
                 }
@@ -451,7 +457,7 @@ internal sealed class CollectiblePlms
                 {
                     item.Phase = CollectiblePhase.CollectedShotBlockEmpty;
                     item.AnimationIndex = 0;
-                    DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+                    DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
                     item.Timer = 8 * 22;
                     return true;
                 }
@@ -461,21 +467,21 @@ internal sealed class CollectiblePlms
                 goto case CollectiblePhase.ShotBlockVisible;
 
             case CollectiblePhase.ShotBlockReconceal:
-                DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex), view);
+                DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex), view);
                 item.AnimationIndex--;
                 if (item.AnimationIndex >= 0)
                 {
                     item.Timer = 4;
                     return true;
                 }
-                _drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord, view);
+                _drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord.Raw, view);
                 item.Phase = CollectiblePhase.ShotBlock;
                 return true;
 
             case CollectiblePhase.CollectedShotBlockEmpty:
                 item.Phase = CollectiblePhase.CollectedShotBlockRespawn;
                 item.AnimationIndex = 2;
-                DrawCollectible(bus, level, streamer, slot, unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)), view);
+                DrawCollectible(level, streamer, slot, unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)), view);
                 item.Timer = 4;
                 return true;
 
@@ -483,11 +489,11 @@ internal sealed class CollectiblePlms
                 item.AnimationIndex--;
                 if (item.AnimationIndex >= 0)
                 {
-                    DrawCollectible(bus, level, streamer, slot, unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)), view);
+                    DrawCollectible(level, streamer, slot, unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)), view);
                     item.Timer = 4;
                     return true;
                 }
-                _drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord, view);
+                _drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord.Raw, view);
                 item.Phase = CollectiblePhase.CollectedShotBlock;
                 return true;
 
@@ -503,13 +509,13 @@ internal sealed class CollectiblePlms
             item.Kind, item.AnimationIndex, item.GraphicsSlot);
 
     /// <summary>Executes a compiled item draw instruction against the level and background streamer.</summary>
-    private void DrawCollectible(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, ushort drawPointer, PlmView view) =>
-        _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, drawPointer, view);
+    private void DrawCollectible(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, ushort drawPointer, PlmView view) =>
+        _drawing.DrawPlmInstruction(level, streamer, slot.BlockIndex, drawPointer, view);
 
     /// <summary>Sets persistence and inventory before publishing the synchronous message and fanfare request.</summary>
     private void AcquireCollectible(PlmSlot slot)
     {
-        CollectiblePlmState item = slot.Item
+        CollectiblePlmState item = (slot.Family as CollectiblePlmState)
             ?? throw new InvalidOperationException("A non-item PLM attempted acquisition.");
         SamusState samus = _bindings.Samus?.Current
             ?? throw new InvalidOperationException(
@@ -540,9 +546,9 @@ internal sealed class CollectiblePlms
     }
 
     /// <summary>Draws the empty item after message return or begins the shot block's delayed respawn.</summary>
-    private void FinishCollectiblePickup(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
+    private void FinishCollectiblePickup(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
-        CollectiblePlmState item = slot.Item
+        CollectiblePlmState item = (slot.Family as CollectiblePlmState)
             ?? throw new InvalidOperationException("A non-item PLM resumed a pickup message.");
         if (item.Presentation == CollectiblePresentation.ShotBlock)
         {
@@ -552,14 +558,14 @@ internal sealed class CollectiblePlms
             item.WasCollectedBeforeReveal = true;
             item.Phase = CollectiblePhase.CollectedShotBlockEmpty;
             item.AnimationIndex = 0;
-            DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+            DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
             item.Timer = 8 * 22;
             return;
         }
 
         // $84:DFA9: InstList_PLM_EmptyItem draws for one frame; its delete runs on the
         // following PLM_Handler pass.
-        DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+        DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
         item.Phase = CollectiblePhase.EmptyAwaitingDelete;
         item.Timer = 1;
     }
@@ -572,25 +578,25 @@ internal sealed class CollectiblePlms
         switch (kind)
         {
             case InWorldCollectibleKind.EnergyTank:
-                samus.MaxHealth = unchecked((ushort)(samus.MaxHealth + 100));
+                samus.MaxHealth += 100;
                 samus.Health = samus.MaxHealth;
                 return;
             case InWorldCollectibleKind.ReserveTank:
-                samus.MaxReserveEnergy = unchecked((ushort)(samus.MaxReserveEnergy + 100));
-                if (samus.ReserveTankMode == 0)
-                    samus.ReserveTankMode = 1;
+                samus.MaxReserveEnergy += 100;
+                if (samus.ReserveTankMode == ReserveTankMode.None)
+                    samus.ReserveTankMode = ReserveTankMode.Auto;
                 return;
             case InWorldCollectibleKind.MissileTank:
-                samus.MaxMissiles = unchecked((ushort)(samus.MaxMissiles + 5));
-                samus.Missiles = unchecked((ushort)(samus.Missiles + 5));
+                samus.MaxMissiles += 5;
+                samus.Missiles += 5;
                 return;
             case InWorldCollectibleKind.SuperMissileTank:
-                samus.MaxSuperMissiles = unchecked((ushort)(samus.MaxSuperMissiles + 5));
-                samus.SuperMissiles = unchecked((ushort)(samus.SuperMissiles + 5));
+                samus.MaxSuperMissiles += 5;
+                samus.SuperMissiles += 5;
                 return;
             case InWorldCollectibleKind.PowerBombTank:
-                samus.MaxPowerBombs = unchecked((ushort)(samus.MaxPowerBombs + 5));
-                samus.PowerBombs = unchecked((ushort)(samus.PowerBombs + 5));
+                samus.MaxPowerBombs += 5;
+                samus.PowerBombs += 5;
                 return;
             case InWorldCollectibleKind.Bombs:
             case InWorldCollectibleKind.HiJumpBoots:
@@ -603,7 +609,7 @@ internal sealed class CollectiblePlms
             case InWorldCollectibleKind.SpaceJump:
             case InWorldCollectibleKind.ScrewAttack:
             case InWorldCollectibleKind.MorphBall:
-                ushort equipmentMask = GetEquipmentMask(kind);
+                SamusEquipmentFlags equipmentMask = GetEquipmentMask(kind);
                 samus.EquippedItems |= equipmentMask;
                 samus.CollectedItems |= equipmentMask;
                 // Every Varia/Gravity presentation executes `$84:E29D` immediately before
@@ -617,16 +623,16 @@ internal sealed class CollectiblePlms
             case InWorldCollectibleKind.WaveBeam:
             case InWorldCollectibleKind.SpazerBeam:
             case InWorldCollectibleKind.PlasmaBeam:
-                ushort beamMask = GetBeamMask(kind);
+                SamusBeamFlags beamMask = GetBeamMask(kind);
                 samus.CollectedBeams |= beamMask;
                 samus.EquippedBeams |= beamMask;
 
                 // Spazer and Plasma are the only mutually exclusive beam pair: $84:88B0 shifts the
                 // collected beam onto its partner, so collecting either one unequips the other.
-                if ((beamMask & (ushort)SamusBeamFlags.Spazer) != 0)
-                    samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Plasma);
-                if ((beamMask & (ushort)SamusBeamFlags.Plasma) != 0)
-                    samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Spazer);
+                if ((beamMask & SamusBeamFlags.Spazer) != 0)
+                    samus.EquippedBeams &= ~SamusBeamFlags.Plasma;
+                if ((beamMask & SamusBeamFlags.Plasma) != 0)
+                    samus.EquippedBeams &= ~SamusBeamFlags.Spazer;
                 return;
             default:
                 throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined collectible kind.");
@@ -634,30 +640,30 @@ internal sealed class CollectiblePlms
     }
 
     /// <summary>Maps an equipment pickup to the native bit written in equipped and collected items.</summary>
-    private static ushort GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
+    private static SamusEquipmentFlags GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
     {
-        InWorldCollectibleKind.Bombs => (ushort)SamusEquipmentFlags.Bombs,
-        InWorldCollectibleKind.HiJumpBoots => (ushort)SamusEquipmentFlags.HiJumpBoots,
-        InWorldCollectibleKind.SpeedBooster => (ushort)SamusEquipmentFlags.SpeedBooster,
-        InWorldCollectibleKind.SpringBall => (ushort)SamusEquipmentFlags.SpringBall,
-        InWorldCollectibleKind.VariaSuit => (ushort)SamusEquipmentFlags.VariaSuit,
-        InWorldCollectibleKind.GravitySuit => (ushort)SamusEquipmentFlags.GravitySuit,
-        InWorldCollectibleKind.XrayScope => (ushort)SamusEquipmentFlags.XrayScope,
-        InWorldCollectibleKind.GrappleBeam => (ushort)SamusEquipmentFlags.GrappleBeam,
-        InWorldCollectibleKind.SpaceJump => (ushort)SamusEquipmentFlags.SpaceJump,
-        InWorldCollectibleKind.ScrewAttack => (ushort)SamusEquipmentFlags.ScrewAttack,
-        InWorldCollectibleKind.MorphBall => (ushort)SamusEquipmentFlags.MorphBall,
+        InWorldCollectibleKind.Bombs => SamusEquipmentFlags.Bombs,
+        InWorldCollectibleKind.HiJumpBoots => SamusEquipmentFlags.HiJumpBoots,
+        InWorldCollectibleKind.SpeedBooster => SamusEquipmentFlags.SpeedBooster,
+        InWorldCollectibleKind.SpringBall => SamusEquipmentFlags.SpringBall,
+        InWorldCollectibleKind.VariaSuit => SamusEquipmentFlags.VariaSuit,
+        InWorldCollectibleKind.GravitySuit => SamusEquipmentFlags.GravitySuit,
+        InWorldCollectibleKind.XrayScope => SamusEquipmentFlags.XrayScope,
+        InWorldCollectibleKind.GrappleBeam => SamusEquipmentFlags.GrappleBeam,
+        InWorldCollectibleKind.SpaceJump => SamusEquipmentFlags.SpaceJump,
+        InWorldCollectibleKind.ScrewAttack => SamusEquipmentFlags.ScrewAttack,
+        InWorldCollectibleKind.MorphBall => SamusEquipmentFlags.MorphBall,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
     };
 
     /// <summary>Maps a beam pickup to its native bit for collected and equipped beams.</summary>
-    private static ushort GetBeamMask(InWorldCollectibleKind kind) => kind switch
+    private static SamusBeamFlags GetBeamMask(InWorldCollectibleKind kind) => kind switch
     {
-        InWorldCollectibleKind.ChargeBeam => (ushort)SamusBeamFlags.Charge,
-        InWorldCollectibleKind.IceBeam => (ushort)SamusBeamFlags.Ice,
-        InWorldCollectibleKind.WaveBeam => (ushort)SamusBeamFlags.Wave,
-        InWorldCollectibleKind.SpazerBeam => (ushort)SamusBeamFlags.Spazer,
-        InWorldCollectibleKind.PlasmaBeam => (ushort)SamusBeamFlags.Plasma,
+        InWorldCollectibleKind.ChargeBeam => SamusBeamFlags.Charge,
+        InWorldCollectibleKind.IceBeam => SamusBeamFlags.Ice,
+        InWorldCollectibleKind.WaveBeam => SamusBeamFlags.Wave,
+        InWorldCollectibleKind.SpazerBeam => SamusBeamFlags.Spazer,
+        InWorldCollectibleKind.PlasmaBeam => SamusBeamFlags.Plasma,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 
@@ -693,8 +699,11 @@ internal sealed class CollectiblePlms
         InWorldCollectibleKind kind,
         CollectiblePresentation presentation,
         int graphicsSlot,
-        CollectiblePhase phase)
+        CollectiblePhase phase) : PlmFamilyState
     {
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.Collectible;
+
         /// <summary>Inventory or capacity item granted when this PLM is acquired.</summary>
         public InWorldCollectibleKind Kind { get; } = kind;
         /// <summary>Exposed, Chozo orb, or shot-block reveal behavior.</summary>
@@ -713,7 +722,5 @@ internal sealed class CollectiblePlms
         public bool Triggered { get; set; }
         /// <summary>Distinguishes a previously acquired concealed item during its reveal list.</summary>
         public bool WasCollectedBeforeReveal { get; set; }
-        /// <summary>Projectile family that last activated an orb or concealed block, retained for diagnostics.</summary>
-        public SamusProjectileTypeWord LastTriggerProjectileType { get; set; }
     }
 }

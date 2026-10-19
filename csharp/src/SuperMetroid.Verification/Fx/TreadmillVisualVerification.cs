@@ -12,6 +12,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks Wrecked Ship treadmill DMA frames through rendered floor-character pixels.</summary>
 internal static class TreadmillVisualVerification
@@ -26,15 +27,15 @@ internal static class TreadmillVisualVerification
         {
             if (placement.GetProperty("Area").GetString() != "WreckedShip") continue;
             ushort pointer = Convert.ToUInt16((placement.GetProperty("RoomHeader").GetString() ?? throw new InvalidOperationException("Verification requires placement.GetProperty(\"RoomHeader\").GetString()."))[2..], 16);
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
-            runtime.LoadCartridgeRoomForDebug(pointer);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(pointer));
             var room = runtime.Room.LoadedRoom;
-            ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, 0);
-            byte bits = record == 0 ? (byte)0 : RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
+            ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, null);
+            byte bits = record == 0 ? (byte)0 : RoomFxDefinitions.RecordAt(record).AnimatedTileBitset;
             Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animation bits={bits:X2} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
             if ((bits & 12) == 0) continue;
             var images = new HashSet<string>();

@@ -90,21 +90,8 @@ public abstract class LayoutBoundaryAnalyzer(
     }
 
     /// <summary>Whether <paramref name="symbol"/> lies inside a boundary or a raw API type's own implementation.</summary>
-    private bool InBoundary(ISymbol? symbol)
-    {
-        for (ISymbol? current = symbol; current is not null; current = current.ContainingSymbol)
-        {
-            if (current is INamespaceSymbol)
-                return false;
-            if (HasAttribute(current, boundaryAttributeName) ||
-                current is IMethodSymbol { AssociatedSymbol: { } property } && HasAttribute(property, boundaryAttributeName) ||
-                current is INamedTypeSymbol && HasAttribute(current, accessAttributeName))
-                return true;
-        }
-        return false;
-    }
+    private bool InBoundary(ISymbol? symbol) => LayoutBoundaries.InBoundary(symbol, boundaryAttributeName, accessAttributeName);
 
     /// <summary>Matches an analyzer marker by its short attribute type name.</summary>
-    private static bool HasAttribute(ISymbol symbol, string name) =>
-        symbol.GetAttributes().Any(attribute => attribute.AttributeClass?.Name == name);
+    private static bool HasAttribute(ISymbol symbol, string name) => LayoutBoundaries.HasAttribute(symbol, name);
 }

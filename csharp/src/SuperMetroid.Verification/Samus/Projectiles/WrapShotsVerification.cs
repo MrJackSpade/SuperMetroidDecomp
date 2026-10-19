@@ -47,7 +47,7 @@ internal static class WrapShotsVerification
             {
                 PoseId = left != 0 ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left != 0 ? 32 : 992), 128)),
-                EquippedBeams = (ushort)(beam == 0 ? 0 : beam == 1 ? 1 : 5),
+                EquippedBeams = (SamusBeamFlags)((ushort)(beam == 0 ? 0 : beam == 1 ? 1 : 5)),
             };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
@@ -56,17 +56,17 @@ internal static class WrapShotsVerification
             for (int frame = 0; frame < 40; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                shared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left != 0 ? 0 : 768), 0), shared);
+                shared.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+                projectiles.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left != 0 ? 0 : 768), 0), shared);
                 var shot = projectiles.Slots[0];
                 string actual = $"{left},{beam},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},";
                 for (int row = 0; row < 128; row++)
                 {
                     var block = level.GetCollisionBlock(new(checked((ushort)(left != 0 ? 63 : 0)), checked((ushort)row)));
-                    if (block.LevelWord != 0x4000) actual += $"{block.Index:X4}:{block.LevelWord:X4};";
+                    if (block.PackedWord.Raw != 0x4000) actual += $"{block.Index:X4}:{block.PackedWord.Raw:X4};";
                 }
                 int target = left != 0 ? 0x123f : 0x0280;
-                if (firstRemoteHit < 0 && level.GetCollisionBlock(new(checked((ushort)(target % 64)), checked((ushort)(target / 64)))).LevelWord == 0x0052)
+                if (firstRemoteHit < 0 && level.GetCollisionBlock(new(checked((ushort)(target % 64)), checked((ushort)(target / 64)))).PackedWord.Raw == 0x0052)
                 {
                     firstRemoteHit = frame;
                     AssertTrue(shot.IsActive, "Remote reaction occurs while the real projectile is retained");

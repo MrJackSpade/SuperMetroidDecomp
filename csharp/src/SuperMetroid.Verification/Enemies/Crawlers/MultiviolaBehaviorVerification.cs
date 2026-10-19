@@ -13,20 +13,45 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks that Multiviola starts and runs its typed animation (#641).</summary>
 internal static class MultiviolaBehaviorVerification
 {
-    /// <summary>The real initializer starts the Flying program, which the runtime then plays through once and back.</summary>
-    internal static void VerifyMultiviolaBehavior(SuperMetroidAddressSpace rom)
+    /// <summary>Confirms a kill empties the Multiviola's velocity, as the cleared common record does.</summary>
+    internal static void VerifyMultiviolaOwnedState()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Multiviola;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = MultiviolaFrameToolingDefinitions.Bank };
-        enemies.MultiviolaBehavior.InitializeMultiviola(slot);
-        AssertEqual(AnimationProgramCursor<MultiviolaProgram>.Start(MultiviolaProgram.Flying), (enemies.MultiviolaBehavior._multiviolaStates[0] ?? throw new InvalidOperationException("Multiviola has no state.")).Program,
+        slot.Bind(EnemyDefinitionId.Multiviola, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MultiviolaFrameToolingDefinitions.Bank });
+        MultiviolaBehavior.InitializeMultiviola(slot);
+        MultiviolaEnemyState state = slot.EntityState<MultiviolaEntity, MultiviolaEnemyState>()
+            ?? throw new InvalidOperationException("Multiviola has no state.");
+        state.Velocity = FixedVector<RoomPixels>.FromWords(1, 0x8000, 0xffff, 0x4000);
+        slot.Clear();
+        AssertEqual(FixedVector<RoomPixels>.Zero, state.Velocity, "a kill empties the velocity");
+        Console.WriteLine("Multiviola owned state: the cleared record matches.");
+    }
+
+    /// <summary>Runs the focused Multiviola owned-state check.</summary>
+    [VerificationCommand("--multiviola-owned-state")]
+    internal static int MultiviolaOwnedStateCommand()
+    {
+        VerifyMultiviolaOwnedState();
+        return 0;
+    }
+
+    /// <summary>The real initializer starts the Flying program, which the runtime then plays through once and back.</summary>
+    internal static void VerifyMultiviolaBehavior()
+    {
+        var enemies = new RoomEnemySystem();
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Multiviola, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MultiviolaFrameToolingDefinitions.Bank });
+        MultiviolaBehavior.InitializeMultiviola(slot);
+        AssertEqual(AnimationProgramCursor<MultiviolaProgram>.Start(MultiviolaProgram.Flying), (enemies.SlotTable.Slots[0].EntityState<MultiviolaEntity, MultiviolaEnemyState>() ?? throw new InvalidOperationException("Multiviola has no state.")).Program,
             "Multiviola initializer animation");
         slot.InstructionTimer = NativeCountdown.Start(1);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MultiviolaAnimations.Programs, MultiviolaProgram.Flying, MultiviolaFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(MultiviolaAnimations.Programs, MultiviolaProgram.Flying)),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MultiviolaAnimations.Programs, MultiviolaProgram.Flying)),
             "Multiviola runs its loop and returns through its goto");
         Console.WriteLine("  Multiviola behavior: the initializer starts and runs its loop.");
     }
@@ -36,7 +61,7 @@ internal static class MultiviolaBehaviorVerification
     internal static int MultiviolaBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyMultiviolaBehavior), () => VerifyMultiviolaBehavior(rom));
+        Suite(nameof(VerifyMultiviolaBehavior), () => VerifyMultiviolaBehavior());
         Suite(nameof(MultiviolaAnimationsVerification.VerifyMultiviolaAnimations), () => MultiviolaAnimationsVerification.VerifyMultiviolaAnimations(rom));
         return 0;
     }

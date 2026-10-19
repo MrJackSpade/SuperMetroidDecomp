@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Hoppers.Artwork;
 
 /// <summary>
@@ -7,33 +9,32 @@ namespace SuperMetroid.Core.Enemies.Hoppers.Artwork;
 internal static class HopperFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(HopperFrame frame) => frame.Pose switch
+    /// <summary>The installed frame each <see cref="HopperFrame"/> shows.</summary>
+    internal static EnemyFrameTable<HopperFrame> ShownFrames { get; } = new()
     {
-        0 => 0xaee3,
-        1 => 0xaefe,
-        2 => 0xaf19,
-        3 => 0xaf34,
-        4 => 0xaf4f,
-        5 => 0xaf6a,
-        6 => 0xafe3,
-        7 => 0xaffe,
-        8 => 0xb019,
-        9 => 0xb034,
-        10 => 0xb04f,
-        11 => 0xb06a,
-        12 => 0xb111,
-        13 => 0xb136,
-        14 => 0xb15b,
-        15 => 0xb194,
-        16 => 0xb1b9,
-        17 => 0xb1de,
-        18 => 0xb273,
-        19 => 0xb2a2,
-        20 => 0xb2d1,
-        21 => 0xb30a,
-        22 => 0xb339,
-        23 => 0xb368,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Hopper pose."),
+        { new(Pose: 0), EnemyFrameId.SidehopperLandFloor0 },
+        { new(Pose: 1), EnemyFrameId.SidehopperLandFloor1 },
+        { new(Pose: 10), EnemyFrameId.DessgeegaLandCeiling1 },
+        { new(Pose: 11), EnemyFrameId.DessgeegaJumpCeiling },
+        { new(Pose: 12), EnemyFrameId.LargeSidehopperLandFloor0 },
+        { new(Pose: 13), EnemyFrameId.LargeSidehopperLandFloor1 },
+        { new(Pose: 14), EnemyFrameId.LargeSidehopperJumpFloor },
+        { new(Pose: 15), EnemyFrameId.LargeSidehopperLandCeiling0 },
+        { new(Pose: 16), EnemyFrameId.LargeSidehopperLandCeiling1 },
+        { new(Pose: 17), EnemyFrameId.LargeSidehopperJumpCeiling },
+        { new(Pose: 18), EnemyFrameId.LargeDessgeegaLandFloor0 },
+        { new(Pose: 19), EnemyFrameId.LargeDessgeegaLandFloor1 },
+        { new(Pose: 2), EnemyFrameId.SidehopperJumpFloor },
+        { new(Pose: 20), EnemyFrameId.LargeDessgeegaJumpFloor },
+        { new(Pose: 21), EnemyFrameId.LargeDessgeegaLandCeiling0 },
+        { new(Pose: 22), EnemyFrameId.LargeDessgeegaLandCeiling1 },
+        { new(Pose: 23), EnemyFrameId.LargeDessgeegaJumpCeiling },
+        { new(Pose: 3), EnemyFrameId.SidehopperLandCeiling0 },
+        { new(Pose: 4), EnemyFrameId.SidehopperLandCeiling1 },
+        { new(Pose: 5), EnemyFrameId.SidehopperJumpCeiling },
+        { new(Pose: 6), EnemyFrameId.DessgeegaLandFloor0 },
+        { new(Pose: 7), EnemyFrameId.DessgeegaLandFloor1 },
+        { new(Pose: 8), EnemyFrameId.DessgeegaJumpFloor },
+        { new(Pose: 9), EnemyFrameId.DessgeegaLandCeiling0 },
     };
 }

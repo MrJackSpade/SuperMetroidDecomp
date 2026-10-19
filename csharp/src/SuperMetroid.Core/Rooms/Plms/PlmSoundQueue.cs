@@ -22,6 +22,6 @@ internal sealed class PlmSoundQueue
     /// Captures the explosion guard when the PLM queues a sound, as native QueueSfx does;
     /// a later change to that guard cannot alter the pending gate sound.
     /// </summary>
-    internal PlmSoundRequest CreateSoundRequest(SoundEffectId soundEffect, byte MaximumQueued) =>
+    internal PlmSoundRequest CreateSoundRequest(SoundEffectId soundEffect, int MaximumQueued) =>
         new(soundEffect, MaximumQueued, SoundSuppressed: _audioPowerBomb?.IsActive == true);
 }

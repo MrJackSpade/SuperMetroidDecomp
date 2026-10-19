@@ -21,13 +21,11 @@ public static class SamusTerrainHazardCollision
     /// publishes the room-dependent spike-block BTS-zero gate used later during movement.
     /// </summary>
     public static void PrepareFrame(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         AreaId area,
         bool areaBossDefeated)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
 
@@ -37,12 +35,11 @@ public static class SamusTerrainHazardCollision
             area != AreaId.WreckedShip || areaBossDefeated;
 
         SamusInsideBlockSamplePoints.Visit(samus.Position.Y.Whole, samus.Kinematics.Radius.Y, (y, _) =>
-            VisitInsidePoint(bus, level, samus, new(samus.Position.X.Whole, y)));
+            VisitInsidePoint(level, samus, new(samus.Position.X.Whole, y)));
     }
 
     /// <summary>Applies `$94:8E83/$8ECF/$8F0A` after a solid spike block is contacted.</summary>
     internal static void ApplySolidSpikeCollision(
-        ISnesAddressSpace bus,
         SamusState samus,
         RoomCollisionBlock block)
     {
@@ -50,7 +47,7 @@ public static class SamusTerrainHazardCollision
             return;
 
         // Every other spike-block BTS value selects a harmless reaction.
-        var behavior = (SpikeBlockBehavior)block.Behavior;
+        var behavior = (SpikeBlockBehavior)block.Bts.Value;
         if (!Enum.IsDefined(behavior))
             return;
         ushort damage = behavior switch
@@ -65,12 +62,11 @@ public static class SamusTerrainHazardCollision
         if (damage == 0)
             return;
 
-        PublishDamage(bus, samus, damage);
+        PublishDamage(samus, damage);
     }
 
     /// <summary>Tests one alpha-phase body sample for damaging spike-air, restoring normal-air speed selection before the invincibility and contact-damage gates.</summary>
     private static void VisitInsidePoint(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         Position16<RoomPixels> point)
@@ -79,7 +75,7 @@ public static class SamusTerrainHazardCollision
         if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
         if (block.CollisionType != RoomCollisionType.SpikeAir ||
-            block.Behavior != SamusTerrainHazardRomData.DamagingSpikeAirBehavior)
+            block.Bts.Value != SamusTerrainHazardRomData.DamagingSpikeAirBehavior)
         {
             return;
         }
@@ -91,12 +87,11 @@ public static class SamusTerrainHazardCollision
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None || !samus.InvincibilityTimer.IsZero)
             return;
 
-        PublishDamage(bus, samus, SamusTerrainHazardRomData.LightSpikeDamage);
+        PublishDamage(samus, SamusTerrainHazardRomData.LightSpikeDamage);
     }
 
     /// <summary>Applies spike damage and the native invincibility, knockback duration, and facing-dependent direction side effects.</summary>
     private static void PublishDamage(
-        ISnesAddressSpace bus,
         SamusState samus,
         ushort wholeDamage)
     {
@@ -107,8 +102,8 @@ public static class SamusTerrainHazardCollision
         // The native expression `((pose_x_dir ^ $0C) & $08) != 0` maps right-facing
         // records to leftward knockback and both left/front-special records to the other
         // direction. A switch over the proven pose discriminator states that intent.
-        samus.KnockbackXDirection = samus.PoseMetadata.ReadFacingDirection(bus) == SamusFacingDirection.Right
-            ? (ushort)0
-            : (ushort)1;
+        samus.KnockbackXDirection = samus.PoseMetadata.ReadFacingDirection() == SamusFacingDirection.Right
+            ? KnockbackHorizontalDirection.Left
+            : KnockbackHorizontalDirection.Right;
     }
 }

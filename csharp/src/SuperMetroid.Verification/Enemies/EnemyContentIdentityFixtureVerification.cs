@@ -36,6 +36,11 @@ namespace SuperMetroid.Verification.Enemies;
 /// <summary>Creates controlled installed-enemy artwork variants for content identity checks.</summary>
 internal static class EnemyContentIdentityFixtureVerification
 {
+    /// <summary>JSON options: Camel-case property names, indented output.</summary>
+    private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Small authored presentation data loaded through production PNG/JSON compilers.</summary>
     internal sealed class EnemyIdentityFixture(string? edit = null, bool reverse = false)
     {
@@ -49,7 +54,7 @@ internal static class EnemyContentIdentityFixtureVerification
 
         /// <summary>Serializes fixture documents through the same camel-case JSON shape as installed artwork.</summary>
         public MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = edit == "json-indent" }));
+            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
 
         /// <summary>Writes indexed tile pixels with an optional first-pixel edit or cosmetic palette change.</summary>
         private MemoryStream Png(string name, int bytes, int seed = 0)
@@ -338,7 +343,7 @@ internal static class EnemyContentIdentityFixtureVerification
         public EnemyProjectileSpritemapDocument ProjectileDocument()
         {
             var frames = EnemyProjectileSpritemapDefinitions.Frames.ToArray();
-            var programs = EnemyProjectilePresentationFrameDefinitions.All.ToArray();
+            var programs = EnemyProjectilePresentationFrameSets.All.ToArray();
             return new EnemyProjectileSpritemapDocument
             {
                 Version = (int)EnemyProjectileSpritemapVersion.Current,

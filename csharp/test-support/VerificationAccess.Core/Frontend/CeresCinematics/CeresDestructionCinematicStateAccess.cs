@@ -8,8 +8,8 @@ internal static class CeresDestructionCinematicStateAccess
     /// <summary>Reads private cinematic geometry and actor state for focused verification.</summary>
     extension(CeresDestructionCinematicState self)
     {
-        /// <summary>Current Mode-7 zoom scalar retained by the cinematic.</summary>
-        internal ushort Zoom => self.zoom;
+        /// <summary>Current Mode-7 scene scale retained by the cinematic, in 1/256 units.</summary>
+        internal int Zoom => self.zoom;
 
         /// <summary>Current fixed-point origin for the destruction background.</summary>
         internal FixedPosition<Mode7Pixels> Background => self.background;

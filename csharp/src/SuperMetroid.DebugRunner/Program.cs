@@ -16,7 +16,7 @@ internal static class Program
     private static int Main(string[] args)
     {
         if (OperatingSystem.IsWindows())
-            NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
+            _ = NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
 
         try
         {

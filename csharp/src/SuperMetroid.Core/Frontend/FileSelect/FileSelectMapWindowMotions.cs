@@ -30,7 +30,7 @@ internal static class FileSelectMapWindowMotions
             int magnitude = (256 * distance / farthest) << 10;
             return unchecked((uint)(negative ? -magnitude : magnitude));
         }
-        return new((ushort)(farthest / 4), Velocity(x, true), Velocity(256 - x, false),
+        return new(farthest / 4, Velocity(x, true), Velocity(256 - x, false),
             Velocity(y, true), Velocity(256 - y, false));
     }
 

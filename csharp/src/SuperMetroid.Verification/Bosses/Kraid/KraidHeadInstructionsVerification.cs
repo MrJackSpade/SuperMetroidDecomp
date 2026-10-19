@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidContourCaseMappingsVeri
 using static SuperMetroid.Verification.Bosses.Kraid.KraidHeadCommandMappingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -14,99 +15,69 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Retail-data and typed-WRAM checks for Kraid head instruction programs.</summary>
 internal static class KraidHeadInstructionsVerification
 {
-    /// <summary>Checks command mapping, entry timers, production frame interpretation, and mutable growth resume selection.</summary>
+    /// <summary>Checks the head programs against the cartridge, production interpretation, and the timer and growth consumers.</summary>
     internal static void VerifyKraidHeadInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => unchecked((ushort)(
-            SnesLittleEndian.Word(KraidHeadInstructionDefinitionsRomByte(rom, address), KraidHeadInstructionDefinitionsRomByte(rom, address + 1))));
-
         Suite(nameof(VerifyKraidHeadCommandMapping), () => VerifyKraidHeadCommandMapping(rom));
         Suite(nameof(VerifyKraidGrowthResumeCases), () => VerifyKraidGrowthResumeCases(rom));
-
-        AssertEqual(Word(0xa796d2), KraidHeadInstructionDefinitions.RoarEntryTimer,
-            "Native roar entry timer");
-        AssertEqual(Word(0xa7974a), KraidHeadInstructionDefinitions.EyeGlowEntryTimer,
-            "Native glow entry timer");
-        AssertEqual(Word(0xa79764), KraidHeadInstructionDefinitions.DeathEntryTimer,
-            "Native death entry timer");
-
         Suite(nameof(VerifyProductionInterpreter), () => VerifyProductionInterpreter(rom));
         Suite(nameof(VerifyTimerAndGrowthConsumers), () => VerifyTimerAndGrowthConsumers(rom));
 
-        AssertThrows<InvalidDataException>(
-            () => KraidHeadInstructionDefinitions.Resolve(0x9788),
-            "Kraid head catalog rejects following mouth geometry");
-        AssertThrows<InvalidDataException>(
-            () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, 0x8000),
-            "Kraid head tilemap resolver rejects unrelated upper-ROM code");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, 0x3ffe),
-            "Kraid head low-half alias rejects unmapped expansion space");
+        var unstarted = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        unstarted.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        Func<RoomEnemySlot, KraidEnemyState, ushort> run = unstarted.KraidBehavior.ExecuteKraidHeadInstruction;
+        AssertThrows<InvalidDataException>(() => run(unstarted.SlotTable.Slots[0], new KraidEnemyState()),
+            "an unstarted Kraid head program fails loudly, as an unset native cursor did");
 
         Console.WriteLine(
-            "Kraid head programs: 28 commands, 91 stream words, both sound callbacks, all entry timers, mutable low-half growth selection, and production interpretation pass with the private streams forbidden.");
+            "Kraid head programs: 28 native records, both cries, all entry cursors and delays, every growth resume, and production interpretation pass with the private streams forbidden.");
     }
 
-    /// <summary>Reads one retail byte for the independent entry-timer oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid head instruction definitions")]
-    private static byte KraidHeadInstructionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
-    /// <summary>Executes each compiled head command and checks timed frames, hitboxes, tilemap uploads, and sound effects.</summary>
+    /// <summary>Executes the head program from every native cursor and checks poses, durations, image uploads, cries and the resting cursor.</summary>
     private static void VerifyProductionInterpreter(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        foreach (KraidHeadInstructionDefinition definition in
-            KraidHeadInstructionDefinitions.All)
+        var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
+        foreach (KraidHeadNativeRecord record in native.Records)
         {
             var guard = new KraidHeadProgramReadGuard(rom);
             var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            enemies.BindFixtureBus(guard);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._vram = new SnesVram();
             Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.ExecuteKraidHeadInstruction;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
-            var state = new KraidEnemyState();
-            body.VariableB = definition.Pointer;
+            var state = new KraidEnemyState { HeadProgram = record.Cursor };
 
             ushort result = execute(body, state);
-            if (definition.Kind == KraidHeadInstructionKind.Terminate)
+            if (record.IsTerminator)
             {
-                AssertEqual(ushort.MaxValue, result,
-                    $"Kraid terminator ${definition.Pointer:X4} result");
-                AssertEqual(definition.Pointer, body.VariableB,
-                    $"Kraid terminator ${definition.Pointer:X4} keeps cursor");
+                AssertEqual(ushort.MaxValue, result, $"Kraid terminator ${record.Pointer:X4} result");
+                AssertEqual(record.Cursor, state.HeadProgram, $"Kraid terminator ${record.Pointer:X4} keeps cursor");
             }
             else
             {
-                KraidHeadInstructionDefinition displayed = definition.Kind ==
-                    KraidHeadInstructionKind.Frame
-                    ? definition
-                    : KraidHeadInstructionDefinitions.Resolve(
-                        unchecked((ushort)(definition.Pointer + 2)));
-                AssertEqual((ushort)1, result,
-                    $"Kraid command ${definition.Pointer:X4} reaches timed frame");
-                AssertEqual(displayed.Duration, body.VariableC,
-                    $"Kraid command ${definition.Pointer:X4} installs duration");
-                AssertEqual(displayed.Tilemap, state.CurrentHeadTilemap,
-                    $"Kraid command ${definition.Pointer:X4} installs tilemap");
-                AssertEqual(displayed.VulnerableHitbox, state.VulnerableMouthHitbox,
-                    $"Kraid command ${definition.Pointer:X4} installs vulnerable hitbox");
-                AssertEqual(displayed.InvulnerableHitbox, state.InvulnerableMouthHitbox,
-                    $"Kraid command ${definition.Pointer:X4} installs invulnerable hitbox");
-                AssertEqual(unchecked((ushort)(displayed.Pointer + 8)), body.VariableB,
-                    $"Kraid command ${definition.Pointer:X4} advances cursor");
-                AssertEqual(1, state.HeadTilemapUploadCount,
-                    $"Kraid command ${definition.Pointer:X4} uploads one head tilemap");
+                // A cry runs on into the pose authored after it.
+                KraidHeadNativeRecord displayed = record.IsPose
+                    ? record
+                    : native.RecordAt(native.CursorAt(unchecked((ushort)(record.Pointer + 2))));
+                AssertEqual((ushort)1, result, $"Kraid command ${record.Pointer:X4} reaches timed frame");
+                AssertEqual(displayed.Opcode, state.Parts[0].HeadTimer, $"Kraid command ${record.Pointer:X4} installs duration");
+                KraidHeadFrame shown = state.DisplayedHeadFrame
+                    ?? throw new InvalidOperationException("Verification requires a displayed Kraid head pose.");
+                AssertEqual(displayed.Tilemap, KraidHeadFrameDefinitions.PresentationKey(shown),
+                    $"Kraid command ${record.Pointer:X4} displays its pose's image");
+                AssertEqual(displayed.OuterShape, (ushort)shown.VulnerableShape, $"Kraid command ${record.Pointer:X4} outer shape");
+                AssertEqual(native.CursorAt(unchecked((ushort)(displayed.Pointer + 8))), state.HeadProgram,
+                    $"Kraid command ${record.Pointer:X4} advances cursor");
+                AssertEqual(1, state.HeadTilemapUploadCount, $"Kraid command ${record.Pointer:X4} uploads one head tilemap");
             }
 
-            if (definition.Kind is KraidHeadInstructionKind.RoarSound or
-                KraidHeadInstructionKind.DyingSound)
+            if (!record.IsPose && !record.IsTerminator)
             {
-                AssertEqual(unchecked((byte)definition.SoundId),
+                AssertEqual((byte)record.Sound,
                     (enemies.KraidBehavior.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect.Value,
-                    $"Kraid sound command ${definition.Pointer:X4} queues exact sound");
+                    $"Kraid sound command ${record.Pointer:X4} queues exact sound");
             }
-            AssertEqual(0, guard.ForbiddenReadAttempts,
-                $"Kraid command ${definition.Pointer:X4} avoids compiled stream");
+            AssertEqual(0, guard.ForbiddenReadAttempts, $"Kraid command ${record.Pointer:X4} avoids compiled stream");
         }
     }
 
@@ -117,11 +88,9 @@ internal static class KraidHeadInstructionsVerification
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Kraid = state;
         var guard = new KraidHeadProgramReadGuard(rom);
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = new SnesCgram();
         enemies.Presentation._vram = new SnesVram();
-        var growth = new Func<RoomEnemySlot, KraidEnemyState, bool>(enemies.KraidBehavior.TryBeginKraidGrowth);
         var glow = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.InitializeKraidEyeGlow);
         var death = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.InitializeKraidDeath);
         var combat = new Action<RoomEnemySlot, KraidEnemyState, VramWriteQueue?, ushort>(enemies.KraidBehavior.RunKraidCombatFunction);
@@ -129,76 +98,53 @@ internal static class KraidHeadInstructionsVerification
         state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
+            state.Parts[0].Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = NativeCountdown.FromRaw((ushort)raw);
-            body.VariableC = 999;
+            state.Parts[0].HeadTimer = 999;
             combat(body, state, null, 0);
             AssertEqual(raw == 1
-                    ? KraidHeadInstructionDefinitions.RoarEntryTimer
+                    ? (ushort)KraidHeadAnimations.RoarEntryDuration
                     : (ushort)999,
-                body.VariableC, "Roar timer loads only on thinker expiry");
+                state.Parts[0].HeadTimer, "Roar timer loads only on thinker expiry");
 
-            body.VariableA = (ushort)KraidAiFunction.SecondPhaseThinking;
+            state.Parts[0].Function = KraidAiFunction.SecondPhaseThinking;
             state.ThinkingTimer = NativeCountdown.FromRaw((ushort)raw);
-            body.VariableC = 999;
+            state.Parts[0].HeadTimer = 999;
             combat(body, state, null, 0);
             AssertEqual(raw == 1
-                    ? KraidHeadInstructionDefinitions.RoarEntryTimer
+                    ? (ushort)KraidHeadAnimations.RoarEntryDuration
                     : (ushort)999,
-                body.VariableC, "Second-phase roar timer loads only on thinker expiry");
-
-            body.Health = 1;
-            body.VariableB = 0x1000;
-            guard.MutableTilemap = (ushort)raw;
-            AssertTrue(growth(body, state), "Growth threshold admits timer setup");
-            KraidHeadResumeDefinition expected =
-                NativeKraidGrowthResume(rom, (ushort)raw);
-            AssertEqual(expected.Timer, body.VariableC,
-                "Growth timer follows selected native resume row");
-            AssertEqual(expected.Pointer, body.VariableB,
-                "Growth resume cursor remains paired with timer");
+                state.Parts[0].HeadTimer, "Second-phase roar timer loads only on thinker expiry");
         }
 
         glow(body, state);
         AssertEqual(
-            unchecked((ushort)(KraidHeadInstructionDefinitions.EyeGlowEntryTimer - 1)),
-            body.VariableC, "Eye glow consumes one timer tick on initialization");
+            unchecked((ushort)(KraidHeadAnimations.EyeGlowEntryDuration - 1)),
+            state.Parts[0].HeadTimer, "Eye glow consumes one timer tick on initialization");
         state.HurtFrame = 1;
-        body.VariableC = 999;
+        state.Parts[0].HeadTimer = 999;
         death(body, state);
-        AssertEqual((ushort)999, body.VariableC,
+        AssertEqual((ushort)999, state.Parts[0].HeadTimer,
             "Active hurt frame delays death timer setup");
         state.HurtFrame = 0;
         death(body, state);
-        AssertEqual(KraidHeadInstructionDefinitions.DeathEntryTimer, body.VariableC,
+        AssertEqual((ushort)KraidHeadAnimations.DeathEntryDuration, state.Parts[0].HeadTimer,
             "Death initialization installs native timer without ticking");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid timer/growth consumers avoid compiled head programs");
-        AssertEqual(0, guard.UntypedLowHalfReadAttempts,
-            "Kraid growth reads its live low-half alias through typed WRAM");
     }
 
     /// <summary>Guards compiled head-program bytes while observing Kraid's typed live-tilemap WRAM read.</summary>
     [CpuBusBoundary("exact bus test: witnesses that Kraid reads the $A7:1002 live tilemap alias only through typed WRAM reads, never the generic bus, with compiled head-program bytes forbidden")]
     internal sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        ISnesWritableAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
-        /// <summary>Live low-half tilemap alias supplied to Kraid's growth resume path.</summary>
-        public ushort MutableTilemap { get; set; }
         /// <summary>Counts attempts to reread the compiled head stream.</summary>
         public int ForbiddenReadAttempts { get; private set; }
-        /// <summary>Counts invalid generic-bus reads of the typed low-half WRAM alias.</summary>
-        public int UntypedLowHalfReadAttempts { get; private set; }
 
         /// <summary>Rejects head-stream bytes and low-half alias reads before delegating other cartridge data.</summary>
         public byte ReadCartridgeByte(int address)
         {
-            if (address is 0xa71002 or 0xa71003)
-            {
-                UntypedLowHalfReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Kraid read live WRAM alias ${address:X6} through the cartridge reader.");
-            }
             if (address is >= 0xa796d2 and < 0xa79788)
             {
                 ForbiddenReadAttempts++;
@@ -208,19 +154,10 @@ internal static class KraidHeadInstructionsVerification
             return source.ReadCartridgeByte(address);
         }
 
-        /// <summary>Serves the mutable tilemap alias directly and forwards other WRAM reads.</summary>
-        public byte ReadWorkRamByte(int address) => address switch
-        {
-            0xa71002 => (byte)MutableTilemap,
-            0xa71003 => SnesLittleEndian.HighByte(MutableTilemap),
-            _ => (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Kraid head guard source does not expose WRAM.")).ReadWorkRamByte(address),
-        };
-
-        /// <summary>Forwards SRAM reads to the mutable source.</summary>
-        public byte ReadSaveRamByte(int address) =>
+        /// <summary>Forwards WRAM reads to the mutable source.</summary>
+        public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Kraid head guard source does not expose SRAM.")).ReadSaveRamByte(address);
+                "Kraid head guard source does not expose WRAM.")).ReadWorkRamByte(address);
 
         /// <summary>Preserves ordinary writes through the guarded address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

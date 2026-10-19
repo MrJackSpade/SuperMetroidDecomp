@@ -6,16 +6,12 @@ internal static class EndingShootingStarDefinitions
 {
     /// <summary>$8B:E80B / Initialize_ShootingStars creates forty sixteen-byte records.</summary>
     internal const int Count = 40;
-    /// <summary>$8000 in a star's index-and-frame word, set by $8B:E80B while the star waits out its start delay.</summary>
-    internal const ushort Delayed = 0x8000;
     /// <summary>$8B:E7F2 and $E983 initialize/reset both coordinates to the screen center.</summary>
     internal const ushort Origin = 0x80;
     /// <summary>$8B:E7EB and $E97D initialize/reset the invisible animation lead-in.</summary>
     internal const ushort InitialTimer = 0x20;
-    /// <summary>$8B:E949 advances the packed frame byte by two, indexing word attributes.</summary>
-    internal const ushort AnimationIncrement = 0x0200;
     /// <summary>$8B:E84A doubles acceleration from the second visible animation frame.</summary>
-    internal const ushort DoubleAccelerationFrame = 0x0400;
+    internal const int DoubleAccelerationFrame = 2;
     /// <summary>$8B:E90B/$E91F center each small OBJ four pixels before its position.</summary>
     internal const ushort SpriteOffset = 4;
     /// <summary>The <see cref="SpriteOffset"/> centering applied on both axes.</summary>

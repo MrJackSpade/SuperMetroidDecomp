@@ -3,8 +3,8 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 
 /// <summary>
-/// Stock bank-$87 frame selections for the four Tourian entrance statues. These
-/// are presentation identities, separate from the compiled animation bytecode.
+/// Stock bank-$87 artwork windows for the four Tourian entrance statues' pictures. These are presentation
+/// identities, separate from the statues' typed programs.
 /// </summary>
 public static class TourianStatueAnimatedTileArtworkDefinitions
 {
@@ -16,15 +16,12 @@ public static class TourianStatueAnimatedTileArtworkDefinitions
     public const int TransferByteCount = SourceEnd - FirstSource;
 
     /// <summary>
-    /// Resolves the nine timed-frame operands of each stock $87:83AC..854B program.
-    /// The first five positions traverse three contiguous pictures forward and back
-    /// (min(index, 4-index)); the next two replay pictures one and two during release.
-    /// Eye-glow and soul waits share the boss-specific released picture. The native
-    /// Kraid/Draygon "Other" labels are reversed; selection follows original operands.
-    /// Only exact operand identities are accepted, with no wrapping or extrapolation.
+    /// The artwork window a statue picture transfers. Each statue's three oscillation pictures are contiguous windows
+    /// of its own width; the released picture is a separate window. The native Kraid/Draygon "Other" labels are
+    /// reversed; selection follows the original operands, which the ROM oracle compares.
     /// </summary>
     public static int SourceAddress(TourianStatueAnimatedTileProgramDefinition definition,
-        ushort operandPointer)
+        TourianStatueTilePicture picture)
     {
         Ensure.NotNull(definition);
         (int first, int width, int released) = definition.ObjectPointer switch
@@ -33,16 +30,16 @@ public static class TourianStatueAnimatedTileArtworkDefinitions
             AnimatedTileObject.TourianStatueRidley => (0x94e4, 0x40, 0x9864),
             AnimatedTileObject.TourianStatueKraid => (0x9724, 0x40, 0x98a4),
             AnimatedTileObject.TourianStatueDraygon => (0x95a4, 0x80, 0x98e4),
-            _ => throw new InvalidDataException($"Unknown Tourian statue $87:{(int)definition.ObjectPointer:X4}."),
+            _ => throw new InvalidDataException($"Unknown Tourian statue {definition.ObjectPointer}."),
         };
-        for (int index = 0; index < definition.SourceOperandPointers.Count; index++)
-            if (definition.SourceOperandPointers[index] == operandPointer)
-            {
-                int source = index >= 7 ? released
-                    : first + width * (index <= 4 ? Math.Min(index, 4 - index) : index - 4);
-                return RoomFxRomData.Banks.AnimatedTiles | source;
-            }
-        throw new InvalidDataException(
-            $"Tourian statue $87:{(int)definition.ObjectPointer:X4} has no frame operand $87:{operandPointer:X4}.");
+        int source = picture switch
+        {
+            TourianStatueTilePicture.OscillationFirst => first,
+            TourianStatueTilePicture.OscillationSecond => first + width,
+            TourianStatueTilePicture.OscillationThird => first + 2 * width,
+            TourianStatueTilePicture.Released => released,
+            _ => throw new InvalidDataException($"Undefined {nameof(TourianStatueTilePicture)} {picture}."),
+        };
+        return RoomFxRomData.Banks.AnimatedTiles | source;
     }
 }

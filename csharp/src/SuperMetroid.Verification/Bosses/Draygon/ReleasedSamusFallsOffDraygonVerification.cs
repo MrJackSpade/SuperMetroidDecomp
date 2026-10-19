@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Samus's same-frame fall after a dead Draygon releases her during enemy AI.</summary>
 internal static class ReleasedSamusFallsOffDraygonVerification
@@ -23,11 +24,11 @@ internal static class ReleasedSamusFallsOffDraygonVerification
     internal static void VerifyReleasedSamusFallsOffDraygon()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         DraygonEnemyState draygon = (runtime.Enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.DraygonBehavior.Draygon."));
         // Stage the end of the intro rather than replaying the dance; the fight's hitboxes
         // carry Draygon's own touch routine.
@@ -43,14 +44,14 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         // A Screw Attack spin harms the enemy without hurting Samus, as the movie's spark does.
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
-        samus.EquippedItems |= (ushort)SamusEquipmentFlags.ScrewAttack;
+        samus.EquippedItems |= SamusEquipmentFlags.ScrewAttack;
         samus.Pose = SamusPoseId.ScrewAttackRightPose;
         // EnemyMain reads the contact-damage index the previous frame's spin movement set.
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         // Inside the upper body's touch boxes, in thin water with no floor below.
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(draygon.Body.Position.X.Whole - 8)), unchecked((ushort)(draygon.Body.Position.Y.Whole - 64))));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
         // EnemyMain processes only on-screen enemies; frame the swooping body.
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0x0100));
         runtime.StepFrame(0);

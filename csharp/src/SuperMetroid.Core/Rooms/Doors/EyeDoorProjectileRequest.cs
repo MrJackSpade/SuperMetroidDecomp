@@ -8,6 +8,13 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <param name="DoorBit">Raw spawning PLM room-argument word; attack initialization retains it for the persistent opened-door-bit check, while sweat and smoke do not consume it.</param>
 public readonly record struct EyeDoorProjectileRequest(
     EyeDoorProjectileDefinition DefinitionPointer,
-    ushort Parameter,
+    int Parameter,
     int PlmBlockIndex,
-    ushort DoorBit);
+    int DoorBit)
+{
+    /// <summary>The definition-specific operand, 0 through 65535.</summary>
+    public int Parameter { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, Parameter);
+
+    /// <summary>The spawning PLM's room argument, 0 through 65535.</summary>
+    public int DoorBit { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, DoorBit);
+}

@@ -24,7 +24,7 @@ internal static class TreadmillPhysicsVerification
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
         SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Crateria);
         AssertEqual(2 << 16, samus.Kinematics.ExtraDisplacement.X.RawValue, "treadmill inside reaction publishes carry");
-        SamusGroundedMovement.StepStandingRight(bus, level, samus, 0, controllerInput: 0);
+        SamusGroundedMovement.StepStandingRight(level, samus, 0, controllerInput: 0);
         AssertEqual((ushort)26, samus.Position.X.Whole, "standing movement consumes treadmill carry");
         int cases = 0;
         foreach (byte behavior in new byte[] { 8, 9, 10, 11 })
@@ -48,7 +48,7 @@ internal static class TreadmillPhysicsVerification
                 samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, "conveyor inside handler restores normal speed pointer");
             if (admitted)
             {
-                SamusGroundedMovement.StepStandingRight(bus, level, samus, 0, controllerInput: 0);
+                SamusGroundedMovement.StepStandingRight(level, samus, 0, controllerInput: 0);
                 AssertEqual((ushort)(24 + SnesSixteenSixteen.WholeOf(expected)), samus.Position.X.Whole, "conveyor actual horizontal motion");
             }
             cases++;
@@ -59,7 +59,7 @@ internal static class TreadmillPhysicsVerification
         samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(27, 40)) };
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
         SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Crateria);
-        SamusGroundedMovement.StepStandingRight(bus, level, samus, 0, controllerInput: 0);
+        SamusGroundedMovement.StepStandingRight(level, samus, 0, controllerInput: 0);
         AssertEqual((ushort)27, samus.Position.X.Whole, "conveyor carry clips at solid wall");
         Console.WriteLine($"  Conveyors: {cases} direction/power/vertical-speed cases, actual carry and wall clipping agree.");
     }

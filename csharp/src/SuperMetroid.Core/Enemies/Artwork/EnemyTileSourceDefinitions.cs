@@ -12,8 +12,8 @@ public static class EnemyTileSourceDefinitions
     /// <summary>Deduplicates graphics-set enemy definitions, extracts masked tile lengths, and verifies the pinned retail identity set.</summary>
     private static System.Collections.ObjectModel.ReadOnlyCollection<EnemyTileSourceDefinition> Build()
     {
-        EnemyTileSourceDefinition[] definitions = RoomEnemyGraphicsSetDefinitions.Pointers
-            .SelectMany(pointer => RoomEnemyGraphicsSetDefinitions.Get(pointer).Records.ToArray())
+        EnemyTileSourceDefinition[] definitions = RoomEnemyGraphicsSetDefinitions.All
+            .SelectMany(set => set.Records.ToArray())
             .Select(record => record.DefinitionPointer).Distinct().Order()
             .Select(pointer => {
                 RoomEnemyDefinition header = RoomEnemyDefinitionCatalog.Get(pointer);

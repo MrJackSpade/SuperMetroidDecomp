@@ -17,7 +17,7 @@ internal static class ElevatubeScrollingVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool fromNorth in new[] { true, false })
         {
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
@@ -25,7 +25,7 @@ internal static class ElevatubeScrollingVerification
                 ? DoorPointers.MaridiaElevatubeFromNorth : DoorPointers.MaridiaElevatubeFromSouth);
             // Clear the constructor's Ceres arrival fixture before applying the real
             // incoming tube callback; no Ceres carrier belongs in this room.
-            runtime.LoadCartridgeRoomForDebug(door.DestinationRoomPointer);
+            runtime.LoadCartridgeRoomForDebug(door.DestinationRoom);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door,
                 camera: new Position16<RoomPixels>(0, fromNorth ? (ushort)0 : (ushort)2304));
             var samus = runtime.Player.IntroducedSamus;
@@ -37,7 +37,7 @@ internal static class ElevatubeScrollingVerification
             for (int frame = 0; frame < 180; frame++)
             {
                 uint beforeY = samus.Kinematics.Position.Y.RawValue;
-                uint expectedY = unchecked(beforeY + (uint)(SnesSixteenSixteen.FromEightEight((short)runtime.MaridiaElevatube.Velocity)));
+                uint expectedY = unchecked(beforeY + (uint)(SnesSixteenSixteen.FromEightEight(runtime.MaridiaElevatube.Velocity.SignedRawValue)));
                 AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked,
                     "both tube entry callbacks install native command-zero ownership");
                 runtime.StepFrame(0);

@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CatalogInventories;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks compiled room FX records and Ceres consumers against the pinned cartridge.</summary>
 internal static class RoomFxRecordDefinitionsVerification
@@ -23,22 +24,22 @@ internal static class RoomFxRecordDefinitionsVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
-        SortedDictionary<ushort, RoomFxRecordDefinition> records = RoomFxRecordCatalogSource.CaptureRetailRoomFxRecords(bus);
-        Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, records));
+        RoomFxRecordCatalogSource.RetailRoomFxCapture capture = RoomFxRecordCatalogSource.CaptureRetailRoomFx(bus);
+        Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, capture.Records));
         Suite(nameof(VerifyRoomFxListSelection), () => VerifyRoomFxListSelection(bus));
-        string generated = RoomFxRecordCatalogSource.RenderRoomFxDefinitions(records.Values).Replace("\r\n", "\n");
+        string generated = RoomFxRecordCatalogSource.RenderRoomFxDefinitions(capture).Replace("\r\n", "\n");
         string checkedIn = File.ReadAllText(RoomFxRecordCatalogSource.GeneratedPath).Replace("\r\n", "\n");
         AssertEqual(generated, checkedIn,
             "checked-in room-FX catalog is deterministic from pinned cartridge and all retail states");
         Suite(nameof(VerifyCompiledCeresRoomFxConsumers), () => VerifyCompiledCeresRoomFxConsumers(bus));
-        Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count()} room states match every native field.");
+        Console.WriteLine($"Compiled room FX: {capture.Lists.Count} headers with {capture.Records.Count} typed records across {RoomStateDefinitions.All.Count()} room states match every native field.");
     }
 
     /// <summary>Compares Ceres FX outputs with native reads and guards compiled consumers from rereading record bytes.</summary>
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
     {
         LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
-        CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Ceres station has no room.")).Pointer);
         var guarded = NewRoomFxRecordReadGuard(bus);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();
@@ -50,14 +51,14 @@ internal static class RoomFxRecordDefinitionsVerification
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(bus)));
         var nativeFx = new RoomLayer3FxState { PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
         var compiledFx = new RoomLayer3FxState { PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
-        nativeFx.Load(bus, nativeVram, nativeCgram, room.State.FxPointer,
-            station.DoorPointer, randomNumber: 0, room.Pointer);
-        compiledFx.Load(guarded, compiledVram, compiledCgram, room.State.FxPointer,
-            station.DoorPointer, randomNumber: 0, room.Pointer);
+        nativeFx.Load(nativeVram, nativeCgram, room.State.Fx,
+            station.Door, randomNumber: 0, room.Definition);
+        compiledFx.Load(compiledVram, compiledCgram, room.State.Fx,
+            station.Door, randomNumber: 0, room.Definition);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
-        AssertEqual(nativeFx.BaseYPosition, compiledFx.BaseYPosition, "Ceres compiled FX base Y");
-        AssertEqual(nativeFx.TargetYPosition, compiledFx.TargetYPosition, "Ceres compiled FX target Y");
-        AssertEqual(nativeFx.PackedYVelocity, compiledFx.PackedYVelocity,
+        AssertEqual(nativeFx.BaseY.Whole, compiledFx.BaseY.Whole, "Ceres compiled FX base Y");
+        AssertEqual(nativeFx.TargetSurface.Y, compiledFx.TargetSurface.Y, "Ceres compiled FX target Y");
+        AssertEqual(nativeFx.YVelocity.RawValue, compiledFx.YVelocity.RawValue,
             "Ceres compiled FX velocity");
         AssertEqual(nativeFx.Timer.RawValue, compiledFx.Timer.RawValue, "Ceres compiled FX timer");
         AssertEqual(nativeFx.LiquidOptions, compiledFx.LiquidOptions,
@@ -69,25 +70,25 @@ internal static class RoomFxRecordDefinitionsVerification
 
         var nativePalette = new RoomPaletteFxSystem();
         var compiledPalette = new RoomPaletteFxSystem();
-        nativePalette.LoadRoom(bus, room.State.FxPointer, station.DoorPointer,
+        nativePalette.LoadRoom(room.State.Fx, station.Door,
             room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
-        compiledPalette.LoadRoom(guarded, room.State.FxPointer, station.DoorPointer,
+        compiledPalette.LoadRoom(room.State.Fx, station.Door,
             room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
         AssertEqual(nativePalette.ActiveCount, compiledPalette.ActiveCount,
             "Ceres compiled palette-FX object count");
 
         var nativeSand = new RoomSandAnimatedTilesState();
         var compiledSand = new RoomSandAnimatedTilesState();
-        nativeSand.LoadRoom(bus, room.State.FxPointer, station.DoorPointer, room.AreaIndex);
-        compiledSand.LoadRoom(guarded, room.State.FxPointer, station.DoorPointer,
+        nativeSand.LoadRoom(room.State.Fx, station.Door, room.AreaIndex);
+        compiledSand.LoadRoom(room.State.Fx, station.Door,
             room.AreaIndex);
         AssertEqual(nativeSand.Count, compiledSand.Count,
             "Ceres compiled sand animation count");
 
         var nativeTreadmills = new RoomTreadmillAnimatedTilesState();
         var compiledTreadmills = new RoomTreadmillAnimatedTilesState();
-        nativeTreadmills.LoadRoom(bus, room.State.FxPointer, station.DoorPointer, room.AreaIndex);
-        compiledTreadmills.LoadRoom(guarded, room.State.FxPointer, station.DoorPointer,
+        nativeTreadmills.LoadRoom(room.State.Fx, station.Door, room.AreaIndex);
+        compiledTreadmills.LoadRoom(room.State.Fx, station.Door,
             room.AreaIndex);
         AssertEqual(nativeTreadmills.Count, compiledTreadmills.Count,
             "Ceres compiled treadmill animation count");
@@ -105,12 +106,12 @@ internal static class RoomFxRecordDefinitionsVerification
     private static HashSet<int> BuildForbiddenRoomFxRecordBytes()
     {
         var result = new HashSet<int>();
-        foreach (RoomFxRecordDefinition record in RoomFxRecordDefinitions.All)
+        foreach (ushort pointer in RoomFxDefinitions.RecordPointers)
         {
-            int length = record.DoorPointer == RoomFxRomData.Record.TerminatorDoorPointer
-                ? sizeof(ushort) : RoomFxRomData.Record.ByteCount;
+            int length = RoomFxDefinitions.RecordAt(pointer).Terminates
+                ? sizeof(ushort) : RoomFxToolingRomData.Record.ByteCount;
             for (int offset = 0; offset < length; offset++)
-                result.Add(RoomFxRomDataBanksTooling.RoomDefinitions | (record.Pointer + offset));
+                result.Add(RoomFxRomDataBanksTooling.RoomDefinitions | (pointer + offset));
         }
         return result;
     }

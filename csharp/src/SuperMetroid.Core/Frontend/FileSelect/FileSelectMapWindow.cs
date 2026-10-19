@@ -14,19 +14,17 @@ public sealed class FileSelectMapWindow
     private NativeCountdown timer;
 
     /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and native area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>
-    /// <param name="bus">Non-null runtime address-space dependency; this setup uses compiled motion rather than reading cartridge tables.</param>
     /// <param name="area">Game-area identity 0..5 for the six Zebes areas, not the file-select display-order ordinal.</param>
     /// <param name="labels">Required installed world-map label anchors; a missing catalog is rejected even though the parameter defaults to null.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area has no supported transition.</exception>
     /// <exception cref="InvalidOperationException">World-map labels are not installed.</exception>
-    public FileSelectMapWindow(ISnesAddressSpace bus, int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
-        : this(bus, area, FileSelectMapWindowMotions.Get(area), labels) { }
+    public FileSelectMapWindow(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
+        : this(area, FileSelectMapWindowMotions.Get(area), labels) { }
 
     /// <summary>Explicit motion injection for bounded arithmetic/render fixtures; production uses the compiled catalog.</summary>
-    internal FileSelectMapWindow(ISnesAddressSpace bus, int area, FileSelectMapWindowMotion motion,
+    internal FileSelectMapWindow(int area, FileSelectMapWindowMotion motion,
         SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
     {
-        Ensure.NotNull(bus);
         if ((uint)area >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         var installedLabels = labels ?? throw new InvalidOperationException(
@@ -35,7 +33,7 @@ public sealed class FileSelectMapWindow
         ushort y = (ushort)installedLabels.Get(area).Y;
         edges[0] = edges[1] = SnesSixteenSixteen.FromWhole((uint)x);
         edges[2] = edges[3] = SnesSixteenSixteen.FromWhole((uint)y);
-        timer = NativeCountdown.FromRaw(motion.Timer);
+        timer = NativeCountdown.Start(motion.Timer);
         if (timer.IsNegative)
             throw new InvalidDataException("Map-window timer must begin before signed underflow.");
         velocities[0] = motion.Left;
@@ -44,23 +42,28 @@ public sealed class FileSelectMapWindow
         velocities[3] = motion.Bottom;
     }
 
-    /// <summary>Raw whole-pixel word of the left 16.16 edge; its low byte is the inclusive horizontal window endpoint, and expansion clamps the whole word at one.</summary>
-    public ushort Left => SnesFixedPosition.WholeOf(unchecked((int)edges[0]));
-    /// <summary>Raw whole-pixel word of the right 16.16 edge; its low byte is the inclusive horizontal endpoint, and expansion clamps the whole word at 255.</summary>
-    public ushort Right => SnesFixedPosition.WholeOf(unchecked((int)edges[1]));
-    /// <summary>Raw whole-pixel word of the top 16.16 edge, used as the initial HDMA scanline count; expansion clamps the whole word at one.</summary>
-    public ushort Top => SnesFixedPosition.WholeOf(unchecked((int)edges[2]));
-    /// <summary>Raw whole-pixel word of the bottom 16.16 edge, defining the window's scanline extent from top rather than an inclusive Y endpoint; expansion clamps the whole word at 224.</summary>
-    public ushort Bottom => SnesFixedPosition.WholeOf(unchecked((int)edges[3]));
+    /// <summary>
+    /// Whole-pixel upper-left corner of the clipping window. X is the inclusive left endpoint (its low eight bits are
+    /// the displayed column) and Y the first covered scanline; expansion clamps both at one.
+    /// </summary>
+    public Position16<ScreenPixels> TopLeft =>
+        new(SnesFixedPosition.WholeOf(unchecked((int)edges[0])), SnesFixedPosition.WholeOf(unchecked((int)edges[2])));
+    /// <summary>
+    /// Whole-pixel lower-right corner of the clipping window. X is the inclusive right endpoint, clamped at 255 during
+    /// expansion; Y bounds the covered scanlines measured from the top rather than naming an inclusive last row, and is
+    /// clamped at 224 during expansion.
+    /// </summary>
+    public Position16<ScreenPixels> BottomRight =>
+        new(SnesFixedPosition.WholeOf(unchecked((int)edges[1])), SnesFixedPosition.WholeOf(unchecked((int)edges[3])));
     /// <summary>Whether the transition timer has reached signed underflow after the final edge movement; initially false and latched true until this window is discarded.</summary>
     public bool IsComplete { get; private set; }
     /// <summary>Whether this is $81:AFF6's shortened room-to-area contraction: subtract velocities without whole-word clamps, and reveal the area scene when complete.</summary>
     public bool IsReturning { get; private set; }
 
     /// <summary>$81:AFF6 begins a shortened, unclamped contraction from the inset room frame.</summary>
-    public static FileSelectMapWindow CreateReturn(ISnesAddressSpace bus, int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
+    public static FileSelectMapWindow CreateReturn(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
     {
-        var window = new FileSelectMapWindow(bus, area, labels);
+        var window = new FileSelectMapWindow(area, labels);
         window.IsReturning = true;
         window.timer = NativeCountdown.FromRaw(unchecked((ushort)(window.timer.RawValue - FileSelectMapRomData.ReturnWindowTimerReduction)));
         int inset = FileSelectMapRomData.ReturnWindowInset;

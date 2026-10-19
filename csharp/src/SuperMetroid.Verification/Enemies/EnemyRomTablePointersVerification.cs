@@ -120,21 +120,22 @@ internal static class EnemyRomTablePointersVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            system.BindFixtureBus(guarded);
+            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             system.Presentation._cgram = new SnesCgram();
-            var slot = new RoomEnemySlot(0) { Parameter1 = parameter };
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Parameter1 = parameter };
+            slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
                 AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
-                system.TourianEntranceStatueBehavior._statuePrograms[slot.SlotIndex],
+                system.TourianEntranceStatueBehavior._extensions[slot.SlotIndex].Program,
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }
 
         foreach (bool facingRight in new[] { false, true })
         {
             var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            system.BindFixtureBus(guarded);
-            var torizo = new RoomEnemySlot(0)
+            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var torizo = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

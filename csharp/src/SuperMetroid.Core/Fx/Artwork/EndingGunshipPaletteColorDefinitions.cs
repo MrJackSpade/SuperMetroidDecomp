@@ -17,27 +17,14 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// a separate, narrowly documented nonsense disposition.</remarks>
 internal static class EndingGunshipPaletteColorDefinitions
 {
-    /// <summary>Recognizes an aligned color word in the sixteen-frame reveal and returns its frame and palette slot.</summary>
-    internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
-    {
-        frame = color = 0;
-        int offset = pointer - (ZebesExplosionGunshipPaletteFxColorDefinitions.FirstFramePointer + Bgr555.ByteCount);
-        if ((uint)offset >= ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount *
-            ZebesExplosionGunshipPaletteFxColorDefinitions.FrameByteCount) return false;
-        int within = offset % ZebesExplosionGunshipPaletteFxColorDefinitions.FrameByteCount;
-        if ((within & 1) != 0 || within >= 16 * Bgr555.ByteCount) return false;
-        frame = offset / ZebesExplosionGunshipPaletteFxColorDefinitions.FrameByteCount;
-        color = within / Bgr555.ByteCount;
-        return true;
-    }
 
     /// <summary>Defaults are calculated only after explicit supplied edits have been
     /// checked. Endpoint resolution has one bounded level: white/dim depend at most on
     /// the supplied bright row. No generated palette row is stored.</summary>
-    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
     {
         value = Bgr555.Black;
-        if (!TryCoordinates(pointer, out int frame, out int color) || frame == 15 || (frame == 7 && color == 15))
+        if (!ZebesExplosionGunshipPaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) || frame == 15 || (frame == 7 && color == 15))
             return false;
         if (frame == 0)
         {
@@ -46,7 +33,7 @@ internal static class EndingGunshipPaletteColorDefinitions
         }
         if (frame is 7 or 8)
         {
-            if (!colors.TryGetValue(ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer(15, color), out Bgr555 bright))
+            if (!colors.TryGetValue(ZebesExplosionGunshipPaletteFxColorDefinitions.Color(15, color), out Bgr555 bright))
                 return false;
             value = Pack((bright.Red) * 2 / 7, (bright.Green) * 2 / 7, (bright.Blue) * 2 / 7);
             return true;
@@ -61,10 +48,10 @@ internal static class EndingGunshipPaletteColorDefinitions
     }
 
     /// <summary>Uses an explicit edited endpoint when present, otherwise calculates the frame's shared color rule.</summary>
-    private static bool Endpoint(int frame, int color, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+    private static bool Endpoint(int frame, int color, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
     {
-        ushort pointer = ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer(frame, color);
-        return colors.TryGetValue(pointer, out value) || TryCalculatedColor(pointer, colors, out value);
+        PaletteFxColorKey key = ZebesExplosionGunshipPaletteFxColorDefinitions.Color(frame, color);
+        return colors.TryGetValue(key, out value) || TryCalculatedColor(key, colors, out value);
     }
     /// <summary>Forms one RGB5 value from independently interpolated gunship color channels.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);

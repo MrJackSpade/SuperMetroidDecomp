@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="Pages">The context's projectile OBJ pages.</param>
 /// <param name="EquippedBeams">The equipped-beam word that selects the bound page.</param>
 public readonly record struct ProjectileDrawArtwork(
-    ProjectileSpriteCatalog? Compositions, ProjectileObjectPages? Pages, ushort EquippedBeams)
+    ProjectileSpriteCatalog? Compositions, ProjectileObjectPages? Pages, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags EquippedBeams)
 {
     /// <summary>The installed compositions.</summary>
     /// <exception cref="InvalidOperationException">No compositions are installed.</exception>

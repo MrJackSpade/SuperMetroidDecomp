@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Samus;
 internal static class SamusSpinSoundCommand
 {
     /// <summary>Selects spin, space-jump, or screw-attack audio from movement, pose, and wall-jump frame; returns null outside spin movement.</summary>
-    public static SoundEffectId? Select(ISnesAddressSpace bus, SamusState samus)
+    public static SoundEffectId? Select(SamusState samus)
     {
-        var movement = samus.PoseMetadata.ReadMovementType(bus);
+        var movement = samus.PoseMetadata.ReadMovementType();
         if (movement == SamusMovementType.WallJumping)
             return samus.AnimationFrame >= SamusSpinSoundFrames.ScrewAttack
                 ? SoundEffectLibrary1Sounds.ScrewAttack

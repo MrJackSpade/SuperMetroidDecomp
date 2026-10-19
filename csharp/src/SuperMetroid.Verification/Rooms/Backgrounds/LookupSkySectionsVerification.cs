@@ -15,7 +15,7 @@ internal static class LookupSkySectionsVerification
         AssertEqual(23, originalCount, "Native sky loop bound");
         AssertEqual(originalCount, RoomFxRomData.ScrollingSky.SectionCount, "Compiled sky section domain");
         for (int index = 0; index < originalCount; index++)
-            AssertEqual(ReadVerificationWord(rom, 0x88aec1 + index * 8),
+            AssertEqual((int)ReadVerificationWord(rom, 0x88aec1 + index * 8),
                 RoomFxRomData.ScrollingSky.GetSection(index).TopPosition, "Sky native band boundary");
         foreach (int invalid in new[] { int.MinValue, -1, 23, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => RoomFxRomData.ScrollingSky.GetSection(invalid),
@@ -59,7 +59,7 @@ internal static class LookupSkySectionsVerification
     {
         for (int index = 0; index < 23; index++)
             AssertEqual(ReadVerificationWord(rom, 0x88aec3 + index * 8),
-                RoomFxRomData.ScrollingSky.GetSection(index).Subspeed, "Sky fractional speed including band17");
+                RoomFxRomData.ScrollingSky.GetSection(index).Velocity.Fraction, "Sky fractional speed including band17");
     }
 
     /// <summary>Compares each native section's whole-pixel speed word.</summary>
@@ -67,7 +67,7 @@ internal static class LookupSkySectionsVerification
     {
         for (int index = 0; index < 23; index++)
             AssertEqual(ReadVerificationWord(rom, 0x88aec5 + index * 8),
-                RoomFxRomData.ScrollingSky.GetSection(index).Speed, "Sky integer speed");
+                RoomFxRomData.ScrollingSky.GetSection(index).Velocity.WholeWord, "Sky integer speed");
     }
 
     /// <summary>Checks the HDMA slot mapping, including the duplicate slot at band 8.</summary>

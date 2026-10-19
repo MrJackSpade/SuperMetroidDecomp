@@ -12,6 +12,8 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 /// <summary>Checks Mother Brain's tank background staging and phase-two BG2 uploads.</summary>
 internal static class MotherBrainTankBackgroundVerification
 {
@@ -19,20 +21,19 @@ internal static class MotherBrainTankBackgroundVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         var expectedVram = new SnesVram();
-        LibraryBackgroundLoader.Execute(installation.OpenRuntimeAddressSpace(), expectedVram, 0xe48a, 0, new LibraryBackgroundArtwork { TilemapArt = installation.LoadRoomBackgroundTilemaps() });
-        runtime.LoadCartridgeRoomForDebug(0xdd58);
+        LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), expectedVram, LibraryBackgroundProgramDefinitions.Get(0xe48a), FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = installation.LoadRoomBackgroundTilemaps() });
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         if (ascentMaskOnly) return VerifyMotherBrainAscentCapture(runtime);
         const int bg2ByteAddress = 0x9000;
         AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(
@@ -65,7 +66,7 @@ internal static class MotherBrainTankBackgroundVerification
             "The later crouched body upload contains exactly its authored BG2 words");
         Console.WriteLine("Mother Brain tank background: real room pipes retained, native staging clear and later body upload passed.");
         return 0;
-        ushort ReadStaged(int index) => new EnemyScratchMemory(bus).EnemyBg2Tilemap[index];
+        ushort ReadStaged(int index) => runtime.Enemies.Room.Staging.EnemyBg2Tilemap[index];
     }
 
     /// <summary>Runs the ascent mask capture using the initialized Mother Brain room.</summary>

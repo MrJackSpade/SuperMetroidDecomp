@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -8,12 +10,19 @@ using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The mama turtle species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MamaTurtleBehavior : IEnemySpecies
+internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.MamaTurtle];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MamaTurtleEntity(this, slot, common);
+
     /// <summary>Provides the live Samus address space for baby-turtle facing decisions.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>
@@ -98,30 +107,24 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
     private const ushort MamaTurtleMaximumHoveringSpeed = 3;
 
-    /// <summary>Maps enemy slots to Mama Turtle's shell, hover, and ascent state.</summary>
-    internal readonly MamaTurtleEnemyState?[] _mamaTurtleStates =
-        new MamaTurtleEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Maps following enemy slots to their baby crawl, carry, and spinning state.</summary>
-    internal readonly BabyTurtleEnemyState?[] _babyTurtleStates =
-        new BabyTurtleEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Last library-two sound requested by this family during the enemy frame.</summary>
-    public ushort? LastMamaTurtleSoundEffect { get; private set; }
+    public SoundEffectId? LastMamaTurtleSoundEffect { get; private set; }
 
     /// <summary>Ports Mama Turtle initialization AI <c>$A2:8D6C</c>.</summary>
-    private void InitializeMamaTurtle(RoomEnemySlot slot)
+    private static void InitializeMamaTurtle(RoomEnemySlot slot)
     {
-        var state = new MamaTurtleEnemyState(slot)
+        var state = new MamaTurtleEnemyState
         {
             Function = MamaTurtleAiFunction.Initial,
             AsleepFlag = NativeCountdown.Start(1),
         };
-        _mamaTurtleStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The population already supplies $A800, but the initializer explicitly ORs $2000.
         // Spell that write out because instruction processing is essential to leaving shell.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.Radius = slot.Radius.WithY(0);
@@ -129,16 +132,16 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     }
 
     /// <summary>Ports Baby Turtle initialization AI <c>$A2:8D9D</c>.</summary>
-    private void InitializeBabyTurtle(RoomEnemySlot slot)
+    private static void InitializeBabyTurtle(RoomEnemySlot slot)
     {
-        var state = new BabyTurtleEnemyState(slot)
+        var state = new BabyTurtleEnemyState
         {
-            SpawnXPosition = slot.Position.X.Whole,
-            SpawnTopBoundary = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)),
+            SpawnTopCenter = new Position16<RoomPixels>(
+                slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))),
             Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus,
             Velocity = new Offset16<RoomPixels>(unchecked((short)slot.Parameter1), 0),
         };
-        _babyTurtleStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -153,7 +156,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         MamaTurtleEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        byte nmiFrameCounter8)
+        int nmiFrameCounter8)
     {
         if (samus is null)
             throw new InvalidOperationException("Mama Turtle AI requires the active Samus actor.");
@@ -196,7 +199,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mama Turtle main-AI pointer $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Mama Turtle main-AI function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -219,7 +222,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
             BabyTurtleEnemyState childState = RequireBabyTurtleState(child);
             child.PaletteIndex = mama.PaletteIndex;
             child.VramTilesIndex = mama.VramTilesIndex;
-            childState.ParentNativeIndex = mama.NativeIndex;
+            childState.ParentSlotIndex = mama.SlotIndex;
         }
 
         state.Function = MamaTurtleAiFunction.Asleep;
@@ -248,7 +251,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         // Samus to the right. This asymmetry is visible around the sleeping shell's lip.
         short contourOffset = MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
         mama.Radius = mama.Radius.WithY(unchecked((ushort)-contourOffset));
-        mama.Properties = unchecked((ushort)(mama.Properties | (ushort)EnemyProperties.SolidToSamus));
+        mama.Properties = mama.Properties.With(EnemyProperties.SolidToSamus);
 
         if (!PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
             return;
@@ -267,7 +270,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         MamaTurtleEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        byte nmiFrameCounter8)
+        int nmiFrameCounter8)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
         if ((nmiFrameCounter8 & 1) != 0)
@@ -333,17 +336,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         if (!state.FunctionTimer.IsZero)
             return;
 
-        // The two adjacent {sub,whole} pairs at $8D56 accelerate toward Samus's side.
-        if (unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole)) < 0)
-        {
-            state.XSubAcceleration = 4096;
-            state.XAcceleration = 0;
-        }
-        else
-        {
-            state.XSubAcceleration = 61440;
-            state.XAcceleration = unchecked((ushort)-1);
-        }
+        // The two adjacent acceleration records at $8D56 accelerate toward Samus's side by a sixteenth of a pixel per update.
+        state.XAcceleration = unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole)) < 0
+            ? SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromWhole(1) / 16)
+            : SnesSignedSixteenSixteen.FromRaw(-SnesSixteenSixteen.FromWhole(1) / 16);
         state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.Zero);
         state.Function = MamaTurtleAiFunction.Hovering;
     }
@@ -384,14 +380,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     }
 
     /// <summary>Adds signed 16.16 hover acceleration with carry and caps whole speed using the old velocity's sign.</summary>
-    private static void AddAndClampMamaTurtleHorizontalAcceleration(
+    internal static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
         SnesSignedSixteenSixteen velocity = state.Velocity.X;
-        uint subSum = (uint)velocity.Fraction + state.XSubAcceleration;
+        // One 16.16 add: the fraction's carry reaches the whole pixels.
+        SnesSignedSixteenSixteen sum = velocity + state.XAcceleration;
         ushort oldWhole = velocity.WholeWord;
-        ushort newWhole = unchecked((ushort)(
-            oldWhole + state.XAcceleration + (SnesCarry.OutOfWord(subSum))));
+        ushort newWhole = sum.WholeWord;
 
         int magnitude = Math.Abs((int)unchecked((short)newWhole));
         ushort cappedWhole = magnitude < MamaTurtleMaximumHoveringSpeed
@@ -402,14 +398,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
                 ? unchecked((ushort)-MamaTurtleMaximumHoveringSpeed)
                 : MamaTurtleMaximumHoveringSpeed;
         state.Velocity = state.Velocity.WithX(
-            SnesSignedSixteenSixteen.FromParts(unchecked((short)cappedWhole), unchecked((ushort)subSum)));
+            SnesSignedSixteenSixteen.FromParts(unchecked((short)cappedWhole), sum.Fraction));
     }
 
     /// <summary>
     /// Reproduces $903C-$906B, including carry propagation across two otherwise separate
     /// negations and the missing final INC on the whole acceleration word.
     /// </summary>
-    private static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
+    internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
         SnesSignedSixteenSixteen velocity = state.Velocity.X;
         ushort negatedFraction = unchecked((ushort)(~velocity.Fraction + 1));
@@ -420,9 +416,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithX(
             SnesSignedSixteenSixteen.FromParts(unchecked((short)negatedWhole), negatedFraction));
 
-        state.XSubAcceleration = unchecked((ushort)(~state.XSubAcceleration + 1));
-        uint accelerationSum = (uint)state.XAcceleration + (carry ? 1u : 0u);
-        state.XAcceleration = unchecked((ushort)~(ushort)accelerationSum); // No INC in ROM.
+        ushort negatedAccelerationFraction = unchecked((ushort)(~state.XAcceleration.Fraction + 1));
+        uint accelerationSum = (uint)state.XAcceleration.WholeWord + (carry ? 1u : 0u);
+        ushort invertedAccelerationWhole = unchecked((ushort)~(ushort)accelerationSum); // No INC in ROM.
+        state.XAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)invertedAccelerationWhole), negatedAccelerationFraction);
     }
 
     /// <summary>Ports the rider-powered seven-pixel ascent at <c>$A2:9083</c>.</summary>
@@ -475,7 +472,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         // The original cap comparison accidentally omits X and reads slot-zero's extension.
         // The retail parent is slot zero, but retaining the explicit source documents the
         // behavior for debugger-created populations as well.
-        MamaTurtleEnemyState comparisonState = _mamaTurtleStates[0] ?? state;
+        MamaTurtleEnemyState comparisonState = _slotTable._slots[0].SpeciesState<MamaTurtleEnemyState>() ?? state;
         if (unchecked((short)(comparisonState.Velocity.Y.WholeWord - MamaTurtleMaximumFallingSpeed)) < 0)
         {
             // The $2000 fraction step carries into the whole word; both are one 16.16 add.
@@ -507,8 +504,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         if (samus is null)
             throw new InvalidOperationException("Baby Turtle AI requires the active Samus actor.");
 
-        MamaTurtleEnemyState parent = RequireMamaTurtleParent(state);
-        parent.CarryingChildHeight = 0;
+        // The prologue requires the child's parent to be a Mama Turtle. The cartridge also clears and republishes a
+        // carried-height word on the parent here, which nothing reads.
+        _ = RequireMamaTurtleParent(state);
         switch (state.Function)
         {
             case BabyTurtleAiFunction.CrawlingNotCarryingSamus:
@@ -547,7 +545,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
                         baby,
                         state,
                         MamaTurtleProgram.BabySpinning);
-                    bool facingRight = (samus.PoseMetadata.ReadPoseXDirection(_room.LoadedBus) & 0x0f) == (byte)SamusFacingDirection.Right; // magic-number-audit: allow(PoseOrMovement) - the native low-nibble mask isolating the pose X-direction byte.
+                    bool facingRight = (samus.PoseMetadata.ReadPoseXDirection() & 0x0f) == (byte)SamusFacingDirection.Right; // magic-number-audit: allow(PoseOrMovement) - the native low-nibble mask isolating the pose X-direction byte.
                     state.Velocity = new Offset16<RoomPixels>(facingRight ? (short)3 : (short)-3, 1);
                     return;
                 }
@@ -576,14 +574,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
                 return;
 
             case BabyTurtleAiFunction.CrawlingCarryingSamus:
-                parent.CarryingChildHeight = baby.Radius.Y;
                 if (!PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                     state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Baby Turtle main-AI pointer $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Baby Turtle main-AI pointer {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -622,11 +619,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         }
 
         ushort previousY = baby.Position.Y.Whole;
-        baby.Position = baby.Position.WithWholeY(state.SpawnTopBoundary);
+        baby.Position = baby.Position.WithWholeY(state.SpawnTopCenter.Y);
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X));
 
-        RoomEnemySlot parentSlot = _slotTable.SlotFromNativeIndex(state.ParentNativeIndex);
+        RoomEnemySlot parentSlot = _slotTable.Slots[state.ParentSlotIndex];
         MamaTurtleEnemyState parent = RequireMamaTurtleState(parentSlot);
         if (parent.Function != MamaTurtleAiFunction.Asleep)
             return;
@@ -649,7 +646,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         RoomEnemySlot baby,
         BabyTurtleEnemyState state)
     {
-        short signedDifference = unchecked((short)(state.SpawnXPosition - baby.Position.X.Whole));
+        short signedDifference = unchecked((short)(state.SpawnTopCenter.X - baby.Position.X.Whole));
         int distance = Math.Abs((int)signedDifference);
         if (distance >= BabyTurtleTravelDistance)
         {
@@ -713,7 +710,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         MamaTurtleEnemyState state,
         SamusState samus)
     {
-        if ((mama.Properties & (ushort)EnemyProperties.SolidToSamus) != 0)
+        if (mama.Properties.HasAny(EnemyProperties.SolidToSamus))
             return;
         _collision.ResolveNormalEnemyTouch(mama, samus);
         state.Function = MamaTurtleAiFunction.Falling;
@@ -808,24 +805,24 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     /// <summary>Resolves the child's native parent slot and rejects a non-Mama occupant.</summary>
     private MamaTurtleEnemyState RequireMamaTurtleParent(BabyTurtleEnemyState child)
     {
-        RoomEnemySlot parent = _slotTable.SlotFromNativeIndex(child.ParentNativeIndex);
+        RoomEnemySlot parent = _slotTable.Slots[child.ParentSlotIndex];
         if (parent.EnemyDefinitionPointer != EnemyDefinitionId.MamaTurtle)
         {
             throw new InvalidDataException(
-                $"Baby Turtle parent index ${child.ParentNativeIndex:X4} names enemy " +
+                $"Baby Turtle parent slot {child.ParentSlotIndex} names enemy " +
                 $"${(int)parent.EnemyDefinitionPointer:X4}, not Mama Turtle.");
         }
         return RequireMamaTurtleState(parent);
     }
 
     /// <summary>Requires initialized parent state for a Mama Turtle slot.</summary>
-    private MamaTurtleEnemyState RequireMamaTurtleState(RoomEnemySlot slot) =>
-        _mamaTurtleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static MamaTurtleEnemyState RequireMamaTurtleState(RoomEnemySlot slot) =>
+        slot.SpeciesState<MamaTurtleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Mama Turtle state.");
 
     /// <summary>Requires initialized child state for a Baby Turtle slot.</summary>
-    private BabyTurtleEnemyState RequireBabyTurtleState(RoomEnemySlot slot) =>
-        _babyTurtleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static BabyTurtleEnemyState RequireBabyTurtleState(RoomEnemySlot slot) =>
+        slot.SpeciesState<BabyTurtleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Baby Turtle state.");
 
     /// <summary>Selects the left or right crawl list from the child's signed X velocity.</summary>
@@ -861,7 +858,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     }
 
     /// <summary>Runs the baby wake callback after common bomb damage.</summary>
-    internal void RegisterMamaTurtleBombReactions(EnemyAiTable table)
+    internal void RegisterMamaTurtleBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.BabyTurtleShot)
@@ -870,68 +867,61 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers parent and baby setup routines for their respective native definitions.</summary>
-    internal void RegisterMamaTurtleInitializationAi(EnemyAiTable table)
+    /// <summary>Ports MamaTurtle's initialization AI.</summary>
+    internal static void RunMamaTurtleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_MamaTurtle, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMamaTurtle(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_BabyTurtle, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBabyTurtle(slot);
-        });
+        InitializeMamaTurtle(slot);
     }
 
-    /// <summary>Dispatches parent and baby lifecycle functions with the active Samus and terrain context.</summary>
-    internal void RegisterMamaTurtleMainAi(EnemyAiTable table)
+    /// <summary>Ports BabyTurtle's initialization AI.</summary>
+    internal static void RunBabyTurtleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_MamaTurtle, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMamaTurtleMain(
-                slot,
-                RequireMamaTurtleState(slot),
-                frame.Samus,
-                frame.Level,
-                nmiFrameCounter8);
-        });
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_BabyTurtle, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunBabyTurtleMain(slot, RequireBabyTurtleState(slot), frame.Samus, frame.Level);
-        });
+        InitializeBabyTurtle(slot);
     }
 
-    /// <summary>Runs the Mama Turtle's and baby turtles' animations as typed programs (#641).</summary>
-    internal void RegisterMamaTurtleTypedAnimations(EnemyAiTable table)
+    /// <summary>Ports MamaTurtle's main AI.</summary>
+    internal void RunMamaTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            MamaTurtleEnemyState state = RequireMamaTurtleState(slot);
-            AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Spritemap,
-                (cue, _) => ApplyMamaTurtleCue(slot, cue));
-            state.Program = cursor;
-        });
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle, (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            BabyTurtleEnemyState state = RequireBabyTurtleState(slot);
-            AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Spritemap,
-                (cue, _) => ApplyBabyTurtleCue(slot, cue, context.Samus, context.Level));
-            state.Program = cursor;
-        });
+        RunMamaTurtleMain(
+            slot,
+            RequireMamaTurtleState(slot),
+            frame.Samus,
+            frame.Level,
+            frame.Clock.Counter8);
+    }
+
+    /// <summary>Ports BabyTurtle's main AI.</summary>
+    internal void RunBabyTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunBabyTurtleMain(slot, RequireBabyTurtleState(slot), frame.Samus, frame.Level);
+    }
+
+    /// <summary>Advances MamaTurtle's typed animation.</summary>
+    internal void AdvanceMamaTurtleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        MamaTurtleEnemyState state = RequireMamaTurtleState(slot);
+        AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.ShownFrames.Of,
+            (cue, _) => ApplyMamaTurtleCue(slot, cue));
+        state.Program = cursor;
+    }
+
+    /// <summary>Advances BabyTurtle's typed animation.</summary>
+    internal void AdvanceBabyTurtleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        BabyTurtleEnemyState state = RequireBabyTurtleState(slot);
+        AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.ShownFrames.Of,
+            (cue, _) => ApplyBabyTurtleCue(slot, cue, context.Samus, context.Level));
+        state.Program = cursor;
     }
 
     /// <summary>Runs the baby wake callback after common projectile damage.</summary>
-    internal void RegisterMamaTurtleShotReactions(EnemyAiTable table)
+    internal void RegisterMamaTurtleShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BabyTurtleShot)
@@ -941,7 +931,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     }
 
     /// <summary>Routes Mama contact to shell/fall handling and baby contact to separation and wake behavior.</summary>
-    internal void RegisterMamaTurtleTouch(EnemyAiTable table)
+    internal void RegisterMamaTurtleTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MamaTurtleTouch,
@@ -956,8 +946,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastMamaTurtleSoundEffect = null;
-        Array.Clear(_mamaTurtleStates);
-        Array.Clear(_babyTurtleStates);
+        foreach (RoomEnemySlot cleared in _slotTable._slots)
+            cleared.SetSpeciesState<MamaTurtleEnemyState>(null);
+        foreach (RoomEnemySlot cleared in _slotTable._slots)
+            cleared.SetSpeciesState<BabyTurtleEnemyState>(null);
     }
 
     /// <inheritdoc/>
@@ -969,6 +961,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastMamaTurtleSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastMamaTurtleSoundEffect, maximumQueued: 6);
     }
 }

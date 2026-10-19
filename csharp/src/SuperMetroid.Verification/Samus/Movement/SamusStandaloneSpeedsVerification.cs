@@ -16,7 +16,8 @@ internal static class SamusStandaloneSpeedsVerification
         static SpeedTableEntry Read(Func<int, byte> readByte, int a)
         {
             ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(readByte(a + offset), readByte(a + offset + 1)));
-            return new(Word(0), Word(2), Word(4), Word(6), Word(8), Word(10));
+            SnesSignedSixteenSixteen Pair(int offset) => SnesSignedSixteenSixteen.FromParts(unchecked((short)Word(offset)), Word(offset + 2));
+            return new(Pair(0), Pair(4), Pair(8));
         }
         var actual = new SamusHorizontalSpeedState();
         var reference = new SamusHorizontalSpeedState();
@@ -37,7 +38,7 @@ internal static class SamusStandaloneSpeedsVerification
                 actual.AccelerationMode = reference.AccelerationMode = mode;
                 actual.DecelerationMultiplier = reference.DecelerationMultiplier = multiplier;
                 uint expected = calculate(native);
-                uint result = actual.CalculateBaseSpeedAtAddress(guard, address);
+                uint result = actual.CalculateBaseSpeedAtAddress(address);
                 AssertEqual(expected, result, "Compiled entry preserves existing native-word arithmetic");
                 AssertEqual(reference.BaseSpeed, actual.BaseSpeed, "Whole base speed write");
                 AssertEqual(reference.BaseSubspeed, actual.BaseSubspeed, "Fraction base speed write");
@@ -46,26 +47,17 @@ internal static class SamusStandaloneSpeedsVerification
             }
         }
 
-        // Low-bank aliases remain live because they are mutable SNES memory, not immutable
-        // cartridge definitions. Unknown/unaligned high-bank records fail loudly rather
-        // than treating executable or presentation bytes as horizontal physics.
-        var mutable = new TestAddressSpace();
-        const int mutableAddress = 0x900100;
-        AssertTrue(!SamusHorizontalMotionDefinitions.TryResolveStandalone(mutableAddress, out _), "Mutable address not silently clamped");
-        foreach (ushort acceleration in new ushort[] { 0x1234, 0x4321 })
+        // The cartridge only ever selects authored records, so any other address, a low-bank
+        // WRAM alias or an unknown or unaligned high-bank record, is corrupt state and fails
+        // loudly rather than treating executable or presentation bytes as horizontal physics.
+        foreach (int invalidAddress in new[] { 0x900100, 0x909f26, 0x90a32d, 0x919f25 })
         {
-            ushort[] words = [0, acceleration, 15, 0, 0, 1];
-            for (int i = 0; i < words.Length; i++) WriteTestWord(mutable, mutableAddress + i * 2, words[i]);
-            actual.BaseSpeed = reference.BaseSpeed = 0;
-            actual.BaseSubspeed = reference.BaseSubspeed = 0;
-            actual.AccelerationMode = reference.AccelerationMode = 0;
-            AssertEqual(calculate(Read(mutable.ReadByte, mutableAddress)), actual.CalculateBaseSpeedAtAddress(mutable, mutableAddress), "Mutable low-bank record observes live changed data");
-        }
-        foreach (int invalidAddress in new[] { 0x909f26, 0x90a32d, 0x919f25 })
+            AssertTrue(!SamusHorizontalMotionDefinitions.TryResolveStandalone(invalidAddress, out _), "Unauthored address not silently resolved");
             AssertThrows<InvalidDataException>(
-                () => actual.CalculateBaseSpeedAtAddress(mutable, invalidAddress),
-                "Unknown high-bank horizontal record rejected");
+                () => actual.CalculateBaseSpeedAtAddress(invalidAddress),
+                "Unauthored horizontal record rejected");
+        }
 
-        Console.WriteLine($"Standalone Samus speeds: {cases} actual bomb/Grapple calculations match ROM-fed arithmetic with reads forbidden; mutable low-bank aliases remain live and unknown ROM records fail loudly.");
+        Console.WriteLine($"Standalone Samus speeds: {cases} actual bomb/Grapple calculations match ROM-fed arithmetic with reads forbidden; unauthored records fail loudly.");
     }
 }

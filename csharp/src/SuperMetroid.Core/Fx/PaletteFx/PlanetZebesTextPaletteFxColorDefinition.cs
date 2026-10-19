@@ -9,29 +9,9 @@ public sealed class PlanetZebesTextPaletteFxColorDefinition
     /// <summary>The mutually exclusive text-fade owner.</summary>
     public PlanetZebesTextPaletteFxProgramOwner Owner { get; }
 
-    /// <summary>Fade-out begins after fade-in's setup, timed records and final delete word.</summary>
-    public ushort ProgramStart => (ushort)(PlanetZebesTextPaletteFxColorDefinitions.FadeInProgram
-        + (Owner == PlanetZebesTextPaletteFxProgramOwner.FadeOut
-            ? 3 * sizeof(ushort) + PlanetZebesTextPaletteFxColorDefinitions.FrameCount
-                * PlanetZebesTextPaletteFxColorDefinitions.FrameByteCount : 0));
-    /// <summary>The first timed record after color-index setup.</summary>
-    public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
+    /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public PaletteFxColorRows Rows => new(Owner == PlanetZebesTextPaletteFxProgramOwner.FadeIn ? 42 : 50, PlanetZebesTextPaletteFxColorDefinitions.FrameCount, PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame);
 
-    /// <summary>Returns one timed-record pointer.</summary>
-    public ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= PlanetZebesTextPaletteFxColorDefinitions.FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame *
-            PlanetZebesTextPaletteFxColorDefinitions.FrameByteCount));
-    }
-
-    /// <summary>Returns one presentation-owned BGR555 word in a timed record.</summary>
-    public ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

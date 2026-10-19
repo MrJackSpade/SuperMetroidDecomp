@@ -43,8 +43,8 @@ internal static class AudioClipExportVerification
                     new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarPhaseExactTrack),
                 ],
                 [
-                    .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, effect.Value)),
-                    new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, SoundEffectLibrary2Sounds.Etecoon.Value),
+                    .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, checked((byte)effect.Value))),
+                    new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, checked((byte)SoundEffectLibrary2Sounds.Etecoon.Value)),
                 ]);
             ClipAudioCatalog clips = ClipAudioCatalog.Load(scratch.FullName);
             AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");
@@ -105,11 +105,11 @@ internal static class AudioClipExportVerification
                 AudioBank.GreenBrinstar,
                 CartridgeAudioCommand.WritePort(PortOf(effect.Library), effect.Value),
                 player => player.soundLibraries[libraryIndex].CurrentSound == effect.Value,
-                layer.Voices,
+                layer.Voices.ToVoiceMask(),
                 rendered);
-            AssertSequenceEqual(clip, independent[..(int)(frames * 2)], $"{effect} layer on voices ${layer.Voices:X2} equals the independent render");
+            AssertSequenceEqual(clip, independent[..(int)(frames * 2)], $"{effect} layer on voices ${layer.Voices.ToVoiceMask():X2} equals the independent render");
             if (layer.LoopStart is long loopStart)
-                AssertSequenceEqual(clip[(int)(loopStart * 2)..], independent[(int)(frames * 2)..], $"{effect} loop on voices ${layer.Voices:X2} equals the next pass");
+                AssertSequenceEqual(clip[(int)(loopStart * 2)..], independent[(int)(frames * 2)..], $"{effect} loop on voices ${layer.Voices.ToVoiceMask():X2} equals the next pass");
         }
         AssertEqual(effect == SoundEffectLibrary3Sounds.SpeedBoosterEcho, entry.ActiveFrames is null, $"{effect} never ends exactly when it repeats forever");
     }
@@ -213,7 +213,7 @@ internal static class AudioClipExportVerification
         }
 
         /// <inheritdoc />
-        public void KeysPublished(byte keyOn, byte keyOff)
+        public void KeysPublished(int keyOn, int keyOff)
         {
             if (StartSample is null && started(player))
                 StartSample = tickSample;

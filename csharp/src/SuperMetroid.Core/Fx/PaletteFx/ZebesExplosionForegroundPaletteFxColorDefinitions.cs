@@ -19,35 +19,12 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ZebesExplosionForegroundPaletteFxColorDefinitions
 {
 
-    /// <summary>The instruction-list entry at <c>$8D:CB3C</c>.</summary>
-    public const ushort ProgramStart = 0xcb3c;
-
-    /// <summary>The first timed record at <c>$8D:CB40</c>.</summary>
-    public const ushort FirstFramePointer = ProgramStart + 2 * sizeof(ushort);
-
     /// <summary>The one-shot foreground explosion contains sixteen timed records.</summary>
     public const int FrameCount = 16;
 
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 15;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = (ColorsPerFrame + 2) * sizeof(ushort);
-
-    /// <summary>Returns one timed-record pointer.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
-
-    /// <summary>Returns one live BGR555 color word in a timed record.</summary>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(93, FrameCount, ColorsPerFrame);
 }

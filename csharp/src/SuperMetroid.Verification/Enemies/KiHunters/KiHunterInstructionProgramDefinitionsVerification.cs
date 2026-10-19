@@ -6,6 +6,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -39,6 +41,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterProgram.LandRight, "right"));
         Suite(nameof(VerifySpit), () => VerifySpit(KiHunterProgram.SpitLeft, movingRight: false));
         Suite(nameof(VerifySpit), () => VerifySpit(KiHunterProgram.SpitRight, movingRight: true));
+        Suite(nameof(VerifySwoopAngularMotion), () => VerifySwoopAngularMotion(swoopLeft: false));
+        Suite(nameof(VerifySwoopAngularMotion), () => VerifySwoopAngularMotion(swoopLeft: true));
 
         Suite(nameof(KiHunterAnimationsVerification.VerifyKiHunterAnimations), () => KiHunterAnimationsVerification.VerifyKiHunterAnimations(rom));
 
@@ -118,7 +122,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 $"KiHunter {(movingRight ? "right" : "left")} spit restores ground wait");
             AssertEqual((ushort)24, state.WaitTimer.RawValue,
                 $"KiHunter {(movingRight ? "right" : "left")} spit wait timer");
-            AssertEqual((ushort)0x004c, (enemies.KiHunterBehavior.LastKiHunterSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.KiHunterBehavior.LastKiHunterSoundEffect.")),
+            AssertEqual(SoundEffectLibrary2Sounds.KiHunterAcidSpit, (enemies.KiHunterBehavior.LastKiHunterSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.KiHunterBehavior.LastKiHunterSoundEffect.")),
                 $"KiHunter {(movingRight ? "right" : "left")} spit sound");
             RoomEnemyProjectileKind kind = movingRight
                 ? RoomEnemyProjectileKind.KiHunterAcidSpitRight
@@ -128,21 +132,93 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             AssertAsleep(state, program, $"KiHunter {(movingRight ? "right" : "left")} spit reaches terminal sleep");
         }
 
+        // Drives the swoop through production main AI over open terrain. Each update adds the 16.16 angular
+        // acceleration with the fraction carrying into the whole word, caps the whole word alone (the fraction keeps
+        // accumulating beneath the cap), steps the angle by the whole word, and ends the swoop on the update the
+        // angle reaches a full turn (rightward) or falls below a half turn (leftward). The expectation is the native
+        // split-word arithmetic, computed here independently of the production fixed-point type.
+        void VerifySwoopAngularMotion(bool swoopLeft)
+        {
+            (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) = CreatePair();
+            ushort accelerationWhole = swoopLeft ? KiHunterMotionDefinitions.LeftSwoopAccelerationWhole : (ushort)0;
+            ushort accelerationFraction = swoopLeft
+                ? KiHunterMotionDefinitions.LeftSwoopAccelerationFraction
+                : KiHunterMotionDefinitions.RightSwoopAccelerationFraction;
+            ushort cap = swoopLeft ? unchecked((ushort)-2) : (ushort)2;
+            ushort angle = swoopLeft ? (ushort)255 : (ushort)128;
+            state.Function = KiHunterEnemyFunction.Swooping;
+            state.AngularVelocity = SnesSignedSixteenSixteen.Zero;
+            state.AngularAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)accelerationWhole), accelerationFraction);
+            state.MaximumAngularVelocity = unchecked((short)cap);
+            state.SwoopAngle = angle;
+            state.AnimationChangeAngle = swoopLeft ? 240 : 144;
+            state.SwoopAnimationChanged = false;
+            state.SwoopTarget = body.Position.Whole;
+            state.SwoopOrigin = body.Position.Whole;
+            state.SwoopRadius = new Extent16<RoomPixels>(16, 16);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
+                new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
+            var frame = new ClockedEnemyAiFrame(
+                new RoomEnemyFrame
+                {
+                    Camera = Position16<RoomPixels>.Zero,
+                    TimeIsFrozen = false,
+                    Samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) },
+                    Level = level,
+                },
+                new FrameCounters(0));
+
+            ushort velocityWhole = 0;
+            ushort velocityFraction = 0;
+            bool cappedKeepingFraction = false;
+            bool ended = false;
+            for (int update = 1; update <= 200 && !ended; update++)
+            {
+                uint fractionSum = (uint)velocityFraction + accelerationFraction;
+                velocityWhole = unchecked((ushort)(velocityWhole + accelerationWhole + fractionSum / 65536));
+                velocityFraction = unchecked((ushort)fractionSum);
+                bool capped = swoopLeft
+                    ? unchecked((short)(velocityWhole - cap)) < 0
+                    : unchecked((short)(velocityWhole - cap)) >= 0;
+                if (capped)
+                {
+                    velocityWhole = cap;
+                    cappedKeepingFraction |= velocityFraction != 0;
+                }
+                angle = unchecked((ushort)(angle + velocityWhole));
+                ended = swoopLeft
+                    ? unchecked((short)(angle - 128)) < 0
+                    : unchecked((short)(angle - 256)) >= 0;
+
+                enemies.KiHunterBehavior.RunKiHunterMainAi(body, frame);
+                string side = swoopLeft ? "left" : "right";
+                AssertEqual(SnesSignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), state.AngularVelocity,
+                    $"KiHunter {side} swoop update {update} angular velocity carries and caps only its whole part");
+                AssertEqual((int)angle, state.SwoopAngle, $"KiHunter {side} swoop update {update} steps the angle by the whole velocity");
+                AssertEqual(ended ? KiHunterEnemyFunction.FlyingPatrol : KiHunterEnemyFunction.Swooping, state.Function,
+                    $"KiHunter {side} swoop update {update} ends only when the native angle test ends it");
+            }
+            AssertTrue(ended, $"KiHunter {(swoopLeft ? "left" : "right")} swoop ends");
+            AssertTrue(cappedKeepingFraction, $"KiHunter {(swoopLeft ? "left" : "right")} swoop caps a velocity whose fraction is kept");
+        }
+
         (RoomEnemySystem Enemies, RoomEnemySlot Body, RoomEnemySlot Wings,
             KiHunterEnemyState BodyState, KiHunterEnemyState WingState) CreatePair()
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
-            Action<RoomEnemySlot> initializeBody = enemies.KiHunterBehavior.InitializeKiHunter;
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            Action<RoomEnemySlot> initializeBody = KiHunterBehavior.InitializeKiHunter;
             Action<RoomEnemySlot> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
 
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
-            body.EnemyDefinitionPointer = EnemyDefinitionId.KihunterGreen;
-            body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+            body.Bind(EnemyDefinitionId.KihunterGreen, body.Definition);
+            body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
+            // The header's collision half-extents: the terrain movers scan the rows the body spans.
+            body.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.KihunterGreen).Radius;
             body.Position = body.Position.WithWhole(new(0x0080, 0x0080));
             RoomEnemySlot wings = enemies.SlotTable.Slots[1];
-            wings.EnemyDefinitionPointer = EnemyDefinitionId.KihunterGreenWings;
-            wings.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+            wings.Bind(EnemyDefinitionId.KihunterGreenWings, wings.Definition);
+            wings.Bind(wings.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
             initializeBody(body);
             initializeWings(wings);
             return (enemies, body, wings,
@@ -167,7 +243,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
         }
     }
 

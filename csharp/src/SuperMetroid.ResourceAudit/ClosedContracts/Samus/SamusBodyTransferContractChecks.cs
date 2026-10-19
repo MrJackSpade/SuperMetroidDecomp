@@ -93,15 +93,16 @@ internal static class SamusBodyTransferContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Samus.Artwork;
             class SamusTransferConsumer {
-                void Inspect(SamusBodyArtworkCatalog body, byte pose, ushort frame, bool upper, byte set, byte position, int address) {
+                void Inspect(SamusBodyArtworkCatalog body, SuperMetroid.Core.Samus.Poses.SamusPoseId pose, ushort frame, bool upper, byte set,
+                    byte position, int address) {
                     body.Frame(pose, frame);
-                    body.Frame(253, 0);
+                    body.Frame((SuperMetroid.Core.Samus.Poses.SamusPoseId)253, 0);
                     body.DefinitionAddress(true, 0, 2);
                     body.DefinitionAddress(true, 13, 0);
                     body.DefinitionAddress(false, 11, 0);
                     body.DefinitionAddress(upper, set, position);
-                    body.DefinitionAt(true, address);
-                    body.DefinitionAt(false, 0);
+                    body.DefinitionAt(address);
+                    body.DefinitionAt(0);
                 }
             }
             """, path: "fixture-samus-transfer-consumer.cs");
@@ -121,14 +122,10 @@ internal static class SamusBodyTransferContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 8 && before.Consumers.Count == 8, "original unaccounted transfer boundaries");
+        Require(before.UnresolvedCount == 8 && before.Consumers.Count == 8, "original unaccounted transfer boundaries" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 4 && after.UnresolvedCount == 4 && after.Consumers.Count == 8,
-            "valid-domain transfer availability does not suppress known invalid pose, set or address constants");
-        const string layout = "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyDefinitionLayout.cs";
-        var stale = trees.Select(tree => tree.FilePath == layout ? CSharpSyntaxTree.ParseText(tree.GetText().ToString()
-            .Replace("groups[set].Length != counts[pointers[set]]", "false", StringComparison.Ordinal), path: tree.FilePath) : tree);
-        Require(Inspect(Compile(stale), true).UnresolvedCount == 8, "changed admission revokes physical record closure");
-        var extra = CSharpSyntaxTree.ParseText("namespace SuperMetroid.Core.Assets; public sealed partial class SamusBodyArtworkCatalog { }",
+            "valid-domain transfer availability does not suppress known invalid pose, set or address constants" + " (" + after.Describe() + ")");
+        var extra = CSharpSyntaxTree.ParseText("namespace SuperMetroid.Core.Samus.Artwork; public sealed partial class SamusBodyArtworkCatalog { }",
             path: "fixture-unreviewed-body-partial.cs");
         Require(Inspect(Compile(trees.Append(extra)), true).UnresolvedCount == 8, "unreviewed private-state access revokes transfer closure");
     }

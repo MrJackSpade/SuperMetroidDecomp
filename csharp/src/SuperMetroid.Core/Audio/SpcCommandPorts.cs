@@ -36,20 +36,22 @@ public sealed class SpcCommandPorts
     /// <summary>SPC <c>$09-$0B</c>: the value acted on at the previous service, for change detection.</summary>
     private readonly byte[] previousSoundCommandReads = new byte[AudioRomData.Queues.SoundLibraryCount];
     /// <summary>
-    /// DSP cycles elapsed since the last driver tick; a tick that falls exactly on a frame
-    /// boundary runs at the start of the next frame.
+    /// DSP cycles elapsed since the last driver tick, 0 through <see cref="SpcPortDefinitions.DspCyclesPerDriverTick"/>;
+    /// a tick that falls exactly on a frame boundary runs at the start of the next frame.
     /// </summary>
-    private byte timerCycles;
-    /// <summary>The driver's eight-bit sound-effect timer: each tick adds <c>$20</c> and a carry polls.</summary>
-    private byte soundEffectTimerAccumulator;
+    private int timerCycles;
+    /// <summary>The sound-effect timer: each tick adds <see cref="SpcPortDefinitions.SoundEffectTimerStep"/> and an overflow polls.</summary>
+    private TickAccumulator soundEffectTimer;
 
     /// <summary>Writes one CPU-to-SPC communication port exactly as the cartridge does.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is outside ports zero through three.</exception>
-    public void WritePort(ApuPort port, byte value)
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="port"/> is outside ports zero through three, or <paramref name="value"/> is outside 0 through 255.
+    /// </exception>
+    public void WritePort(ApuPort port, int value)
     {
         if ((uint)port >= inputPorts.Length)
             throw new ArgumentOutOfRangeException(nameof(port), port, "SPC input port must be zero through three.");
-        inputPorts[(int)port] = value;
+        inputPorts[(int)port] = (byte)Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
     /// <summary>Reads one sound-effect library's SPC-to-CPU acknowledgement port.</summary>
@@ -87,7 +89,7 @@ public sealed class SpcCommandPorts
     {
         if (schedule.Length < MaximumTicksPerFrame)
             throw new ArgumentException($"Driver schedule requires {MaximumTicksPerFrame} entries.", nameof(schedule));
-        if (timerCycles > SpcPortDefinitions.DspCyclesPerDriverTick)
+        if (timerCycles is < 0 or > SpcPortDefinitions.DspCyclesPerDriverTick)
             throw new InvalidDataException($"SPC timer contains impossible value {timerCycles}.");
 
         int count = 0;
@@ -96,23 +98,25 @@ public sealed class SpcCommandPorts
         {
             if (timerCycles >= SpcPortDefinitions.DspCyclesPerDriverTick)
             {
-                schedule[count++] = Tick(cycle, unchecked((byte)(timerCycles / SpcPortDefinitions.DspCyclesPerDriverTick)));
-                timerCycles &= SpcPortDefinitions.DspCyclesPerDriverTick - 1;
+                schedule[count++] = Tick(cycle, timerCycles / SpcPortDefinitions.DspCyclesPerDriverTick);
+                timerCycles %= SpcPortDefinitions.DspCyclesPerDriverTick;
             }
 
+            // Each step stops at the next tick, so the elapsed cycles never pass one tick period.
             int cycles = Math.Min(DspCyclesPerFrame - cycle, SpcPortDefinitions.DspCyclesPerDriverTick - timerCycles);
-            timerCycles = unchecked((byte)(timerCycles + cycles));
+            timerCycles += cycles;
             cycle += cycles;
         }
         return count;
     }
 
     /// <summary>Runs one driver tick at <paramref name="dspCycleOffset"/>, advancing the sound-effect timer and polling the SFX ports on its carry.</summary>
-    private SpcDriverTick Tick(int dspCycleOffset, byte ticks)
+    private SpcDriverTick Tick(int dspCycleOffset, int ticks)
     {
-        int soundAccumulator = soundEffectTimerAccumulator + unchecked((byte)(ticks * SpcPortDefinitions.SoundEffectTimerStep));
-        soundEffectTimerAccumulator = unchecked((byte)soundAccumulator);
-        if (soundAccumulator <= byte.MaxValue)
+        // The driver forms the tick's step in eight bits before adding it.
+        (soundEffectTimer, bool polls) = soundEffectTimer.Advance(
+            ticks * SpcPortDefinitions.SoundEffectTimerStep % TickAccumulator.Period);
+        if (!polls)
             return new SpcDriverTick(dspCycleOffset, ticks, SoundEffectsPolled: false, default, default, default);
         return new SpcDriverTick(dspCycleOffset, ticks, SoundEffectsPolled: true,
             PollSoundLibrary(0), PollSoundLibrary(1), PollSoundLibrary(2));

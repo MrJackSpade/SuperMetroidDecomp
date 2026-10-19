@@ -14,7 +14,7 @@ internal static class FakeKraidAnimationsVerification
     internal static void VerifyFakeKraidAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, FakeKraidAnimations.Programs,
-            FakeKraidFrameDefinitions.Spritemap,
+            FakeKraidFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

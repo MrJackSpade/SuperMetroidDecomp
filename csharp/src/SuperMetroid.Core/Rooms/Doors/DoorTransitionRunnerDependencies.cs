@@ -44,10 +44,10 @@ internal sealed record DoorTransitionRunnerDependencies
     public required MaridiaElevatubeRoomMainState MaridiaElevatube { get; init; }
 
     /// <summary>Nmi.</summary>
-    public required NmiClock Nmi { get; init; }
+    public required FrameClock Clock { get; init; }
 
     /// <summary>Nmi handler.</summary>
-    public required NmiHandler NmiHandler { get; init; }
+    public required AcceptedFrameBoundary FrameBoundary { get; init; }
 
     /// <summary>Sprite frame the runner begins, draws into and finalizes.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }
@@ -69,7 +69,4 @@ internal sealed record DoorTransitionRunnerDependencies
 
     /// <summary>Wrecked ship treadmill.</summary>
     public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
-
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
 }

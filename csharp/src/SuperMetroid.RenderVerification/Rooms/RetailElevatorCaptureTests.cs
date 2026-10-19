@@ -17,8 +17,8 @@ internal static class RetailElevatorCaptureTests
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
-        var legacy = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
-        var captured = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
+        var legacy = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         var padPositions = new HashSet<ushort>();
         bool fade = false, arriving = false, landed = false;
         int samples = 0, releasedFrames = 0;
@@ -30,7 +30,7 @@ internal static class RetailElevatorCaptureTests
                 ? SnesButton.Start : (ushort)0;
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, tick + 1, 1);
-            if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||
+            if (expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
                 throw new InvalidOperationException($"Elevator frontend capture diverged at {tick}.");
@@ -44,8 +44,8 @@ internal static class RetailElevatorCaptureTests
             arriving |= expected.GameState == SuperMetroidGameState.MainGameplay && !arrival.IsComplete;
             landed |= arrival.IsComplete;
             padPositions.Add(arrival.PadPosition.Y);
-            var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))));
-            PixelComparison.Verify(packet, expected.Pixels, renderer.RenderForReadback(packet),
+            var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(actual.Snapshot));
+            PixelComparison.Verify(packet, legacy.PublishedPixels(), renderer.RenderForReadback(packet),
                 $"{device.Kind}: Ceres elevator {tick}, pad Y={arrival.PadPosition.Y}, complete={arrival.IsComplete}");
             samples++;
             if (arrival.IsComplete && expected.GameState == SuperMetroidGameState.MainGameplay &&

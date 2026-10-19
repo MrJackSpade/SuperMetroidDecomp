@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
@@ -9,8 +11,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class RioBehavior : IEnemySpecies
+internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rio];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new RioEntity(this, slot, common);
+
     /// <summary>Supplies the global enemy RNG word consumed on every Rio AI frame.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves Rio's horizontal and vertical flight against current room terrain.</summary>
@@ -31,29 +39,25 @@ internal sealed class RioBehavior : IEnemySpecies
     // These are live ROM words, not friendly host tuning constants. The retail routine
     // reads them at $A2:BBBB/$A2:BBBF immediately before a dive begins.
 
-    /// <summary>Per-slot Rio movement state cleared whenever a room loads.</summary>
-    internal readonly RioEnemyState?[] _rioStates = new RioEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Most recent library-two sound request produced by Rio during this frame.</summary>
-    public ushort? LastRioSoundEffect { get; private set; }
+    public SoundEffectId? LastRioSoundEffect { get; private set; }
 
     /// <summary>Discards prior Rio slot states and pending dive sound.</summary>
     internal void ResetRioRoomState()
     {
-        Array.Clear(_rioStates);
         LastRioSoundEffect = null;
     }
 
     /// <summary>Ports <c>Rio_Init</c> at $A2:BBCD.</summary>
-    internal void InitializeRio(RoomEnemySlot slot)
+    internal static void InitializeRio(RoomEnemySlot slot)
     {
-        var state = new RioEnemyState(slot)
+        var state = new RioEnemyState
         {
             AnimationFinished = false,
             InstalledProgram = null,
             Function = RioEnemyFunction.WaitingForSamus,
         };
-        _rioStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Rio_Init writes the list directly rather than calling Rio_6. The installed animation must
         // therefore remain none until the first behavioral transition installs a new list.
@@ -137,7 +141,7 @@ internal sealed class RioBehavior : IEnemySpecies
                 state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - RioGravityStep))));
                 if (state.Velocity.Y.SignedRawValue < 0)
                 {
-                    state.SavedHorizontalVelocity = state.Velocity.X.RawValue;
+                    state.SavedHorizontalVelocity = state.Velocity.X;
                     state.Velocity = new EightEightVector<RoomPixels>(0, 0);
                     state.Function = RioEnemyFunction.HoveringTowardSamus;
                 }
@@ -187,7 +191,7 @@ internal sealed class RioBehavior : IEnemySpecies
                 if (unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= 0)
                 {
                     state.Velocity = new EightEightVector<RoomPixels>(
-                        new SnesSignedEightEight(state.SavedHorizontalVelocity),
+                        state.SavedHorizontalVelocity,
                         new SnesSignedEightEight(unchecked((ushort)-1)));
                     state.Function = RioEnemyFunction.BouncingBackToPerch;
                     return;
@@ -210,7 +214,7 @@ internal sealed class RioBehavior : IEnemySpecies
 
             default:
                 throw new InvalidDataException(
-                    $"Rio function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Rio function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -264,48 +268,38 @@ internal sealed class RioBehavior : IEnemySpecies
     }
 
     /// <summary>Returns the initialized Rio state paired with this physical enemy slot.</summary>
-    private RioEnemyState RequireRioState(RoomEnemySlot slot) =>
-        _rioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static RioEnemyState RequireRioState(RoomEnemySlot slot) =>
+        slot.SpeciesState<RioEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Rio state.");
 
-    /// <summary>Registers Rio's guarded native initialization handler.</summary>
-    internal void RegisterRioInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Rio's initialization AI.</summary>
+    internal static void RunRioInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Rio, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeRio(slot);
-        });
+        InitializeRio(slot);
     }
 
-    /// <summary>Registers Rio's guarded dive, hover, and rebound AI.</summary>
-    internal void RegisterRioMainAi(EnemyAiTable table)
+    /// <summary>Ports Rio's main AI.</summary>
+    internal void RunRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Rio, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunRioMain(
-                slot,
-                RequireRioState(slot),
-                frame.Samus,
-                frame.Level,
-                frame.Camera);
-        });
+        RunRioMain(
+            slot,
+            RequireRioState(slot),
+            frame.Samus,
+            frame.Level,
+            frame.Camera);
     }
 
-    /// <summary>Runs the Rio's animations as typed programs (#641).</summary>
-    internal void RegisterRioTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireRioState(slot);
-            AnimationProgramCursor<RioProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, RioAnimations.Programs, ref cursor, RioFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyRioCue(state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Rio's typed animation.</summary>
+    internal static void AdvanceRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireRioState(slot);
+        AnimationProgramCursor<RioProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, RioAnimations.Programs, ref cursor, RioFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyRioCue(state, cue));
+        state.Program = cursor;
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
@@ -322,6 +316,6 @@ internal sealed class RioBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastRioSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastRioSoundEffect, maximumQueued: 6);
     }
 }

@@ -3,6 +3,7 @@ using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 using static SuperMetroid.EnsureVerification.Contracts.MemberDocumentationAnalyzerTests;
 using static SuperMetroid.EnsureVerification.CartridgeEncoding.CartridgeEncodingAnalyzerTests;
 using static SuperMetroid.EnsureVerification.Hardware.CpuBusCodeFixTests;
+using static SuperMetroid.EnsureVerification.Hardware.CpuBusDeclarationAnalyzerTests;
 using static SuperMetroid.EnsureVerification.Contracts.EnsureCodeFixTests;
 using static SuperMetroid.EnsureVerification.Contracts.OwnedReflectionAnalyzerTests;
 using static SuperMetroid.EnsureVerification.PaletteFx.PaletteFxContractTests;
@@ -13,6 +14,7 @@ using static SuperMetroid.EnsureVerification.Contracts.AdapterChainAnalyzerTests
 using static SuperMetroid.EnsureVerification.SourceLayout.OneTypePerFileAnalyzerTests;
 using static SuperMetroid.EnsureVerification.SourceLayout.PartialTypeAnalyzerTests;
 using static SuperMetroid.EnsureVerification.Hardware.WordReadAnalyzerTests;
+using SuperMetroid.EnsureVerification.Contracts;
 using SuperMetroid.EnsureVerification.Harness;
 using SuperMetroid.EnsureVerification.Modules;
 
@@ -40,28 +42,52 @@ internal static class Program
             }
             if (args.Length != 0)
                 throw new ArgumentException("Unknown verification arguments.", nameof(args));
-            VerifyEnsure();
-            VerifyAnalyzer();
-            VerifyMemberDocumentationAnalyzer();
-            VerifyPrimitiveDomainAnalyzer();
-            VerifySpatialClumpAnalyzer();
-            VerifyCpuBusAccessAnalyzer();
-            VerifyCpuBusAccessCodeFix();
-            VerifyPpuLayoutAccessAnalyzer();
-            VerifyDspRegisterAccessAnalyzer();
-            VerifySpcMemoryAccessAnalyzer();
-            VerifyParameterListAnalyzer();
-            VerifyPartialTypeAnalyzer();
-            VerifyNullForgivingAnalyzer();
-            VerifyAdapterChainAnalyzer();
-            VerifyOneTypePerFileAnalyzer();
-            ModuleMapAnalyzerTests.VerifyModuleMapAnalyzers();
-            VerifyOwnedReflectionAnalyzer();
-            VerifyParameterContracts();
-            VerifyCartridgeEncodingAnalyzer();
-            VerifyEnsureCallsAndCodeFix();
-            VerifyWordReadAnalyzer();
-            VerifyPaletteFxDependencyContract();
+            // Every suite runs even after one fails, so a single run reports every failure in full.
+            (string Name, Action Run)[] suites =
+            [
+                (nameof(VerifyEnsure), VerifyEnsure),
+                (nameof(VerifyAnalyzer), VerifyAnalyzer),
+                (nameof(VerifyMemberDocumentationAnalyzer), VerifyMemberDocumentationAnalyzer),
+                (nameof(VerifyPrimitiveDomainAnalyzer), VerifyPrimitiveDomainAnalyzer),
+                (nameof(VerifySpatialClumpAnalyzer), VerifySpatialClumpAnalyzer),
+                (nameof(VerifyCpuBusAccessAnalyzer), VerifyCpuBusAccessAnalyzer),
+                (nameof(VerifyCpuBusAccessCodeFix), VerifyCpuBusAccessCodeFix),
+                (nameof(VerifyCpuBusDeclarationAnalyzer), VerifyCpuBusDeclarationAnalyzer),
+                (nameof(VerifyCartridgeEncodingAnalyzer), VerifyCartridgeEncodingAnalyzer),
+                (nameof(VerifyPpuLayoutAccessAnalyzer), VerifyPpuLayoutAccessAnalyzer),
+                (nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),
+                (nameof(VerifySpcMemoryAccessAnalyzer), VerifySpcMemoryAccessAnalyzer),
+                (nameof(VerifyParameterListAnalyzer), VerifyParameterListAnalyzer),
+                (nameof(VerifyPartialTypeAnalyzer), VerifyPartialTypeAnalyzer),
+                (nameof(VerifyNullForgivingAnalyzer), VerifyNullForgivingAnalyzer),
+                (nameof(VerifyAdapterChainAnalyzer), VerifyAdapterChainAnalyzer),
+                (nameof(VerifyOneTypePerFileAnalyzer), VerifyOneTypePerFileAnalyzer),
+                (nameof(ModuleMapAnalyzerTests.VerifyModuleMapAnalyzers), ModuleMapAnalyzerTests.VerifyModuleMapAnalyzers),
+                (nameof(SpeciesReachAnalyzerTests.VerifySpeciesReachAnalyzer), SpeciesReachAnalyzerTests.VerifySpeciesReachAnalyzer),
+                (nameof(VerifyOwnedReflectionAnalyzer), VerifyOwnedReflectionAnalyzer),
+                (nameof(VerifyParameterContracts), VerifyParameterContracts),
+                (nameof(VerifyEnsureCallsAndCodeFix), VerifyEnsureCallsAndCodeFix),
+                (nameof(VerifyWordReadAnalyzer), VerifyWordReadAnalyzer),
+                (nameof(VerifyPaletteFxDependencyContract), VerifyPaletteFxDependencyContract),
+            ];
+            var failed = new List<string>();
+            foreach ((string name, Action run) in suites)
+            {
+                try
+                {
+                    run();
+                }
+                catch (Exception exception)
+                {
+                    Console.Error.WriteLine($"FAIL {name}: {exception}");
+                    failed.Add(name);
+                }
+            }
+            if (failed.Count > 0)
+            {
+                Console.Error.WriteLine($"{failed.Count} of {suites.Length} suite(s) failed: {string.Join(", ", failed)}");
+                return 1;
+            }
             Console.WriteLine("Ensure API, analyzer and palette-FX dependency checks passed.");
             return 0;
         }

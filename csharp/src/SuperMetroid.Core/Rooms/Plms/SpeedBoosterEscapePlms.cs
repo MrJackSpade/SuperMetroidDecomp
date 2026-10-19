@@ -30,17 +30,14 @@ internal sealed class SpeedBoosterEscapePlms
         }
 
         if (_bindings.Events.Has(EventNumber.OutranSpeedBoosterLavaquake))
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
         else
             slot.StartAnimation(new SpeedBoosterEscapePlmAnimation());
     }
 
     /// <summary>Dispatches the exact callback pointer installed by the cartridge list.</summary>
-    internal void RunSpeedBoosterEscapePreInstruction(PlmSlot slot)
+    internal void RunSpeedBoosterEscapePreInstruction(PlmSlot slot, SpeedBoosterEscapePreInstruction preInstruction)
     {
-        if (slot.HeaderPointer != PlmHeaderId.SpeedBoosterEscape)
-            return;
-
         RoomLayer3FxState fx = _bindings.RoomFx
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM lost its room-FX owner.");
@@ -48,14 +45,8 @@ internal sealed class SpeedBoosterEscapePlms
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM has no live Samus owner.");
 
-        SpeedBoosterEscapePreInstruction preInstruction =
-            ClosedNativeWords.Decode<SpeedBoosterEscapePreInstruction>(
-                slot.PreInstruction, "Speed Booster escape pre-instruction");
         switch (preInstruction)
         {
-            case SpeedBoosterEscapePreInstruction.None:
-                return;
-
             case SpeedBoosterEscapePreInstruction.WaitForSpeedBooster:
                 RunWaitForSpeedBooster(slot, samus, fx);
                 return;
@@ -91,14 +82,14 @@ internal sealed class SpeedBoosterEscapePlms
                 timer: 0);
             (_bindings.Earthquake ?? throw new InvalidOperationException(
                 "Speed Booster escape PLM lost its earthquake owner.")).SetTimer(0);
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             return;
         }
 
         // BMI at $84:B80D treats any $8000-$FFFF target as disabled and deletes the actor.
-        if (unchecked((short)fx.TargetYPosition) < 0)
+        if (unchecked((short)fx.TargetSurface.Y) < 0)
         {
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             return;
         }
 
@@ -114,7 +105,7 @@ internal sealed class SpeedBoosterEscapePlms
         RoomLayer3FxState fx)
     {
         SpeedBoosterEscapeStageDefinition? stage =
-            SpeedBoosterEscapeStageDefinitions.Resolve(slot.LoopTimer);
+            SpeedBoosterEscapeStageDefinitions.Resolve(checked((ushort)slot.LoopTimer));
         if (stage is null)
         {
             (_bindings.Events ?? throw new InvalidOperationException(
@@ -128,7 +119,7 @@ internal sealed class SpeedBoosterEscapePlms
             return;
 
         fx.ApplyCartridgeMotionWrites(
-            baseYPosition: stage.Value.MaximumFxY < fx.BaseYPosition
+            baseYPosition: stage.Value.MaximumFxY < fx.BaseY.Whole
                 ? stage.Value.MaximumFxY
                 : null,
             packedYVelocity: stage.Value.PackedYVelocity);

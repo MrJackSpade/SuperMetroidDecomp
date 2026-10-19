@@ -2,20 +2,18 @@ namespace SuperMetroid.Core.Saves;
 
 /// <summary>Native SRAM directory and per-slot payload layout used by bank <c>$81</c>.</summary>
 /// <remarks>
-/// Values in this catalog are byte offsets within <see cref="Image"/>. The serializer owns
-/// behavior; this type owns only the immutable cartridge data structure so layout review does
-/// not require reading save/load control flow.
+/// Values in this catalog are byte offsets within the SRAM image (<see cref="ImageByteCount"/>).
+/// <see cref="SaveRamCodec"/> owns behavior; this type owns only the immutable cartridge data
+/// structure so layout review does not require reading save/load control flow.
 /// </remarks>
-[CpuBusBoundary("catalog: native save SRAM")]
 public static class SaveRamLayout
 {
     /// <summary>
-    /// <c>$70:0000-$70:1FFF</c>, the cartridge's complete 8-KiB battery-backed SRAM window: checksum
-    /// directories, three slot payloads, the completion marker and the selected-slot word. Every
-    /// offset in this catalog is relative to its first byte.
+    /// The byte length of the cartridge's complete 8-KiB SRAM image (<c>$70:0000-$70:1FFF</c>): checksum
+    /// directories, three slot payloads, the completion marker and the selected-slot word. Every offset in
+    /// this catalog is relative to its first byte.
     /// </summary>
-    public static readonly CpuBusCell Image = CpuBusCell.SramBytes(nameof(Image), 0x700000, 0x2000,
-        "native SRAM image (u8[], little-endian words)");
+    public const int ImageByteCount = 0x2000;
 
     /// <summary>The number of independently checksummed save payloads in the retail SRAM image.</summary>
     public const int SlotCount = 3;

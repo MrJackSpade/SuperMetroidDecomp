@@ -3,68 +3,58 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// Typed view of Cacatac's six native ordinary words plus its two extended patrol bounds.
-/// The native record uniquely uses <c>$0FA8,x</c> for right subspeed; because the generic
-/// slot projection begins at <c>$0FAA,x</c>, that one word remains explicit host storage.
+/// The state of a Cacatac: its patrol velocities, direction and function, plus its two patrol bounds. The values the
+/// cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class CacatacEnemyState
 {
-    /// <summary>Common enemy slot backing Cacatac's native patrol velocity and function words.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects a live Cacatac slot into typed patrol and spike-facing state.</summary>
-    internal CacatacEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<CacatacProgram> Program { get; set; }
 
-    /// <summary>Native <c>$0FA8,x</c>, the fractional half of rightward velocity.</summary>
-    public ushort RightSubvelocity { get; internal set; }
-
-    /// <summary>Native <c>$0FAA,x</c>, the whole half of rightward velocity.</summary>
-    public ushort RightVelocity
-    {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
-
-    /// <summary>Native <c>$0FAC,x</c>, the fractional half of leftward velocity.</summary>
-    public ushort LeftSubvelocity
-    {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
-
-    /// <summary>Native <c>$0FAE,x</c>, the whole half of leftward velocity.</summary>
-    public ushort LeftVelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Native <c>$0FB0,x</c>; zero is left, one is right, two initially stops.</summary>
-    public CacatacDirection Direction
-    {
-        get => (CacatacDirection)_slot.VariableD;
-        internal set => _slot.VariableD = (ushort)value;
-    }
-
-    /// <summary>Native indirect function pointer at <c>$0FB2,x</c>.</summary>
-    public CacatacEnemyFunction Function
-    {
-        get => (CacatacEnemyFunction)_slot.VariableE;
-        internal set => _slot.VariableE = (ushort)value;
-    }
-
-    /// <summary>Left patrol limit in whole room pixels, stored at native <c>$7E:7800,x</c>.</summary>
-    public ushort MinimumXPosition { get; internal set; }
-
-    /// <summary>Right patrol limit in whole room pixels, stored at native <c>$7E:7802,x</c>.</summary>
-    public ushort MaximumXPosition { get; internal set; }
+    /// <summary>
+    /// Signed 16.16 room-pixel displacement added to X on every rightward patrol update. A kill empties its whole
+    /// pixels with the common record; its fraction lives outside the record and outlives the kill.
+    /// </summary>
+    public SnesSignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
-    /// Parameter-one's high-byte presentation selector. The assembly tests only zero versus
-    /// nonzero, so this is a Boolean discriminator rather than a guessed flags enum.
+    /// Signed 16.16 room-pixel displacement added to X on every leftward patrol update (negative for the authored
+    /// speeds).
+    /// </summary>
+    public SnesSignedSixteenSixteen LeftVelocity { get; internal set; }
+
+    /// <summary>Native; zero is left, one is right, two initially stops.</summary>
+    public CacatacDirection Direction { get; internal set; }
+
+    /// <summary>Native indirect function pointer at; none once a kill has emptied the record.</summary>
+    public CacatacEnemyFunction? Function { get; internal set; }
+
+    /// <summary>
+    /// Left patrol limit; only X is meaningful. Leftward patrol turns right once the whole X position lies strictly
+    /// left of it, measured as the wrapped signed difference, so a limit that wrapped past the room's left edge still
+    /// turns the enemy as the cartridge does.
+    /// </summary>
+    public Position16<RoomPixels> LeftPatrolLimit { get; internal set; }
+
+    /// <summary>
+    /// Right patrol limit; only X is meaningful. Rightward patrol turns left once the whole X position reaches or
+    /// passes it, measured as the wrapped signed difference.
+    /// </summary>
+    public Position16<RoomPixels> RightPatrolLimit { get; internal set; }
+
+    /// <summary>
+    /// Parameter-one's high-byte presentation selector. The assembly tests only zero versus nonzero, so this is a
+    /// Boolean discriminator rather than a guessed flags enum.
     /// </summary>
     public bool UpsideUp { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        RightVelocity = RightVelocity.WithWholePixels(0);
+        LeftVelocity = SnesSignedSixteenSixteen.Zero;
+        Direction = default;
+        Function = null;
+    }
 }

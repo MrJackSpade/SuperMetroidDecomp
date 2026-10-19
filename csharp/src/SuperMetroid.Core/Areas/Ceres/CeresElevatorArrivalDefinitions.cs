@@ -9,12 +9,10 @@ internal static class CeresElevatorArrivalDefinitions
 
     /// <summary>$86:A387, moving pad spawned first into enemy-projectile slot $22.</summary>
     internal static readonly CeresElevatorProjectileDefinition MovingPad = new(
-        DefinitionPointer: 0xa387,
         Program: CeresElevatorArrivalProgram.Pad);
 
     /// <summary>$86:A395, stationary level-data concealer spawned into slot $20.</summary>
     internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
-        DefinitionPointer: 0xa395,
         Program: CeresElevatorArrivalProgram.Platform);
 
     /// <summary>$86:A301 clears the transient enemy graphics word in both projectiles.</summary>
@@ -34,9 +32,6 @@ internal static class CeresElevatorArrivalDefinitions
 
     /// <summary>$86:A345 compares the incremented Samus Y against 73 before clamping.</summary>
     internal const ushort LandingThresholdY = 73;
-
-    /// <summary>$8000 is the inactive/no-spritemap sentinel used before the first frame.</summary>
-    internal const ushort NoSpritemap = 0x8000;
 
     /// <summary>The bank-$8D spritemap each arrival pose shows.</summary>
     internal static ushort Spritemap(CeresElevatorArrivalPose pose) => pose switch

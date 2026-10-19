@@ -16,7 +16,7 @@ public static class CorpseRottingTableProcessor
     /// <summary>Builds the descending-Y, ascending-delay table from <c>$A9:DC40</c>.</summary>
     public static void Initialize(CorpseRotTable table)
     {
-        ushort entryCount = table.EntryCount;
+        int entryCount = table.EntryCount;
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
             table.SetYOffset(entryIndex, unchecked((ushort)(entryCount - 1 - entryIndex)));
@@ -39,8 +39,8 @@ public static class CorpseRottingTableProcessor
     /// <returns>True while another rotting call is required; false on final completion.</returns>
     public static bool Step(
         CorpseRotTable table,
-        ushort yLimit,
-        ushort lateMoveEntryIndex,
+        int yLimit,
+        int lateMoveEntryIndex,
         Action<ushort, bool> copyOrMovePixelRow,
         Action<ushort> entryFinished)
     {

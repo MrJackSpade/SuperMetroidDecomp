@@ -1,5 +1,30 @@
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Runtime.Attract;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -13,7 +38,7 @@ internal static class SuperMetroidGameAccess
         internal string? MapPresentationIdentity => self.Artwork.MapPresentation?.ContentIdentity;
 
         /// <summary>Random word retained by the frontend dispatcher.</summary>
-        internal ushort DispatcherRandomNumber => self.FrontendRandomOwner.RandomNumber;
+        internal int DispatcherRandomNumber => self.Session.FrontendRandomOwner.RandomNumber;
 
         /// <summary>
         /// Initialize the ordinary gameplay runtime for a friend verifier that
@@ -24,10 +49,10 @@ internal static class SuperMetroidGameAccess
         /// </summary>
         internal void InitializeDirectRoomVerification()
         {
-            if (self.runtime is not null || self.GameState != SuperMetroidGameState.Reset)
+            if (self.Session.runtime is not null || self.GameState != SuperMetroidGameState.Reset)
                 throw new InvalidOperationException(
                     "Direct-room verification requires a fresh frontend.");
-            if (!((bool)(self.SetupSelectedGame())))
+            if (!((bool)(self.Session.SetupSelectedGame())))
                 throw new InvalidOperationException(
                     "New-game runtime setup did not select the Ceres arrival path.");
             self.GameState = SuperMetroidGameState.MainGameplay;
@@ -37,6 +62,8 @@ internal static class SuperMetroidGameAccess
         /// Exposes the cartridge coroutine phase only to the friend verification/debug hosts.
         /// Production UI code continues to consume the coarser public game state.
         /// </summary>
-        internal DoorTransitionPhase DoorTransitionPhaseForVerification => self.doorTransition.Phase;
+        internal DoorTransitionPhase DoorTransitionPhaseForVerification => self.Session.doorTransition.Phase;
+        /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
+        public GameArtwork Artwork { get => self.Session.Artwork; }
     }
 }

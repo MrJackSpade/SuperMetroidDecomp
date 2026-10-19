@@ -92,7 +92,7 @@ internal sealed class EnemyBg2FrameCatalog
                     throw new InvalidDataException(
                         $"{family} BG2 frame {frame.Name} write {index} is outside its tilemap.");
                 writes[index] = new EnemyBg2TilemapWrite(
-                    checked((ushort)(write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X)),
+                    write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X,
                     write.Tiles.Select(tile => checked((ushort)tile)).ToArray());
             }
             if (!frames.TryAdd(frame.Pointer, writes))

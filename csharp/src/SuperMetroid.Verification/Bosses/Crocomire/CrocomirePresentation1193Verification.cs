@@ -23,6 +23,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 /// <summary>Runtime checks for Crocomire's spike tile cadence and hidden-wall camera rumble.</summary>
 internal static class CrocomirePresentation1193Verification
 {
@@ -30,28 +31,27 @@ internal static class CrocomirePresentation1193Verification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyCrocomirePresentation(bool spikes)
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var maps = InstalledFixtures.Maps;
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(0xa98d);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Crocomire);
         var boss = runtime.Enemies.CrocomireBehavior.Crocomire;
         var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath;
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Health = samus.MaxHealth = 999;
         samus.Position = samus.Position.WithWhole(new(600, 120));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
-        samus.CommitPoseHistory(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        samus.CommitPoseHistory();
         samus.InputLocked = false;
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(512, 0));
         game.GameState = SuperMetroidGameState.MainGameplay;
@@ -74,7 +74,7 @@ internal static class CrocomirePresentation1193Verification
             var result = game.Step(0);
             if (spikes)
             {
-                var uploads = runtime.VramWrites.Entries.Where(write => write.EncodedVramDestination == 0x3d60).ToArray();
+                var uploads = runtime.VramWrites.Entries.Where(write => write.Destination.Encoded == 0x3d60).ToArray();
                 AssertEqual(frame % 8 == 0 ? 1 : 0, uploads.Length,
                     $"Crocomire spikes queue one native frame at tick {frame}");
                 if (uploads.Length != 0)
@@ -110,20 +110,20 @@ internal static class CrocomirePresentation1193Verification
         }
         if (spikes)
         {
-            VerifyCrocomireSpikeCompatibility(runtime, bus, maps.RoomFxAnimatedTiles);
-            runtime.RoomSpikes.LoadRoom(bus, runtime.Room.LoadedRoom.State.FxPointer,
-                (runtime.Room.ActiveDoor ?? throw new InvalidOperationException("Verification requires runtime.Room.ActiveDoor.")).Pointer, runtime.Room.LoadedRoom.AreaIndex);
+            VerifyCrocomireSpikeCompatibility(runtime, maps.RoomFxAnimatedTiles);
+            runtime.RoomSpikes.LoadRoom(runtime.Room.LoadedRoom.State.Fx,
+                (runtime.Room.ActiveDoor ?? throw new InvalidOperationException("Verification requires runtime.Room.ActiveDoor.")), runtime.Room.LoadedRoom.AreaIndex);
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.AnimatedTiles;
             game.Step(0);
-            AssertEqual(false, runtime.VramWrites.Entries.Any(write => write.EncodedVramDestination == 0x3d60),
+            AssertEqual(false, runtime.VramWrites.Entries.Any(write => write.Destination.Encoded == 0x3d60),
                 "X-ray's animation-disable word suspends spikes at the actual runtime seam");
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
             game.Step(0);
-            AssertEqual(0x879d84, runtime.VramWrites.Entries.Single(write => write.EncodedVramDestination == 0x3d60).SourceAddress,
+            AssertEqual(0x879d84, runtime.VramWrites.Entries.Single(write => write.Destination.Encoded == 0x3d60).SourceAddress,
                 "Re-enabled spikes resume the pending first frame");
-            runtime.RoomSpikes.LoadRoom(bus, 0, 0, AreaId.Norfair);
+            runtime.RoomSpikes.LoadRoom(null, null, AreaId.Norfair);
             var clearedWrites = new VramWriteQueue();
-            runtime.RoomSpikes.Step(bus, runtime.Vram, clearedWrites);
+            runtime.RoomSpikes.Step(runtime.Vram, clearedWrites);
             AssertEqual(0, clearedWrites.Entries.Count, "Room replacement without selected spikes clears their owner");
         }
         else
@@ -133,7 +133,7 @@ internal static class CrocomirePresentation1193Verification
             scroll.Bg1Offset = scroll.Bg1Offset.WithY(3);
             scroll.CalculateScrollsAndUpdates();
             ushort bg2 = scroll.Bg2Scroll.Y;
-            (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = unchecked((ushort)-4);
+            (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = -4;
             runtime.RoomMains.RunCrocomireComebackRoomMain();
             AssertEqual((ushort)99, scroll.Bg1Scroll.Y, "Native rumble includes BG1's ordinary Y offset");
             AssertEqual(bg2, scroll.Bg2Scroll.Y, "Hidden-wall rumble leaves BG2 unchanged");
@@ -167,7 +167,7 @@ internal static class CrocomirePresentation1193Verification
 
     /// <summary>Checks legacy PNG inheritance and debugger graph restoration for the room's animated spike tiles.</summary>
     private static void VerifyCrocomireSpikeCompatibility(SuperMetroidRuntime runtime,
-        ISnesAddressSpace bus, RoomFxAnimatedTileAtlas stock)
+        RoomFxAnimatedTileAtlas stock)
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         using var png = new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom));
@@ -195,15 +195,11 @@ internal static class CrocomirePresentation1193Verification
         {
             var expected = new VramWriteQueue();
             var actual = new VramWriteQueue();
-            runtime.RoomSpikes.Step(bus, runtime.Vram, expected);
-            restored.Step(bus, runtime.Vram, actual);
+            runtime.RoomSpikes.Step(runtime.Vram, expected);
+            restored.Step(runtime.Vram, actual);
             AssertTrue(expected.Entries.SequenceEqual(actual.Entries), "Current debugger graph retains exact spike cadence");
         }
-        runtime.RoomSpikes = new RoomSpikeAnimatedTilesState();
-        var restarted = new VramWriteQueue();
-        runtime.RoomSpikes.Step(bus, runtime.Vram, restarted);
-        AssertEqual(0x879d84, restarted.Entries.Single().SourceAddress,
-            "Absent legacy spike state restarts the current room's selected object");
+        // Debugger states are build-pinned (#1270); an older graph without spike state is rejected, not migrated.
     }
 
     /// <summary>Runs the spike animation and NMI artwork verification mode.</summary>

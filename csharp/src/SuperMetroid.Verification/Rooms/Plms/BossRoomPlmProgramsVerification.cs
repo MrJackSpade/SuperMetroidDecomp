@@ -107,7 +107,7 @@ internal static class BossRoomPlmProgramsVerification
                     Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2))), "cannon links its own hit program");
                 break;
             case DraygonCannonCue.ArmMissileWake:
-                AssertEqual(DraygonCannonRomData.MissileHitPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "cannon missile wake");
+                AssertEqual(DraygonCannonRomDataConstants.MissileHitPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "cannon missile wake");
                 break;
             case DraygonCannonCue.CountHit:
                 AssertEqual(DraygonCannonRomData.HitsToDestroy, ReadOperandByte(cartridge, cursor + 2), "cannon hits to destroy");
@@ -149,7 +149,7 @@ internal static class BossRoomPlmProgramsVerification
                 (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed), 6);
                 return true;
             case RoomPlmInstruction.InstallPreInstruction:
-                AssertEqual(MotherBrainGlassPlmProgramDefinitions.HitPreInstruction, Word(2), "glass hit wake");
+                AssertEqual(MotherBrainGlassPlmProgramDefinitionsConstants.HitPreInstruction, Word(2), "glass hit wake");
                 (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.ArmHitWake), 4);
                 return true;
             case RoomPlmInstruction.GotoIfRoomArgumentLess:
@@ -190,19 +190,19 @@ internal static class BossRoomPlmProgramsVerification
         switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
         {
             case RoomPlmInstruction.InstallPreInstruction:
-                AssertEqual(BombTorizoHandPlmProgramDefinitions.WakeIfSamusHasBombsPreInstruction, Word(2), "hand bomb wake");
+                AssertEqual(BombTorizoHandPlmProgramDefinitionsConstants.WakeIfSamusHasBombsPreInstruction, Word(2), "hand bomb wake");
                 (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.ArmBombWake), 4);
                 return true;
             case RoomPlmInstruction.CopyFromRamToVram:
                 AssertEqual(TorizoInstructionTileRomData.ChozoDebrisByteCount, (int)Word(2), "hand debris size");
                 AssertEqual(TorizoInstructionTileRomData.ChozoDebrisSource,
                     (int)new SnesAddress(ReadOperandByte(cartridge, cursor + 6), Word(4)), "hand debris source");
-                AssertEqual(BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord, Word(7), "hand debris destination");
+                AssertEqual(GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset).Encoded, Word(7), "hand debris destination");
                 (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.CopyDebrisTiles), 9);
                 return true;
             case RoomPlmInstruction.SpawnTorizoStatueBreaking:
+                AssertEqual(0, Word(2) % sizeof(ushort), "hand fragment operand is a two-byte table offset");
                 (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, Word(2) / sizeof(ushort)), 4);
-                AssertEqual(Word(2), cue.FragmentParameter, "hand fragment parameter");
                 return true;
             case RoomPlmInstruction.QueueSongOneMusicTrack:
                 (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic), 2);

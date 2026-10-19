@@ -15,10 +15,14 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks six installed room-FX BG3 tilemap pages against native VRAM output under read guards.</summary>
 internal static class RoomFxLayer3TilemapsVerification
 {
+    /// <summary>JSON options: Camel-case property names with case-insensitive matching.</summary>
+    private static readonly JsonSerializerOptions CamelCaseCaseInsensitiveJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true };
+
     /// <summary>Checks all six extracted BG3 pages and guarded installed FX loads against native VRAM words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for every room-FX BG3 tilemap page")]
@@ -65,11 +69,7 @@ internal static class RoomFxLayer3TilemapsVerification
         string path = Path.Combine(overrides, RoomFxLayer3TilemapFormat.FileName);
         string stockPath = Path.Combine(stock, RoomFxLayer3TilemapFormat.FileName);
         RoomFxLayer3TilemapDocument document = JsonSerializer.Deserialize<RoomFxLayer3TilemapDocument>(
-            File.ReadAllBytes(stockPath), new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNameCaseInsensitive = true,
-            }) ?? throw new InvalidDataException("Stock room-FX BG3 document is null.");
+            File.ReadAllBytes(stockPath), CamelCaseCaseInsensitiveJson) ?? throw new InvalidDataException("Stock room-FX BG3 document is null.");
         RoomBackgroundTilemapCell originalCell = document.Pages[nameof(RoomFxType.Lava)][0];
         document.Pages[nameof(RoomFxType.Lava)][0] = originalCell with
         {
@@ -110,7 +110,7 @@ internal static class RoomFxLayer3TilemapsVerification
         RoomFxLayer3TilemapCatalog catalog, RoomFxPaletteBlendCatalog paletteColors,
         out CartridgeReadGuard guarded)
     {
-        RoomFxRecordDefinition record = RoomFxRecordDefinitions.All.FirstOrDefault(candidate =>
+        RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.Type == (byte)type)
             ?? throw new InvalidDataException($"No compiled default room-FX record selects {type}.");
         var memory = new TestAddressSpace();
@@ -121,7 +121,7 @@ internal static class RoomFxLayer3TilemapsVerification
             PaletteBlendColors = paletteColors,
         };
         var vram = new SnesVram();
-        state.Load(guarded, vram, new SnesCgram(), record.Pointer, doorPointer: 0, randomNumber: 0);
+        state.LoadDefinition(vram, new SnesCgram(), record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
         return vram;
     }

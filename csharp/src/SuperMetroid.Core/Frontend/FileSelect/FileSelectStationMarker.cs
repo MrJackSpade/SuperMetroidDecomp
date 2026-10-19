@@ -11,23 +11,19 @@ public sealed class FileSelectStationMarker
     private int frame;
     /// <summary>Remaining menu ticks in the current animation phase.</summary>
     private int timer;
-    /// <summary>Completed pulses; parity controls whether the indicator backing is shown.</summary>
-    private ushort loops;
 
     /// <summary>Binds a saved station's drawing anchor and starts a fresh $82:B9FC indicator animation; this object neither chooses the gameplay load target nor initializes map scrolling.</summary>
-    /// <param name="bus">Required address-space context retained by the API contract; marker positions are resolved from the installed layout rather than read from cartridge memory.</param>
     /// <param name="area">One of the six Zebes map areas; Ceres is unsupported.</param>
     /// <param name="stationIndex">Native load-station slot 0..15, not an ordinal among usable stations; the slot must have a supported marker anchor.</param>
     /// <param name="layout">Required installed save-marker layout; its independently edited X/Y coordinates affect drawing only, despite the optional parameter syntax.</param>
     /// <remarks>The frame and timer begin at zero. The first <see cref="Step"/> advances to frame one; subsequent frame holds use the native 8/4/8/4 menu-update sequence.</remarks>
-    public FileSelectStationMarker(ISnesAddressSpace bus, AreaId area, int stationIndex,
+    public FileSelectStationMarker(AreaId area, int stationIndex,
         SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerLayout? layout = null)
-        => BindPosition(bus, area, stationIndex, layout);
+        => BindPosition(area, stationIndex, layout);
 
     /// <summary>Rebinds drawing position without changing the existing marker animation or selected load index.</summary>
-    internal void BindPosition(ISnesAddressSpace bus, AreaId area, int stationIndex, SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerLayout? layout)
+    internal void BindPosition(AreaId area, int stationIndex, SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerLayout? layout)
     {
-        Ensure.NotNull(bus);
         int areaIndex = AreaIds.ToIndex(area);
         if ((uint)areaIndex >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
@@ -43,7 +39,7 @@ public sealed class FileSelectStationMarker
     /// <summary>Current native $82:C569 spritemap-table identity, following $82:BA2D's $5F/$60/$61/$60 pulse; querying does not advance the timer.</summary>
     public MapSpriteId SpritemapId => PauseMapIndicatorAnimation.SpritemapId(frame);
     /// <summary>Whether $82:B73C-$B747's backing spritemap $12 is drawn before the marker: visible on even four-frame animation loops, including the initial loop, and hidden on odd loops.</summary>
-    public bool ShowBacking => (loops & 1) == 0;
+    public bool ShowBacking { get; private set; } = true;
 
     /// <summary>One menu tick, before drawing; the initial zero timer advances immediately to frame one.</summary>
     public void Step()
@@ -54,7 +50,8 @@ public sealed class FileSelectStationMarker
             if (frame == PauseMapIndicatorAnimation.FrameCount)
             {
                 frame = 0;
-                loops = unchecked((ushort)(loops + 1));
+                // Only the parity of completed pulses is observable, so each pulse toggles the backing.
+                ShowBacking = !ShowBacking;
             }
             timer = PauseMapIndicatorAnimation.FrameDelay(frame);
         }

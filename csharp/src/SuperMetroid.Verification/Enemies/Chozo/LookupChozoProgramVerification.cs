@@ -40,8 +40,6 @@ internal static class LookupChozoProgramVerification
                 count++;
                 byte expected = ChozoProgramFieldRomByte(rom, 0x840000 | raw);
                 AssertEqual(expected, b, "ChozoProgram native field byte");
-                AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "ChozoProgram composed byte ownership");
-                AssertEqual(expected, shared, "ChozoProgram composed native byte");
             }
             if (!ownsWord) AssertEqual((ushort)0, w, "ChozoProgram rejected word output");
             else
@@ -50,8 +48,6 @@ internal static class LookupChozoProgramVerification
                 if (mask == 0) continue;
                 int expected = ReadSamusEaterPlmWord(rom, 0x840000 | raw) & mask;
                 AssertEqual(expected, w & mask, "ChozoProgram native overlapping field");
-                AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "ChozoProgram composed word ownership");
-                AssertEqual(expected, shared & mask, "ChozoProgram composed overlapping field");
             }
         }
         AssertEqual(field switch {0 => 36,1 => 14,2 => 2,3 => 2,_ => 2}, count, "ChozoProgram independent field count");

@@ -18,17 +18,6 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// </remarks>
 public sealed class TitleSequenceState
 {
-    /// <summary>Reusable OBJ raster cleared by each render; excluded from saved scene state.</summary>
-    [NonSerialized] private Rgba32[]? objectLayerScratch;
-    /// <summary>Reusable final frame, valid for callers until the next title render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
-    /// <summary>Temporary OBJ priority plane rewritten before the title gradient is resolved.</summary>
-    [NonSerialized] private byte[]? gradientPriorityScratch;
-    /// <summary>Temporary OBJ palette plane used to choose the title gradient color per pixel.</summary>
-    [NonSerialized] private byte[]? gradientPaletteScratch;
-
-    /// <summary>Runtime address space used by native title state and palette-FX paths.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Holds interleaved Mode 7 background and OBJ character data for title rendering.</summary>
@@ -57,12 +46,12 @@ public sealed class TitleSequenceState
     private int textCardStep;
     /// <summary>Frames left before the next title text list entry is interpreted.</summary>
     private int sequenceEntryTimer;
-    /// <summary>Spritemap selected by the active title text or logo entry.</summary>
-    internal ushort activeSpritemap;
+    /// <summary>Composition selected by the active title text or logo entry, or null while nothing is shown.</summary>
+    internal TitleSprite? activeSprite;
     /// <summary>Screen origin used when drawing the active title spritemap.</summary>
     internal Position16<ScreenPixels> activeOrigin;
-    /// <summary>Character and palette offset supplied to the title sprite drawer.</summary>
-    internal ushort activeCharacterOffset;
+    /// <summary>Object attributes (the OBJ palette) applied to every part of the active composition.</summary>
+    internal SnesObjAttributeWord activeObjectPalette;
     /// <summary>Mode 7 background position whose whole words are interpreted as signed pixels.</summary>
     private FixedPosition<Mode7Pixels> mode7;
     /// <summary>Native 8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
@@ -82,25 +71,22 @@ public sealed class TitleSequenceState
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
     public TitleSequenceState(
-        ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null)
-        : this(bus, audio, queueOpeningMusic: true, titleGradientPresentation, titlePalettePresentation, titleGraphicsPresentation)
+        : this(audio, queueOpeningMusic: true, titleGradientPresentation, titlePalettePresentation, titleGraphicsPresentation)
     {
     }
 
     /// <summary>Builds the initial title VRAM and palette state, optionally queuing opening music for a new session.</summary>
     private TitleSequenceState(
-        ISnesAddressSpace bus,
         CartridgeAudioState? audio,
         bool queueOpeningMusic,
         TitleGradientPresentation? titleGradientPresentation,
         TitlePalettePresentation? titlePalettePresentation,
         TitleGraphicsPresentation? titleGraphicsPresentation)
     {
-        this.bus = Ensure.NotNull(bus);
         this.audio = audio;
         this.titleGradientPresentation = titleGradientPresentation;
         this.titlePalettePresentation = titlePalettePresentation;
@@ -151,14 +137,12 @@ public sealed class TitleSequenceState
 
     /// <summary>State $2C's player-cancelled return skips the introductory title cards.</summary>
     internal static TitleSequenceState ReturnFromDemo(
-        ISnesAddressSpace bus,
         CartridgeAudioState audio,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null)
     {
         var title = new TitleSequenceState(
-            bus,
             audio,
             queueOpeningMusic: false,
             titleGradientPresentation,
@@ -248,9 +232,9 @@ public sealed class TitleSequenceState
                     zoom++;
                 if (zoom >= TitleSequenceRomData.Scenes.IdentityScale)
                 {
-                    activeSpritemap = TitleSequenceRomData.Sprites.SuperMetroidLogo;
+                    activeSprite = TitleSprite.SuperMetroidLogo;
                     activeOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
-                    activeCharacterOffset = TitleSequenceRomData.Sprites.TitleCharacterOffset.Raw;
+                    activeObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
                     Phase = TitleSequencePhase.TitleLogoFade;
                     phaseTimer = TitleSequenceRomData.Timing.LogoHoldFrames;
                 }
@@ -328,7 +312,7 @@ public sealed class TitleSequenceState
         StepBabyMetroidAnimation();
         // The title calls the same bank-$8D interpreter as rooms. Its two console
         // programs own their colors and timers; the host must not synthesize a blink.
-        consolePaletteFx.Step(bus, cgram, titlePalettePresentation ?? throw new InvalidOperationException(
+        consolePaletteFx.Step(cgram, titlePalettePresentation ?? throw new InvalidOperationException(
                 "Title palette FX requires installed title colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         // Native skip reconstruction follows PaletteFxHandler for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
@@ -340,55 +324,8 @@ public sealed class TitleSequenceState
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem();
-        consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.SlowLights, 0);
-        consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.FastLights, 0);
-    }
-
-    /// <summary>Renders the current Mode 7 background and bank-$8C title spritemaps.</summary>
-    public Rgba32[] Render()
-    {
-        // `$8B:9E8B` reaches identity A=D=$0100. The value being animated is already the
-        // Mode 7 matrix scalar, not a camera magnification that needs to be inverted. A
-        // small matrix samples less source texture across the output screen, so the early
-        // title image is enlarged; increasing $43 -> $100 therefore performs the retail
-        // zoom *out*. Taking its reciprocal reversed that motion and also magnified the
-        // Nintendo Presents pan offsets until much of their movement wrapped off-screen.
-        short matrixScale = unchecked((short)zoom);
-        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
-
-        // Setup_PPU_TitleSequence writes TM=$10 at `$8B:803F`: OBJ is visible but BG1 is
-        // not. Each scrolling-text command leaves that state alone, so the 1994/NINTENDO/
-        // PRESENTS/METROID 3 cards sit over the CGRAM-zero black backdrop. Their following
-        // `$9CE1/$9D5D/$9DD6/$9E58` scene command writes TM=$11 and enables Mode 7 BG1;
-        // each of the first three completed pans restores TM=$10 before spawning the next
-        // text object. Rendering a zero-scale Mode 7 sample during YearText was therefore
-        // not merely the wrong transform—it displayed a layer the SNES had disabled and
-        // turned the whole screen into the sampled red texel.
-        if (mode7BackgroundEnabled)
-        {
-            SnesMode7Renderer.CompositeViewport(background, vram, cgram, new Mode7RenderRegisters { MatrixA = matrixScale, MatrixB = TitleSequenceRomData.Scenes.Rotation.TableIndex, MatrixC = 0, MatrixD = matrixScale, Center = new Offset16<Mode7Pixels>(128, 128), Scroll = mode7.Whole.AsSignedRegister() });
-        }
-
-        PrepareRenderOam();
-        Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam),
-            vram,
-            cgram,
-            obsel: TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector);
-        SnesLayerCompositor.Composite(background, objects);
-        if (gradientEnabled)
-        {
-            byte[] palettes = gradientPaletteScratch ??= new byte[background.Length];
-            SnesObjRenderer.RenderResolved(ObjSpriteImage.OamOnly(oam), vram, cgram, TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector, new ObjRasterTargets(objects, gradientPriorityScratch ??= new byte[background.Length], palettes));
-            ReadOnlySpan<TitleGradientLine> gradient = ResolveTitleGradient();
-            for (int pixel = 0; pixel < background.Length; pixel++)
-                background[pixel] = TitleGradientColorMath.Apply(background[pixel], gradient[pixel / 256],
-                    palettes[pixel] == byte.MaxValue ? null : palettes[pixel]);
-        }
-        for (int pixel = 0; pixel < background.Length; pixel++)
-            background[pixel] = ApplyBrightness(background[pixel], brightness);
-
-        return background;
+        consolePaletteFx.SpawnDefinition(TitleSequenceRomData.ConsolePaletteFx.SlowLights, 0);
+        consolePaletteFx.SpawnDefinition(TitleSequenceRomData.ConsolePaletteFx.FastLights, 0);
     }
 
     /// <summary>
@@ -424,18 +361,18 @@ public sealed class TitleSequenceState
         TitleGraphicsPresentation artwork = titleGraphicsPresentation
             ?? throw new InvalidOperationException("Title sprites require installed title artwork.");
         oam.BeginFrame();
-        if (activeSpritemap != TitleSequenceRomData.Sprites.Blank)
+        if (activeSprite is { } sprite)
         {
             // Cinematic drawing calls `$81:879F`, whose `chr_r22` replaces palette bits
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
-            artwork.DrawSprite(activeSpritemap, oam,
-                activeOrigin.ToOam(), activeCharacterOffset);
+            artwork.DrawSprite(sprite, oam,
+                activeOrigin.ToOam(), activeObjectPalette.Raw);
         }
 
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
-            artwork.DrawSprite(TitleSequenceRomData.Sprites.NintendoCopyright, oam,
+            artwork.DrawSprite(TitleSprite.NintendoCopyright, oam,
                 TitleSequenceRomData.Sprites.CopyrightOrigin.ToOam(),
                 TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         }
@@ -451,11 +388,11 @@ public sealed class TitleSequenceState
 
         while (true)
         {
-            TitleCardStep step = TitleCardDefinitions.Steps(textCard)[textCardStep++];
+            TitleCardStep step = TitleCards.Steps(textCard)[textCardStep++];
             if (step.Command is not { } command)
             {
                 sequenceEntryTimer = step.Duration;
-                activeSpritemap = step.Spritemap;
+                activeSprite = step.Sprite;
                 return;
             }
 
@@ -488,7 +425,7 @@ public sealed class TitleSequenceState
                     return;
 
                 case TitleSequenceInstruction.Delete:
-                    activeSpritemap = TitleSequenceRomData.Sprites.Blank;
+                    activeSprite = null;
                     return;
 
                 default:
@@ -504,9 +441,9 @@ public sealed class TitleSequenceState
         textCard = definition.Phase;
         textCardStep = 0;
         sequenceEntryTimer = 1;
-        activeSpritemap = TitleSequenceRomData.Sprites.Blank;
+        activeSprite = null;
         activeOrigin = definition.Origin;
-        activeCharacterOffset = definition.CharacterOffset;
+        activeObjectPalette = definition.CharacterOffset;
         mode7 = new(mode7.X.WithFraction(0), mode7.Y.WithFraction(0));
 
         // Initial PPU setup and each of the first three completed pan functions select
@@ -525,9 +462,9 @@ public sealed class TitleSequenceState
         new FrontendPalettes(cgram).WriteTitleCopyright(
             titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
-        activeSpritemap = TitleSequenceRomData.Sprites.SuperMetroidLogo;
+        activeSprite = TitleSprite.SuperMetroidLogo;
         activeOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
-        activeCharacterOffset = TitleSequenceRomData.Sprites.TitleCharacterOffset.Raw;
+        activeObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
         mode7BackgroundEnabled = true;
         mode7 = new(mode7.X.WithWhole(0), mode7.Y.WithWhole(0));
         zoom = TitleSequenceRomData.Scenes.IdentityScale;
@@ -595,21 +532,6 @@ public sealed class TitleSequenceState
         mode7BackgroundEnabled = true;
         zoom = definition.Scale;
         mode7 = new(mode7.X.WithWhole(definition.Position.X), mode7.Y.WithWhole(definition.Position.Y));
-        activeSpritemap = TitleSequenceRomData.Sprites.Blank;
-    }
-
-    /// <summary>Applies the SNES brightness level to a composed title pixel, retaining transparency.</summary>
-    private static Rgba32 ApplyBrightness(Rgba32 color, int level)
-    {
-        if (color.A == 0 || level >= TitleSequenceRomData.Timing.MaximumBrightness)
-            return color;
-        if (level <= 0)
-            return new Rgba32(0, 0, 0, color.A);
-
-        return new Rgba32(
-            (byte)(color.R * level / TitleSequenceRomData.Timing.MaximumBrightness),
-            (byte)(color.G * level / TitleSequenceRomData.Timing.MaximumBrightness),
-            (byte)(color.B * level / TitleSequenceRomData.Timing.MaximumBrightness),
-            color.A);
+        activeSprite = null;
     }
 }

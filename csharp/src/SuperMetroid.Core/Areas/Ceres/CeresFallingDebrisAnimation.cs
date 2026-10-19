@@ -14,6 +14,6 @@ internal sealed class CeresFallingDebrisAnimation(CeresFallingDebrisProgram prog
         CeresFallingDebrisAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(CeresFallingDebrisProgram frame) =>
-        EnemyProjectileFramePresentation.Installed(CeresFallingDebrisVisualDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(CeresFallingDebrisProgram frame) =>
+        CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[frame];
 }

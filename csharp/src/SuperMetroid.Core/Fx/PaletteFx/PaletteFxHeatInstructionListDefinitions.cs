@@ -16,31 +16,4 @@ public static class PaletteFxHeatInstructionListDefinitions
     /// <summary>The sixteen phases published by Norfair palette program $8D:F08E.</summary>
     public const int PhaseCount = 16;
 
-    /// <summary>Returns the compiled program selected by one suit and published heat phase.</summary>
-    /// <remarks>
-    /// Valid phase p=0..15 selects base + $22*p: Gravity base $E8BE
-    /// from source $8D:E3E0, Varia base $E692 from $8D:E400, or Power
-    /// base $E466 from $8D:E420. The $22 stride is one duration, fifteen
-    /// live BGR555 colors, and one wait word. All 48 source pointers
-    /// were independently checked for #1165 against the supported NTSC J/U v1.0 ROM
-    /// and pinned bank_8D.asm; no pointer array or generated cache remains. The native pre-instruction
-    /// prioritizes Gravity over Varia; invalid phase or suit fails here.
-    /// </remarks>
-    public static ushort Resolve(PaletteFxHeatSuit suit, ushort phase)
-    {
-        if (phase >= PhaseCount)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(phase), phase, $"Norfair heat palette phase must be 0..{PhaseCount - 1}.");
-        }
-
-        int firstProgram = suit switch
-        {
-            PaletteFxHeatSuit.Power => 0xe466,
-            PaletteFxHeatSuit.Varia => 0xe692,
-            PaletteFxHeatSuit.Gravity => 0xe8be,
-            _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit."),
-        };
-        return (ushort)(firstProgram + 0x22 * phase);
-    }
 }

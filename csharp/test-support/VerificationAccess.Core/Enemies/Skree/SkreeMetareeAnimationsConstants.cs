@@ -13,5 +13,5 @@ internal static class SkreeMetareeAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params SkreeMetareeProgram[] programs) =>
         programs.SelectMany(program => SkreeMetareeAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => SkreeMetareeFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => SkreeMetareeFrameToolingDefinitions.Spritemap(step.Frame));
 }

@@ -23,21 +23,21 @@ internal static class GateBeamCollisionVerification
         Suite(nameof(VerifyGateScanTermination), () => VerifyGateScanTermination());
         Suite(nameof(VerifyHorizontalWaveDoorBands), () => VerifyHorizontalWaveDoorBands());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(140, 360)),
             PoseId = SamusPoseId.NormalJumpAimDiagonalUpLeftPose };
         var level = runtime.Room.LoadedLevelData;
         var plms = runtime.Plms;
-        for (int warm = 0; warm < 2; warm++) plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
+        for (int warm = 0; warm < 2; warm++) plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         SnesButton input = SnesButton.X;
-        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-        shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 224), bombs);
+        bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+        shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 224), bombs);
         var shot = shots.Slots[0];
         AssertEqual((ushort)0x8700, shot.Type, "Native beam impacts gate during producer collision");
         AssertEqual((ushort)113, shot.Position.X.Whole, "Native impact X, before any continuing flight");
@@ -78,7 +78,7 @@ internal static class GateBeamCollisionVerification
                 : ProjectileTerrainCollision.ScanVerticalShotReactions(level, shot, plms);
             AssertEqual(full ? 40 : 1, plms.SlotTable.ActiveCount, "Gate setup terminates span after first allocation");
             if (!wave) AssertEqual(!full, result, "Only executed gate setup overrides earlier air reaction");
-            AssertEqual((ushort)0xc000, level.GetCollisionBlockByIndex(first).LevelWord, "Gate scan does not mutate terrain");
+            AssertEqual((ushort)0xc000, level.GetCollisionBlockByIndex(first).PackedWord.Raw, "Gate scan does not mutate terrain");
         }
     }
 

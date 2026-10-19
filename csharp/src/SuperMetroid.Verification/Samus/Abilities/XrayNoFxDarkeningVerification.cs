@@ -23,27 +23,26 @@ internal static class XrayNoFxDarkeningVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyXrayNoFxDarkening()
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.ParlorAndAlcatraz);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
         AssertTrue(runtime.RoomLayer3Fx.CaptureForDisplay() is null, "fixture has no visible room FX");
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }), "fixture enters X-ray");
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "fixture enters X-ray");
         // The closed-beam setup state makes the selected pixels unambiguously outside.
         samus.Xray.SetupStage = XraySetupStage.ReadBg1FirstScreen;
-        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var tile = new byte[32];
         for (int row = 0; row < 8; row++) tile[row * 2] = 255;
         runtime.Vram.LoadBytes(0x3fe * 32, tile);
@@ -68,7 +67,7 @@ internal static class XrayNoFxDarkeningVerification
             "transparent BG3 preserves native fixed-color fallback without halving");
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
         // The X-ray blending branch the FX selects reaches the PPU at the accepted NMI (#1307).
-        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var fireflea = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var firefleaMath = (GameplayColorMathRenderLayer)fireflea.Layers[0];
         AssertTrue(!firefleaMath.AddSubscreen && firefleaMath.Subscreen is null,

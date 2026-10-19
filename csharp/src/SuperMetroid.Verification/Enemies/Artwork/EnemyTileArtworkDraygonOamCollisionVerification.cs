@@ -27,14 +27,13 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
         var sporePointers = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();
 
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody;
-        slot.Definition = default(RoomEnemyDefinition) with
+        slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = DraygonBg2FrameDefinitions.Bank,
-        };
+        });
         slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
 
         int draygonFrames = 0;
@@ -74,10 +73,6 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
             for (int component = 0; component < componentCount; component++)
             {
                 ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2 + component * 8 + 6));
-                AssertTrue((DraygonHitboxList)listPointer is
-                    DraygonHitboxList.Empty or
-                    DraygonHitboxList.OtherEmpty,
-                    $"Draygon OAM frame {frame.Name} component {component} has a native empty list");
                 AssertEqual((ushort)0,
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(frame.Bank, listPointer)))),
                     $"Draygon OAM frame {frame.Name} component {component} native hitbox count");
@@ -101,10 +96,6 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
             "remaining bank-$A5 OAM frames are selected by Spore Spawn");
         AssertEqual(DraygonCollisionDefinitions.EmptyOamFrameCount,
             draygonFrames, "compiled Draygon empty-frame set is exact");
-        AssertEqual(0,
-            DraygonCollisionDefinitions.HitboxesAt(
-                DraygonHitboxList.OtherEmpty).Length,
-            "mirrored Draygon OAM list has no compiled hitboxes");
         AssertThrows<InvalidDataException>(
             () => DraygonCollisionDefinitions.ComponentsAt(0xee65),
             "Spore Spawn frame cannot enter Draygon collision data");

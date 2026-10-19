@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// #1285: Mother Brain's typed body, brain, Baby, Shitroid, Zebetite, falling-tube and projectile programs against
@@ -49,7 +50,7 @@ internal static class MotherBrainAnimationsVerification
         foreach ((int frame, int record) in RoomFlashRecords)
         {
             AssertEqual(MotherBrainRoomPaletteProgramDefinitions.FlashImageTicks, cartridge.ReadCartridgeWord(record), $"room flash frame {frame} duration");
-            AssertEqual(MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(frame), unchecked((ushort)(record + 2)),
+            AssertEqual(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(frame), unchecked((ushort)(record + 2)),
                 $"room flash frame {frame} palette operand");
         }
         AssertEqual(RoomFlashGoto.Opcode, cartridge.ReadCartridgeWord(RoomFlashLoop), "the room flash ends in a goto");
@@ -61,9 +62,9 @@ internal static class MotherBrainAnimationsVerification
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot bodySlot = enemies.SlotTable.Slots[0];
-        bodySlot.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
+        bodySlot.Bind(EnemyDefinitionId.MotherBrainBody, bodySlot.Definition);
         RoomEnemySlot headSlot = enemies.SlotTable.Slots[1];
-        headSlot.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead;
+        headSlot.Bind(EnemyDefinitionId.MotherBrainHead, headSlot.Definition);
         var state = new MotherBrainEnemyState(bodySlot) { Head = headSlot };
         enemies.MotherBrainEncounter.MotherBrain = state;
         return (enemies, state);
@@ -83,7 +84,7 @@ internal static class MotherBrainAnimationsVerification
             int first = steps.Select((step, index) => (step, index)).First(item => item.step.Kind == AnimationProgramStepKind.Show).index;
             int duration = steps[first].Duration;
             for (int draw = 0; draw < duration; draw++)
-                AssertEqual((ushort?)steps[first].Frame.Spritemap, enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null),
+                AssertEqual((MotherBrainHeadFrame?)steps[first].Frame, enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null),
                     $"{program} shows its first frame on draw {draw}");
             AssertEqual((ushort)(duration + 1), state.BrainFrameTimer, $"{program}'s timer counts up past the duration");
             enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);
@@ -204,7 +205,7 @@ internal static class MotherBrainAnimationsVerification
             if (native.PaletteCleared)
                 AssertEqual((ushort)0, projectile.GraphicsIndex, $"{at}: palette zero");
             if (native.PreInstructionCleared)
-                AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, projectile.PreInstruction, $"{at}: pre-instruction cleared");
+                AssertEqual(EnemyProjectilePreInstruction.RTS_868170, projectile.PreInstruction, $"{at}: pre-instruction cleared");
         }
         return update;
     }

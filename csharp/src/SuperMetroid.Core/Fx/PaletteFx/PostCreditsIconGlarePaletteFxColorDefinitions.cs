@@ -20,35 +20,15 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class PostCreditsIconGlarePaletteFxColorDefinitions
 {
 
-    /// <summary>The first timed record at <c>$8D:DF98</c>.</summary>
-    public const ushort FirstFramePointer = 0xdf98;
-
     /// <summary>The one-shot glare contains fourteen timed records.</summary>
     public const int FrameCount = 14;
 
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 36;
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(265, FrameCount, ColorsPerFrame);
 
-    /// <summary>Frames0..13 occupy36-byte records atDF98: duration,16 colors, wait.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
-
-    /// <summary>Color0..15 begins two bytes after its frame duration and advances by two.</summary>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
-
-    /// <summary>A color operand's byte offset from the first frame's first color, after the frame's leading command word.</summary>
-    internal static int ColorOffset(ushort pointer) => pointer - (FirstFramePointer + Bgr555.ByteCount);
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

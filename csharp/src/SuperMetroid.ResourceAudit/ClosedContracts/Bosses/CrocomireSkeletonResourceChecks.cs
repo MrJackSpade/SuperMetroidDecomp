@@ -39,7 +39,7 @@ internal static class CrocomireSkeletonResourceChecks
         {
             var component = components.Span[index];
             ExtendedEnemyCompositionResourceChecks.Require(component.Offset.X == index && component.Offset.Y == -index &&
-                component.Parts.Length == 1 && component.Parts[0].X.SignedOffset == 3 && component.Parts[0].Y == 4,
+                component.Parts.Length == 1 && component.Parts[0].X.SignedOffset == 3 && component.Parts[0].Y.SignedOffset == 4,
                 "the importer/loader must preserve component order, signed offsets and OAM pieces");
         }
         Reject(() => EnemyExtendedFrameFiles.ExtractComponents(ConstructedComponentSource(frame, count + 1), frame),
@@ -72,8 +72,7 @@ internal static class CrocomireSkeletonResourceChecks
     private static SyntheticCartridge ConstructedComponentSource(EnemyExtendedFrameDefinition frame, int count)
     {
         var source = new SyntheticCartridge(
-            address => new InvalidDataException($"Unexpected synthetic composition read {address:X6}."),
-            _ => new InvalidOperationException("Static import must not mutate emulated state."));
+            address => new InvalidDataException($"Unexpected synthetic composition read {address:X6}."));
         int address = ((int)new SnesAddress(frame.Bank, frame.Pointer));
         int sprite = ((int)new SnesAddress(frame.Bank, checked((ushort)(0x8000))));
         source.SetWord(address, count);

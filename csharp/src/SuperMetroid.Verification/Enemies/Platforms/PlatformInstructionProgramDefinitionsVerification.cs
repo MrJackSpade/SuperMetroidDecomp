@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using System.Reflection;
@@ -27,8 +27,6 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     internal static void VerifyPlatformInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags =
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
         Suite(nameof(VerifyTripperFrozenFrameSelection), () => VerifyTripperFrozenFrameSelection(rom));
         Suite(nameof(VerifyPlatformInitialProgramSelection), () => VerifyPlatformInitialProgramSelection(rom));
@@ -60,12 +58,12 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         foreach (PlatformProgramCase testCase in cases)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = testCase.IsKamer
+            slot.Bind(testCase.IsKamer
                 ? EnemyDefinitionId.Kamer2
-                : EnemyDefinitionId.Tripper;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
+                : EnemyDefinitionId.Tripper, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
             slot.Parameter1 = (ushort)testCase.Direction;
             slot.Parameter2 = 0x0101;
             slot.Position = slot.Position.WithWholeY(0x0100);
@@ -92,10 +90,10 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             state.XMovement = testCase.Direction == PlatformHorizontalMovement.Left
                 ? PlatformHorizontalMovement.Right
                 : PlatformHorizontalMovement.Left;
-            ExecutePlatformProgram(enemies, slot, callCount: 1);
+            ExecutePlatformProgram(slot, callCount: 1);
             AssertEqual(testCase.Direction, state.XMovement, $"platform program {testCase.Program} publishes direction");
             AnimationProgramCursor<PlatformProgram>? firstPose = state.Program;
-            ExecutePlatformProgram(enemies, slot, callCount: 4);
+            ExecutePlatformProgram(slot, callCount: 4);
             AssertEqual(firstPose, state.Program, $"platform program {testCase.Program} loops through four poses");
         }
 
@@ -108,9 +106,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Forces the selected platform's instruction timer across several interpreter calls.</summary>
-    private static void ExecutePlatformProgram(
-        RoomEnemySystem enemies,
-        RoomEnemySlot slot,
+    private static void ExecutePlatformProgram(RoomEnemySlot slot,
         int callCount)
     {
         object?[] arguments =
@@ -118,7 +114,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
         }
     }
 
@@ -214,7 +210,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         AssertEqual(right, TripperKamerVisualDefinitions.FrozenMovingRight, "native frozen-right sprite identity");
         for (int direction = 0; direction <= ushort.MaxValue; direction++)
             AssertEqual(direction == 0 ? left : right,
-                TripperKamerVisualDefinitions.FrozenFrame((PlatformHorizontalMovement)direction),
+                TripperKamerVisualDefinitionsConstants.FrozenFrame((PlatformHorizontalMovement)direction),
                 "Tripper frozen selection preserves complete native zero/nonzero domain");
         AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | left), "Tripper frozen-left two-piece map");
         AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | right), "Tripper frozen-right two-piece map");

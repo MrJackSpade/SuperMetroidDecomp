@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -23,42 +24,42 @@ internal static class PowerBombRuntimeIntegrationVerification
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(
             bus,
-            PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader);
+            RoomHeaderDefinitions.AlphaPowerBomb.Pointer);
         AssertEqual(
             new RoomIdentity(AreaId.Brinstar, 0x26),
             room.Identity,
             "Power Bomb renderer integration retail room");
 
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(
-            PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader,
+            RoomHeaderDefinitions.AlphaPowerBomb,
             camera: new Position16<RoomPixels>(0, 0));
-        runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
 
-        Rgba32[] baseline = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()).ToArray();
+        Rgba32[] baseline = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(
             new(PowerBombRuntimeVerificationDefinitions.ScreenCenterX, PowerBombRuntimeVerificationDefinitions.ScreenCenterY));
-        explosion.StepFrame(bus);
+        explosion.StepFrame();
         AssertEqual(PowerBombExplosionPhase.Inactive, explosion.RenderedPhase,
             "HDMA allocation setup does not draw the first flash prematurely");
-        explosion.StepFrame(bus);
+        explosion.StepFrame();
         // The window table is read during display, but the pre-instruction's COLDATA
         // write reaches the PPU only with the following accepted NMI (#1307).
-        runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
 
         GameplayPpuRenderSnapshot ppu = runtime.Display.DisplayedGameplayPpu;
         Rgba32[] expected = baseline.ToArray();
-        SnesGameplayFrameRenderer.ApplyPowerBombColorMath(
+        SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(
             expected,
             PowerBombRenderSnapshot.Capture(explosion),
             ppu.Layer1Position);
-        Rgba32[] actual = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+        Rgba32[] actual = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
 
         int expectedChangedPixels = CountPowerBombFrameDifferences(baseline, expected);
         AssertTrue(expectedChangedPixels > 0,

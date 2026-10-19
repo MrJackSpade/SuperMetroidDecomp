@@ -21,7 +21,7 @@ internal static class BackgroundMosaicVerification
         int cases = 0;
         foreach (int register in Enumerable.Range(0, 256))
             AssertEqual((register & 2) != 0 ? (register >> 4) + 1 : 1,
-                BackgroundMosaicSampling.ForBg2((byte)register).Size, "only BG2 enable selects its mosaic width");
+                BackgroundMosaicSamplingConstants.ForBg2((byte)register).Size, "only BG2 enable selects its mosaic width");
         foreach (int size in Enumerable.Range(1, 16))
         foreach (ushort scroll in new ushort[] { 0, 7, 255, 65535 })
         {

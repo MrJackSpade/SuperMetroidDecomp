@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks first-entry Moat water pixels through both reciprocal doors and pause history.</summary>
 internal static class MoatFirstEntryVerification
@@ -30,39 +31,39 @@ internal static class MoatFirstEntryVerification
         {
             // Each history starts with fresh mutable WRAM as well as fresh owners.
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(source);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(source));
             var level = runtime.Room.LoadedLevelData;
             int doorX = -1, doorY = -1;
-            byte behavior = 0;
+            int behavior = 0;
             for (int y = 0; y < level.Size.Y && doorX < 0; y++)
             for (int x = 0; x < level.Size.X; x++)
             {
                 var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                 if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-                var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
-                if (door.Door?.DestinationRoomPointer != 0x95ff) continue;
-                doorX = x; doorY = y; behavior = block.Behavior;
+                var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
+                if (door.Door?.DestinationRoom != RoomHeaderDefinitions.Moat) continue;
+                doorX = x; doorY = y; behavior = block.Bts.Value;
                 break;
             }
             AssertTrue(doorX >= 0, "retail neighbor has a reciprocal Moat door");
-            runtime.LoadCartridgeRoomForDebug(source,
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(source),
                 camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
-            runtime.NmiHandler.RunNmi(0, true);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
             if (pauseBeforeEntry)
             {
                 byte[] gameplayBeforePause = runtime.Vram.Bytes.ToArray();
                 var room = runtime.Room.LoadedRoom;
-                var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, GameplayVram = runtime.Vram });
+                var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, GameplayVram = runtime.Vram });
                 // Use the real menu owner, including a map -> equipment transition.
                 // This isolates VRAM ownership rather than claiming a complete host
                 // pause-state replay. Unpause's beam publication is applied below.
@@ -73,10 +74,10 @@ internal static class MoatFirstEntryVerification
                 _ = pause.Render();
                 AssertTrue(runtime.Vram.Bytes.SequenceEqual(gameplayBeforePause),
                     "pause graphics do not mutate gameplay VRAM");
-                runtime.SamusPhases.LoadGameplayBeamPalette(samus.EquippedBeams);
-                runtime.NmiHandler.RunNmi(0, true);
+                runtime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
+                runtime.FrameBoundary.BeginAcceptedFrame(0);
             }
-            runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, behavior, samus.Pose, true);
+            runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
             var transition = new DoorTransitionState();
             var audio = new CartridgeAudioState();
             transition.Begin(runtime);
@@ -97,7 +98,7 @@ internal static class MoatFirstEntryVerification
                 transitionFrames++;
             }
             AssertTrue(!transition.IsActive, "staged first-entry door transition completes");
-            AssertEqual((ushort)0x95ff, runtime.Room.LoadedRoom.Pointer, "first entry reached reported room");
+            AssertEqual(RoomHeaderDefinitions.Moat, runtime.Room.LoadedRoom.Definition, "first entry reached reported room");
             for (int frame = 0; frame < 4; frame++)
             {
                 runtime.StepFrame(0);

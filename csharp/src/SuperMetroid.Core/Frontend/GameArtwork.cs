@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -165,6 +166,9 @@ public sealed record GameArtwork
 
     /// <summary>Projectile trail artwork.</summary>
     public ProjectileTrailCatalog? TrailArtwork { get; init; }
+
+    /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
+    public SamusOverreadCatalog? SamusOverreads { get; init; }
 
     /// <summary>Charge-flare placement.</summary>
     public ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; init; }

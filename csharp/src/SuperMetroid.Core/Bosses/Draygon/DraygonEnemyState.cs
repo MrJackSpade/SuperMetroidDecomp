@@ -6,9 +6,10 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's encounter-wide WRAM extension. The four visible enemy records remain physical
-/// <see cref="RoomEnemySlot"/> instances; only the bank-$A5 words outside those common
-/// records live here. This avoids pretending that the boss is one ordinary compact actor.
+/// Draygon's encounter-wide state: its bank-$A5 extension words and the values the cartridge keeps in the body's common
+/// record, which are emptied with the record when the body is killed (<see cref="ClearWithRecord"/>). The four visible
+/// enemy records remain physical <see cref="RoomEnemySlot"/> instances; the eye's record values live in its own
+/// <see cref="DraygonEyeState"/>.
 /// </summary>
 public sealed class DraygonEnemyState
 {
@@ -36,9 +37,6 @@ public sealed class DraygonEnemyState
     /// <summary>Native enemy slot $00C0, installed by the arms initializer; its animation follows the body's authoritative coordinates.</summary>
     public RoomEnemySlot Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
 
-    /// <summary>Native <c>enemy_bg2_tilemap_size</c>, measured in words.</summary>
-    public ushort Bg2TilemapSize { get; internal set; }
-
     /// <summary>True after the $1000-byte enemy BG2 surface has been filled with tile $338.</summary>
     public bool BackgroundTilemapPrepared { get; internal set; }
 
@@ -48,20 +46,32 @@ public sealed class DraygonEnemyState
     /// <summary>The boss-room load disables the normal minimap and marks its four tiles.</summary>
     public bool MinimapDisabledAndBossTilesExplored { get; internal set; }
 
-    /// <summary>Native <c>$7E:7800</c>: left-side off-screen reset X position.</summary>
-    public ushort LeftSideResetXPosition { get; internal set; }
+    /// <summary>
+    /// The off-screen point at the left where Draygon is placed between attack rounds: the body's position when the
+    /// intro delay ends. Its Y is the common reset height, which also bounds how high a swoop path climbs (compared
+    /// by the wrapped signed difference) and where a round that chose another swoop restarts.
+    /// </summary>
+    public Position16<RoomPixels> LeftSideReset { get; internal set; }
 
-    /// <summary>Native <c>$7E:7802</c>: common reset Y position.</summary>
-    public ushort ResetYPosition { get; internal set; }
+    /// <summary>
+    /// The off-screen point at the right, 672 pixels right of <see cref="LeftSideReset"/> at the same height. Only the X
+    /// axis is read: a leftward swoop aims from it and a leftward goop pass starts there.
+    /// </summary>
+    public Position16<RoomPixels> RightSideReset { get; internal set; }
 
-    /// <summary>Native <c>$7E:7804</c>: right-side off-screen reset X position.</summary>
-    public ushort RightSideResetXPosition { get; internal set; }
+    /// <summary>
+    /// Downward 8.8 acceleration a swoop path is built with, in 1/256 pixel per frame per frame. Only the Y axis is
+    /// meaningful. It starts at 24, each eye hit adds 8 while the result stays below 160, and a tail-whip hit on
+    /// grabbed Samus restores 24.
+    /// </summary>
+    public EightEightVector<RoomPixels> SwoopAcceleration { get; internal set; }
 
-    /// <summary>Native <c>$7E:781E</c>: 8.8 acceleration used to construct swoop heights.</summary>
-    public ushort SwoopYAcceleration { get; internal set; }
-
-    /// <summary>Native <c>$7E:808C</c> byte index into the intro dance stream.</summary>
-    public ushort FightIntroDanceIndex { get; internal set; }
+    /// <summary>
+    /// Byte position of the intro dance in its movement stream: zero when the encounter starts and advanced by four on
+    /// each of the dance's 1,232 updates, so it stays within 0..4,928. Each Evir reads it offset by its own negative
+    /// latency and waits while that sum is negative.
+    /// </summary>
+    public int FightIntroDanceIndex { get; internal set; }
 
     /// <summary>
     /// Signed pixel offset written by the tail-whip instruction $A5:9E0A and added to the body's
@@ -84,8 +94,12 @@ public sealed class DraygonEnemyState
     /// <summary>Number of physical object-$18 breath bubbles admitted during a swoop.</summary>
     public int BreathBubblesSpawned { get; internal set; }
 
-    /// <summary>Native long goop-path cosine angle, constrained to its low byte.</summary>
-    public ushort GoopYOscillationAngle { get; internal set; }
+    /// <summary>
+    /// Phase of the goop pass's vertical bob, in 256ths of a turn: zero when a pass starts and one unit further each
+    /// movement update, wrapping around the turn, which the bob depends on. The body's height is 384 plus the cosine
+    /// of this phase times 32.
+    /// </summary>
+    public SnesAngle GoopYOscillationAngle { get; internal set; }
 
     /// <summary>Native long count initialized to sixteen when a firing pass begins.</summary>
     public NativeCountdown GoopCounter { get; internal set; }
@@ -96,13 +110,11 @@ public sealed class DraygonEnemyState
     public int GoopProjectilesSpawned { get; internal set; }
 
     /// <summary>
-    /// Native long WRAM <c>$7E:780C/$780E</c>. Draygon expands this 16.16 radius by
-    /// exactly <c>$0000.2000</c> per spiral frame, so keeping both words is necessary to
-    /// reproduce the eight-frame pixel cadence rather than rounding it into host floats.
+    /// Horizontal radius of the carry spiral in 16.16 pixels; the vertical radius is a quarter of its whole pixels.
+    /// It is cleared by a grab and grows by one eighth of a pixel per spiral frame, so its whole part advances every
+    /// eighth frame; the spiral ends when the whole part reaches 160.
     /// </summary>
-    public ushort SpiralXRadius { get; internal set; }
-    /// <summary>Native $7E:780E fractional low word paired with <see cref="SpiralXRadius"/>; each $2000 increment accumulates one eighth of a pixel.</summary>
-    public ushort SpiralXSubradius { get; internal set; }
+    public SnesSignedSixteenSixteen SpiralXRadius { get; internal set; }
 
     /// <summary>
     /// Native center point <c>$7E:7810/$7812</c> of the carry spiral, initialized to ($100, $180).
@@ -112,10 +124,16 @@ public sealed class DraygonEnemyState
     /// </summary>
     public FixedPosition<RoomPixels> SpiralCenter { get; internal set; }
 
-    /// <summary>Low-byte polar angle and 8.8 angular delta at <c>$7E:7814/$7816</c>.</summary>
-    public ushort SpiralAngle { get; internal set; }
-    /// <summary>Native $7E:7816 unsigned 8.8 angle step; initialized to $0800, decremented by one per spiral frame, and applied through its high byte.</summary>
-    public ushort SpiralAngleDelta { get; internal set; }
+    /// <summary>
+    /// Draygon's position around the carry spiral, in 256ths of a turn: three quarters when a grab starts, advanced by
+    /// the whole table units of <see cref="SpiralAngleDelta"/> each spiral frame and wrapping around the turn.
+    /// </summary>
+    public SnesAngle SpiralAngle { get; internal set; }
+    /// <summary>
+    /// Angular step of the carry spiral per frame: eight table units when a grab starts, slowed by 1/256 unit each
+    /// spiral frame before it is applied, so the orbit decelerates as the radius grows.
+    /// </summary>
+    public SnesAngle SpiralAngleDelta { get; internal set; }
 
     /// <summary>Native <c>$7E:7818</c> countdown for an incidental 64-frame tail whip.</summary>
     public NativeCountdown TailWhipTimer { get; internal set; }
@@ -126,27 +144,12 @@ public sealed class DraygonEnemyState
     /// <summary>Number of ROM tail-hit opcodes that actually damaged grabbed Samus.</summary>
     public int TailWhipHits { get; internal set; }
 
-    /// <summary>Suit-scaled damage dealt by the most recent tail-hit instruction.</summary>
-    public ushort LastTailWhipDamage { get; internal set; }
 
     /// <summary>
-    /// Native byte offset <c>$7E:781C</c> into the eight health-palette bands. It advances
-    /// 0,2,...,14 because the threshold table is word-addressed even though each palette
-    /// record contains four colors.
+    /// The installed health-palette band 0-7 (native <c>$7E:781C</c> holds twice this, since the threshold table is
+    /// word-addressed); null until a band is installed.
     /// </summary>
-    public ushort HealthPaletteTableByteIndex { get; internal set; }
-
-    /// <summary>
-    /// Native death-vector angle and its deliberately unused 16.16 velocity words. The
-    /// cartridge computes these once in the fatal reaction, then recalculates movement each
-    /// death frame; retaining them documents and exposes that observable WRAM side effect.
-    /// </summary>
-    public ushort DeathMovementAngle { get; internal set; }
-    /// <summary>
-    /// The 16.16 death-velocity magnitudes calculated on the fatal reaction; retained for WRAM
-    /// parity but not used by drift movement, since death frames recalculate their own vector.
-    /// </summary>
-    public FixedVector<RoomPixels> UnusedDeathVelocity { get; internal set; }
+    public int? HealthPaletteBand { get; internal set; }
 
     /// <summary>Number of random body-list explosions admitted during the fatal animation.</summary>
     public int DeathAnimationObjectsSpawned { get; internal set; }
@@ -157,8 +160,8 @@ public sealed class DraygonEnemyState
     /// <summary>True after the six table-positioned burial Evirs replace the shared pool.</summary>
     public bool DeathEvirsSpawned { get; internal set; }
 
-    /// <summary>Debugger-visible cartridge requests emitted by the terminal boss path.</summary>
-    public ushort? LastSoundLibrary3 { get; internal set; }
+    /// <summary>The library-three sound effect Draygon's programs requested this enemy frame (the dying cry), or null.</summary>
+    public SoundEffectId? LastSoundLibrary3 { get; internal set; }
     /// <summary>Music command published when the dying body reaches its burial point; selects track three, or remains null before that transition.</summary>
     public MusicCommand? MusicRequest { get; internal set; }
     /// <summary>True after the terminal burial routine scatters sixteen physical pickups using the body's drop definition.</summary>
@@ -166,8 +169,8 @@ public sealed class DraygonEnemyState
     /// <summary>True after terminal burial invokes the persistent area-boss-defeated callback; prevents repeating that persistence write.</summary>
     public bool BossDefeatPersisted { get; internal set; }
 
-    /// <summary>Most recent library-two SFX requested by Draygon's body instruction list.</summary>
-    public ushort? LastSoundLibrary2 { get; internal set; }
+    /// <summary>The last library-two sound effect Draygon's programs requested this enemy frame, or null.</summary>
+    public SoundEffectId? LastSoundLibrary2 { get; internal set; }
 
     /// <summary>Set when the init routine schedules Evir tiles for VRAM $6D00.</summary>
     public bool IntroEvirGraphicsLoaded { get; internal set; }
@@ -187,17 +190,73 @@ public sealed class DraygonEnemyState
     /// </summary>
     internal HashSet<DraygonCannonControlWord> DisabledCannonWords { get; } = [];
 
-    /// <summary>Bank-$A5 body-function address stored in native <c>var_A</c>; body main AI dispatches this before copying coordinates to the three parts.</summary>
+    /// <summary>The body-function word.</summary>
+    private int _functionWord;
+
+    /// <summary>The word holding the function timer or the swoop path cursor, according to <see cref="Function"/>.</summary>
+    private int _timerOrSwoopOffsetWord;
+
+    /// <summary>The swoop path's end cursor.</summary>
+    private int _swoopEndOffsetWord;
+
+    /// <summary>The horizontal velocity's whole pixels.</summary>
+    private int _velocityWholeWord;
+
+    /// <summary>The horizontal velocity's fraction in 65536ths of a pixel.</summary>
+    private int _velocityFractionWord;
+
+    /// <summary>Bank-$A5 body-function address; body main AI dispatches this before copying coordinates to the three parts.</summary>
     public DraygonAiFunction Function
     {
-        get => (DraygonAiFunction)Body.VariableA;
-        internal set => Body.VariableA = (ushort)value;
+        get => (DraygonAiFunction)_functionWord;
+        internal set => _functionWord = (ushort)value;
     }
 
-    /// <summary>Body <c>var_B</c>: intro elapsed-frame count, swoop-table byte offset advanced by four, or burial-wait countdown according to <see cref="Function"/>.</summary>
+    /// <summary>
+    /// Intro elapsed-frame count or burial-wait countdown according to <see cref="Function"/>. The cartridge keeps it in
+    /// the word that holds <see cref="SwoopOffset"/> during swoops.
+    /// </summary>
     public NativeCountdown FunctionTimer
     {
-        get => NativeCountdown.FromRaw(Body.VariableB);
-        internal set => Body.VariableB = value.RawValue;
+        get => NativeCountdown.FromRaw(checked((ushort)_timerOrSwoopOffsetWord));
+        internal set => _timerOrSwoopOffsetWord = value.RawValue;
+    }
+
+    /// <summary>
+    /// The swoop path cursor, a byte offset advanced or retreated by four per entry, kept in the word that holds
+    /// <see cref="FunctionTimer"/> outside swoops.
+    /// </summary>
+    internal int SwoopOffset
+    {
+        get => _timerOrSwoopOffsetWord;
+        set => _timerOrSwoopOffsetWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>The swoop path's end cursor, the byte offset one past its last entry.</summary>
+    internal int SwoopEndOffset
+    {
+        get => _swoopEndOffsetWord;
+        set => _swoopEndOffsetWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>The unsigned 16.16 horizontal speed the swoop and goop passes add to or subtract from the body's X.</summary>
+    internal uint SwoopVelocity
+    {
+        get => SnesSixteenSixteen.Compose(checked((ushort)_velocityWholeWord), checked((ushort)_velocityFractionWord));
+        set
+        {
+            _velocityWholeWord = unchecked((ushort)SnesSixteenSixteen.WholeOf(value));
+            _velocityFractionWord = unchecked((ushort)value);
+        }
+    }
+
+    /// <summary>Empties the values the cartridge keeps in the body's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        _functionWord = 0;
+        _timerOrSwoopOffsetWord = 0;
+        _swoopEndOffsetWord = 0;
+        _velocityWholeWord = 0;
+        _velocityFractionWord = 0;
     }
 }

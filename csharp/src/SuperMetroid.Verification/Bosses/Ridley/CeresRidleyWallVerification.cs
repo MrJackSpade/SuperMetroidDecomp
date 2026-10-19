@@ -14,24 +14,24 @@ internal static class CeresRidleyWallVerification
     internal static void VerifyCeresRidleyWallImpact()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
         var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
         var body = runtime.Enemies.SlotTable.Slots[0];
         // Continue an in-flight lunge just before its left-boundary collision. The real
         // attack dispatcher still calculates acceleration and the shared mover clips X.
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function = RidleyAiFunction.CeresLungeMain;
         ridley.FunctionTimer = NativeCountdown.Start(100);
-        ridley.MovementAnimationEnabled = 1;
+        ridley.MovementAnimationEnabled = true;
         ridley.Velocity = ridley.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(20);
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(168);
         runtime.StepFrame(0);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(40, body.Position.X.Whole, "Ceres lunge clips at native left bound");
         AssertEqual(33, runtime.Enemies.Earthquake.EarthquakeType, "Ceres left impact requests native quake type");
         AssertEqual(11, runtime.Enemies.Earthquake.EarthquakeTimer.RawValue, "first draw consumes one of twelve quake frames");
@@ -49,12 +49,12 @@ internal static class CeresRidleyWallVerification
         for (int remaining = 10; remaining >= 0; remaining--)
         {
             runtime.StepFrame(0);
-            runtime.NmiHandler.RunNmi(0, true);
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
             AssertEqual(remaining, runtime.Enemies.Earthquake.EarthquakeTimer.RawValue, "impact timer consumes exactly twelve frames");
             AssertTrue(runtime.Display.DisplayedGameplayPpu.RoomShake != default, "each impact frame reaches the display");
         }
         runtime.StepFrame(0);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(runtime.Display.DisplayedGameplayPpu.RoomShake == default, "impact shake ends after twelve displayed frames");
         Console.WriteLine("Ceres Ridley: real lunge collision requests and publishes native room shake.");
     }

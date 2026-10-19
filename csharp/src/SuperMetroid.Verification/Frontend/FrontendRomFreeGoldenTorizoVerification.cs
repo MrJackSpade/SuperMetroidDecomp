@@ -37,12 +37,12 @@ internal static class FrontendRomFreeGoldenTorizoVerification
             AssertEqual(false, MetadataShape.DeclaresProperty(installedMemory.GetType(), "Rom"),
                 "focused Golden Torizo fixture has no installed cartridge allocation");
             var guardedBus = NewFrontendCartridgeReadGuard(installedMemory);
-            var native = CreateRetailGameFixture(nativeBus);
-            var installed = new SuperMetroidGame(guardedBus);
+            var native = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
+            var installed = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
             PrepareRomFreeBindings(installation)(installed, false);
             native.InitializeDirectRoomVerification();
             installed.InitializeDirectRoomVerification();
-            VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = $"focused Golden Torizo dodge and fall, input ${heldInput:X}" }, frameCount: frameCount, setup: (nativeRoom, installedRoom) =>
+            VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = $"focused Golden Torizo dodge and fall, input ${heldInput:X}" }, frameCount: frameCount, setup: (nativeRoom, installedRoom) =>
                 {
                     // Long neutral probes otherwise end at the frontend death
                     // screen, obscuring later enemy-list boundaries. Both

@@ -18,10 +18,10 @@ internal static class RoomStateDefinitionsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Room-state oracle revision");
         Suite(nameof(VerifyRoomStateSettings), () => VerifyRoomStateSettings(bus));
 
-        ushort ceresPointer = LoadStationDefinitions.Get(
-            SuperMetroid.Core.Rooms.AreaId.Ceres, 0).RoomPointer;
-        ushort ceresStatePointer = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, ceresPointer).State.Pointer;
-        CartridgeRoomHeader compiledRoom = CartridgeRoomHeader.LoadUsingCompiledSelection(ceresPointer);
+        RoomHeaderDefinition ceres = LoadStationDefinitions.Get(SuperMetroid.Core.Rooms.AreaId.Ceres, 0).Room
+            ?? throw new InvalidDataException("Ceres station has no room.");
+        ushort ceresStatePointer = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, ceres.Pointer).State.Pointer;
+        CartridgeRoomHeader compiledRoom = CartridgeRoomHeader.LoadUsingCompiledSelection(ceres);
         AssertEqual(RoomStateDefinitions.Get(ceresStatePointer), compiledRoom.State,
             "production Ceres header construction uses its compiled room-state settings without a cartridge capability");
         Console.WriteLine(

@@ -23,6 +23,12 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Installation fixtures only the verifiers use; the developer tools link only the shared part.</summary>
 internal static class InstalledFixtures
 {
+    /// <summary>The installation's cartridge bytes Samus's glitch paths read, loaded once.</summary>
+    private static readonly Lazy<SamusOverreadCatalog> samusOverreads = new(() => RepositoryInstallation.Installation.LoadSamusOverreads());
+
+    /// <summary>The installation's cartridge bytes Samus's glitch paths read.</summary>
+    internal static SamusOverreadCatalog SamusOverreads => samusOverreads.Value;
+
     /// <summary>Lazy stock character, palette, metatile, and visual-layout catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
         RepositoryInstallation.Installation.LoadRoomCharacters(), RepositoryInstallation.Installation.LoadRoomPalettes(),
@@ -57,13 +63,6 @@ internal static class InstalledFixtures
     /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
     internal static EnemyTileArtworkCatalog EnemyTiles => enemyTiles.Value;
 
-    /// <summary>A standalone enemy system bound to the installation's enemy artwork and presentation colors.</summary>
-    internal static RoomEnemySystem CreateEnemySystem()
-    {
-        var enemies = new RoomEnemySystem { TileArtwork = EnemyTiles };
-        enemies.BindMapPresentation(Maps);
-        return enemies;
-    }
 
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>
     internal static InstalledProjectilePresentation Projectiles => projectiles.Value;
@@ -73,7 +72,7 @@ internal static class InstalledFixtures
     /// installed beam and trail characters over a blank standard OBJ page, for checks of draw geometry and bindings.
     /// </summary>
     internal static ProjectileDrawArtwork ProjectileArtwork(ProjectileSpriteCatalog? compositions = null, ushort equippedBeams = 0) =>
-        new(compositions ?? Projectiles.Catalog, projectilePages.Value, equippedBeams);
+        new(compositions ?? Projectiles.Catalog, projectilePages.Value, (SamusBeamFlags)equippedBeams);
 
     /// <summary>The installation's standard OBJ sheet, loaded once per process.</summary>
     internal static SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas StandardObjects => standardObjects.Value;
@@ -128,16 +127,15 @@ internal static class InstalledFixtures
     internal static SamusState CreateSamus() => BindSamus(new SamusState());
 
     /// <summary>Creates Ceres destruction with installed cinematic art, fixed colors, and palette FX.</summary>
-    internal static CeresDestructionCinematicState CreateDestruction(ISnesAddressSpace bus,
-        CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
-        new(bus, audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx);
+    internal static CeresDestructionCinematicState CreateDestruction(CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
+        new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx);
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
-    internal static IntroCinematicState CreateIntro(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+    internal static IntroCinematicState CreateIntro(CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamTileCatalog? beamArtwork = null, SamusBodyArtworkCatalog? samusBodyArtwork = null)
     {
-        var intro = new IntroCinematicState(bus, audio, introFont ?? Maps.IntroFont,
+        var intro = new IntroCinematicState(audio, introFont ?? Maps.IntroFont,
             characterArtwork ?? IntroArtwork, beamArtwork ?? Projectiles.BeamTiles, samusBodyArtwork ?? SamusBody)
         {
             ProjectileCompositions = Projectiles.Catalog,
@@ -150,10 +148,10 @@ internal static class InstalledFixtures
     }
 
     /// <summary>Creates ending credits with installed flight, Mode 7, object, palette, and staff art.</summary>
-    internal static EndingCreditsState CreateEnding(ISnesAddressSpace bus, CartridgeAudioState audio,
+    internal static EndingCreditsState CreateEnding(CartridgeAudioState audio,
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
-        var ending = new EndingCreditsState(bus, audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
+        var ending = new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
         ending.BindFlightArtwork(IntroArtwork.CeresFlight);
         ending.BindMode7Artwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
         ending.BindObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
@@ -165,20 +163,20 @@ internal static class InstalledFixtures
     }
 
     /// <summary>Creates a file-select area map from installed presentation resources.</summary>
-    internal static FileSelectAreaMapGraphics CreateFileSelectAreaMap(ISnesAddressSpace bus, int selectedArea) =>
-        FileSelectAreaMapGraphics.FromPresentation(bus, selectedArea, Maps);
+    internal static FileSelectAreaMapGraphics CreateFileSelectAreaMap(int selectedArea) =>
+        FileSelectAreaMapGraphics.FromPresentation(selectedArea, Maps);
 
     /// <summary>Creates the title sequence with installed gradient, palette, and graphics defaults.</summary>
-    internal static TitleSequenceState CreateTitle(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+    internal static TitleSequenceState CreateTitle(CartridgeAudioState? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null) =>
-        new(bus, audio, titleGradientPresentation ?? Maps.TitleGradient,
+        new(audio, titleGradientPresentation ?? Maps.TitleGradient,
             titlePalettePresentation ?? Maps.TitlePalette, titleGraphicsPresentation ?? Maps.TitleGraphics);
 
     /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>
-    internal static PauseMenuState CreatePause(ISnesAddressSpace bus, PauseMenuEntry entry) =>
-        new(bus, new PauseMenuEntry { Samus = entry.Samus, System = entry.System, AreaIndex = entry.AreaIndex, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayVram = entry.GameplayVram, MapRevealMode = entry.MapRevealMode, MapPresentation = Maps });
+    internal static PauseMenuState CreatePause(PauseMenuEntry entry) =>
+        new(new PauseMenuEntry { Samus = entry.Samus, System = entry.System, AreaIndex = entry.AreaIndex, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayVram = entry.GameplayVram, MapRevealMode = entry.MapRevealMode, MapPresentation = Maps });
 
     /// <summary>
     /// A private copy of the installation for a check that corrupts and restores stock files, so
@@ -189,11 +187,11 @@ internal static class InstalledFixtures
     /// <summary>Binds the host catalogs to a game restored from a save or debugger state.</summary>
     internal static void BindGame(SuperMetroidGame game) => gameBindings.Value(game);
 
-    /// <summary>A frontend game bound to the installation's presentation catalogs.</summary>
-    internal static SuperMetroidGame CreateGame(ISnesAddressSpace addressSpace,
+    /// <summary>A frontend game over <paramref name="saves"/>, bound to the installation's presentation catalogs.</summary>
+    internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null, bool renderGameplayFrames = true)
     {
-        var game = new SuperMetroidGame(addressSpace, gameOptions, renderGameplayFrames);
+        var game = new SuperMetroidGame(saves, gameOptions, renderGameplayFrames);
         gameBindings.Value(game);
         return game;
     }

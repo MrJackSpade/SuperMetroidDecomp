@@ -13,5 +13,5 @@ internal static class StokeAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params StokeProgram[] programs) =>
         programs.SelectMany(program => StokeAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => StokeFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => StokeFrameToolingDefinitions.Spritemap(step.Frame));
 }

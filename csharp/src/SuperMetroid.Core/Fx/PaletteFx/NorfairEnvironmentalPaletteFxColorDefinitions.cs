@@ -23,20 +23,14 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
     /// <summary>Each phase writes five live BGR555 colors.</summary>
     public const int ColorsPerFrame = 5;
 
-    /// <summary>$8D:F785: first of four adjacent native environmental definitions, each init/list pair occupying four bytes.</summary>
-    private const ushort FirstDefinition = 0xf785;
-    /// <summary>$8D:F08E: foreground palette-three loop also publishes the current heat phase.</summary>
-    private const ushort HeatPhaseProgram = 0xf08e;
-    /// <summary>$8D:F1D1: foreground palette-four loop; palette-five/six programs follow with the same record geometry.</summary>
-    private const ushort FirstRegularProgram = 0xf1d1;
-    /// <summary>The color-index setup command and operand occupy four bytes.</summary>
-    private const int SetupBytes = 4;
-    /// <summary>The loop's goto command and destination occupy four bytes.</summary>
-    private const int GotoBytes = 4;
-    /// <summary>Regular phases contain duration, five colors, one skip command and one wait command.</summary>
-    private const int RegularFrameBytes = 2 + ColorsPerFrame * 2 + 2 + 2;
-    /// <summary>Heat publication adds an instruction word and its byte-sized phase operand before each regular record.</summary>
-    private const int HeatPublicationBytes = 3;
+    /// <summary>The palette-FX object of each program, by owner.</summary>
+    private static readonly PaletteFxObject[] Objects =
+    [
+        PaletteFxObject.NorfairForegroundAndHeatPhase,
+        PaletteFxObject.NorfairForegroundPalette4,
+        PaletteFxObject.NorfairForegroundPalette5,
+        PaletteFxObject.NorfairForegroundPalette6,
+    ];
     /// <summary>$8D:F08E publishes heat phases while writing foreground palette three.</summary>
     private const int HeatPalette = 3;
     /// <summary>The heat program's $006A CGRAM index starts at color five.</summary>
@@ -48,7 +42,7 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
 
     /// <summary>Materializes the four native programs from their shared record geometry.</summary>
     private static readonly ProgramDefinitions Definitions = new();
-    /// <summary>Provides indexed definitions in adjacent native pointer order without storing duplicate records.</summary>
+    /// <summary>Provides indexed definitions in native object order without storing duplicate records.</summary>
     private sealed class ProgramDefinitions : IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition>
     {
         /// <summary>The four adjacent definition identities at $8D:F785 through $F791.</summary>
@@ -62,13 +56,9 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
                 var owner = (NorfairEnvironmentalPaletteOwner)index;
                 bool heat = owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase;
                 int regular = index - (int)NorfairEnvironmentalPaletteOwner.ForegroundPalette4;
-                int start = heat ? HeatPhaseProgram : FirstRegularProgram + regular *
-                    (SetupBytes + FrameCount * RegularFrameBytes + GotoBytes);
-                int first = start + SetupBytes;
                 int palette = heat ? HeatPalette : RegularFirstPalette + regular;
                 int color = heat ? HeatFirstColor : RegularFirstColor;
-                return new(owner, (ushort)(FirstDefinition + index * 4), (ushort)start, (ushort)first,
-                    (ushort)(first + FrameCount * (RegularFrameBytes + (heat ? HeatPublicationBytes : 0))),
+                return new(owner, Objects[index], FirstRecord + index * FrameCount,
                     (ushort)((palette * 16 + color) * sizeof(ushort)), heat);
             }
         }
@@ -83,4 +73,7 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
     /// <summary>The four real environmental programs in definition order.</summary>
     public static IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition> All =>
         Definitions;
+
+    /// <summary>The heat-phase program's first record; the three palette programs follow it, sixteen records each.</summary>
+    private const int FirstRecord = 434;
 }

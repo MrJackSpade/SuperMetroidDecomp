@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -89,9 +90,7 @@ public static class XrayRevealVisualFiles
                     throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
                 return new RoomLevelWord(CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemBank | (pointer + 2)))).VisualWord;
             }).ToArray();
-        XrayRoomOverlayEntry[] rooms = RoomStateDefinitions.All
-            .Select(state => state.XrayPointer).Where(pointer => pointer != 0)
-            .Distinct().OrderBy(pointer => pointer)
+        XrayRoomOverlayEntry[] rooms = XrayRoomOverlaySources.Pointers
             .Select(pointer => ReadRoomOverlay(bus, pointer)).ToArray();
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new XrayRevealVisualDocument(FormatVersion, entries, itemMetatiles, rooms),
@@ -156,8 +155,8 @@ public static class XrayRevealVisualFiles
                 !edited.BtsValues.SequenceEqual(original.BtsValues))
                 throw new InvalidDataException(
                     $"X-ray visuals {selectedPath} changed the compiled rule at entry {index}.");
-            var visual = new XrayRevealVisualWords(edited.TopLeft, edited.TopRight,
-                edited.BottomLeft, edited.BottomRight);
+            var visual = new XrayRevealVisualWords(checked((ushort)edited.TopLeft), checked((ushort)edited.TopRight),
+                checked((ushort)edited.BottomLeft), checked((ushort)edited.BottomRight));
             foreach (int bts in edited.BtsValues)
                 mappings.Add((edited.CollisionType, unchecked((byte)bts), visual));
         }
@@ -169,9 +168,9 @@ public static class XrayRevealVisualFiles
                     $"X-ray visuals {selectedPath} changed room-overlay structure at entry {index}.");
         }
         var overlays = new XrayOverlayVisualCatalog(selected.ItemMetatiles,
-            selected.Rooms.Select(room => (room.Pointer,
+            selected.Rooms.Select(room => (XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
                 (IReadOnlyList<XrayRoomOverlayVisual>)room.Tiles.Select(tile =>
-                    new XrayRoomOverlayVisual(tile.Block, tile.Word)).ToArray())));
+                    new XrayRoomOverlayVisual(tile.Block, new RoomLevelWord(checked((ushort)tile.Word)))).ToArray())));
         return new XrayRevealVisualCatalog(mappings, overlays);
     }
 
@@ -189,14 +188,13 @@ public static class XrayRevealVisualFiles
             document.ItemMetatiles.Any(word => !RoomLevelWord.IsValidVisualWord(word)) ||
             document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
-        ushort[] nativePointers = RoomStateDefinitions.All.Select(state => state.XrayPointer)
-            .Where(pointer => pointer != 0).Distinct().OrderBy(pointer => pointer).ToArray();
-        if (!document.Rooms.Select(room => room.Pointer).SequenceEqual(nativePointers))
+        ushort[] nativePointers = XrayRoomOverlaySources.Pointers.ToArray();
+        if (!document.Rooms.Select(room => room.Pointer).SequenceEqual(nativePointers.Select(pointer => (int)pointer)))
             throw new InvalidDataException($"X-ray visuals {path} changed room-overlay identities.");
         foreach (XrayRoomOverlayEntry room in document.Rooms)
         {
             if (room.Tiles is null || room.Tiles.Length == 0 ||
-                room.Tiles.Any(tile => tile is null || !RoomLevelWord.IsValidVisualWord(tile.Word)))
+                room.Tiles.Any(tile => tile is null || !RoomLevelWord.IsValidVisualWord(checked((ushort)tile.Word))))
                 throw new InvalidDataException(
                     $"X-ray visuals {path} contain an invalid room overlay ${room.Pointer:X4}.");
         }
@@ -209,8 +207,8 @@ public static class XrayRevealVisualFiles
                 !XrayRevealVisualCatalog.IsDrawable(rule.Command) || entry.Shape != NameOf(rule.Command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
             XrayRevealCommand command = rule.Command;
-            if (!RoomLevelWord.IsValidVisualWord(entry.TopLeft) || !RoomLevelWord.IsValidVisualWord(entry.TopRight) ||
-                !RoomLevelWord.IsValidVisualWord(entry.BottomLeft) || !RoomLevelWord.IsValidVisualWord(entry.BottomRight))
+            if (!RoomLevelWord.IsValidVisualWord(checked((ushort)entry.TopLeft)) || !RoomLevelWord.IsValidVisualWord(checked((ushort)entry.TopRight)) ||
+                !RoomLevelWord.IsValidVisualWord(checked((ushort)entry.BottomLeft)) || !RoomLevelWord.IsValidVisualWord(checked((ushort)entry.BottomRight)))
                 throw new InvalidDataException($"X-ray visuals {path} contain a nonvisual metatile index.");
             if ((command is XrayRevealCommand.CopyOne or XrayRevealCommand.CopyBrinstar &&
                     (entry.TopRight != 0 || entry.BottomLeft != 0 || entry.BottomRight != 0)) ||
@@ -335,18 +333,44 @@ public static class XrayRevealVisualFiles
         ushort[] ItemMetatiles, XrayRoomOverlayEntry[] Rooms);
     /// <summary>One compiled type/BTS rule's editable metatile operands with its fixed copy shape.</summary>
     private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, int[] BtsValues,
-        string Shape, ushort TopLeft, ushort TopRight, ushort BottomLeft, ushort BottomRight);
+        string Shape, int TopLeft, int TopRight, int BottomLeft, int BottomRight)
+    {
+        /// <summary>The top-left metatile word, 0 through 65535.</summary>
+        public int TopLeft { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, TopLeft);
+
+        /// <summary>The top-right metatile word, 0 through 65535.</summary>
+        public int TopRight { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, TopRight);
+
+        /// <summary>The bottom-left metatile word, 0 through 65535.</summary>
+        public int BottomLeft { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, BottomLeft);
+
+        /// <summary>The bottom-right metatile word, 0 through 65535.</summary>
+        public int BottomRight { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, BottomRight);
+    }
     /// <summary>One bank-$8F special-room list and its ordered editable metatile records.</summary>
-    private sealed record XrayRoomOverlayEntry(ushort Pointer, XrayRoomOverlayTileDocument[] Tiles);
+    private sealed record XrayRoomOverlayEntry(int Pointer, XrayRoomOverlayTileDocument[] Tiles)
+    {
+        /// <summary>The room overlay list's identity, 0 through 65535.</summary>
+        public int Pointer { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, Pointer);
+    }
 
     // Keep file admission separate from the runtime value type. A missing coordinate
     // must not become the struct's legal zero/default value during deserialization.
     /// <summary>Requires explicit X/Y JSON bytes so omitted coordinates cannot become a legal default block.</summary>
     [SpatialComponents("External format: reveals.json stores each room-overlay tile's block coordinates as x/y bytes.")]
-    private sealed record XrayRoomOverlayTileDocument(byte X, byte Y, ushort Word)
+    private sealed record XrayRoomOverlayTileDocument(int X, int Y, int Word)
     {
+        /// <summary>The tile's block column, 0 through 255.</summary>
+        public int X { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, X);
+
+        /// <summary>The tile's block row, 0 through 255.</summary>
+        public int Y { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Y);
+
+        /// <summary>The tile's level word, 0 through 65535.</summary>
+        public int Word { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, Word);
+
         /// <summary>Combines validated external coordinates into the runtime room-block position.</summary>
         [JsonIgnore]
-        public Position16<RoomBlocks> Block => new(X, Y);
+        public Position16<RoomBlocks> Block => new(checked((ushort)X), checked((ushort)Y));
     }
 }

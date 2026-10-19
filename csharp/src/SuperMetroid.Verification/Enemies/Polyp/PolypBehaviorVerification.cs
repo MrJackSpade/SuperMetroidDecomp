@@ -13,22 +13,22 @@ using SuperMetroid.Verification.Harness;
 internal static class PolypBehaviorVerification
 {
     /// <summary>The real initializer starts the stationary program, which shows its one frame and then holds it.</summary>
-    internal static void VerifyPolypBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyPolypBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.LavaRocks;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = PolypFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.LavaRocks, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PolypFrameToolingDefinitions.Bank });
         enemies.PolypBehavior.InitializePolyp(slot);
         AssertEqual(AnimationProgramCursor<PolypProgram>.Start(PolypProgram.Stationary),
-            (enemies.PolypBehavior._polypStates[0] ?? throw new InvalidOperationException("The Polyp has no state.")).Program,
+            (enemies.SlotTable.Slots[0].EntityState<PolypEntity, PolypEnemyState>() ?? throw new InvalidOperationException("The Polyp has no state.")).Program,
             "real Polyp initializer starts the stationary program");
         // The update that reaches the native sleep yields with the new-frame flag still set, so it reads as shown twice.
         ushort frame = PolypAnimationsConstants.Spritemaps(PolypProgram.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, 4), "Polyp shows its stationary frame once and holds it");
+            EnemyInstructionRunner.ShownFrames(slot, 4), "Polyp shows its stationary frame once and holds it");
         Console.WriteLine("  Polyp behavior: the stationary pose shows and holds.");
     }
 
@@ -37,7 +37,7 @@ internal static class PolypBehaviorVerification
     internal static int PolypInstructionMechanicsCommand()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyPolypBehavior), () => VerifyPolypBehavior(rom));
+        Suite(nameof(VerifyPolypBehavior), () => VerifyPolypBehavior());
         Suite(nameof(PolypAnimationsVerification.VerifyPolypAnimations), () => PolypAnimationsVerification.VerifyPolypAnimations(rom));
         return 0;
     }

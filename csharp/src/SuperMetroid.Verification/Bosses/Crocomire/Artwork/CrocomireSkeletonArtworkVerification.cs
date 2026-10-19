@@ -71,9 +71,9 @@ internal static class CrocomireSkeletonArtworkVerification
         }
         AssertTrue(installedVram.ImageEquals(nativeVram),
             "all six installed Crocomire skeleton uploads match native full VRAM");
-        AssertEqual((ushort)(frames.Length * 2),
-            installedState.TargetHeightOrSkeletonTileIndex,
-            "terminal skeleton upload does not advance the cursor");
+        AssertEqual(frames.Length,
+            installedState.SkeletonTileChunk,
+            "terminal skeleton upload does not advance the chunk count");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire skeleton upload reads no ROM bytes");
 
@@ -141,14 +141,12 @@ internal static class CrocomireSkeletonArtworkVerification
         static void SetRuntimeFields(RoomEnemySystem system,
             ISnesAddressSpace bus, SnesVram vram)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            system.BindFixtureBus(bus);
+            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             system.Presentation._vram = vram;
         }
 
         static void Upload(RoomEnemySystem system, CrocomireDeathState state)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             system.CrocomireBehavior.UploadNextCrocomireSkeletonTileChunk(state);
         }
     }

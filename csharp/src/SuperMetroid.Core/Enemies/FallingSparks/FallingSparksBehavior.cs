@@ -43,7 +43,7 @@ internal sealed class FallingSparksBehavior
         // horizontal table is one record short. The compiled definition retains the
         // final RNG outcome's instruction-byte overread, including its signed delta.
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
-        Func<ushort> nextRandom = _room.Random.Generate;
+        Func<int> nextRandom = _room.Random.Generate;
         (projectile.Variable1, projectile.Variable0) = FallingSparkLaunchDefinitions.FromRandom(nextRandom());
 
     }
@@ -52,7 +52,7 @@ internal sealed class FallingSparksBehavior
     internal void RunFallingSparkPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
-        byte nmiFrameCounter8)
+        int nmiFrameCounter8)
     {
         // A nonnegative vertical whole word first passes through the generic signed-8.8
         // collision helper. The helper's accepted subpixel movement is *additional* to the
@@ -100,7 +100,7 @@ internal sealed class FallingSparksBehavior
     internal static void AddFallingSparkHorizontalVelocity(
         RoomEnemyProjectileSlot projectile)
     {
-        uint fraction = (uint)projectile.Position.X.Fraction + projectile.Variable0;
+        uint fraction = (uint)projectile.Position.X.Fraction + checked((ushort)projectile.Variable0);
         projectile.Position = projectile.Position.WithFractionX(unchecked((ushort)fraction));
         projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
             projectile.Position.X.Whole + projectile.Variable1 + SnesCarry.OutOfWord(fraction))));
@@ -137,7 +137,7 @@ internal sealed class FallingSparksBehavior
         _ = _spriteObjects.SpawnRoomSpriteObject(
             projectile.Position.Whole,
             RoomSpriteObjectKind.FallingSparkTrail,
-            projectile.GraphicsIndex);
+            checked((ushort)projectile.GraphicsIndex));
     }
 
     /// <summary>Connects the falling-spark pre-instruction to the projectile handler table.</summary>

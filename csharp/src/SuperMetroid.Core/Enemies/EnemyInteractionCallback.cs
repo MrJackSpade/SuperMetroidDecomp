@@ -240,4 +240,20 @@ internal enum EnemyInteractionCallback
     PhantoonTouch = 0xa70000 | PhantoonCollisionDefinitions.TouchAi,
     /// <summary>Phantoon body shot callback at $A7:DD9B.</summary>
     PhantoonShot = 0xa70000 | PhantoonCollisionDefinitions.ShotAi,
+    /// <summary>Dead Zoomer's touch and shot rot trigger at $A9:DCF8.</summary>
+    DeadZoomerTouchAndShot = 0xa90000 | EnemyAiCodePointers.BankA9.DeadZoomerTouchAndShot,
+    /// <summary>Dead Zoomer's Power Bomb rot trigger at $A9:DCED.</summary>
+    DeadZoomerPowerBomb = 0xa90000 | EnemyAiCodePointers.BankA9.DeadZoomerPowerBomb,
+    /// <summary>Dead Ripper's touch and shot rot trigger at $A9:DD08.</summary>
+    DeadRipperTouchAndShot = 0xa90000 | EnemyAiCodePointers.BankA9.DeadRipperTouchAndShot,
+    /// <summary>Dead Ripper's Power Bomb rot trigger at $A9:DCFD.</summary>
+    DeadRipperPowerBomb = 0xa90000 | EnemyAiCodePointers.BankA9.DeadRipperPowerBomb,
+    /// <summary>Dead Skree's touch and shot rot trigger at $A9:DD18.</summary>
+    DeadSkreeTouchAndShot = 0xa90000 | EnemyAiCodePointers.BankA9.DeadSkreeTouchAndShot,
+    /// <summary>Dead Skree's Power Bomb rot trigger at $A9:DD0D.</summary>
+    DeadSkreePowerBomb = 0xa90000 | EnemyAiCodePointers.BankA9.DeadSkreePowerBomb,
+    /// <summary><c>RTL_A6F920</c>, the Ceres door shot callback at $A6:F920.</summary>
+    CeresDoorNoOpShot = EnemyShotCallbackDefinitions.CeresDoorNoOp,
+    /// <summary><c>RTL_AAE7DC</c>, the Chozo statue shot callback at $AA:E7DC.</summary>
+    ChozoNoOpShot = EnemyShotCallbackDefinitions.ChozoNoOp,
 }

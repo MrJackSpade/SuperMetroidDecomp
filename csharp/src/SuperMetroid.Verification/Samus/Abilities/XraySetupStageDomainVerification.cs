@@ -45,15 +45,15 @@ internal static class XraySetupStageDomainVerification
         // Production stepping walks the same order.
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        AssertTrue(samus.Xray.TryBegin(samus, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "X-ray setup accepted");
         foreach (XraySetupStage expected in order)
         {
             AssertEqual(expected, samus.Xray.SetupStage, $"production X-ray setup reaches {expected}");
             if (expected != XraySetupStage.Complete)
-                samus.Xray.StepBeam(bus, samus, 0);
+                samus.Xray.StepBeam(samus, 0);
         }
 
         // Debugger-state boundary: undefined saved enum values are rejected.

@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.EnsureAnalyzer.Modules;
@@ -7,14 +6,14 @@ using SuperMetroid.ReachabilityAudit.SolutionLoading;
 namespace SuperMetroid.ArchitectureAudit;
 
 /// <summary>
-/// #626 module inventory: every maintained source file with its module, role, namespace, compiling assemblies,
-/// Core layer and the other modules whose source types it references, plus each module's aggregate dependencies and
-/// the dependency cycles among Core modules. The checked-in <c>docs/module-inventory.json</c> must match it, and every
-/// cycle must be exactly one of the map's <c>acceptedCycles</c>, each of which must still occur.
+/// Module inventory: every maintained source file with its module, role, namespace, compiling assemblies, Core layer
+/// and the other modules whose source types it references, plus each module's aggregate dependencies and the
+/// dependency cycles among Core modules. The checked-in <c>docs/module-inventory.json</c> must match it, and every
+/// cycle is a failure: there is no list of accepted cycles.
 /// </summary>
 internal static class ModuleInventory
 {
-    /// <summary>Builds the inventory document from every compiled repository source file and reports unaccepted or stale cycles into <paramref name="problems"/>.</summary>
+    /// <summary>Builds the inventory document from every compiled repository source file and reports every Core cycle into <paramref name="problems"/>.</summary>
     public static object Collect(LoadedSolution solution, List<string> problems)
     {
         string root = solution.RepositoryRoot;
@@ -45,7 +44,8 @@ internal static class ModuleInventory
             })
             .ToList();
         List<List<string>> cycles = CoreCycles(files.Values);
-        CheckCycles(cycles, AcceptedCycles(mapText), problems);
+        foreach (List<string> cycle in cycles)
+            problems.Add($"Core modules form a dependency cycle: {string.Join(", ", cycle)}. Break it; a cycle is never accepted.");
         return new
         {
             issue = 626,
@@ -114,26 +114,6 @@ internal static class ModuleInventory
             return parts.Length >= 3 ? module.Path + "/" + parts[2] : module.Path;
         }
         return module.Path;
-    }
-
-    /// <summary>The module sets listed under the map's <c>acceptedCycles</c>, each sorted.</summary>
-    private static List<string[]> AcceptedCycles(string mapText)
-    {
-        using JsonDocument document = JsonDocument.Parse(mapText);
-        if (!document.RootElement.TryGetProperty("acceptedCycles", out JsonElement accepted))
-            return [];
-        return accepted.EnumerateArray().Select(cycle => cycle.GetProperty("modules").EnumerateArray()
-            .Select(module => module.GetString() ?? throw new InvalidDataException("An accepted cycle lists a null module."))
-            .Order(StringComparer.Ordinal).ToArray()).ToList();
-    }
-
-    /// <summary>Requires every found cycle to be accepted exactly and every accepted cycle to still occur.</summary>
-    private static void CheckCycles(List<List<string>> found, List<string[]> accepted, List<string> problems)
-    {
-        foreach (List<string> cycle in found.Where(cycle => !accepted.Any(entry => entry.SequenceEqual(cycle, StringComparer.Ordinal))))
-            problems.Add($"Core modules form an unaccepted dependency cycle: {string.Join(", ", cycle)}. Break it, or list it with its tracking issues under acceptedCycles in csharp/module-map.json.");
-        foreach (string[] entry in accepted.Where(entry => !found.Any(cycle => cycle.SequenceEqual(entry, StringComparer.Ordinal))))
-            problems.Add($"Stale accepted cycle in csharp/module-map.json: {string.Join(", ", entry)} no longer occurs exactly; update or remove it.");
     }
 
     /// <summary>The strongly connected groups (size above one) of the Core module dependency graph.</summary>

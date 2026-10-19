@@ -32,9 +32,8 @@ internal static class RoomDefinitionIntegrationVerification
         var guard = NewCompiledRoomDefinitionReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden);
 
-        var expected = CreateRetailRuntimeFixture(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));
-        var actual = CreateRetailRuntimeFixture(guard);
+        var expected = CreateRetailRuntimeFixture();
+        var actual = CreateRetailRuntimeFixture();
         InitialViewportResult expectedViewport = InitializePostCeresLanding(expected);
         InitialViewportResult actualViewport = InitializePostCeresLanding(actual);
 
@@ -59,7 +58,7 @@ internal static class RoomDefinitionIntegrationVerification
         ushort initialCameraY = actual.Room.LoadedCamera.PixelPosition.Y;
         int frames = 0;
         bool cameraMoved = false;
-        while (actual.Enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.LandingCompleted &&
+        while (actual.Enemies.LastEnemyFrame.Gunship != GunshipFrameEvent.LandingCompleted &&
                frames < PostCeresLandingMaximumFrames)
         {
             RuntimeFrameResult expectedFrame = expected.StepFrame(0);
@@ -78,8 +77,8 @@ internal static class RoomDefinitionIntegrationVerification
                 (expected.Player.IntroducedSamus.Kinematics.Position.X.RawValue, expected.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
                 (actual.Player.IntroducedSamus.Kinematics.Position.X.RawValue, actual.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
                 $"guarded post-Ceres carried-Samus trajectory frame {frames}");
-            AssertEqual(expected.Enemies.GunshipBehavior.LastGunshipEvent,
-                actual.Enemies.GunshipBehavior.LastGunshipEvent,
+            AssertEqual(expected.Enemies.LastEnemyFrame.Gunship,
+                actual.Enemies.LastEnemyFrame.Gunship,
                 $"guarded post-Ceres gunship boundary frame {frames}");
             cameraMoved |= actual.Room.LoadedCamera.PixelPosition.Y != initialCameraY;
             frames++;
@@ -88,7 +87,7 @@ internal static class RoomDefinitionIntegrationVerification
         AssertTrue(cameraMoved,
             "post-Ceres production trajectory moves the camera through Landing Site");
         AssertEqual(GunshipFrameEvent.LandingCompleted,
-            actual.Enemies.GunshipBehavior.LastGunshipEvent,
+            actual.Enemies.LastEnemyFrame.Gunship,
             "guarded post-Ceres production trajectory reaches landing completion");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production entry and camera trajectory perform no compiled-definition ROM reads");
@@ -118,19 +117,19 @@ internal static class RoomDefinitionIntegrationVerification
             LoadStationRomData.DataEnd - LoadStationRomData.PointerTable);
 
         foreach (ushort doorPointer in EnumerateRetailDoorPointers()
-                     .Append((ushort)ElevatorPseudoDoorPointer.Shared)
+                     .Append(DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer)
                      .Distinct())
         {
             AddAddressRange(forbidden,
                 DoorHeaderRomDataTooling.BankAddress | doorPointer,
                 DoorHeaderRomDataConstants.RecordByteCount);
             // The pseudo-door's remaining bytes overlap $88FE; it has no setup code of its own.
-            if (doorPointer == (ushort)ElevatorPseudoDoorPointer.Shared)
+            if (doorPointer == DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer)
                 continue;
             CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
             if (door.SetupCodePointer != DoorSetupCode.None)
             {
-                forbidden.Add(RoomHeaderRomData.BankAddress |
+                forbidden.Add(RoomHeaderRomDataConstants.BankAddress |
                     (ushort)door.SetupCodePointer);
             }
         }
@@ -155,10 +154,9 @@ internal static class RoomDefinitionIntegrationVerification
             }
 
             RoomHeaderDefinition header = RoomHeaderDefinitions.Get(roomPointer);
-            DoorListDefinition doors = DoorDefinitionsTooling.GetList(header.DoorListPointer);
             AddAddressRange(forbidden,
-                RoomHeaderRomData.BankAddress | header.DoorListPointer,
-                doors.DoorPointers.Length * sizeof(ushort));
+                RoomHeaderRomDataConstants.BankAddress | RoomDoorListDefinitions.ListPointerOf(header),
+                RoomDoorListDefinitions.ByRoom[header].Count * sizeof(ushort));
         }
 
         foreach (ushort statePointer in statePointers)
@@ -176,13 +174,13 @@ internal static class RoomDefinitionIntegrationVerification
         {
             ushort pointer = RoomCallbackDefinitions.PointerOf(callback);
             if (pointer != 0)
-                forbidden.Add(RoomHeaderRomData.BankAddress | pointer);
+                forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
         }
         foreach (RoomSetupCallback callback in Enum.GetValues<RoomSetupCallback>())
         {
             ushort pointer = RoomCallbackDefinitions.PointerOf(callback);
             if (pointer != 0)
-                forbidden.Add(RoomHeaderRomData.BankAddress | pointer);
+                forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
         }
 
         AssertEqual(RoomStateDefinitions.RetailStateCount, statePointers.Count,

@@ -16,9 +16,6 @@ internal static class KraidFootCollisionDefinitions
     /// <summary>Small-Kraid initial foot frame at $A7:A565; physically the first walk frame.</summary>
     internal const ushort InitialFrame = 0xa565;
 
-    /// <summary>The shared single-rectangle hitbox list at $A7:9453.</summary>
-    internal const ushort HitboxList = 0x9453;
-
     /// <summary>Each two-component frame occupies 18 bytes in bank $A7.</summary>
     internal const int FrameByteCount = 18;
 
@@ -104,8 +101,6 @@ internal static class KraidFootCollisionDefinitions
         return true;
     }
 
-    /// <summary>$A7:9453 contains one centered six-pixel-radius rectangle with background touch/no-op shot.</summary>
-    internal static KraidFootHitboxSequence HitboxesAt(ushort pointer) =>
-        pointer == HitboxList ? new(1) : throw new InvalidDataException(
-            $"Kraid-foot hitbox list $A7:{pointer:X4} is not compiled.");
+    /// <summary>The single shared rectangle every foot component collides with.</summary>
+    internal static KraidFootHitboxSequence SharedHitboxes => new(1);
 }

@@ -104,7 +104,7 @@ static void VerifyKraidLibraryHudArtwork(
     LibraryBackgroundExecutionResult native = SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, stockVram,
         transfer.ListPointer, activeDoorPointer: 0);
     var installedVram = new SnesVram();
-    LibraryBackgroundExecutionResult installed = LibraryBackgroundLoader.Execute(bus, installedVram, transfer.ListPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
+    LibraryBackgroundExecutionResult installed = LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), installedVram, LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
     AssertEqual(native, installed, "Kraid command results stay unchanged with installed HUD art");
     int destinationByte = (transfer.VramDestination ?? throw new InvalidOperationException("Verification requires transfer.VramDestination.")) * 2;
     for (int index = 0; index < planar.Length; index++)
@@ -114,7 +114,7 @@ static void VerifyKraidLibraryHudArtwork(
 
     pixels[0] = (byte)((pixels[0] + 1) & 3);
     var editedVram = new SnesVram();
-    LibraryBackgroundLoader.Execute(bus, editedVram, transfer.ListPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
+    LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), editedVram, LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
     if (editedVram.ReadByte(destinationByte) == stockVram.ReadByte(destinationByte))
         throw new InvalidDataException("Edited HUD pixel did not reach Kraid's native VRAM destination.");
     Console.WriteLine("  Kraid BG list: installed HUD PNG matches stock VRAM, and an edit reaches VRAM.");
@@ -153,7 +153,7 @@ internal static void VerifyLibraryBackgroundLoader()
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, vram, 0xe000, activeDoorPointer: 0);
     AssertEqual(4, SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.Read(bus, 0xe000).Instructions.Count + 1,
         "library-background command count includes terminator");
-    AssertEqual<ushort?>(null, result.Bg3CharacterBaseWord, "ordinary library list leaves BG3 base unchanged");
+    AssertEqual(false, result.SelectsKraidHudCharacters, "ordinary library list leaves BG3 base unchanged");
     AssertEqual(0x2211, vram.ReadWord(0x4800), "library background first BG2 page word");
     AssertEqual(0x4433, vram.ReadWord(0x4801), "library background first BG2 page tail");
     AssertEqual(0x2211, vram.ReadWord(0x4c00), "library background second BG2 page word");
@@ -179,7 +179,7 @@ internal static void VerifyLibraryBackgroundLoader()
     bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     vram = new SnesVram();
     vram.ExecuteWordTransfer([0xffff], 0x4800, 1);
-    LibraryBackgroundLoader.ExecuteProgram(bus, vram, SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.Read(bus, 0xe040), activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork());
+    LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), vram, SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.Read(bus, 0xe040), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork());
     AssertEqual(0x0338, vram.ReadWord(0x4800), "library background clear first word");
     AssertEqual(0x0338, vram.ReadWord(0x4fff), "library background clear final word");
 
@@ -233,8 +233,6 @@ internal sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace s
         WorkRamReads++;
         return source.ReadWorkRamByte(address);
     }
-    /// <summary>Preserves save-RAM behavior when a fixture bus requests it.</summary>
-    public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
     /// <summary>Forwards writes so fixture setup retains the source bus's address mapping.</summary>
     public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 }

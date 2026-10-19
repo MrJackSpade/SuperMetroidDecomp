@@ -17,9 +17,9 @@ public static class BotwoonSpeedDefinitions
     /// Do not extrapolate to another phase or apply this contract to PAL records.
     /// Integer arithmetic is exact; there is no rounding or floating-point approximation.
     /// </remarks>
-    public static BotwoonSpeedDefinition ForHealthPhase(byte phase)
+    public static BotwoonSpeedDefinition ForHealthPhase(int phase)
     {
-        if (phase > 2)
+        if (phase is < 0 or > 2)
             throw new InvalidDataException($"Botwoon health phase {phase} is outside the three native speed records.");
         ushort speed = (ushort)(phase + 2);
         return new(speed, (ushort)(48 / speed), speed);

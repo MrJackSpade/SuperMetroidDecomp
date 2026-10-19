@@ -72,8 +72,8 @@ internal static class LookupStationLayoutsVerification
             if (field == 0)
             {
                 SeedSoleElevatorPlatformPlm(bus, 0x9400, new(8, 8), 0xafb6);
-                AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }), "Elevator platform fixture spawn");
-                plms.DrawSolePlmFrameForVerification(bus, level, level.CreateBackgroundStreamer(), pointer);
+                AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }), "Elevator platform fixture spawn");
+                plms.DrawSolePlmFrameForVerification(level, level.CreateBackgroundStreamer(), pointer);
             }
             int drawX = 8, drawY = 8;
             int cursor = 0x840000 | pointer;
@@ -97,7 +97,7 @@ internal static class LookupStationLayoutsVerification
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),
-                            level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).LevelWord,
+                            level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).PackedWord.Raw,
                             "Station native physical word at original absolute run position");
                     drawX = 8 + unchecked((sbyte)offset);
                     drawY = 8 + unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));

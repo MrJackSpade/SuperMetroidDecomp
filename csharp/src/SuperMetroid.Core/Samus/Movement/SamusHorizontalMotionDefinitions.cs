@@ -7,34 +7,43 @@ internal static class SamusHorizontalMotionDefinitions
     private const int AirRecordCount = 26;
     /// <summary>$90:A08D and A1DD water/lava records additionally include held and special movement.</summary>
     private const int LiquidRecordCount = 28;
-    /// <summary>
-    /// Resolves exact records in the three adjacent native tables. Address-based selection
-    /// deliberately lets air movement bytes 26/27 read water rows 0/1. Addresses outside
-    /// the authored records are not treated as additional mechanics definitions.
-    /// </summary>
-    internal static bool TryResolveIndexed(int address, out SpeedTableEntry entry)
+    /// <summary>Records across the three adjacent tables: air, then water, then lava/acid.</summary>
+    internal const int RowCount = AirRecordCount + 2 * LiquidRecordCount;
+
+    /// <summary>The row of <paramref name="medium"/>'s table's first record among the three adjacent tables.</summary>
+    internal static int FirstRow(SamusLiquidMedium medium) => medium switch
     {
-        int offset = address - (SamusMovementRomData.Banks.Movement | SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable);
-        int count = AirRecordCount + 2 * LiquidRecordCount;
-        if (offset < 0 || offset >= count * SpeedTableEntry.ByteCount || offset % SpeedTableEntry.ByteCount != 0)
+        SamusLiquidMedium.Air => 0,
+        SamusLiquidMedium.Water => AirRecordCount,
+        SamusLiquidMedium.LavaOrAcid => AirRecordCount + LiquidRecordCount,
+        _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
+    };
+
+    /// <summary>
+    /// Resolves exact records in the three adjacent native tables by row. Table selection adds the
+    /// movement type to the table's first row, so air movement types 26/27 deliberately read water rows
+    /// 0/1. Rows past the authored records are not treated as additional mechanics definitions.
+    /// </summary>
+    internal static bool TryResolveRow(int row, out SpeedTableEntry entry)
+    {
+        if ((uint)row >= RowCount)
         {
             entry = default;
             return false;
         }
-        int row = offset / SpeedTableEntry.ByteCount;
         bool air = row < AirRecordCount;
         bool water = false;
-        ushort deceleration;
+        ushort decelerationFraction;
         if (air)
         {
-            deceleration = 0x8000;
+            decelerationFraction = 0x8000;
         }
         else
         {
             row -= AirRecordCount;
             water = row < LiquidRecordCount;
             if (!water) row -= LiquidRecordCount;
-            deceleration = water ? (ushort)0x0800 : (ushort)0x4000;
+            decelerationFraction = water ? (ushort)0x0800 : (ushort)0x4000;
         }
         uint maximum = (SamusMovementType)row switch
         {
@@ -76,35 +85,31 @@ internal static class SamusHorizontalMotionDefinitions
                 SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special => 0xc000u,
             _ => throw new InvalidOperationException($"Undefined SamusMovementType {(SamusMovementType)row}."),
         };
-        entry = new(SnesFixedPosition.WholeOf(unchecked((int)acceleration)), (ushort)acceleration,
-            SnesFixedPosition.WholeOf(unchecked((int)maximum)), (ushort)maximum, 0, deceleration);
+        entry = new(
+            SnesSignedSixteenSixteen.FromRaw(unchecked((int)acceleration)),
+            SnesSignedSixteenSixteen.FromRaw(unchecked((int)maximum)),
+            SnesSignedSixteenSixteen.FromParts(0, decelerationFraction));
         return true;
     }
 
     /// <summary>$90:9F25 XAccelSpeeds_DiagonalBombJump: acceleration, maximum and deceleration whole/fraction pairs.</summary>
-    private static readonly SpeedTableEntry DiagonalBombJump = new(0, 0x3000, 3, 0, 0, 0x0800);
+    private static readonly SpeedTableEntry DiagonalBombJump = new(
+        Acceleration: SnesSignedSixteenSixteen.FromParts(0, 0x3000),
+        MaximumSpeed: SnesSignedSixteenSixteen.FromParts(3, 0),
+        Deceleration: SnesSignedSixteenSixteen.FromParts(0, 0x0800));
 
     /// <summary>$90:9F31/$9F3D/$9F49 XAccelSpeeds_DisconnectGrappleInAir/InWater/InLavaAcid: three identical authored records.</summary>
-    private static readonly SpeedTableEntry GrappleRelease = new(0, 0x3000, 15, 0, 0, 0x1000);
+    private static readonly SpeedTableEntry GrappleRelease = new(
+        Acceleration: SnesSignedSixteenSixteen.FromParts(0, 0x3000),
+        MaximumSpeed: SnesSignedSixteenSixteen.FromParts(15, 0),
+        Deceleration: SnesSignedSixteenSixteen.FromParts(0, 0x1000));
 
-    /// <summary>
-    /// Recognizes exact standalone entry addresses. Unknown/unaligned addresses are not
-    /// clamped to a known record.
-    /// </summary>
-    internal static bool TryResolveStandalone(int address, out SpeedTableEntry entry)
+    /// <summary>The authored standalone record <paramref name="record"/> names.</summary>
+    internal static SpeedTableEntry Standalone(SamusStandaloneSpeedRecord record) => record switch
     {
-        if (!Enum.IsDefined((SamusStandaloneSpeedRecord)address))
-        {
-            entry = default;
-            return false;
-        }
-        entry = (SamusStandaloneSpeedRecord)address switch
-        {
-            SamusStandaloneSpeedRecord.DiagonalBombJump => DiagonalBombJump,
-            SamusStandaloneSpeedRecord.GrappleReleaseAir or SamusStandaloneSpeedRecord.GrappleReleaseWater or
-                SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid => GrappleRelease,
-            _ => throw new InvalidOperationException($"Undefined {nameof(SamusStandaloneSpeedRecord)} {address:X6}."),
-        };
-        return true;
-    }
+        SamusStandaloneSpeedRecord.DiagonalBombJump => DiagonalBombJump,
+        SamusStandaloneSpeedRecord.GrappleReleaseAir or SamusStandaloneSpeedRecord.GrappleReleaseWater or
+            SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid => GrappleRelease,
+        _ => throw new InvalidOperationException($"Undefined {nameof(SamusStandaloneSpeedRecord)} {record}."),
+    };
 }

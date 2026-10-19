@@ -12,5 +12,5 @@ internal static class PipeBugAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params PipeBugProgram[] programs) =>
         programs.SelectMany(program => PipeBugAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => PipeBugFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => PipeBugFrameToolingDefinitions.Spritemap(step.Frame));
 }

@@ -1,4 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Waver.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -6,8 +8,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>The Waver species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class WaverBehavior : IEnemySpecies
+internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WaverEntity(this, slot, common);
+
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
 
@@ -37,28 +45,22 @@ internal sealed class WaverBehavior : IEnemySpecies
     /// <summary>Four-pixel amplitude used by Waver's negative-sine vertical motion.</summary>
     private const int WaverVerticalRadius = 4;
 
-    /// <summary>Per-enemy motion and animation state indexed by the physical room slot.</summary>
-    internal readonly WaverEnemyState?[] _waverStates =
-        new WaverEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Waver</c> at <c>$A3:86ED</c>.</summary>
-    internal void InitializeWaver(RoomEnemySlot slot)
+    internal static void InitializeWaver(RoomEnemySlot slot)
     {
         bool facingRight = (slot.Parameter1 & 1) != 0;
         int signedSpeed = facingRight
             ? WaverHorizontalSpeedFixed
             : -WaverHorizontalSpeedFixed;
-        var state = new WaverEnemyState(slot)
+        var state = new WaverEnemyState
         {
-            XSubvelocity = unchecked((ushort)signedSpeed),
-            XVelocity = unchecked((short)(SnesSixteenSixteen.WholeOf(signedSpeed))),
+            XVelocity = SnesSignedSixteenSixteen.FromRaw(signedSpeed),
             CurrentInstructionListIndex = WaverAnimationSelector.None,
-            Angle = 0,
+            Angle = SnesAngle.Zero,
             SpinFinished = false,
-            RequestedInstructionListIndex =
-                (WaverAnimationSelector)(slot.Parameter1 & 1),
+            RequestedInstructionListIndex = facingRight ? WaverAnimationSelector.FacingRight : WaverAnimationSelector.None,
         };
-        _waverStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The native initializer first installs the left steady animation and then invokes the
         // change detector. Parameter bit zero therefore changes only right-facing spawns;
@@ -76,8 +78,7 @@ internal sealed class WaverBehavior : IEnemySpecies
         if (level is null)
             throw new InvalidOperationException("Waver AI requires active room collision data.");
 
-        int horizontalDisplacement =
-            (SnesSixteenSixteen.FromWhole(state.XVelocity)) | state.XSubvelocity;
+        int horizontalDisplacement = state.XVelocity.RawValue;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
@@ -86,9 +87,7 @@ internal sealed class WaverBehavior : IEnemySpecies
             // `$A3:875F-$8781` negates the overlapping velocity bytes and writes them back
             // as two words. For every initialized Waver this is exactly a signed 16.16
             // negation; expressing that value directly preserves the native ±1.5 px/frame.
-            horizontalDisplacement = unchecked(-horizontalDisplacement);
-            state.XSubvelocity = unchecked((ushort)horizontalDisplacement);
-            state.XVelocity = unchecked((short)(SnesSixteenSixteen.WholeOf(horizontalDisplacement)));
+            state.XVelocity = SnesSignedSixteenSixteen.FromRaw(unchecked(-horizontalDisplacement));
             state.RequestedInstructionListIndex =
                 (state.RequestedInstructionListIndex ^ WaverAnimationSelector.FacingRight) &
                 WaverAnimationSelector.FacingRight;
@@ -97,23 +96,21 @@ internal sealed class WaverBehavior : IEnemySpecies
         else
         {
             int verticalPixels = EnemyMath.ReadEightBitNegativeSineProduct(
-                state.Angle,
+                state.Angle.TableIndex,
                 WaverVerticalRadius);
             if (_terrain.MoveEnemyVertically(level, slot, SnesSixteenSixteen.FromWhole(verticalPixels)))
             {
-                // Vertical collision reflects the sine phase by half a turn. The explicit
-                // byte mask matters when a debugger has written high garbage into var3.
-                state.Angle = unchecked((ushort)(unchecked((byte)(state.Angle + EnemyByteAngleDefinitions.HalfTurn))));
+                state.ReflectWave();
             }
             else
             {
-                state.Angle = unchecked((ushort)(state.Angle + 2));
+                state.AdvanceWave();
             }
         }
 
-        // Once per half-wave, angle low seven bits equal $38. Waver temporarily swaps to
+        // Once per half-wave, the phase's position within its half-turn equals $38. Waver temporarily swaps to
         // the four-map spin list without changing the facing bit.
-        if ((state.Angle & EnemyByteAngleDefinitions.HalfWaveIndexMask) == 56)
+        if ((state.Angle.TableIndex & EnemyByteAngleDefinitions.HalfWaveIndexMask) == 56)
         {
             state.RequestedInstructionListIndex |= WaverAnimationSelector.Spinning;
             SetWaverProgram(slot, state);
@@ -143,51 +140,31 @@ internal sealed class WaverBehavior : IEnemySpecies
     }
 
     /// <summary>Requires initialization state for a live Waver before processing its AI or spin opcode.</summary>
-    private WaverEnemyState RequireWaverState(RoomEnemySlot slot) =>
-        _waverStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static WaverEnemyState RequireWaverState(RoomEnemySlot slot) =>
+        slot.SpeciesState<WaverEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Waver state.");
 
-    /// <summary>Registers the Waver-specific slot initializer under its bank-$A3 AI pointer.</summary>
-    internal void RegisterWaverInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Waver's initialization AI.</summary>
+    internal static void RunWaverInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Waver, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Waver, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeWaver(slot);
-        });
+        InitializeWaver(slot);
     }
 
-    /// <summary>Registers Waver's collision-driven horizontal and sine-wave movement dispatcher.</summary>
-    internal void RegisterWaverMainAi(EnemyAiTable table)
+    /// <summary>Ports Waver's main AI.</summary>
+    internal void RunWaverMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Waver, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Waver, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunWaverMain(slot, RequireWaverState(slot), frame.Level);
-        });
+        RunWaverMain(slot, RequireWaverState(slot), frame.Level);
     }
 
-    /// <summary>Runs Waver's animations as typed programs (#641); the spin's completion cue goes back to main AI.</summary>
-    internal void RegisterWaverTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Waver, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireWaverState(slot);
-            AnimationProgramCursor<WaverProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, WaverAnimations.Programs, ref cursor, WaverFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyWaverCue(state, cue));
-            state.Program = cursor;
-        });
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    /// <summary>Advances Waver's typed animation.</summary>
+    internal static void AdvanceWaverTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        Array.Clear(_waverStates);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireWaverState(slot);
+        AnimationProgramCursor<WaverProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, WaverAnimations.Programs, ref cursor, WaverFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyWaverCue(state, cue));
+        state.Program = cursor;
     }
 }

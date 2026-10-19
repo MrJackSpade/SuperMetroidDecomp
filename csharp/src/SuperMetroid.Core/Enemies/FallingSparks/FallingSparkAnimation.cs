@@ -13,6 +13,6 @@ internal sealed class FallingSparkAnimation(FallingSparkProgram program)
     private protected override AnimationProgramSet<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue> Programs => FallingSparkAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(FallingSparkFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(FallingSparkFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(FallingSparkFrame frame) =>
+        FallingSparkFrameDefinitions.ShownProjectileFrames[frame];
 }

@@ -20,9 +20,7 @@ internal static class PostCeresLandingHandOffVerification
     /// </summary>
     internal static void VerifyPostCeresLandingHandOff()
     {
-        var runtime = CreateRetailRuntimeFixture(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
-                Path.GetFullPath("Super Metroid.smc")));
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -55,16 +53,16 @@ internal static class PostCeresLandingHandOffVerification
         // Hold Left+B throughout: locked handlers ignore it until the ship unlocks Samus.
         const SnesButton input = (SnesButton.Left | SnesButton.B);
         int frames = 0;
-        while (runtime.Enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.LandingCompleted &&
+        while (runtime.Enemies.LastEnemyFrame.Gunship != GunshipFrameEvent.LandingCompleted &&
                frames++ < PostCeresLandingMaximumFrames)
         {
             ushort cameraX = runtime.Room.LoadedCamera.PixelPosition.X;
             runtime.StepFrame(input);
-            if (runtime.Enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened)
+            if (runtime.Enemies.LastEnemyFrame.Gunship == GunshipFrameEvent.LandingPadOpened)
                 AssertEqual(cameraX, runtime.Room.LoadedCamera.PixelPosition.X,
                     "hatch placement writes SamusPreviousXPosition, so the camera does not scroll");
         }
-        AssertEqual(GunshipFrameEvent.LandingCompleted, runtime.Enemies.GunshipBehavior.LastGunshipEvent,
+        AssertEqual(GunshipFrameEvent.LandingCompleted, runtime.Enemies.LastEnemyFrame.Gunship,
             "post-Ceres landing completes");
         // $A2:A987 runs in EnemyMain, after this frame's locked current-state handler.
         AssertEqual((byte)0, (byte)runtime.Player.IntroducedSamus.Pose, "unlock frame keeps the locked alpha's forward pose");

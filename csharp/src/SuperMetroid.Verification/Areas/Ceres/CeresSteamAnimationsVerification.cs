@@ -14,7 +14,7 @@ internal static class CeresSteamAnimationsVerification
     internal static void VerifyCeresSteamAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, CeresSteamAnimations.Programs,
-            CeresSteamFrameDefinitions.Spritemap,
+            CeresSteamFrameDefinitionsConstants.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

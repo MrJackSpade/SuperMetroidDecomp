@@ -49,7 +49,7 @@ public static class SamusSpecialSequenceRomData
                     if ((uint)index >= Count) throw new IndexOutOfRangeException();
                     int segment = (index + 1) % Count;
                     return new(TileSourceBase + segment * TileSegmentByteCount,
-                        (ushort)(TileDestinationBase + segment * (TileSegmentByteCount / 2)));
+                        GameplayVram.ObjectCharactersDma(segment * (TileSegmentByteCount / 2)));
                 }
             }
             /// <summary>Enumerates all five death-artwork transfers in their original queue order.</summary>
@@ -106,8 +106,6 @@ public static class SamusSpecialSequenceRomData
         }
         /// <summary>$9B:8000: first of five consecutive death-artwork pages, queued last by $9B:B7BF.</summary>
         private const int TileSourceBase = 0x9b8000;
-        /// <summary>$9B:B7C9 final word $6000: base VRAM word destination of those five pages.</summary>
-        private const ushort TileDestinationBase = 0x6000;
     }
     /// <summary>Varia/Gravity pickup HDMA curve and native 8.8 geometry.</summary>
     public static class SuitPickup

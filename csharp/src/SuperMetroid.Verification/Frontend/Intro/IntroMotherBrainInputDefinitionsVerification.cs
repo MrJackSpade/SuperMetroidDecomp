@@ -22,7 +22,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         compiled.Clear();
         compiled.Enable();
         reference.Enable();
-        compiled.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback, initializationParameter: 0);
+        compiled.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback);
         reference.Load(DemoInputListWords.IntroMotherBrainFlashbackObject, initializationParameter: 0);
         int endFrame = -1;
         for (int frame = 0; frame < 1024; frame++)
@@ -49,7 +49,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
 
         // The actual cinematic owner loads the same object and plays its first record in the flashback's first dispatch.
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var intro = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+        var intro = CreateRetailIntroFixture(characterArtwork: stock);
         intro.SetupFirstIllustratedPage();
         intro.SetupMotherBrainFlashback();
         intro.StepMotherBrainDemo();

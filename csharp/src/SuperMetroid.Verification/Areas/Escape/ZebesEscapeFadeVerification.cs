@@ -13,16 +13,15 @@ internal static class ZebesEscapeFadeVerification
     /// <remarks>#1269: the earlier transition froze time and dimmed every second call, halting Samus's rise and RNG advancement in the 100% movie.</remarks>
     internal static void VerifyZebesEscapeFade()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.CreateGameplayRuntime(false);
-        var runtime = game.runtime;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        game.Session.CreateGameplayRuntime(false);
+        var runtime = game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
 
-        game.BeginZebesEscapeFade();
+        game.Session.BeginZebesEscapeFade();
         AssertEqual(SuperMetroidGameState.SamusEscapesFromZebes, game.GameState, "the takeoff publishes state $26");
         AssertTrue(!runtime.Freeze.TimeIsFrozen, "state $26 keeps gameplay time running");
 

@@ -23,19 +23,19 @@ internal static class KraidArmSamusContactVerification
     internal static void VerifyKraidArmSamusContact()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
         RoomEnemySlot arm = runtime.Enemies.SlotTable.Slots[1];
         AssertEqual(EnemyDefinitionId.KraidArm, arm.EnemyDefinitionPointer, "slot one is Kraid's arm");
 
         // Native update 35724: the arm and Samus as they stand when EnemyMain tests contact.
         arm.Position = arm.Position.WithWhole(new(0x00b0, 0x01df));
         arm.SpritemapPointer = 0x90fd;
-        arm.Properties = 0x2800;
+        arm.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x2800));
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x007f, 0x019a));
         samus.Kinematics.Radius = new(5, 19);
@@ -50,7 +50,7 @@ internal static class KraidArmSamusContactVerification
 
         AssertEqual((ushort)4, samus.Kinematics.ExtraDisplacement.X.WholePixels, "$A7:94A4 pushes Samus four pixels right");
         AssertEqual((short)-8, samus.Kinematics.ExtraDisplacement.Y.WholePixels, "$A7:94AA pushes Samus eight pixels up");
-        AssertEqual((ushort)KraidAiFunction.LintFire, runtime.Enemies.SlotTable.Slots[4].VariableA,
+        AssertEqual(KraidAiFunction.LintFire, (runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("The Kraid room has no Kraid state.")).Parts[4].Function,
             "the arm touch makes the bottom lint fire");
         AssertTrue(!samus.InvincibilityTimer.IsZero, "the arm's contact damage starts invincibility");
         Console.WriteLine("  Kraid arm Samus contact: the extended arm frame pushes Samus back and fires the bottom lint.");

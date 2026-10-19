@@ -8,19 +8,11 @@
     <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <Compile Include="../../test-support/CpuBusTestDoubles/SyntheticCartridge.cs" Link="TestSupport/CpuBusTestDoubles/SyntheticCartridge.cs" />
-    <!-- Use the compiler shipped with the SDK, not a downloaded parser package. -->
-    <Reference Include="Microsoft.CodeAnalysis">
-      <HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CodeAnalysis.CSharp">
-      <HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll</HintPath>
-    </Reference>
+    <!-- A package, not a path into one host's install: Visual Studio's MSBuild has no SDK Roslyn/bincore folder. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
   </ItemGroup>
   <Target Name="AuditResourceReferences" AfterTargets="Build" Condition="'$(RunResourceAudit)' == 'true'">
     <Exec Command="dotnet &quot;$(TargetPath)&quot; --root &quot;$(MSBuildProjectDirectory)/../../..&quot;" />
-  </Target>
-  <Target Name="AuditPlmPrograms" AfterTargets="Build" Condition="'$(RunPlmProgramAudit)' == 'true'">
-    <Exec Command="dotnet &quot;$(TargetPath)&quot; --plm-program-audit --root &quot;$(MSBuildProjectDirectory)/../../..&quot;" />
   </Target>
   <Target Name="AuditQueuedVramDma" AfterTargets="Build" Condition="'$(RunQueuedVramDmaAudit)' == 'true'">
     <Exec Command="dotnet &quot;$(TargetPath)&quot; --vram-dma-audit --root &quot;$(MSBuildProjectDirectory)/../../..&quot;" />

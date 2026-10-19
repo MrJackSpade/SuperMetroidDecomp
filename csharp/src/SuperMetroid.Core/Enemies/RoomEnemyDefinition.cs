@@ -38,7 +38,7 @@ namespace SuperMetroid.Core.Enemies;
 public readonly record struct RoomEnemyDefinition(
     ushort TileDataSize,
     ushort PalettePointer,
-    ushort Health,
+    int Health,
     ushort Damage,
     Extent16<RoomPixels> Radius,
     byte Bank,

@@ -17,16 +17,32 @@ namespace SuperMetroid.Core.Samus.Movement;
 public sealed class SamusHorizontalSpeedState
 {
     /// <summary>Whole part of <c>samus_x_base_speed</c> at WRAM <c>$0B46</c>.</summary>
-    public ushort BaseSpeed { get; set; }
+    public int BaseSpeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Fractional part of <c>samus_x_base_subspeed</c> at WRAM <c>$0B48</c>.</summary>
-    public ushort BaseSubspeed { get; set; }
+    public int BaseSubspeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Whole part of the run-button/speed-booster addition at WRAM <c>$0B42</c>.</summary>
-    public ushort ExtraRunSpeed { get; set; }
+    public int ExtraRunSpeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Fractional part of the run-button/speed-booster addition at WRAM <c>$0B44</c>.</summary>
-    public ushort ExtraRunSubspeed { get; set; }
+    public int ExtraRunSubspeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// Native <c>samus_has_momentum_flag</c>. Once dash begins, releasing Dash or leaving
@@ -36,19 +52,37 @@ public sealed class SamusHorizontalSpeedState
     public bool HasRunningMomentum { get; set; }
 
     /// <summary>
-    /// Native speed-booster timing word. The high byte is stage zero through four and the
-    /// low byte is a ROM-authored animation-loop countdown. No-Speed-Booster Dash keeps it zero.
+    /// Speed Booster charge counter, 0 through 65535: the boost stage times 256 plus the
+    /// running-cadence countdown that advances it. Stages zero through four are reached by
+    /// running; No-Speed-Booster Dash keeps it zero.
     /// </summary>
-    public ushort SpeedBoostCounter { get; set; }
+    /// <remarks>
+    /// The value stays in the sixteen-bit range because its wrap is load-bearing: the cadence
+    /// countdown borrows from the stage when it is decremented at zero, and a restored counter
+    /// can carry any stage. It changes only through the wrapping cadence decrement in
+    /// <see cref="TryAdvanceSpeedBoosterAnimationStage"/> and through whole-counter writes
+    /// checked against that range.
+    /// </remarks>
+    public int SpeedBoostCounter
+    {
+        get => _speedBoostCounter;
+        set => _speedBoostCounter = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>One speed-booster stage in the counter's high byte.</summary>
+    /// <summary>Backing value of <see cref="SpeedBoostCounter"/>, always 0 through 65535.</summary>
+    private int _speedBoostCounter;
+
+    /// <summary>The counter span of one Speed Booster stage: the cadence countdown runs below it.</summary>
     private const int BoostStage = 1 << 8;
 
-    /// <summary>The fourth stage: the counter's high byte at four is full speed boost.</summary>
+    /// <summary>The fourth stage: the counter at four whole stages is full speed boost.</summary>
     private const int FullBoostStage = 4 * BoostStage;
 
-    /// <summary>Whether the speed-boost counter's high byte stands at the full fourth stage.</summary>
-    public bool IsFullSpeedBoost => SnesLittleEndian.HighByteInPlace(SpeedBoostCounter) == FullBoostStage;
+    /// <summary>The Speed Booster stage the counter stands at, 0 through 255.</summary>
+    private int SpeedBoostStage => SpeedBoostCounter / BoostStage;
+
+    /// <summary>Whether the speed-boost counter stands at the full fourth stage.</summary>
+    public bool IsFullSpeedBoost => SpeedBoostStage * BoostStage == FullBoostStage;
 
     /// <summary>
     /// Whether the counter's stage field is four, the cartridge condition used by
@@ -58,8 +92,12 @@ public sealed class SamusHorizontalSpeedState
         (SpeedBoostCounter & SamusMovementRomData.HorizontalMotion.SpeedBoostStageMask) ==
         SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage;
 
-    /// <summary>WRAM <c>$0ACE</c>, reset when Speed Booster momentum begins/cancels.</summary>
-    public ushort SpecialPaletteFrame { get; set; }
+    /// <summary>
+    /// Byte offset of the current Speed Booster or Screw Attack palette within its six-entry
+    /// cycle: an even number from 0 through 10, or 12 in fixtures that read past the list.
+    /// Reset when Speed Booster momentum begins or cancels.
+    /// </summary>
+    public int SpecialPaletteFrame { get; set; }
 
     /// <summary>WRAM <c>$0AD0</c>, seeded to one on the first boosted running frame.</summary>
     public NativeCountdown SpecialPaletteTimer { get; set; }
@@ -72,9 +110,13 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// WRAM $0B40, SamusEchoesSFXFlag: set by $90:859D before the start request,
-    /// consumed by $90:F591 after boost ends, or cleared silently by quicksand $84:B40E.
+    /// consumed by $90:F591 after boost ends, or cleared silently by quicksand $84:B40E. 0 through 65535.
     /// </summary>
-    public ushort EchoSoundFlag { get; set; }
+    public int EchoSoundFlag
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Consumes speed stage four's native <c>QueueSfx3_Max6($03)</c> call.</summary>
     public bool ConsumeEchoSoundRequest()
@@ -96,12 +138,25 @@ public sealed class SamusHorizontalSpeedState
     public bool NormalSuitPaletteRestoreRequested { get; private set; }
 
     /// <summary>
-    /// Alternating word index at WRAM <c>$0AAE</c>. Ordinary active Speed Booster echoes
-    /// use only values zero and two. Cancellation writes <c>$FFFF</c> while the two stored
-    /// bodies travel back toward Samus; the shinespark crash temporarily overloads the same
-    /// word as an eight-bit radius plus an eight-bit phase.
+    /// Speed echo index, 0 through 65535. Ordinary active Speed Booster echoes alternate
+    /// between slot offsets zero and two. Cancellation writes the largest index while the two
+    /// stored bodies travel back toward Samus; the shinespark crash temporarily shares the
+    /// same value as its orbit radius plus 256 times its orbit stage, and that residue decides
+    /// which slot the next boost captures first.
     /// </summary>
-    public ushort SpeedEchoIndex { get; private set; }
+    public int SpeedEchoIndex { get; private set; }
+
+    /// <summary>
+    /// The index cancellation publishes while the echoes depart: every bit of the sixteen-bit
+    /// index set, the largest value it can hold.
+    /// </summary>
+    private const int DepartingSpeedEchoIndex = ushort.MaxValue;
+
+    /// <summary>
+    /// Whether the echoes are departing toward Samus: the index lies in the upper half of its
+    /// sixteen-bit range, which only cancellation writes.
+    /// </summary>
+    public bool SpeedEchoesDeparting => SpeedEchoIndex > short.MaxValue;
 
     /// <summary>First captured Speed Booster echo position: X at WRAM <c>$0AB0</c>, Y at <c>$0AB4</c>. X zero marks the slot empty.</summary>
     public Position16<RoomPixels> FirstSpeedEchoPosition { get; private set; }
@@ -110,65 +165,84 @@ public sealed class SamusHorizontalSpeedState
     public Position16<RoomPixels> SecondSpeedEchoPosition { get; private set; }
 
     /// <summary>
-    /// Signed whole-pixel X velocity for ordinary departing echo zero at WRAM
-    /// <c>$0AC0</c>. Cancellation writes -8 while facing left or +8 otherwise.
+    /// Whole-pixel per-frame velocity of departing echo zero; only X moves. Cancellation
+    /// writes -8 while facing left or +8 otherwise.
     /// </summary>
-    public ushort FirstSpeedEchoXSpeed { get; private set; }
+    public Offset16<RoomPixels> FirstSpeedEchoVelocity { get; private set; }
 
-    /// <summary>Signed whole-pixel X velocity for departing echo one at WRAM <c>$0AC2</c>.</summary>
-    public ushort SecondSpeedEchoXSpeed { get; private set; }
+    /// <summary>Whole-pixel per-frame velocity of departing echo one; only X moves.</summary>
+    public Offset16<RoomPixels> SecondSpeedEchoVelocity { get; private set; }
 
-    /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>.</summary>
-    public ushort TotalSpeed { get; internal set; }
+    /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>, 0 through 65535.</summary>
+    public int TotalSpeed
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>Fractional part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBE</c>.</summary>
-    public ushort TotalSubspeed { get; internal set; }
+    /// <summary>Fractional part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBE</c>, 0 through 65535.</summary>
+    public int TotalSubspeed
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
-    /// Right-shift count at WRAM <c>$0A66</c>. The native code caps the effective shift at
-    /// four, even if this stored word is larger.
+    /// Speed divisor, 0 through 65535: total speed is halved this many times, capped at four
+    /// halvings however large the divisor is. It doubles as the dry-room animation delay.
     /// </summary>
-    public ushort SpeedDivisor { get; set; }
+    public int SpeedDivisor
+    {
+        get => _speedDivisor;
+        set => _speedDivisor = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>Backing value of <see cref="SpeedDivisor"/>, always 0 through 65535.</summary>
+    private int _speedDivisor;
 
     /// <summary>
     /// Acceleration mode at WRAM <c>$0B4A</c>: zero accelerates, while every nonzero value
     /// takes the deceleration branch in <c>$90:9A7E</c>.
     /// </summary>
-    public ushort AccelerationMode { get; set; }
+    public int AccelerationMode
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
-    /// Optional eight-bit multiplier at WRAM <c>$0B4C</c>. Zero selects the table's plain
-    /// deceleration pair; nonzero preserves the original's asymmetric byte products.
+    /// Optional deceleration multiplier, 0 through 255. Zero selects the table's plain
+    /// deceleration; nonzero multiplies the whole deceleration and only the upper half of its
+    /// fraction, as the cartridge's asymmetric products do.
     /// </summary>
-    public byte DecelerationMultiplier { get; set; }
+    public int DecelerationMultiplier
+    {
+        get => _decelerationMultiplier;
+        set => _decelerationMultiplier = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
+
+    /// <summary>Backing value of <see cref="DecelerationMultiplier"/>, always 0 through 255.</summary>
+    private int _decelerationMultiplier;
 
     /// <summary>
-    /// Bank-$90 offset stored by the current inside-block/environment reaction. Normal air,
-    /// water, and lava/acid select three complete ROM tables before movement type is added.
+    /// The table the current inside-block/environment reaction selected. Normal air, water, and
+    /// lava/acid select three complete tables before movement type is added.
     /// </summary>
-    public ushort ActiveSpeedTableBaseAddress { get; internal set; } =
-        SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable;
+    public SamusLiquidMedium ActiveSpeedTable { get; internal set; } = SamusLiquidMedium.Air;
 
     /// <summary>
     /// Reproduces the ordinary-air assignment made by <c>$94:97D0</c> before movement.
     /// </summary>
-    public void SelectNormalAirSpeedTable() =>
-        ActiveSpeedTableBaseAddress = SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable;
+    public void SelectNormalAirSpeedTable() => ActiveSpeedTable = SamusLiquidMedium.Air;
 
     /// <summary>
     /// Ports <c>Determine_Samus_X_Speed_Table_Entry_Pointer</c>'s environmental selection
-    /// at <c>$90:9BD1</c>. The returned table still contains 12-byte records indexed later
-    /// by movement type; compiled definitions preserve that native address selection.
+    /// at <c>$90:9BD1</c>. The selected table's records are indexed later by movement type.
     /// </summary>
     public void SelectEnvironmentSpeedTable(SamusLiquidMedium liquidMedium)
     {
-        ActiveSpeedTableBaseAddress = liquidMedium switch
-        {
-            SamusLiquidMedium.Water => SamusMovementRomData.HorizontalMotion.WaterSpeedTable,
-            SamusLiquidMedium.LavaOrAcid => SamusMovementRomData.HorizontalMotion.LavaAcidSpeedTable,
-            SamusLiquidMedium.Air => SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
-            _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {liquidMedium}."),
-        };
+        _ = SamusHorizontalMotionDefinitions.FirstRow(liquidMedium);
+        ActiveSpeedTable = liquidMedium;
     }
 
     /// <summary>
@@ -260,7 +334,7 @@ public sealed class SamusHorizontalSpeedState
     /// reaches an animation command. True means the command was consumed and frame zero
     /// was restarted from the ROM-authored delay list for the new boost stage.
     /// </summary>
-    /// <param name="bus">Address space used by animation-delay lookup, including native-compatible adjacent-data reads for invalid stage selections.</param>
+    /// <param name="mode7Residue">The session's Mode 7 transfer queue residue, which stage five's delay list aliases.</param>
     /// <param name="movementType">Current movement category; only running can consume this animation command.</param>
     /// <param name="controllerInput">Current held SNES button word; the native dash button must be held.</param>
     /// <param name="animationFrameBuffer">Native frame-delay adjustment added to the selected stage's first animation delay.</param>
@@ -273,32 +347,34 @@ public sealed class SamusHorizontalSpeedState
     /// standalone callers can omit it when no cartridge audio queue is attached.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
-        ISnesAddressSpace bus,
+        SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue,
         SamusMovementType movementType,
         SnesButton controllerInput,
-        ushort animationFrameBuffer,
+        int animationFrameBuffer,
         ref ushort animationFrame,
         out ushort animationFrameTimer,
         Func<ushort>? queueEchoSound = null)
     {
-        Ensure.NotNull(bus);
         animationFrameTimer = 0;
         const SnesButton dashButton = SnesButton.B;
         SnesButton heldButtons = controllerInput;
         if (!HasRunningMomentum || movementType != SamusMovementType.Running || !heldButtons.HasAny(dashButton))
             return false;
 
-        // DEC is 16-bit, but native then changes A to eight-bit before BNE. A stage advances
-        // only when the decremented low byte is zero; the high byte remains the stage index.
-        SpeedBoostCounter = NativeWordCounter.Decrement(SpeedBoostCounter).Value;
-        if ((byte)SpeedBoostCounter != 0)
+        // The decrement wraps across the whole sixteen-bit counter, so a cadence countdown
+        // already at zero borrows from the stage. A stage advances only when the decremented
+        // cadence countdown is zero; that test leaves the stage unchanged.
+        SpeedBoostCounter = NativeWordCounter.Decrement(checked((ushort)SpeedBoostCounter)).Value;
+        if (SpeedBoostCounter % BoostStage != 0)
             return false;
 
-        ushort stagedCounter = SpeedBoostCounter;
-        ushort tableSelection = stagedCounter;
+        int stagedCounter = SpeedBoostCounter;
+        int tableSelection = stagedCounter;
         if ((stagedCounter & FullBoostStage) == 0)
         {
-            stagedCounter = unchecked((ushort)(stagedCounter + BoostStage));
+            // Without the fourth-stage bit the counter is below 64512, so one more stage
+            // cannot leave the sixteen-bit range.
+            stagedCounter += BoostStage;
             SpeedBoostCounter = stagedCounter;
             tableSelection = stagedCounter;
             if ((stagedCounter & FullBoostStage) != 0)
@@ -317,14 +393,14 @@ public sealed class SamusHorizontalSpeedState
             }
         }
 
-        byte stage = SnesLittleEndian.HighByte(tableSelection);
-        ushort nextLowByte = SamusRunningCadenceDefinitions.ReadResetWord(stage);
-        SpeedBoostCounter = unchecked((ushort)((SnesLittleEndian.HighByteInPlace(SpeedBoostCounter)) | nextLowByte));
+        byte stage = checked((byte)(tableSelection / BoostStage));
+        ushort nextCadence = SamusRunningCadenceDefinitions.ReadResetWord(stage);
+        SpeedBoostCounter = SpeedBoostStage * BoostStage | nextCadence;
 
         ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);
         animationFrame = 0;
         animationFrameTimer = unchecked((ushort)(
-            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadAnimationByte(bus, delayList, 0)));
+            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue, delayList, 0)));
         // Animation runs after movement. Native stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.
         // Publishing here enables boost damage one frame before the cartridge.
@@ -332,12 +408,11 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Reads one byte from the delay list selected by the counter's stage byte.</summary>
-    public byte ReadSpeedBoosterAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
+    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, int byteIndex)
     {
-        Ensure.NotNull(bus);
-        byte stage = unchecked((byte)(SnesEightEight.WholeOf(SpeedBoostCounter)));
+        byte stage = checked((byte)SpeedBoostStage);
         ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);
-        return SamusRunningCadenceDefinitions.ReadAnimationByte(bus, delayList, byteIndex);
+        return SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue, delayList, byteIndex);
     }
 
     /// <summary>
@@ -345,12 +420,12 @@ public sealed class SamusHorizontalSpeedState
     /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
     /// </summary>
     /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
-    public bool UpdateSpeedBoosterPalette(ISnesAddressSpace bus, SnesCgram cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null)
+    public bool UpdateSpeedBoosterPalette(SnesCgram cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null,
+        SamusOverreadCatalog? overreads = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
 
-        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(bus, cgram, frame.EquippedItems, suitColors);
+        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(cgram, frame.EquippedItems, suitColors);
         ushort suitTableOffset = frame.EquippedItems.GetSuitPaletteTableOffset();
 
         // Stored-shine and shinespark handlers have priority in `$91:D6F7`. Cancellation's
@@ -425,14 +500,14 @@ public sealed class SamusHorizontalSpeedState
         SpecialPaletteTimer = NativeCountdown.Start(4);
 
         ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(
-            suitTableOffset, SpecialPaletteFrame);
-        SamusSpeedBoosterPalette.Apply(bus, cgram, palettePointer, cycleColors);
+            suitTableOffset, checked((ushort)SpecialPaletteFrame));
+        SamusSpeedBoosterPalette.Apply(cgram, palettePointer, cycleColors, overreads);
 
         // The native clamp is AFTER the copy. Screw Attack can leave phase eight or ten
         // in this shared word; retain that one bounded overrun before pinning phase six.
         SpecialPaletteFrame = SpecialPaletteFrame >= 6
-            ? (ushort)6
-            : unchecked((ushort)(SpecialPaletteFrame + 2));
+            ? 6
+            : SpecialPaletteFrame + 2;
         return true;
     }
 
@@ -448,10 +523,9 @@ public sealed class SamusHorizontalSpeedState
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingNormalSuitPaletteRestore(
-        ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
+        SnesCgram cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         if (!NormalSuitPaletteRestoreRequested)
             return false;
@@ -468,7 +542,7 @@ public sealed class SamusHorizontalSpeedState
         SamusFullBodyCycleColorCatalog? cycleColors)
     {
         ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalettePointer(
-            suitTableOffset, SpecialPaletteFrame);
+            suitTableOffset, checked((ushort)SpecialPaletteFrame));
         (cycleColors ?? throw new InvalidOperationException(
             "Screw Attack palette requires installed Samus full-body cycle colors."))
             .Apply(cgram, palettePointer);
@@ -476,14 +550,14 @@ public sealed class SamusHorizontalSpeedState
         // Offsets 0,2,4,6,8,10 form the six-frame cycle. The native CMP uses the current
         // offset, so ten wraps to zero only after its palette has been copied.
         SpecialPaletteFrame = SpecialPaletteFrame >= 10
-            ? (ushort)0
-            : unchecked((ushort)(SpecialPaletteFrame + 2));
+            ? 0
+            : SpecialPaletteFrame + 2;
     }
 
     /// <summary>Loads the normal Power/Varia/Gravity palette selected by the native suit index.</summary>
     private static void LoadNormalSuitPalette(
         SnesCgram cgram,
-        ushort equippedItems,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors)
     {
         SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
@@ -493,12 +567,15 @@ public sealed class SamusHorizontalSpeedState
     /// Ports <c>Samus_UpdateSpeedEchoPos</c> at <c>$90:EEE7</c> for ordinary active boost.
     /// The gameplay clock, not NMI count, selects the four-frame sampling phase.
     /// </summary>
+    /// <param name="gameTimeFrames">The gameplay clock's frame count, 0 to 65535; only its four-frame phase is read and nothing stores it.</param>
+    /// <param name="position">Samus's whole-pixel room position sampled into the next echo slot.</param>
     public bool CaptureSpeedEchoPosition(
-        ushort gameTimeFrames,
+        int gameTimeFrames,
         Position16<RoomPixels> position)
     {
+        Ensure.BetweenInclusive(0, ushort.MaxValue, gameTimeFrames);
         if (!IsFullSpeedBoost ||
-            unchecked((short)SpeedEchoIndex) < 0 ||
+            SpeedEchoesDeparting ||
             (gameTimeFrames & 3) != 0)
         {
             return false;
@@ -509,8 +586,9 @@ public sealed class SamusHorizontalSpeedState
         else
             SecondSpeedEchoPosition = position;
 
-        SpeedEchoIndex = unchecked((ushort)(SpeedEchoIndex + 2));
-        if (unchecked((short)(SpeedEchoIndex - 4)) >= 0)
+        // A capturing index is at most 32767 here, so stepping one slot stays in range.
+        SpeedEchoIndex += 2;
+        if (SpeedEchoIndex >= 4)
             SpeedEchoIndex = 0;
         return true;
     }
@@ -528,8 +606,8 @@ public sealed class SamusHorizontalSpeedState
     public void ResetSpeedEchoPositionsForShinespark()
     {
         SpeedEchoIndex = 0;
-        FirstSpeedEchoXSpeed = 0;
-        SecondSpeedEchoXSpeed = 0;
+        FirstSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
+        SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         FirstSpeedEchoPosition = FirstSpeedEchoPosition.WithX(0);
         SecondSpeedEchoPosition = SecondSpeedEchoPosition.WithX(0);
         // Launch marks slots empty through X alone. Native leaves the old Y words
@@ -600,14 +678,12 @@ public sealed class SamusHorizontalSpeedState
         // This block is intentionally outside the momentum test. Every native caller can
         // enter echo-departure mode even when `$0B3C` was already clear. Repeated calls while
         // `$0AAE` is negative must *not* reset the velocities or restart the two bodies.
-        if (unchecked((short)SpeedEchoIndex) >= 0)
+        if (!SpeedEchoesDeparting)
         {
-            SpeedEchoIndex = ushort.MaxValue;
-            ushort velocity = facing == SamusFacingDirection.Left
-                ? unchecked((ushort)-8)
-                : (ushort)8;
-            FirstSpeedEchoXSpeed = velocity;
-            SecondSpeedEchoXSpeed = velocity;
+            SpeedEchoIndex = DepartingSpeedEchoIndex;
+            Offset16<RoomPixels> velocity = new(facing == SamusFacingDirection.Left ? (short)-8 : (short)8, 0);
+            FirstSpeedEchoVelocity = velocity;
+            SecondSpeedEchoVelocity = velocity;
         }
     }
 
@@ -635,7 +711,7 @@ public sealed class SamusHorizontalSpeedState
         SpecialPaletteFrame = 0;
         SpeedBoostCounter = 0;
         SpeedEchoIndex = 0;
-        FirstSpeedEchoXSpeed = SecondSpeedEchoXSpeed = 0;
+        FirstSpeedEchoVelocity = SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         FirstSpeedEchoPosition = SecondSpeedEchoPosition = Position16<RoomPixels>.Zero;
     }
 
@@ -703,7 +779,7 @@ public sealed class SamusHorizontalSpeedState
         int slot,
         Position16<RoomPixels> samusPosition)
     {
-        if (unchecked((short)SpeedEchoIndex) >= 0)
+        if (!SpeedEchoesDeparting)
             return false;
         if (slot is < 0 or > 1)
             throw new ArgumentOutOfRangeException(nameof(slot));
@@ -723,11 +799,11 @@ public sealed class SamusHorizontalSpeedState
                 : unchecked((ushort)(yPosition - 2));
         }
 
-        ushort xSpeed = slot == 0
-            ? FirstSpeedEchoXSpeed
-            : SecondSpeedEchoXSpeed;
-        xPosition = unchecked((ushort)(xPosition + xSpeed));
-        bool crossedSamus = unchecked((short)xSpeed) < 0
+        Offset16<RoomPixels> velocity = slot == 0
+            ? FirstSpeedEchoVelocity
+            : SecondSpeedEchoVelocity;
+        xPosition = unchecked((ushort)(xPosition + velocity.X));
+        bool crossedSamus = velocity.X < 0
             ? unchecked((short)(xPosition - samusPosition.X)) < 0
             : unchecked((short)(xPosition - samusPosition.X)) >= 0;
         if (crossedSamus)
@@ -747,7 +823,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void FinishDepartingSpeedEchoFrame()
     {
-        if (unchecked((short)SpeedEchoIndex) < 0 &&
+        if (SpeedEchoesDeparting &&
             FirstSpeedEchoPosition.X == 0 &&
             SecondSpeedEchoPosition.X == 0)
         {
@@ -756,68 +832,42 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Resolves the exact 12-byte entry selected by <c>Samus_DetermineSpeedTableEntryPtr_X</c>
-    /// at <c>$90:9BD1</c>, assuming the already-modeled inside-block reaction chose the base.
+    /// Resolves the row of the entry selected by <c>Samus_DetermineSpeedTableEntryPtr_X</c> at
+    /// <c>$90:9BD1</c> among the three adjacent tables, assuming the already-modeled inside-block
+    /// reaction chose the table.
     /// </summary>
-    public int ResolveEntryAddress(SamusMovementType movementType)
-    {
-        ushort bankOffset = unchecked((ushort)(
-            ActiveSpeedTableBaseAddress + SpeedTableEntry.ByteCount * (byte)movementType));
-        return SamusMovementRomData.Banks.Movement | bankOffset;
-    }
+    public int ResolveEntryRow(SamusMovementType movementType) =>
+        SamusHorizontalMotionDefinitions.FirstRow(ActiveSpeedTable) + (byte)movementType;
 
     /// <summary>
     /// Resolves authored speed entries without ROM access. Fields remain split into the
     /// same high/low words as the original table instead of becoming floating-point values.
     /// </summary>
-    public SpeedTableEntry ReadEntry(ISnesAddressSpace bus, SamusMovementType movementType)
-    {
-        Ensure.NotNull(bus);
-        int address = ResolveEntryAddress(movementType);
-        return ReadEntryAtAddress(bus, address);
-    }
+    public SpeedTableEntry ReadEntry(SamusMovementType movementType) => ReadEntryAtRow(ResolveEntryRow(movementType));
 
-    /// <summary>Resolves authored speed records first, then permits only bank-$90 low-window mutable-memory aliases.</summary>
-    internal static SpeedTableEntry ReadEntryAtAddress(ISnesAddressSpace bus, int address)
-    {
-        if (SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out SpeedTableEntry compiled) ||
-            SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out compiled))
-            return compiled;
-
-        // Bank $90's low half aliases live SNES memory rather than immutable cartridge ROM.
-        // Retain that native indirection for deliberately restored/corrupted pointer state,
-        // but never reinterpret unrelated high-bank code or presentation bytes as physics.
-        SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
-        if (sourceAddress.Bank != SnesLittleEndian.BankByte(SamusMovementRomData.Banks.Movement) ||
-            sourceAddress.IsUpperLoRomWindow)
-        {
-            throw new InvalidDataException(
-                $"Samus horizontal speed entry {sourceAddress} " +
-                "is not an authored mechanics record or mutable low-bank alias.");
-        }
-
-        return new SamusOverreadMemory(bus).HorizontalSpeedEntry(address);
-    }
+    /// <summary>Resolves an authored speed record by row; a row past the tables reads beyond the authored records.</summary>
+    internal static SpeedTableEntry ReadEntryAtRow(int row) =>
+        SamusHorizontalMotionDefinitions.TryResolveRow(row, out SpeedTableEntry compiled)
+            ? compiled
+            : throw new InvalidDataException(
+                $"Samus horizontal speed row {row} is past the {SamusHorizontalMotionDefinitions.RowCount} authored mechanics records.");
 
     /// <summary>
     /// Ports <c>Samus_CalcBaseSpeed_X</c> at <c>$90:9A7E</c> and returns its unsigned
     /// 16.16 result. It mutates the modeled WRAM speed words exactly once.
     /// </summary>
-    public uint CalculateBaseSpeed(ISnesAddressSpace bus, SamusMovementType movementType)
+    public uint CalculateBaseSpeed(SamusMovementType movementType)
     {
-        SpeedTableEntry entry = ReadEntry(bus, movementType);
+        SpeedTableEntry entry = ReadEntry(movementType);
         return CalculateBaseSpeed(entry);
     }
 
     /// <summary>
-    /// Executes `$90:9A7E` against a literal bank-$90 table address. Bomb jumps use the
-    /// standalone record at `$90:9F25` instead of the movement-type-indexed normal table.
+    /// Executes `$90:9A7E` against a standalone record. Bomb jumps use the standalone record at
+    /// `$90:9F25` instead of the movement-type-indexed normal table.
     /// </summary>
-    public uint CalculateBaseSpeedAtAddress(ISnesAddressSpace bus, int address)
-    {
-        Ensure.NotNull(bus);
-        return CalculateBaseSpeed(ReadEntryAtAddress(bus, address));
-    }
+    public uint CalculateBaseSpeed(SamusStandaloneSpeedRecord record) =>
+        CalculateBaseSpeed(SamusHorizontalMotionDefinitions.Standalone(record));
 
     /// <summary>Applies the table's acceleration or deceleration using native split-word arithmetic and updates base speed.</summary>
     internal uint CalculateBaseSpeed(SpeedTableEntry entry)
@@ -825,26 +875,7 @@ public sealed class SamusHorizontalSpeedState
 
         if (AccelerationMode != 0)
         {
-            // With a multiplier, the 65816 routine multiplies the whole deceleration word
-            // for the high result but only the HIGH BYTE of decel_sub for the low result.
-            // Combining the products as ordinary 16.16 multiplication would be cleaner,
-            // but would not be what the cartridge executes.
-            ushort deltaSpeed;
-            ushort deltaSubspeed;
-            if (DecelerationMultiplier != 0)
-            {
-                int highProduct = DecelerationMultiplier * entry.Deceleration;
-                int lowProduct = DecelerationMultiplier * (SnesEightEight.WholeOf(entry.DecelerationSubspeed));
-                deltaSpeed = unchecked((ushort)SnesEightEight.WholeOf(highProduct));
-                deltaSubspeed = unchecked((ushort)lowProduct);
-            }
-            else
-            {
-                deltaSpeed = entry.Deceleration;
-                deltaSubspeed = entry.DecelerationSubspeed;
-            }
-
-            SetBaseFixed(unchecked(BaseFixed - SnesSixteenSixteen.Compose(deltaSpeed, deltaSubspeed)));
+            SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
 
             // The native BMI tests only the signed high word. Once deceleration crosses
             // below zero it clears both halves and returns to acceleration mode zero.
@@ -857,7 +888,7 @@ public sealed class SamusHorizontalSpeedState
         }
         else
         {
-            SetBaseFixed(unchecked(BaseFixed + SnesSixteenSixteen.Compose(entry.Acceleration, entry.AccelerationSubspeed)));
+            SetBaseFixed(unchecked(BaseFixed + (uint)entry.Acceleration.RawValue));
 
             // $90:9A7E does not use a normal unsigned 32-bit >= comparison. Preserve its
             // signed word-subtraction quirk, including the fact that exact equality does
@@ -865,11 +896,10 @@ public sealed class SamusHorizontalSpeedState
             if (IsGreaterThanQuirked(
                     BaseSpeed,
                     BaseSubspeed,
-                    entry.MaximumSpeed,
-                    entry.MaximumSubspeed))
+                    entry.MaximumSpeed.WholeWord,
+                    entry.MaximumSpeed.Fraction))
             {
-                BaseSpeed = entry.MaximumSpeed;
-                BaseSubspeed = entry.MaximumSubspeed;
+                SetBaseFixed(unchecked((uint)entry.MaximumSpeed.RawValue));
             }
         }
 
@@ -884,32 +914,16 @@ public sealed class SamusHorizontalSpeedState
     /// jump's decision to retain horizontal motion.
     /// </summary>
     public AerialBaseSpeedResult CalculateBaseSpeedDecelerationDisallowed(
-        ISnesAddressSpace bus,
         SamusMovementType movementType)
     {
-        SpeedTableEntry entry = ReadEntry(bus, movementType);
+        SpeedTableEntry entry = ReadEntry(movementType);
 
         if ((AccelerationMode & 1) != 0)
         {
             // This is byte-for-byte the same asymmetric multiplier calculation used by
             // the deceleration-allowed routine. The distinction between the two native
             // entry points is the bit test above and their carry result, not the subtract.
-            ushort deltaSpeed;
-            ushort deltaSubspeed;
-            if (DecelerationMultiplier != 0)
-            {
-                int highProduct = DecelerationMultiplier * entry.Deceleration;
-                int lowProduct = DecelerationMultiplier * (SnesEightEight.WholeOf(entry.DecelerationSubspeed));
-                deltaSpeed = unchecked((ushort)SnesEightEight.WholeOf(highProduct));
-                deltaSubspeed = unchecked((ushort)lowProduct);
-            }
-            else
-            {
-                deltaSpeed = entry.Deceleration;
-                deltaSubspeed = entry.DecelerationSubspeed;
-            }
-
-            SetBaseFixed(unchecked(BaseFixed - SnesSixteenSixteen.Compose(deltaSpeed, deltaSubspeed)));
+            SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
             if (unchecked((short)BaseSpeed) < 0)
             {
                 BaseSpeed = 0;
@@ -921,17 +935,18 @@ public sealed class SamusHorizontalSpeedState
             return new AerialBaseSpeedResult(BaseFixed, ReachedMaximum: false);
         }
 
-        SetBaseFixed(unchecked(BaseFixed + SnesSixteenSixteen.Compose(entry.Acceleration, entry.AccelerationSubspeed)));
+        SetBaseFixed(unchecked(BaseFixed + (uint)entry.Acceleration.RawValue));
 
         // CMP/BMI performs signed 16-bit comparisons. Exact equality in both halves is
         // deliberately *not* considered a cap: $90:9B5A returns carry clear in that case.
-        bool exceedsMaximum = unchecked((short)(BaseSpeed - entry.MaximumSpeed)) > 0 ||
-            (BaseSpeed == entry.MaximumSpeed &&
-             unchecked((short)(BaseSubspeed - entry.MaximumSubspeed)) > 0);
+        ushort maximumWhole = entry.MaximumSpeed.WholeWord;
+        ushort maximumFraction = entry.MaximumSpeed.Fraction;
+        bool exceedsMaximum = unchecked((short)(BaseSpeed - maximumWhole)) > 0 ||
+            (BaseSpeed == maximumWhole &&
+             unchecked((short)(BaseSubspeed - maximumFraction)) > 0);
         if (exceedsMaximum)
         {
-            BaseSpeed = entry.MaximumSpeed;
-            BaseSubspeed = entry.MaximumSubspeed;
+            SetBaseFixed(unchecked((uint)entry.MaximumSpeed.RawValue));
             return new AerialBaseSpeedResult(BaseFixed, ReachedMaximum: true);
         }
 
@@ -945,7 +960,7 @@ public sealed class SamusHorizontalSpeedState
     public uint CalculateTotalSpeed(uint baseSpeed)
     {
         uint total = unchecked(baseSpeed + SnesSixteenSixteen.Compose(ExtraRunSpeed, ExtraRunSubspeed));
-        int shift = Math.Min(SpeedDivisor, (ushort)4);
+        int shift = Math.Min(SpeedDivisor, 4);
         total >>= shift;
         TotalSpeed = SnesFixedPosition.WholeOf(unchecked((int)total));
         TotalSubspeed = unchecked((ushort)total);
@@ -977,12 +992,31 @@ public sealed class SamusHorizontalSpeedState
         BaseSubspeed = unchecked((ushort)value);
     }
 
+    /// <summary>
+    /// The deceleration one frame removes. Without a multiplier it is the table's value; with
+    /// one, the whole part is multiplied in full but only the upper half of the fraction is,
+    /// and each product keeps only what fits its half, as the cartridge's byte multiplies do.
+    /// Combining them as ordinary fixed-point multiplication would be cleaner, but would not be
+    /// what the cartridge executes.
+    /// </summary>
+    private SnesSignedSixteenSixteen ScaledDeceleration(SpeedTableEntry entry)
+    {
+        if (DecelerationMultiplier == 0)
+            return entry.Deceleration;
+
+        int wholeProduct = DecelerationMultiplier * entry.Deceleration.WholeWord;
+        int fractionProduct = DecelerationMultiplier * SnesEightEight.WholeOf(entry.Deceleration.Fraction);
+        return SnesSignedSixteenSixteen.FromParts(
+            unchecked((short)SnesEightEight.WholeOf(wholeProduct)),
+            unchecked((ushort)fractionProduct));
+    }
+
     /// <summary>Compares split words with the cartridge's signed subtraction and strict low-word tie rule.</summary>
     private static bool IsGreaterThanQuirked(
-        ushort valueHigh,
-        ushort valueLow,
-        ushort comparisonHigh,
-        ushort comparisonLow)
+        int valueHigh,
+        int valueLow,
+        int comparisonHigh,
+        int comparisonLow)
     {
         if (unchecked((short)(valueHigh - comparisonHigh)) < 0)
             return false;

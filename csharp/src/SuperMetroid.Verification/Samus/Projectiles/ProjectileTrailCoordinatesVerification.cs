@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -5,6 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks compiled projectile-trail coordinates and CPU operand routing against native data and live-memory aliases.</summary>
 internal static class ProjectileTrailCoordinatesVerification
@@ -12,59 +14,36 @@ internal static class ProjectileTrailCoordinatesVerification
     /// <summary>Compares the bounded bank-$9B coordinate catalog and every indexed operand with the native CPU read behavior.</summary>
     internal static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
-        var guard = NewTrailCoordinateGuard(bus);
         int bytes = 0;
         for (int address = 0x9b8000; address <= 0x9bffff; address++)
         {
-            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out byte value))
+            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, InstalledFixtures.SamusOverreads, out byte value))
             { AssertEqual(ReadRetailTrailOperandByte(bus, address), value, "Compiled trail pointer/coordinate byte matches pinned ROM"); bytes++; }
             int next = SnesAddressMath.AddWithinBank(address, 1);
-            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out _) &&
-                ProjectileTrailCoordinateDefinitions.TryReadByte(next, out _))
-                AssertEqual(ReadRetailTrailWord(bus, address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address), "Compiled trail pointer word preserves authored odd and wrapped words");
+            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, InstalledFixtures.SamusOverreads, out _) &&
+                ProjectileTrailCoordinateDefinitions.TryReadByte(next, InstalledFixtures.SamusOverreads, out _))
+                AssertEqual(ReadRetailTrailWord(bus, address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address, InstalledFixtures.SamusOverreads), "Compiled trail pointer word preserves authored odd and wrapped words");
             else
             {
                 int rejectedAddress = address;
-                AssertThrows<InvalidDataException>(() => ProjectileTrailCoordinateDefinitions.ReadCompiledWord(rejectedAddress), "Trail pointer reader rejects gaps and unrelated upper-ROM words");
+                AssertThrows<InvalidDataException>(() => ProjectileTrailCoordinateDefinitions.ReadCompiledWord(rejectedAddress, InstalledFixtures.SamusOverreads), "Trail pointer reader rejects gaps and unrelated upper-ROM words");
             }
         }
         AssertEqual(4342, bytes, "174 pointer words, 870 four-coordinate records, 28 adjacent observations, 485 further reflected-list-start bytes and the empty-family wrapped byte cover the reachable native region");
         Suite(nameof(VerifyCoordinateSpawn), () => VerifyCoordinateSpawn(bus));
-        VerifyTrailBankEndWordWrapsIntoWorkRamMirror(bus, guard);
         for (int index = 0; index <= ushort.MaxValue; index++)
         foreach (ushort operand in new ushort[] { 0, 1, 2 })
         {
-            int address = (0x9b0000 + operand + index) & SnesCpuAddressLayout.AddressMask;
+            int address = (SamusProjectileRomData.Banks.PaletteAndTrailData + operand + index) & SnesCpuAddressLayout.AddressMask;
             int next = (address + 1) & SnesCpuAddressLayout.AddressMask;
-            bool lowCompiled = ProjectileTrailCoordinateDefinitions.TryReadByte(address, out _);
-            bool highCompiled = ProjectileTrailCoordinateDefinitions.TryReadByte(next, out _);
-            bool reachesUncompiledRom =
-                (!lowCompiled && SnesAddress.FromBusAddress(address).IsUpperLoRomWindow) ||
-                (!highCompiled && SnesAddress.FromBusAddress(next).IsUpperLoRomWindow);
-            if (reachesUncompiledRom)
-            {
-                // An earlier low-half access can hit strict, unimplemented hardware before
-                // the CPU reaches the following ROM byte. Preserve that ordering.
-                try { _ = ReadNativeTrailOperandWord(bus, operand, (ushort)index); }
-                catch (InvalidOperationException)
-                {
-                    AssertThrows<InvalidOperationException>(() => ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index), "Unknown hardware still fails before a following unrelated ROM byte");
-                    continue;
-                }
-                AssertThrows<InvalidOperationException>(() => ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index),
-                    "runtime CPU boundary rejects unrelated upper-ROM data without reading the cartridge");
-                continue;
-            }
-            ushort expected;
-            try { expected = ReadNativeTrailOperandWord(bus, operand, (ushort)index); }
-            catch (InvalidOperationException)
-            {
-                AssertThrows<InvalidOperationException>(() => ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index), "Unknown hardware must still fail loudly");
-                continue;
-            }
-            AssertEqual(expected, ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, operand, (ushort)index), "Compiled coordinate operand retains MDR/open bus, unaligned and carry behavior");
+            bool compiled = ProjectileTrailCoordinateDefinitions.TryReadByte(address, InstalledFixtures.SamusOverreads, out _) &
+                ProjectileTrailCoordinateDefinitions.TryReadByte(next, InstalledFixtures.SamusOverreads, out _);
+            bool resolved = ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(operand, (ushort)index, InstalledFixtures.SamusOverreads, out ushort word);
+            AssertEqual(compiled, resolved, "A trail coordinate word resolves exactly when both bytes are compiled");
+            if (compiled)
+                AssertEqual(ReadNativeTrailOperandWord(bus, operand, (ushort)index), word, "A compiled coordinate operand reads the native word");
         }
-        Console.WriteLine("Trail coordinates: 174 pointer words, 870 signed records, 29 bounded observations and 196608 CPU operands preserve compiled/live-memory behavior while rejecting unrelated upper ROM.");
+        Console.WriteLine("Trail coordinates: 174 pointer words, 870 signed records, 29 bounded observations and 196608 CPU operands resolve only from compiled data.");
     }
 
     /// <summary>Checks actual trail spawn positions for beam, missile, and reflected list-start cases at coordinate wraps.</summary>
@@ -77,8 +56,8 @@ internal static class ProjectileTrailCoordinatesVerification
             .Select(index => SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(index))).OrderBy(record => record.Address).ToArray();
         var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
             records.First(record => record.AnimationFrame == frame).Address + SamusProjectileRomData.Instructions.AnimationRecordByteCount)))).ToArray();
-        var system = new SamusProjectileSystem();
-        var spawn = new Action<ISnesAddressSpace, SamusProjectileSlot>(system.Trails.SpawnTrail);
+        var system = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads };
+        var spawn = new Action<SamusProjectileSlot>(system.Trails.SpawnTrail);
         int cases = 0;
         foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 37, 0x100, 0x200 })
         for (ushort direction = 0; direction < 10; direction++)
@@ -100,8 +79,14 @@ internal static class ProjectileTrailCoordinatesVerification
                 Cursor = afterFrame[frame],
                 Position = new(new(origin, 0), new(origin, 0)),
             };
-            spawn(NewTrailCoordinateGuard(bus), shot);
+            spawn(shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
+            if (!TrailSpawnResolves(type, y))
+            {
+                AssertTrue(actual.Left.InstructionTimer.IsZero, $"type ${type:X4}'s empty trail family draws no trail");
+                cases++;
+                continue;
+            }
             AssertEqual(expected, (actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y), "Real trail spawn matches four native signed positions at coordinate wrap boundaries");
             AssertEqual(1, actual.Left.InstructionTimer.RawValue, "Compiled coordinates retain spawn timing");
             cases++;
@@ -133,18 +118,47 @@ internal static class ProjectileTrailCoordinatesVerification
             catch (InvalidOperationException)
             {
                 // Hardware the native reference does not model must fail in production too.
-                AssertThrows<InvalidOperationException>(() => spawn(NewTrailCoordinateGuard(bus), shot),
-                    $"reflected type ${type:X4} direction {direction} trail fails on unmodeled hardware");
+                spawn(shot);
+                AssertTrue(system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left.InstructionTimer.IsZero,
+                    $"reflected type ${type:X4} direction {direction} reaches uncompiled coordinates and draws no trail");
                 cases++;
                 continue;
             }
-            spawn(NewTrailCoordinateGuard(bus), shot);
+            spawn(shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
+            if (!TrailSpawnResolves(type, y))
+            {
+                AssertTrue(actual.Left.InstructionTimer.IsZero, $"reflected type ${type:X4}'s empty trail family draws no trail");
+                cases++;
+                continue;
+            }
             AssertEqual(expected, (actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
                 $"reflected type ${type:X4} direction {direction} trail reads the word before its list start");
             cases++;
         }
         Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin and reflected list-start cases preserve all four native positions without coordinate ROM reads.");
+    }
+
+    /// <summary>
+    /// Whether a trail for <paramref name="type"/> resolves from compiled data: both programs and the four coordinate
+    /// words at <paramref name="y"/>. An empty or glitch family draws no trail instead (#1318).
+    /// </summary>
+    private static bool TrailSpawnResolves(ushort type, ushort y) =>
+        TrailProgramsCompiled(type) &&
+        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, unchecked((ushort)(y - 1)), InstalledFixtures.SamusOverreads, out _) &&
+        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, y, InstalledFixtures.SamusOverreads, out _) &&
+        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(1, y, InstalledFixtures.SamusOverreads, out _) &&
+        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(2, y, InstalledFixtures.SamusOverreads, out _);
+
+    /// <summary>Whether both trail programs <paramref name="type"/> selects are compiled.</summary>
+    private static bool TrailProgramsCompiled(ushort type)
+    {
+        int family = SnesLittleEndian.HighByte(type);
+        int index = family == 0 ? type & 63 : family + 31;
+        ushort left = ProjectileTrailDefinitions.ReadSelector(SamusProjectileRomData.Trails.LeftInstructionPointers + index * 2, InstalledFixtures.SamusOverreads);
+        ushort right = ProjectileTrailDefinitions.ReadSelector(SamusProjectileRomData.Trails.RightInstructionPointers + index * 2, InstalledFixtures.SamusOverreads);
+        return ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | left, out _) &&
+            ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | right, out _);
     }
 
     /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>
@@ -178,29 +192,6 @@ internal static class ProjectileTrailCoordinatesVerification
             : throw new InvalidOperationException(
                 $"Native trail operand ${address:X6} addresses unmodeled hardware.");
 
-    /// <summary>
-    /// The bank-end trail operand's high byte is the following bank's first byte, $9C:0000, a
-    /// low-window mirror of WRAM: the word combines the compiled ROM byte with live WRAM.
-    /// </summary>
-    [CpuBusBoundary("exact bus test: bank-end trail operand word wraps into the next bank's low-window WRAM mirror")]
-    private static void VerifyTrailBankEndWordWrapsIntoWorkRamMirror(ISnesAddressSpace bus, ISnesAddressSpace guard)
-    {
-        AssertTrue(ProjectileTrailCoordinateDefinitions.TryReadByte(0x9bffff, out byte boundaryLow),
-            "bank-end trail operand has a compiled low byte");
-        byte originalBoundaryHigh = ((ISnesMutableMemory)bus).ReadWorkRamByte(0x9c0000);
-        try
-        {
-            bus.WriteByte(0x9c0000, 0x34);
-            AssertEqual((ushort)(boundaryLow | 0x3400),
-                ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, 0, 0xffff),
-                "bank-end trail word combines compiled ROM byte with live next-bank WRAM");
-        }
-        finally
-        {
-            bus.WriteByte(0x9c0000, originalBoundaryHigh);
-        }
-    }
-
     /// <summary>Resolves the native $9B absolute-indexed word through ROM, WRAM, SRAM, open bus, or devices in CPU read order.</summary>
     [CpuBusBoundary("exact bus test: reference CPU read of the $9B absolute-indexed trail operand across ROM, WRAM, SRAM, open bus and devices")]
     private static ushort ReadNativeTrailOperandWord(
@@ -212,10 +203,10 @@ internal static class ProjectileTrailCoordinatesVerification
             int bank = SnesAddressMath.BankNumber(source);
             int offset = SnesAddressMath.OffsetInBank(source);
             if ((bank & 0x40) == 0 &&
-                (offset >= SnesBusLayout.ReservedBBusStart &&
-                 offset <= SnesBusLayout.ReservedBBusEnd ||
-                 offset >= SnesBusLayout.UnpopulatedExpansionStart &&
-                 offset <= SnesBusLayout.UnpopulatedExpansionEnd))
+                (offset >= SnesBusLayoutConstants.ReservedBBusStart &&
+                 offset <= SnesBusLayoutConstants.ReservedBBusEnd ||
+                 offset >= SnesBusLayoutConstants.UnpopulatedExpansionStart &&
+                 offset <= SnesBusLayoutConstants.UnpopulatedExpansionEnd))
                 return memoryDataRegister;
 
             return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(source)) switch
@@ -223,8 +214,6 @@ internal static class ProjectileTrailCoordinatesVerification
                 SnesDmaSourceKind.Cartridge => ReadRetailTrailOperandByte(bus, source),
                 SnesDmaSourceKind.WorkRam =>
                     ((ISnesMutableMemory)bus).ReadWorkRamByte(source),
-                SnesDmaSourceKind.SaveRam =>
-                    ((ISnesMutableMemory)bus).ReadSaveRamByte(source),
                 _ => ReadNativeTrailOperandDeviceByte(bus, source),
             };
         }
@@ -232,15 +221,6 @@ internal static class ProjectileTrailCoordinatesVerification
         byte low = ReadData(address, SnesLittleEndian.HighByte(operand));
         byte high = ReadData((address + 1) & SnesCpuAddressLayout.AddressMask, low);
         return (ushort)(SnesLittleEndian.Word(low, high));
-    }
-
-    /// <summary>Forbids runtime reads of the migrated bank-$9B trail coordinate region.</summary>
-    private static MutableCartridgeReadGuard NewTrailCoordinateGuard(ISnesAddressSpace source)
-    {
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address is >= 0x9ba4b3 and <= 0x9bb3a6,
-            _ => new InvalidDataException("Trail coordinate owner still reads authored ROM data."));
-        return guard;
     }
 
     /// <summary>Runs the trail-coordinate CPU operand comparison against the local retail cartridge.</summary>

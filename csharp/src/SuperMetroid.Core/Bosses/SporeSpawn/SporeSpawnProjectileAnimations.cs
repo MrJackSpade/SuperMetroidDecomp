@@ -9,23 +9,13 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal static class SporeSpawnProjectileAnimations
 {
     /// <summary>The emitter's release poses' dwells ($86:DC06..DC18).</summary>
-    private static readonly int[] ReleaseDurations = [1, 6, 16, 6, 1];
+    internal static readonly int[] ReleaseDurations = [1, 6, 16, 6, 1];
     /// <summary>Each falling-spore and stalk pose's dwell ($86:DC1E..DC2E).</summary>
     private const int SporeDuration = 5;
     /// <summary>The shot spore's poses' dwells ($86:DC34..DC50).</summary>
-    private static readonly int[] ShotDurations = [1, 3, 6, 5, 5, 5, 6];
+    internal static readonly int[] ShotDurations = [1, 3, 6, 5, 5, 5, 6];
     /// <summary>The falling spore's poses.</summary>
     internal const int SporePoseCount = 3;
-
-    /// <summary>The poses of each program's run.</summary>
-    internal static int PoseCount(SporeSpawnProjectileProgram program) => program switch
-    {
-        P.SpawnerClosed or P.Stalk => 1,
-        P.SpawnerRelease => ReleaseDurations.Length,
-        P.Spore => SporePoseCount,
-        P.SporeShot => ShotDurations.Length,
-        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined Spore Spawn projectile program."),
-    };
 
     /// <summary>Every projectile program.</summary>
     internal static AnimationProgramSet<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Programs { get; } = new(

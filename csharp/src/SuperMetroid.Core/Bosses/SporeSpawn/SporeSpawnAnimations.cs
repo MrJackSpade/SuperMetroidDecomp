@@ -30,7 +30,7 @@ internal static class SporeSpawnAnimations
     /// <summary>The death palette's fade steps; the husk's palette is the last.</summary>
     internal const int DeathPaletteSteps = 7;
     /// <summary>The sway's maximum X radius as the fight starts ($A5:E6D7).</summary>
-    private const ushort FirstMaximumXRadius = 64;
+    private const int FirstMaximumXRadius = 64;
 
     /// <summary>The opening poses' dwells, closed through fully open ($A5:E6EB..E707).</summary>
     private static readonly int[] OpeningDurations = [8, 8, 8, 7, 7, 6, 1];
@@ -41,7 +41,7 @@ internal static class SporeSpawnAnimations
     {
         [P.InitialDead] =
         [
-            Cue(new(K.LoadDeathTargetPalette, Value: DeathPaletteSteps - 1)),
+            Cue(new(K.LoadDeathTargetPalette, DeathPaletteStep: DeathPaletteSteps - 1)),
             Function(SporeSpawnFunction.Idle),
             Show(new(F.Dead, 0), 1),
             Hold,
@@ -55,15 +55,15 @@ internal static class SporeSpawnAnimations
         ],
         [P.FightStarted] =
         [
-            Cue(new(K.SetMaxXRadiusAndAngleDelta, Value: FirstMaximumXRadius, AngleDelta: 1)),
+            Cue(new(K.SetMaxXRadiusAndAngleDelta, MaximumXRadius: FirstMaximumXRadius, AngleDelta: 1)),
             Function(SporeSpawnFunction.Moving),
             Show(new(F.Closed, 0), FirstSway),
             FallInto(P.OpenAndStop),
         ],
         [P.OpenAndStop] =
         [
-            Cue(new(K.SetSporeGeneration, Value: 1)),
-            Cue(new(K.QueueSound, Value: SporeSpawnSoundDefinitions.Opening)),
+            Cue(new(K.SetSporeGeneration, SporeGenerationSuppressed: true)),
+            Cue(new(K.QueueSound, Sound: SporeSpawnSoundDefinitions.Opening)),
             Show(new(F.Closed, 0), 1),
             .. Enumerable.Range(0, OpeningDurations.Length).Select(pose => Show(new(F.Opening, pose), OpeningDurations[pose])),
             Cue(new(K.ClearDamagedFlag)),
@@ -85,10 +85,10 @@ internal static class SporeSpawnAnimations
             .. Closing(),
             Show(new(F.Closed, 0), 1),
             Function(SporeSpawnFunction.Moving),
-            Cue(new(K.SetSporeGeneration, Value: 0)),
+            Cue(new(K.SetSporeGeneration, SporeGenerationSuppressed: false)),
             Cue(new(K.IncreaseMaxXRadius)),
             Show(new(F.Closed, 0), ClosedSway),
-            Cue(new(K.SetSporeGeneration, Value: 1)),
+            Cue(new(K.SetSporeGeneration, SporeGenerationSuppressed: true)),
             Show(new(F.Closed, 0), SporingSway),
             AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.GoTo(P.OpenAndStop),
         ],
@@ -119,7 +119,7 @@ internal static class SporeSpawnAnimations
             AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.RepeatWhileCounting(P.Hardening),
             .. Enumerable.Range(0, DeathPaletteSteps).SelectMany(step => new[]
             {
-                Cue(new(K.LoadDeathPalette, Value: (ushort)step)),
+                Cue(new(K.LoadDeathPalette, DeathPaletteStep: step)),
                 Cue(new(K.SpawnHardeningDust)),
                 Show(new(F.Dead, 0), FadeStepDuration),
             }),

@@ -13,5 +13,5 @@ internal static class MaridiaLargeSnailAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params MaridiaLargeSnailProgram[] programs) =>
         programs.SelectMany(program => MaridiaLargeSnailAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => MaridiaLargeSnailFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => MaridiaLargeSnailFrameToolingDefinitions.Spritemap(step.Frame));
 }

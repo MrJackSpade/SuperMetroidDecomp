@@ -29,8 +29,6 @@ public readonly record struct SnesSpritemapXWord(ushort Raw)
         return new((ushort)((offset & OffsetMask) | (large ? LargeObjectMask : 0)));
     }
 
-    /// <summary>Wraps the cartridge's encoded X word without normalizing unused bits.</summary>
-    public static implicit operator SnesSpritemapXWord(ushort raw) => new(raw);
 
     /// <summary>This word with its nine-bit X offset replaced by <paramref name="offset"/>, keeping the size flag and every other bit.</summary>
     public SnesSpritemapXWord WithOffset(int offset) => new(unchecked((ushort)((Raw & ~OffsetMask) | (offset & OffsetMask))));

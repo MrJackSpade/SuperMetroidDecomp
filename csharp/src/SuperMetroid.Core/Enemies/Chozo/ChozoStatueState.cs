@@ -3,46 +3,24 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// Typed view of the common enemy words reused by the bank-$AA Chozo-statue controller.
-/// The wrapper intentionally writes through to the physical slot so debugger watches retain
-/// the same layout as WRAM <c>$0FA8..$0FB2</c>.
+/// The state of a bank-$AA Chozo statue. The values the cartridge keeps in the enemy's common record are emptied with
+/// it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class ChozoStatueState
 {
-    /// <summary>Live enemy slot whose common variable words hold movement and bank-$AA pre-instruction state.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects the Chozo controller's named variables over its physical room enemy slot.</summary>
-    internal ChozoStatueState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<ChozoStatueProgram> Program { get; set; }
 
-    /// <summary>Movement-table byte offset consumed by instruction $AA:E5D8.</summary>
-    public ushort MovementTableOffset
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
+    /// <summary>The carry-motion record, 0 through 31, the statue last moved by (instruction $AA:E5D8).</summary>
+    public int CarryRecord { get; internal set; }
 
-    /// <summary>Native variable A, initialized to -$0100 when Wrecked Ship wakes.</summary>
-    public ushort VariableA
-    {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
+    /// <summary>The literal bank-$AA pre-instruction pointer; none once a kill has emptied the record.</summary>
+    public ChozoStatuePreInstruction? PreInstruction { get; internal set; }
 
-    /// <summary>Native variable B, initialized to +$0100 when Wrecked Ship wakes.</summary>
-    public ushort VariableB
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
-
-    /// <summary>The literal bank-$AA pre-instruction pointer stored in variable F.</summary>
-    public ChozoStatuePreInstruction PreInstruction
-    {
-        get => (ChozoStatuePreInstruction)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
+        CarryRecord = 0;
+        PreInstruction = null;
     }
 }

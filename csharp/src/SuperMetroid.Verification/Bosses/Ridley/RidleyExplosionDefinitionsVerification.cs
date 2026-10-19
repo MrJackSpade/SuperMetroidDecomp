@@ -14,6 +14,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Ridley breakup fragments and death explosions against native tables and production spawns.</summary>
 internal static class RidleyExplosionDefinitionsVerification
 {
+    /// <summary>$A6:C710-$C788: the breakup instruction word for each of the six tail segments, by tail index.</summary>
+    private static readonly int[] TailBreakupInstructionAddresses =
+        [0xa6c710, 0xa6c728, 0xa6c740, 0xa6c758, 0xa6c770, 0xa6c788];
+
     /// <summary>Compares spawn order, fragment lifetimes and lists, and death scatter with cartridge data.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley explosion definitions")]
     internal static void VerifyRidleyExplosionDefinitions(SuperMetroidAddressSpace rom)
@@ -133,11 +137,10 @@ internal static class RidleyExplosionDefinitionsVerification
     private static void VerifyRidleyDeathExplosionProductionSpawns(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewRidleyExplosionDefinitionReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, RidleyEnemyState> spawn = enemies.RidleyBehavior.SpawnSmallExplosionNearNorfairRidley;
 
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -145,7 +148,7 @@ internal static class RidleyExplosionDefinitionsVerification
             var state = new RidleyEnemyState
             {
                 DeathExplosionTimer = NativeCountdown.Start(0),
-                DeathExplosionCount = unchecked((ushort)((selectedIndex + 9) % 10)),
+                DeathExplosionCount = (selectedIndex + 9) % 10,
             };
 
             spawn(body, state);
@@ -163,7 +166,7 @@ internal static class RidleyExplosionDefinitionsVerification
                 $"Ridley death explosion {selectedIndex} production Y");
             AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, effect.Kind,
                 $"Ridley death explosion {selectedIndex} actor kind");
-            AssertEqual((ushort)0x0024, state.LastDeathSoundEffect,
+            AssertEqual<SoundEffectId?>(SoundEffectLibrary2Sounds.SmallExplosion, state.LastDeathSoundEffect,
                 $"Ridley death explosion {selectedIndex} sound");
         }
     }
@@ -172,9 +175,8 @@ internal static class RidleyExplosionDefinitionsVerification
     private static void VerifyRidleyExplosionProductionInitializer(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewRidleyExplosionDefinitionReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x8130);
         Action<RoomEnemySlot, RoomEnemySlot, RidleyEnemyState> initialize = enemies.RidleyBehavior.InitializeNorfairRidleyExplosion;
 
@@ -213,11 +215,13 @@ internal static class RidleyExplosionDefinitionsVerification
                     "Ridley breakup production instruction timer");
                 AssertEqual(EnemyPaletteBits.Palette7, fragment.PaletteIndex,
                     "Ridley breakup production palette");
+                RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
+                    ?? throw new InvalidOperationException("The initialized fragment has no state.");
                 AssertEqual(
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)),
-                    fragment.VariableF,
+                    fragmentState.Lifetime.RawValue,
                     $"Ridley breakup production lifetime ${parameter:X2}");
-                AssertEqual(unchecked((ushort)-0x0130), fragment.VariableB,
+                AssertEqual(unchecked((ushort)-0x0130), fragmentState.Velocity.X.RawValue,
                     "Ridley breakup production signed random velocity");
 
                 if (parameter <= (ushort)RidleyExplosionPart.TailTip)
@@ -229,7 +233,7 @@ internal static class RidleyExplosionDefinitionsVerification
                         $"Ridley breakup production tail Y ${parameter:X2}");
                     ushort expectedInstruction = parameter == (ushort)RidleyExplosionPart.TailTip
                         ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2))
-                        : CartridgeImportSource.Require(rom).ReadCartridgeWord(new[] { 0xa6c710, 0xa6c728, 0xa6c740, 0xa6c758, 0xa6c770, 0xa6c788 }
+                        : CartridgeImportSource.Require(rom).ReadCartridgeWord(TailBreakupInstructionAddresses
                                 [tailIndex]);
                     AssertEqual(expectedInstruction, RidleyAnimationsVerification.BreakupList(state.BreakupPrograms[fragment.SlotIndex].Program),
                         $"Ridley breakup production tail instruction ${parameter:X2}/{orientation}");
@@ -257,18 +261,6 @@ internal static class RidleyExplosionDefinitionsVerification
         AssertEqual(32, cases, "Ridley breakup production initializer case count");
     }
 
-    /// <summary>Rejects runtime reads of migrated Ridley fragment and death-scatter definition tables.</summary>
-    private static CartridgeReadGuard NewRidleyExplosionDefinitionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is
-                >= 0xa6c6ce and < 0xa6c6fe or
-                >= 0xa6c66e and < 0xa6c696 or
-                >= 0xa6c7ba and < 0xa6c7da or
-                >= 0xa6c804 and < 0xa6c80c or
-                >= 0xa6c836 and < 0xa6c83e or
-                >= 0xa6c868 and < 0xa6c870 or
-                >= 0xa6c89a and < 0xa6c8a2 or
-                >= 0xa6c8cc and < 0xa6c8d4,
-            address => $"Ridley breakup attempted migrated definition read ${address:X6}.");
 
     /// <summary>Runs the standalone Ridley explosion definition verification command.</summary>
     [VerificationCommand("--ridley-explosion-definitions")]

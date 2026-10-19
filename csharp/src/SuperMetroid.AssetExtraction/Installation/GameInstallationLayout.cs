@@ -21,6 +21,8 @@ public static class GameInstallationLayout
     public const string EnemyTileDirectoryName = "enemy-tiles";
     /// <summary>Content child directory for room character-tile atlases.</summary>
     public const string RoomCharacterDirectoryName = "room-characters";
+    /// <summary>Content child directory for the cartridge bytes Samus's glitch paths read.</summary>
+    public const string SamusOverreadDirectoryName = "samus-overreads";
     /// <summary>Content child directory for Samus body PNGs and visual selectors.</summary>
     public const string SamusBodyDirectoryName = "samus-body";
     /// <summary>Content child directory for opening-cinematic artwork.</summary>
@@ -100,7 +102,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; incompatible stock content requires validation and repair before opening.</summary>
-    public const int FormatVersion = 88;
+    public const int FormatVersion = 89;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

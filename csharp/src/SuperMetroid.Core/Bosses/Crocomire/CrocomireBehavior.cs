@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -13,12 +14,22 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The Crocomire species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class CrocomireBehavior : IEnemySpecies
+internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CrocomireEntity(this, slot, common);
+
     /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Moves Crocomire against the arena's collision blocks.</summary>
@@ -46,6 +57,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     /// <summary>Connects Crocomire AI to room collision, rendering, projectiles, and boss-status owners.</summary>
     internal CrocomireBehavior(CrocomireBehaviorDependencies dependencies)
     {
+        _frameResults = dependencies.FrameResults;
         _zebetiteBehavior = dependencies.ZebetiteBehavior;
         _room = dependencies.Room;
         _terrain = dependencies.Terrain;
@@ -65,10 +77,29 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     private const ushort CrocomireSpikeWallThreshold = 768;
     /// <summary>The melt's BG2 distortion step stops growing at 80 pixels (8.8).</summary>
     private const int MaximumCrocomireDistortionStep = 20480;
-    /// <summary>Block mutations queued for the bridge, spike wall, and boss aftermath.</summary>
-    internal readonly List<CrocomirePlmRequest> _crocomirePlmRequests = new();
-    /// <summary>Camera X tracked during Crocomire's BG2 body and death presentation.</summary>
-    private ushort _crocomireCameraX;
+
+    /// <summary>The tongue's horizontal offset from the body, in pixels, set when the tongue initializes.</summary>
+    private const int CrocomireTongueBodyXOffset = 23;
+    /// <summary>The projectile attack's last spawn parameter: its ninth shot, after which Crocomire steps forward.</summary>
+    private const int LastProjectileSpawnParameter = 18;
+    /// <summary>Camera position tracked during Crocomire's BG2 body and death presentation; its X places the BG2 body.</summary>
+    private Position16<RoomPixels> _crocomireCamera;
+
+    /// <summary>Acceleration the sink adds each frame, in 1/256 pixel per frame per frame: three and a half pixels.</summary>
+    private const int SinkAccelerationIncrement = 896;
+    /// <summary>The sink's acceleration stops growing at forty-eight whole pixels, keeping its fraction.</summary>
+    private const int MaximumSinkAccelerationWhole = 48;
+    /// <summary>The sink's speed stops growing at three whole pixels per frame, keeping its fraction.</summary>
+    private const int MaximumSinkSpeedWhole = 3;
+    /// <summary>The rise's acceleration stops growing at thirty-one pixels per frame per frame.</summary>
+    private const int MaximumRiseAccelerationWhole = 31;
+    /// <summary>The speed a rise keeps when its deceleration would take it below zero: 255/256 pixel per frame.</summary>
+    private const int RiseSpeedAfterStalling = 255;
+    /// <summary>Starting acceleration of every sink: eight pixels per frame per frame.</summary>
+    private const int SinkStartingAccelerationWhole = 8;
+    /// <summary>The skeleton's fixed fall through its arc: 224/256 pixel per frame.</summary>
+    private static readonly SnesSignedSixteenSixteen SkeletonArcFallSpeed =
+        SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight(224));
 
     /// <summary>Debugger-visible Crocomire owner while the current room contains $DDBF.</summary>
     public CrocomireEnemyState? Crocomire { get; internal set; }
@@ -76,20 +107,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     /// <summary>Typed WRAM extension used by Crocomire's bridge/melting/skeleton graph.</summary>
     public CrocomireDeathState? CrocomireDeath { get; internal set; }
 
-    /// <summary>Hardcoded bank-$84 arena mutations published during the current frame.</summary>
-    public IReadOnlyList<CrocomirePlmRequest> CrocomirePlmRequests => _crocomirePlmRequests;
-
     /// <summary>Delayed music publication from the current Crocomire frame.</summary>
     public CrocomireMusicRequest? LastCrocomireMusicRequest { get; private set; }
 
-    /// <summary>The boss-specific item-drop request emitted after the skeleton collapses.</summary>
-    public CrocomireDropRequest? LastCrocomireDropRequest { get; private set; }
 
     /// <summary>Literal BG2 scroll owned by Crocomire while its extended tilemap is active.</summary>
     public Position16<Bg2Pixels> CrocomireBg2Scroll { get; private set; }
 
-    /// <summary>Most recent bank-$A4 library-two sound publication.</summary>
-    public ushort? LastCrocomireSoundEffect { get; private set; }
+    /// <summary>Most recent library-two sound publication of the current frame.</summary>
+    public SoundEffectId? LastCrocomireSoundEffect { get; private set; }
 
     /// <summary>True after the $640 X threshold starts the native bridge-collapse phase.</summary>
     public bool CrocomireBridgeCollapseStarted { get; private set; }
@@ -99,11 +125,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         Crocomire = null;
         CrocomireDeath = null;
-        _crocomirePlmRequests.Clear();
-        _crocomireCameraX = 0;
+        _crocomireCamera = Position16<RoomPixels>.Zero;
         LastCrocomireSoundEffect = null;
         LastCrocomireMusicRequest = null;
-        LastCrocomireDropRequest = null;
         CrocomireBg2Scroll = Position16<Bg2Pixels>.Zero;
         CrocomireBridgeCollapseStarted = false;
     }
@@ -113,6 +137,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         _roomStatus.BossId = 6;
         var state = new CrocomireEnemyState(slot);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         Crocomire = state;
         CrocomireDeath = new CrocomireDeathState();
         ClearCrocomireBg2WorkingTilemap();
@@ -177,10 +202,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         StartCrocomireTongueProgram(state, CrocomireTongueProgram.Fight, NativeCountdown.Start(1));
         slot.ExtraProperties = slot.ExtraProperties
             .With(EnemyExtraProperties.UsesExtendedSpritemap)
-            .WithUntranslatedExtraBits(
+            .WithUntranslatedBits(
                 EnemyExtraPropertyRawBits.CrocomireInitializerBit0400,
                 "Crocomire initializer");
-        slot.VariableA = 23;
+        var tongueState = new CrocomireTongueState { BodyXOffset = CrocomireTongueBodyXOffset };
+        slot.SetSpeciesState(tongueState, tongueState.ClearWithRecord);
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
     }
 
@@ -188,10 +214,10 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     internal void RunCrocomireMain(
         RoomEnemySlot slot,
         SamusState? samus,
-        ushort cameraX)
+        Position16<RoomPixels> camera)
     {
         CrocomireEnemyState state = RequireCrocomire(slot);
-        _crocomireCameraX = cameraX;
+        _crocomireCamera = camera;
 
         if (state.DeathSequenceIndex == CrocomireDeathPhase.Fighting)
         {
@@ -231,13 +257,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         state.DeathSequenceIndex = CrocomireDeathPhase.CrumbleBridgeAndSink;
         StartCrocomireBodyProgram(state, CrocomireBodyProgram.BridgeCollapsed);
         body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
-        state.ReactionTimer = 0;
-        state.ProjectileCounter = 0;
-        state.VerticalAcceleration = (ushort)SnesEightEight.FromWhole(8);
+        state.StartVerticalMotion(SnesEightEight.FromWhole(SinkStartingAccelerationWhole));
         body.Radius = body.Radius.WithY(16);
         LastCrocomireSoundEffect = CrocomireSoundDefinitions.BridgeCollapse;
         CrocomireDeathState death = RequireCrocomireDeath();
-        death.BridgeFragmentCursor = 0;
+        death.BridgeFragmentsSpawned = 0;
         death.AcidSmokeTimer = NativeCountdown.Start(1);
         death.AcidSoundTimer = NativeCountdown.Start(1);
 
@@ -319,7 +343,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         if (advance.Held)
             return;
         tongue.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        tongue.SpritemapPointer = (ushort)advance.Frame;
+        tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(advance.Frame);
         tongue.ExtraProperties = tongue.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 
@@ -344,7 +368,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             "Crocomire death extension is not initialized for the current room.");
 
     /// <summary>Registers component-specific bomb hit routines, including the native no-op gates.</summary>
-    internal void RegisterCrocomireBombReactions(EnemyAiTable table)
+    internal void RegisterCrocomireBombReactions(EnemySharedReactions table)
     {
         // Specials consulted before the selected literal no-op gate, in the original order.
         // Crocomire has no header shot callback; every live component supplies its own bank-$A4 routine. Bomb
@@ -352,7 +376,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                                   c.Enemy.Definition.ShotAiPointer == 0 && c.UsesExtendedHitboxes &&
                                   c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,
-            c => ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShotAiPointer));
+            c => ResolveCrocomireHitboxShot(c.Bomb.PackedType.Raw, c.Bomb.Position.Whole, c.SelectedShotAi));
     }
 
     /// <summary>Registers Crocomire's owned projectile setup, movement, and instruction handlers.</summary>
@@ -379,32 +403,20 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.CrocomireBridgeCrumbling);
     }
 
-    /// <summary>Connects Crocomire body and component initialization pointers to encounter setup.</summary>
-    internal void RegisterCrocomireInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Crocomire's initialization AI.</summary>
+    internal void RunCrocomireInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Crocomire, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCrocomire(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_CrocomireTongue, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCrocomireTongue(slot);
-        });
+        InitializeCrocomire(slot);
     }
 
-    /// <summary>Connects live Crocomire, tongue, and death-sequence dispatch pointers.</summary>
-    internal void RegisterCrocomireMainAi(EnemyAiTable table)
+    /// <summary>Ports CrocomireTongue's initialization AI.</summary>
+    internal void RunCrocomireTongueInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Crocomire, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunCrocomireMain(slot, frame.Samus, frame.Camera.X);
-        });
+        InitializeCrocomireTongue(slot);
     }
 
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
-    internal void RegisterCrocomirePowerBombReactions(EnemyAiTable table)
+    internal void RegisterCrocomirePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.CrocomirePowerBomb)
@@ -414,7 +426,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     }
 
     /// <summary>Routes body, mouth, and auxiliary hitboxes to their distinct shot reactions.</summary>
-    internal void RegisterCrocomireShotReactions(EnemyAiTable table)
+    internal void RegisterCrocomireShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                                                      enemy.Definition.ShotAiPointer == 0 ||
@@ -428,14 +440,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 if (!c.UsesExtendedHitboxes)
                     throw new InvalidDataException("Crocomire components require extended-spritemap collision.");
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-                ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShotAiPointer);
+                ResolveCrocomireHitboxShot(c.Projectile.PackedType.Raw, c.Projectile.Position.Whole, c.HitboxShotAi);
                 return true;
             },
         });
     }
 
     /// <summary>Registers Crocomire component contact, including normal enemy touch damage.</summary>
-    internal void RegisterCrocomireTouch(EnemyAiTable table)
+    internal void RegisterCrocomireTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CrocomireHeaderTouch ||
@@ -451,7 +463,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                         EnemyInteractionCallback.CrocomireClawTouch or EnemyInteractionCallback.NormalEnemyTouch))
                 {
                     throw new InvalidDataException(
-                        $"Crocomire hitbox touch AI $A4:{context.HitboxTouchAiPointer:X4} is not translated.");
+                        $"Crocomire hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
 
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
@@ -466,7 +478,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     }
     /// <summary>Queues a native PLM block change for later room processing.</summary>
     private void PublishCrocomirePlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
-        _crocomirePlmRequests.Add(new CrocomirePlmRequest(block, header));
+        _frameResults.CrocomirePlms.Add(new CrocomirePlmRequest(block, header));
 
     /// <summary>
     /// Ports the bridge effects in $A4:8D5E, staged at Crocomire X $0600, $0610 and $0620.
@@ -613,27 +625,29 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         RoomEnemySlot body = state.Body;
         if (includeVerticalPosition)
             CrocomireBg2Scroll = CrocomireBg2Scroll.WithY(CrocomireBg2ScrollDefinitions.VerticalScroll(
-                body.Position.Y.Whole, body.SpritemapPointer));
+                body.Position.Y.Whole, EnemyFrames.Spritemap(body.Frame)));
 
-        // The tongue is a normal second enemy actor whose var A is the body-relative X
-        // offset. $8BA4 updates it even while the body's bulk is represented by BG2.
+        // The tongue is a normal second enemy actor placed at its body-relative X offset.
+        // $8BA4 updates it even while the body's bulk is represented by BG2.
         if (state.Tongue is { } tongue)
         {
-            tongue.Position = tongue.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + tongue.VariableA)), body.Position.Y.Whole));
+            int offset = (tongue.SpeciesState<CrocomireTongueState>()
+                ?? throw new InvalidOperationException("Crocomire's tongue has no state.")).BodyXOffset;
+            tongue.Position = tongue.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + offset)), body.Position.Y.Whole));
         }
 
         ushort horizontal;
-        if (unchecked((short)(body.Position.X.Whole - _crocomireCameraX)) >= 0)
+        if (unchecked((short)(body.Position.X.Whole - _crocomireCamera.X)) >= 0)
         {
             horizontal = unchecked((short)(
-                body.Position.X.Whole - 128 - (_crocomireCameraX + 256))) < 0
+                body.Position.X.Whole - 128 - (_crocomireCamera.X + 256))) < 0
                 ? CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole)
                 : (ushort)256;
         }
         else
         {
             horizontal = unchecked((short)(
-                body.Position.X.Whole + 128 - _crocomireCameraX)) < 0
+                body.Position.X.Whole + 128 - _crocomireCamera.X)) < 0
                 ? (ushort)256
                 : CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole);
         }
@@ -643,24 +657,22 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     /// <summary>Converts the body X position into the BG2 horizontal scroll used to keep Crocomire onscreen.</summary>
     private ushort CalculateOnScreenCrocomireBg2Horizontal(ushort bodyX)
     {
-        ushort relative = unchecked((ushort)(_crocomireCameraX - bodyX + 51));
+        ushort relative = unchecked((ushort)(_crocomireCamera.X - bodyX + 51));
         return EnemyMath.WrappedMagnitude(relative) >= 284 ? (ushort)256 : relative;
     }
     /// <summary>Dispatches $A4:B951/$B968/$BA05/$BAB4 after multibox collision.</summary>
     private void ResolveCrocomireHitboxShot(
         SamusProjectileTypeWord projectileType,
         Position16<RoomPixels> projectile,
-        ushort callback)
+        EnemyInteractionCallback? callback)
     {
         CrocomireEnemyState state = Crocomire ??
             throw new InvalidOperationException("Crocomire hitbox has no body owner.");
         RoomEnemySlot body = state.Body;
 
-        CrocomireHitboxShotCallback shot =
-            ClosedNativeWords.Decode<CrocomireHitboxShotCallback>(callback, "Crocomire hitbox shot AI");
-        switch (shot)
+        switch (callback)
         {
-            case CrocomireHitboxShotCallback.NoOp:
+            case EnemyInteractionCallback.CrocomireNoOpHitboxShot:
             {
                 // $B951 increments a temporary low-nibble value, then ORs it back into the
                 // flags word instead of replacing the nibble. Preserve that odd instruction
@@ -669,12 +681,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 return;
             }
 
-            case CrocomireHitboxShotCallback.Dust:
-            case CrocomireHitboxShotCallback.AlternateDust:
+            case EnemyInteractionCallback.CrocomireDustHitboxShot:
+            case EnemyInteractionCallback.CrocomireAlternateDustHitboxShot:
                 SpawnCrocomireShotDust(projectileType, projectile);
                 return;
 
-            case CrocomireHitboxShotCallback.Mouth:
+            case EnemyInteractionCallback.CrocomireMouthShot:
                 ResolveCrocomireMouthShot(
                     state,
                     body,
@@ -682,12 +694,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                     projectile);
                 return;
 
-            case CrocomireHitboxShotCallback.HeaderReturn:
+            case EnemyInteractionCallback.CrocomireHeaderTouch:
                 // Some extended-map records deliberately point at the body header's RTL.
                 return;
 
             default:
-                throw new InvalidOperationException($"Undefined CrocomireHitboxShotCallback {shot}.");
+                throw new InvalidOperationException($"Crocomire hitbox shot AI {callback?.ToString() ?? "(unnamed)"} is not translated.");
         }
     }
 
@@ -704,8 +716,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         // the pending-hit state. This wrapped signed comparison is the cartridge's exact
         // `body left edge - (camera + 256)` test.
         bool bodyLeftEdgeIsOnScreen = unchecked((short)(
-            body.Position.X.Whole - body.Radius.X - 256 - _crocomireCameraX)) < 0;
-        ushort stepCount = 0;
+            body.Position.X.Whole - body.Radius.X - 256 - _crocomireCamera.X)) < 0;
+        int stepCount = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
         {
@@ -731,7 +743,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
 
         if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
         {
-            state.StepCounter = unchecked((ushort)(state.StepCounter + stepCount));
+            state.StepCounter += stepCount;
             int hitCount = state.FightFlags.NextHitCount();
             if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == 0)
             {
@@ -749,7 +761,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         }
 
         body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 14)));
-        body.AiHandlerBits |= EnemyAiHandlerMasks.Hurt;
+        body.AiStates |= EnemyAiStates.Hurt;
     }
 
     /// <summary>Places a dust effect at the shot impact while preserving its component-relative offset.</summary>
@@ -778,7 +790,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             CrocomireFightFlags.Engaged;
         state.ReactionTimer = 10;
         body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 4)));
-        body.AiHandlerBits |= EnemyAiHandlerMasks.Hurt;
+        body.AiStates |= EnemyAiStates.Hurt;
         state.FightFunction = CrocomireFightFunction.PowerBombCharge;
 
         StartCrocomireBodyProgram(state, SelectCrocomirePowerBombProgram(state));
@@ -991,11 +1003,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             return;
         }
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
-        state.ReactionTimer = (ushort)SnesEightEight.FromWhole(3);
+        state.VerticalSpeed = SnesEightEight.FromWhole(MaximumSinkSpeedWhole);
     }
 
     /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c> at $A4:91C1.</summary>
-    private void RunCrocomireSink(CrocomireEnemyState state)
+    internal void RunCrocomireSink(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
@@ -1014,31 +1026,32 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         body.ExtraProperties = body.ExtraProperties.Without(
             EnemyExtraProperties.NewInstructionFrame);
 
-        byte accelerationFraction = (byte)state.VerticalAcceleration;
-        int accelerationCarry = accelerationFraction + 128 > byte.MaxValue ? 1 : 0;
-        accelerationFraction = unchecked((byte)(accelerationFraction + 128));
-        int accelerationWhole = SnesUnsignedEightEight.Whole(state.VerticalAcceleration) + 3 + accelerationCarry;
-        accelerationWhole = Math.Min(accelerationWhole, 48);
-        state.VerticalAcceleration = unchecked((ushort)((SnesEightEight.FromWhole(accelerationWhole)) | accelerationFraction));
+        // The acceleration's fraction carries into its whole part before the whole part is clamped, and the
+        // speed's into its whole part before that is clamped: each clamp keeps the fraction it carried from.
+        int acceleration = ClampWholePixels(
+            state.VerticalAcceleration + SinkAccelerationIncrement, MaximumSinkAccelerationWhole);
+        state.VerticalAcceleration = acceleration;
+        // The speed grows by the acceleration's whole part read as 1/256 pixels.
+        int speed = ClampWholePixels(
+            state.VerticalSpeed + SnesEightEight.WholeOf(acceleration), MaximumSinkSpeedWhole);
+        state.VerticalSpeed = speed;
 
-        byte speedFraction = (byte)state.ReactionTimer;
-        int speedCarry = speedFraction + accelerationWhole > byte.MaxValue ? 1 : 0;
-        speedFraction = unchecked((byte)(speedFraction + accelerationWhole));
-        int speedWhole = SnesUnsignedEightEight.Whole(state.ReactionTimer) + speedCarry;
-        speedWhole = Math.Min(speedWhole, 3);
-        state.ReactionTimer = unchecked((ushort)((SnesEightEight.FromWhole(speedWhole)) | speedFraction));
-
-        byte subpositionHigh = SnesLittleEndian.HighByte(state.ProjectileCounter);
-        int subpositionSum = subpositionHigh + speedFraction;
-        subpositionHigh = unchecked((byte)subpositionSum);
-        state.ProjectileCounter = unchecked((ushort)(
-            SnesLittleEndian.Word(SnesLittleEndian.LowByte(state.ProjectileCounter), subpositionHigh)));
-        int yDelta = speedWhole + (subpositionSum > byte.MaxValue ? 1 : 0);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + yDelta)));
+        int travelled = state.VerticalSubpixel + speed;
+        state.VerticalSubpixel = SnesEightEight.FractionOf(travelled);
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(
+            body.Position.Y.Whole + SnesEightEight.WholeOf(travelled))));
     }
 
+    /// <summary>
+    /// An 8.8 quantity in 1/256 pixels with its whole part clamped to <paramref name="maximumWhole"/> and its
+    /// fraction kept, as the sink's byte-wise clamps leave it.
+    /// </summary>
+    private static int ClampWholePixels(int value, int maximumWhole) =>
+        SnesEightEight.FromWhole(Math.Min(SnesEightEight.WholeOf(value), maximumWhole)) +
+        SnesEightEight.FractionOf(value);
+
     /// <summary>Byte-for-byte fixed-point rise from $A4:92D8.</summary>
-    private void RunCrocomireRise(CrocomireEnemyState state)
+    internal void RunCrocomireRise(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
@@ -1050,28 +1063,22 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         }
 
         UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
-        int acceleration = state.VerticalAcceleration + SnesEightEight.FromWhole(1);
-        state.VerticalAcceleration = unchecked((ushort)Math.Min(acceleration, SnesEightEight.FromWhole(31)));
-        int accelerationWhole = SnesLittleEndian.HighByte(state.VerticalAcceleration);
+        int acceleration = Math.Min(
+            state.VerticalAcceleration + SnesEightEight.FromWhole(1),
+            SnesEightEight.FromWhole(MaximumRiseAccelerationWhole));
+        state.VerticalAcceleration = acceleration;
 
-        byte speedFraction = (byte)state.ReactionTimer;
-        bool speedBorrow = speedFraction < accelerationWhole;
-        speedFraction = unchecked((byte)(speedFraction - accelerationWhole));
-        int speedWhole = SnesUnsignedEightEight.Whole(state.ReactionTimer) - (speedBorrow ? 1 : 0);
-        if (speedWhole < 0)
-        {
-            speedFraction = byte.MaxValue;
-            speedWhole = 0;
-        }
-        state.ReactionTimer = unchecked((ushort)((SnesEightEight.FromWhole(speedWhole)) | speedFraction));
+        // The speed loses the acceleration's whole part read as 1/256 pixels; a speed that would fall below zero
+        // stalls just under one pixel per frame instead of reversing.
+        int speed = state.VerticalSpeed - SnesEightEight.WholeOf(acceleration);
+        if (speed < 0)
+            speed = RiseSpeedAfterStalling;
+        state.VerticalSpeed = speed;
 
-        byte subpositionHigh = SnesLittleEndian.HighByte(state.ProjectileCounter);
-        bool subpositionBorrow = subpositionHigh < speedFraction;
-        subpositionHigh = unchecked((byte)(subpositionHigh - speedFraction));
-        state.ProjectileCounter = unchecked((ushort)(
-            SnesLittleEndian.Word(SnesLittleEndian.LowByte(state.ProjectileCounter), subpositionHigh)));
-        int yDelta = speedWhole + (subpositionBorrow ? 1 : 0);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - yDelta)));
+        int remaining = state.VerticalSubpixel - speed;
+        state.VerticalSubpixel = SnesEightEight.FractionOf(remaining);
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(
+            body.Position.Y.Whole + SnesEightEight.WholeOf(remaining))));
     }
 
     /// <summary>Emits smoke at the acid surface during Crocomire's death presentation.</summary>
@@ -1083,11 +1090,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             return;
         death.AcidSmokeTimer = NativeCountdown.Start(6);
 
-        ushort random = ReadCrocomireRandom();
+        int random = ReadCrocomireRandom();
         ushort xOffset = unchecked((ushort)(random & 63));
         if ((random & 2) == 0)
             xOffset = unchecked((ushort)~xOffset);
-        ushort acidY = samus?.LiquidPhysics.LavaAcidYPosition ?? 224;
+        int acidY = samus?.LiquidPhysics.LavaAcidYPosition ?? 224;
         _spriteObjects.SpawnRoomSpriteObject(
             new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(acidY + 16 - ((SnesLittleEndian.HighByte(random) & 31))))),
             RoomSpriteObjectKind.CrocomireAcidSmoke,
@@ -1128,7 +1135,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
         PublishCrocomirePlm(new Position16<RoomBlocks>(78, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking; // $A4:90D8
-        RequireCrocomireDeath().TargetHeightOrSkeletonTileIndex = 0;
+        RequireCrocomireDeath().SkeletonTileChunk = 0;
     }
 
     /// <summary>Moves the skeleton through the acid river toward the arena's breakable wall.</summary>
@@ -1184,12 +1191,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         CrocomireDeathState death = RequireCrocomireDeath();
         CrocomireRumbleDefinition definition =
             CrocomireRumbleDefinitions.AtOffset(state.RumbleTableOffset);
-        ushort target = unchecked((ushort)definition.TargetYOffset);
+        int target = definition.TargetYOffset;
         if (definition.IsTerminator)
         {
-            // The rumble word becomes the melt's shake counter: both bytes $80, decremented once per
-            // melting frame, its bit 1 picking the four-pixel X jitter.
-            death.RumbleYOffset = 32896;
+            // The rumble hands its shared word back to the melt's shake counter, with both bytes at 128.
+            death.MeltShakeCounter = NativeCountdown.FromRaw(MeltShakeCounterAfterRumble);
             state.DeathPhaseDelay = NativeCountdown.Start(128);
             (_room.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
                 "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation.Cgram);
@@ -1199,7 +1205,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
 
         if (death.RumbleYOffset == target)
         {
-            if (unchecked((short)target) < 0)
+            if (target < 0)
             {
                 if (!death.RumbleCooldown.IsZero)
                 {
@@ -1216,10 +1222,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             return;
         }
 
-        death.RumbleYOffset = unchecked((short)(death.RumbleYOffset - target)) >= 0
-            ? unchecked((ushort)(death.RumbleYOffset - death.RumbleDelta))
-            : unchecked((ushort)(death.RumbleYOffset + death.RumbleDelta));
+        death.RumbleYOffset = death.RumbleYOffset >= target
+            ? death.RumbleYOffset - death.RumbleDelta
+            : death.RumbleYOffset + death.RumbleDelta;
     }
+
+    /// <summary>The melt shake counter's word as the hidden-wall rumble's terminator leaves it: both bytes 128.</summary>
+    private const ushort MeltShakeCounterAfterRumble = 32896;
 
     /// <summary>Loads skeleton graphics and replaces the wall blocks as the bones break through.</summary>
     internal void RunCrocomireSkeletonTileLoadAndWallBreak(CrocomireEnemyState state)
@@ -1235,8 +1244,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(480, 54));
         death.RumbleCooldown = NativeCountdown.Start(80);
-        state.ReactionTimer = 0;
-        state.ProjectileCounter = 0;
+        state.SkeletonVelocity = SnesSignedSixteenSixteen.Zero;
         PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
         PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.CreateCrocomireInvisibleWall);
         PublishCrocomirePlm(new Position16<RoomBlocks>(112, 11), PlmHeaderId.ClearCrocomireBridge);
@@ -1254,20 +1262,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     }
 
     /// <summary>Holds the broken-wall pose before launching the skeleton arc.</summary>
-    private void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
+    internal void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         if (unchecked((short)(state.Body.Position.X.Whole - 224)) < 0)
         {
-            (state.ReactionTimer, state.ProjectileCounter) = CalculateCrocomireVelocity(
-                state.ReactionTimer,
-                state.ProjectileCounter,
-                SnesSixteenSixteen.FromEightEight(128u),
-                2);
-            state.Body.Position = state.Body.Position.WithX(CalculateCrocomirePosition(
-                state.Body.Position.X,
-                state.ReactionTimer,
-                state.ProjectileCounter));
+            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 128, maximumWhole: 2);
+            state.Body.Position = state.Body.Position.WithX(
+                state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         }
 
         if (death.RumbleCooldown.IsZero)
@@ -1275,27 +1277,19 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         death.RumbleCooldown = death.RumbleCooldown.Decrement().Remaining;
         if (!death.RumbleCooldown.IsZero)
             return;
-        state.ReactionTimer = 0;
+        state.SkeletonVelocity = state.SkeletonVelocity.WithFraction(0);
         StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFalling);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
     /// <summary>Moves the skeleton through its airborne arc after the wall break.</summary>
-    private void RunCrocomireSkeletonArc(CrocomireEnemyState state)
+    internal void RunCrocomireSkeletonArc(CrocomireEnemyState state)
     {
-        (state.ReactionTimer, state.ProjectileCounter) = CalculateCrocomireVelocity(
-            state.ReactionTimer,
-            state.ProjectileCounter,
-            SnesSixteenSixteen.FromEightEight(8u),
-            5);
-        state.Body.Position = state.Body.Position.WithY(CalculateCrocomirePosition(
-            state.Body.Position.Y,
-            fraction: SnesLittleEndian.Word(0, 224),
-            whole: 0));
-        state.Body.Position = state.Body.Position.WithX(CalculateCrocomirePosition(
-            state.Body.Position.X,
-            state.ReactionTimer,
-            state.ProjectileCounter));
+        state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 8, maximumWhole: 5);
+        state.Body.Position = state.Body.Position.WithY(
+            SkeletonArcFallSpeed.AddTo(state.Body.Position.Y.Whole, state.Body.Position.Y.Fraction));
+        state.Body.Position = state.Body.Position.WithX(
+            state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         if (unchecked((short)(state.Body.Position.X.Whole - 576)) < 0)
             return;
 
@@ -1307,15 +1301,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     }
 
     /// <summary>Finishes the skeleton collapse and scatters sixteen independently chosen enemy drops.</summary>
-    private void RunCrocomireSkeletonCollapse(CrocomireEnemyState state)
+    internal void RunCrocomireSkeletonCollapse(CrocomireEnemyState state)
     {
         if (state.BodyResidentProgram < CrocomireBodyProgram.SkeletonStable)
         {
-            (state.ReactionTimer, state.ProjectileCounter) = CalculateCrocomireVelocity(
-                state.ReactionTimer,
-                state.ProjectileCounter,
-                SnesSixteenSixteen.FromEightEight(16u),
-                6);
+            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 16, maximumWhole: 6);
             return;
         }
 
@@ -1323,7 +1313,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         state.Body.Position += new Offset16<RoomPixels>(64, 21);
         state.Body.Radius = new(40, 28);
         PublishCrocomirePlm(new Position16<RoomBlocks>(48, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
-        LastCrocomireDropRequest = new CrocomireDropRequest();
 
         // $A0:B995 emits sixteen independent $F337 projectiles across Crocomire's
         // authored arena rectangle. These are not a single pickup at the corpse position:
@@ -1365,7 +1354,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     /// <summary>Uploads the next ordered skeleton character chunk to its native OBJ VRAM position.</summary>
     internal void UploadNextCrocomireSkeletonTileChunk(CrocomireDeathState death)
     {
-        int entry = death.TargetHeightOrSkeletonTileIndex >> 1;
+        int entry = death.SkeletonTileChunk;
         var artwork = _room.Artwork?.CrocomireSkeleton ?? throw new InvalidDataException(
             "Installed Crocomire artwork is missing its skeleton characters.");
         if (!CrocomireSkeletonTransferDefinitions.TryGet(entry, out
@@ -1377,41 +1366,35 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             frame.DestinationOffset * sizeof(ushort));
         _presentation.ObjCharacters.RecordUpload(EnemyVram.CrocomireSkeletonTilesDma(frame.DestinationOffset),
             artwork.Chunk(entry).Length, ObjCharacterSource.FromCrocomireSkeletonChunk(entry));
-        death.TargetHeightOrSkeletonTileIndex += 2;
+        death.SkeletonTileChunk++;
     }
 
-    /// <summary>Adds a 16.16 delta to split velocity and clamps its whole word without discarding the fraction.</summary>
-    private static (ushort Fraction, ushort Whole) CalculateCrocomireVelocity(
-        ushort fraction,
-        ushort whole,
-        uint delta,
-        ushort maximumWhole)
+    /// <summary>
+    /// Adds an acceleration of <paramref name="accelerationEightEight"/>/256 pixel per frame per frame to the
+    /// skeleton's 16.16 speed and clamps its whole pixels at <paramref name="maximumWhole"/>, keeping the fraction.
+    /// The speed starts at rest and only grows, so its whole pixels never leave the clamp's range.
+    /// </summary>
+    private static SnesSignedSixteenSixteen AccelerateCrocomireSkeleton(
+        SnesSignedSixteenSixteen velocity,
+        int accelerationEightEight,
+        int maximumWhole)
     {
-        uint fixedValue = (SnesSixteenSixteen.FromWhole((uint)whole)) | fraction;
-        fixedValue = unchecked(fixedValue + delta);
-        if (SnesFixedPosition.WholeOf(unchecked((int)fixedValue)) >= maximumWhole)
-            fixedValue = (SnesSixteenSixteen.FractionOf(fixedValue)) | (SnesSixteenSixteen.FromWhole((uint)maximumWhole));
-        return ((ushort)fixedValue, SnesFixedPosition.WholeOf(unchecked((int)fixedValue)));
+        SnesSignedSixteenSixteen accelerated =
+            velocity + SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight(accelerationEightEight));
+        return accelerated.WholePixels >= maximumWhole
+            ? accelerated.WithWholePixels(checked((short)maximumWhole))
+            : accelerated;
+    }
+    /// <summary>Advances Crocomire's typed animation.</summary>
+    internal void AdvanceCrocomireTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        AdvanceCrocomireBodyAnimation(slot, context.Samus, context.Level, context.Camera.X);
     }
 
-    /// <summary>Integrates split fixed-point position with native carry between fractional and whole words.</summary>
-    private static SnesFixedPosition CalculateCrocomirePosition(
-        SnesFixedPosition position,
-        ushort fraction,
-        ushort whole)
+    /// <summary>Advances CrocomireTongue's typed animation.</summary>
+    internal void AdvanceCrocomireTongueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        uint fixedPosition = position.RawValue;
-        uint delta = (SnesSixteenSixteen.FromWhole((uint)whole)) | fraction;
-        fixedPosition = unchecked(fixedPosition + delta);
-        return SnesFixedPosition.FromRaw(fixedPosition);
-    }
-    /// <summary>Runs Crocomire's body and tongue as typed programs in place of their bank-$A4 instruction lists (#641).</summary>
-    internal void RegisterCrocomireTypedAnimations(EnemyAiTable table)
-    {
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire,
-            (slot, context) => AdvanceCrocomireBodyAnimation(slot, context.Samus, context.Level, context.Camera.X));
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue,
-            (slot, context) => AdvanceCrocomireTongueAnimation(slot));
+        AdvanceCrocomireTongueAnimation(slot);
     }
 
     /// <summary>
@@ -1447,7 +1430,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         }
         body.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
         state.BodyFrame = advance.Frame;
-        body.SpritemapPointer = advance.Frame.Spritemap;
+        body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(advance.Frame);
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 
@@ -1518,7 +1501,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                     state.FightFunction = CrocomireFightFunction.BackingOffSpikeWall;
                     return CrocomireBodyProgram.BackOffFromSpikeWall;
                 }
-                ushort random = ReadCrocomireRandom();
+                int random = ReadCrocomireRandom();
                 int baseOffset = unchecked((short)(random - 2048)) >= 0 ? -32 : 32;
                 SpawnCrocomireDust(state, baseOffset + (random & 15));
                 return null;
@@ -1608,9 +1591,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
                     return CrocomireBodyProgram.StepBack;
                 }
-                if (unchecked((short)(state.ProjectileCounter - 18)) < 0)
+                if (state.ProjectileCounter < LastProjectileSpawnParameter)
                 {
-                    state.ProjectileCounter = unchecked((ushort)(state.ProjectileCounter + 2));
+                    state.ProjectileCounter += 2;
                     SpawnCrocomireProjectile(state.Body, state.ProjectileCounter);
                     LastCrocomireSoundEffect = CrocomireSoundDefinitions.ProjectileSpit;
                     return null;
@@ -1629,7 +1612,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
 
             case CrocomireFightFunction.SteppingBack:
                 if (state.StepCounter != 0)
-                    state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value;
+                    state.StepCounter--;
                 if (state.StepCounter != 0)
                     return CrocomireBodyProgram.SteppingBack;
                 state.FightFunction = CrocomireFightFunction.SteppingForward;
@@ -1662,14 +1645,19 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                     CrocomireFightFunction.SteppingBack);
 
             case CrocomireFightFunction.PowerBombCharge:
-                state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value;
-                if (unchecked((short)(state.StepCounter - 2)) < 0)
+            {
+                // The charge consumes one step and ends once fewer than two remain; a count that would drop below
+                // zero ends it the same way, as the cartridge's wrapped word reads negative.
+                int remaining = state.StepCounter - 1;
+                if (remaining < 2)
                 {
                     state.StepCounter = 0;
                     state.FightFunction = CrocomireFightFunction.SteppingForward;
                     return CrocomireBodyProgram.StepForward;
                 }
+                state.StepCounter = remaining;
                 return null;
+            }
 
             case CrocomireFightFunction.NearSpikeWallChargeUnused:
                 if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != 0)
@@ -1728,20 +1716,18 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                     return CrocomireBodyProgram.MovingClaws;
                 }
                 state.StepCounter = 5;
-                state.ProjectileCounter = (ushort)state.FightFunction;
+                state.SavedFightFunction = state.FightFunction;
                 state.FightFunction = CrocomireFightFunction.UnwrittenTableEntry;
                 return CrocomireBodyProgram.MovingClaws;
 
             case CrocomireFightFunction.MoveClawsUnused:
-                if (state.StepCounter == 0 || (state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value) == 0)
+                if (state.StepCounter == 0 || --state.StepCounter == 0)
                 {
                     state.FightFunction = CrocomireFightFunction.MovingClawsUnused;
                     state.FightFlags &= ~CrocomireFightFlags.UnusedClawsMoving;
                     return CrocomireBodyProgram.StepForward;
                 }
                 state.FightFunction = CrocomireFightFunction.MoveClawsUnused;
-                if (state.Tongue is not null)
-                    state.Tongue.VariableD = 0;
                 state.FightFlags |= CrocomireFightFlags.UnusedClawsMoving;
                 return CrocomireBodyProgram.MovingClaws;
 
@@ -1756,12 +1742,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 {
                     state.FightFlags &= ~CrocomireFightFlags.ClawTouchedSamus;
                     state.Body.InstructionTimer = NativeCountdown.Start(1);
-                    state.FightFunction = (CrocomireFightFunction)state.ProjectileCounter;
+                    state.FightFunction = state.SavedFightFunction;
                     return CrocomireBodyProgram.MovingClaws;
                 }
                 if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) != 0)
                 {
-                    state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value;
+                    state.StepCounter--;
                     LastCrocomireSoundEffect = CrocomireSoundDefinitions.ClawStrike;
                     return CrocomireBodyProgram.MovingClaws;
                 }
@@ -1800,12 +1786,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SnesSixteenSixteen.FromWhole(pixels));
 
     /// <summary>Consumes the room's next RNG word for Crocomire effects and choices.</summary>
-    private ushort ReadCrocomireRandom() => _room.Random.Read();
+    private int ReadCrocomireRandom() => _room.Random.Read();
 
     /// <summary>Chooses a foot-dust offset from room RNG and spawns the matching effect.</summary>
     private void SpawnCrocomireRandomFootDust(CrocomireEnemyState state)
     {
-        ushort random = ReadCrocomireRandom();
+        int random = ReadCrocomireRandom();
         int offset = random & 31;
         if (unchecked((short)(random - 4096)) >= 0)
             offset = -offset;
@@ -1815,7 +1801,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     /// <summary>Places a foot dust puff at the body offset with an additional three-bit RNG jitter.</summary>
     private void SpawnCrocomireDust(CrocomireEnemyState state, int xOffset)
     {
-        ushort random = ReadCrocomireRandom();
+        int random = ReadCrocomireRandom();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset + (random & 7))), unchecked((ushort)(state.Body.Position.Y.Whole + state.Body.Radius.Y - 16))),
             MiscDustAnimation.BigDustCloud);
@@ -1879,7 +1865,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         death.PixelsToErasePerColumn = 48;
-        death.TargetHeightOrSkeletonTileIndex = 48;
+        death.MeltTargetHeight = 48;
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         StartCrocomireBodyProgram(state, bodyProgram);
     }
@@ -1948,9 +1934,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         int byteCount = upload.ByteCount;
-        ushort destinationWord = upload.DestinationWord;
-        byte sourceBank = upload.SourceBank;
-        ushort source = upload.SourceWord;
+        int destinationWord = upload.DestinationWord;
+        int sourceBank = upload.SourceBank;
+        int source = upload.SourceWord;
         if (sourceBank != CrocomireMeltingTransferDefinitions.ScratchBank)
         {
             throw new InvalidDataException(
@@ -1983,9 +1969,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         SpawnCrocomireAcidSmoke(state, samus);
         CrocomireDeathState death = RequireCrocomireDeath();
-        death.RumbleYOffset = NativeWordCounter.Decrement(death.RumbleYOffset).Value;
+        death.MeltShakeCounter = death.MeltShakeCounter.Decrement().Remaining;
         state.Body.Position = state.Body.Position.WithWholeX(unchecked((ushort)(
-            death.BodyXBeforeMelting + ((death.RumbleYOffset & 2) != 0 ? 4 : 0))));
+            death.BodyXBeforeMelting + ((death.MeltShakeCounter.RawValue & 2) != 0 ? 4 : 0))));
 
         if (!EraseNextCrocomireMeltingColumn())
         {
@@ -1995,10 +1981,10 @@ internal sealed class CrocomireBehavior : IEnemySpecies
 
         // $A4:95D5 refreshes the BG2 scroll, which also moves the tongue onto the body.
         UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
-        ushort nextAdjustedY = unchecked((ushort)(death.AdjustedDestinationY - 3));
-        if (unchecked((short)(death.AdjustedDestinationY - 19)) < 0)
+        int nextAdjustedY = death.AdjustedDestinationY - 3;
+        if (death.AdjustedDestinationY < 19)
         {
-            if (unchecked((short)(death.DistortionStep - MaximumCrocomireDistortionStep)) >= 0)
+            if (death.DistortionStep >= MaximumCrocomireDistortionStep)
             {
                 CompleteCrocomireMeltingDissolve(state);
                 return;
@@ -2006,9 +1992,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             nextAdjustedY = 16;
         }
         death.AdjustedDestinationY = nextAdjustedY;
-        death.DistortionStep = unchecked((ushort)Math.Min(
+        death.DistortionStep = Math.Min(
             death.DistortionStep + 384,
-            MaximumCrocomireDistortionStep));
+            MaximumCrocomireDistortionStep);
         BuildCrocomireMeltingScrollTable(state, death);
     }
 
@@ -2031,15 +2017,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             // would skip directly to the next death state several frames too early.
             if (cursor >= CrocomireMeltingDefinitions.ColumnCount)
             {
-                death.MeltingColumnCursor = unchecked((ushort)cursor);
+                death.MeltingColumnCursor = cursor;
                 return true;
             }
             xColumn = CrocomireMeltingDefinitions.SelectColumn(cursor);
-            if (heights[xColumn] < death.TargetHeightOrSkeletonTileIndex)
+            if (heights[xColumn] < death.MeltTargetHeight)
                 break;
             cursor++;
         }
-        death.MeltingColumnCursor = unchecked((ushort)cursor);
+        death.MeltingColumnCursor = cursor;
 
         // The shipped routine masks by [table index & 7], not [selected X & 7]. This is one
         // of its documented indexing bugs and materially changes the dissolve silhouette.
@@ -2081,15 +2067,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         Span<ushort> output = death.MutableBg2ScrollByScanline;
         int line = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
-        ushort adjustedY = death.AdjustedDestinationY;
-        ushort currentY = adjustedY;
-        uint fraction = 0;
+        int adjustedY = death.AdjustedDestinationY;
+        int currentY = adjustedY;
+        int fraction = 0;
         while (line < output.Length &&
-               unchecked((short)(adjustedY - death.MaximumAdjustedDestinationY)) < 0)
+               adjustedY < death.MaximumAdjustedDestinationY)
         {
             output[line++] = unchecked((ushort)(
                 CrocomireBg2Scroll.Y + adjustedY - currentY));
-            uint sum = fraction + death.DistortionStep;
+            int sum = fraction + death.DistortionStep;
             bool carry = sum > ushort.MaxValue;
             fraction = SnesSixteenSixteen.FractionOf(sum);
             if (!carry)
@@ -2115,15 +2101,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     /// <summary>Restores the BG2 presentation and actor state after the final melting pass.</summary>
     internal void FinishCrocomireMeltingPass(CrocomireEnemyState state)
     {
-        state.ReactionTimer = 0;
-        state.ProjectileCounter = 0;
-        state.VerticalAcceleration = (ushort)SnesEightEight.FromWhole(8);
+        state.StartVerticalMotion(SnesEightEight.FromWhole(SinkStartingAccelerationWhole));
         ClearCrocomireBg2WorkingTilemap();
         TransferCrocomireBg2Words(0, 1024);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
     /// <summary>Ports <c>EprojInit_CrocomireProjectile</c> at $86:9023.</summary>
-    internal void SpawnCrocomireProjectile(RoomEnemySlot body, ushort spawnParameter)
+    internal void SpawnCrocomireProjectile(RoomEnemySlot body, int spawnParameter)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -2138,7 +2122,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole - 32)), unchecked((ushort)(body.Position.Y.Whole - 16))));
         projectile.GeneralTimer = 0;
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
-        projectile.DirectionParameter = spawnParameter;
+        projectile.DirectionParameter = checked((ushort)spawnParameter);
     }
 
     /// <summary>Ports the one-frame vector setup at $86:906B.</summary>
@@ -2157,12 +2141,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         // Spawn parameters are 2,4,...,18. The last index reads one word beyond the declared
         // nine-word gradient table. The compiled definition includes those exact setup
         // instruction bytes; do not clamp the final shot to the last authored gradient.
-        short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(projectile.DirectionParameter);
+        short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(checked((ushort)projectile.DirectionParameter));
         byte angle = EnemyMath.CalculateCartridgeAngle(new(-64, gradient));
         // The native angle starts at up, not right: Y uses negative cosine.
         projectile.Velocity = CalculateCrocomireProjectileVelocity(angle);
         projectile.PreInstruction =
-            (ushort)EnemyProjectilePreInstruction.CrocomiresProjectile_Fired;
+            EnemyProjectilePreInstruction.CrocomiresProjectile_Fired;
     }
 
     /// <summary>Ports <c>sub_8690B3</c>: delete on the first horizontal/vertical wall hit.</summary>
@@ -2192,14 +2176,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     internal void SpawnNextCrocomireBridgeFragment()
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        ushort cursor = death.BridgeFragmentCursor;
-        if (unchecked((short)(cursor - 22)) >= 0)
+        int fragment = death.BridgeFragmentsSpawned;
+        if (fragment >= CrocomireBridgeFragmentDefinitions.FragmentCount)
             return;
 
-        // The second SpawnEprojWithGfx argument is the same unaligned 0,2,...,20 cursor.
-        // Its copied graphics word is immaterial: the definition initializer immediately
-        // replaces it with $0400. Preserve the observable X table and cursor progression.
-        death.BridgeFragmentCursor = unchecked((ushort)(cursor + 2));
+        // The fragment counts as launched even when no projectile slot is free. The graphics argument the
+        // cartridge passes alongside it is immaterial: the definition initializer immediately replaces it.
+        death.BridgeFragmentsSpawned = fragment + 1;
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
@@ -2209,7 +2192,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling,
             graphicsIndex: 0);
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.BridgeFragment));
-        projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(cursor));
+        projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(187).WithFractionX(0).WithFractionY(0);
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
         // $86:92A5 reads RandomNumberSeed; it does not advance it.
@@ -2266,7 +2249,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         int slot = projectile.SlotIndex;
         ushort maximumAcceleration = CrocomireSpikeMotionDefinitions.MaximumAcceleration(slot);
-        ushort acceleration = projectile.Variable0;
+        ushort acceleration = checked((ushort)projectile.Variable0);
         if (acceleration != maximumAcceleration)
         {
             acceleration = unchecked((ushort)(
@@ -2295,7 +2278,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
         // Y velocity and position are ordinary signed 16.16 pairs, with $3000 acceleration.
-        uint velocity = unchecked(SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, projectile.Variable1));
+        uint velocity = unchecked(SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, checked((ushort)projectile.Variable1)));
         velocity = unchecked(velocity + 12288u);
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)))));
         projectile.Variable1 = unchecked((ushort)velocity);
@@ -2342,14 +2325,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         LastCrocomireSoundEffect = null;
         LastCrocomireMusicRequest = null;
-        LastCrocomireDropRequest = null;
-        _crocomirePlmRequests.Clear();
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastCrocomireSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastCrocomireSoundEffect is { } sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
@@ -2358,14 +2340,17 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         audio.QueueLegacyMusic(LastCrocomireMusicRequest?.Command, LastCrocomireMusicRequest?.Delay);
     }
 
-    /// <summary>Registers the tongue's native no-op AI while its instruction list follows the body.</summary>
-    internal static void RegisterCrocomireTongueMainAi(EnemyAiTable table)
+    /// <summary>Ports Crocomire's main AI.</summary>
+    internal void RunCrocomireMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        table.RegisterMain(EnemyAiRoutine.MainAI_CrocomireTongue, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue, (slot, frame, nmiFrameCounter8) =>
-        {
-            // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
-            // extended map position the component relative to Crocomire's body.
-        });
+        RunCrocomireMain(slot, frame.Samus, frame.Camera);
+    }
+
+    /// <summary>Ports CrocomireTongue's main AI.</summary>
+    internal static void RunCrocomireTongueMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
+    {
+        // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
+        // extended map position the component relative to Crocomire's body.
     }
 
     /// <summary>
@@ -2376,8 +2361,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         table.RegisterShotAnimation(RoomEnemyProjectileKind.CrocomireProjectile,
             () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
-        table.RegisterCue<CrocomireProjectileCue>((projectile, samus, cue) =>
+        table.RegisterCue<CrocomireProjectileCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case CrocomireProjectileCue.SpawnDrops:
@@ -2390,5 +2376,58 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                     throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileCue)} {cue}.");
             }
         });
+    }
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindCrocomireBodyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    {
+        callback = null;
+        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
+            enemy.Definition.Bank == CrocomireBodyCollisionDefinitions.Bank &&
+            CrocomireBodyCollisionDefinitions.HasFrame(enemy.Frame)))
+            return null;
+
+        // Physical body components and their callback lists are compiled
+        // independently of Crocomire's replaceable OAM/BG2 presentation.
+        // Preserve native component/hitbox order: the first overlap wins.
+        foreach (CrocomireBodyCollisionComponent component in
+                 CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.Frame))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            foreach (CrocomireBodyCollisionHitbox hitbox in component.Hitboxes)
+            {
+                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback ? CrocomireHitboxCallbackCodec.ToCallback(hitbox.Shot) : CrocomireHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                return true;
+            }
+        }
+        return false;
+    
+    }
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindCrocomireTongueHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    {
+        callback = null;
+        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
+            enemy.Definition.Bank == CrocomireTongueCollisionDefinitions.Bank &&
+            (CrocomireTongueCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame)) ||
+            probe.ArtworkInstalled)))
+            return null;
+
+        // These nine selected frames have one component each, but both
+        // referenced native hitbox lists are empty. Validate the exact
+        // engine-owned frame identity and return no touch/shot callback.
+        CrocomireTongueCollisionComponent component =
+            CrocomireTongueCollisionDefinitions.ComponentAt(EnemyFrames.Spritemap(enemy.Frame));
+        _ = CrocomireTongueCollisionDefinitions.HitboxCountAt(
+            component.HitboxPointer);
+        return false;
+    
     }
 }

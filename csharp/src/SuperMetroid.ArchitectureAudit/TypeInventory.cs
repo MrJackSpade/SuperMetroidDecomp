@@ -7,12 +7,15 @@ using SuperMetroid.EnsureAnalyzer.SourceLayout;
 namespace SuperMetroid.ArchitectureAudit;
 
 /// <summary>
-/// Inventories every type declared in the repository's source (#621). Each type gets a disposition from its
-/// shape; structural findings — an owner constructed with its creator, a service locator, a context bag, an
-/// oversized class — are flags that a checked-in review must accept.
+/// Inventories every type declared in the repository's source. Each type gets a disposition from its shape;
+/// structural findings — an owner constructed with its creator, a service locator, a context bag, an oversized
+/// class — are flags that the type itself must justify with <c>[ArchitectureReview]</c> or fix.
 /// </summary>
 internal static class TypeInventory
 {
+    /// <summary>The per-site justification attribute, matched by name so every assembly's declaration counts.</summary>
+    internal const string ReviewAttributeName = "ArchitectureReviewAttribute";
+
     /// <summary>A product class with more hand-written lines than this is reviewed as a possible god class.</summary>
     internal const int LargeClassLines = 1500;
 
@@ -67,7 +70,7 @@ internal static class TypeInventory
         string kind = Kind(type);
         var declarations = type.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax()).OfType<TypeDeclarationSyntax>().ToList();
         bool isPartial = declarations.Any(declaration => declaration.Modifiers.Any(SyntaxKind.PartialKeyword));
-        var handWritten = declarations.Where(declaration => !PartialTypeAnalyzer.IsGenerated(declaration.SyntaxTree, CancellationToken.None)).ToList();
+        var handWritten = declarations.Where(declaration => !GeneratedSource.IsGenerated(declaration.SyntaxTree, CancellationToken.None)).ToList();
         string partial = !isPartial ? "none"
             : handWritten.Count == 1 && handWritten.Count < declarations.Count ? "generated-boundary"
             : handWritten.Count == 0 ? "generated"
@@ -86,8 +89,14 @@ internal static class TypeInventory
             handWritten.Sum(declaration => declaration.GetLocation().GetLineSpan().EndLinePosition.Line -
                                            declaration.GetLocation().GetLineSpan().StartLinePosition.Line + 1) > LargeClassLines)
             flags.Add(Large);
+        var reviews = type.GetAttributes()
+            .Where(attribute => attribute.AttributeClass?.Name == ReviewAttributeName && attribute.ConstructorArguments.Length == 2)
+            .Select(attribute => new ArchitectureReview(
+                attribute.ConstructorArguments[0].Value as string ?? "",
+                attribute.ConstructorArguments[1].Value as string ?? ""))
+            .ToList();
         return new TypeEntry(key, kind, scope, [.. assemblies], [.. files], partial,
-            parameterObject ? "constructor-parameters" : Disposition(type, kind, partial), flags);
+            parameterObject ? "constructor-parameters" : Disposition(type, kind, partial), flags, reviews);
     }
 
     /// <summary>Assigns a type's structural role from its kind, members, and generated boundary.</summary>

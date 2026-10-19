@@ -55,9 +55,9 @@ internal sealed class RoomSpriteObjectPool
             slot.Clear();
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(position);
-            slot.GraphicsIndex = graphicsIndex;
-            slot.InstructionPointer = RoomSpriteObjectDefinitions.InstructionPointer(kind);
-            LoadRoomSpriteObjectFrame(slot);
+            slot.Attributes = new SnesObjAttributeWord(graphicsIndex);
+            slot.Cursor = AnimationProgramCursor<RoomSpriteObjectProgram>.Start(RoomSpriteObjectDefinitions.Program(kind));
+            AdvanceProgram(slot);
             return slot;
         }
 
@@ -67,95 +67,64 @@ internal sealed class RoomSpriteObjectPool
     /// <summary>Ports the non-frozen body of <c>HandleSpriteObjects</c> at $B4:BC82.</summary>
     internal void StepRoomSpriteObjects()
     {
-        // The hardware walks descending native indexes. No current opcode spawns another
+        // The hardware walks descending native indexes. No current program spawns another
         // object, but retaining the order keeps pool behavior stable for later families.
         for (int index = _roomSpriteObjects.Length - 1; index >= 0; index--)
         {
             RoomSpriteObjectSlot slot = _roomSpriteObjects[index];
-            if (!slot.IsActive || (slot.DisableFlags & 1) != 0)
+            if (!slot.IsActive || slot.UpdatesDisabled)
                 continue;
-
-            if (EnemyMath.IsNegative16(slot.InstructionTimer))
-            {
-                ProcessRoomSpriteObjectOpcode(slot);
-                continue;
-            }
-
-            ushort oldTimer = slot.InstructionTimer;
-            slot.InstructionTimer = unchecked((ushort)(oldTimer - 1));
-            if (oldTimer != 1)
-                continue;
-
-            slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
-            ushort durationOrOpcode =
-                RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
-                    slot.InstructionPointer);
-            if (EnemyMath.IsNegative16(durationOrOpcode))
-            {
-                slot.InstructionTimer = durationOrOpcode;
-                ProcessRoomSpriteObjectOpcode(slot);
-            }
-            else
-            {
-                LoadRoomSpriteObjectFrame(slot);
-            }
+            NativeWordCounterStep step = slot.Timer.Decrement();
+            slot.Timer = step.Remaining;
+            if (step.IsZero)
+                AdvanceProgram(slot);
         }
     }
 
-    /// <summary>Handles repeat-last, terminate, and goto control words after a timed sprite frame.</summary>
-    private static void ProcessRoomSpriteObjectOpcode(RoomSpriteObjectSlot slot)
+    /// <summary>
+    /// Runs the slot's program to its next frame: a timed frame installs its frame and duration, the repeat-last hold
+    /// keeps the frame and reloads $7FFF as <c>$B4:BCF0</c> does, and delete clears the slot.
+    /// </summary>
+    private static void AdvanceProgram(RoomSpriteObjectSlot slot)
     {
-        RoomSpriteObjectInstruction instruction = ClosedNativeWords.Decode<RoomSpriteObjectInstruction>(
-            slot.InstructionTimer, "room sprite-object instruction");
-        switch (instruction)
+        AnimationProgramCursor<RoomSpriteObjectProgram> cursor = slot.Cursor ?? throw new InvalidOperationException(
+            $"Sprite object slot {slot.SlotIndex} has no program to advance.");
+        NativeCountdown counter = default;
+        AnimationProgramAdvance<RoomSpriteObjectFrame> advance =
+            RoomSpriteObjectAnimations.Programs.Advance(ref cursor, ref counter, static (_, _) => null);
+        switch (advance.Kind)
         {
-            case RoomSpriteObjectInstruction.RepeatLast:
-                // Repeat-last backs up to the timed record that preceded the opcode and
-                // pins its timer at $7FFF. Its already selected spritemap remains visible.
-                slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer - 4));
-                slot.InstructionTimer = (ushort)short.MaxValue;
+            case AnimationProgramAdvanceKind.Show:
+                slot.Cursor = cursor;
+                slot.Frame = advance.Frame;
+                slot.Timer = NativeCountdown.Start(advance.Duration);
                 return;
-
-            case RoomSpriteObjectInstruction.Terminate:
+            case AnimationProgramAdvanceKind.Hold:
+                slot.Cursor = cursor;
+                slot.Timer = NativeCountdown.FromRaw(short.MaxValue);
+                return;
+            case AnimationProgramAdvanceKind.Stop:
                 slot.Clear();
                 return;
-
-            case RoomSpriteObjectInstruction.Goto:
-                slot.InstructionPointer =
-                    RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
-                        unchecked((ushort)(slot.InstructionPointer + 2)));
-                // `$B4:BD12` installs the destination's first word as the timer and returns.
-                // Usually that word is a duration, but preserving an opcode destination lets
-                // the ordinary next-frame dispatcher handle chained control records exactly
-                // as cartridge data specifies instead of assuming every Goto targets art.
-                slot.InstructionTimer =
-                    RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
-                        slot.InstructionPointer);
-                if (!EnemyMath.IsNegative16(slot.InstructionTimer))
-                    LoadRoomSpriteObjectFrame(slot);
-                return;
-
             default:
-                throw new InvalidOperationException(
-                    $"Undefined sprite-object instruction {instruction} at $B4:{slot.InstructionPointer:X4}.");
+                throw new InvalidOperationException($"Sprite object program {cursor.Program} advanced with {advance.Kind}.");
         }
     }
 
-    /// <summary>Loads a positive frame duration and its installed visual selector from the current bank-$B4 cursor.</summary>
-    internal static void LoadRoomSpriteObjectFrame(RoomSpriteObjectSlot slot)
+    /// <summary>
+    /// Points the slot at <paramref name="program"/> past its first frame and shows that frame, keeping the current
+    /// countdown: the native frozen Metroid shell stores the list's address and draws its first record without
+    /// reloading the timer, so the next expiry continues at the list's second record.
+    /// </summary>
+    internal static void ShowFirstFrameKeepingTimer(RoomSpriteObjectSlot slot, RoomSpriteObjectProgram program)
     {
-        ushort duration = RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
-            slot.InstructionPointer);
-        if (duration == 0 || EnemyMath.IsNegative16(duration))
-        {
-            throw new InvalidDataException(
-                $"Sprite object {slot.Kind} expected a timed frame at " +
-                $"$B4:{slot.InstructionPointer:X4}, found ${duration:X4}.");
-        }
-
-        slot.InstructionTimer = duration;
-        ushort operand = unchecked((ushort)(slot.InstructionPointer + 2));
-        slot.SpritemapPointer = RoomSpriteObjectVisualDefinitions.FrameAt(operand);
+        Ensure.NotNull(slot);
+        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> first =
+            RoomSpriteObjectAnimations.Programs.Steps(program)[0];
+        if (first.Kind != AnimationProgramStepKind.Show)
+            throw new InvalidOperationException($"Sprite object program {program} does not begin with a timed frame.");
+        slot.Cursor = new(program, 1);
+        slot.Frame = first.Frame;
     }
 
     /// <summary>Ports <c>DrawSpriteObjects</c> at <c>$B4:BD32</c>.</summary>
@@ -182,18 +151,18 @@ internal sealed class RoomSpriteObjectPool
                 continue;
             }
 
-            ushort paletteBits = new SnesObjAttributeWord(slot.GraphicsIndex).PaletteBits;
-            ushort baseTileIndex = unchecked((ushort)
-                new SnesObjAttributeWord(slot.GraphicsIndex).TileNumber);
+            ushort paletteBits = slot.Attributes.PaletteBits;
+            ushort baseTileIndex = checked((ushort)slot.Attributes.TileNumber);
             var spritemaps = _room.Artwork?.Spritemaps ?? throw new InvalidOperationException(
                 "Room sprite objects require installed sprite artwork.");
+            ushort spritemap = RoomSpriteObjectVisualDefinitions.Spritemap(slot.Frame);
             if (!spritemaps.TryGetDisplay(
-                    RoomSpriteObjectVisualDefinitions.Bank, slot.SpritemapPointer,
+                    RoomSpriteObjectVisualDefinitions.Bank, spritemap,
                     out EnemySpritemapParts installed))
             {
                 throw new InvalidDataException(
-                    $"Installed room sprite-object artwork lacks " +
-                    $"$B4:{slot.SpritemapPointer:X4} for {slot.Kind}.");
+                    $"Installed room sprite-object artwork lacks frame {slot.Frame} " +
+                    $"($B4:{spritemap:X4}) for {slot.Kind}.");
             }
             EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.RoomSpriteObject, index),
                 EnemySpriteFrames.Frame(installed, baseTileIndex, paletteBits), screen, paletteBits);

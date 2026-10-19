@@ -37,37 +37,6 @@ public static class SnesObjRenderer
         (16, 32, 32, 32),
     ];
 
-    /// <summary>Renders finalized OAM into caller-owned storage, clearing it to transparent first.</summary>
-    public static void Render(
-        Span<Rgba32> output,
-        ObjSpriteImage sprites,
-        SnesVram vram,
-        SnesCgram cgram,
-        byte obsel,
-        Extent16<ScreenPixels>? size = null,
-        int? priority = null)
-    {
-        Ensure.NotNull(sprites.Oam);
-        Ensure.NotNull(vram);
-        Ensure.NotNull(cgram);
-        Extent16<ScreenPixels> frame = RequireFrame(size);
-        Ensure.LengthEqual(output, frame.X * frame.Y);
-        output.Clear();
-
-        // A lower OAM number wins an OBJ-vs-OBJ overlap on the normal SNES priority
-        // rotation setting. Painting records backwards lets the lower index overwrite
-        // the higher one without a second priority buffer.
-        //
-        // Crucially, an OBJ's two priority bits do *not* participate in that OBJ-vs-OBJ
-        // choice. They only place the already-selected OBJ pixel relative to the BG
-        // planes. The gameplay compositor asks for one priority plane at a time so it can
-        // interleave those planes with BG1/BG2. We must therefore visit every OAM entry on
-        // every pass: when a lower-numbered sprite of a different priority owns a pixel,
-        // it clears that pixel from this plane. Skipping nonmatching entries would let a
-        // later OBJ3 (Ceres Ridley) incorrectly paint over an earlier OBJ2 (Samus).
-        Paint(frame, sprites, vram, cgram, obsel, priority, new ObjRasterTargets(output));
-    }
-
     /// <summary>
     /// Composites the complete OBJ plane over an existing backdrop/BG. This is only
     /// for compositions without BG insertion between OBJ priorities (such as titles).
@@ -134,7 +103,7 @@ public static class SnesObjRenderer
     /// earliest-emitted object finally owns each pixel. A draw sits in front of OAM sprite
     /// <see cref="OrderedSpriteDraw.OamOrdinal"/> and later ones; within a draw the first part is frontmost.
     /// </summary>
-    private static void Paint(Extent16<ScreenPixels> frame, ObjSpriteImage sprites,
+    internal static void Paint(Extent16<ScreenPixels> frame, ObjSpriteImage sprites,
         SnesVram vram, SnesCgram cgram, byte obsel, int? selectedPriority, ObjRasterTargets targets)
     {
         OamBuffer oam = sprites.Oam;
@@ -170,7 +139,7 @@ public static class SnesObjRenderer
                     int character = part.CharacterAt(new(column, row), out Position16<CharacterPixels> pixel);
                     byte colorIndex = draw.Artwork.ColorIndex(character, pixel);
                     if (colorIndex != 0)
-                        Plot(screenY * frame.X + screenX, colorIndex, part.Palette, part.Priority, cgram, selectedPriority, targets);
+                        Plot(screenY * frame.X + screenX, colorIndex, (byte)part.Palette, (byte)part.Priority, cgram, selectedPriority, targets);
                 }
             }
         }
@@ -199,8 +168,9 @@ public static class SnesObjRenderer
         // OAM X is a signed/modular 9-bit coordinate: $1F0 means -16. Y is similarly an
         // 8-bit coordinate, but the visible NTSC field ends at 223, so $E0-$FF wraps above
         // the screen. Converting before clipping naturally draws partially visible OBJs.
-        int objectX = entry.X >= XRange / 2 ? entry.X - XRange : entry.X;
-        int objectY = entry.Y >= SnesPpuLayout.ScreenHeightPixels ? entry.Y - YRange : entry.Y;
+        Position16<OamPixels> position = entry.Position;
+        int objectX = position.X >= XRange / 2 ? position.X - XRange : position.X;
+        int objectY = position.Y >= SnesPpuLayout.ScreenHeightPixels ? position.Y - YRange : position.Y;
 
         for (int destinationY = 0; destinationY < objectHeight; destinationY++)
         {
@@ -298,7 +268,7 @@ public static class SnesObjRenderer
     }
 
     /// <summary>The requested raster, which must be non-empty; the visible screen when omitted.</summary>
-    private static Extent16<ScreenPixels> RequireFrame(Extent16<ScreenPixels>? size)
+    internal static Extent16<ScreenPixels> RequireFrame(Extent16<ScreenPixels>? size)
     {
         Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
         if (frame.X == 0 || frame.Y == 0)

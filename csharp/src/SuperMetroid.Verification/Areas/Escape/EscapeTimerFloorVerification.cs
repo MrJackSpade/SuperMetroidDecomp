@@ -33,7 +33,7 @@ internal static class EscapeTimerFloorVerification
                 bool expired = guarded.Process(frame, preventEscapeTimeout: true);
                 retail.Process(frame);
                 AssertTrue(!expired, "guarded escape never publishes expiration");
-                AssertEqual(retail.RawStatus, guarded.RawStatus, "escape state unchanged by floor");
+                AssertEqual((retail.State, retail.IsActive), (guarded.State, guarded.IsActive), "escape state unchanged by floor");
                 AssertEqual(retail.Position, guarded.Position, "timer animation unchanged");
                 if (guarded.Minutes.Raw == 0 && guarded.Seconds.Raw == 1 && guarded.Centiseconds.Raw == 0)
                     reachedFloor = true;

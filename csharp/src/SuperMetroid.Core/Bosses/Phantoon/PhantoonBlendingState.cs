@@ -14,8 +14,8 @@ public sealed class PhantoonBlendingState
     public LayerBlendingConfiguration Configuration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
     /// <summary>Configuration copied at the last display latch and consumed by rendering, unaffected by subsequent <see cref="Step"/> calls until latched again.</summary>
     public LayerBlendingConfiguration DisplayedConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
-    /// <summary>The MOSAIC shadow value accepted by NMI, before this frame's enemy AI changes it.</summary>
-    public byte DisplayedMosaic { get; private set; }
+    /// <summary>The BG2 mosaic block size in screen pixels accepted by NMI, before this frame's enemy AI changes it; one means no quantization.</summary>
+    public int DisplayedMosaicBlockSize { get; private set; } = 1;
 
     /// <summary>
     /// Advances one ordinary-gameplay HDMA pass, resetting to the room default even during the two setup calls or after deletion.
@@ -42,11 +42,17 @@ public sealed class PhantoonBlendingState
         }
     }
 
-    /// <summary>Copies live blending and the supplied MOSAIC byte to displayed state at the accepted-NMI boundary, without advancing the HDMA owner.</summary>
-    /// <param name="mosaic">Raw $2106 shadow byte; BG2 enable is bit 1 and the high nibble encodes block size minus one (1..16 pixels). Zero disables mosaic.</param>
-    public void LatchDisplay(byte mosaic = 0)
+    /// <summary>Copies live blending and the supplied BG2 mosaic size to displayed state at the accepted-NMI boundary, without advancing the HDMA owner.</summary>
+    /// <param name="mosaicBlockSize">BG2 mosaic block size in screen pixels, 1..16; one disables quantization.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="mosaicBlockSize"/> is outside 1..16.</exception>
+    public void LatchDisplay(int mosaicBlockSize = 1)
     {
+        if (mosaicBlockSize is < 1 or > MaximumMosaicBlockSize)
+            throw new ArgumentOutOfRangeException(nameof(mosaicBlockSize), mosaicBlockSize, "Mosaic blocks are one through sixteen pixels.");
         DisplayedConfiguration = Configuration;
-        DisplayedMosaic = mosaic;
+        DisplayedMosaicBlockSize = mosaicBlockSize;
     }
+
+    /// <summary>The largest mosaic block, in screen pixels.</summary>
+    private const int MaximumMosaicBlockSize = 16;
 }

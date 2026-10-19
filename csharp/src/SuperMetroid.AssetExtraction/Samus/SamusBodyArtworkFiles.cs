@@ -273,7 +273,7 @@ public static class SamusBodyArtworkFiles
                     if (slot[byteCount..].IndexOfAnyExcept((byte)0) >= 0)
                         throw new InvalidDataException($"Samus body PNG {name} paints unused tiles in definition {position}.");
                     definitions[position] = new SamusBodyTileDefinition(
-                        entry.SourceAddress, entry.FirstSize, entry.SecondSize,
+                        entry.SourceAddress, checked((ushort)entry.FirstSize), checked((ushort)entry.SecondSize),
                         slot[..byteCount].ToArray());
                 }
                 return definitions;
@@ -319,7 +319,7 @@ public static class SamusBodyArtworkFiles
         for (int i = 0; i < count; i++)
         {
             int part = address + 2 + i * 5;
-            parts[i] = new SamusSpritePart(CartridgeImportSource.Require(bus).ReadCartridgeWord(part), bus.ReadCartridgeByte(part + 2),
+            parts[i] = new SamusSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(part)), new SnesSpritemapYByte(bus.ReadCartridgeByte(part + 2)),
                 CartridgeImportSource.Require(bus).ReadCartridgeWord((part + 3)));
         }
         return new SamusSpritemapDefinition(pointer, parts);
@@ -341,5 +341,12 @@ public static class SamusBodyArtworkFiles
         Dictionary<string, string> Hashes);
 
     /// <summary>Retains one native DMA source address and the two transfer lengths sharing its PNG slot.</summary>
-    private sealed record DefinitionEntry(int SourceAddress, ushort FirstSize, ushort SecondSize);
+    private sealed record DefinitionEntry(int SourceAddress, int FirstSize, int SecondSize)
+    {
+        /// <summary>The first transfer's byte count, 0 through 65535 (a DMA size).</summary>
+        public int FirstSize { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, FirstSize);
+
+        /// <summary>The second transfer's byte count, 0 through 65535 (a DMA size).</summary>
+        public int SecondSize { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, SecondSize);
+    }
 }

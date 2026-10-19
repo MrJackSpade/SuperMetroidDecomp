@@ -10,13 +10,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Initial native Mode 7 leg of Samus's flight toward Ceres station.</summary>
 internal sealed class IntroCeresFlightState
 {
-    /// <summary>Reusable OBJ priority layer cleared on each render; excluded from saved state.</summary>
-    [NonSerialized] private Rgba32[]? objectLayerScratch;
-    /// <summary>Reusable final frame, valid to callers until the next scene render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
-
-    /// <summary>Supplies cinematic instruction and palette data.</summary>
-    internal readonly ISnesAddressSpace bus;
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
     internal readonly CartridgeAudioState audio;
     /// <summary>Contains loaded Mode 7 and OBJ character data for this scene.</summary>
@@ -37,19 +30,26 @@ internal sealed class IntroCeresFlightState
 
     /// <summary>Mode 7 scroll position advanced with the star actor or rear-view drift.</summary>
     private FixedPosition<Mode7Pixels> background = new(new(unchecked((ushort)-72), 0), new(unchecked((ushort)-104), 0));
-    /// <summary>Mode 7 scale shrunk for the front approach, then grown for the rear view.</summary>
-    private ushort zoom = 512;
+    /// <summary>
+    /// Mode 7 scale in 8.8 fixed point: 512 at the start, shrunk by 16 per update while at least 32 (ending at 16)
+    /// for the front approach, then grown by 16 below 3072 and by 32 below 8192 for the rear view, ending at 8192.
+    /// </summary>
+    private int zoom = 512;
     /// <summary>Mode 7 rotation index used to derive the four matrix entries.</summary>
     private SnesAngle angle = SnesAngle.FromTableIndex(224);
-    /// <summary>INIDISP level held at zero until music is ready and lowered in the final fade.</summary>
-    private byte brightness;
+    /// <summary>
+    /// Master brightness from zero (black) to fifteen (full): held at zero until music is ready, set to fifteen, and
+    /// lowered one level every other update in the final fade, stopping at zero.
+    /// </summary>
+    private int brightness;
     /// <summary>Five station and asteroid sprites created when the camera switches to rear view.</summary>
     internal IntroDiscoverySprite[] rearViewActors = [];
     /// <summary>
-    /// The five-bit intensity of the rear-view flash's fixed color. The native COLDATA writes select red, green and blue
-    /// separately but always give them this same intensity.
+    /// The intensity of the rear-view flash's fixed color, from zero to 31: set to 31 when the rear view starts and
+    /// lowered by one per update, stopping at zero. The native COLDATA writes select red, green and blue separately
+    /// but always give them this same intensity.
     /// </summary>
-    private byte flashIntensity;
+    private int flashIntensity;
     /// <summary>Next caption glyph to add to the title tilemap.</summary>
     private int spaceColonyLetterIndex;
     /// <summary>Sixteen-frame glyph cadence and final $80-frame caption hold.</summary>
@@ -64,14 +64,12 @@ internal sealed class IntroCeresFlightState
     private int fadeDelay;
 
     /// <summary>Loads installed flight art into PPU memory and leaves the scene in forced blank for the setup dispatch.</summary>
-    /// <param name="bus">Address space the star and actor instruction lists step and draw through.</param>
     /// <param name="audio">The shared music queue that $8B:BDE4 waits on.</param>
     /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
     /// <param name="japaneseText">Native <c>AltText</c>, which adds the katakana SPACE COLONY caption.</param>
-    public IntroCeresFlightState(ISnesAddressSpace bus, CartridgeAudioState audio,
+    public IntroCeresFlightState(CartridgeAudioState audio,
         CeresFlightArtworkCatalog? artwork = null, bool japaneseText = false)
     {
-        this.bus = Ensure.NotNull(bus);
         this.japaneseText = japaneseText;
         this.audio = Ensure.NotNull(audio);
         spriteArtwork = artwork?.Sprites;
@@ -156,7 +154,7 @@ internal sealed class IntroCeresFlightState
             case IntroCeresFlightPhase.FlyingIntoCamera:
                 if (zoom >= 32)
                 {
-                    zoom = unchecked((ushort)(zoom - 16));
+                    zoom -= 16;
                 }
                 else
                 {
@@ -201,50 +199,6 @@ internal sealed class IntroCeresFlightState
             stars.Step();
     }
 
-    /// <summary>Composites the scene's current Mode 7 or title layers, OBJ priorities, color math, and brightness.</summary>
-    public Rgba32[] Render()
-    {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
-
-        OamBuffer oam = PrepareRenderOam();
-
-        if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or
-            IntroCeresFlightPhase.FadeOut or
-            IntroCeresFlightPhase.StartGameAtCeres or
-            IntroCeresFlightPhase.Finished)
-        {
-            RenderSpaceColonyTitle(pixels, oam);
-        }
-        else
-        {
-            (short matrixA, short matrixB, short matrixC, short matrixD) = CalculateMatrix();
-
-            // Mode 7 has one BG priority between OBJ priorities zero and one in this PPU mode.
-            CompositeObjPriority(pixels, oam, 0);
-            SnesMode7Renderer.CompositeViewport(pixels, vram, cgram, new Mode7RenderRegisters { MatrixA = matrixA, MatrixB = matrixB, MatrixC = matrixC, MatrixD = matrixD, Center = new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY), Scroll = background.Whole.AsSignedRegister() });
-            CompositeObjPriority(pixels, oam, 1);
-            CompositeObjPriority(pixels, oam, 2);
-            CompositeObjPriority(pixels, oam, 3);
-        }
-
-        if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
-            ApplyRearViewFixedColorMath(pixels);
-
-        if (brightness < 15)
-        {
-            for (int index = 0; index < pixels.Length; index++)
-            {
-                Rgba32 color = pixels[index];
-                pixels[index] = new Rgba32(
-                    (byte)(color.R * brightness / 15),
-                    (byte)(color.G * brightness / 15),
-                    (byte)(color.B * brightness / 15),
-                    255);
-            }
-        }
-        return pixels;
-    }
-
     /// <summary>Captures matrix, ordered layers and rear-view fixed-color registers without rasterizing.</summary>
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
@@ -270,9 +224,12 @@ internal sealed class IntroCeresFlightState
         layers.Add(new ObjPriorityRenderLayer(2));
         layers.Add(new ObjPriorityRenderLayer(3));
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
-            layers.Add(new FixedColorAddRenderLayer(flashIntensity, flashIntensity, flashIntensity));
+        {
+            byte flash = checked((byte)flashIntensity);
+            layers.Add(new FixedColorAddRenderLayer(flash, flash, flash));
+        }
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers.ToArray(),
-            MenuRenderDefinitions.ObjectSelection, brightness);
+            MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
     /// <summary>Draws the front stars or surviving rear-view actors into the current OAM pass.</summary>
@@ -332,7 +289,7 @@ internal sealed class IntroCeresFlightState
         {
             GeneralTimer = definition.InitialTimer,
         };
-        actor.PreInstructionPointerForDiscovery(definition.ActivePreInstruction);
+        actor.InstallPreInstruction(definition.ActivePreInstruction);
         return actor;
     }
 
@@ -341,15 +298,15 @@ internal sealed class IntroCeresFlightState
     {
         // The fixed-colour flash fades by one SNES component step per frame, clamped at zero
         // (the selector-only register values $20/$40/$80).
-        flashIntensity = (byte)Math.Max(0, flashIntensity - 1);
+        flashIntensity = Math.Max(0, flashIntensity - 1);
 
         // $BFDA drifts BG1 left by an eighth of a pixel and grows the rear-of-gunship Mode 7
         // image in two native bands: +16 until 3072, then +32 until 8192.
         background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, -SnesSixteenSixteen.FromWhole(1) / 8));
         if (zoom < 3072)
-            zoom = unchecked((ushort)(zoom + 16));
+            zoom += 16;
         else if (zoom < 8192)
-            zoom = unchecked((ushort)(zoom + 32));
+            zoom += 32;
         else
             SetupSpaceColonyTitle();
     }
@@ -432,29 +389,9 @@ internal sealed class IntroCeresFlightState
         if (fadeDelay-- > 0)
             return;
         fadeDelay = 1;
-        brightness = (byte)Math.Max(0, brightness - 1);
+        brightness = Math.Max(0, brightness - 1);
         if (brightness == 0)
             Phase = IntroCeresFlightPhase.StartGameAtCeres;
-    }
-
-    /// <summary>Composites the high-priority Mode 1 caption between the rear-view OBJ layers.</summary>
-    private void RenderSpaceColonyTitle(Span<Rgba32> pixels, OamBuffer oam)
-    {
-        // Mode 1's ordinary ordering is sufficient here because every caption word uses
-        // BG1 high priority. Keeping the empty low plane in the ladder documents why the
-        // station/asteroid OBJ actors remain visible everywhere outside the glyphs.
-        CompositeObjPriority(pixels, oam, 0);
-        CompositeSpaceColonyPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 1);
-        CompositeSpaceColonyPriority(pixels, priority: true);
-        CompositeObjPriority(pixels, oam, 2);
-        CompositeObjPriority(pixels, oam, 3);
-    }
-
-    /// <summary>Draws the selected low or high priority plane of the SPACE COLONY background.</summary>
-    private void CompositeSpaceColonyPriority(Span<Rgba32> pixels, bool priority)
-    {
-        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = CeresFlightRomData.Layers.SpaceColonyTilemapWord, CharacterBaseWord = CeresFlightRomData.Layers.SpaceColonyCharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
     }
 
     /// <summary>Moves each rear-view actor according to its compiled motion before stepping its sprite list.</summary>
@@ -465,11 +402,11 @@ internal sealed class IntroCeresFlightState
             IntroDiscoverySprite actor = rearViewActors[index];
             CeresFlightActorDefinition definition =
                 CeresFlightActorDefinitions.RearViewActor(index);
-            if (actor.PreInstructionPointer != definition.ActivePreInstruction)
+            if (actor.PreInstruction != definition.ActivePreInstruction)
             {
                 throw new InvalidDataException(
                     $"Ceres flight actor {index} names invalid pre-instruction " +
-                    $"$8B:{actor.PreInstructionPointer:X4}.");
+                    $"{actor.PreInstruction}.");
             }
             if (definition.WrapX)
                 AddWrappedX(actor, unchecked((ushort)definition.HorizontalDelta));
@@ -492,45 +429,21 @@ internal sealed class IntroCeresFlightState
         actor.Position = actor.Position.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(actor.Position.X, fixedDelta));
     }
 
-    /// <summary>Adds and clamps the rear-view flash's five-bit fixed color to each output pixel.</summary>
-    private void ApplyRearViewFixedColorMath(Span<Rgba32> pixels)
-    {
-        int addRed = flashIntensity;
-        int addGreen = flashIntensity;
-        int addBlue = flashIntensity;
-        for (int index = 0; index < pixels.Length; index++)
-        {
-            Rgba32 color = pixels[index];
-            pixels[index] = new Rgba32(
-                ExpandFiveBit(Math.Min(31, ReduceToFiveBit(color.R) + addRed)),
-                ExpandFiveBit(Math.Min(31, ReduceToFiveBit(color.G) + addGreen)),
-                ExpandFiveBit(Math.Min(31, ReduceToFiveBit(color.B) + addBlue)),
-                255);
-        }
-    }
-
-    /// <summary>Rounds an eight-bit output channel to a SNES five-bit component.</summary>
-    private static int ReduceToFiveBit(byte component) => (component * 31 + 127) / 255;
-
-    /// <summary>Expands a five-bit channel back to eight bits after fixed-color addition.</summary>
-    private static byte ExpandFiveBit(int component) =>
-        (byte)((component << 3) | (component >> 2));
-
     /// <summary>Accelerates the front stars and both Mode 7 scroll offsets along the same diagonal.</summary>
     private void StepStarsAndBackground()
     {
         // BEBE adds $0080 to a signed 8.8 speed, then applies that same growing delta to
         // the star actor and both Mode 7 offsets. This is why the ship rush feels diagonal.
-        if (stars.PreInstructionPointer !=
+        if (stars.PreInstruction !=
             CeresFlightActorDefinitions.FrontStars.ActivePreInstruction)
         {
             throw new InvalidDataException(
                 $"Ceres front stars name invalid pre-instruction " +
-                $"$8B:{stars.PreInstructionPointer:X4}.");
+                $"{stars.PreInstruction}.");
         }
         stars.GeneralTimer = unchecked((ushort)(stars.GeneralTimer +
             CeresFlightActorDefinitions.FrontStarAcceleration));
-        var velocity = new SnesSignedEightEight(stars.GeneralTimer);
+        var velocity = new SnesSignedEightEight(checked((ushort)stars.GeneralTimer));
         stars.Position = new(
             IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),
             IntroCinematicMotion.AddEightEight(stars.Position.Y, velocity));
@@ -555,19 +468,8 @@ internal sealed class IntroCeresFlightState
     internal static short ReadSine(byte tableIndex) => EnemyTrigonometryTables.SignedSine(tableIndex);
 
     /// <summary>Multiplies a signed trigonometric component by the scene's 8.8 scale.</summary>
-    private static short Scale(short component, ushort scalar) =>
-        unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));
-
-    /// <summary>Renders one OBJ priority into a cleared scratch layer and composites it over the scene.</summary>
-    private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
-    {
-        // Name both optional arguments. A positional integer following `obsel` binds to
-        // the renderer's width parameter, not its priority filter, and would request a
-        // nonsensical zero-to-three-pixel framebuffer during the first Ceres frame.
-        Rgba32[] layer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(layer, ObjSpriteImage.OamOnly(oam), vram, cgram, obsel: 3, priority: priority);
-        SnesLayerCompositor.Composite(pixels, layer);
-    }
+    private static short Scale(short component, int scalar) =>
+        unchecked((short)(SnesEightEight.Multiply(component, checked((short)scalar))));
 
     /// <summary>Rejects installed art streams shorter than the native transfer size.</summary>
     private static void RequireMinimum(byte[] bytes, int minimum, string name)

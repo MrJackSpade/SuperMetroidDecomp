@@ -20,23 +20,22 @@ internal static class RidleyCollisionDefinitionsVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewRidleyCollisionNoReadBus();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var compiled = new RoomEnemySystem();
-        compiled.BindFixtureBus(denied);
-        var nativeSlot = new RoomEnemySlot(0);
+        compiled.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        compiledSlot.Definition =
-            default(RoomEnemyDefinition) with { Bank = RidleyCollisionDefinitions.Bank };
+        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = RidleyCollisionDefinitions.Bank });
         // The reference slot is read by the independent test-side cartridge
         // walker. The installed definition selects the new compiled Ridley branch.
-        nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
-        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
+        nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
+        compiledSlot.Bind(EnemyDefinitionId.Ridley, compiledSlot.Definition);
         AssertEqual(11, RidleyCollisionDefinitions.FramePointers.Length,
             "all Ceres/Norfair Ridley body frames have fixed collision");
-        AssertEqual(17, RidleyCollisionDefinitions.HitboxPointers.Count(),
-            "all distinct Ridley body hitbox lists are compiled");
 
-        var seenLists = new HashSet<ushort>();
+        // Each native list pointer a component names must map to exactly one compiled list, and each compiled list to
+        // exactly one native pointer, so the components share lists exactly where the cartridge's do.
+        var listByNativePointer = new Dictionary<ushort, RidleyCollisionHitbox[]>();
+        var nativePointerByList = new Dictionary<RidleyCollisionHitbox[], ushort>(ReferenceEqualityComparer.Instance);
         int componentsChecked = 0;
         int boxesChecked = 0;
         int probes = 0;
@@ -59,9 +58,18 @@ internal static class RidleyCollisionDefinitionsVerification
                     "Ridley native component X");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), component.Offset.Y,
                     "Ridley native component Y");
-                AssertEqual(rom.ReadCartridgeWord((record + 6)), component.HitboxPointer,
-                    "Ridley native component hitbox list");
-                seenLists.Add(component.HitboxPointer);
+                ushort nativeList = rom.ReadCartridgeWord((record + 6));
+                RidleyCollisionHitbox[] compiledList = component.Hitboxes;
+                if (listByNativePointer.TryGetValue(nativeList, out RidleyCollisionHitbox[]? sharedList))
+                    AssertTrue(ReferenceEquals(sharedList, compiledList),
+                        $"Ridley $A6:{frame:X4} component {componentIndex} shares the list of native $A6:{nativeList:X4}");
+                else
+                    listByNativePointer.Add(nativeList, compiledList);
+                if (nativePointerByList.TryGetValue(compiledList, out ushort sharedPointer))
+                    AssertEqual(sharedPointer, nativeList,
+                        $"Ridley $A6:{frame:X4} component {componentIndex} list belongs to one native list");
+                else
+                    nativePointerByList.Add(compiledList, nativeList);
                 componentsChecked++;
             }
 
@@ -74,8 +82,7 @@ internal static class RidleyCollisionDefinitionsVerification
             {
                 compiledSlot.Position = compiledSlot.Position.WithWhole(new(originX, originY));
                 foreach (RidleyCollisionComponent component in components)
-                foreach (RidleyCollisionHitbox hitbox in
-                         RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+                foreach (RidleyCollisionHitbox hitbox in component.Hitboxes)
                 {
                     ushort componentX = unchecked((ushort)(originX + component.Offset.X));
                     ushort componentY = unchecked((ushort)(originY + component.Offset.Y));
@@ -130,12 +137,12 @@ internal static class RidleyCollisionDefinitionsVerification
                 }
             }
         }
-        AssertEqual(RidleyCollisionDefinitions.HitboxPointers.Count(), seenLists.Count,
+        AssertEqual(17, listByNativePointer.Count,
             "every compiled Ridley hitbox list belongs to a selected body frame");
-        foreach (ushort list in RidleyCollisionDefinitions.HitboxPointers)
+        AssertEqual(listByNativePointer.Count, nativePointerByList.Count,
+            "Ridley components select one compiled list per native list");
+        foreach ((ushort list, RidleyCollisionHitbox[] hitboxes) in listByNativePointer)
         {
-            ReadOnlySpan<RidleyCollisionHitbox> hitboxes =
-                RidleyCollisionDefinitions.HitboxesAt(list);
             AssertEqual(rom.ReadCartridgeWord((0xa60000 | list)), (ushort)hitboxes.Length,
                 $"Ridley $A6:{list:X4} native hitbox count");
             for (int index = 0; index < hitboxes.Length; index++)
@@ -150,9 +157,11 @@ internal static class RidleyCollisionDefinitionsVerification
                     "Ridley native right bound");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom,
                     "Ridley native bottom bound");
-                AssertEqual(rom.ReadCartridgeWord((record + 8)), box.TouchAi,
+                // Every native rectangle carries the same touch and shot callbacks, which is why the
+                // compiled rectangles hold none and the codec supplies Ridley's one reaction of each kind.
+                AssertEqual(rom.ReadCartridgeWord((record + 8)), RidleyHitboxCallbackCodec.TouchCallbackWord,
                     "Ridley native touch callback");
-                AssertEqual(rom.ReadCartridgeWord((record + 10)), box.ShotAi,
+                AssertEqual(rom.ReadCartridgeWord((record + 10)), RidleyHitboxCallbackCodec.ShotCallbackWord,
                     "Ridley native shot callback");
                 boxesChecked++;
             }
@@ -160,9 +169,6 @@ internal static class RidleyCollisionDefinitionsVerification
         AssertThrows<InvalidDataException>(
             () => RidleyCollisionDefinitions.ComponentsAt(0x8000),
             "unknown Ridley body frame fails loudly");
-        AssertThrows<InvalidDataException>(
-            () => RidleyCollisionDefinitions.HitboxesAt(0x8000),
-            "unknown Ridley hitbox list fails loudly");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "both installed Ridley collision walkers never read cartridge bytes");
         Console.WriteLine($"Ridley collision: 11 body frames, {componentsChecked} " +

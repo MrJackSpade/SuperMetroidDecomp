@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Evir;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Evir's initial bobbing timer against its absolute enemy-RAM alias read.</summary>
 internal static class EvirInitTimerVerification
@@ -13,11 +14,11 @@ internal static class EvirInitTimerVerification
     internal static void VerifyEvirInitTimer()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xd4c2);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.EastSandHall);
 
         int checkedBodies = 0;
         foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots)
@@ -30,8 +31,8 @@ internal static class EvirInitTimerVerification
             int byteOffset = relative % 0x40;
             ushort word = byteOffset switch
             {
-                0x1f => aliased.PaletteIndex,
-                0x3f => aliased.Parameter2,
+                0x1f => checked((ushort)aliased.PaletteIndex),
+                0x3f => checked((ushort)aliased.Parameter2),
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
             AssertEqual((ushort)((SnesLittleEndian.HighByte(word)) >> 1), (runtime.Enemies.EvirStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[slot.SlotIndex].")).MovementTimer.RawValue,

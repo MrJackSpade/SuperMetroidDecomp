@@ -80,7 +80,8 @@ internal static class CeresRidleyColorsVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Ridley palette edit changes installed identity");
-        var runtime = new SuperMetroidRuntime(rom, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = edited } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        runtime.Artwork.MapPresentation = edited;
         AssertTrue(ReferenceEquals(edited.CeresRidleyColors, runtime.Enemies.Presentation.CeresRidleyColors),
             "installed runtime binds Ceres Ridley colors to enemy owner");
         runtime.Artwork.MapPresentation = original;
@@ -93,8 +94,7 @@ internal static class CeresRidleyColorsVerification
             TileArtwork = fixtureAssets.EnemyTiles,
         };
         var cgram = new SnesCgram();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.InitializeCeresRidley;
@@ -122,15 +122,11 @@ internal static class CeresRidleyColorsVerification
         state.Function = RidleyAiFunction.FadeInBody;
         for (int row = 0; row < CeresRidleyPaletteRomData.BodyFadeRowCount; row++)
         {
-            state.FadePaletteOffset = (ushort)(row *
-                CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort));
+            state.FadePaletteOffset = row;
             state.FunctionTimer = NativeCountdown.Start(1);
             bodyTick(slot, state);
-            AssertEqual(row == CeresRidleyPaletteRomData.BodyFadeRowCount - 1
-                    ? (ushort)0
-                    : (ushort)((row + 1) *
-                        CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort)),
-                state.FadePaletteOffset, $"edited body fade row {row} advances");
+            AssertEqual(row == CeresRidleyPaletteRomData.BodyFadeRowCount - 1 ? 0 : row + 1,
+                state.FadePaletteOffset, $"edited body fade row {row} advances to the next row, or resets after the last");
             CheckCgram(CeresRidleyPaletteRomData.BodyFadeColorCount,
                 CeresRidleyPaletteRomData.BodyFadeBgCgramIndex,
                 color => edited.CeresRidleyColors.ResolveBodyFade(row, color),
@@ -154,12 +150,12 @@ internal static class CeresRidleyColorsVerification
         }
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
         Suite(nameof(VerifyCeresAlarmPalette), () => VerifyCeresAlarmPalette());
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
+        slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         RidleyEnemyState activeRidley = enemies.RidleyEncounter.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Function = RidleyAiFunction.CeresRetreatDelay;
         activeRidley.FunctionTimer = NativeCountdown.Start(0);
-        activeRidley.MovementAnimationEnabled = 0;
+        activeRidley.MovementAnimationEnabled = false;
         enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, null, null);
         AssertEqual(RidleyAiFunction.CeresPublishEscapeHandoff, activeRidley.Function,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
@@ -244,12 +240,12 @@ internal static class CeresRidleyColorsVerification
                     (editedEnemy, guarded, editedCgram),
                 })
             {
-                owner.BindFixtureBus(addressSpace);
+                owner.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 owner.Presentation._cgram = palette;
             }
-            var nativeTick = new Action<RidleyEnemyState, ushort>(nativeEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
-            var stockTick = new Action<RidleyEnemyState, ushort>(stockEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
-            var editedTick = new Action<RidleyEnemyState, ushort>(editedEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
+            var nativeTick = new Action<RidleyEnemyState, int>(nativeEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
+            var stockTick = new Action<RidleyEnemyState, int>(stockEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
+            var editedTick = new Action<RidleyEnemyState, int>(editedEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
             var editedState = new RidleyEnemyState();
@@ -302,7 +298,7 @@ internal static class CeresRidleyColorsVerification
                     (editedEnemy, guarded, editedCgram),
                 })
             {
-                owner.BindFixtureBus(addressSpace);
+                owner.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 owner.Presentation._cgram = palette;
             }
             var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(nativeEnemy.RidleyBehavior.UpdateNorfairRidleyHealthPalette);

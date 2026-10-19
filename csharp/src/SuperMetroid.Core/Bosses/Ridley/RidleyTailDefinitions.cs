@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyTailDefinitions
 {
     /// <summary>$A6:D2DD-D2E0: InitializeTailParts writes this bound independently of facing.</summary>
-    internal const ushort InitialMinimumClockwise = 0x3ff0;
+    internal static SnesAngle InitialMinimumClockwise { get; } = SnesAngle.FromRaw(0x3ff0);
     /// <summary>$A6:D2E4-D2E7: InitializeTailParts writes this bound before the live tail controller adjusts it.</summary>
-    internal const ushort InitialMaximumCounterClockwise = 0x4040;
+    internal static SnesAngle InitialMaximumCounterClockwise { get; } = SnesAngle.FromRaw(0x4040);
 
     /// <summary>$A6:BC0A sets ideal tail spacing while releasing Samus.</summary>
     internal const ushort CarryReleaseInterSegmentAngle = 8;
@@ -16,17 +16,8 @@ internal static class RidleyTailDefinitions
     internal const ushort DownAngle = 0x4000;
     /// <summary>$A6:CD52/CDD8, pogo clockwise whip target.</summary>
     internal const ushort PogoWhipAngle = 0x3f00;
-    /// <summary>
-    /// Bit 15 of a whip target angle word: set while that direction has no target. The cartridge parks an
-    /// idle target at <c>$FFFF</c> and tests the bit with <c>BIT</c>/<c>BMI</c>, never the whole word.
-    /// </summary>
-    internal const ushort InactiveWhipTargetBit = 0x8000;
-    /// <summary>The whip target word the cartridge parks in an idle direction (native -1).</summary>
-    internal const ushort IdleWhipTarget = 0xffff;
     /// <summary>A segment's stagger word once it has activated the next segment (native -1).</summary>
     internal const ushort StaggerPropagated = 0xffff;
-    /// <summary>Bit 15 of a segment's direction word: set while it moves clockwise, toward decreasing angles.</summary>
-    internal const ushort ClockwiseMovementBit = 0x8000;
     /// <summary>The whip's extension request while a segment chases a whip target.</summary>
     internal const ushort WhipDistance = 0x0c00;
     /// <summary>The axis a facing change reflects tail angles around: half of the 16-bit turn ($A6:D3F9).</summary>
@@ -55,9 +46,9 @@ internal static class RidleyTailDefinitions
     /// <summary>$A6:B76E, bounce extension request.</summary>
     internal const ushort BounceDistance = 0x0c00;
     /// <summary>$A6:CC12, SetRidleyTailAngleExtrema_minClockwiseAngle for left/front/right facing.</summary>
-    internal static ushort MinimumClockwise(RidleyFacing facing) => facing == RidleyFacing.Right ? (ushort)0x3fc0 : (ushort)0x3ff0;
+    internal static SnesAngle MinimumClockwise(RidleyFacing facing) => SnesAngle.FromRaw(facing == RidleyFacing.Right ? (ushort)0x3fc0 : (ushort)0x3ff0);
     /// <summary>$A6:CC18, SetRidleyTailAngleExtrema_maxCounterClockwiseAngle for left/front/right facing.</summary>
-    internal static ushort MaximumCounterClockwise(RidleyFacing facing) => facing == RidleyFacing.Right ? (ushort)0x4010 : (ushort)0x4040;
+    internal static SnesAngle MaximumCounterClockwise(RidleyFacing facing) => SnesAngle.FromRaw(facing == RidleyFacing.Right ? (ushort)0x4010 : (ushort)0x4040);
 
     /// <summary>$A6:D38A begins InitializeTailParts.angles at $4000, one quarter of the 16-bit full turn.</summary>
     private const int InitialBaseAngle = 0x10000 / 4;

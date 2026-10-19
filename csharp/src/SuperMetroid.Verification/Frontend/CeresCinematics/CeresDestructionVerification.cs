@@ -41,13 +41,13 @@ internal static void VerifyCeresDestructionCinematic()
     delayedExplosion.DelayFirstInstruction(3);
     delayedExplosion.Step();
     delayedExplosion.Step();
-    AssertEqual(0, delayedExplosion.SpriteMapPointer,
+    AssertEqual<CinematicSpritePose?>(null, delayedExplosion.Pose,
         "Ceres staggered explosion remains invisible before instruction delay");
     AssertEqual(0, delayedExplosion.GeneralTimer,
         "instruction delay does not overwrite cinematic goto timer");
     delayedExplosion.Step();
-    AssertEqual(CinematicSpritePoseDefinitions.Spritemap(CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.CeresSmallExplosion)[0].Frame),
-        delayedExplosion.SpriteMapPointer, "third handler call shows the delayed explosion's first frame");
+    AssertEqual<CinematicSpritePose?>(CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.CeresSmallExplosion)[0].Frame,
+        delayedExplosion.Pose, "third handler call shows the delayed explosion's first frame");
     AssertEqual(new AnimationProgramCursor<CinematicSpriteProgram>(CinematicSpriteProgram.CeresSmallExplosion, 1), delayedExplosion.Program,
         "third handler call consumes the first delayed explosion frame");
 
@@ -82,8 +82,7 @@ internal static void VerifyCeresDestructionCinematic()
     var artwork = IntroCinematicArtworkFiles.Load(
         RepositoryInstallation.Installation.IntroCinematicDirectory, overrideRoot);
     var presentation = RetailPresentationFixture();
-    var state = new CeresDestructionCinematicState(fixtureBus,
-        fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
+    var state = new CeresDestructionCinematicState(fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
         paletteFxColors: presentation.RoomPaletteFx);
     // $8B:C11B's first dispatch waits for nine NMIs; the ninth resume sets the scene up.
     for (int wait = 0; wait < CeresDestructionRomData.InitialNmiWaits; wait++)

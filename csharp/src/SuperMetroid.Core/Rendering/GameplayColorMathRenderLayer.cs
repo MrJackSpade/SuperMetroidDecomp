@@ -20,12 +20,12 @@ public sealed record GameplayColorMathRenderLayer : RenderLayer
     public SnesColorMathControl ColorMath { get; }
     /// <summary>Whether the subscreen supplies the arithmetic operand instead of fixed color.</summary>
     public bool AddSubscreen { get; }
-    /// <summary>Five-bit fixed-color red component.</summary>
-    public byte FixedRed { get; }
-    /// <summary>Five-bit fixed-color green component.</summary>
-    public byte FixedGreen { get; }
-    /// <summary>Five-bit fixed-color blue component.</summary>
-    public byte FixedBlue { get; }
+    /// <summary>Fixed-color red intensity, 0 through <see cref="Bgr555.MaxChannel"/>.</summary>
+    public int FixedRed { get; }
+    /// <summary>Fixed-color green intensity, 0 through <see cref="Bgr555.MaxChannel"/>.</summary>
+    public int FixedGreen { get; }
+    /// <summary>Fixed-color blue intensity, 0 through <see cref="Bgr555.MaxChannel"/>.</summary>
+    public int FixedBlue { get; }
     /// <summary>Optional captured 2-bpp BG3-style subscreen plane.</summary>
     public Bg2BppColorMathRenderLayer? Subscreen { get; }
     /// <summary>Admit gameplay BG2 to the subscreen, competing with any captured BG3 by Mode-1 priority.</summary>
@@ -44,7 +44,8 @@ public sealed record GameplayColorMathRenderLayer : RenderLayer
         if (subscreenUsesBg2 && !math.AddSubscreen)
             throw new ArgumentException("BG2 subscreen requires subscreen arithmetic.", nameof(subscreenUsesBg2));
         Ensure.LengthEqual(lines, SnesPpuLayout.ScreenHeightPixels);
-        if (math.FixedRed > 31 || math.FixedGreen > 31 || math.FixedBlue > 31)
+        if (math.FixedRed is < 0 or > Bgr555.MaxChannel || math.FixedGreen is < 0 or > Bgr555.MaxChannel ||
+            math.FixedBlue is < 0 or > Bgr555.MaxChannel)
             throw new ArgumentOutOfRangeException(nameof(math.FixedRed), "COLDATA components must be five-bit values.");
         Gameplay = gameplay;
         this.lines = lines.ToArray();

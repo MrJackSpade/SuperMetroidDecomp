@@ -21,7 +21,7 @@ internal static class RoomShakeDefinitionsVerification
 
         var guarded = NewRoomShakeReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         for (ushort type = 0; type < renderedTypeCount; type++)
         {
@@ -68,6 +68,27 @@ internal static class RoomShakeDefinitionsVerification
         AssertEqual(Offset16<RoomPixels>.Zero,
             enemies.Earthquake.GetEnemyProjectileShake(false),
             "non-rendered earthquake type has no projectile displacement");
+
+        // The type holds the cartridge's whole word as a non-negative number: its largest value is still an
+        // ordinary non-rendered type, and anything outside the word is rejected instead of wrapping.
+        enemies.Earthquake.EarthquakeType = ushort.MaxValue;
+        enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(4);
+        AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: false),
+            "largest earthquake type is non-rendered");
+        AssertEqual((ushort)4, enemies.Earthquake.EarthquakeTimer.RawValue,
+            "largest earthquake type preserves timer");
+        AssertThrows<ArgumentOutOfRangeException>(() => { enemies.Earthquake.EarthquakeType = ushort.MaxValue + 1; },
+            "earthquake type above the cartridge word is rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => { enemies.Earthquake.EarthquakeType = -1; },
+            "negative earthquake type is rejected");
+
+        // Timer bits are OR'd into the running timer, keeping its existing bits.
+        enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(1);
+        enemies.Earthquake.AddTimerBits(RoomFxRomData.Earthquake.RisingLiquidTimerBits);
+        AssertEqual((ushort)(1 | RoomFxRomData.Earthquake.RisingLiquidTimerBits), enemies.Earthquake.EarthquakeTimer.RawValue,
+            "earthquake timer bits keep the running timer's bits");
+        AssertThrows<ArgumentOutOfRangeException>(() => enemies.Earthquake.AddTimerBits(ushort.MaxValue + 1),
+            "earthquake timer bits above the cartridge word are rejected");
 
         enemies.Earthquake.EarthquakeType = 0;
         AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: true),

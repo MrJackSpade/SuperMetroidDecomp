@@ -7,8 +7,10 @@ internal static class NativeEnemyProjectileFamilies
     internal static IReadOnlyList<NativeEnemyProjectileFamily> All { get; } =
     [
         global::SuperMetroid.Verification.Rooms.Doors.EyeDoorSweatAnimationsVerification.Family,
+        global::SuperMetroid.Verification.Areas.Tourian.TourianStatueProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Rooms.Plms.SaveStationElectricityAnimationsVerification.Family,
         global::SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEffectAnimationsVerification.Family,
+        global::SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTopTubeAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Alcoon.AlcoonFireballAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Cacatac.CacatacProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Chozo.ChozoTourianDustAnimationsVerification.Family,
@@ -25,6 +27,7 @@ internal static class NativeEnemyProjectileFamilies
         global::SuperMetroid.Verification.Enemies.Projectiles.MiscDustProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Shaktool.ShaktoolProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Skree.SkreeMetareeParticleAnimationsVerification.Family,
+        global::SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Stoke.StokeProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotLaserAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBodyProjectileAnimationsVerification.Family,

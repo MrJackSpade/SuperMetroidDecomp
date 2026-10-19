@@ -31,7 +31,7 @@ internal static class CeresEnginePaletteBindingVerification
         IntroCinematicArtworkCatalog artwork = installation.LoadIntroCinematicArt();
         int destination = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineColorIndex / sizeof(ushort);
         ushort[] nativeColors = [0x7fff, 0]; // Pinned $8D:C880/$C886, not runtime ROM reads.
-        var game = new SuperMetroidGame(SuperMetroidAddressSpace.CreateWithoutCartridge());
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.BindArtwork(game.Artwork with
         {
             MapPresentation = stock,
@@ -108,7 +108,7 @@ internal static class CeresEnginePaletteBindingVerification
         Console.WriteLine("#1150: stock engine flicker, edited-color state rebind, unchanged scene clock/camera and legacy-owner reconstruction pass (RAM-only).");
 
         static CeresDestructionCinematicState Scene(SuperMetroidGame owner) =>
-            (owner.ceresDestruction ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
+            (owner.Session.ceresDestruction ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
 
         static Bgr555[] Colors(CeresDestructionCinematicState owner) =>
             (owner.cgram).Colors.ToArray();

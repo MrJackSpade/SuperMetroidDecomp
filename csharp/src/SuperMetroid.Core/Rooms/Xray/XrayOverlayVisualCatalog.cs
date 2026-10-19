@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Abilities;
+using System.Text;
 
 namespace SuperMetroid.Core.Rooms.Xray;
 
@@ -18,7 +19,7 @@ public sealed class XrayOverlayVisualCatalog
     /// universal formula can replace this bounded installed array.
     /// </remarks>
     private readonly ushort[] itemMetatiles;
-    /// <summary>Installed room-specific X-ray tile lists keyed by bank-$8F special-X-ray source pointer.</summary>
+    /// <summary>Installed room-specific X-ray tile lists keyed by overlay.</summary>
     /// <remarks>
     /// Issue #1039: among 323 pinned NTSC J/U v1.0 room states, only
     /// Bomb Torizo selects special-X-ray pointer $8F:986B. Its three
@@ -27,26 +28,26 @@ public sealed class XrayOverlayVisualCatalog
     /// adjacent bytes are not a fourth record. The independent installation
     /// verifier compared all three stock records with the cartridge.
     /// reveals.json may change coordinates and words while retaining the
-    /// pointer and record count, so the apparent Y sequence is not an
+    /// overlay and record count, so the apparent Y sequence is not an
     /// algorithm for all valid installations. Retain the bounded lists
-    /// and reject missing or duplicate pointers.
+    /// and reject missing or duplicate overlays.
     /// </remarks>
-    private readonly Dictionary<ushort, XrayRoomOverlayVisual[]> rooms;
+    private readonly Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]> rooms;
 
     /// <summary>Copies item-slot metatiles and ordered special-room records, requiring all compiled overlay sources without changing item collection or PLM state.</summary>
     /// <param name="itemMetatiles">Exactly eight twelve-bit metatile references in native graphics-slot order.</param>
-    /// <param name="rooms">Nonempty ordered tile lists keyed by bank-$8F special-X-ray source pointers, not room-state pointers; each list is copied.</param>
-    /// <exception cref="ArgumentNullException">An input sequence is null.</exception>
-    /// <exception cref="InvalidDataException">Item values/count, room pointers/lists, duplicate sources, or required-source coverage are invalid.</exception>
+    /// <param name="rooms">Nonempty ordered tile lists keyed by overlay; each list is copied.</param>
+    /// <exception cref="ArgumentNullException">An input sequence or overlay is null.</exception>
+    /// <exception cref="InvalidDataException">Item values/count, room lists, duplicate overlays, or required-overlay coverage are invalid.</exception>
     public XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
-        IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms)
+        IEnumerable<(XrayRoomOverlayDefinition Overlay, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms)
         : this(itemMetatiles, rooms, requireCompleteInstallation: true)
     {
     }
 
-    /// <summary>Copies validated item and room overlays, optionally requiring every retail special-room source.</summary>
+    /// <summary>Copies validated item and room overlays, optionally requiring every retail room overlay.</summary>
     internal XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
-        IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms,
+        IEnumerable<(XrayRoomOverlayDefinition Overlay, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms,
         bool requireCompleteInstallation)
     {
         Ensure.NotNull(itemMetatiles);
@@ -55,18 +56,19 @@ public sealed class XrayOverlayVisualCatalog
         if (this.itemMetatiles.Length != XrayOverlayRomData.DynamicGraphicsSlots * 2 ||
             this.itemMetatiles.Any(word => word > 0x0fff))
             throw new InvalidDataException("X-ray item visuals require eight valid metatiles.");
-        this.rooms = new Dictionary<ushort, XrayRoomOverlayVisual[]>();
-        foreach ((ushort pointer, IReadOnlyList<XrayRoomOverlayVisual> tiles) in rooms)
+        this.rooms = new Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]>();
+        foreach ((XrayRoomOverlayDefinition overlay, IReadOnlyList<XrayRoomOverlayVisual> tiles) in rooms)
         {
-            if (pointer < 0x8000 || tiles is null || tiles.Count == 0 ||
-                tiles.Any(tile => tile.Word > 0x0fff) ||
-                !this.rooms.TryAdd(pointer, tiles.ToArray()))
-                throw new InvalidDataException($"Invalid X-ray room overlay ${pointer:X4}.");
+            Ensure.NotNull(overlay);
+            if (tiles is null || tiles.Count == 0 ||
+                tiles.Any(tile => tile.Metatile.Raw > 0x0fff) ||
+                !this.rooms.TryAdd(overlay, tiles.ToArray()))
+                throw new InvalidDataException($"Invalid X-ray room overlay {overlay.Name}.");
         }
         if (requireCompleteInstallation)
-            foreach (ushort pointer in XrayRoomOverlaySourceDefinitions.All)
-                if (!this.rooms.ContainsKey(pointer))
-                    throw new InvalidDataException($"Missing required X-ray room overlay ${pointer:X4}.");
+            foreach (XrayRoomOverlayDefinition overlay in XrayRoomOverlayDefinitions.All)
+                if (!this.rooms.ContainsKey(overlay))
+                    throw new InvalidDataException($"Missing required X-ray room overlay {overlay.Name}.");
     }
 
     /// <summary>Selects the installed item reveal metatile by native graphics-slot index, independently of whether an item has been collected.</summary>
@@ -79,25 +81,25 @@ public sealed class XrayOverlayVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(XrayOverlayVisualCatalog), content =>
     {
         content.AppendWords("item metatiles", itemMetatiles);
-        foreach ((ushort pointer, XrayRoomOverlayVisual[] tiles) in rooms.OrderBy(pair => pair.Key))
+        foreach ((XrayRoomOverlayDefinition overlay, XrayRoomOverlayVisual[] tiles) in rooms.OrderBy(pair => pair.Key.Name, StringComparer.Ordinal))
         {
-            content.Append("room overlay", pointer);
+            content.Append("room overlay", Encoding.UTF8.GetBytes(overlay.Name));
             content.Append("tiles", tiles.Length);
             foreach (XrayRoomOverlayVisual tile in tiles)
             {
                 // Identity hashes the authored byte coordinates.
                 content.Append("x", checked((byte)tile.Block.X));
                 content.Append("y", checked((byte)tile.Block.Y));
-                content.Append("word", tile.Word);
+                content.Append("word", tile.Metatile.Raw);
             }
         }
     });
 
-    /// <summary>Returns a special room's installed overlay records in native draw order without interpreting their source pointer as memory.</summary>
-    /// <param name="pointer">Bank-$8F special-X-ray list identity from the active room state; zero/no-overlay is handled by the caller.</param>
+    /// <summary>Returns a room overlay's installed records in native draw order.</summary>
+    /// <param name="overlay">The active room state's overlay; a state without one is handled by the caller.</param>
     /// <returns>The shared copied record list; coordinates are room-block positions and words are visual metatile references.</returns>
-    /// <exception cref="InvalidDataException">No installed special-room list exists for the pointer.</exception>
-    public IReadOnlyList<XrayRoomOverlayVisual> RoomTiles(ushort pointer) =>
-        rooms.TryGetValue(pointer, out XrayRoomOverlayVisual[]? tiles) ? tiles :
-        throw new InvalidDataException($"Missing installed X-ray room overlay ${pointer:X4}.");
+    /// <exception cref="InvalidDataException">No installed list exists for the overlay.</exception>
+    public IReadOnlyList<XrayRoomOverlayVisual> RoomTiles(XrayRoomOverlayDefinition overlay) =>
+        rooms.TryGetValue(Ensure.NotNull(overlay), out XrayRoomOverlayVisual[]? tiles) ? tiles :
+        throw new InvalidDataException($"Missing installed X-ray room overlay {overlay.Name}.");
 }

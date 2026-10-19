@@ -26,22 +26,19 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 15;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 34;
-
     /// <summary>Crust and grey-cloud one-shot fades with distinct destinations and authored holds.</summary>
     private static readonly ZebesExplosionLayerFadePaletteFxColorDefinition[] Definitions =
     [
         new(
             ZebesExplosionLayerFadePaletteFxProgramOwner.Crust,
-            definitionPointer: 0xe1dc,
-            programStart: 0xd48e,
+            paletteFxObject: PaletteFxObject.FadeOutExplodingZebesCrust,
+            firstRecord: 185,
             colorByteIndex: 0x0082,
             frameDuration: 20),
         new(
             ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds,
-            definitionPointer: 0xe1e0,
-            programStart: 0xd5a4,
+            paletteFxObject: PaletteFxObject.FadeOutExplodingZebesGreyClouds,
+            firstRecord: 193,
             colorByteIndex: 0x00a2,
             frameDuration: 14),
     ];

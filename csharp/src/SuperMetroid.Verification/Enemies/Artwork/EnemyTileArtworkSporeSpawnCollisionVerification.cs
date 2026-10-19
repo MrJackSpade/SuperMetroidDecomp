@@ -23,17 +23,15 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         var selected = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();
 
         var installed = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        installed.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
+        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot installedSlot = installed.SlotTable.Slots[0];
-        installedSlot.Definition =
-            default(RoomEnemyDefinition) with
+        installedSlot.Bind(installedSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {
                 Bank = DraygonBg2FrameDefinitions.Bank,
-            };
+            });
         // The test-only cartridge walker supplies an independent reference.
-        installedSlot.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
+        installedSlot.Bind(EnemyDefinitionId.SporeSpawn, installedSlot.Definition);
         installedSlot.Position = installedSlot.Position.WithWhole(new(0x100, 0x100));
 
         var seenLists = new HashSet<ushort>();
@@ -62,9 +60,11 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} X");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)compiled.Offset.Y),
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} Y");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), compiled.HitboxPointer,
-                    $"Spore Spawn frame {frame.Pointer:X4} component {component} list");
-                seenLists.Add(compiled.HitboxPointer);
+                // The cartridge names each component's list by address; the compiled component holds the list itself.
+                ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
+                AssertHitboxListMatchesRom(listPointer, compiled.Hitboxes,
+                    $"Spore Spawn frame {frame.Pointer:X4} component {component} list {listPointer:X4}");
+                seenLists.Add(listPointer);
             }
             for (int y = -80; y <= 80; y += 16)
             for (int x = -64; x <= 64; x += 16)
@@ -90,31 +90,6 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         AssertEqual(12, frameCount, "all twelve Spore Spawn OAM frame roots");
         AssertEqual(SporeSpawnCollisionDefinitions.ListCount, seenLists.Count,
             "all compiled Spore Spawn hitbox lists are referenced");
-        foreach (ushort pointer in seenLists)
-        {
-            int list = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, pointer));
-            ReadOnlySpan<SporeSpawnCollisionHitbox> hitboxes =
-                SporeSpawnCollisionDefinitions.HitboxesAt(pointer);
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Length,
-                $"Spore Spawn list {pointer:X4} native hitbox count");
-            for (int index = 0; index < hitboxes.Length; index++)
-            {
-                int record = list + 2 + index * 12;
-                SporeSpawnCollisionHitbox box = hitboxes[index];
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)box.Left),
-                    $"Spore Spawn list {pointer:X4} box {index} left");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)box.Top),
-                    $"Spore Spawn list {pointer:X4} box {index} top");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), unchecked((ushort)box.Right),
-                    $"Spore Spawn list {pointer:X4} box {index} right");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
-                    $"Spore Spawn list {pointer:X4} box {index} bottom");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), box.TouchAi,
-                    $"Spore Spawn list {pointer:X4} box {index} touch callback");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), box.ShotAi,
-                    $"Spore Spawn list {pointer:X4} box {index} shot callback");
-            }
-        }
         AssertThrows<InvalidDataException>(
             () => SporeSpawnCollisionDefinitions.ComponentsAt(0xa2df),
             "Draygon frame cannot enter Spore Spawn collision data");
@@ -130,6 +105,31 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         AssertThrows<IndexOutOfRangeException>(() => _ = openSpore[-1], "Spore component rejects negative index");
         AssertThrows<IndexOutOfRangeException>(() => _ = openSpore[2], "Spore open frame has exactly two components");
         Console.WriteLine($"  Spore Spawn collision: {frameCount} roots, {seenLists.Count} lists and {callbackComparisons} live touch/shot comparisons match the cartridge with installed ROM reads denied.");
+
+        // Compares one compiled hitbox list with the cartridge list its component names.
+        void AssertHitboxListMatchesRom(ushort pointer, IReadOnlyList<SporeSpawnCollisionHitbox> hitboxes, string at)
+        {
+            int list = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, pointer));
+            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
+                $"{at} native hitbox count");
+            for (int index = 0; index < hitboxes.Count; index++)
+            {
+                int record = list + 2 + index * 12;
+                SporeSpawnCollisionHitbox box = hitboxes[index];
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)box.Left),
+                    $"{at} box {index} left");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)box.Top),
+                    $"{at} box {index} top");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), unchecked((ushort)box.Right),
+                    $"{at} box {index} right");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
+                    $"{at} box {index} bottom");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), SporeSpawnHitboxCallbackCodec.ToCallbackWord(box.Touch),
+                    $"{at} box {index} touch callback");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), SporeSpawnHitboxCallbackCodec.ToCallbackWord(box.Shot),
+                    $"{at} box {index} shot callback");
+            }
+        }
 
         // Walks cartridge component and hitbox records to determine the first overlapping callback.
         // Bank A0:9ADF..9B78 orders touch rectangles; 9C43..9D20 supplies the distinct shot

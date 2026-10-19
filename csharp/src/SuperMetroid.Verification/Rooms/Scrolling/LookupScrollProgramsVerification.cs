@@ -37,17 +37,17 @@ internal static class LookupScrollProgramsVerification
                     AssertThrows<InvalidDataException>(() => RoomPlmScrollProgramDefinitions.Apply((ushort)raw,(_,_) => writes++),"Rejected scroll execution");
                 }
             }
-            var compiled = RoomPlmPopulationDefinition.FromCompiled(0x8230);
+            var compiled = RoomPlmPopulationDefinitions.Get(0x8230);
             AssertEqual((ushort?)0x94fa,compiled.Placements.Span[0].CompiledScrollSource,"Retail scroll binds identity");
             AssertTrue(compiled.Placements.Span[0].ScrollProgram.IsEmpty,"Retail scroll carries no regenerated pair table");
-            var rebound = new RoomPlmPopulationDefinition(0x8230,
+            var rebound = new RoomPlmPopulationDefinition($"$8F:{0x8230:X4}",
                 [compiled.Placements.Span[0] with { RoomArgument = 0xffff }]);
             AssertEqual((ushort?)0x94fa,rebound.Placements.Span[0].CompiledScrollSource,"Copied placement preserves its bound program independently of argument");
-            var customized = new RoomPlmPopulationDefinition(0x8230,
+            var customized = new RoomPlmPopulationDefinition($"$8F:{0x8230:X4}",
                 [compiled.Placements.Span[0] with { ScrollProgram = new byte[] {1,2,0x80} }]);
             AssertEqual((ushort?)null,customized.Placements.Span[0].CompiledScrollSource,"Explicit custom pairs replace compiled source");
             AssertTrue(customized.Placements.Span[0].ScrollProgram.Span.SequenceEqual(new byte[] {1,2,0x80}),"Explicit custom pairs survive placement copy");
-            AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
+            AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
                 [new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),new(0, 0),0x94fa)]),
                 "Constructed scroll still requires decoded program");
         }

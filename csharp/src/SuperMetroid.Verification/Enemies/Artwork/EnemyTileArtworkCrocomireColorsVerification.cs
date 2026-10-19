@@ -21,6 +21,9 @@ using SuperMetroid.Verification.Harness;
 /// and live boss CGRAM writes under a cartridge-read guard.</summary>
 internal static class EnemyTileArtworkCrocomireColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Checks five color transfers, isolated overrides, hurt whiteout,
     /// death-phase palette use, reload persistence, and invalid asset rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
@@ -45,7 +48,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         string file = Path.Combine(stockDirectory, CrocomireColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         CrocomireColorDocument visual = JsonSerializer.Deserialize<CrocomireColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Crocomire color JSON is null.");
         visual.FightBody[1] = ChangeRed(visual.FightBody[1]);
         visual.InitialWall[1] = ChangeRed(visual.InitialWall[1]);
@@ -85,13 +88,13 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             address => $"Crocomire accessed migrated palette ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.VerificationServices().IsAreaMiniBossDefeated = (Func<bool>)(() => false);
         enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)((_, _) => { });
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         enemies.CrocomireBehavior.InitializeCrocomire(body);
         CrocomireEnemyState state = (CrocomireEnemyState)(enemies.CrocomireBehavior.Crocomire ?? throw new InvalidOperationException("Verification requires enemies.CrocomireBehavior.Crocomire."));
         AssertEqual(CrocomireDeathPhase.Fighting, (state ?? throw new InvalidOperationException("Verification requires state.")).DeathSequenceIndex,

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus.Palettes;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Bounded adjacent-table and instruction data consumed by Chainsaw beam selection.</summary>
@@ -9,25 +7,30 @@ internal static class ChainsawBeamGraphicsDefinitions
     internal const SamusBeamCombination Selection = SamusBeamCombination.SpazerPlasmaWave;
     /// <summary>$9A:C421: $90:C3CB (the second palette-pointer word) reinterpreted by $90:AC8D as the tile pointer.</summary>
     internal const int TileSource = 0x9ac421;
-    /// <summary>$90:7FFF: $90:C3E3 (Power palette color one) reinterpreted by $90:ACCD as the color source.</summary>
-    internal const ushort PalettePointer = 0x7fff;
-    /// <summary>$90:8000..801E, the Samus_Animate instruction prefix read after the first open-bus byte.</summary>
-    internal const int InstructionAddress = 0x908000;
-    /// <summary>Exact executable bytes of Samus_Animate, not an authored palette or substitute color list.</summary>
-    internal static ReadOnlySpan<byte> InstructionBytes =>
-    [
-        0x08, 0xc2, 0x30, 0x22, 0x58, 0xec, 0x90, 0xad,
-        0x6e, 0x19, 0x29, 0x0f, 0x00, 0xaa, 0xfc, 0x67,
-        0x80, 0xad, 0x1c, 0x0a, 0xc9, 0x4d, 0x00, 0xf0,
-        0x19, 0xc9, 0x4e, 0x00, 0xf0, 0x14, 0xad,
-    ];
 
-    /// <summary>Loads beam colors through the glitched adjacent-table pointer, masking arbitrary source words to CGRAM's fifteen color bits.</summary>
-    internal static void LoadPalette(ISnesAddressSpace bus, SnesCgram cgram)
-    {
-        for (ushort color = 0; color < SuperMetroid.Core.Samus.Artwork.BeamPaletteDefinitions.ColorCount; color++)
-            // The glitched pointer reads arbitrary words; the CGRAM port keeps fifteen bits.
-            new SamusPalettes(cgram).Beam.Write(color,
-                Bgr555.FromCgramPortWord(new SamusOverreadMemory(bus).ChainsawPaletteWord(color)));
-    }
+    /// <summary>
+    /// The sixteen colours of the glitched Chainsaw beam palette, in colour order, as red, green and blue five-bit
+    /// channels. Its palette pointer lands just before Samus_Animate, so the loader reads an open-bus byte followed
+    /// by that routine's instruction bytes; these are those words as CGRAM keeps them, without the bit it discards.
+    /// The verification derives every colour from the cartridge bytes.
+    /// </summary>
+    internal static readonly IReadOnlyList<Bgr555> Palette = Array.AsReadOnly<Bgr555>(
+    [
+        new(16, 4, 2),
+        new(2, 6, 12),
+        new(2, 1, 22),
+        new(12, 7, 4),
+        new(13, 21, 27),
+        new(25, 8, 10),
+        new(15, 0, 0),
+        new(10, 5, 31),
+        new(7, 3, 0),
+        new(13, 5, 7),
+        new(10, 8, 18),
+        new(13, 2, 0),
+        new(16, 15, 6),
+        new(9, 22, 19),
+        new(0, 0, 28),
+        new(20, 8, 11),
+    ]);
 }

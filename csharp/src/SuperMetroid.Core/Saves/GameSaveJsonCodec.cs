@@ -11,7 +11,7 @@ using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Saves;
 
-/// <summary>Strict deterministic conversion between named JSON saves and cartridge SRAM.</summary>
+/// <summary>Strict deterministic conversion between named JSON saves and the owned save store.</summary>
 public static class GameSaveJsonCodec
 {
     /// <summary>Known equipment bits accepted by the named save schema.</summary>
@@ -25,22 +25,21 @@ public static class GameSaveJsonCodec
         Enum.GetValues<BossBits>().Aggregate((left, right) => left | right);
 
     /// <summary>Captures all meaningful persistent state without a duplicate native-memory image.</summary>
-    public static GameSaveJsonDocument Capture(SuperMetroidAddressSpace addressSpace, IAreaMapSource maps)
+    public static GameSaveJsonDocument Capture(SaveSlotStore saves)
     {
-        Ensure.NotNull(addressSpace);
-        var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
-        var slots = new GameSaveSlotJsonDocument?[SuperMetroidSaveRam.SlotCount];
+        Ensure.NotNull(saves);
+        var slots = new GameSaveSlotJsonDocument?[SaveSlotStore.SlotCount];
         for (int slotIndex = 0; slotIndex < slots.Length; slotIndex++)
         {
-            SuperMetroidSaveSlot? slot = saveRam.ReadSlot(slotIndex);
+            SuperMetroidSaveSlot? slot = saves.ReadSlot(slotIndex);
             slots[slotIndex] = slot is null ? null : CaptureSlot(slot);
         }
 
         return new GameSaveJsonDocument
         {
-            SelectedSlot = saveRam.ReadSelectedSlot(),
+            SelectedSlot = saves.ReadSelectedSlot(),
             Slots = slots,
-            GameCompleted = saveRam.HasCompletedGame,
+            GameCompleted = saves.HasCompletedGame,
         };
     }
 
@@ -82,27 +81,23 @@ public static class GameSaveJsonCodec
     }
 
     /// <summary>
-    /// Rebuilds native SRAM from named persistent state, including the
-    /// cartridge checksum directories. Missing JSON slots are cleared explicitly.
+    /// Builds the save store named persistent state describes. A JSON slot that is absent is an empty slot.
     /// </summary>
-    public static void Apply(
-        GameSaveJsonDocument document,
-        SuperMetroidAddressSpace addressSpace, IAreaMapSource maps)
+    /// <param name="document">The validated named save.</param>
+    /// <param name="maps">Installed stock map rules; each slot keeps the explored bytes SRAM would.</param>
+    public static SaveSlotStore ToStore(GameSaveJsonDocument document, IAreaMapSource maps)
     {
-        Ensure.NotNull(addressSpace);
+        Ensure.NotNull(maps);
         Validate(document);
-        SaveRamImage.Clear(addressSpace);
-        var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
+        var saves = new SaveSlotStore(maps);
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
         {
-            GameSaveSlotJsonDocument? slot = document.Slots[slotIndex];
-            if (slot is null)
-                saveRam.ClearSlot(slotIndex);
-            else
-                saveRam.SaveSlot(slotIndex, ToSnapshot(slot));
+            if (document.Slots[slotIndex] is { } slot)
+                saves.SaveSlot(slotIndex, ToSnapshot(slot));
         }
-        saveRam.SelectSlot(document.SelectedSlot);
-        saveRam.SetGameCompleted(document.GameCompleted);
+        saves.SelectSlot(document.SelectedSlot);
+        saves.SetGameCompleted(document.GameCompleted);
+        return saves;
     }
 
     /// <summary>Projects one native save slot into named resources, flags, events, and explored map cells.</summary>
@@ -142,8 +137,8 @@ public static class GameSaveJsonCodec
             slot.ControllerBindings.ItemCancel,
             slot.ControllerBindings.AimUp,
             slot.ControllerBindings.AimDown),
-        ReserveMode = slot.ReserveMode,
-        HudItem = slot.HudItem,
+        ReserveMode = slot.ReserveMode.ToNativeWord(),
+        HudItem = slot.HudItem.ToNativeWord(),
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
         JapaneseText = slot.JapaneseText,
@@ -187,11 +182,11 @@ public static class GameSaveJsonCodec
             DebugFlag = slot.CartridgeDebugFlag,
             NewFileMarker = slot.NewFileMarker,
             LoadingGameState = slot.LoadingGameState,
-            EquippedItems = (ushort)slot.Inventory.EquippedItems,
-            CollectedItems = (ushort)slot.Inventory.CollectedItems,
-            EquippedBeams = (ushort)slot.Inventory.EquippedBeams,
-            CollectedBeams = (ushort)slot.Inventory.CollectedBeams,
-            ReserveMode = slot.ReserveMode,
+            EquippedItems = slot.Inventory.EquippedItems,
+            CollectedItems = slot.Inventory.CollectedItems,
+            EquippedBeams = slot.Inventory.EquippedBeams,
+            CollectedBeams = slot.Inventory.CollectedBeams,
+            ReserveMode = ReserveTankModes.Decode(SaveFieldValue.Encode(slot.ReserveMode, "reserveMode")),
             Health = slot.Resources.Health,
             MaxHealth = slot.Resources.MaxHealth,
             Missiles = slot.Resources.Missiles,
@@ -200,7 +195,7 @@ public static class GameSaveJsonCodec
             MaxSuperMissiles = slot.Resources.MaxSuperMissiles,
             PowerBombs = slot.Resources.PowerBombs,
             MaxPowerBombs = slot.Resources.MaxPowerBombs,
-            HudItem = slot.HudItem,
+            HudItem = HudItems.Decode(SaveFieldValue.Encode(slot.HudItem, "hudItem")),
             MaxReserveEnergy = slot.Resources.MaxReserveEnergy,
             ReserveEnergy = slot.Resources.ReserveEnergy,
             ReserveMissiles = slot.Resources.ReserveMissiles,
@@ -209,9 +204,9 @@ public static class GameSaveJsonCodec
             GameTimeMinutes = slot.GameTime.Minutes,
             GameTimeHours = slot.GameTime.Hours,
             SaveStation = slot.Checkpoint.SaveStation,
-            Area = (byte)slot.Checkpoint.Area,
+            Area = AreaIds.ToIndex(slot.Checkpoint.Area),
             EventBytes = DecodeEvents(slot.Progression.Events),
-            BossBytes = slot.Progression.BossFlagsByAreaIndex.Select(value => (byte)value).ToArray(),
+            BossFlags = slot.Progression.BossFlagsByAreaIndex.ToArray(),
             RoomChozoBytes = DecodeSetBits(
                 slot.Progression.RoomChozoBits,
                 Bank80SystemState.RoomChozoBitByteCount,
@@ -246,9 +241,9 @@ public static class GameSaveJsonCodec
                 $"schemaVersion {document.SchemaVersion} is unsupported; expected " +
                 $"{GameSaveJsonFormat.SchemaVersion}");
         }
-        if ((uint)document.SelectedSlot >= SuperMetroidSaveRam.SlotCount)
+        if ((uint)document.SelectedSlot >= SaveSlotStore.SlotCount)
             throw new InvalidDataException("selectedSlot must be 0, 1, or 2");
-        if (document.Slots is null || document.Slots.Length != SuperMetroidSaveRam.SlotCount)
+        if (document.Slots is null || document.Slots.Length != SaveSlotStore.SlotCount)
             throw new InvalidDataException("slots must contain exactly three entries");
 
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
@@ -267,6 +262,24 @@ public static class GameSaveJsonCodec
             slot.GameTime is null || slot.Controller is null || slot.Progression is null)
             throw new InvalidDataException($"slots[{expectedSlot}] is missing a required domain object");
         _ = AreaIds.ToIndex(slot.Checkpoint.Area);
+        RequireRange(slot.Checkpoint.SaveStation, SaveFieldValue.MaximumValue, expectedSlot, "checkpoint.saveStation");
+        RequireRange(slot.ReserveMode, SaveFieldValue.MaximumValue, expectedSlot, "reserveMode");
+        RequireRange(slot.HudItem, SaveFieldValue.MaximumValue, expectedSlot, "hudItem");
+        RequireRange(slot.LoadedItemCount, SaveFieldValue.MaximumValue, expectedSlot, "loadedItemCount");
+        RequireRange(slot.CartridgeDebugFlag, SaveFieldValue.MaximumValue, expectedSlot, "cartridgeDebugFlag");
+        RequireRange(slot.NewFileMarker, SaveFieldValue.MaximumValue, expectedSlot, "newFileMarker");
+        RequireRange(slot.LoadingGameState, SaveFieldValue.MaximumValue, expectedSlot, "loadingGameState");
+        SaveResourcesJsonDocument resources = slot.Resources;
+        foreach ((int value, string property) in new (int, string)[]
+                 {
+                     (resources.Health, "health"), (resources.MaxHealth, "maxHealth"),
+                     (resources.Missiles, "missiles"), (resources.MaxMissiles, "maxMissiles"),
+                     (resources.SuperMissiles, "superMissiles"), (resources.MaxSuperMissiles, "maxSuperMissiles"),
+                     (resources.PowerBombs, "powerBombs"), (resources.MaxPowerBombs, "maxPowerBombs"),
+                     (resources.ReserveEnergy, "reserveEnergy"), (resources.MaxReserveEnergy, "maxReserveEnergy"),
+                     (resources.ReserveMissiles, "reserveMissiles"),
+                 })
+            RequireRange(value, SamusQuantity.MinimumValue, SamusQuantity.MaximumValue, expectedSlot, $"resources.{property}");
         if (slot.Resources.Health > slot.Resources.MaxHealth)
             throw new InvalidDataException($"slots[{expectedSlot}].resources.health exceeds maxHealth");
         if (slot.Resources.Missiles > slot.Resources.MaxMissiles ||
@@ -277,8 +290,8 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException(
                 $"slots[{expectedSlot}].resources contains a current value above its maximum");
         }
-        if (slot.GameTime.Frames > 59 || slot.GameTime.Seconds > 59 ||
-            slot.GameTime.Minutes > 59 || slot.GameTime.Hours > 99)
+        if (slot.GameTime.Frames is < 0 or > 59 || slot.GameTime.Seconds is < 0 or > 59 ||
+            slot.GameTime.Minutes is < 0 or > 59 || slot.GameTime.Hours is < 0 or > 99)
             throw new InvalidDataException($"slots[{expectedSlot}].gameTime is outside retail ranges");
         if ((slot.Inventory.CollectedItems & ~AllEquipmentFlags) != 0 ||
             (slot.Inventory.EquippedItems & ~AllEquipmentFlags) != 0 ||
@@ -318,6 +331,20 @@ public static class GameSaveJsonCodec
         _ = DecodeSetBits(progression.AcquiredMapStationBits, Bank80SystemState.MapStationByteCount,
             $"slots[{expectedSlot}].progression.acquiredMapStationBits");
         _ = DecodeExploredAreas(progression.ExploredAreas);
+    }
+
+    /// <summary>
+    /// Rejects a numeric slot field outside <c>[0, <paramref name="maximum"/>]</c>, the range its domain or its SRAM
+    /// field holds, so a JSON number never wraps on its way into the store.
+    /// </summary>
+    private static void RequireRange(int value, int maximum, int expectedSlot, string property) =>
+        RequireRange(value, 0, maximum, expectedSlot, property);
+
+    /// <summary>Rejects a numeric slot field outside <c>[<paramref name="minimum"/>, <paramref name="maximum"/>]</c>.</summary>
+    private static void RequireRange(int value, int minimum, int maximum, int expectedSlot, string property)
+    {
+        if (value < minimum || value > maximum)
+            throw new InvalidDataException($"slots[{expectedSlot}].{property} {value} is outside [{minimum}, {maximum}]");
     }
 
     /// <summary>Configures strict enum names, property handling, and stable save JSON formatting.</summary>
@@ -471,18 +498,17 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException("Legacy preservedUntranslatedSram is required.");
         byte[] sram = DecodeLegacyPages(pages);
         JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
-        if (slots.Count != SuperMetroidSaveRam.SlotCount)
+        if (slots.Count != SaveSlotStore.SlotCount)
             throw new InvalidDataException("slots must contain exactly three entries");
         for (int index = 0; index < slots.Count; index++)
         {
             if (slots[index] is null) continue;
             JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
             JsonObject resources = slot["resources"] as JsonObject ?? throw new InvalidDataException($"slots[{index}].resources is required");
-            int origin = SaveRamLayout.SlotOffset(index);
             resources["reserveMissiles"] = Word(SaveRamLayout.ReserveMissilesOffset);
             slot["japaneseText"] = Word(SaveRamLayout.JapaneseTextOffset) != 0;
             slot["loadedItemCount"] = Word(SaveRamLayout.LoadedItemCountOffset);
-            ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(sram[origin + offset], sram[origin + offset + 1]));
+            ushort Word(int offset) => SaveRamCodec.ReadSlotWord(sram, index, offset);
         }
         root["gameCompleted"] = sram.AsSpan(SaveRamLayout.CompletionMarkerOffset,
             SaveRamLayout.CompletionMarker.Length).SequenceEqual(SaveRamLayout.CompletionMarker);
@@ -495,10 +521,10 @@ public static class GameSaveJsonCodec
     private static byte[] DecodeLegacyPages(JsonArray pages)
     {
         int size = GameSaveJsonFormat.PreservationPageByteCount;
-        int expectedPages = SuperMetroidAddressSpace.SaveRamByteCount / size;
+        int expectedPages = SaveRamLayout.ImageByteCount / size;
         if (pages.Count != expectedPages)
             throw new InvalidDataException($"preservedUntranslatedSram must contain {expectedPages} pages");
-        var sram = new byte[SuperMetroidAddressSpace.SaveRamByteCount];
+        var sram = new byte[SaveRamLayout.ImageByteCount];
         for (int page = 0; page < pages.Count; page++)
         {
             var entry = pages[page]?.Deserialize<LegacySramPage>(CreateOptions()) ??

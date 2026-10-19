@@ -5,8 +5,6 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Func139–142: rotate the shot graphic, fade Samus, and stage the final logo.</summary>
 internal sealed class EndingPostShot
 {
-    /// <summary>Retains the construction-time address space; post-shot stepping uses installed artwork and never reads it.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Palette captured before the shot and Samus fades begin.</summary>
     private readonly Bgr555[] sourcePalette;
     /// <summary>Installed logo tile bytes used by the timed VRAM transfers.</summary>
@@ -21,8 +19,8 @@ internal sealed class EndingPostShot
     private int hold;
     /// <summary>Current size of the rotating shot graphic, clamped at the native minimum.</summary>
     public int Scale { get; private set; } = EndingPostShotDefinitions.InitialScale;
-    /// <summary>Eight-bit rotation angle decremented on each active rotation step.</summary>
-    public byte Angle { get; private set; }
+    /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
+    public SnesAngle Angle { get; private set; } = SnesAngle.Zero;
     /// <summary>Number of subtitle and logo transfers already sent to VRAM.</summary>
     public int Uploads { get; private set; }
     /// <summary>Indicates that the shot graphic has reached its minimum scale.</summary>
@@ -31,11 +29,10 @@ internal sealed class EndingPostShot
     public bool ReadyForWhiteFlash { get; private set; }
 
     /// <summary>Captures the starting palette and installed art for the post-shot rotation and logo transfers.</summary>
-    public EndingPostShot(ISnesAddressSpace bus, SnesCgram cgram, EndingFontAtlas fontAtlas,
+    public EndingPostShot(SnesCgram cgram, EndingFontAtlas fontAtlas,
         EndingObjectArtworkCatalog? artwork = null)
     {
         Ensure.NotNull(fontAtlas);
-        this.bus = bus;
         sourcePalette = new CgramPalettes(cgram).Image.ToArray();
         BindArtwork(artwork);
         font = fontAtlas.Transfer.ToArray();
@@ -99,7 +96,7 @@ internal sealed class EndingPostShot
         ApplyFade(cgram, EndingPostShotDefinitions.SamusPaletteStart, samusFade);
         if (!RotationFinished)
         {
-            Angle = unchecked((byte)(Angle - EndingPostShotDefinitions.AngleStep));
+            Angle = Angle.AddTableUnits(-EndingPostShotDefinitions.AngleStep);
             Scale -= EndingPostShotDefinitions.ScaleStep;
             if (Scale < EndingPostShotDefinitions.MinimumScale)
             {

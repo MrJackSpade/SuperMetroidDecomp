@@ -14,5 +14,5 @@ public sealed class LagFreeDoorMusicUploadNmis : IDoorMusicUploadNmiSource
     /// <summary>Reports zero accepted NMIs for every instantaneous music-data upload.</summary>
     /// <param name="musicDataIndex">Native music-data selector; this policy does not distinguish uploads.</param>
     /// <returns>Zero, leaving the door transition's native NMI counters unchanged by the upload.</returns>
-    public int AcceptedNmisDuringUpload(byte musicDataIndex) => 0;
+    public int AcceptedNmisDuringUpload(int musicDataIndex) => 0;
 }

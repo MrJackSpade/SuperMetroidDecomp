@@ -93,11 +93,11 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { Drawing = { MotherBrainGlassVisuals = visuals } };
-        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
+        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
             $"Mother Brain glass loads for draw ${selected.Pointer:X4}");
         AssertTrue(plms.MotherBrainGlassWasLoaded,
             $"glass header retains its PLM owner for draw ${selected.Pointer:X4}");
-        plms.DrawSolePlmFrameForVerification(guarded, level, streamer, selected.Pointer);
+        plms.DrawSolePlmFrameForVerification(level, streamer, selected.Pointer);
 
         int entryX = originX;
         int entryY = originY;
@@ -115,7 +115,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             entryY = originY + run.Next.Y;
         }
         foreach ((int index, ushort word) in expected)
-            AssertEqual(word, level.GetCollisionBlockByIndex(index).LevelWord,
+            AssertEqual(word, level.GetCollisionBlockByIndex(index).PackedWord.Raw,
                 $"glass draw ${selected.Pointer:X4} writes native physical block {index}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"glass draw ${selected.Pointer:X4} avoids source payload reads");
@@ -129,7 +129,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
                     .BuildPlmLevelBlockUpdate(editedBlock, 0).TopRow[0],
                 "edited glass tile survives later camera streaming");
             AssertEqual((ushort)0x0ecf,
-                level.GetCollisionBlockByIndex(editedBlock).LevelWord,
+                level.GetCollisionBlockByIndex(editedBlock).PackedWord.Raw,
                 "edited glass appearance does not change the physical shatter block");
         }
     }

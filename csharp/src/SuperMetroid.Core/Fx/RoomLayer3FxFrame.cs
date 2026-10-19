@@ -14,11 +14,18 @@ public sealed record RoomLayer3FxFrame
     /// <summary>Main game loop carry.</summary>
     public required bool MainGameLoopCarry { get; init; }
 
-    /// <summary>Random number.</summary>
-    public ushort RandomNumber { get; init; } = 0;
+    /// <summary>
+    /// The shared random number this frame, 0 through 65535, sampled without advancing it: its low two bits lengthen
+    /// the next rising-liquid earthquake-sound delay. Values outside the random word's range are rejected.
+    /// </summary>
+    public int RandomNumber { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
-    /// <summary>Fireflea darkness level.</summary>
-    public ushort FirefleaDarknessLevel { get; init; } = 0;
+    /// <summary>
+    /// The room's Fireflea darkness level this frame (0, then +2 per Fireflea killed, at most 12), copied from the
+    /// enemies' room status for the darkness effect, which already takes it as a number; values outside the
+    /// cartridge's word (0 through 65535) are rejected.
+    /// </summary>
+    public int FirefleaDarknessLevel { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>Power bomb.</summary>
     public SamusPowerBombExplosionState? PowerBomb { get; init; } = null;

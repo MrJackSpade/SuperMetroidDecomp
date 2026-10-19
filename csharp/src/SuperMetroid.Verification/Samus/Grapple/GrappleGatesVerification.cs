@@ -30,7 +30,7 @@ internal static class GrappleGatesVerification
             SeedRetailGateSpriteMaps(bus, retail);
             SeedEmptyRoomEnemyPopulation(bus, 0x9600);
             var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)) { Level = level, Samus = new SamusState() });
+            enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)) { Level = level, Samus = new SamusState() });
             enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(plms.Gates.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
             enemies.StepEnemyProjectiles(level, null);
             enemies.StepEnemyProjectiles(level, null);
@@ -50,11 +50,11 @@ internal static class GrappleGatesVerification
                 oam.BeginFrame();
                 if (frame == 2)
                 {
-                    SeedStationaryGrappleCollisionProbe(bus, samus);
-                    var result = SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X, plms);
+                    SeedStationaryGrappleCollisionProbe(samus);
+                    var result = SamusGrappleMovement.StepFiring(level, samus, SnesButton.X, plms);
                     AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }
-                StepDownwardGatePlm(plms, bus, level, streamer);
+                StepDownwardGatePlm(plms, level, streamer);
                 AssertEqual(0, plms.Gates.TakeDownwardGateProjectileRequests().Count, "rejected grapple does not wake or replace gate actor");
                 enemies.StepEnemyProjectiles(level, null);
                 enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);

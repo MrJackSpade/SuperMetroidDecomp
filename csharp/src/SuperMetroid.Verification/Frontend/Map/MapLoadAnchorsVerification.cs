@@ -110,6 +110,8 @@ internal static class MapLoadAnchorsVerification
     /// <summary>Compares native and compiled map scrolling, saved-station entry, and area rendering with cartridge access forbidden on the compiled path.</summary>
     internal static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
+        // One store for every saved-station fixture, as one SRAM held them.
+        var stationSaves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         Suite(nameof(VerifyMapLoadAnchorX), () => VerifyMapLoadAnchorX(bus));
         Suite(nameof(VerifyMapLoadAnchorY), () => VerifyMapLoadAnchorY(bus));
         Suite(nameof(VerifyFileSelectMapAreaCases), () => VerifyFileSelectMapAreaCases(bus));
@@ -142,8 +144,8 @@ internal static class MapLoadAnchorsVerification
                         var stations = new byte[Bank80SystemState.MapStationByteCount]; stations[area] = 1;
                         system.LoadMapStationBytes(stations);
                     }
-                    var native = new FileSelectMapScroll(bus, SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea), system, expected);
-                    var compiled = new FileSelectMapScroll(guard, catalog.Get(typedArea), system, actual);
+                    var native = new FileSelectMapScroll(SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea), system, expected);
+                    var compiled = new FileSelectMapScroll(catalog.Get(typedArea), system, actual);
                     AssertEqual(ScrollState(native), ScrollState(compiled), "compiled anchors retain bounds and initial clipping for empty/sparse/full/downloaded maps");
                     foreach (SnesButton input in MapScrollControls.Buttons)
                         for (int tick = 0; tick < 40; tick++)
@@ -158,18 +160,17 @@ internal static class MapLoadAnchorsVerification
         AssertEqual(34, anchors, "all native valid saved-map anchors checked");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Ceres, 0), "Ceres has no file-select map anchor");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Maridia, 16), "invalid station index not clamped");
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, catalog, catalog));
-        SuperMetroidSaveSlot savedSlot = new SuperMetroidSaveRam(bus, RetailPresentationFixture()).ReadSlot(0) ??
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog, catalog));
+        SuperMetroidSaveSlot savedSlot = stationSaves.ReadSlot(0) ??
             throw new InvalidDataException("Verification requires the fixture's saved slot 0.");
-        AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(bus,
-            new CartridgeAudioState(), savedSlot, 0),
+        AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(new CartridgeAudioState(), savedSlot, 0),
             "file-select map cannot construct a cartridge-backed fallback graph");
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
-            var native = new FileSelectAreaMapGraphics(bus, area, catalog.Tiles, catalog.Palettes,
+            var native = new FileSelectAreaMapGraphics(area, catalog.Tiles, catalog.Palettes,
                 catalog.Screens, catalog.WorldArtwork, catalog.Sprites);
             native.BindLabels(catalog.Labels);
-            var compiled = new FileSelectAreaMapGraphics(guard, area, catalog.Tiles, catalog.Palettes, catalog.Screens, catalog.WorldArtwork, catalog.Sprites);
+            var compiled = new FileSelectAreaMapGraphics(area, catalog.Tiles, catalog.Palettes, catalog.Screens, catalog.WorldArtwork, catalog.Sprites);
             compiled.BindLabels(catalog.Labels);
             for (int mask = 0; mask < 64; mask++)
             {
@@ -182,15 +183,15 @@ internal static class MapLoadAnchorsVerification
 
         void VerifyStationMenu(AreaId area, int station)
         {
-            var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+            var saves = stationSaves;
             var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)area, SaveStation = (ushort)station, Health = 99, MaxHealth = 99 };
             snapshot.MapStationBytes[(int)area] = 1;
             snapshot.UsedSaveStationBytes[(int)area * 2 + station / 8] = (byte)(1 << (station % 8));
             saves.SaveSlot(0, snapshot);
             byte[] before = ReadSram();
             var slot = saves.ReadSlot(0);
-            var native = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, catalog);
-            var compiled = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, catalog);
+            var native = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, catalog);
+            var compiled = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, catalog);
             // Area-specific expanding-window durations differ. Compare every
             // native phase and stop on its actual endpoint, with a bounded guard.
             for (int tick = 0; tick < 256 && compiled.Phase != FileSelectMapNavigationPhase.Room; tick++)
@@ -204,7 +205,7 @@ internal static class MapLoadAnchorsVerification
             AssertTrue(native.Render().SequenceEqual(compiled.Render()), "every saved station has exact composed room-map position");
             AssertTrue(before.SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
-        byte[] ReadSram() => SaveRamImage.Capture(SnesMemoryBusRequirement.Require(bus, "Map load anchors compare the whole SRAM image before and after map entry."));
+        byte[] ReadSram() => SuperMetroid.Core.Saves.SaveRamCodec.Encode(stationSaves, RetailPresentationFixture());
         static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => menu.scroll;
         static (Position16<MapPixels>, Position16<MapPixels>, Position16<MapPixels>, MapScrollDirection) ScrollState(FileSelectMapScroll value) =>
             (value.Scroll, value.Minimum, value.Maximum, value.Direction);

@@ -82,7 +82,7 @@ public sealed class XrayRevealVisualCatalog
     /// collision/BTS identity. Callers cannot pair a drawable command with another
     /// block's absent artwork; unowned pairs retain the native no-reveal result.
     /// </summary>
-    public XrayRevealDefinition? Apply(RoomCollisionType type, byte bts)
+    public XrayRevealDefinition? Apply(RoomCollisionType type, int bts)
     {
         if (XrayRevealTable.Find(type, bts) is not { } native) return null;
         if (!IsDrawable(native.Command)) return native;

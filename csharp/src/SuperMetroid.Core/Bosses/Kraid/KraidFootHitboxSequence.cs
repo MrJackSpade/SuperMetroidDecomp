@@ -1,18 +1,15 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Direct construction of the single shared rectangle without a stored hitbox lookup.</summary>
 internal readonly record struct KraidFootHitboxSequence(int Length)
 {
-    /// <summary>Constructs the shared centered rectangle and its background-touch/no-op-shot callbacks.</summary>
+    /// <summary>Constructs the shared centered rectangle with its ordinary touch and inert shot reactions.</summary>
     internal KraidFootCollisionHitbox this[int index]
     {
         get
         {
             if ((uint)index >= (uint)Length) throw new IndexOutOfRangeException();
-            return new(-6, -6, 6, 6, EnemyAiCodePointers.BankA7.KraidBackgroundTouch,
-                EnemyAiCodePointers.BankA7.KraidNoOpShot);
+            return new(-6, -6, 6, 6, KraidHitboxTouch.Background, KraidHitboxShot.Inert);
         }
     }
     /// <summary>Enumerates the one shared Kraid foot hitbox.</summary>

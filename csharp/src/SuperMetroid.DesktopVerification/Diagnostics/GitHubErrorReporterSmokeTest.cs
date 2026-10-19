@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Desktop.Diagnostics;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.DesktopVerification.Diagnostics;
 
@@ -35,8 +36,8 @@ public static class GitHubErrorReporterSmokeTest
                 GameState: "$08 MainGameplay",
                 Phase: "Gameplay",
                 ControllerInput: SnesButton.A,
-                RoomPointer: 0x96BA,
-                DoorPointer: 0x8BB6,
+                Room: "Climb",
+                Door: "Flyway0",
                 InputRecordingPath: "fixture.smrec",
                 FrameDiagnostics: frameDiagnostics);
             Require(GitHubErrorReporter.CreateFingerprint(repeated, context) ==
@@ -52,7 +53,7 @@ public static class GitHubErrorReporterSmokeTest
                 "grapple/type-C/bts-45", "block 99 (4,5)", true);
             var otherDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
                 "grapple/type-C/bts-4F", "block 12 (2,3)", true);
-            var otherRoom = context with { RoomPointer = 0xda60, InputRecordingPath = "new-run.smrec" };
+            var otherRoom = context with { Room = "Draygon", InputRecordingPath = "new-run.smrec" };
             Require(GitHubErrorReporter.CreateFingerprint(firstDispatch, context) == GitHubErrorReporter.CreateFingerprint(movedDispatch, otherRoom),
                 "Room-independent dispatch split by block/room location.");
             Require(GitHubErrorReporter.CreateFingerprint(firstDispatch, context) != GitHubErrorReporter.CreateFingerprint(otherDispatch, context),
@@ -80,8 +81,8 @@ public static class GitHubErrorReporterSmokeTest
         Require(created.Body.Contains($"supermetroid-error-id:{repeatedFingerprint}",
                 StringComparison.Ordinal),
             "Created issue body omitted its machine-readable fingerprint marker.");
-        Require(created.Body.Contains("$8F:96BA", StringComparison.Ordinal) &&
-                created.Body.Contains("$83:8BB6", StringComparison.Ordinal) &&
+        Require(created.Body.Contains("- Room: Climb", StringComparison.Ordinal) &&
+                created.Body.Contains("- Door: Flyway0", StringComparison.Ordinal) &&
                 created.Body.Contains(repeated.ToString(), StringComparison.Ordinal),
             "Created issue omitted frame context or the complete exception.");
         Require(created.Body.Contains(frameDiagnostics, StringComparison.Ordinal),
@@ -102,15 +103,15 @@ public static class GitHubErrorReporterSmokeTest
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
-        var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: colors);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: colors);
         var samus = new SamusState { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         runtime.Player.Samus = samus;
         samus.Drained.GetUpHandler = DrainedGetUpHandler.UnableToStand;
         samus.Presentation.SetAnimationFrameFromSpecialHandler(8, 1);
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
         samus.LiquidPhysics.LavaAcidYPosition = 100;
-        var game = new SuperMetroidGame(bus);
-        game.runtime = runtime;
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        game.Session.runtime = runtime;
         string before = game.CaptureGameplayFailureContext();
         samus.Presentation.SetAnimationFrameFromSpecialHandler(18, 1);
         string after = game.CaptureGameplayFailureContext();

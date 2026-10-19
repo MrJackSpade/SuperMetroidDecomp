@@ -10,11 +10,6 @@ internal static class DeadTorizoCorpseDefinitions
     /// </summary>
     internal static readonly DeadTorizoCorpseDefinition Corpse = new(
         RottingTablePointer: 0x9000,
-        VramTransferPointer: 0x0000,
-        CopyFunction: 0xe38b,
-        MoveFunction: 0xe272,
         EntryCount: 0x0060,
-        RotationTablePointer: 0xe226,
-        FinishFunction: 0xd5bd,
         WrapOffset: 0x0134);
 }

@@ -17,13 +17,12 @@ internal static class DraygonEscapeDragVerification
     /// </summary>
     internal static void VerifyDraygonEscapeDrag()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0135, 0x019d)) };
-        samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: false);
-        samus.DraygonGrabbed.Release(bus, samus);
+        samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
+        samus.DraygonGrabbed.Release(samus);
 
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]) { Function = DraygonAiFunction.CarrySamus };
         state.Body.Position = state.Body.Position.WithWhole(new(0x013b, 0x0176));

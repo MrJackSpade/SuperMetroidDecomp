@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces a Ridley hit crossing the 9000-health threshold while
 /// his shot reaction leaves acceleration stage changes for the later AI phase.</summary>
@@ -25,11 +26,11 @@ internal static class RidleyShotHealthStageVerification
     internal static void VerifyRidleyShotHealthStage()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xb32e);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = true;
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];
@@ -39,7 +40,7 @@ internal static class RidleyShotHealthStageVerification
         // Native update 56046: Ridley on frame $E983, both Super Missile slots on his body.
         ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));
         ridley.SpritemapPointer = 0xe983;
-        ridley.Properties = 0x3800;
+        ridley.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x3800));
         ridley.InvincibilityTimer = NativeCountdown.Start(0);
         ridley.InstructionTimer = NativeCountdown.Start(0x7fff);
         ridley.Health = 9340;
@@ -54,7 +55,7 @@ internal static class RidleyShotHealthStageVerification
             shot.Radius = new(8, 8);
             shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
         }
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: ridley.NativeIndex);
 
         AssertTrue(ridley.Health < 9000, "the hits cross 9000");

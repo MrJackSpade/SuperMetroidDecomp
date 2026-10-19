@@ -16,7 +16,7 @@ internal sealed class DraygonCannonPlmAnimation(DraygonCannonProgram program)
     private protected override ushort DrawList(DraygonCannonDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override DraygonCannonProgram? Publish(DraygonCannonCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override DraygonCannonProgram? Publish(DraygonCannonCue cue, PlmSlot slot, PlmStepContext context)
     {
         bool right = DraygonCannonPlmProgramDefinitions.FacesRight(Cursor.Program);
         switch (cue)
@@ -25,7 +25,7 @@ internal sealed class DraygonCannonPlmAnimation(DraygonCannonProgram program)
                 SetLink(right ? DraygonCannonProgram.RightHit : DraygonCannonProgram.LeftHit);
                 return null;
             case DraygonCannonCue.ArmMissileWake:
-                slot.PreInstruction = DraygonCannonRomData.MissileHitPreInstruction;
+                slot.PreInstruction = DraygonCannonPreInstructions.MissileHit;
                 return null;
             case DraygonCannonCue.CountHit:
                 return DraygonCannonPlms.CountHit(slot)

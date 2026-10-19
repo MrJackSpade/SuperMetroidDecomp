@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -10,8 +12,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>The Kago species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class KagoBehavior : IEnemySpecies
+internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KagoEntity(slot, common);
+
     /// <summary>Provides the room random word sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates Kago bugs from the ordinary enemy projectile pool.</summary>
@@ -36,26 +44,21 @@ internal sealed class KagoBehavior : IEnemySpecies
         _roomStatus = roomStatus;
     }
 
-    /// <summary>Holds shell hit counters and animation state at the native enemy slot indices.</summary>
-    internal readonly KagoEnemyState?[] _kagoStates =
-        new KagoEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>Kago_Init</c> at <c>$A8:AB46</c>.</summary>
-    internal void InitializeKago(RoomEnemySlot slot)
+    internal static void InitializeKago(RoomEnemySlot slot)
     {
-        var state = new KagoEnemyState(slot);
-        _kagoStates[slot.SlotIndex] = state;
+        var state = new KagoEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Kago's population word already carries the other authored property bits. Native
         // init ORs only $2000 so the common instruction interpreter animates the shell.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.VariableE = 0;
         state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow);
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
-        state.HitCounter = NativeCountdown.FromRaw(slot.Parameter1);
+        state.HitCounter = NativeCountdown.FromRaw(checked((ushort)slot.Parameter1));
     }
 
     /// <summary>Ports <c>Kago_Main</c> and its one useful indirect target.</summary>
@@ -70,7 +73,7 @@ internal sealed class KagoBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Kago main function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Kago main function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -99,7 +102,7 @@ internal sealed class KagoBehavior : IEnemySpecies
             if (!slot.Properties.HasAny(EnemyProperties.Deleted))
             {
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
-                _roomStatus.EnemiesKilled = unchecked((ushort)(_roomStatus.EnemiesKilled + 1));
+                _roomStatus.RecordKill();
             }
             state.DeathAnimationStarted = true;
         }
@@ -112,12 +115,12 @@ internal sealed class KagoBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a shot or main callback that arrived before the shell initialized its slot state.</summary>
-    private KagoEnemyState RequireKagoState(RoomEnemySlot slot) =>
-        _kagoStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static KagoEnemyState RequireKagoState(RoomEnemySlot slot) =>
+        slot.SpeciesState<KagoEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kago state.");
 
     /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>
-    internal void RegisterKagoBombReactions(EnemyAiTable table)
+    internal void RegisterKagoBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.KagoShot)
@@ -144,7 +147,7 @@ internal sealed class KagoBehavior : IEnemySpecies
             RunKagoBugFalling(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.KagoBug_Falling);
 
-        table.RegisterCue<KagoBugProjectileCue>(ApplyKagoBugCue);
+        table.RegisterCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, context.Samus, cue));
         // A shot bug runs its typed shot program, the list its definition names.
         table.RegisterShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileProgram.Shot));
     }
@@ -174,40 +177,31 @@ internal sealed class KagoBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Runs Kago's shell animation as a typed program (#641).</summary>
-    internal void RegisterKagoTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            KagoEnemyState state = RequireKagoState(slot);
-            AnimationProgramCursor<KagoProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, KagoAnimations.Programs, ref cursor, KagoFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Runs Kago shell initialization only for slots bearing the Kago definition.</summary>
-    internal void RegisterKagoInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Kago's typed animation.</summary>
+    internal static void AdvanceKagoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Kago, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKago(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        KagoEnemyState state = RequireKagoState(slot);
+        AnimationProgramCursor<KagoProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, KagoAnimations.Programs, ref cursor, KagoFrameDefinitions.ShownFrames.Of);
+        state.Program = cursor;
     }
 
-    /// <summary>Dispatches the shell's install-once and no-op main phases for Kago slots.</summary>
-    internal void RegisterKagoMainAi(EnemyAiTable table)
+    /// <summary>Ports Kago's initialization AI.</summary>
+    internal static void RunKagoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeKago(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Kago, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunKagoMain(RequireKagoState(slot));
-        });
+    /// <summary>Ports Kago's main AI.</summary>
+    internal static void RunKagoMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
+    {
+        RunKagoMain(RequireKagoState(slot));
     }
 
     /// <summary>Applies Kago's shell response after the common projectile-shot callback has resolved damage.</summary>
-    internal void RegisterKagoShotReactions(EnemyAiTable table)
+    internal void RegisterKagoShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KagoShot)
@@ -225,10 +219,7 @@ internal sealed class KagoBehavior : IEnemySpecies
     private const ushort KagoBugSourceHomingDistance = 48;
 
     /// <summary>Last library-two Kago bug sound request produced during this enemy frame.</summary>
-    public ushort? LastKagoBugSoundEffect { get; private set; }
-
-    /// <summary>Last Kago bug enemy-drop request produced during this enemy frame.</summary>
-    public KagoBugDropRequest? LastKagoBugDropRequest { get; private set; }
+    public SoundEffectId? LastKagoBugSoundEffect { get; private set; }
 
     /// <summary>Ports <c>EprojInit_KagosBugs</c> at <c>$86:D088</c>.</summary>
     internal bool SpawnKagoBug(RoomEnemySlot source)
@@ -251,7 +242,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         projectile.CollidedProjectileType = initialIdleTimer;
         projectile.Variable0 = unchecked((ushort)(initialIdleTimer + 4));
         projectile.PreInstruction =
-            (ushort)EnemyProjectilePreInstruction.KagoBug_Idle;
+            EnemyProjectilePreInstruction.KagoBug_Idle;
         projectile.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         return true;
     }
@@ -259,11 +250,13 @@ internal sealed class KagoBehavior : IEnemySpecies
     /// <summary>Ports the library-two sound countdown shared by every live bug state.</summary>
     private void StepKagoBugSound(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.Variable0 == 0)
+        NativeCountdown soundTimer = NativeCountdown.FromRaw(checked((ushort)projectile.Variable0));
+        if (soundTimer.IsZero)
             return;
 
-        projectile.Variable0 = unchecked((ushort)(projectile.Variable0 - 1));
-        if (projectile.Variable0 == 0)
+        soundTimer = soundTimer.DecrementToZero();
+        projectile.Variable0 = soundTimer.RawValue;
+        if (soundTimer.IsZero)
             LastKagoBugSoundEffect = EnemySoundEffectDefinitions.KagoBugSoundEffect;
     }
 
@@ -273,7 +266,7 @@ internal sealed class KagoBehavior : IEnemySpecies
     /// </summary>
     private void EnableKagoBugShotCollisionWhenSeparated(RoomEnemyProjectileSlot projectile)
     {
-        RoomEnemySlot source = _slotTable.SlotFromNativeIndex(projectile.Variable1);
+        RoomEnemySlot source = _slotTable.SlotFromNativeIndex(checked((ushort)projectile.Variable1));
         int distance = Math.Abs(unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole)));
         if (distance >= KagoBugSourceCollisionEnableDistance)
             projectile.BlocksSamusProjectiles = true;
@@ -289,12 +282,12 @@ internal sealed class KagoBehavior : IEnemySpecies
         // of one therefore decrements to zero and remains idle until the following frame.
         if (projectile.CollidedProjectileType != 0)
         {
-            projectile.CollidedProjectileType = NativeWordCounter.Decrement(projectile.CollidedProjectileType).Value;
+            projectile.CollidedProjectileType = NativeWordCounter.Decrement(checked((ushort)projectile.CollidedProjectileType)).Value;
             return;
         }
 
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.JumpStart));
-        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86D0EB;
+        projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86D0EB;
     }
 
     /// <summary>Ports airborne rising pre-instruction <c>$86:D0EC</c>.</summary>
@@ -340,7 +333,7 @@ internal sealed class KagoBehavior : IEnemySpecies
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
         {
-            projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86D0EB;
+            projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86D0EB;
             projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.Landed));
             return;
         }
@@ -352,7 +345,7 @@ internal sealed class KagoBehavior : IEnemySpecies
     private static void BeginKagoBugFall(RoomEnemyProjectileSlot projectile)
     {
         projectile.PreInstruction =
-            (ushort)EnemyProjectilePreInstruction.KagoBug_Falling;
+            EnemyProjectilePreInstruction.KagoBug_Falling;
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.Falling));
     }
 
@@ -365,7 +358,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         ushort upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & KagoDefinitions.JumpHeightRandomBits) + 2048));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-upwardMagnitude)));
 
-        RoomEnemySlot source = _slotTable.SlotFromNativeIndex(projectile.Variable1);
+        RoomEnemySlot source = _slotTable.SlotFromNativeIndex(checked((ushort)projectile.Variable1));
         short sourceDelta = unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole));
         bool jumpLeft;
         if (Math.Abs((int)sourceDelta) >= KagoBugSourceHomingDistance)
@@ -384,7 +377,7 @@ internal sealed class KagoBehavior : IEnemySpecies
             ? unchecked((ushort)-KagoBugHorizontalSpeed)
             : KagoBugHorizontalSpeed));
         projectile.PreInstruction =
-            (ushort)EnemyProjectilePreInstruction.KagoBug_Jumping;
+            EnemyProjectilePreInstruction.KagoBug_Jumping;
     }
 
     /// <summary>Ports landed-list instruction <c>$86:D1B6</c>.</summary>
@@ -393,40 +386,36 @@ internal sealed class KagoBehavior : IEnemySpecies
         projectile.CollidedProjectileType = unchecked((ushort)(
             (ReadKagoRandomNumber() & 31) + 1));
         projectile.PreInstruction =
-            (ushort)EnemyProjectilePreInstruction.KagoBug_Idle;
+            EnemyProjectilePreInstruction.KagoBug_Idle;
     }
 
     /// <summary>Ports shot-list drop instruction <c>$86:D1CE</c>.</summary>
     internal void RequestKagoBugDrop(RoomEnemyProjectileSlot projectile)
     {
-        LastKagoBugDropRequest = new KagoBugDropRequest();
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
             projectile.Position.Whole,
             EnemyDefinitionId.Kago);
     }
 
     /// <summary>Samples the shared random word without consuming a new value, matching the bug routines' seed reuse.</summary>
-    private ushort ReadKagoRandomNumber() =>
+    private int ReadKagoRandomNumber() =>
         _room.Random.Read();
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastKagoBugSoundEffect = null;
-        LastKagoBugDropRequest = null;
-        Array.Clear(_kagoStates);
     }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastKagoBugSoundEffect = null;
-        LastKagoBugDropRequest = null;
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastKagoBugSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastKagoBugSoundEffect, maximumQueued: 6);
     }
 }

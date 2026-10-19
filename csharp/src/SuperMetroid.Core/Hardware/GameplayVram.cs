@@ -22,6 +22,10 @@ public readonly struct GameplayVram(SnesVram vram)
     /// <summary>Queued-DMA destination of the standard BG3 upload (HUD characters then the cleared BG2 tilemap).</summary>
     public static VramDmaDestination HudCharacterUploadDma => VramDmaDestination.At(GameplayVramLayout.HudCharacterUpload);
 
-    /// <summary>The queued-DMA destination at the start of the OBJ character table, where the standard OBJ upload lands.</summary>
-    public static VramDmaDestination ObjectCharactersDma() => VramDmaDestination.At(GameplayVramLayout.ObjectCharacters);
+    /// <summary>
+    /// The queued-DMA destination <paramref name="wordOffset"/> words into the OBJ character table; the start is where the
+    /// standard OBJ upload lands.
+    /// </summary>
+    public static VramDmaDestination ObjectCharactersDma(int wordOffset = 0) =>
+        VramDmaDestination.At(GameplayVramLayout.ObjectCharacters, wordOffset);
 }

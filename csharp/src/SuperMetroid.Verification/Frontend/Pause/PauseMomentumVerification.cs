@@ -47,7 +47,7 @@ internal static class PauseMomentumVerification
                 AssertEqual(0, speed.SpeedEchoIndex, "unpause resets echo index without departure mode");
                 AssertEqual(0, speed.FirstSpeedEchoPosition.X | speed.SecondSpeedEchoPosition.X |
                     speed.FirstSpeedEchoPosition.Y | speed.SecondSpeedEchoPosition.Y |
-                    speed.FirstSpeedEchoXSpeed | speed.SecondSpeedEchoXSpeed, "unpause clears both echo positions and velocities");
+                    speed.FirstSpeedEchoVelocity.X | speed.SecondSpeedEchoVelocity.X, "unpause clears both echo positions and velocities");
             }
             else if (momentum && counter == 0)
             {

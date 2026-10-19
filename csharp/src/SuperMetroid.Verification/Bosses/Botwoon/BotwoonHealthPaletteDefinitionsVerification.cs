@@ -20,77 +20,71 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
     internal static void VerifyBotwoonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
 
-        for (ushort phase = 0;
-             phase < BotwoonHealthPaletteDefinitions.CompletePhaseByteOffset;
-             phase += 2)
+        for (int phase = 0; phase < BotwoonHealthPaletteDefinitions.CompletePhase; phase++)
         {
-            ushort threshold = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase));
+            ushort threshold = CartridgeImportSource.Require(rom).ReadCartridgeWord(BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase * sizeof(ushort));
             for (int health = 0; health <= ushort.MaxValue; health++)
             {
                 bool expected = unchecked((short)((ushort)health - threshold)) < 0;
                 AssertEqual(expected,
-                    BotwoonHealthPaletteDefinitions.ShouldAdvance(phase, (ushort)health),
+                    BotwoonHealthPaletteDefinitions.ShouldAdvance(phase, health),
                     $"Botwoon phase ${phase:X2} health {health} threshold decision");
             }
         }
 
-        foreach (ushort invalid in new ushort[] { 1, 3, 15, 16, 18, ushort.MaxValue })
+        foreach (int invalid in new[] { -1, 8, 9, int.MaxValue })
         {
             AssertThrows<InvalidDataException>(
                 () => BotwoonHealthPaletteDefinitions.ShouldAdvance(invalid, 0),
-                $"Botwoon rejects restored palette phase ${invalid:X4}");
+                $"Botwoon rejects restored palette phase {invalid}");
         }
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = NewBotwoonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(BotwoonColorExtractor.Extract(rom), writable: false);
         var enemies = new RoomEnemySystem
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), BotwoonColors = BotwoonColorCatalog.Load(colors) }),
         };
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = new SnesCgram();
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        var state = new BotwoonEnemyState(head)
+        var state = new BotwoonEnemyState()
         {
-            // Sprite palette seven starts at CGRAM color 240 / byte offset $01E0.
-            PaletteDestinationByteOffset = 0x01e0,
+            // Sprite palette seven starts at CGRAM color 240.
+            PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor,
         };
 
-        for (ushort phase = 0;
-             phase < BotwoonHealthPaletteDefinitions.CompletePhaseByteOffset;
-             phase += 2)
+        for (int phase = 0; phase < BotwoonHealthPaletteDefinitions.CompletePhase; phase++)
         {
-            ushort threshold = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase));
-            state.PalettePhaseByteOffset = phase;
+            ushort threshold = CartridgeImportSource.Require(rom).ReadCartridgeWord(BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase * sizeof(ushort));
+            state.PalettePhase = phase;
             head.Health = threshold;
             update(head, state);
-            AssertEqual(phase, state.PalettePhaseByteOffset,
+            AssertEqual(phase, state.PalettePhase,
                 $"production Botwoon phase ${phase:X2} holds at threshold");
 
-            state.PalettePhaseByteOffset = phase;
-            head.Health = unchecked((ushort)(threshold - 1));
+            state.PalettePhase = phase;
+            head.Health = threshold - 1;
             update(head, state);
-            AssertEqual(unchecked((ushort)(phase + 2)), state.PalettePhaseByteOffset,
+            AssertEqual(phase + 1, state.PalettePhase,
                 $"production Botwoon phase ${phase:X2} advances below threshold");
         }
 
-        state.PalettePhaseByteOffset =
-            BotwoonHealthPaletteDefinitions.CompletePhaseByteOffset;
+        state.PalettePhase = BotwoonHealthPaletteDefinitions.CompletePhase;
         update(head, state);
-        AssertEqual(BotwoonHealthPaletteDefinitions.CompletePhaseByteOffset,
-            state.PalettePhaseByteOffset,
+        AssertEqual(BotwoonHealthPaletteDefinitions.CompletePhase,
+            state.PalettePhase,
             "production Botwoon completed palette phase remains terminal");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production Botwoon palette progression performs no threshold reads");
 
-        foreach (ushort invalid in new ushort[] { 1, 18 })
+        foreach (int invalid in new[] { -1, 9 })
         {
-            state.PalettePhaseByteOffset = invalid;
+            state.PalettePhase = invalid;
             AssertThrows<InvalidDataException>(
                 () => update(head, state),
-                $"production Botwoon rejects restored palette phase ${invalid:X4}");
+                $"production Botwoon rejects restored palette phase {invalid}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "malformed Botwoon palette phase performs no threshold reads");

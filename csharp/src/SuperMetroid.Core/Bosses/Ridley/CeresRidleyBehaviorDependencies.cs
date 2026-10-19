@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>The collaborators a <see cref="CeresRidleyBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record CeresRidleyBehaviorDependencies
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    public required EnemyFrameResultBuilder FrameResults { get; init; }
+
     /// <summary>Dispatch.</summary>
     public required IEnemyDispatch Dispatch { get; init; }
 

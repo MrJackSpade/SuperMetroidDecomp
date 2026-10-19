@@ -72,7 +72,7 @@ internal static class SporeSpawnAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
                     AssertEqual((int)word, step.Duration, $"{at}: duration");
-                    AssertEqual(operand, SporeSpawnFrameDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
+                    AssertEqual(operand, SporeSpawnFrameDefinitionsConstants.Spritemap(step.Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Sleep:
@@ -111,16 +111,18 @@ internal static class SporeSpawnAnimationsVerification
                             AssertEqual(operand, (ushort)cue.Function, $"{at}: function");
                             break;
                         case SporeSpawnCueKind.SetMaxXRadiusAndAngleDelta:
-                            AssertEqual(operand, cue.Value, $"{at}: maximum X radius");
-                            AssertEqual(cartridge.ReadCartridgeWord(address + 4), cue.AngleDelta, $"{at}: angle delta");
+                            AssertEqual((int)operand, cue.MaximumXRadius, $"{at}: maximum X radius in pixels");
+                            AssertEqual((int)unchecked((short)cartridge.ReadCartridgeWord(address + 4)), cue.AngleDelta, $"{at}: signed angle delta");
                             break;
                         case SporeSpawnCueKind.SetSporeGeneration:
+                            AssertEqual(operand != 0, cue.SporeGenerationSuppressed, $"{at}: spore generation stopped");
+                            break;
                         case SporeSpawnCueKind.QueueSound:
-                            AssertEqual(operand, cue.Value, $"{at}: operand");
+                            AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operand), cue.Sound, $"{at}: library-two sound");
                             break;
                         case SporeSpawnCueKind.LoadDeathPalette:
                         case SporeSpawnCueKind.LoadDeathTargetPalette:
-                            AssertEqual(operand, checked((ushort)(cue.Value * SporeSpawnColorRomData.FrameByteCount)), $"{at}: palette row");
+                            AssertEqual(operand, checked((ushort)(cue.DeathPaletteStep * SporeSpawnColorRomData.FrameByteCount)), $"{at}: palette row");
                             break;
                     }
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands));
@@ -142,7 +144,7 @@ internal static class SporeSpawnAnimationsVerification
     internal static HashSet<ushort> BodySpritemaps() =>
         [.. BodyEntries.SelectMany(item => SporeSpawnAnimations.Programs.Steps(item.Program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => SporeSpawnFrameDefinitions.Spritemap(step.Frame))];
+            .Select(step => SporeSpawnFrameDefinitionsConstants.Spritemap(step.Frame))];
 
     /// <summary>The frames Spore Spawn's body programs show, counting each native frame record once.</summary>
     internal static int BodyFrameRecordCount =>
@@ -162,7 +164,7 @@ internal static class SporeSpawnAnimationsVerification
         int updates = 0;
         foreach ((SporeSpawnProjectileProgram program, ushort entry) in ProjectileEntries)
         {
-            RoomEnemySystem enemies = NewProjectileSystem(rom);
+            RoomEnemySystem enemies = NewProjectileSystem();
             enemies.SporeSpawnBehavior.SpawnSporeSpawnSpore(new(128, 256));
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
             AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
@@ -175,7 +177,7 @@ internal static class SporeSpawnAnimationsVerification
             {
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 native.Step(cartridge);
-                drops += native.Callbacks.Count(callback => callback == EnemyProjectileInstruction.Spores_SpawnEnemyDrops);
+                drops += native.Callbacks.Count(callback => callback == NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops);
                 string at = $"Spore Spawn projectile {program} update {update}";
                 AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
                 if (native.Deleted)
@@ -190,10 +192,10 @@ internal static class SporeSpawnAnimationsVerification
     }
 
     /// <summary>A projectile system whose spore drops have a Samus to read.</summary>
-    private static RoomEnemySystem NewProjectileSystem(SuperMetroidAddressSpace rom)
+    private static RoomEnemySystem NewProjectileSystem()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewSporeSpawnInstructionReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState();
         return enemies;
@@ -201,7 +203,6 @@ internal static class SporeSpawnAnimationsVerification
 
     /// <summary>Runs <paramref name="program"/> on an initialized Spore Spawn fixture for a fixed number of enemy frames.</summary>
     internal static (RoomEnemySystem System, RoomEnemySlot Body) RunSporeSpawnProgram(
-        MutableCartridgeReadGuard bus,
         SporeSpawnBodyProgram program,
         int frames,
         EnemyTileArtworkCatalog? artwork = null,
@@ -210,8 +211,8 @@ internal static class SporeSpawnAnimationsVerification
         var enemies = new RoomEnemySystem();
         enemies.TileArtwork = artwork ?? InstalledFixtures.EnemyTiles;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
-        body.Definition = default(RoomEnemyDefinition) with { Bank = BodyBankNumber };
+        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+        body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BodyBankNumber });
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         body.InstructionTimer = NativeCountdown.Start(1);
@@ -224,7 +225,7 @@ internal static class SporeSpawnAnimationsVerification
             AngleDelta = 1,
             BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(program),
         };
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = new SnesCgram();
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4660);
         enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
@@ -232,7 +233,7 @@ internal static class SporeSpawnAnimationsVerification
 
         for (int frame = 0; frame < frames; frame++)
         {
-            enemies.Instructions.ProcessInstructions(body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyInstructionInterpreter.ProcessInstructions(body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             afterFrame?.Invoke(enemies, body);
         }
         return (enemies, body);

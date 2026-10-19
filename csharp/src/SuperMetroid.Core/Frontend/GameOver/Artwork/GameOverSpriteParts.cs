@@ -41,14 +41,14 @@ internal sealed class GameOverSpriteParts(string name) : IReadOnlyList<CompiledS
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             if (!Shell)
-                return new(SnesSpritemapXWord.Create(-8, true), unchecked((byte)-8),
+                return new(SnesSpritemapXWord.Create(-8, true), SnesSpritemapYByte.Create(-8),
                     SnesObjAttributeWord.Create(Tile, 0, 3, SnesTileFlipFlags.None), true);
             // The eight-pixel caps lie outside the centered sixteen-pixel Baby region.
             bool left = (index & 1) != 0;
             bool upper = index >= 2;
             var flips = (left ? SnesTileFlipFlags.None : SnesTileFlipFlags.Horizontal) |
                 (upper ? SnesTileFlipFlags.None : SnesTileFlipFlags.Vertical);
-            return new(SnesSpritemapXWord.Create(left ? -8 : 0, false), unchecked((byte)(upper ? -16 : 8)),
+            return new(SnesSpritemapXWord.Create(left ? -8 : 0, false), SnesSpritemapYByte.Create(upper ? -16 : 8),
                 SnesObjAttributeWord.Create(Tile, 0, 3, flips), true);
         }
     }

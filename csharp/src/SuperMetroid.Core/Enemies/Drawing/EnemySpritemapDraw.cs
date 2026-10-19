@@ -1,22 +1,29 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Drawing;
 
-/// <summary>One enemy spritemap draw: its bank, pointer, origin, palette and tile base, and clipping (#633).</summary>
+/// <summary>One enemy spritemap draw: its frame, origin, palette and tile base, and clipping (#633).</summary>
 internal sealed record EnemySpritemapDraw
 {
-    /// <summary>Bank.</summary>
-    public required byte Bank { get; init; }
-
-    /// <summary>Pointer.</summary>
-    public required ushort Pointer { get; init; }
+    /// <summary>The installed frame drawn.</summary>
+    public required EnemyFrameId Frame { get; init; }
 
     /// <summary>Origin.</summary>
     public required Position16<OamPixels> Origin { get; init; }
 
     /// <summary>Palette bits.</summary>
-    public required ushort PaletteBits { get; init; }
+    public required int PaletteBits
+    {
+        get;
+        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Base tile index.</summary>
-    public required ushort BaseTileIndex { get; init; }
+    public required int BaseTileIndex
+    {
+        get;
+        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Clip vertical wrap.</summary>
     public bool ClipVerticalWrap { get; init; } = false;

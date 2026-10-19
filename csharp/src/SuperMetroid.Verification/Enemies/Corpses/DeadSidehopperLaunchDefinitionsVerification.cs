@@ -20,11 +20,10 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
     internal static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
-        Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, ushort> dispatch = enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState;
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState;
         var slot = enemies.SlotTable.Slots[0];
-        var state = new DeadSidehopperEnemyState(slot, 0, 0, new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
+        var state = new DeadSidehopperEnemyState(slot, 0, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
         for (ushort phase = 0; phase < 4; phase++)
         {
             ushort vx = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2));
@@ -39,10 +38,10 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 state.PaletteStage = paletteStage;
                 state.JumpPhase = phase;
                 state.Velocity = new EightEightVector<RoomPixels>(0x1234, 0x1234);
-                enemies.DeadSidehopperBehavior._deadSidehopperPrograms[0] = AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperCorpse);
+                enemies.DeadSidehopperBehavior._extensions[0].Program = AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperCorpse);
                 slot.InstructionTimer = NativeCountdown.Start(9);
                 slot.Timer = NativeCountdown.Start(17);
-                dispatch(slot, state, null, null, 0);
+                dispatch(slot, state, null, null, default);
                 ushort timer = unchecked((ushort)(raw - 1));
                 bool expired = (timer & 0x8000) != 0;
                 bool launch = expired && paletteStage == 0;
@@ -52,7 +51,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 AssertEqual(expired ? (launch ? DeadSidehopperAiFunction.ActivatedMovement : DeadSidehopperAiFunction.TransformPalette) : DeadSidehopperAiFunction.PostLandingDelay,
                     state.Function, "Exact launch versus transformation handoff");
                 AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(launch ? DeadTourianProgram.SidehopperIdle : DeadTourianProgram.SidehopperCorpse),
-                    enemies.DeadSidehopperBehavior._deadSidehopperPrograms[0], "Launch restarts the alive-idle animation");
+                    enemies.DeadSidehopperBehavior._extensions[0].Program, "Launch restarts the alive-idle animation");
                 AssertEqual(launch ? (ushort)1 : (ushort)9, slot.InstructionTimer.RawValue, "Launch instruction timer");
                 AssertEqual(launch ? (ushort)0 : (ushort)17, slot.Timer.RawValue, "Launch clears instruction loop timer");
                 AssertEqual(phase, state.JumpPhase, "Launch does not advance landing-owned phase");

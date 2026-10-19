@@ -15,7 +15,6 @@ internal static class ChootPatternDefinitionsVerification
     /// <summary>Checks five Choot path sources, initializers, complete fall loops, and invalid pattern indexes.</summary>
     internal static void VerifyChootPatternDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
         var runFall = new Action<RoomEnemySlot, ChootEnemyState>(ChootBehavior.RunChootFall);
         int[] frameCounts = [74, 74, 74, 94, 134];
 
@@ -53,9 +52,10 @@ internal static class ChootPatternDefinitionsVerification
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
                 var enemies = new RoomEnemySystem();
-                enemies.BindFixtureBus(NewChootPatternReadGuard(rom));
+                enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 var initialize = new Action<RoomEnemySlot>(enemies.ChootBehavior.InitializeChoot);
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+                slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
                 slot.Position = slot.Position.WithWhole(new(0x3456, 0x789a));
                 slot.Parameter1 = (ushort)((patternIndex << 8) | loopCount);
                 initialize(slot);
@@ -63,9 +63,9 @@ internal static class ChootPatternDefinitionsVerification
                 ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
                 ushort jumpHeight = unchecked((ushort)(
                     loopCount * (SnesLittleEndian.LowByte(definition.FallingPatternYDistance))));
-                AssertEqual((ushort)definition.FallingPatternPointer, (state ?? throw new InvalidOperationException("Verification requires state.")).FallingPatternPointer,
-                    $"Choot production pattern pointer {patternIndex}/{loopCount}");
-                AssertEqual(definition.FallingPatternYDistance, state.FallingPatternYDistance,
+                AssertEqual<ChootFallingPath?>(definition.FallingPatternPointer, (state ?? throw new InvalidOperationException("Verification requires state.")).FallingPath,
+                    $"Choot production pattern {patternIndex}/{loopCount}");
+                AssertEqual((int)definition.FallingPatternYDistance, state.FallingPatternYDistance,
                     $"Choot production pattern distance {patternIndex}/{loopCount}");
                 AssertEqual(slot.Position.X.Whole, state.InitialFallingPosition.X,
                     $"Choot production initial falling X {patternIndex}/{loopCount}");
@@ -75,15 +75,16 @@ internal static class ChootPatternDefinitionsVerification
             }
 
             var fallEnemies = new RoomEnemySystem();
-            fallEnemies.BindFixtureBus(NewChootPatternReadGuard(rom));
+            fallEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var initializeFall = new Action<RoomEnemySlot>(fallEnemies.ChootBehavior.InitializeChoot);
             RoomEnemySlot fallSlot = fallEnemies.SlotTable.Slots[0];
+            fallSlot.Bind(EnemyDefinitionId.Choot, fallSlot.Definition);
             fallSlot.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
             fallSlot.Parameter1 = (ushort)((patternIndex << 8) | 2);
             initializeFall(fallSlot);
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             (fallState ?? throw new InvalidOperationException("Verification requires fallState.")).FallingOrigin = new(0x4000, 0x5000);
-            fallState.FallingPatternIndex = 0;
+            fallState.FallingPatternFrame = 0;
             fallState.FallingPatternLoopCounter = NativeCountdown.Start(1);
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
@@ -98,13 +99,13 @@ internal static class ChootPatternDefinitionsVerification
                 AssertEqual(unchecked((ushort)(0x5000 + point.Offset.Y)),
                     fallSlot.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
-                AssertEqual(unchecked((ushort)((frameIndex + 1) << 8)),
-                    fallState.FallingPatternIndex,
+                AssertEqual(frameIndex + 1,
+                    fallState.FallingPatternFrame,
                     $"Choot production fall cursor {patternIndex}/{frameIndex}");
             }
 
             runFall(fallSlot, fallState);
-            AssertEqual((ushort)0, fallState.FallingPatternIndex,
+            AssertEqual(0, fallState.FallingPatternFrame,
                 $"Choot production loop cursor reset {patternIndex}");
             AssertEqual((ushort)0, fallState.FallingPatternLoopCounter.RawValue,
                 $"Choot production loop counter {patternIndex}");
@@ -112,8 +113,7 @@ internal static class ChootPatternDefinitionsVerification
                 fallState.FallingOrigin.Y,
                 $"Choot production loop Y advance {patternIndex}");
 
-            fallState.FallingPatternIndex = unchecked((ushort)(
-                (frameCounts[patternIndex] - 1) << 8));
+            fallState.FallingPatternFrame = frameCounts[patternIndex] - 1;
             runFall(fallSlot, fallState);
             AssertEqual((ushort)0x3456, fallSlot.Position.X.Whole,
                 $"Choot production final spawn X {patternIndex}");
@@ -132,17 +132,12 @@ internal static class ChootPatternDefinitionsVerification
             () => ChootPatternDefinitions.ForIndex(ushort.MaxValue),
             "restored Choot pattern index does not wrap into the catalog");
         AssertThrows<InvalidDataException>(
-            () => ChootFallingPathDefinitions.At(0xffff, 0),
+            () => ChootFallingPathDefinitionsConstants.At(0xffff, 0),
             "restored Choot falling pointer does not read arbitrary bank-A2 data");
         Console.WriteLine(
             "Choot pattern definitions: five selectors/distances, all 450 physical path frames, twenty initializers, and five complete fall loops pass with every source read forbidden.");
     }
 
-    /// <summary>Forbids Choot's bank-$A2 falling paths and pattern selector tables during live behavior.</summary>
-    private static CartridgeReadGuard NewChootPatternReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa2d84c and < 0xa2df74,
-                address => $"Choot attempted migrated pattern-definition read ${address:X6}.");
 
     /// <summary>Runs the Choot pattern definition verification suite.</summary>
     [VerificationCommand("--choot-pattern-definitions")]

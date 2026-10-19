@@ -14,7 +14,6 @@ internal static class MotherBrainTubeDescentVerification
     /// <summary>Compares fractional acceleration and head position every frame through tube deletion and room rebuild.</summary>
     internal static int VerifyMotherBrainTubeDescent()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var enemies = new RoomEnemySystem { Presentation = { MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors } };
         enemies.Presentation._cgram = new SnesCgram();
@@ -25,6 +24,7 @@ internal static class MotherBrainTubeDescentVerification
         tube.Parameter2 = 0;
         tube.Position = tube.Position.WithWhole(new(128, 128));
         state.Head.Position = state.Head.Position.WithWholeY(72);
+        tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);
         enemies.MotherBrainBehavior.InitializeMotherBrainFallingTube(tube);
         Action<RoomEnemySlot> step = enemies.MotherBrainBehavior.RunMotherBrainFallingTubeMain;
         uint expectedPosition = SnesSixteenSixteen.FromWhole((uint)tube.Position.Y.Whole);

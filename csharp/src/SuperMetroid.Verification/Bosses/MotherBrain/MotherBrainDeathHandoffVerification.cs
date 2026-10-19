@@ -39,14 +39,14 @@ internal static class MotherBrainDeathHandoffVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(foreground, new byte[256], new ushort[256]), new byte[8192]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(0, 6), PlmHeaderId.MotherBrainsRoomEscapeDoor), "escape PLM allocates");
-        AssertEqual((ushort)0x9123, level.GetCollisionBlock(new(0, 6)).LevelWord, "door setup preserves visual bits");
-        AssertEqual((byte)1, level.GetCollisionBlock(new(0, 6)).Behavior, "door setup selects second door header");
+        AssertEqual((ushort)0x9123, level.GetCollisionBlock(new(0, 6)).PackedWord.Raw, "door setup preserves visual bits");
+        AssertEqual((byte)1, level.GetCollisionBlock(new(0, 6)).Bts.Value, "door setup selects second door header");
         for (int row = 7; row < 10; row++)
         {
-            AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(0, checked((ushort)row))).LevelWord, "extension preserves visual bits");
-            AssertEqual(byte.MaxValue, level.GetCollisionBlock(new(0, checked((ushort)row))).Behavior, "extension links one block upward");
+            AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(0, checked((ushort)row))).PackedWord.Raw, "extension preserves visual bits");
+            AssertEqual(byte.MaxValue, level.GetCollisionBlock(new(0, checked((ushort)row))).Bts.Value, "extension links one block upward");
         }
-        AssertEqual((ushort)0x8123, level.GetCollisionBlock(new(0, 10)).LevelWord, "door setup does not overrun four blocks");
+        AssertEqual((ushort)0x8123, level.GetCollisionBlock(new(0, 10)).PackedWord.Raw, "door setup does not overrun four blocks");
         Console.WriteLine("  Mother Brain escape: typewriter glyph/delay/click semantics and native door setup agree.");
     }
 

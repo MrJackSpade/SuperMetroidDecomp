@@ -30,7 +30,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
         if (supplied.PartCount != (odd ? 33 : 36)) return supplied;
         int tip = odd ? 3 : 0, core = odd ? 12 : 18;
         var anchorPart = supplied.Part(core + 10);
-        var anchor = new Offset16<OamPixels>(checked((short)anchorPart.X.SignedOffset), unchecked((sbyte)anchorPart.Y));
+        var anchor = new Offset16<OamPixels>(checked((short)anchorPart.X.SignedOffset), (short)anchorPart.Y.SignedOffset);
         if (anchor.X > 215) return supplied;
         var stars = new CompiledSpritePart[supplied.PartCount - 13];
         int next = 0;
@@ -67,7 +67,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
             }
             else return stars[index - (index >= tip + 2 ? 2 : 0) - (index >= core + 11 ? 11 : 0)];
             Offset16<OamPixels> position = anchor + offset;
-            return new(SnesSpritemapXWord.Create(position.X, large), unchecked((byte)position.Y),
+            return new(SnesSpritemapXWord.Create(position.X, large), SnesSpritemapYByte.Create(position.Y),
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }

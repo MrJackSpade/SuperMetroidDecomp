@@ -29,7 +29,7 @@ internal static class YardDirectionDefinitions
     /// movement callback ($A3:CD42, $CDC2 and $CDD2). Direction pairs reverse motion on
     /// the same surface. Property bit zero selects positive motion and bit one vertical motion.
     /// </summary>
-    internal static YardDirectionDefinition ForDirection(ushort direction)
+    internal static YardDirectionDefinition ForDirection(int direction)
     {
         var selected = (SurfaceDirection)direction switch
         {
@@ -70,7 +70,7 @@ internal static class YardDirectionDefinitions
         };
         return selected with
         {
-            PropertyBits = (ushort)((direction & 1) | (direction < 4 ? 2 : 0)),
+            PropertyBits = (byte)((direction & 1) | (direction < 4 ? 2 : 0)),
             OppositeDirection = (ushort)(direction ^ 1),
         };
     }
@@ -79,7 +79,7 @@ internal static class YardDirectionDefinitions
     /// Chooses visible and hidden airborne animations by facing. Native detach,
     /// contact-kick and shot-launch repeat these pairs at $A3:D1AB, $D50F and $D5A4.
     /// </summary>
-    internal static YardAirborneInstructionDefinition ForAirborneFacing(ushort facing) => facing switch
+    internal static YardAirborneInstructionDefinition ForAirborneFacing(int facing) => facing switch
     {
         0 => new(YardProgram.AirborneFacingLeft,
             YardProgram.HiddenUpsideUpMovingLeft),

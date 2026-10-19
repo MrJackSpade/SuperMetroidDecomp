@@ -13,9 +13,9 @@ internal sealed class NoobTubeProjectileAnimation(NoobTubeProjectileProgram prog
     private protected override AnimationProgramSet<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Programs => NoobTubeProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(NoobTubeProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(NoobTubeProjectileFrameDefinitions.PresentationKey(
-            ShowsReflectedPose && frame.ReflectedPose is int reflected ? new(reflected) : frame));
+    private protected override EnemyProjectileFrameId Present(NoobTubeProjectileFrame frame) =>
+        NoobTubeProjectileFrameDefinitions.ShownProjectileFrames[
+            new(ShowsReflectedPose && frame.ReflectedPose is int reflected ? reflected : frame.Pose)];
 
     /// <summary>
     /// Whether the last flicker cue chose the reflected pose: a reflecting flicker shows it on even frames and its first

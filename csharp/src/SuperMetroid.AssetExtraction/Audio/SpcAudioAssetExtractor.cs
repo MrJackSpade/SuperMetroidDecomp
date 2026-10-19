@@ -51,11 +51,8 @@ public static class SpcAudioAssetExtractor
             File.WriteAllBytes(Path.Combine(audioDirectory, relativePath), stream);
             sourceStreams.Add(definition.SnesAddress, stream);
             uploads.Add(new AudioUploadManifestEntry(
-                definition.Name,
                 definition.SnesAddress,
-                definition.DataIndex,
                 relativePath.Replace('\\', '/'),
-                stream.Length,
                 Convert.ToHexString(SHA256.HashData(stream))));
         }
 
@@ -178,7 +175,7 @@ public static class SpcAudioAssetExtractor
             ushort loop = ReadWord(ram, directory + 2);
             if (start == 0 || !written[start])
                 continue;
-            if (!TryDecodeBrr(ram, written, start, loop, out short[] pcm, out int blocks, out int? loopSample))
+            if (!TryDecodeBrr(ram, written, start, loop, out short[] pcm, out _, out int? loopSample))
                 continue;
 
             string sampleId = canonicalSamples.Add(
@@ -187,7 +184,7 @@ public static class SpcAudioAssetExtractor
                 pcm,
                 loopSample);
             samples.Add(new AudioSampleMetadata(
-                unchecked((byte)source), start, loop, blocks, sampleId));
+                unchecked((byte)source), start, loop, sampleId));
         }
 
         return new AudioBankMetadata(

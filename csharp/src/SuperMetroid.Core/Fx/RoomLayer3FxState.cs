@@ -5,6 +5,8 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -23,6 +25,12 @@ public sealed class RoomLayer3FxState
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore tile animations.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
 
+    /// <summary>The Fireflea FX state. It is session-lived like the cartridge's WRAM, so a room load does not reset it.</summary>
+    public FirefleaFxState Fireflea { get; } = new();
+
+    /// <summary>The shared COLDATA shadows. They are session-lived, so they keep the last writer's values across rooms.</summary>
+    public FixedColorState FixedColors { get; } = new();
+
     /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>
     [field: NonSerialized]
     public RoomFxAnimatedTileAtlas? AnimatedTileArtwork { get; set; }
@@ -39,18 +47,27 @@ public sealed class RoomLayer3FxState
     /// byte offsets BG3 scroll before the next velocity step.
     /// </summary>
     internal Offset16<Bg3Subpixels> drift;
-    /// <summary>Native horizontal drift velocity for atmospheric BG3 effects.</summary>
-    private ushort horizontalVelocity;
+    /// <summary>
+    /// Rain's horizontal texture drift per frame in 8.8 pixels, chosen from the random number when the room loads;
+    /// only X is set. The fall is <see cref="RainFallVelocity"/>.
+    /// </summary>
+    private Offset16<Bg3Subpixels> rainWindVelocity;
     /// <summary>Previous layer-one camera point, used to make rain follow camera movement.</summary>
     internal Position16<RoomPixels> previousCamera;
-    /// <summary>Fractional part of the liquid surface before tide displacement.</summary>
-    internal ushort baseYSubposition;
-    /// <summary>Negative-cosine lookup phase for the liquid tide.</summary>
-    internal ushort tidePhase;
+    /// <summary>How many tide-phase units make one full turn of the negative-cosine lookup.</summary>
+    private const int TidePhasePeriod = 65536;
+    /// <summary>
+    /// Negative-cosine lookup phase for the liquid tide, 0 through 65535: its whole 1/256 turns select the sample, and
+    /// it returns to zero after a full turn through <see cref="AdvanceTidePhase"/>.
+    /// </summary>
+    internal int tidePhase;
     /// <summary>Signed fixed-point tide displacement added to the base surface.</summary>
     internal int tideFixedOffset;
-    /// <summary>Water BG3 horizontal drift accumulated in subpixels.</summary>
-    private ushort waterHorizontalSubscroll;
+    /// <summary>
+    /// Water's BG3 surface drift: an 8.8 horizontal accumulator whose signed whole pixels offset the surface
+    /// texture. Only X moves.
+    /// </summary>
+    private Offset16<Bg3Subpixels> waterDrift;
     /// <summary>Countdown before advancing the water BG3 waveform.</summary>
     private NativeCountdown waterBg3WaveTimer;
     /// <summary>Countdown for the optional water BG2 horizontal wave.</summary>
@@ -92,17 +109,20 @@ public sealed class RoomLayer3FxState
     /// <summary>The literal FX type byte selected from the active room/door record.</summary>
     public RoomFxType Type { get; internal set; }
 
-    /// <summary>Native <c>FX_BaseYPosition</c> word loaded from record offset two.</summary>
-    public ushort BaseYPosition { get; private set; }
-
-    /// <summary>Native <c>FX_TargetYPosition</c> word loaded from record offset four.</summary>
-    public ushort TargetYPosition { get; private set; }
+    /// <summary>
+    /// The liquid surface before tide displacement, a room Y with subpixels: the FX record's base whole pixels (a room
+    /// load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by <see cref="YVelocity"/>.
+    /// </summary>
+    public SnesFixedPosition BaseY { get; internal set; }
 
     /// <summary>
-    /// Packed native <c>FX_YSubVelocity/FX_YVelocity</c> word loaded from offset six.
-    /// The low byte is subvelocity and the high byte is signed whole-pixel velocity.
+    /// Where a rising or falling liquid stops, at X zero. A Y from 32768 up disables the motion, as the cartridge's
+    /// sign test does.
     /// </summary>
-    public ushort PackedYVelocity { get; private set; }
+    public Position16<RoomPixels> TargetSurface { get; private set; }
+
+    /// <summary>The liquid's signed 8.8 vertical velocity in room pixels per update while it moves toward its target.</summary>
+    public SnesSignedEightEight YVelocity { get; private set; }
 
     /// <summary>Native zero-extended FX timer byte loaded from record offset eight.</summary>
     public NativeCountdown Timer { get; private set; }
@@ -118,11 +138,17 @@ public sealed class RoomLayer3FxState
         RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.TourianEntranceStatue or
         RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
 
-    /// <summary>Live liquid surface used by bank-$88 after rising/tide processing.</summary>
-    public ushort CurrentYPosition { get; internal set; } = ushort.MaxValue;
+    /// <summary>
+    /// The live liquid surface after rising and tide processing, at X zero. A Y from 32768 up (65535 with no liquid)
+    /// lies above the room, as the cartridge's sign test reads it.
+    /// </summary>
+    public Position16<RoomPixels> Surface { get; internal set; } = NoSurface;
 
-    /// <summary>Native liquid-options byte, zero-extended for consumers of WRAM <c>$197E</c>.</summary>
-    public ushort LiquidOptions { get; internal set; }
+    /// <summary>The surface published while no liquid is loaded.</summary>
+    internal static Position16<RoomPixels> NoSurface { get; } = new(0, ushort.MaxValue);
+
+    /// <summary>The liquid options the FX record selected, as PLMs have since changed them.</summary>
+    public RoomLiquidOptions LiquidOptions { get; internal set; }
 
     /// <summary>
     /// Sound requests emitted by the current bank-$88 effect pass in cartridge queue order.
@@ -138,22 +164,20 @@ public sealed class RoomLayer3FxState
 
     /// <summary>Clears the prior room and selects the current door's native FX record.</summary>
     public void Load(
-        ISnesAddressSpace bus,
         SnesVram vram,
         SnesCgram cgram,
-        ushort fxPointer,
-        ushort doorPointer,
-        ushort randomNumber,
-        ushort roomHeaderPointer = 0) =>
-        LoadCore(bus, vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, DoorPointer = doorPointer, RandomNumber = randomNumber, RoomHeaderPointer = roomHeaderPointer, SuppliedDefinition = null });
+        RoomFxDefinition? fx,
+        CartridgeDoorHeader? door,
+        int randomNumber,
+        RoomHeaderDefinition? room = null) =>
+        LoadCore(vram, cgram, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>
     /// Clears the prior BG3 tilemap, selects the door's FX record, and initializes the
     /// liquid and palette state shared by room effects and PLMs.
     /// </summary>
-    internal void LoadCore(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
+    internal void LoadCore(SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
         Reset();
@@ -169,34 +193,29 @@ public sealed class RoomLayer3FxState
         Array.Fill(clearedTilemap, RoomFxRomData.Layer3.ClearTilemapWord);
         layer3Area.Write(clearedTilemap);
 
-        if (RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(source.RoomHeaderPointer))
+        if (source.Room is { } room && RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(room))
             earthquakeSoundTimer = NativeCountdown.Start(ushort.MaxValue);
-        if (source.FxPointer == 0)
+        if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 
-        ushort record = source.SuppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(source.FxPointer, source.DoorPointer);
-        if (record == 0)
-            return;
-        RoomFxRecordDefinition definition = source.SuppliedDefinition ?? RoomFxRecordDefinitions.Get(record);
-
-        BaseYPosition = definition.BaseYPosition;
-        TargetYPosition = definition.TargetYPosition;
-        PackedYVelocity = definition.PackedYVelocity;
+        BaseY = BaseY.WithWhole(definition.BaseYPosition);
+        TargetSurface = new(0, definition.TargetYPosition);
+        YVelocity = new(definition.PackedYVelocity);
         Timer = NativeCountdown.FromRaw(definition.Timer);
-        LiquidOptions = definition.LiquidOptions;
-        CurrentYPosition = BaseYPosition;
+        LiquidOptions = RoomLiquidOptionsCodec.FromRecordByte(definition.LiquidOptions);
+        Surface = new(0, BaseY.Whole);
 
         Type = RoomFxTypes.FromCartridge(
             definition.Type,
-            $"bank-$83 FX record ${record:X4}");
+            $"room FX {source.Fx?.Name}");
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
             definition.Layer3LayerBlend,
-            $"bank-$83 FX record ${record:X4}");
-        animatedTiles.Load(bus, Type);
+            $"room FX {source.Fx?.Name}");
+        animatedTiles.Load(Type);
         ApplyPaletteBlend(cgram, definition.PaletteBlend);
 
         if (Type == RoomFxType.Fireflea)
-            FirefleaRoomFx.Initialize(SnesMemoryBusRequirement.Require(bus, "Fireflea FX requires live WRAM."));
+            Fireflea.Initialize();
         if (!IsRenderable)
             return;
 
@@ -226,7 +245,8 @@ public sealed class RoomLayer3FxState
             // `$88:D981` masks the random word with six *after* shifting it once,
             // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
             // element index that is bits two and three of the original random word.
-            horizontalVelocity = RoomFxRomData.Rain.HorizontalVelocity((source.RandomNumber >> 2) & 3);
+            rainWindVelocity = new Offset16<Bg3Subpixels>(
+                unchecked((short)RoomFxRomData.Rain.HorizontalVelocity((source.RandomNumber >> 2) & 3)), 0);
         }
     }
 
@@ -269,10 +289,10 @@ public sealed class RoomLayer3FxState
             AdvanceLiquidMotion(system.RandomNumber, system.MainGameLoopCarry);
             return;
         }
-        ushort random = system.RandomNumber;
+        int random = system.RandomNumber;
         AdvanceLiquidMotion(random, system.MainGameLoopCarry);
         QueueLavaAmbientSound(random);
-        system.SetRandomNumber(SnesLittleEndian.SwapBytes(random));
+        system.SwapRandomBytes();
     }
 
     /// <summary>
@@ -280,9 +300,9 @@ public sealed class RoomLayer3FxState
     /// counts down and, on reaching zero, reloads and queues a random ambient sound.
     /// Acid shares the pre-instruction but not this sound.
     /// </summary>
-    private void QueueLavaAmbientSound(ushort random)
+    private void QueueLavaAmbientSound(int random)
     {
-        if (Type != RoomFxType.Lava || unchecked((short)CurrentYPosition) < 0)
+        if (Type != RoomFxType.Lava || unchecked((short)Surface.Y) < 0)
             return;
         lavaSoundTimer = lavaSoundTimer.Decrement().Remaining;
         if (!lavaSoundTimer.IsZero)
@@ -295,9 +315,8 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>Runs the active bank-$88 pre-instruction and rain animtile handler.</summary>
-    public void Step(ISnesAddressSpace bus, SnesVram vram, RoomLayer3FxFrame frame)
+    public void Step(SnesVram vram, RoomLayer3FxFrame frame)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(vram);
         audioPowerBomb = frame.PowerBomb;
         if (!frame.LiquidMotionAlreadyAdvanced)
@@ -308,8 +327,7 @@ public sealed class RoomLayer3FxState
         if (Type == RoomFxType.Fireflea)
         {
             LayerBlendConfiguration = LayerBlendingConfiguration.Fireflea;
-            FirefleaRoomFx.Step(SnesMemoryBusRequirement.Require(bus, "Fireflea FX requires live WRAM."),
-                frame.TimeIsFrozen, frame.FirefleaDarknessLevel);
+            Fireflea.Step(FixedColors, frame.TimeIsFrozen, frame.FirefleaDarknessLevel);
             return;
         }
         if (!IsRenderable || frame.TimeIsFrozen)
@@ -318,7 +336,7 @@ public sealed class RoomLayer3FxState
         // The shared bank-$87 handler runs independently of the bank-$88 HDMA
         // pre-instruction. In particular, lava/acid need this transfer before their BG3
         // tilemap can name anything other than stale standard-HUD characters.
-        animatedTiles.Step(bus, vram, artwork: AnimatedTileArtwork);
+        animatedTiles.Step(vram, artwork: AnimatedTileArtwork);
 
         if (liquidHdmaObjectsDeleted && MovesLiquidInHdmaPass)
             return;
@@ -339,8 +357,7 @@ public sealed class RoomLayer3FxState
         {
             Offset16<Bg3Pixels> cameraDelta = previousCamera.AsBg3Scroll() - frame.Camera.AsBg3Scroll();
             Scroll = Position16<Bg3Pixels>.Zero + cameraDelta + drift.WholePixels();
-            drift = new(unchecked((short)(drift.X + horizontalVelocity)),
-                unchecked((short)(drift.Y - RoomFxRomData.Rain.VerticalVelocity)));
+            drift += rainWindVelocity + RainFallVelocity;
             previousCamera = frame.Camera;
             return;
         }
@@ -369,9 +386,9 @@ public sealed class RoomLayer3FxState
     {
         if (Type is not (RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid))
             return;
-        CurrentYPosition = BaseYPosition;
-        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - camera.Y));
-        Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(CurrentYPosition, camera.Y));
+        Surface = new(0, BaseY.Whole);
+        waterSurfaceScreenY = unchecked((short)(Surface.Y - camera.Y));
+        Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
     }
 
     /// <summary>Captures values visible alongside the current accepted NMI's OAM upload.</summary>
@@ -380,7 +397,7 @@ public sealed class RoomLayer3FxState
             Type,
             LayerBlendConfiguration,
             Scroll,
-            CurrentYPosition,
+            Surface,
             LiquidOptions,
             waterBg3WavePhase,
             waterBg2WavePhase,
@@ -402,13 +419,13 @@ public sealed class RoomLayer3FxState
         {
             case RoomFxType.Water:
             case RoomFxType.TourianEntranceStatue:
-                liquid.ConfigureWater(CurrentYPosition, LiquidOptions, Type);
+                liquid.ConfigureWater(Surface.Y, LiquidOptions, Type);
                 return;
             case RoomFxType.Lava:
-                liquid.ConfigureLavaAcid(CurrentYPosition);
+                liquid.ConfigureLavaAcid(Surface.Y);
                 return;
             case RoomFxType.Acid:
-                liquid.ConfigureLavaAcid(CurrentYPosition, acid: true);
+                liquid.ConfigureLavaAcid(Surface.Y, acid: true);
                 return;
             case RoomFxType.None:
             case RoomFxType.Spores:
@@ -442,11 +459,11 @@ public sealed class RoomLayer3FxState
         ushort? timer = null)
     {
         if (baseYPosition is ushort baseY)
-            BaseYPosition = baseY;
+            BaseY = BaseY.WithWhole(baseY);
         if (targetYPosition is ushort targetY)
-            TargetYPosition = targetY;
+            TargetSurface = new(0, targetY);
         if (packedYVelocity is ushort velocity)
-            PackedYVelocity = velocity;
+            YVelocity = new(velocity);
         if (timer is ushort newTimer)
             Timer = NativeCountdown.FromRaw(newTimer);
     }
@@ -456,14 +473,14 @@ public sealed class RoomLayer3FxState
     /// HDMA, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
     internal LayerBlendingConfiguration ApplyEntry(SnesCgram cgram,
-        ushort record)
+        RoomFxRecordDefinition definition)
     {
-        RoomFxRecordDefinition definition = RoomFxRecordDefinitions.Get(record);
-        BaseYPosition = definition.BaseYPosition;
-        TargetYPosition = definition.TargetYPosition;
-        PackedYVelocity = definition.PackedYVelocity;
+        Ensure.NotNull(definition);
+        BaseY = BaseY.WithWhole(definition.BaseYPosition);
+        TargetSurface = new(0, definition.TargetYPosition);
+        YVelocity = new(definition.PackedYVelocity);
         Timer = NativeCountdown.FromRaw(definition.Timer);
-        LiquidOptions = definition.LiquidOptions;
+        LiquidOptions = RoomLiquidOptionsCodec.FromRecordByte(definition.LiquidOptions);
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
             definition.Layer3LayerBlend, "LoadFxEntry");
         ApplyPaletteBlend(cgram, definition.PaletteBlend);
@@ -486,8 +503,7 @@ public sealed class RoomLayer3FxState
     /// changing only Samus's projected copy would be undone by the next FX frame.
     /// </summary>
     internal void EnableWaterPhysics() =>
-        LiquidOptions = unchecked((ushort)(
-            LiquidOptions & ~RoomFxRomData.Water.PhysicsDisabledOption));
+        LiquidOptions &= ~RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave;
 
     /// <summary>
     /// Ports the observable static-water path of <c>$88:C48E</c> and both circular wave
@@ -496,15 +512,14 @@ public sealed class RoomLayer3FxState
     /// </summary>
     private void StepWater(
         Position16<RoomPixels> camera,
-        ushort randomNumber,
+        int randomNumber,
         bool mainGameLoopCarry,
         bool liquidMotionAlreadyAdvanced)
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, mainGameLoopCarry);
-        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - camera.Y));
-        var subscroll = new Offset16<Bg3Pixels>(unchecked((sbyte)(SnesLittleEndian.HighByte(waterHorizontalSubscroll))), 0);
-        Scroll = (camera.AsBg3Scroll() + subscroll).WithY(ComputeLiquidVerticalScroll(CurrentYPosition, camera.Y));
+        waterSurfaceScreenY = unchecked((short)(Surface.Y - camera.Y));
+        Scroll = (camera.AsBg3Scroll() + waterDrift.WholePixels()).WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
 
         waterBg3WaveTimer = waterBg3WaveTimer.Decrement().Remaining;
         if (waterBg3WaveTimer.IsZero)
@@ -514,15 +529,12 @@ public sealed class RoomLayer3FxState
                 (waterBg3WavePhase + 1) % RoomFxRomData.Water.WaveDisplacementCount;
         }
 
-        if ((LiquidOptions & 1) != 0)
-        {
-            waterHorizontalSubscroll = unchecked((ushort)(
-                waterHorizontalSubscroll + RoomFxRomData.Water.HorizontalSubscrollVelocity));
-        }
+        if ((LiquidOptions & RoomLiquidOptions.SurfaceDrift) != 0)
+            waterDrift += WaterDriftVelocity;
 
         // FX $26 spawns only the BG3 water object. Its second HDMA object moves
         // the statue vertically instead of installing the ordinary BG2 X wave.
-        if (Type != RoomFxType.Water || (LiquidOptions & 2) == 0)
+        if (Type != RoomFxType.Water || (LiquidOptions & RoomLiquidOptions.Bg2Wave) == 0)
             return;
         waterBg2WaveTimer = waterBg2WaveTimer.Decrement().Remaining;
         if (waterBg2WaveTimer.IsZero)
@@ -534,11 +546,11 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>Advances rise and tide state before publishing the current liquid surface.</summary>
-    private void AdvanceLiquidMotion(ushort randomNumber, bool mainGameLoopCarry)
+    private void AdvanceLiquidMotion(int randomNumber, bool mainGameLoopCarry)
     {
         StepLiquidRise(randomNumber, mainGameLoopCarry);
         StepLiquidTide();
-        CurrentYPosition = ComputeTidalYPosition();
+        Surface = new(0, ComputeTidalYPosition());
     }
 
     /// <summary>
@@ -548,17 +560,17 @@ public sealed class RoomLayer3FxState
     /// </summary>
     private void StepLavaAcid(
         Position16<RoomPixels> camera,
-        ushort randomNumber,
+        int randomNumber,
         bool mainGameLoopCarry,
         bool liquidMotionAlreadyAdvanced)
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, mainGameLoopCarry);
-        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - camera.Y));
+        waterSurfaceScreenY = unchecked((short)(Surface.Y - camera.Y));
         // Lava/acid $88:B3B0 uses the same surface-relative BG3VOFS equation as water
         // $88:C48E. Zeroing it anchored the animated characters to the screen instead of
         // beginning their first texture row immediately below the liquid boundary.
-        Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(CurrentYPosition, camera.Y));
+        Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
 
         if (!UsesLavaAcidVerticalWave && !UsesLavaAcidHorizontalWave)
             return;
@@ -581,16 +593,16 @@ public sealed class RoomLayer3FxState
     /// 16.16 base position toward the target. Door-specific Norfair entries rely on this
     /// sequence to raise lava into the visible viewport.
     /// </summary>
-    private void StepLiquidRise(ushort randomNumber, bool mainGameLoopCarry)
+    private void StepLiquidRise(int randomNumber, bool mainGameLoopCarry)
     {
         switch (liquidRisePhase)
         {
             case LiquidRisePhase.Dormant:
             {
-                short velocity = unchecked((short)PackedYVelocity);
+                short velocity = YVelocity.SignedRawValue;
                 bool movesTowardTarget = velocity > 0
-                    ? TargetYPosition > BaseYPosition
-                    : velocity < 0 && TargetYPosition < BaseYPosition;
+                    ? TargetSurface.Y > BaseY.Whole
+                    : velocity < 0 && TargetSurface.Y < BaseY.Whole;
                 if (movesTowardTarget)
                     liquidRisePhase = LiquidRisePhase.Waiting;
                 return;
@@ -607,7 +619,7 @@ public sealed class RoomLayer3FxState
                 PublishRisingLiquidFeedback(randomNumber, mainGameLoopCarry);
                 if (AdvanceBaseYToTarget())
                 {
-                    PackedYVelocity = 0;
+                    YVelocity = default;
                     liquidRisePhase = LiquidRisePhase.Dormant;
                 }
                 return;
@@ -623,7 +635,7 @@ public sealed class RoomLayer3FxState
     /// writes used while lava or acid waits and moves. Sound cadence and screen shake are
     /// parallel outputs of the cartridge FX actor; neither is inferred by the renderer.
     /// </summary>
-    private void PublishRisingLiquidFeedback(ushort randomNumber, bool mainGameLoopCarry)
+    private void PublishRisingLiquidFeedback(int randomNumber, bool mainGameLoopCarry)
     {
         // Water's $88:C44C/$C458 callbacks only wait/move. Lava and acid's
         // parallel callbacks additionally request sound and a global earthquake.
@@ -649,7 +661,7 @@ public sealed class RoomLayer3FxState
     /// which inherits <see cref="Bank80SystemState.MainGameLoopCarry"/>; a later slot would
     /// see the clear carry from <c>CPX #$0C</c>.
     /// </param>
-    private void HandleEarthquakeSoundEffect(ushort randomNumber, bool mainGameLoopCarry)
+    private void HandleEarthquakeSoundEffect(int randomNumber, bool mainGameLoopCarry)
     {
         if (earthquakeSoundTimer.IsNegative)
             return;
@@ -673,41 +685,39 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>The statue HDMA pre-instructions call the same $88:B21D earthquake sound owner.</summary>
-    internal void PublishStatueEarthquakeSound(ushort randomNumber, bool mainGameLoopCarry) =>
+    internal void PublishStatueEarthquakeSound(int randomNumber, bool mainGameLoopCarry) =>
         HandleEarthquakeSoundEffect(randomNumber, mainGameLoopCarry);
 
     /// <summary>Ports <c>RaiseOrLowerFx</c> at $88:868C for the shared liquid words.</summary>
     private bool AdvanceBaseYToTarget()
     {
-        if (unchecked((short)TargetYPosition) < 0)
+        if (unchecked((short)TargetSurface.Y) < 0)
             return true;
 
-        short velocity = unchecked((short)PackedYVelocity);
+        short velocity = YVelocity.SignedRawValue;
         int delta = SnesSixteenSixteen.FromEightEight(velocity);
-        uint fixedPosition = SnesSixteenSixteen.Compose(BaseYPosition, baseYSubposition);
-        fixedPosition = unchecked(fixedPosition + (uint)delta);
+        uint fixedPosition = unchecked(BaseY.RawValue + (uint)delta);
         ushort candidate = SnesFixedPosition.WholeOf(unchecked((int)fixedPosition));
-        baseYSubposition = unchecked((ushort)fixedPosition);
+        BaseY = SnesFixedPosition.FromRaw(fixedPosition);
 
         if (velocity >= 0)
         {
             if (unchecked((short)candidate) < 0)
                 candidate = ushort.MaxValue;
-            BaseYPosition = candidate;
-            if (candidate <= TargetYPosition)
+            BaseY = BaseY.WithWhole(candidate);
+            if (candidate <= TargetSurface.Y)
                 return false;
         }
         else
         {
             if (unchecked((short)candidate) < 0)
                 candidate = 0;
-            BaseYPosition = candidate;
-            if (candidate > TargetYPosition)
+            BaseY = BaseY.WithWhole(candidate);
+            if (candidate > TargetSurface.Y)
                 return false;
         }
 
-        BaseYPosition = TargetYPosition;
-        baseYSubposition = 0;
+        BaseY = new SnesFixedPosition(TargetSurface.Y, 0);
         return true;
     }
 
@@ -721,13 +731,13 @@ public sealed class RoomLayer3FxState
         int scale;
         ushort positiveDelta;
         ushort negativeDelta;
-        if ((LiquidOptions & RoomFxRomData.LiquidTide.SmallTideOption) != 0)
+        if ((LiquidOptions & RoomLiquidOptions.SmallTide) != 0)
         {
             scale = RoomFxRomData.LiquidTide.SmallTideScale;
             positiveDelta = RoomFxRomData.LiquidTide.SmallTidePositivePhaseDelta;
             negativeDelta = RoomFxRomData.LiquidTide.SmallTideNegativePhaseDelta;
         }
-        else if ((LiquidOptions & RoomFxRomData.LiquidTide.LargeTideOption) != 0)
+        else if ((LiquidOptions & RoomLiquidOptions.LargeTide) != 0)
         {
             scale = RoomFxRomData.LiquidTide.LargeTideScale;
             positiveDelta = RoomFxRomData.LiquidTide.LargeTidePositivePhaseDelta;
@@ -740,26 +750,28 @@ public sealed class RoomLayer3FxState
         }
 
         // $88:B2DF/$B316 index the negative-cosine prefix, not the sine origin.
-        short sample = EnemyTrigonometryTables.SignedNegativeCosineWord(SnesLittleEndian.HighByte(tidePhase));
+        short sample = EnemyTrigonometryTables.SignedNegativeCosineWord(checked((byte)SnesEightEight.WholeOf(tidePhase)));
         tideFixedOffset = SnesSixteenSixteen.FromEightEight(sample * scale);
-        tidePhase = unchecked((ushort)(
-            tidePhase + (sample >= 0 ? positiveDelta : negativeDelta)));
+        AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);
     }
+
+    /// <summary>Moves the tide phase on by <paramref name="delta"/> units, returning to zero after a full turn.</summary>
+    private void AdvanceTidePhase(int delta) => tidePhase = (tidePhase + delta) % TidePhasePeriod;
 
     /// <summary>Adds signed fixed-point tide displacement to the base liquid surface.</summary>
     private ushort ComputeTidalYPosition()
     {
-        uint baseFixed = SnesSixteenSixteen.Compose(BaseYPosition, baseYSubposition);
+        uint baseFixed = BaseY.RawValue;
         return SnesFixedPosition.WholeOf(unchecked((int)(baseFixed + (uint)tideFixedOffset)));
     }
 
     /// <summary>Whether the FX options select vertical BG2 displacement for lava or acid.</summary>
     private bool UsesLavaAcidVerticalWave =>
-        (LiquidOptions & RoomFxRomData.LavaAcid.VerticalBg2WaveOption) != 0;
+        (LiquidOptions & RoomLiquidOptions.Bg2Wave) != 0;
 
     /// <summary>Whether the FX options select horizontal BG2 displacement for lava or acid.</summary>
     private bool UsesLavaAcidHorizontalWave =>
-        (LiquidOptions & RoomFxRomData.LavaAcid.HorizontalBg2WaveOption) != 0;
+        (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != 0;
 
     /// <summary>Computes native BG3 vertical scroll from the liquid surface relative to camera Y.</summary>
     private static ushort ComputeLiquidVerticalScroll(ushort surfaceY, ushort cameraY)
@@ -779,22 +791,21 @@ public sealed class RoomLayer3FxState
     {
         animatedTiles.Reset();
         Type = RoomFxType.None;
-        BaseYPosition = 0;
-        TargetYPosition = 0;
-        PackedYVelocity = 0;
+        TargetSurface = Position16<RoomPixels>.Zero;
+        YVelocity = default;
         Timer = NativeCountdown.Start(0);
         LayerBlendConfiguration = default;
         Scroll = Position16<Bg3Pixels>.Zero;
         drift = Offset16<Bg3Subpixels>.Zero;
-        horizontalVelocity = 0;
+        rainWindVelocity = Offset16<Bg3Subpixels>.Zero;
         previousCamera = Position16<RoomPixels>.Zero;
         // Half a pixel: the liquid starts centred on its whole position.
-        baseYSubposition = 1 << 15;
+        BaseY = new SnesFixedPosition(0, 1 << 15);
         tidePhase = 0;
         tideFixedOffset = 0;
-        CurrentYPosition = ushort.MaxValue;
-        LiquidOptions = 0;
-        waterHorizontalSubscroll = 0;
+        Surface = NoSurface;
+        LiquidOptions = RoomLiquidOptions.None;
+        waterDrift = Offset16<Bg3Subpixels>.Zero;
         waterBg2WaveTimer = NativeCountdown.Start(0);
         waterBg3WaveTimer = NativeCountdown.Start(0);
         waterBg3WavePhase = waterBg2WavePhase = 0;
@@ -817,6 +828,14 @@ public sealed class RoomLayer3FxState
     /// RNG bytes. Effects without HDMA-owned liquid motion are unaffected.
     /// </summary>
     public void DeleteLiquidHdmaObjects() => liquidHdmaObjectsDeleted = true;
+
+    /// <summary>Rain's texture fall each frame, in 8.8 pixels.</summary>
+    private static readonly Offset16<Bg3Subpixels> RainFallVelocity =
+        new(0, unchecked((short)-RoomFxRomData.Rain.VerticalVelocity));
+
+    /// <summary>Water's surface drift each frame its <see cref="RoomLiquidOptions.SurfaceDrift"/> option is set.</summary>
+    private static readonly Offset16<Bg3Subpixels> WaterDriftVelocity =
+        new(unchecked((short)RoomFxRomData.Water.HorizontalSubscrollVelocity), 0);
 
     /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>
     private enum LiquidRisePhase

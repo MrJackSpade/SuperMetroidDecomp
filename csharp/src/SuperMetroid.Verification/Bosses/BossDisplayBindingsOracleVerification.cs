@@ -34,11 +34,14 @@ internal static class BossDisplayBindingsOracleVerification
             int record = root + 2 + component * 8;
             short x = unchecked((short)source.ReadCartridgeWord(record)), y = unchecked((short)source.ReadCartridgeWord((record + 2)));
             ushort visual = source.ReadCartridgeWord((record + 4)), hitbox = source.ReadCartridgeWord((record + 6));
-            if (!emptyPhysics) AssertEqual(physical[component], (x, y, hitbox), frame.Name + " immutable physical component");
+            if (!emptyPhysics) AssertEqual((physical[component].X, physical[component].Y), (x, y), frame.Name + " immutable physical component");
             else AssertEqual(0, (int)source.ReadCartridgeWord(Address(hitbox)), "omitted Draygon component has no native collision records");
-            if (checkedLists.Add(Address(hitbox)))
+            // The ROM names the component's hitbox list by address; the compiled component must hold that list's
+            // rectangles and callbacks. Each component is compared, so a component holding another list fails.
+            checkedLists.Add(Address(hitbox));
+            if (!emptyPhysics)
             {
-                ushort[][] boxes = BossPhysicalHitboxes(frame.Bank, hitbox);
+                ushort[][] boxes = physical[component].Boxes;
                 AssertEqual(boxes.Length, (int)source.ReadCartridgeWord(Address(hitbox)), frame.Name + " native hitbox list count");
                 for (int index = 0; index < boxes.Length; index++)
                 for (int field = 0; field < boxes[index].Length; field++)
@@ -73,36 +76,28 @@ internal static class BossDisplayBindingsOracleVerification
                 // Native unused X bits are not presentation; compare the canonical
                 // signed offset and size that actually reach packed OAM.
                 parts[index] = new EnemySpritemapPart(SnesSpritemapXWord.Create(nativeX.SignedOffset, nativeX.IsLarge),
-                    source.ReadCartridgeByte(address + 2), new SnesObjAttributeWord(source.ReadCartridgeWord((address + 3))));
+                    new SnesSpritemapYByte(source.ReadCartridgeByte(address + 2)), new SnesObjAttributeWord(source.ReadCartridgeWord((address + 3))));
             }
             oam.Add(new EnemyExtendedDrawComponent(new(x, y), EnemySpritemapParts.FromOwnedArray(parts)));
         }
         return (oam.ToArray(), bg2.ToArray());
     }
 
-    /// <summary>Selects compiled component offsets and hitbox pointers for the frame's boss family.</summary>
-    private static (short X, short Y, ushort Pointer)[] BossPhysicalComponents(EnemyExtendedFrameDefinition frame) => frame.Bank switch
+    /// <summary>Selects compiled component offsets and each component's hitbox records for the frame's boss family.</summary>
+    private static (short X, short Y, ushort[][] Boxes)[] BossPhysicalComponents(EnemyExtendedFrameDefinition frame) => frame.Bank switch
     {
         CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer)
-            .SelectToArray(part => (part.Offset.X, part.Offset.Y, part.HitboxPointer)),
+            .SelectToArray(part => (part.Offset.X, part.Offset.Y,
+                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())),
         PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer)
-            .Select(part => (part.Offset.X, part.Offset.Y, part.HitboxPointer)).ToArray(),
+            .Select(part => (part.Offset.X, part.Offset.Y,
+                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
+                    PhantoonHitboxCallbackCodec.ToCallbackWord(box.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
         DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)
-            .Select(part => (part.Offset.X, part.Offset.Y, (ushort)part.HitboxPointer)).ToArray(),
+            .Select(part => (part.Offset.X, part.Offset.Y,
+                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
+                    DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
         _ => throw new InvalidDataException("Unknown native oracle family."),
-    };
-
-    /// <summary>Selects compiled hitbox rectangles and callbacks for a native boss list.</summary>
-    private static ushort[][] BossPhysicalHitboxes(byte bank, ushort pointer) => bank switch
-    {
-        CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.HitboxesAt(pointer)
-            .SelectToArray(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)),
-        PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.HitboxesAt(pointer)
-            .Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)).ToArray(),
-        DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.HitboxesAt(
-                ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list"))
-            .SelectToArray(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)),
-        _ => throw new InvalidDataException("Unknown native oracle bank."),
     };
 
     /// <summary>Arranges one hitbox's bounds and callbacks in cartridge record order.</summary>

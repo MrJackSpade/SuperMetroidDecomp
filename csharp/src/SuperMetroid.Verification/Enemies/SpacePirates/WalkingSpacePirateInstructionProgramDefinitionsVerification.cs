@@ -27,7 +27,6 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
     internal static void VerifyWalkingSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Suite(nameof(WalkingSpacePirateAnimationsVerification.VerifyWalkingSpacePirateAnimations), () => WalkingSpacePirateAnimationsVerification.VerifyWalkingSpacePirateAnimations(rom));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateProgram.WalkingLeft,
@@ -82,7 +81,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
             AssertEqual(3, state.SpawnedLaserCount,
                 $"walking Pirate {(movingRight ? "right" : "left")} laser count");
-            AssertEqual((ushort)0x0067, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
+            AssertEqual(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.PirateMotherBrainLaserSound), (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
                 $"walking Pirate {(movingRight ? "right" : "left")} laser sound");
         }
 
@@ -107,12 +106,12 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             WalkingSpacePirateEnemyState State, SamusState Samus) CreateSystem()
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyWalking;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
+            slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb2 });
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
-            enemies.WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);
+            WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);
             var samus = new SamusState
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
@@ -129,7 +128,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             object?[] arguments =
                 [slot, samus, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
         }
     }
 

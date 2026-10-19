@@ -51,31 +51,31 @@ internal static class NativeEnemyProjectileListDefinitions
     /// <summary>The bank-$86 opcodes the reader decodes besides frames.</summary>
     private static readonly Dictionary<ushort, WordKind> Words = new()
     {
-        [(ushort)EnemyProjectileInstruction.PreInstructionInY] = WordKind.PreInstruction,
-        [(ushort)EnemyProjectileInstruction.ClearPreInstruction] = WordKind.ClearPreInstruction,
-        [(ushort)EnemyProjectileInstruction.UsePalette0] = WordKind.UsePaletteZero,
-        [(ushort)EnemyProjectileInstruction.CallExternalFunctionInY] = WordKind.CallExternal,
-        [(ushort)EnemyProjectileInstruction.GotoY] = WordKind.GoTo,
-        [(ushort)EnemyProjectileInstruction.Sleep] = WordKind.Sleep,
-        [(ushort)EnemyProjectileInstruction.Delete] = WordKind.Delete,
-        [(ushort)EnemyProjectileInstruction.TimerInY] = WordKind.SetCounter,
-        [(ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = WordKind.RepeatWhileCounting,
-        [(ushort)EnemyProjectileInstruction.SpawnPhantoonDrop] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.SporeSpawner_SpawnSpore] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.Spores_SetProperties3000] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.Spores_SpawnEnemyDrops] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.MagdolliteFlame_SpawnDrops] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.KagoBugStartJumpInstruction] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.NoobTubeShardAssignFallingAngle] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.CalculateDirectionTowardsSamus] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.DownwardGateSetYVelocityInstruction] = WordKind.CallbackWithWord,
-        [(ushort)EnemyProjectileInstruction.KagoBugStartIdleInstruction] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.KagoBugSpawnDropInstruction] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction] = WordKind.Callback,
-        [(ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = WordKind.Scatter,
-        [(ushort)TourianStatueInstruction.ResetDustPosition] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = WordKind.PreInstruction,
+        [(ushort)NativeEnemyProjectileInstruction.ClearPreInstruction] = WordKind.ClearPreInstruction,
+        [(ushort)NativeEnemyProjectileInstruction.UsePalette0] = WordKind.UsePaletteZero,
+        [(ushort)NativeEnemyProjectileInstruction.CallExternalFunctionInY] = WordKind.CallExternal,
+        [(ushort)NativeEnemyProjectileInstruction.GotoY] = WordKind.GoTo,
+        [(ushort)NativeEnemyProjectileInstruction.Sleep] = WordKind.Sleep,
+        [(ushort)NativeEnemyProjectileInstruction.Delete] = WordKind.Delete,
+        [(ushort)NativeEnemyProjectileInstruction.TimerInY] = WordKind.SetCounter,
+        [(ushort)NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = WordKind.RepeatWhileCounting,
+        [(ushort)NativeEnemyProjectileInstruction.SpawnPhantoonDrop] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.SporeSpawner_SpawnSpore] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.Spores_SetProperties3000] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.MagdolliteFlame_SpawnDrops] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.KagoBugStartJumpInstruction] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.NoobTubeShardAssignFallingAngle] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.CalculateDirectionTowardsSamus] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.DownwardGateSetYVelocityInstruction] = WordKind.CallbackWithWord,
+        [(ushort)NativeEnemyProjectileInstruction.KagoBugStartIdleInstruction] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.KagoBugSpawnDropInstruction] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction] = WordKind.Callback,
+        [(ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = WordKind.Scatter,
+        [(ushort)NativeEnemyProjectileInstruction.TourianStatueResetDustPosition] = WordKind.Callback,
     };
 
     /// <summary>Decodes a native projectile list word, rejecting words outside the compared set.</summary>
@@ -106,7 +106,7 @@ internal static class NativeEnemyProjectileListDefinitions
         /// <summary>The projectile's general-timer word, which the counter commands count.</summary>
         internal ushort Counter { get; private set; }
         /// <summary>The owner callbacks the latest update executed.</summary>
-        internal List<EnemyProjectileInstruction> Callbacks { get; } = [];
+        internal List<NativeEnemyProjectileInstruction> Callbacks { get; } = [];
 
         /// <summary>Runs one update.</summary>
         internal void Step(IImportCartridgeSource cartridge)
@@ -162,14 +162,14 @@ internal static class NativeEnemyProjectileListDefinitions
                             : unchecked((ushort)(cursor + 4));
                         continue;
                     case WordKind.Callback:
-                        Callbacks.Add((EnemyProjectileInstruction)word);
+                        Callbacks.Add((NativeEnemyProjectileInstruction)word);
                         cursor = unchecked((ushort)(cursor + 2));
                         continue;
                     case WordKind.Scatter:
                         cursor = unchecked((ushort)(cursor + 6));
                         continue;
                     case WordKind.CallbackWithWord:
-                        Callbacks.Add((EnemyProjectileInstruction)word);
+                        Callbacks.Add((NativeEnemyProjectileInstruction)word);
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
                     default:

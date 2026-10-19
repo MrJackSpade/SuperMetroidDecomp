@@ -40,9 +40,9 @@ internal sealed class DoorTransitionRunner
     /// <summary>Sets and resets the Maridia elevatube room behavior at its doors.</summary>
     private readonly MaridiaElevatubeRoomMainState _maridiaElevatube;
     /// <summary>Provides native frame counters to enemy projectile processing.</summary>
-    private readonly NmiClock _nmi;
+    private readonly FrameClock _clock;
     /// <summary>Runs NMI on each sound-wait dispatch before the door state handler.</summary>
-    private readonly NmiHandler _nmiHandler;
+    private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Collects transition actor sprites for the current frame.</summary>
@@ -59,8 +59,6 @@ internal sealed class DoorTransitionRunner
     private readonly Bank80SystemState _system;
     /// <summary>Starts Wrecked Ship treadmill animation at a door entrance.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
-    /// <summary>Address space used for door setup and projectile drawing.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Captures the runtime services used by native-order door setup and wait dispatch.</summary>
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)
@@ -74,8 +72,8 @@ internal sealed class DoorTransitionRunner
         _enemyPhase = dependencies.EnemyPhase;
         _hdmaPhase = dependencies.HdmaPhase;
         _maridiaElevatube = dependencies.MaridiaElevatube;
-        _nmi = dependencies.Nmi;
-        _nmiHandler = dependencies.NmiHandler;
+        _clock = dependencies.Clock;
+        _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
         _oam = _sprites.Oam;
         _player = dependencies.Player;
@@ -84,7 +82,6 @@ internal sealed class DoorTransitionRunner
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _system = dependencies.System;
         _wreckedShipTreadmill = dependencies.WreckedShipTreadmill;
-        _addressSpace = dependencies.AddressSpace;
     }
     /// <summary>
     /// Runs the setup routine named by the active bank-$83 door header after PLM creation.
@@ -103,7 +100,7 @@ internal sealed class DoorTransitionRunner
 
         DoorSetupCodeInterpreter.ApplyScrollWrites(
             door.SetupCodePointer,
-            door.Pointer,
+            door.Name,
             _room.Camera.Scrolls);
 
         switch (door.SetupCodePointer)
@@ -162,7 +159,7 @@ internal sealed class DoorTransitionRunner
                 if (DoorScrollPrograms.Contains(door.SetupCodePointer))
                     return;
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(DoorSetupCode)} {(int)door.SetupCodePointer:X4} in door $83:{door.Pointer:X4}.");
+                    $"Undefined {nameof(DoorSetupCode)} {(int)door.SetupCodePointer:X4} in door {door.Name}.");
         }
     }
 
@@ -175,7 +172,7 @@ internal sealed class DoorTransitionRunner
                 "Wrecked Ship treadmill door setup requires an active destination room.");
         }
 
-        _wreckedShipTreadmill.Start(_addressSpace, direction);
+        _wreckedShipTreadmill.Start(direction);
         // Both native spawn helpers return carry set when their fixed arrays are full, and
         // the door routine deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the PLM allocator's native false result here.
@@ -219,7 +216,7 @@ internal sealed class DoorTransitionRunner
     public void RunDoorSoundWaitPrologue(SnesButton controllerInput)
     {
         _plms.Sounds.BindPowerBombAudio(_bombProjectiles.PowerBombExplosion);
-        _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        _frameBoundary.BeginAcceptedFrame(controllerInput);
         AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
     }
 
@@ -231,11 +228,6 @@ internal sealed class DoorTransitionRunner
     internal void DrawDoorTransitionActors(bool runEnemyProjectiles)
     {
         _sprites.BeginFrame();
-        _actorDrawing.LastSamusBodyDrawn = false;
-        _actorDrawing.LastShinesparkCrashDrawingHandlerActive = false;
-        _actorDrawing.LastGrappleDrawingHandlerActive = false;
-        _actorDrawing.LastGrappleBeamSpecificDrawingPath = false;
-        _actorDrawing.LastGrappleFlareDrawn = false;
         // The draw handler can append spin-stop/charge sounds. Do not publish the
         // prior gameplay frame's liquid, movement, projectile or PLM requests again.
         _player.Samus?.LiquidPhysics.BeginFrameSoundRequests(_bombProjectiles.PowerBombExplosion);
@@ -246,8 +238,8 @@ internal sealed class DoorTransitionRunner
         _actorDrawing.DrawGameplayActors(deathOwnsSamus: false, advanceSamusPalette: false);
         // EnsureSamusDrawnEachFrame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
-        if (_enemies.ElevatorBehavior.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
-            _actorDrawing.LastSamusBodyDrawn = _player.Samus.Presentation.Draw(_addressSpace, _sprites,
+        if (_enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
+            _player.Samus.Presentation.Draw(_sprites,
                 _room.Camera.PixelPosition, mode7Transform: _display.ActiveSamusMode7Transform);
         _sprites.FinalizeFrame();
     }
@@ -261,7 +253,7 @@ internal sealed class DoorTransitionRunner
         if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true || _room.LevelData is null || _room.Camera is null)
             return;
         _enemies.StepEnemyProjectileInstructions(
-            _room.LevelData, _player.Samus, _room.Camera.PixelPosition,             _nmi.NmiFrameCounter8, _bombProjectiles, _backgroundScroll, _nmi.NmiFrameCounter);
+            _room.LevelData, _player.Samus, _room.Camera.PixelPosition,             _clock.Counter8, _bombProjectiles, _backgroundScroll, _clock.Counter);
     }
 
     /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>

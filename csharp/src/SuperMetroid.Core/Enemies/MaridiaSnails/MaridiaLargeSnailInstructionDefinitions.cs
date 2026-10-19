@@ -7,7 +7,7 @@ internal static class MaridiaLargeSnailInstructionDefinitions
     /// $A2:CB77 InstListPointers_Oum: named idle, roll and attack states select
     /// their facing-specific programs. The complete domain is zero through seven.
     /// </summary>
-    internal static MaridiaLargeSnailProgram Program(ushort animationIndex) =>
+    internal static MaridiaLargeSnailProgram Program(int animationIndex) =>
         (MaridiaLargeSnailAnimation)animationIndex switch
         {
             MaridiaLargeSnailAnimation.FacingRightIdle => MaridiaLargeSnailProgram.FacingRightIdle,

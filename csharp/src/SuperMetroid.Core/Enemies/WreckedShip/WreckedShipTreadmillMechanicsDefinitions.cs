@@ -11,6 +11,12 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// </remarks>
 public static class WreckedShipTreadmillMechanicsDefinitions
 {
+    /// <summary>The frames in each treadmill loop.</summary>
+    public const int FrameCount = 4;
+
+    /// <summary>The passes each treadmill frame is shown for: every pass shows the next frame.</summary>
+    public const int FrameDuration = 1;
+
     /// <summary>Dispatches the two physical conveyor directions to their native headers.</summary>
     public static WreckedShipTreadmillObjectDefinition ForDirection(
         WreckedShipTreadmillDirection direction) => direction switch

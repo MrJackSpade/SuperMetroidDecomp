@@ -36,34 +36,35 @@ internal static class GenericSpriteArtworkVerification
         IntroCinematicArtworkCatalog introArtwork = installation.LoadIntroCinematicArt();
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         SamusBodyArtworkCatalog body = installation.LoadSamusBodyArt();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         // Reference decoding is confined to this diagnostic. The production renderer
         // receives mutable memory only and the installed sprite composition catalog.
-        var title = new TitleSequenceState(memory, titleGradientPresentation: maps.TitleGradient,
+        var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
             titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics);
         var document = RequiredJson.Deserialize<TitleMode7MapDocument>(File.ReadAllBytes(
             Path.Combine(installation.MapDirectory, TitleGraphicsFormat.Mode7MapFile)),
             ArtworkJson.Options);
         var expected = new OamBuffer();
         int titleCases = 0;
+        IReadOnlyDictionary<TitleSprite, ushort> spritemaps =
+            SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(reference);
         foreach (TitleSpriteFrame frame in document.Sprites)
         foreach (ushort x in new ushort[] { 0, 255, ushort.MaxValue })
         foreach (ushort y in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
         foreach (ushort palette in new ushort[] { 0, 0x0e00 })
         {
-            title.activeSpritemap = checked((ushort)frame.Pointer);
+            title.activeSprite = frame.Sprite;
             title.activeOrigin = new(x, y);
-            title.activeCharacterOffset = palette;
+            title.activeObjectPalette = palette;
             title.PrepareRenderOam();
             expected.BeginFrame();
             DrawImportedSpritemap(reference, expected,
-                (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, checked((ushort)frame.Pointer)), new(x, y), palette);
+                (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, spritemaps[frame.Sprite]), new(x, y), palette);
             expected.FinalizeFrame();
             EqualOam(expected, title.oam, "title composition/coordinate/palette parity");
             titleCases++;
         }
-        title.activeSpritemap = TitleSequenceRomData.Sprites.Blank;
+        title.activeSprite = null;
         title.Phase = TitleSequencePhase.TitleScreen;
         title.PrepareRenderOam();
         expected.BeginFrame();
@@ -75,7 +76,7 @@ internal static class GenericSpriteArtworkVerification
         expected.FinalizeFrame();
         EqualOam(expected, title.oam, "title copyright owner parity");
 
-        var intro = new IntroCinematicState(memory, introFont: maps.IntroFont,
+        var intro = new IntroCinematicState(introFont: maps.IntroFont,
             characterArtwork: introArtwork, beamArtwork: projectiles.BeamTiles,
             samusBodyArtwork: body)
         {
@@ -91,7 +92,7 @@ internal static class GenericSpriteArtworkVerification
         expected = new OamBuffer();
         expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
-            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, caret.SpriteMapPointer),
+            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
             new(caret.Caret.X, caret.Caret.Y), IntroCinematicRomData.Objects.ScientistPalette.Raw);
         expected.FinalizeFrame();
         EqualOam(expected, actual, "illustrated-page caret owner parity");
@@ -102,9 +103,9 @@ internal static class GenericSpriteArtworkVerification
         actual = intro.PrepareMotherBrainOam().FinalizedAsOam();
         var expectedFrame = new SpriteFrameBuffer();
         expectedFrame.BeginFrame();
-        (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(memory, expectedFrame, new(0, 0), 0);
+        (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(expectedFrame, new(0, 0), 0);
         DrawImportedSpritemap(reference, expectedFrame.Oam,
-            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, motherBrain.SpriteMapPointer),
+            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(motherBrain.Pose)),
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
             IntroMotherBrainSpriteState.PaletteBits);
         expectedFrame.FinalizeFrame();
@@ -121,7 +122,7 @@ internal static class GenericSpriteArtworkVerification
         expected.BeginFrame();
         foreach (var actor in explosions.actors)
         {
-            ushort pointer = actor.SpriteMapPointer;
+            ushort pointer = SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(actor.Pose);
             if (!actor.IsActive || pointer == 0) continue;
             DrawImportedSpritemap(reference, expected,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer),
@@ -141,16 +142,16 @@ internal static class GenericSpriteArtworkVerification
         {
             actual.BeginFrame();
             if (onScreen)
-                actual.AddOnScreenSpritePart(SnesSpritemapXWord.Create(5, true), (byte)offset,
+                actual.AddOnScreenSpritePart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
                     SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(12, (ushort)origin));
             else
-                actual.AddOffScreenSpritePart(SnesSpritemapXWord.Create(5, true), (byte)offset,
+                actual.AddOffScreenSpritePart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
                     SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(12, (ushort)origin));
             int signedY = origin + unchecked((sbyte)offset);
             bool hide = signedY is < -32 or >= 224;
             if (!onScreen) hide = !hide;
-            AssertEqual(hide ? 0x180 : 17, actual.GetEntry(0).X, "generic origin-wrap X parking");
-            AssertEqual((byte)(hide ? 224 : origin + offset), actual.GetEntry(0).Y, "generic origin-wrap Y parking");
+            AssertEqual(hide ? 0x180 : 17, actual.GetEntry(0).Position.X, "generic origin-wrap X parking");
+            AssertEqual((byte)(hide ? 224 : origin + offset), actual.GetEntry(0).Position.Y, "generic origin-wrap Y parking");
             AssertTrue(actual.GetEntry(0).IsLarge, "generic origin-wrap retains sprite size");
             wrapCases++;
         }

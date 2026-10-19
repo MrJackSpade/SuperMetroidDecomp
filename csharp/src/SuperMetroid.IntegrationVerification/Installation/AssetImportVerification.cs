@@ -67,8 +67,7 @@ try
             throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
             .OpenRuntimeAddressSpace();
         Check(!MetadataShape.DeclaresProperty(romFreeMemory.GetType(), "Rom") &&
-            romFreeMemory.WorkRam.Length == SuperMetroidAddressSpace.WorkRamByteCount &&
-            romFreeMemory.SaveRam.Length == SuperMetroidAddressSpace.SaveRamByteCount,
+            romFreeMemory.WorkRam.Length == SuperMetroidAddressSpace.WorkRamByteCount,
             "installed runtime starts with mutable memory but no cartridge allocation");
         using (var romFreeSession = new SuperMetroid.Diagnostics.Android.AndroidSessionData(root))
         {
@@ -130,7 +129,7 @@ try
     string settings = Path.Combine(root, "SuperMetroid.ini");
     File.WriteAllText(settings, SuperMetroidGameOptionsIni.DefaultFileContents);
     string save = Path.Combine(root, "SuperMetroid.save.json");
-    GameSaveFileStore.WriteAtomic(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), save, installed.LoadMaps());
+    GameSaveFileStore.WriteAtomic(new SuperMetroid.Core.Saves.SaveSlotStore(installed.LoadMaps()), save);
     byte[] saveBefore = File.ReadAllBytes(save);
     string waveform = Directory.GetFiles(Path.Combine(installed.AudioDirectory, "samples"), "*.wav")[0];
     byte[] waveBefore = File.ReadAllBytes(waveform);

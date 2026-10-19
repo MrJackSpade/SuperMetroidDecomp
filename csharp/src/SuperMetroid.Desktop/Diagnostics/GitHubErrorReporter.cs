@@ -94,8 +94,8 @@ public sealed class GitHubErrorReporter : IDisposable
             $"RECOVERABLE ERROR [{fingerprint}] at {context.Boundary}; " +
             "the host will attempt the next frame.");
         Console.Error.WriteLine(exception);
-        Console.Error.WriteLine($"Room $8F:{context.RoomPointer:X4}, state $8F:{context.RoomStatePointer:X4}, " +
-            $"door $83:{context.DoorPointer:X4}, recording {context.InputRecordingPath}");
+        Console.Error.WriteLine($"Room {context.Room}, state {context.RoomState}, " +
+            $"door {context.Door}, recording {context.InputRecordingPath}");
         Console.Error.WriteLine(
             "The failed frame may have partially mutated emulated state. " +
             "A repeated throw can stall progress until the translation is fixed.");
@@ -128,7 +128,7 @@ public sealed class GitHubErrorReporter : IDisposable
         // Unknown failures are conservatively room-scoped. Only an explicit cartridge
         // dispatch identity may declare that room/block location does not change the bug.
         if (exception is not CartridgeDispatchException { IsRoomIndependent: true } && context is not null)
-            identity.Append($"\nroom:{context.RoomPointer:X4}/state:{context.RoomStatePointer:X4}");
+            identity.Append($"\nroom:{context.Room}/state:{context.RoomState}");
         byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(identity.ToString()));
         return $"SMERR-{Convert.ToHexString(digest.AsSpan(0, 8))}";
     }
@@ -254,9 +254,12 @@ public sealed class GitHubErrorReporter : IDisposable
             body.Append("- Phase: ").AppendLine(context.Phase);
         // The report shows the controller word as the journal records it.
         AppendHexContext(body, "Controller input", (ushort?)context.ControllerInput);
-        AppendBankContext(body, "Room", ReportedPointerBank.RoomHeaders, context.RoomPointer);
-        AppendBankContext(body, "Room state", ReportedPointerBank.RoomHeaders, context.RoomStatePointer);
-        AppendBankContext(body, "Door", ReportedPointerBank.DoorHeaders, context.DoorPointer);
+        if (context.Room is not null)
+            body.Append("- Room: ").AppendLine(context.Room);
+        if (context.RoomState is not null)
+            body.Append("- Room state: ").AppendLine(context.RoomState);
+        if (context.Door is not null)
+            body.Append("- Door: ").AppendLine(context.Door);
         if (context.InputRecordingPath is not null)
             body.Append("- Input recording: `").Append(context.InputRecordingPath).AppendLine("`");
         if (context.FrameDiagnostics is not null)
@@ -277,20 +280,6 @@ public sealed class GitHubErrorReporter : IDisposable
     {
         if (value is ushort word)
             body.Append("- ").Append(name).Append(": $").AppendLine(word.ToString("X4"));
-    }
-
-    /// <summary>Adds an optional room or door pointer with its owning cartridge bank.</summary>
-    private static void AppendBankContext(
-        StringBuilder body,
-        string name,
-        ReportedPointerBank bank,
-        ushort? value)
-    {
-        if (value is ushort address)
-        {
-            body.Append("- ").Append(name).Append(": $")
-                .Append(((byte)bank).ToString("X2")).Append(':').AppendLine(address.ToString("X4"));
-        }
     }
 
     /// <summary>One item the serial worker consumes: an exception occurrence or a flush marker.</summary>

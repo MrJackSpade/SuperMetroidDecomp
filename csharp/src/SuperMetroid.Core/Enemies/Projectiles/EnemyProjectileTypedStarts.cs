@@ -19,6 +19,7 @@ using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.Dragon;
+using SuperMetroid.Core.Areas.Tourian;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -38,6 +39,18 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.WorkRobotLaserUpRight] = () => new WorkRobotLaserAnimation(WorkRobotLaserProgram.Initial),
         [RoomEnemyProjectileKind.WorkRobotLaserDownRight] = () => new WorkRobotLaserAnimation(WorkRobotLaserProgram.Initial),
         [RoomEnemyProjectileKind.FallingSpark] = () => new FallingSparkAnimation(FallingSparkProgram.Falling),
+        [RoomEnemyProjectileKind.TourianStatueSplash] = () => new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Splash),
+        [RoomEnemyProjectileKind.TourianStatueEyeGlow] = () => new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.EyeGlow),
+        [RoomEnemyProjectileKind.TourianStatueParticle] = () => new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Particle),
+        [RoomEnemyProjectileKind.TourianStatueTail] = () => new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Tail),
+        [RoomEnemyProjectileKind.TourianStatueSoul] = () => new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Soul),
+        [RoomEnemyProjectileKind.TourianStatueRidley] = () => new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Ridley),
+        [RoomEnemyProjectileKind.TourianStatuePhantoon] = () => new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Phantoon),
+        [RoomEnemyProjectileKind.TourianStatueBaseDecoration] = () => new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.BaseDecoration),
+        [RoomEnemyProjectileKind.MotherBrainTopRightTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeProgram.TopRight),
+        [RoomEnemyProjectileKind.MotherBrainTopLeftTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeProgram.TopLeft),
+        [RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeProgram.TopMiddleLeft),
+        [RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeProgram.TopMiddleRight),
         [RoomEnemyProjectileKind.PowampSpike] = () => new PowampSpikeAnimation(PowampSpikeProgram.Initial),
         [RoomEnemyProjectileKind.KiHunterAcidSpitLeft] = () => new KiHunterAcidSpitAnimation(KiHunterAcidSpitProgram.Left),
         [RoomEnemyProjectileKind.KiHunterAcidSpitRight] = () => new KiHunterAcidSpitAnimation(KiHunterAcidSpitProgram.Right),

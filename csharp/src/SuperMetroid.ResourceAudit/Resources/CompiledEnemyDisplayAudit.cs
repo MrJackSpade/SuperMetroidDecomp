@@ -35,14 +35,12 @@ internal static class CompiledEnemyDisplayAudit
             throw new InvalidDataException("The compiled empty-OAM renderer contract changed; review the resource audit adapter.");
     }
 
-    /// <summary>Recognizes only the bare return guarded by HasEmptySpritemap(draw.Bank, draw.Pointer), so a changed renderer contract fails the audit.</summary>
+    /// <summary>Recognizes only the bare return guarded by <c>draw.Frame == EnemyFrameId.Empty</c>, so a changed renderer contract fails the audit.</summary>
     internal static bool HasNoOpBranch(MethodDeclarationSyntax method) =>
         method.DescendantNodes().OfType<IfStatementSyntax>().Any(branch =>
             branch.Else is null && branch.Statement is ReturnStatementSyntax { Expression: null } &&
-            branch.Condition is InvocationExpressionSyntax invocation &&
-            invocation.Expression is MemberAccessExpressionSyntax access &&
-            access.Expression.ToString() == nameof(CommonEnemyEmptyExtendedFrameDefinitions) &&
-            access.Name.Identifier.ValueText == nameof(CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap) &&
-            invocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString())
-                .SequenceEqual(new[] { "draw.Bank", "draw.Pointer" }));
+            branch.Condition is BinaryExpressionSyntax equality &&
+            equality.IsKind(SyntaxKind.EqualsExpression) &&
+            equality.Left.ToString() == "draw.Frame" &&
+            equality.Right.ToString() == "EnemyFrameId.Empty");
 }

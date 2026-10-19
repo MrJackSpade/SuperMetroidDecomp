@@ -57,7 +57,7 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
                 int pairsPerRow = (MapSpriteFormat.TileColumns - FirstVisorTile % MapSpriteFormat.TileColumns) / 2;
                 int tile = FirstVisorTile + phase % pairsPerRow * 2 + phase / pairsPerRow * MapSpriteFormat.TileColumns;
                 bool right = index == 0;
-                return new(SnesSpritemapXWord.Create(right ? 0 : -TileSide, false), unchecked((byte)VisorTop),
+                return new(SnesSpritemapXWord.Create(right ? 0 : -TileSide, false), SnesSpritemapYByte.Create(VisorTop),
                     SnesObjAttributeWord.Create(tile + (right ? 1 : 0), 0, 3, default), true);
             }
             Corner corner = BodyCorner(index - (frame >= 3 ? 2 : 0));
@@ -65,7 +65,7 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
             int y = corner is Corner.BottomLeft or Corner.BottomRight ? 1 : 0;
             int side = BodyTileSide * TileSide, step = side - LargeSide;
             int bodyTile = FirstBodyTile + Math.Min(frame, 2) * BodyTileSide + x + y * MapSpriteFormat.TileColumns;
-            return new(SnesSpritemapXWord.Create(-side / 2 + x * step, true), unchecked((byte)(-side / 2 + y * step)),
+            return new(SnesSpritemapXWord.Create(-side / 2 + x * step, true), SnesSpritemapYByte.Create(-side / 2 + y * step),
                 SnesObjAttributeWord.Create(bodyTile, 0, 3, default), true);
         }
     }

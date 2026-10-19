@@ -30,12 +30,10 @@ public static class SamusPoseTransitionTable
     /// the terminator and must fall back to standing pose <c>$01</c>.
     /// </remarks>
     public static SamusPoseTransitionLookup Lookup(
-        ISnesAddressSpace bus,
         SamusPoseId currentPose,
         SnesButton canonicalHeldInput,
         SnesButton canonicalNewInput)
     {
-        Ensure.NotNull(bus);
 
         // $91:81A9 branches directly to lookup-failure handling when the raw controller
         // word is zero, before it reads this table at all.

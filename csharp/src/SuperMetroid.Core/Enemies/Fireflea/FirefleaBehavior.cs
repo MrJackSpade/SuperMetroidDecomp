@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Fireflea.Artwork;
 using SuperMetroid.Core.Samus;
@@ -6,8 +8,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>The Fireflea species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class FirefleaBehavior : IEnemySpecies
+internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fireflea];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FirefleaEntity(this, slot, common);
+
     /// <summary>Runs common touch handling before Fireflea's unconditional native death call.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Starts explosion and drop processing, including the retail second-death path.</summary>
@@ -23,38 +31,29 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         _roomStatus = roomStatus;
     }
 
-    /// <summary>Lower vertical travel bounds indexed by native enemy slot.</summary>
-    private readonly ushort[] _firefleaMinimumYPositions =
-        new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Upper vertical travel bounds indexed by native enemy slot.</summary>
-    private readonly ushort[] _firefleaMaximumYPositions =
-        new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Current signed speed-table entries, toggled when a vertical bound is crossed.</summary>
-    private readonly ushort[] _firefleaSpeedTableIndexes =
-        new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot circle or vertical-motion state reset on room load.</summary>
-    internal readonly FirefleaEnemyState?[] _firefleaStates =
-        new FirefleaEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Fireflea occupants and rooms.</summary>
+    private readonly FirefleaExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static FirefleaExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new FirefleaExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Fireflea</c> at <c>$A3:8D2D</c>, decoding motion parameters and the retail initial-circle angle bug.</summary>
     internal void InitializeFireflea(RoomEnemySlot slot)
     {
-        var state = new FirefleaEnemyState(
-            slot,
-            _firefleaMinimumYPositions,
-            _firefleaMaximumYPositions,
-            _firefleaSpeedTableIndexes);
-        _firefleaStates[slot.SlotIndex] = state;
+        var state = new FirefleaEnemyState(slot, _extensions[slot.SlotIndex]);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop);
 
         // Parameter one is native `init0`: bit one selects circle versus vertical motion,
         // bit zero selects the sign half of the speed table, and its high byte is the initial
         // circle angle. Parameter two (`init1`) packs speed index low and radius index high.
-        ushort speedTableIndex = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter2)) * 8));
+        int speedTableIndex = SnesLittleEndian.LowByte(slot.Parameter2) * 8;
         if ((slot.Parameter1 & 1) == 0)
-            speedTableIndex = unchecked((ushort)(speedTableIndex + 4));
+            speedTableIndex += 4;
         state.SpeedTableIndex = speedTableIndex;
-        (state.AngleDelta, state.SubAngleDelta) = EnemyMath.ReadLinearEnemySpeed(speedTableIndex);
+        (short angularWhole, ushort angularFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableIndex));
+        state.AngularSpeed = SnesSignedSixteenSixteen.FromParts(angularWhole, angularFraction);
 
         byte radiusIndex = SnesLittleEndian.HighByte(slot.Parameter2);
         state.Radius = FirefleaMovementDefinitions.Radius(radiusIndex);
@@ -62,17 +61,19 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         if (state.UsesCircularMovement)
         {
             state.Center = slot.Position.Whole;
-            state.Angle = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(slot.Parameter1)));
+            state.Angle = SnesAngle.FromRaw(unchecked((ushort)(SnesLittleEndian.HighByteInPlace(slot.Parameter1))));
 
             // The initializer passes the complete 8.8 angle word to an eight-bit routine,
             // which reads its low byte. That is the retail missing-division bug; main AI
             // begins using the high byte on frame one and corrects the position immediately.
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle, state.Radius));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.RawValue, checked((ushort)state.Radius)));
             return;
         }
 
-        state.MinimumYPosition = unchecked((ushort)(slot.Position.Y.Whole - state.Radius));
-        state.MaximumYPosition = unchecked((ushort)(slot.Position.Y.Whole + state.Radius));
+        var spawnY = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
+        var reach = new Offset16<RoomPixels>(0, checked((short)state.Radius));
+        state.MinimumYExtent = spawnY - reach;
+        state.MaximumYExtent = spawnY + reach;
     }
 
     /// <summary>Ports <c>MainAI_Fireflea</c> at <c>$A3:8DEE</c>, advancing circular angle or wrapped vertical travel.</summary>
@@ -80,20 +81,18 @@ internal sealed class FirefleaBehavior : IEnemySpecies
     {
         if (state.UsesCircularMovement)
         {
-            ushort angle = SnesAngle.FromRaw(state.Angle).TableIndex;
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(angle, state.Radius));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.TableIndex, checked((ushort)state.Radius)));
 
-            // `$A3:8E2D` performs an unaligned word read at var0+1. Combining the high byte
-            // of sub-angle with the low byte of whole-angle reproduces that exact signed 8.8
-            // delta, including negative half-speeds such as `$FF80`.
-            ushort packedDelta = unchecked((ushort)(
-                SnesEightEight.FromWhole(state.AngleDelta) | SnesLittleEndian.HighByte(state.SubAngleDelta)));
-            state.Angle = unchecked((ushort)(state.Angle + packedDelta));
+            // `$A3:8E2D` performs an unaligned word read at var0+1: the speed's middle sixteen
+            // bits, the high byte of its fraction under the low byte of its whole part. That
+            // reproduces the exact signed 8.8 delta, including negative half-speeds.
+            SnesSignedSixteenSixteen speed = state.AngularSpeed;
+            state.Angle = state.Angle.AddRaw(SnesEightEight.FromSixteenSixteen(speed.WholePixels, speed.Fraction));
             return;
         }
 
         (short wholeSpeed, ushort fractionalSpeed) =
-            EnemyMath.ReadLinearEnemySpeed(state.SpeedTableIndex);
+            EnemyMath.ReadLinearEnemySpeed(checked((ushort)state.SpeedTableIndex));
         uint fixedY = slot.Position.Y.RawValue;
         int displacement = (SnesSixteenSixteen.FromWhole(wholeSpeed)) | fractionalSpeed;
         fixedY = unchecked(fixedY + (uint)displacement);
@@ -102,10 +101,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         // Native CMP/BMI and CMP/BPL consume wrapped signed subtraction, not ordinary host
         // bounds comparisons. The actor is intentionally allowed to overshoot before XOR
         // bit two switches between the adjacent positive/negative table entries.
-        bool crossedMinimum = unchecked((short)(
-            slot.Position.Y.Whole - state.MinimumYPosition)) < 0;
-        bool reachedMaximum = unchecked((short)(
-            slot.Position.Y.Whole - state.MaximumYPosition)) >= 0;
+        bool crossedMinimum = (slot.Position.Whole - state.MinimumYExtent).Y < 0;
+        bool reachedMaximum = (slot.Position.Whole - state.MaximumYExtent).Y >= 0;
         if (crossedMinimum || reachedMaximum)
             state.SpeedTableIndex ^= 4;
     }
@@ -126,7 +123,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         // EnemyDeath clamps values above four to the small explosion. Queue that real
         // death program before clearing the actor so its artwork and sound can run.
         if (slot.EnemyDefinitionPointer != 0)
-            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: slot.Health);
+            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: checked((ushort)slot.Health));
         else
         {
             // Common attacking contact already ran EnemyDeath ($A0:A48F), which returns A = 0
@@ -152,12 +149,12 @@ internal sealed class FirefleaBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects main-AI dispatch for a slot that has not run Fireflea initialization.</summary>
-    private FirefleaEnemyState RequireFirefleaState(RoomEnemySlot slot) =>
-        _firefleaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static FirefleaEnemyState RequireFirefleaState(RoomEnemySlot slot) =>
+        slot.SpeciesState<FirefleaEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fireflea state.");
 
     /// <summary>Advances darkness after common bomb damage kills a Fireflea.</summary>
-    internal void RegisterFirefleaBombReactions(EnemyAiTable table)
+    internal void RegisterFirefleaBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.FirefleaShot)
@@ -170,40 +167,31 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Runs Fireflea's glow loop as a typed program (#641).</summary>
-    internal void RegisterFirefleaTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireFirefleaState(slot);
-            AnimationProgramCursor<FirefleaProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, FirefleaAnimations.Programs, ref cursor, FirefleaFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Routes Fireflea definition slots to their parameter-decoding initializer.</summary>
-    internal void RegisterFirefleaInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Fireflea's typed animation.</summary>
+    internal static void AdvanceFirefleaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Fireflea, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeFireflea(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireFirefleaState(slot);
+        AnimationProgramCursor<FirefleaProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, FirefleaAnimations.Programs, ref cursor, FirefleaFrameDefinitions.ShownFrames.Of);
+        state.Program = cursor;
     }
 
-    /// <summary>Routes Fireflea definition slots to the circular or vertical motion update.</summary>
-    internal void RegisterFirefleaMainAi(EnemyAiTable table)
+    /// <summary>Ports Fireflea's initialization AI.</summary>
+    internal void RunFirefleaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeFireflea(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Fireflea, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunFirefleaMain(slot, RequireFirefleaState(slot));
-        });
+    /// <summary>Ports Fireflea's main AI.</summary>
+    internal static void RunFirefleaMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
+    {
+        RunFirefleaMain(slot, RequireFirefleaState(slot));
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>
-    internal void RegisterFirefleaPowerBombReactions(EnemyAiTable table)
+    internal void RegisterFirefleaPowerBombReactions(EnemySharedReactions table)
     {
         // Reactions around common power-bomb damage.
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
@@ -214,7 +202,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies
     }
 
     /// <summary>Advances darkness before a lethal common projectile death is finalized.</summary>
-    internal void RegisterFirefleaShotReactions(EnemyAiTable table)
+    internal void RegisterFirefleaShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.FirefleaShot)
@@ -224,21 +212,10 @@ internal sealed class FirefleaBehavior : IEnemySpecies
     }
 
     /// <summary>Registers Fireflea's touch callback, which runs the retail unconditional-death sequence.</summary>
-    internal void RegisterFirefleaTouch(EnemyAiTable table)
+    internal void RegisterFirefleaTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.FirefleaTouch,
             context => ResolveFirefleaTouch(context.Slot, context.Samus));
-    }
-
-    /// <summary>Discards slot-indexed motion state before a new room population initializes.</summary>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        Array.Clear(_firefleaStates);
-    }
-
-    /// <summary>Fireflea has no species-wide frame action beyond each slot's registered main AI.</summary>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

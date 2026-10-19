@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Harness;
 /// <summary>Checks the #623 required-value wrappers and representative lifecycle contracts.</summary>
 internal static class NullContractsVerification
 {
-    /// <summary>A public constant for <see cref="RequiredReflection.RequiredConstant{T}"/>.</summary>
+    /// <summary>A public constant for <see cref="RequiredReflectionConstants.RequiredConstant{T}"/>.</summary>
     public const ushort ReflectedConstant = 4660;
 
     /// <summary>
@@ -60,12 +60,12 @@ internal static class NullContractsVerification
         AssertThrows<InvalidOperationException>(() => _ = player.IntroducedSamus, "gameplay Samus requires her introduction");
         player.Samus = new SamusState();
         AssertTrue(ReferenceEquals(player.Samus, player.IntroducedSamus), "the introduced Samus is the attached actor");
-        var phantoon = new PhantoonEnemyState(new RoomEnemySlot(0));
+        var phantoon = new PhantoonEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
         AssertThrows<InvalidOperationException>(() => _ = phantoon.Eye, "Phantoon's eye requires part initialization");
         var enemies = new RoomEnemySystem();
         AssertThrows<InvalidOperationException>(() => _ = enemies.Presentation.Cgram, "enemy palettes require bound CGRAM");
-        var game = new SuperMetroidGame(SuperMetroidAddressSpace.CreateWithoutCartridge());
-        AssertThrows<InvalidOperationException>(() => _ = game.GameplayRuntime, "the frontend has no gameplay runtime before a game loads");
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        AssertThrows<InvalidOperationException>(() => _ = game.Session.GameplayRuntime, "the frontend has no gameplay runtime before a game loads");
         Console.WriteLine("#623 null contracts: JSON, node, reflection and lifecycle wrappers return present values and fail with context when absent.");
     }
 

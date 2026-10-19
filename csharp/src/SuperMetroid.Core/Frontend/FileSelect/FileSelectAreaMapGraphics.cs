@@ -14,10 +14,8 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 public sealed class FileSelectAreaMapGraphics
 {
-    /// <summary>Runtime address space retained for menu PPU setup.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Owns the map's VRAM, CGRAM, and installed tile and sprite resources.</summary>
-    private readonly MenuPpuState ppu;
+    internal readonly MenuPpuState ppu;
     /// <summary>The installed area-map world colors, rebound when presentation content changes.</summary>
     [field: NonSerialized]
     [AllowNull]
@@ -32,18 +30,17 @@ public sealed class FileSelectAreaMapGraphics
     internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
-    public static FileSelectAreaMapGraphics FromPresentation(ISnesAddressSpace bus, int selectedArea,
+    public static FileSelectAreaMapGraphics FromPresentation(int selectedArea,
         AreaMapPresentationCatalog presentation)
     {
         Ensure.NotNull(presentation);
-        var graphics = new FileSelectAreaMapGraphics(bus, selectedArea, presentation.Tiles, presentation.Palettes,
+        var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Tiles, presentation.Palettes,
             presentation.Screens, presentation.WorldArtwork, presentation.Sprites);
         graphics.BindLabels(presentation.Labels);
         return graphics;
     }
 
     /// <summary>Initializes the unmasked world-map BG/palette owners from installed artwork and selects the requested Zebes area; labels must be bound separately or through <see cref="FromPresentation"/>.</summary>
-    /// <param name="bus">Runtime address space used by menu PPU setup.</param>
     /// <param name="selectedArea">Game-area identity 0..5, not the file-select label display-order ordinal.</param>
     /// <param name="mapTiles">Required installed map-character atlas.</param>
     /// <param name="mapPalettes">Required world-map palettes, including area-specific selections.</param>
@@ -52,17 +49,16 @@ public sealed class FileSelectAreaMapGraphics
     /// <param name="mapSprites">Required map-label OBJ artwork.</param>
     /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The selected area is outside the six Zebes identities.</exception>
-    public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
+    public FileSelectAreaMapGraphics(int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
         MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null)
     {
-        this.bus = Ensure.NotNull(bus);
         if (mapTiles is null || mapPalettes is null || mapScreens is null ||
             worldArtwork is null || mapSprites is null)
             throw new InvalidOperationException("Area-map graphics require installed presentation assets.");
         Palettes = mapPalettes;
         screens = mapScreens;
         sprites = mapSprites;
-        ppu = new MenuPpuState(bus, mapTiles, mapPalettes, worldArtwork, mapSprites,
+        ppu = new MenuPpuState(mapTiles, mapPalettes, worldArtwork, mapSprites,
             loadInitialBackground: false);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
@@ -131,56 +127,7 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     // Layer scratch reused across draws; never part of saved state (restores reallocate it).
-    /// <summary>Transient BG1 render plane reused across map draws and reallocated after restore.</summary>
-    [NonSerialized] private Rgba32[]? foregroundScratch;
-    /// <summary>Transient BG3 addition plane reused across map draws.</summary>
-    [NonSerialized] private Rgba32[]? subscreenScratch;
-    /// <summary>Transient OBJ label plane, composed after BG color math.</summary>
-    [NonSerialized] private Rgba32[]? objScratch;
     // Owned frame: valid until this map renders again.
-    /// <summary>Owned composite frame, overwritten by the next map render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
-
-    /// <summary>Composes the unmasked 256-by-224 BG1 main scene plus additive BG3 subscreen, excluding OBJ labels and transition clipping; no menu state advances.</summary>
-    /// <param name="includeBackdropInColorMath">True for steady/return $25 color math; false for forward-window $05 behavior, where transparent BG1 cells retain the backdrop without BG3 addition.</param>
-    /// <returns>The owned RGBA frame, valid until this graphics owner renders again.</returns>
-    [PpuLayoutBoundary("backend: file-select area-map software PPU composition")]
-    public Rgba32[] RenderBackgrounds(bool includeBackdropInColorMath = true)
-    {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
-        Rgba32[] foreground = foregroundScratch ??= new Rgba32[256 * 224];
-        foreground.AsSpan().Clear();
-        SnesBgTilemapRenderer.Composite4BppViewport(foreground, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
-        SnesLayerCompositor.Composite(pixels, foreground);
-        Rgba32[] subscreen = subscreenScratch ??= new Rgba32[256 * 28 * 8];
-        subscreen.AsSpan().Clear();
-        SnesBgTilemapRenderer.Render2Bpp(subscreen, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = FileSelectMapRomData.AreaBackgroundVram, CharacterBaseWord = FileSelectMapRomData.AreaBackgroundCharacters }, 28, transparentColorZero: true);
-        // $81:AAAC changes CGADSUB from $25 to $05: BG1 still adds BG3, but
-        // transparent BG1 cells now retain the backdrop instead of adding BG3 to it.
-        if (!includeBackdropInColorMath)
-            for (int pixel = 0; pixel < subscreen.Length; pixel++)
-                if (foreground[pixel].A == 0) subscreen[pixel] = default;
-        SnesLayerCompositor.AddSubscreen(pixels, subscreen);
-        return pixels;
-    }
-
-    /// <summary>
-    /// Adds $81:A97E's label objects. Retail enables a label only if a used station
-    /// bit refers to a real map coordinate, not an unused $FFFE or end $FFFF entry.
-    /// Debug-only area/station navigation is deliberately not enabled here.
-    /// </summary>
-    public Rgba32[] Render(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true)
-    {
-        if (usedStationMasks.Length < FileSelectMapRomData.AreaCount)
-            throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
-        Rgba32[] frame = RenderBackgrounds(includeBackdropInColorMath);
-        OamBuffer oam = PrepareLabels(usedStationMasks);
-        // CGADSUB excludes OBJ: labels are composited after BG1/subscreen addition.
-        Rgba32[] objects = objScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam), ppu.Vram, ppu.Cgram, obsel: 3);
-        SnesLayerCompositor.Composite(frame, objects);
-        return frame;
-    }
 
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>
     private OamBuffer PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)

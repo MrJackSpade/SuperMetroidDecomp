@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks room-FX sound ordering on the Rising Tide door entry frame.</summary>
 internal static class DoorEntryRoomFxSoundVerification
@@ -26,11 +27,10 @@ internal static class DoorEntryRoomFxSoundVerification
     internal static void VerifyDoorEntryRoomFxSound()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         // Rising Tide's lava rises only under the FX record of a door that requests it.
         CartridgeDoorHeader entry = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
-            .Where(door => door.DestinationRoomPointer == FixtureRoomHeaders.RisingTide)
+            .Where(door => door.DestinationRoom == RoomHeaderDefinitions.RisingTide)
             .First(door =>
             {
                 var candidate = LoadRisingTide(door);
@@ -40,14 +40,14 @@ internal static class DoorEntryRoomFxSoundVerification
             });
         var runtime = LoadRisingTide(entry);
         var samus = runtime.Player.IntroducedSamus;
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
         SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(CartridgeDoorHeader door)
         {
-            var loaded = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             loaded.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             loaded.RoomLoader.InitializeStartingCeresRoom();
             loaded.RoomLoader.InitializeCeresStartSamus();
@@ -68,7 +68,7 @@ internal static class DoorEntryRoomFxSoundVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
+            level.ResolveDoorCollision(block.Bts.Value, samus.Pose, true);
             selected = true;
         }
         AssertTrue(selected, "Rising Tide has an exit");

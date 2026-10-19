@@ -20,12 +20,11 @@ internal static class PhantoonReport1196Verification
     /// <summary>Requires the first blue flame to queue sound $1D in library three with native Max6.</summary>
     internal static void VerifyPhantoonIntroFlameSound()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = CreatePhantoonSystem(bus);
+        var enemies = CreatePhantoonSystem();
         var state = enemies.PhantoonBehavior.Phantoon;
         enemies.BeginEnemySoundRequestFrame();
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Body.VariableE = 1;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Parts[state.Body.SlotIndex].FunctionTimer = 1;
         enemies.PhantoonBehavior.RunPhantoonStartingFlameSpawner(state.Body, state);
         enemies.CollectLegacyEnemyAudioRequests();
         AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");
@@ -57,11 +56,11 @@ internal static class PhantoonReport1196Verification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyPhantoonDeathWaveInitialization()
     {
-        var enemies = CreatePhantoonSystem(NewSlopeHeightNoReadBus());
+        var enemies = CreatePhantoonSystem();
         var boss = enemies.PhantoonBehavior.Phantoon;
         (boss ?? throw new InvalidOperationException("Verification requires boss.")).Bg2Scroll = boss.Bg2Scroll.WithX(9);
-        boss.Mouth.VariableD = 3072;
-        boss.Mouth.VariableF = 8;
+        boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
+        boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
         var wave = boss.Wave;
         wave.Begin(PhantoonWaveRomData.IntroMode);
         wave.Step(boss);
@@ -93,7 +92,7 @@ internal static class PhantoonReport1196Verification
             AssertEqual(new Rgba32(255, 0, 0, 255), pixels[line * 256 + 51],
                 $"first death-wave BG2 stripe stays aligned on rendered scanline {line}");
         AssertTrue((wave.DisplayedScrolls ?? throw new InvalidOperationException("Verification requires wave.DisplayedScrolls.")).All(scroll => scroll == 13), "every first-frame death scroll equals native BG2 X");
-        boss.Mouth.VariableD = 3072;
+        boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         wave.Step(boss);
         AssertEqual((ushort)14, wave.Phase, "following HDMA pass resumes native phase advancement");
         AssertTrue(wave.ScrollCycle.Any(scroll => scroll != 13), "following pass rebuilds the animated wave");

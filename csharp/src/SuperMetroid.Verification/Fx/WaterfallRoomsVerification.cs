@@ -12,32 +12,32 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 /// <summary>Checks installed waterfall room color math and combined BG2 subscreen capture.</summary>
 internal static class WaterfallRoomsVerification
 {
     /// <summary>Loads both reported rooms, confirms native TM/TS/CGADSUB values, and checks BG2 joins the subscreen without a second overlay.</summary>
     internal static void VerifyWaterfallRooms()
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         foreach (ushort room in new ushort[] { 0xd72a, 0xd913 })
         {
-            runtime.LoadCartridgeRoomForDebug(room);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(room));
             if (runtime.RoomLayer3Fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
                 throw new InvalidDataException($"Reported waterfall room {room:X4} lost configuration $16.");
             runtime.GameplayWindows.PrepareGameplayWindowRegisters();
-            runtime.RoomLayer3Fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, MainGameLoopCarry = true });
-            runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+            runtime.RoomLayer3Fx.Step(runtime.Vram, new RoomLayer3FxFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, MainGameLoopCarry = true });
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
             var registers = runtime.GameplayWindows.DisplayedGameplayWindowRegisters;
-            AssertEqual((byte)0x11, registers.MainScreen, "waterfall native TM");
+            AssertEqual(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj, registers.MainScreen, "waterfall native TM");
             AssertEqual((byte)0x06, runtime.CachedGameplaySubscreen, "waterfall native TS");
             var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())
                 ?? throw new InvalidDataException("Waterfall room capture is absent.");

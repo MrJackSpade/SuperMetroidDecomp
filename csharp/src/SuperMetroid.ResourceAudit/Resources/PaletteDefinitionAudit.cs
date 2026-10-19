@@ -33,8 +33,6 @@ internal static class PaletteDefinitionAudit
                 type.Name.EndsWith("ProgramMechanicsDefinitions", StringComparison.Ordinal))
             .OrderBy(type => type.FullName, StringComparer.Ordinal))
         {
-            // Its single compiled instruction is Delete: no presentation words.
-            if (catalog == typeof(PaletteFxDeleteDefinitions)) continue;
             string source = FindSource(root, catalog.Name);
             var audit = new PaletteCatalogAudit(catalog, source, exports, report);
             bool covered = false;
@@ -55,10 +53,10 @@ internal static class PaletteDefinitionAudit
                         covered |= CheckColorMethod(row.GetType(), row, method, string.Empty, audit);
                     if (row is PaletteFxHeatProgramDefinition heat)
                     {
-                        foreach (PaletteFxHeatProgramFrameDefinition frame in heat.Frames)
-                        for (int color = 0; color < PaletteFxHeatProgramDefinition.ColorsPerFrame; color++)
+                        for (int frame = 0; frame < heat.Rows.FrameCount; frame++)
+                        for (int color = 0; color < heat.Rows.ColorsPerFrame; color++)
                             report.Require(ResourceDomains.PaletteFx, catalog.Name,
-                                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, frame.FirstColorPointer + color * sizeof(ushort)), source, exports);
+                                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(heat.Rows.Color(frame, color))), source, exports);
                         covered = true;
                     }
                     if (row is TitleScreenAmbientPaletteFxColorDefinition ambient)
@@ -66,8 +64,7 @@ internal static class PaletteDefinitionAudit
                         for (int frame = 0; frame < ambient.FrameCount; frame++)
                         for (int color = 0; color < ambient.ColorsPerFrame; color++)
                             report.Require(ResourceDomains.PaletteFx, catalog.Name,
-                                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, ambient.FramePointer(frame) +
-                                    sizeof(ushort) + color * sizeof(ushort)), source, exports);
+                                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(ambient.Color(frame, color))), source, exports);
                         covered = true;
                     }
                 }
@@ -159,8 +156,7 @@ internal static class PaletteDefinitionAudit
     private static SyntheticCartridge ColorAddressRecorder()
     {
         var recorder = new SyntheticCartridge(
-            _ => new InvalidDataException("Palette audit unexpectedly requested non-color-bank data."),
-            _ => new InvalidOperationException("Static color extraction must not mutate emulated state."));
+            _ => new InvalidDataException("Palette audit unexpectedly requested non-color-bank data."));
         recorder.DeclareZero(address => (SnesAddressMath.BankNumber(address)) == ResourceBanks.ProjectileOamAndPaletteFx);
         recorder.DeclareZero(TitleSequenceRomData.Assets.PaletteAddress, CgramPalettes.ByteCount);
         return recorder;

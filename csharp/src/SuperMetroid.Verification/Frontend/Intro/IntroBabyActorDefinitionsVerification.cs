@@ -23,7 +23,7 @@ internal static class IntroBabyActorDefinitionsVerification
         var compiledInput = new DemoInputState();
         compiledInput.Clear();
         compiledInput.Enable();
-        compiledInput.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery, initializationParameter: 0);
+        compiledInput.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery);
         ushort NativeInputWord(ushort pointer) => (ushort)(
             SnesLittleEndian.Word(IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | pointer), IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1)))));
         var cartridgeInput = new NativeDemoInputReference(NativeInputWord);
@@ -48,7 +48,7 @@ internal static class IntroBabyActorDefinitionsVerification
         {
             IntroBabyActorDefinition actual = actors[index].Actor;
             int definitionAddress = IntroBabyActorDefinitions.NativeBank | actors[index].DefinitionPointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), actual.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), actual.PreInstruction.NativeAddress,
                 $"intro baby actor {index} pre-instruction callback");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
                 $"intro baby actor {index} instruction list");
@@ -66,11 +66,11 @@ internal static class IntroBabyActorDefinitionsVerification
 
         var guarded = NewIntroBabyActorDefinitionGuard(retail);
         byte[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
-        var discovery = new IntroBabyDiscoveryState(guarded,
+        var discovery = new IntroBabyDiscoveryState(
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()));
         var referenceBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var reference = new IntroBabyDiscoveryState(referenceBus,
+        var reference = new IntroBabyDiscoveryState(
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()));
         for (int block = 0; block < discovery.Level.ForegroundEntries.Length; block++)
         {
@@ -82,7 +82,6 @@ internal static class IntroBabyActorDefinitionsVerification
         }
         discovery.Samus.Position = discovery.Samus.Position.WithWholeX(0x00a8);
         reference.Samus.Position = reference.Samus.Position.WithWholeX(0x00a8);
-        BindingFlags actorFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         var egg = discovery.egg;
         var baby = discovery.confusedBaby;
         var nativeEgg = reference.egg;
@@ -110,9 +109,9 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"SR388 page-three request at frame {frame} matches ROM-backed actor");
             AssertEqual(reference.ActiveEggParticleCount, discovery.ActiveEggParticleCount,
                 $"SR388 egg particle count at frame {frame} matches ROM-backed actor");
-            AssertEqual(nativeEgg.SpriteMapPointer, egg.SpriteMapPointer,
+            AssertEqual(nativeEgg.Pose, egg.Pose,
                 $"SR388 egg visual frame {frame} matches ROM-backed instruction playback");
-            AssertEqual(nativeBaby.SpriteMapPointer, baby.SpriteMapPointer,
+            AssertEqual(nativeBaby.Pose, baby.Pose,
                 $"SR388 baby visual frame {frame} matches ROM-backed instruction playback");
             AssertEqual(nativeBaby.WholePosition.Y, baby.WholePosition.Y,
                 $"SR388 baby Y motion at frame {frame} matches ROM-backed instruction playback");

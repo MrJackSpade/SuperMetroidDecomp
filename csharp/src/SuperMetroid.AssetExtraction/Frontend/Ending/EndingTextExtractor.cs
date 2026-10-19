@@ -108,7 +108,8 @@ public static class EndingTextExtractor
             if (bottom is { } bottomWord && EndingTextDefinitions.DecodeGlyph(bottomWord, style, bottom: true) != glyph)
                 throw new InvalidDataException($"Native {sequence} glyph halves disagree.");
             text.Add(glyph);
-            compiled.Add(new(row, column, top, bottom));
+            compiled.Add(new(row, column, new SnesBgTilemapWord(top),
+                bottom is { } lower ? new SnesBgTilemapWord(lower) : (SnesBgTilemapWord?)null));
             cursor = Add(cursor, 6);
         }
         throw new InvalidDataException($"Native {sequence} did not terminate within the bounded record count.");
@@ -121,9 +122,9 @@ public static class EndingTextExtractor
         for (int index = 0; index < text.Length; index++)
         {
             int cell = region.Row * EndingTextDefinitions.TilemapWidth + region.Column + index;
-            text[index] = EndingTextDefinitions.DecodeGlyph(cells[cell].Raw, region.Style);
+            text[index] = EndingTextDefinitions.DecodeGlyph(cells[cell].Word.Raw, region.Style);
             if (region.Style == EndingTextStyle.CopyrightLarge &&
-                EndingTextDefinitions.DecodeGlyph(cells[cell + EndingTextDefinitions.TilemapWidth].Raw,
+                EndingTextDefinitions.DecodeGlyph(cells[cell + EndingTextDefinitions.TilemapWidth].Word.Raw,
                     region.Style, bottom: true) != text[index])
                 throw new InvalidDataException("Native copyright glyph halves disagree.");
         }
@@ -135,7 +136,7 @@ public static class EndingTextExtractor
     {
         var result = new EndingTextCell[count];
         for (int index = 0; index < count; index++)
-            result[index] = new() { Raw = ReadWord(bus, Add(pointer, index * 2)) };
+            result[index] = new() { Word = new SnesBgTilemapWord(ReadWord(bus, Add(pointer, index * 2))) };
         return result;
     }
 

@@ -142,85 +142,6 @@ public sealed class SnesVram
             destination = (destination + 1) & WordAddressMask;
         }
     }
-
-    /// <summary>
-    /// Performs the transfer produced by <c>$80:8C83</c>'s DMA channel 1 setup.
-    /// </summary>
-    /// <param name="memory">Live WRAM/SRAM from which DMA channel 1 reads. Artwork uses a separate transfer API.</param>
-    /// <param name="sourceAddress">Fixed source bank plus initial 16-bit offset.</param>
-    /// <param name="sizeInBytes">Number of source bytes copied.</param>
-    /// <param name="encodedDestination">
-    /// VRAM word destination. Bit 15 doubles as Super Metroid's private queue marker:
-    /// clear selects consecutive words (<c>VMAIN=$80</c>), set selects columns in steps of
-    /// 32 words (<c>VMAIN=$81</c>).
-    /// </param>
-    public void ExecuteQueuedMemoryWrite(
-        ISnesMutableMemory memory,
-        int sourceAddress,
-        ushort sizeInBytes,
-        ushort encodedDestination)
-    {
-        Ensure.NotNull(memory);
-        if ((uint)sourceAddress > SnesBusLayout.MaximumAddress)
-            throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
-        if (sizeInBytes == 0)
-            throw new ArgumentOutOfRangeException(nameof(sizeInBytes), "A zero size is the original queue terminator, not a transfer.");
-
-        ExecuteDmaWrite(
-            memory,
-            SnesAddress.FromBusAddress(sourceAddress),
-            sizeInBytes,
-            encodedDestination);
-    }
-
-    /// <summary>
-    /// Shared mode-$01 transfer loop after a caller has interpreted its own size encoding.
-    /// </summary>
-    [CpuBusBoundary("CPU-bus implementation: a DMA channel's A-bus source reads, classified per byte")]
-    internal void ExecuteDmaWrite(
-        ISnesMutableMemory memory,
-        SnesAddress sourceAddress,
-        int sizeInBytes,
-        ushort encodedDestination)
-    {
-        writeGeneration++;
-        if (sizeInBytes is <= 0 or > SnesBusLayout.BankBytes)
-            throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-
-        // $80:8CAA-$80:8CB2 uses the destination sign bit to choose VMAIN. The bit is
-        // harmless when written to VMADD because VRAM contains only 15 address bits.
-        VramDmaDestination destination = VramDmaDestination.FromNative(encodedDestination);
-        int destinationWord = destination.Word;
-        int wordIncrement = destination.WordIncrement;
-
-        for (int byteIndex = 0; byteIndex < sizeInBytes; byteIndex++)
-        {
-            // DMA mode $01 alternates writes between $2118 (word low byte) and $2119
-            // (word high byte). VMAIN=$8x requests increment after the high-byte port.
-            bool writesHighByte = (byteIndex & 1) != 0;
-            int vramByteOffset = destinationWord * 2 + (writesHighByte ? 1 : 0);
-
-            // A-bus DMA increments its 16-bit source offset but leaves the bank register
-            // fixed. Explicit wrapping here matters for a transfer beginning at xx:FFFF.
-            SnesAddress currentSource = sourceAddress.AddWithinBank(byteIndex);
-            _bytes[vramByteOffset] = SnesDmaSourceMap.Classify(currentSource) switch
-            {
-                SnesDmaSourceKind.WorkRam => memory.ReadWorkRamByte((int)currentSource),
-                SnesDmaSourceKind.SaveRam => memory.ReadSaveRamByte((int)currentSource),
-                SnesDmaSourceKind.Cartridge => throw new InvalidOperationException(
-                    $"VRAM DMA source {currentSource} requires installed artwork bytes."),
-                _ => throw new InvalidOperationException(
-                    $"VRAM DMA source ${currentSource.Bank:X2}:{currentSource.Offset:X4} is unmapped."),
-            };
-
-            if (writesHighByte)
-            {
-                // VMADD wraps at 15 bits because physical VRAM has $8000 words.
-                destinationWord = (destinationWord + wordIncrement) & WordAddressMask;
-            }
-        }
-    }
-
     /// <summary>Runs the same mode-1 VRAM port sequence from compiled artwork, without synthesizing a CPU address space.</summary>
     public void ExecuteQueuedAssetWrite(ReadOnlySpan<byte> bytes, ushort encodedDestination)
     {
@@ -235,25 +156,6 @@ public sealed class SnesVram
             _bytes[destinationWord * 2 + (high ? 1 : 0)] = bytes[i];
             if (high) destinationWord = (destinationWord + increment) & WordAddressMask;
         }
-    }
-
-    /// <summary>Reads back the bytes an upload of <paramref name="byteCount"/> bytes to <paramref name="encodedDestination"/> wrote, in upload order.</summary>
-    /// <param name="encodedDestination">The upload's native VMADD/VMAIN destination.</param>
-    /// <param name="byteCount">Bytes uploaded.</param>
-    public byte[] ReadUploaded(ushort encodedDestination, int byteCount)
-    {
-        if (byteCount is <= 0 or > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(byteCount));
-        VramDmaDestination destination = VramDmaDestination.FromNative(encodedDestination);
-        int destinationWord = destination.Word;
-        int increment = destination.WordIncrement;
-        var bytes = new byte[byteCount];
-        for (int i = 0; i < byteCount; i++)
-        {
-            bool high = (i & 1) != 0;
-            bytes[i] = _bytes[destinationWord * 2 + (high ? 1 : 0)];
-            if (high) destinationWord = (destinationWord + increment) & WordAddressMask;
-        }
-        return bytes;
     }
 
     /// <summary>

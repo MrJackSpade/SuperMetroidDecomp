@@ -5,75 +5,80 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// Debugger-facing projection of Nuclear Waffle's base, extra-RAM, projectile, and sprite-
-/// object state. The seven articulated body links alternate between the two shared native
-/// pools, exactly as the original actor does.
+/// The state of the Nuclear Waffle, with its projectile and sprite-object links. The seven articulated body links
+/// alternate between the two shared native pools, exactly as the original actor does. Its behaviour and wait are
+/// values the cartridge keeps in the enemy's common record, so a kill empties them with that record
+/// (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
-    /// <summary>Underlying population slot that owns the native dispatcher and wait words.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Attaches the articulated actor state to its room enemy slot.</summary>
-    internal NuclearWaffleEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the body's typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<NuclearWaffleProgram> Program { get; set; }
 
-    /// <summary>Native variable A ($0FA8 plus slot byte index): current bank-$A6 inactive/active dispatcher pointer.</summary>
-    public NuclearWaffleEnemyFunction Function
+    /// <summary>The current waiting or sweeping behaviour; none once a kill has emptied the record.</summary>
+    public NuclearWaffleEnemyFunction? Function { get; internal set; }
+
+    /// <summary>Wrapping wait countdown in enemy AI calls, expiring only after decrement produces a signed-negative word and reloaded from the population reset byte.</summary>
+    public NativeCountdown WaitingTimer { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour and no wait.</summary>
+    internal void ClearWithRecord()
     {
-        get => (NuclearWaffleEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
+        Function = null;
+        WaitingTimer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Native variable B: wrapping wait countdown in enemy AI calls, expiring only after decrement produces a signed-negative word and reloaded from the population reset byte.</summary>
-    public NativeCountdown WaitingTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableB);
-        internal set => _slot.VariableB = value.RawValue;
-    }
+    /// <summary>
+    /// Orbit radius in room pixels, 0 through 255, from parameter one's high byte. Every link and the head sit on
+    /// the circle of this radius around <see cref="Origin"/>.
+    /// </summary>
+    public int OrbitRadius { get; internal set; }
 
-    /// <summary>Low byte of population parameter one.</summary>
-    public byte AngularSpeedIndex { get; internal set; }
+    /// <summary>Whether the sweep runs forward (parameter two's low byte one) rather than backward (zero).</summary>
+    public bool SweepsForward { get; internal set; }
 
-    /// <summary>High byte of population parameter one, in pixels.</summary>
-    public byte OrbitRadius { get; internal set; }
+    /// <summary>
+    /// The wait, in AI updates, reloaded into <see cref="WaitingTimer"/> at room load and whenever a wait expires:
+    /// parameter two's high byte, 0 through 255.
+    /// </summary>
+    public int WaitingTimerReset { get; internal set; }
 
-    /// <summary>Low byte of population parameter two; zero sweeps backward.</summary>
-    public byte Direction { get; internal set; }
+    /// <summary>
+    /// Native $7E:8000/$8002 sweep angle accumulator: the whole part is the head's angle in units of 1/256 turn and
+    /// the fraction carries between updates. It restarts at <see cref="SweepStartAngle"/> with a zero fraction and
+    /// moves monotonically toward <see cref="SweepEndAngle"/> until the last damaging link reaches it, so its whole
+    /// part stays between 140 and 500 and never wraps; the orbit lookup uses only its position within the turn.
+    /// </summary>
+    public SnesSignedSixteenSixteen SweepAngle { get; internal set; }
 
-    /// <summary>High byte of population parameter two.</summary>
-    public byte WaitingTimerReset { get; internal set; }
+    /// <summary>The head's current angle in units of 1/256 turn: the whole part of <see cref="SweepAngle"/>.</summary>
+    public int CurrentAngle => SweepAngle.WholePixels;
 
-    /// <summary>Native $7E:8000 subAngle word: low fractional part of the sweep's signed 16.16 angle-unit accumulator, reset when the wait expires.</summary>
-    public ushort AngleSubposition { get; internal set; }
-    /// <summary>Native $7E:8002 angle word: whole sweep units, with 256 units per turn; full-word comparisons control clamping and completion while position lookup wraps its low byte.</summary>
-    public ushort CurrentAngle { get; internal set; }
-    /// <summary>Native $7E:8006 startAngle: $0190 for reverse direction 0 or $00F0 for forward direction 1, restored at the start of each sweep.</summary>
-    public ushort SweepStartAngle { get; internal set; }
-    /// <summary>Native $7E:801C finishAngle: $00F0 for direction 0 or $0190 for direction 1; the last damaging link's clamp result determines sweep completion.</summary>
-    public ushort SweepEndAngle { get; internal set; }
-    /// <summary>Native $7E:8008 subAngleDelta: fractional low word of angular speed in 16.16 table-angle units per AI update, selected from the independently stored positive or negative speed record.</summary>
-    public ushort AngularSpeedFraction { get; internal set; }
-    /// <summary>Native $7E:800A angleDelta: signed whole-angle-unit high word added to the current angle with fractional carry; one unit is 1/256 turn.</summary>
-    public short AngularSpeedWhole { get; internal set; }
+    /// <summary>Native $7E:8006 startAngle: 400 for the backward sweep or 240 for the forward one.</summary>
+    public int SweepStartAngle { get; internal set; }
+    /// <summary>Native $7E:801C finishAngle: 240 for the backward sweep or 400 for the forward one; the last damaging link's clamp result determines sweep completion.</summary>
+    public int SweepEndAngle { get; internal set; }
+    /// <summary>
+    /// Native $7E:8008/$800A signed 16.16 angular speed in 1/256-turn units per AI update, from the common linear speed
+    /// table: the positive record for a forward sweep and the separately stored negative record for a backward one.
+    /// </summary>
+    public SnesSignedSixteenSixteen AngularSpeed { get; internal set; }
     /// <summary>Native $7E:800C/$800E arcOriginX/YPosition: initial population position in whole room pixels, retained as the fixed orbit center.</summary>
     public Position16<RoomPixels> Origin { get; internal set; }
     /// <summary>Native $7E:8010/$8012 bodyPartSpawnX/YPosition: head position after applying the initial angle and radius, used as the whole-pixel spawn position for the four projectile links.</summary>
     public Position16<RoomPixels> InitialHead { get; internal set; }
-    /// <summary>Native $7E:8016 angleBetweenBodyPartsTimes2: signed same-pool link pitch, -24 for direction 0 or +24 for direction 1, subtracted successively from each link angle.</summary>
+    /// <summary>Native $7E:8016 angleBetweenBodyPartsTimes2: signed same-pool link pitch, -24 backward or +24 forward, subtracted successively from each link angle.</summary>
     public short SegmentSpacing { get; internal set; }
     /// <summary>Native $7E:8018 angleBetweenBodyParts: signed half-pitch, -12 or +12 angle units, added before the projectile-link loop to stagger it against the sprite-object links.</summary>
     public short InterleavedSegmentOffset { get; internal set; }
-    /// <summary>Native $7E:801E fallingExplosionAngle: threshold $0100 for direction 0 or $0180 for direction 1, producing orientation state 2 and the silent second joint-turn effect.</summary>
-    public ushort FirstTurnThreshold { get; internal set; }
-    /// <summary>Native $7E:8020 risingExplosionAngle: threshold $0180 for direction 0 or $0100 for direction 1, producing orientation state 1 and the library-two $5E joint-turn sound.</summary>
-    public ushort SecondTurnThreshold { get; internal set; }
-    /// <summary>Native headExplosionReason latch, 0/1/2 from the angle-threshold helper; a change spawns two turn sprite objects at the head's previous position.</summary>
-    public ushort HeadOrientationState { get; internal set; }
-    /// <summary>Native graphicsIndices word combining the owning enemy's VRAM tile-base and OBJ palette bits for persistent body links and transient joint-turn sprite objects.</summary>
-    public ushort GraphicsIndex { get; internal set; }
+    /// <summary>Native $7E:801E fallingExplosionAngle: 256 backward or 384 forward; crossing it is the silent second joint turn.</summary>
+    public int FirstTurnThreshold { get; internal set; }
+    /// <summary>Native $7E:8020 risingExplosionAngle: 384 backward or 256 forward; crossing it is the joint turn that queues the turn sound.</summary>
+    public int SecondTurnThreshold { get; internal set; }
+    /// <summary>Which turn threshold the head last crossed; a change spawns two turn sprite objects at the head's previous position.</summary>
+    public NuclearWaffleTurnState HeadOrientationState { get; internal set; }
+    /// <summary>The owning enemy's VRAM tile base and OBJ palette, captured at room load for the persistent body links and transient joint-turn sprite objects.</summary>
+    public SnesObjAttributeWord GraphicsAttributes { get; internal set; }
 
     /// <summary>Four persistent, damaging bank-$86 links.</summary>
     public RoomEnemyProjectileSlot?[] ProjectileSegments { get; } =
@@ -84,7 +89,7 @@ public sealed class NuclearWaffleEnemyState
         new RoomSpriteObjectSlot?[3];
 
     /// <summary>Last threshold state for each damaging link; a state change spawns its joint-turn effect.</summary>
-    internal ushort[] ProjectileOrientationStates { get; } = new ushort[4];
+    internal NuclearWaffleTurnState[] ProjectileOrientationStates { get; } = new NuclearWaffleTurnState[4];
     /// <summary>Last threshold state for each cosmetic link, tracked separately from projectile links.</summary>
-    internal ushort[] SpriteOrientationStates { get; } = new ushort[3];
+    internal NuclearWaffleTurnState[] SpriteOrientationStates { get; } = new NuclearWaffleTurnState[3];
 }

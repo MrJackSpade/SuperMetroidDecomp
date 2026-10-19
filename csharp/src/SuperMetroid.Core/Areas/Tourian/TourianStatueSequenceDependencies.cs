@@ -11,8 +11,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <summary>The collaborators a <see cref="TourianStatueSequence"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record TourianStatueSequenceDependencies
 {
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
+
 
     /// <summary>Cgram.</summary>
     public required SnesCgram Cgram { get; init; }

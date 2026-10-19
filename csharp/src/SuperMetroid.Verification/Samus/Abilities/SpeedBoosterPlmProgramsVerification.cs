@@ -125,12 +125,12 @@ internal static class SpeedBoosterPlmProgramsVerification
                 int blockIndex) = CreateSpeedBoosterBlockFixture(bts, area);
             var guarded = NewSpeedBoosterPlmReadGuard(bus);
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
-            BlockMoveResult contact = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = guarded, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+            BlockMoveResult contact = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertTrue(!contact.Collided,
                 $"boosted contact with BTS ${bts.Value:X2} admits the real PLM");
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             for (int frame = 0; frame < 100 && plms.SlotTable.ActiveCount != 0; frame++)
-                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, plms.SlotTable.ActiveCount,
                 $"BTS ${bts.Value:X2} compiled list reaches native deletion");
             AssertEqual(respawns ? RoomCollisionType.SpecialBlock :
@@ -149,11 +149,11 @@ internal static class SpeedBoosterPlmProgramsVerification
         AssertTrue(bombPlms.BlockReactions.TrySpawnBombedSpecialBlock(bombLevel, bombBlock,
                 new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
             "normal bomb allocates the Speed Booster reveal PLM");
-        bombPlms.Step(bombGuard, bombLevel, bombLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        bombPlms.Step(bombLevel, bombLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0xb0b6,
-            bombLevel.GetCollisionBlockByIndex(bombBlock).LevelWord,
+            bombLevel.GetCollisionBlockByIndex(bombBlock).PackedWord.Raw,
             "bombed speed block draws the native physical reveal word");
-        bombPlms.Step(bombGuard, bombLevel, bombLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        bombPlms.Step(bombLevel, bombLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, bombPlms.SlotTable.ActiveCount,
             "bombed speed-block reveal deletes after its single frame");
         AssertEqual(0, bombGuard.ForbiddenReadAttempts,

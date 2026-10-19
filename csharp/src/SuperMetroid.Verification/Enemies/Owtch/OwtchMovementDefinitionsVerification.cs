@@ -15,15 +15,15 @@ internal static class OwtchMovementDefinitionsVerification
     /// <summary>Checks 144 wrapped initial positions while compiled movement-table reads are forbidden.</summary>
     internal static void VerifyOwtchMovementDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         Suite(nameof(VerifyOwtchTravelDistanceAlgorithm), () => VerifyOwtchTravelDistanceAlgorithm(rom));
         Suite(nameof(VerifyOwtchUndergroundTimerAlgorithm), () => VerifyOwtchUndergroundTimerAlgorithm(rom));
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewOwtchMovementReadGuard(new TestAddressSpace()));
-        Action<RoomEnemySlot> initialize = enemies.OwtchBehavior.InitializeOwtch;
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        Action<RoomEnemySlot> initialize = OwtchBehavior.InitializeOwtch;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
 
         foreach (ushort spawnX in new ushort[] { 0, 0x0100, ushort.MaxValue })
         {
@@ -42,9 +42,9 @@ internal static class OwtchMovementDefinitionsVerification
                     AssertEqual(OwtchMovementDefinitions.UndergroundTimer(timerIndex),
                         (state ?? throw new InvalidOperationException("Verification requires state.")).UndergroundTimer.RawValue,
                         $"Owtch production timer {spawnX:X4}/{timerIndex}/{distanceIndex}");
-                    AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumXPosition,
+                    AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumPosition.X,
                         $"Owtch minimum X {spawnX:X4}/{timerIndex}/{distanceIndex}");
-                    AssertEqual(unchecked((ushort)(spawnX + distance)), state.MaximumXPosition,
+                    AssertEqual(unchecked((ushort)(spawnX + distance)), state.MaximumPosition.X,
                         $"Owtch maximum X {spawnX:X4}/{timerIndex}/{distanceIndex}");
                 }
             }
@@ -84,9 +84,4 @@ internal static class OwtchMovementDefinitionsVerification
         }
     }
 
-    /// <summary>Rejects runtime access to the compiled bank A2 timer and distance interval.</summary>
-    private static CartridgeReadGuard NewOwtchMovementReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa2a3dd and < 0xa2a3f9,
-                address => $"Owtch movement attempted migrated definition read ${address:X6}.");
 }

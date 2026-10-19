@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 /// <summary>One stationary retail Ripper in a constructed population; its AI/header remain ROM-authored.</summary>
 [CpuBusBoundary("exact bus test: constructed enemy population fixture overlaying one Ripper's population and tileset bytes on a live bus")]
 internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Position16<RoomPixels> position) :
-    ISnesAddressSpace, IRoomEnemyFixtureSource
+    ISnesWritableAddressSpace, IRoomEnemyDefinitionSource
 {
     /// <summary>Uses the retail enemy header for the constructed Ripper population.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
@@ -18,9 +18,9 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        return new RoomEnemyPopulationDefinition(pointer,
+        return new RoomEnemyPopulationDefinition("Crystal Flash contact Ripper",
         [
-            new RoomEnemyPopulationRecord(CrystalFlashContactDefinitions.RipperHeader, position, 0, CrystalFlashContactDefinitions.Properties, 0, 0, 0),
+            new RoomEnemyPopulationRecord(CrystalFlashContactDefinitions.RipperHeader, position, 0, EnemyPropertyWord.FromNativeWord(CrystalFlashContactDefinitions.Properties), default, 0, 0),
         ], 0);
     }
 
@@ -29,11 +29,15 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        return new RoomEnemyGraphicsSetDefinition(pointer,
+        return new RoomEnemyGraphicsSetDefinition("Crystal Flash contact Ripper",
         [
             new RoomEnemyGraphicsSetHeader(CrystalFlashContactDefinitions.RipperHeader, 0),
         ]);
     }
+
+    /// <summary>Uses the compiled falling-tube placement; this fixture constructs none.</summary>
+    public RoomEnemyPopulationRecord ReadFallingTubePopulation(SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTubePiece piece) =>
+        CompiledRoomEnemyDefinitions.Instance.ReadFallingTubePopulation(piece);
 
     /// <summary>Overlays synthetic population and tileset records while delegating other addresses to the retail bus.</summary>
     public byte ReadByte(int address)

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
@@ -9,8 +10,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The wall space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class WallSpacePirateBehavior : IEnemySpecies
+internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreenWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateRedWall, EnemyDefinitionId.PirateSilverWall];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WallSpacePirateEntity(this, slot, common);
+
     /// <summary>Advances the shared random source when a climbing opcode chooses a new direction.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Clamps vertical climbing to room blocks before a collision reverses direction.</summary>
@@ -38,10 +45,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
     /// <summary>Pixels above the actor origin where the shared Pirate laser is emitted.</summary>
     private const int WallPirateLaserMuzzleYOffset = 16;
 
-    /// <summary>Climb direction, arc geometry, and animation state indexed by physical enemy slot.</summary>
-    internal readonly WallSpacePirateEnemyState?[] _wallSpacePirateStates =
-        new WallSpacePirateEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Recognizes the six color variants that use wall-climbing Pirate AI.</summary>
     internal static bool IsWallSpacePirateDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PirateGreyWall or
@@ -58,10 +61,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         NinjaSpacePirateBehavior.IsNinjaSpacePirateDefinition(definition);
 
     /// <summary>Ports <c>InitAI_PirateWall</c> at <c>$B2:EF9F</c>.</summary>
-    internal void InitializeWallSpacePirate(RoomEnemySlot slot)
+    internal static void InitializeWallSpacePirate(RoomEnemySlot slot)
     {
-        var state = new WallSpacePirateEnemyState(slot);
-        _wallSpacePirateStates[slot.SlotIndex] = state;
+        var state = new WallSpacePirateEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         var flags = (WallSpacePirateParameterFlags)slot.Parameter1;
         bool startsOnRight = (flags & WallSpacePirateParameterFlags.StartsOnRightWall) != 0;
@@ -78,9 +81,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         // The USA/Japan build uses byte angles. Bit fifteen selects 63 two-step frames;
         // clearing it selects 32 four-step frames with adjusted endpoints. These values are
         // not approximations: they are the literal $BE/$42/$02 and $C0/$40/$04 branches.
-        state.RightJumpTargetAngle = slowJump ? (ushort)190 : (ushort)192;
-        state.LeftJumpTargetAngle = slowJump ? (ushort)66 : (ushort)64;
-        state.JumpAngleDelta = slowJump ? (ushort)2 : (ushort)4;
+        state.RightJumpTargetAngle = SnesAngle.FromTableIndex(slowJump ? (byte)190 : (byte)192);
+        state.LeftJumpTargetAngle = SnesAngle.FromTableIndex(slowJump ? (byte)66 : (byte)64);
+        state.JumpAngleDelta = slowJump ? 2 : 4;
 
         SnapWallSpacePirateXToTile(slot);
     }
@@ -129,7 +132,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
 
             default:
                 throw new InvalidDataException(
-                    $"Wall Space Pirate function $B2:{(ushort)state.Function:X4} is not translated.");
+                    $"Wall Space Pirate function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
         SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
@@ -142,8 +145,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         WallSpacePirateEnemyState state)
     {
         PositionWallSpacePirateOnArc(slot, state);
-        state.WallJumpArcAngle = unchecked((byte)(
-            state.WallJumpArcAngle - state.JumpAngleDelta));
+        state.WallJumpArcAngle = state.WallJumpArcAngle.AddTableUnits(-state.JumpAngleDelta);
         if (state.WallJumpArcAngle != state.RightJumpTargetAngle)
             return;
 
@@ -160,8 +162,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         WallSpacePirateEnemyState state)
     {
         PositionWallSpacePirateOnArc(slot, state);
-        state.WallJumpArcAngle = unchecked((byte)(
-            state.WallJumpArcAngle + state.JumpAngleDelta));
+        state.WallJumpArcAngle = state.WallJumpArcAngle.AddTableUnits(state.JumpAngleDelta);
         if (state.WallJumpArcAngle != state.LeftJumpTargetAngle)
             return;
 
@@ -183,11 +184,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
             state.WallJumpArcCenter.X +
             EnemyMath.ReadEightBitNegativeSineProduct(
-                state.WallJumpArcAngle,
+                state.WallJumpArcAngle.TableIndex,
                 (ushort)(slot.Parameter2 >> 1)))));
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
             state.WallJumpArcCenter.Y -
-            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle, (ushort)(slot.Parameter2 >> 2)))));
+            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle.TableIndex, (ushort)(slot.Parameter2 >> 2)))));
     }
 
     /// <summary>Allows the fire-and-jump sequence when Samus is within the strict vertical detection band.</summary>
@@ -220,7 +221,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
         RoomLevelData? level,
-        ushort signedPixelDisplacement,
+        short downwardPixels,
         bool onRightWall)
     {
         if (level is null)
@@ -229,7 +230,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
                 "Wall Space Pirate climbing requires room collision data.");
         }
 
-        int displacement = SnesSixteenSixteen.FromWhole((short)signedPixelDisplacement);
+        int displacement = SnesSixteenSixteen.FromWhole(downwardPixels);
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return null;
 
@@ -279,11 +280,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         int signedHalfSpan = jumpingRight
             ? slot.Parameter2 >> 1
             : -(slot.Parameter2 >> 1);
-        state.WallJumpDestinationX = unchecked((ushort)(slot.Position.X.Whole + signedSpan));
+        state.WallJumpDestination = new(unchecked((ushort)(slot.Position.X.Whole + signedSpan)), 0);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             unchecked((ushort)(slot.Position.X.Whole + signedHalfSpan)),
             slot.Position.Y.Whole);
-        state.WallJumpArcAngle = jumpingRight ? (ushort)64 : (ushort)192;
+        state.WallJumpArcAngle = jumpingRight ? SnesAngle.QuarterTurn : SnesAngle.ThreeQuarterTurn;
     }
 
     /// <summary>Emits a wall laser through the shared Pirate owner and queues sound only if allocation succeeds.</summary>
@@ -297,7 +298,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         if (_walkingSpacePirateBehavior.SpawnSpacePirateLaser(slot, movingRight, WallPirateLaserMuzzleYOffset))
         {
             state.SpawnedLaserCount++;
-            _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WallPirateLaserSound;
+            _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
+                SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WallPirateLaserSound);
         }
     }
 
@@ -312,9 +314,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         switch (cue.Kind)
         {
             case WallSpacePirateCueKind.ClimbLeftWall:
-                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.Value, onRightWall: false);
+                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.ClimbPixels, onRightWall: false);
             case WallSpacePirateCueKind.ClimbRightWall:
-                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.Value, onRightWall: true);
+                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.ClimbPixels, onRightWall: true);
             case WallSpacePirateCueKind.ChooseLeftWallDirection:
                 return RandomizeWallSpacePirateClimbDirection(state, onRightWall: false);
             case WallSpacePirateCueKind.ChooseRightWallDirection:
@@ -335,7 +337,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
                 state.Function = cue.Function;
                 return null;
             case WallSpacePirateCueKind.PlayAttackSound:
-                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WallPirateJumpSound;
+                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
+                    SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WallPirateJumpSound);
                 return null;
             default:
                 throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue.Kind} cue.");
@@ -343,56 +346,46 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a wall-Pirate callback before its slot has initialized species state.</summary>
-    private WallSpacePirateEnemyState RequireWallSpacePirateState(RoomEnemySlot slot) =>
-        _wallSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static WallSpacePirateEnemyState RequireWallSpacePirateState(RoomEnemySlot slot) =>
+        slot.SpeciesState<WallSpacePirateEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized wall Space Pirate state.");
 
-    /// <summary>Registers the native wall-Pirate initializer for all six color definitions.</summary>
-    internal void RegisterWallSpacePirateInitializationAi(EnemyAiTable table)
+    /// <summary>Ports WallSpacePirate's initialization AI.</summary>
+    internal static void RunWallSpacePirateInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_PirateWall, slot => IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeWallSpacePirate(slot);
-        });
+        InitializeWallSpacePirate(slot);
     }
 
-    /// <summary>Dispatches climbing, attack-list waits, and wall-jump movement for wall Pirates.</summary>
-    internal void RegisterWallSpacePirateMainAi(EnemyAiTable table)
+    /// <summary>Ports WallSpacePirate's main AI.</summary>
+    internal static void RunWallSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_PirateWall, slot => IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, frame, nmiFrameCounter8) =>
-        {
-            RunWallSpacePirateMain(
-                slot,
-                RequireWallSpacePirateState(slot),
-                frame.Samus);
-        });
+        RunWallSpacePirateMain(
+            slot,
+            RequireWallSpacePirateState(slot),
+            frame.Samus);
     }
 
-    /// <summary>Runs the wall Space Pirates' animations as typed programs (#641).</summary>
-    internal void RegisterWallSpacePirateTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireWallSpacePirateState(slot);
-            AnimationProgramCursor<WallSpacePirateProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, WallSpacePirateAnimations.Programs, ref cursor, WallSpacePirateFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyWallSpacePirateCue(slot, cue, context.Level));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances WallSpacePirate's typed animation.</summary>
+    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireWallSpacePirateState(slot);
+        AnimationProgramCursor<WallSpacePirateProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, WallSpacePirateAnimations.Programs, ref cursor, WallSpacePirateFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyWallSpacePirateCue(slot, cue, context.Level));
+        state.Program = cursor;
+    }
 
     /// <summary>Applies the ordinary Pirate power-bomb callback across wall, walking, and Ninja variants.</summary>
-    internal static void RegisterWallSpacePiratePowerBombReactions(EnemyAiTable table)
+    internal static void RegisterWallSpacePiratePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.SpacePiratePowerBomb));
     }
 
     /// <summary>Uses shared Pirate shot logic, including hitbox quake, big death explosion, and Gold Ninja drops.</summary>
-    internal void RegisterWallSpacePirateShotReactions(EnemyAiTable table)
+    internal void RegisterWallSpacePirateShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SpacePirateShot)
@@ -402,9 +395,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
             {
                 if (c.HitboxShotAi == EnemyInteractionCallback.NormalEnemyShot)
                     return false;
-                // The shared Pirate shot tail clears native variable B before requesting death animation variant
-                // four. Wall AI uses B only as a debug jump destination, so its fatal clear is observable too.
-                c.Enemy.VariableB = 0;
+                // The shared Pirate shot tail clears the record's second word before requesting death animation
+                // variant four: a wall Pirate's jump destination (used only as a debug destination, so its fatal clear
+                // is observable) or a Ninja's spin-jump speed; a walking Pirate keeps nothing there.
+                ClearSharedPirateShotWord(c.Enemy);
                 // $B2:878F records the Gold Ninja's position as the drop origin before EnemyDeath clears the slot;
                 // $B2:87B4 then spawns the death explosion before MetalNinjaPirateDeathItemDropRoutine ($B2:87B8)
                 // spawns the drops.
@@ -421,7 +415,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
     }
 
     /// <summary>Skips frozen contact and rejects unsupported extended hitbox callbacks before normal touch damage.</summary>
-    internal void RegisterWallSpacePirateTouch(EnemyAiTable table)
+    internal void RegisterWallSpacePirateTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => IsOrdinarySpacePirateDefinition(slot.EnemyDefinitionPointer) &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.SpacePirateTouch,
@@ -434,7 +428,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
                 if (context.UsesExtendedHitboxes && context.HitboxTouchAi != EnemyInteractionCallback.SpacePirateTouch)
                 {
                     throw new InvalidDataException(
-                        $"Space Pirate hitbox touch AI $B2:{context.HitboxTouchAiPointer:X4} is not translated.");
+                        $"Space Pirate hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 // `$B2:876C` returns before common touch AI while frozen. The overlap was
                 // still found, but neither Samus nor the Pirate receives contact damage.
@@ -444,14 +438,12 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
             });
     }
 
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    /// <summary>Clears the second record word the shared Pirate shot tail empties, in the state of the family owning the slot.</summary>
+    private static void ClearSharedPirateShotWord(RoomEnemySlot enemy)
     {
-        Array.Clear(_wallSpacePirateStates);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
+        if (enemy.Entity is WallSpacePirateEntity && enemy.SpeciesState<WallSpacePirateEnemyState>() is { } wall)
+            wall.WallJumpDestination = Position16<RoomPixels>.Zero;
+        else if (enemy.Entity is NinjaSpacePirateEntity && enemy.SpeciesState<NinjaSpacePirateEnemyState>() is { } ninja)
+            ninja.CalculatedSpinJumpSpeed = 0;
     }
 }

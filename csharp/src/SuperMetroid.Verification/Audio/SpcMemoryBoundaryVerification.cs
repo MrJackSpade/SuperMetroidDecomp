@@ -27,9 +27,9 @@ internal static class SpcMemoryBoundaryVerification
         AssertEqual((ushort)0x3322, player.ReadPointerEntry(0x0000, 0), "pointer-table entry zero");
 
         // Sequence streams read, then advance with 16-bit wrap.
-        ushort cursor = 0xffff;
+        int cursor = 0xffff;
         AssertEqual((byte)0x11, player.NextSequenceByte(ref cursor), "sequence byte at $FFFF");
-        AssertEqual((ushort)0x0000, cursor, "sequence cursor wraps after $FFFF");
+        AssertEqual(0x0000, cursor, "sequence cursor wraps after $FFFF");
         AssertEqual((byte)0x22, player.PeekSequenceByte((ushort)0x0000), "peek does not advance");
 
         // Instrument records: six bytes with a big-endian pitch base.

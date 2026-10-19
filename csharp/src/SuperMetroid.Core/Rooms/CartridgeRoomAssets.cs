@@ -50,9 +50,9 @@ public sealed class CartridgeRoomAssets
     public TilesetDefinition Tileset { get; }
 
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
-    public static CartridgeRoomAssets Load(ISnesAddressSpace bus, CartridgeRoomHeader header, RoomAssetCatalogs catalogs)
+    public static CartridgeRoomAssets Load(RoomScrollStorage scrollStorage, CartridgeRoomHeader header, RoomAssetCatalogs catalogs)
     {
-        Ensure.NotNull(bus);
+        Ensure.NotNull(scrollStorage);
         Ensure.NotNull(header);
         Ensure.NotNull(catalogs);
         RoomCharacterAtlasCatalog characterArt = catalogs.Characters;
@@ -91,7 +91,7 @@ public sealed class CartridgeRoomAssets
             header.State.CompressedLevelDataAddress).ToArray();
         RoomLevelData levelData = ParseLevelData(header, levelStream, blockDefinitions,
             visualLayouts.Get(header.State.CompressedLevelDataAddress));
-        RoomScrollGrid scrolls = LoadScrolls(bus, header);
+        RoomScrollGrid scrolls = LoadScrolls(scrollStorage, header);
         return new CartridgeRoomAssets(
             header,
             levelData,
@@ -142,7 +142,7 @@ public sealed class CartridgeRoomAssets
         if ((declaredLayerBytes & 1) != 0)
         {
             throw new InvalidDataException(
-                $"Room $8F:{header.Pointer:X4} declares an odd ${declaredLayerBytes:X} BG1 byte count.");
+                $"Room {header.Definition.Name} declares an odd ${declaredLayerBytes:X} BG1 byte count.");
         }
 
         // The room header constrains camera screens; the stream's leading word constrains
@@ -154,7 +154,7 @@ public sealed class CartridgeRoomAssets
         if (blockCount < visibleBlockCount || blockCount % widthInBlocks != 0)
         {
             throw new InvalidDataException(
-                $"Room $8F:{header.Pointer:X4} declares ${declaredLayerBytes:X} BG1 bytes " +
+                $"Room {header.Definition.Name} declares ${declaredLayerBytes:X} BG1 bytes " +
                 $"({blockCount} blocks), which cannot contain its {header.Size.X}x" +
                 $"{header.Size.Y} visible screens in complete {widthInBlocks}-block rows.");
         }
@@ -167,7 +167,7 @@ public sealed class CartridgeRoomAssets
         if (levelStream.Length < backgroundOffset)
         {
             throw new InvalidDataException(
-                $"Room $8F:{header.Pointer:X4} level stream is missing its complete BG1/BTS allocation.");
+                $"Room {header.Definition.Name} level stream is missing its complete BG1/BTS allocation.");
         }
 
         // `$82:E7D3` clears the complete $6400-byte level_data allocation before the
@@ -194,7 +194,7 @@ public sealed class CartridgeRoomAssets
         if ((availableBackgroundBytes & 1) != 0)
         {
             throw new InvalidDataException(
-                $"Room $8F:{header.Pointer:X4} ends midway through a BG2 level word.");
+                $"Room {header.Definition.Name} ends midway through a BG2 level word.");
         }
         ushort[] authoredBackground = ReadWords(
             levelStream.AsSpan(backgroundOffset, availableBackgroundBytes));
@@ -208,14 +208,14 @@ public sealed class CartridgeRoomAssets
         ushort[] streamingBackground = new ushort[RoomLevelMemoryLayout.PrefilledStreamingWordCount];
         Array.Fill(streamingBackground, RoomLevelMemoryLayout.PrefilledLevelWord);
         background.CopyTo(streamingBackground, 0);
-        return new RoomLevelData(new Extent16<RoomBlocks>(unchecked((ushort)widthInBlocks), unchecked((ushort)allocationHeightInBlocks)), new RoomLevelPlanes(foreground, behavior, background), blockDefinitions, new RoomLevelStreaming(streamingAllocation, streamingBackground), doorListPointer: header.DoorListPointer, visualLayout: visualLayout);
+        return new RoomLevelData(new Extent16<RoomBlocks>(unchecked((ushort)widthInBlocks), unchecked((ushort)allocationHeightInBlocks)), new RoomLevelPlanes(foreground, behavior, background), blockDefinitions, new RoomLevelStreaming(streamingAllocation, streamingBackground), doors: header.Doors, visualLayout: visualLayout);
     }
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>
-    private static RoomScrollGrid LoadScrolls(ISnesAddressSpace bus, CartridgeRoomHeader header)
-        => RoomScrollDefinitions.CreateGrid(
-            bus,
-            header.State.ScrollPointer,
+    private static RoomScrollGrid LoadScrolls(RoomScrollStorage scrollStorage, CartridgeRoomHeader header)
+        => RoomScrollGrid.FromDefinition(
+            scrollStorage,
+            header.State.Scroll,
             header.Size);
 
     /// <summary>Decodes little-endian level words from a byte-aligned room stream span.</summary>

@@ -14,7 +14,7 @@ internal static class PuyoAnimationsVerification
     internal static void VerifyPuyoAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, PuyoAnimations.Programs,
-            PuyoFrameDefinitions.Spritemap,
+            PuyoFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  Puyo programs: {Entries.Length} programs ({steps} steps) match bank $A2.");

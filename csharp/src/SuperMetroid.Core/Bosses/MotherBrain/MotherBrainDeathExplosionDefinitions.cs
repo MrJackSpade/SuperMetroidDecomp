@@ -36,7 +36,7 @@ internal static class MotherBrainDeathExplosionDefinitions
     /// The three programs the native table at <c>$86:C929-$86:C92E</c> selects by projectile parameter zero through two:
     /// the shared misc-dust small explosion, smoke and big explosion.
     /// </summary>
-    internal static MiscDustProjectileProgram Program(ushort parameter) => parameter switch
+    internal static MiscDustProjectileProgram Program(int parameter) => parameter switch
     {
         0 => MiscDustProjectileProgram.SmallExplosion,
         1 => MiscDustProjectileProgram.Smoke,

@@ -16,7 +16,7 @@ internal sealed class MotherBrainGlassPlmAnimation()
     private protected override ushort DrawList(MotherBrainGlassDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override MotherBrainGlassPlmProgram? Publish(MotherBrainGlassPlmCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override MotherBrainGlassPlmProgram? Publish(MotherBrainGlassPlmCue cue, PlmSlot slot, PlmStepContext context)
     {
         MotherBrainGlassPlms glass = context.Plms.MotherBrainGlass;
         switch (cue.Kind)
@@ -26,7 +26,7 @@ internal sealed class MotherBrainGlassPlmAnimation()
             case MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed:
                 return glass.IsGlassDestroyed() ? MotherBrainGlassPlmProgram.NoGlass : null;
             case MotherBrainGlassPlmCueKind.ArmHitWake:
-                slot.PreInstruction = MotherBrainGlassPlmProgramDefinitions.HitPreInstruction;
+                slot.PreInstruction = MotherBrainGlassPreInstructions.Hit;
                 return null;
             case MotherBrainGlassPlmCueKind.RepeatUntilHits:
                 return slot.RoomArgument < cue.Hits ? Cursor.Program : null;

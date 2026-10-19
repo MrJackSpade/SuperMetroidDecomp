@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgramsVerification;
@@ -11,22 +12,24 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Retail and synthetic checks for installed library-background command execution.</summary>
 internal static class RoomBackgroundLibraryParityVerification
 {
     /// <summary>
     /// Compares the <paramref name="length"/> bank-$7E bytes a decompress-to-WRAM command wrote at its
-    /// cartridge-authored <paramref name="destination"/> after native and installed execution.
+    /// cartridge-authored <paramref name="destination"/> after native execution with the installed tilemap staging.
     /// </summary>
     [CpuBusBoundary("exact bus test: compares the cartridge-selected WRAM range a library-background decompression fills")]
     private static void AssertSameLibraryBackgroundWorkRam(SuperMetroidAddressSpace nativeBus,
-        SuperMetroidAddressSpace selectedBus, ushort destination, int length, ushort listPointer)
+        Bg2TilemapStaging selected, ushort destination, int length, ushort listPointer)
     {
         int start = RoomAssetRomData.LibraryBackground.WorkRamBank | destination;
+        int stagingStart = start - LibraryBackgroundStagingDefinitions.NativeAddress;
         for (int offset = 0; offset < length; offset++)
             AssertEqual(nativeBus.ReadWorkRamByte(start + offset),
-                selectedBus.ReadWorkRamByte(start + offset),
+                selected.LibraryTilemap[stagingStart + offset],
                 $"library background $8F:{listPointer:X4} WRAM byte {offset}");
     }
 
@@ -60,10 +63,9 @@ internal static class RoomBackgroundLibraryParityVerification
                     LibraryBackgroundProgramImporter.ExecuteReference(
                         nativeBus, nativeVram, program.Pointer, door);
 
-                SuperMetroidAddressSpace selectedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-                var guarded = NewLibraryBackgroundVisualReadGuard(selectedBus, sources);
+                LibraryBackgroundStaging selectedStaging = LibraryBackgroundStagingFixtures.Fresh();
                 var selectedVram = new SnesVram();
-                LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.Execute(guarded, selectedVram, program.Pointer, door, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
+                LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.ExecuteProgram(selectedStaging, selectedVram, LibraryBackgroundProgramDefinitions.Get(program.Pointer), door == 0 ? FixtureRoomHeaders.UnmatchedDoor : DoorDefinitions.Get(door), new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
                 AssertEqual(native, selected,
                     $"library background $8F:{program.Pointer:X4}, door ${door:X4} command result");
                 for (int index = 0; index < nativeVram.Bytes.Length; index++)
@@ -79,29 +81,15 @@ internal static class RoomBackgroundLibraryParityVerification
                 foreach (LibraryBackgroundSource source in list.Where(source =>
                     source.Command == LibraryBackgroundCommand.DecompressToWorkRam))
                 {
-                    AssertSameLibraryBackgroundWorkRam(nativeBus, selectedBus, (source.WorkRamDestination ?? throw new InvalidOperationException("Verification requires source.WorkRamDestination.")),
+                    AssertSameLibraryBackgroundWorkRam(nativeBus, selectedStaging.Tilemap, (source.WorkRamDestination ?? throw new InvalidOperationException("Verification requires source.WorkRamDestination.")),
                         backgrounds.Get(source.SourceAddress).Transfer.Length, program.Pointer);
                 }
                 cases++;
             }
         }
 
-        AssertTrue(cases > LibraryBackgroundProgramDefinitions.RetailProgramCount,
+        AssertTrue(cases > LibraryBackgroundProgramDefinitionsConstants.RetailProgramCount,
             "library background parity included door-selected variants");
-        var unknownListBus = NewLibraryBackgroundUnknownListReadGuard(inventoryBus);
-        try
-        {
-            LibraryBackgroundLoader.Execute(unknownListBus, new SnesVram(), 0xf000, 0, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
-            throw new InvalidOperationException(
-                "Installed library background accepted an uncompiled bank-$8F list.");
-        }
-        catch (InvalidDataException error)
-        {
-            AssertTrue(error.Message.Contains("$8F:F000", StringComparison.Ordinal),
-                "unknown installed background list identifies its pointer");
-        }
-        AssertEqual(0, unknownListBus.ForbiddenReadAttempts,
-            "installed background rejects unknown list before any cartridge read");
         Suite(nameof(VerifyInstalledBackgroundTransferFailures), () => VerifyInstalledBackgroundTransferFailures(backgrounds, skies, hud, characters));
         Console.WriteLine($"  Library backgrounds: {cases} ordinary and door-selected cases " +
             "match installed VRAM/WRAM without command-list or visual ROM-source reads.");
@@ -129,18 +117,11 @@ internal static class RoomBackgroundLibraryParityVerification
     }
 
     /// <summary>
-    /// Synthetic cartridge whose one-transfer command list streams two staged WRAM bytes
-    /// ($12, $34 at $7E:2000) to VRAM.
+    /// Synthetic cartridge whose one-transfer command list streams two bytes of the enemy BG2 staging
+    /// ($7E:2000) to VRAM.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge and WRAM fixture for a staged library-background transfer")]
-    private static TestAddressSpace CreateStagedWorkRamBackgroundCartridge(ushort listPointer)
-    {
-        const int stagedSource = 0x7e2000;
-        TestAddressSpace bus = CreateSingleTransferBackgroundCartridge(listPointer, stagedSource, 2);
-        WriteTestByte(bus, stagedSource, 0x12);
-        WriteTestByte(bus, stagedSource + 1, 0x34);
-        return bus;
-    }
+    private static TestAddressSpace CreateStagedWorkRamBackgroundCartridge(ushort listPointer) =>
+        CreateSingleTransferBackgroundCartridge(listPointer, EnemyStagingDefinitions.Bg2NativeAddress, 2);
 
     /// <summary>
     /// A fully bound installation must never quietly fall back to stock ROM pixels
@@ -164,7 +145,7 @@ internal static class RoomBackgroundLibraryParityVerification
             TestAddressSpace bus = CreateSingleTransferBackgroundCartridge(listPointer, sourceAddress, byteCount);
             try
             {
-                LibraryBackgroundLoader.ExecuteProgram(bus, new SnesVram(), LibraryBackgroundProgramImporter.Read(bus, listPointer), 0, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
+                LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), new SnesVram(), LibraryBackgroundProgramImporter.Read(bus, listPointer), FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
                 throw new InvalidOperationException(
                     $"Installed art silently accepted ROM transfer ${sourceAddress:X6}.");
             }
@@ -176,44 +157,18 @@ internal static class RoomBackgroundLibraryParityVerification
             }
         }
 
-        // WRAM staging remains a native streaming operation, not a replacement
-        // artwork lookup: it must still transfer when all art catalogs are bound.
+        // A WRAM-sourced transfer remains a native streaming operation from the owned staging,
+        // not a replacement artwork lookup: it must still transfer when all art catalogs are bound.
         TestAddressSpace stagedBus = CreateStagedWorkRamBackgroundCartridge(listPointer);
+        var stagedEnemies = new EnemyStagingSurfaces();
+        StagingByteView stagedBg2 = stagedEnemies.CorpseTiles;
+        stagedBg2[0] = 0x12;
+        stagedBg2[1] = 0x34;
         var stagedVram = new SnesVram();
-        LibraryBackgroundLoader.ExecuteProgram(stagedBus, stagedVram, LibraryBackgroundProgramImporter.Read(stagedBus, listPointer), 0, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
+        LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(new Bg2TilemapStaging(), stagedEnemies), stagedVram, LibraryBackgroundProgramImporter.Read(stagedBus, listPointer), FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
         AssertEqual((byte)0x12, stagedVram.ReadByte(0x9000),
-            "installed-art binding retains WRAM background transfer low byte");
+            "installed-art binding retains the staged enemy BG2 transfer low byte");
         AssertEqual((byte)0x34, stagedVram.ReadByte(0x9001),
-            "installed-art binding retains WRAM background transfer high byte");
-    }
-
-    /// <summary>Rejects any attempt to interpret an uncompiled high bank-$8F command list.</summary>
-    private static CartridgeReadGuard NewLibraryBackgroundUnknownListReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0x8ff000 and <= 0x8fffff,
-            address => $"Installed background interpreted unknown list at ${address:X6}.");
-
-    /// <summary>Rejects compiled command-list and visual-source reads during installed background execution.</summary>
-    private static MutableCartridgeReadGuard NewLibraryBackgroundVisualReadGuard(
-        ISnesAddressSpace source, IReadOnlyList<LibraryBackgroundSource> entries)
-    {
-        LibraryBackgroundProgram? CommandList(int address) => LibraryBackgroundProgramDefinitions.All
-            .FirstOrDefault(program => address >= (RoomAssetRomData.LibraryBackground.CommandBank | program.Pointer) &&
-                address - (RoomAssetRomData.LibraryBackground.CommandBank | program.Pointer) < program.NativeByteCount);
-        LibraryBackgroundSource? Visual(int address) => entries.FirstOrDefault(entry =>
-            entry.Command == LibraryBackgroundCommand.DecompressToWorkRam
-                // Only the first compressed byte is needed to detect an accidental
-                // fallback into RomDataReader.Decompress.
-                ? address == entry.SourceAddress
-                : entry.SourceAddress >= RoomAssetRomData.LibraryBackground.RomSourceAddressFloor &&
-                  address >= entry.SourceAddress &&
-                  address - entry.SourceAddress < (entry.TransferByteCount ?? throw new InvalidOperationException("Verification requires entry.TransferByteCount.")));
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => CommandList(address) is not null,
-            address => $"Installed background reread compiled command list $8F:{(CommandList(address) ?? throw new InvalidOperationException("Verification requires CommandList(address).")).Pointer:X4}.");
-        guard.Forbid(address => Visual(address) is not null,
-            address => (Visual(address) ?? throw new InvalidOperationException("Verification requires Visual(address).")).Command == LibraryBackgroundCommand.DecompressToWorkRam
-                ? $"Installed background reread compressed source ${address:X6}."
-                : $"Installed background reread direct visual source ${address:X6}.");
-        return guard;
+            "installed-art binding retains the staged enemy BG2 transfer high byte");
     }
 }

@@ -65,8 +65,8 @@ internal static class FamilyTrigonometryVerification
                 throw new InvalidDataException($"Yapping Maw product differs: word={word:X4}, low={low:X2}.");
         }
 
-        var bull = new RoomEnemySlot(0);
-        var bullState = new BullEnemyState(bull, new BullSharedTables { MaxSpeeds = new ushort[1], AnglesToSamus = new ushort[1], Angles = new ushort[1], ShotReactionDisableFlags = new ushort[1], AccelerationTimerResets = new ushort[1], DecelerationTimerResets = new ushort[1], ShotReactionDisableTimers = new ushort[1], PreviousHealth = new ushort[1] });
+        var bull = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
+        var bullState = new BullEnemyState(new BullExtensionWords());
         static uint BullReference(uint initial, short sample, int speed)
         {
             int product = (Math.Abs((int)sample) / 256) * speed;
@@ -95,20 +95,20 @@ internal static class FamilyTrigonometryVerification
         var enemies = new RoomEnemySystem();
         var previous = enemies.SlotTable.Slots[0];
         var segment = enemies.SlotTable.Slots[1];
-        previous.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
-        var segmentState = new ShaktoolSegmentState(segment);
+        previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);
+        var segmentState = new ShaktoolSegmentState();
         Action<RoomEnemySlot, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             previous.Position = new(new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
-            segmentState.OrbitAngle = (ushort)angle;
+            segmentState.OrbitAngle = SnesAngle.FromRaw((ushort)angle);
             place(segment, segmentState);
             uint expectedX = unchecked(initial + (uint)SnesSixteenSixteen.FromEightEight(orbit[SnesAngle.FromRaw(unchecked((ushort)angle)).TableIndex + 64]));
             uint expectedY = unchecked(initial + (uint)SnesSixteenSixteen.FromEightEight(orbit[SnesAngle.FromRaw(unchecked((ushort)angle)).TableIndex]));
             if ((segment.Position.X.RawValue) != expectedX ||
                 (segment.Position.Y.RawValue) != expectedY ||
-                segmentState.OrbitAngle != angle)
+                segmentState.OrbitAngle.RawValue != angle)
                 throw new InvalidDataException($"Shaktool placement differs: angle={angle:X4}, origin={initial:X8}.");
         }
         Console.WriteLine("Compiled family math: signed 16-bit samples, every angle with every speed-word boundary class for Bull moves, word/byte Yapping Maw products over every boundary class and 196,608 linked Shaktool placements match cartridge data without a production bus.");

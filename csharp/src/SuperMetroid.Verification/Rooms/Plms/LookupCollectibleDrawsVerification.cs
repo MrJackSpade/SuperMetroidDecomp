@@ -55,7 +55,7 @@ internal static class LookupCollectibleDrawsVerification
                     AssertTrue(RoomPlmCollectibleDrawDefinitions.TryGetWord(entry.Pointer, out ushort runtimeWord), "Collectible runtime word ownership");
                     AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(entry.Pointer + 2)) & mask, runtimeWord & mask, "Collectible original runtime field");
                     AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(entry.Pointer + 2)) & mask,
-                        value.LevelWord & mask, "Collectible original physical field");
+                        value.LevelWord.Raw & mask, "Collectible original physical field");
                 }
             }
             if (field == 3)

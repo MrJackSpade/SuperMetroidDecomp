@@ -18,7 +18,7 @@ internal static class KraidHealthThresholdsVerification
 
     /// <summary>Runs the native right-shift and wrapped addition recurrence over every 16-bit starting health.</summary>
     private static void VerifyKraidHealthFraction(SuperMetroidAddressSpace rom, int shiftAddress,
-        int shifts, int count, Func<KraidEnemyState, int, ushort> actual)
+        int shifts, int count, Func<KraidEnemyState, int, int> actual)
     {
         for (int instruction = 0; instruction < shifts; instruction++)
             AssertEqual((byte)0x4a, KraidHealthFractionRomByte(rom, shiftAddress + instruction), "Native initializer uses accumulator LSR");

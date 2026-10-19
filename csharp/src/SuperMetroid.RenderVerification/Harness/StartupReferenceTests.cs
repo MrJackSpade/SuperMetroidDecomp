@@ -13,18 +13,17 @@ using SuperMetroid.TestSupport.FrameCapture;
 internal static class StartupReferenceTests
 {
     /// <summary>Checks the year-text hold against the preserved Snes9x RGBA reference.</summary>
-    internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, byte[] rom) =>
-        Verify(device, renderer, rom, StartupReferenceData.YearRgbaSha256, "1994", yearOnly: true);
+    internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer) =>
+        Verify(device, renderer, StartupReferenceData.YearRgbaSha256, "1994", yearOnly: true);
 
     /// <summary>Checks the title pan and its Mode-7 scanline origin against preserved native pixels.</summary>
-    internal static void RunPan(D3D11RenderDevice device, D3D11FrameRenderer renderer, byte[] rom) =>
-        Verify(device, renderer, rom, StartupReferenceData.PanRgbaSha256, "title-pan", yearOnly: false);
+    internal static void RunPan(D3D11RenderDevice device, D3D11FrameRenderer renderer) =>
+        Verify(device, renderer, StartupReferenceData.PanRgbaSha256, "title-pan", yearOnly: false);
 
     /// <summary>Finds the named scene within its hold phase and compares managed and GPU pixels to the native digest.</summary>
-    private static void Verify(D3D11RenderDevice device, D3D11FrameRenderer renderer, byte[] rom,
-        string referenceDigest, string scene, bool yearOnly)
+    private static void Verify(D3D11RenderDevice device, D3D11FrameRenderer renderer, string referenceDigest, string scene, bool yearOnly)
     {
-        var title = RenderRetailFixture.CreateTitle(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
+        var title = RenderRetailFixture.CreateTitle();
         SuperMetroid.Core.Hardware.Rgba32[]? nativePixels = null;
         RenderFrameSnapshot? closestPacket = null;
         int closestDifference = int.MaxValue;

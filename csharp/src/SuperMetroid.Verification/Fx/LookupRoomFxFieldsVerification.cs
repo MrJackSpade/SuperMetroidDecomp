@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -66,19 +67,19 @@ internal static class LookupRoomFxFieldsVerification
             "Original Mother Brain direct-record subset and order");
         AssertEqual(295, OriginalFxRecordPointers.Length, "Original FX identity count");
         AssertTrue(OriginalFxRecordPointers.SequenceEqual(originals.Keys), "Native FX record membership");
-        AssertTrue(OriginalFxRecordPointers.SequenceEqual(RoomFxRecordDefinitions.All.Select(x => x.Pointer)),
+        AssertTrue(OriginalFxRecordPointers.SequenceEqual(RoomFxDefinitions.RecordPointers),
             "FX enumeration preserves ascending identities");
         var identities = OriginalFxRecordPointers.ToHashSet();
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
             if (identities.Contains(pointer))
-                AssertEqual(pointer, RoomFxRecordDefinitions.Get(pointer).Pointer, "FX selected identity");
+                AssertEqual(pointer, RoomFxDefinitions.RecordPointerOf(RoomFxDefinitions.RecordAt(pointer)), "FX selected identity");
             else
-                AssertThrows<InvalidDataException>(() => RoomFxRecordDefinitions.Get(pointer),
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxDefinitions.RecordAt(pointer),
                     "Unknown/interior FX identity rejects");
         }
-        foreach (RoomFxRecordDefinition record in RoomFxRecordDefinitions.All)
+        foreach (RoomFxRecordDefinition record in RoomFxDefinitions.AllRecords)
         {
             foreach (int offset in new[] { int.MinValue, -1, 16, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => record.ReadByte(offset), "FX byte bound");
@@ -115,7 +116,7 @@ internal static class LookupRoomFxFieldsVerification
     private static void VerifyRoomFxField(SuperMetroidAddressSpace rom, int offset, int width,
         Func<RoomFxRecordDefinition, int> field)
     {
-        var enumerated = RoomFxRecordDefinitions.All.ToDictionary(x => x.Pointer);
+        var enumerated = RoomFxDefinitions.RecordPointers.ToDictionary(pointer => pointer, pointer => RoomFxDefinitions.RecordAt(pointer));
         foreach (ushort pointer in OriginalFxRecordPointers)
         {
             int address = 0x830000 | pointer;
@@ -125,7 +126,7 @@ internal static class LookupRoomFxFieldsVerification
             byte OriginalByte(int index) => terminator && index >= 2 ? (byte)0 : RoomFxFieldRomByte(rom, address + index);
             int expected = OriginalByte(offset);
             if (width == 2) expected |= SnesLittleEndian.Word(0, OriginalByte(offset + 1));
-            RoomFxRecordDefinition actual = RoomFxRecordDefinitions.Get(pointer);
+            RoomFxRecordDefinition actual = RoomFxDefinitions.RecordAt(pointer);
             AssertEqual(expected, field(actual), $"FX {pointer:X4} field at {offset}");
             AssertEqual(expected, field(enumerated[pointer]), "FX enumeration field view");
             for (int index = offset; index < offset + width; index++)
@@ -165,28 +166,25 @@ internal static class LookupRoomFxFieldsVerification
                 firstByDoor.TryAdd(door, (ushort)cursor);
                 cursor = SnesAddressMath.OffsetInBank(cursor + 16);
             }
-            for (int value = 0; value <= ushort.MaxValue; value++)
+            foreach (CartridgeDoorHeader? door in DoorDefinitionsConstants.All.Append(null))
             {
-                ushort door = (ushort)value;
-                ushort expected = firstByDoor.TryGetValue(door, out ushort matching) ? matching : fallback;
-                ushort actual = RoomFxRecordDefinitions.Select(root, door);
+                ushort word = door is null ? (ushort)0 : DoorDefinitions.PointerOf(door);
+                ushort expected = firstByDoor.TryGetValue(word, out ushort matching) ? matching : fallback;
+                ushort actual = RoomFxDefinitions.SelectedRecordPointer(RoomFxDefinitions.Suffix(root), door);
                 if (actual != expected)
                     throw new InvalidOperationException(
-                        $"FX selector root {root:X4}, door {door:X4}: native {expected:X4}, actual {actual:X4}.");
+                        $"FX selector root {root:X4}, door {word:X4}: native {expected:X4}, actual {actual:X4}.");
             }
         }
+        foreach (CartridgeDoorHeader? door in DoorDefinitionsConstants.All.Append(null))
+            AssertEqual((ushort)0, RoomFxDefinitions.SelectedRecordPointer(null, door), "Null FX root for every door");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
-            AssertEqual((ushort)0, RoomFxRecordDefinitions.Select(0, pointer), "Null FX root for every door");
             if (pointer != 0 && !identities.Contains(pointer))
-            {
-                AssertThrows<InvalidDataException>(() => RoomFxRecordDefinitions.Select(pointer, 0),
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxDefinitions.Suffix(pointer),
                     "Unknown FX root rejects before door comparison");
-                AssertThrows<InvalidDataException>(() => RoomFxRecordDefinitions.Select(pointer, ushort.MaxValue),
-                    "Unknown FX root cannot become a terminator match");
-            }
         }
-        Console.WriteLine("FX list selection: all 295 suffixes x 65536 doors, null root and invalid roots pass.");
+        Console.WriteLine("FX list selection: all 295 suffixes x every door, null root and invalid roots pass.");
     }
 }

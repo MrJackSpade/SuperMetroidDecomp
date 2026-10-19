@@ -26,5 +26,8 @@ internal static class MaridiaEnvironmentalPaletteFxColorDefinitionAccess
         public ushort Duration => self.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
             ? MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.WaterfallDuration
             : MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.SandDuration;
+        /// <summary>Bytes from a duration word through its terminal wait command.</summary>
+        public int FrameByteCount =>
+            sizeof(ushort) + self.ColorsPerFrame * sizeof(ushort) + sizeof(ushort);
     }
 }

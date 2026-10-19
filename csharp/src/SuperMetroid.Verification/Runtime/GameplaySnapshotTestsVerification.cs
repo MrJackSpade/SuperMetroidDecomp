@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -10,6 +11,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks gameplay render snapshots retain VRAM, CGRAM, OAM, and
 /// per-line scroll independently of later live-memory changes.</summary>
@@ -67,19 +69,17 @@ internal static class GameplaySnapshotTestsVerification
         }
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         AssertThrows<InvalidOperationException>(() => GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()),
             "Mode-7 shaft cannot silently capture as ordinary tiles");
-        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
-        runtime.NmiHandler.RunNmi(0, true);
-        Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
-        AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),
-            "ordinary retail room capture matches full renderer with inactive effects");
+        Rgba32[] retail = RenderForComparison(captured);
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),

@@ -8,7 +8,7 @@ internal static class EndingCloudMotion
     /// limit. Movement begins on the next call; active side clouds move diagonally while
     /// top and bottom clouds move vertically without retesting zoom.
     /// </summary>
-    public static void Step(EndingSprite wrapper, ushort scale)
+    public static void Step(EndingSprite wrapper, int scale)
     {
         bool side = wrapper.Role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB
             or EndingSpriteRole.CloudLeftA or EndingSpriteRole.CloudLeftB;

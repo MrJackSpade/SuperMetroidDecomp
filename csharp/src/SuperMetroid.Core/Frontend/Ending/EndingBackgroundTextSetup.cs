@@ -8,17 +8,14 @@ internal sealed record EndingBackgroundTextSetup
     /// <summary>Tilemap.</summary>
     public required ushort[] Tilemap { get; init; }
 
-    /// <summary>Instruction pointer.</summary>
-    public required ushort InstructionPointer { get; init; }
-
     /// <summary>Inventory.</summary>
     public required EndingInventorySnapshot Inventory { get; init; }
 
     /// <summary>Japanese text.</summary>
     public required bool JapaneseText { get; init; }
 
-    /// <summary>Tilemap destination.</summary>
-    public ushort TilemapDestination { get; init; } = EndingCreditsRomData.Rendering.PostCreditsTilemapWord;
+    /// <summary>The background map the staging tilemap is uploaded into after each revealed glyph.</summary>
+    public EndingTextTilemap DestinationTilemap { get; init; } = EndingTextTilemap.ResultPanel;
 
     /// <summary>Presentation.</summary>
     public EndingTextPresentation? Presentation { get; init; } = null;

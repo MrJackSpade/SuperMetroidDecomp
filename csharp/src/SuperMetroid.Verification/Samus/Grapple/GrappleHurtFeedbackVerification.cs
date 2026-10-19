@@ -23,41 +23,40 @@ internal static class GrappleHurtFeedbackVerification
     /// <summary>Verifies contact damage starts a single hurt flash and gasp without detaching Grapple or adding knockback.</summary>
     internal static void VerifyGrappleHurtFeedback()
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.ParlorAndAlcatraz);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
         var level = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
         runtime.Room.LevelData = level;
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.GrappleBeam;
-        samus.SelectedHudItem = SamusHudRomData.GrappleSelectedItem;
+        samus.EquippedItems = SamusEquipmentFlags.GrappleBeam;
+        samus.SelectedHudItem = HudItem.Grapple;
         runtime.Artwork.BindGrapplePresentation();
         SamusGrappleMovement.ConnectUnobstructedSwing(bus, samus, new Position16<RoomPixels>(160, 64), 52,
             SnesAngle.QuarterTurn, 0, faceRight: true);
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
         runtime.StepFrame(SnesButton.X);
         AssertEqual((ushort)0, samus.HurtFlashCounter, "undamaged hanging Samus has no hurt flash");
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
         var target = runtime.Enemies.SlotTable.Slots[0];
-        target.EnemyDefinitionPointer = EnemyDefinitionId.Ripper;
-        target.Definition = RoomEnemyDefinitionCatalog.Get(target.EnemyDefinitionPointer);
+        target.Bind(EnemyDefinitionId.Ripper, target.Definition);
+        target.Bind(target.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(target.EnemyDefinitionPointer));
         target.Position = target.Position.WithWhole(samus.Position.Whole);
         target.Radius = new(8, 8);
         target.SpritemapPointer = 1;
-        var interactive = (List<ushort>)runtime.Enemies.ProcessingWindow._interactiveEnemyIndexes;
+        var interactive = (List<int>)runtime.Enemies.ProcessingWindow._interactiveEnemyIndexes;
         interactive.Clear();
         interactive.Add(target.NativeIndex);
-        ushort health = samus.Health;
+        int health = samus.Health;
         AssertTrue(runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, SnesButton.X), "ordinary enemy contact hits hanging Samus");
         AssertEqual((ushort)(health - target.Definition.Damage), samus.Health, "native contact reduces health");
         target.Clear();
@@ -67,7 +66,7 @@ internal static class GrappleHurtFeedbackVerification
         AssertEqual((ushort)1, samus.HurtFlashCounter, "post-draw health loss starts hurt feedback independently of knockback");
         runtime.StepFrame(SnesButton.X);
         AssertEqual((ushort)2, samus.HurtFlashCounter, "first hurt palette call advances the counter");
-        samus.Health = NativeWordCounter.Decrement(samus.Health).Value; // Existing feedback must not restart on further health loss.
+        samus.Health--; // Existing feedback must not restart on further health loss.
         runtime.StepFrame(SnesButton.X);
         AssertEqual((ushort)3, samus.HurtFlashCounter, "active hurt feedback does not restart");
         AssertEqual(1, samus.LiquidPhysics.SoundRequests.Count(request =>
@@ -81,7 +80,7 @@ internal static class GrappleHurtFeedbackVerification
         Console.WriteLine("Grapple hurt feedback: real enemy contact retains hanging/no knockback and starts one native counter-two gasp.");
     }
 
-    /// <summary>Checks pending health-loss history survives current saves and defaults safely in older captures.</summary>
+    /// <summary>Checks pending health-loss history survives current saves, and that an older capture layout is rejected (#1270).</summary>
     private static void VerifyHurtHealthHistoryRestoration()
     {
         var state = new SamusState { Health = 77, PreviousHealthForHurtCheck = 99 };
@@ -100,7 +99,7 @@ internal static class GrappleHurtFeedbackVerification
         {
             writer.Write((typeof(SamusState).AssemblyQualifiedName ?? throw new InvalidOperationException("Verification requires typeof(SamusState).AssemblyQualifiedName.")));
             writer.Write("<PreviousHealthForHurtCheck>k__BackingField");
-            DebuggerObjectGraphSerializer.Serialize(fieldBytes, (ushort)99);
+            DebuggerObjectGraphSerializer.Serialize(fieldBytes, 99);
         }
         byte[] bytes = current.ToArray();
         byte[] omitted = fieldBytes.ToArray();
@@ -116,10 +115,9 @@ internal static class GrappleHurtFeedbackVerification
         using (var writer = new BinaryWriter(legacy, System.Text.Encoding.UTF8, leaveOpen: true))
             writer.Write(count - 1);
         legacy.Position = 0;
-        var migrated = DebuggerObjectGraphSerializer.Deserialize<SamusState>(legacy);
-        AssertEqual((ushort)77, migrated.PreviousHealthForHurtCheck, "legacy capture initializes missing history from saved health");
-        migrated.InputSnapshot.UpdateHurtFlashFromHealthLoss();
-        AssertEqual((ushort)0, migrated.HurtFlashCounter, "legacy load does not invent a damage event");
+        // Debugger states are build-pinned (#1270): an older layout fails loudly instead of being migrated.
+        AssertThrows<InvalidDataException>(() => DebuggerObjectGraphSerializer.Deserialize<SamusState>(legacy),
+            "a capture from before the health-history word is rejected, not migrated");
     }
 
     /// <summary>Runs the Grapple damage-feedback and save restoration regression.</summary>

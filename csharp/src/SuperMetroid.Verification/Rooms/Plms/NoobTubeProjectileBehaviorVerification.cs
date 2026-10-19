@@ -69,7 +69,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         AssertEqual(NoobTubeProjectileFrameDefinitions.PoseCount, executedOperands.Count, "every native visual operand is shown");
         for (int pose = 0; pose < NoobTubeProjectileFrameDefinitions.PoseCount; pose++)
         {
-            ushort key = NoobTubeProjectileFrameDefinitions.PresentationKey(new(pose));
+            ushort key = EnemyProjectileFrames.ProgramFrameKey(NoobTubeProjectileFrameDefinitions.ShownProjectileFrames[new(pose)]);
             AssertTrue(executedOperands.Contains(key), $"production shows n00b-tube presentation $86:{key:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the n00b tube's native list bytes");
@@ -79,7 +79,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         RoomEnemySystem NewSystem()
         {
             var system = new RoomEnemySystem();
-            system.BindFixtureBus(guard);
+            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             system.VerificationServices().NextRandom = (Func<ushort>)(() => 16448);
             return system;
         }
@@ -123,15 +123,15 @@ internal static class NoobTubeProjectileBehaviorVerification
                 // A flicker program's list begins with its flicker command: odd frames show its first operand at the
                 // shard's column; even frames show the reflected operand mirrored across the tube, or hide the shard.
                 ushort entry = NoobTubeProjectileNativeListAddresses.Entry(animation.Cursor.Program);
-                var command = (EnemyProjectileInstruction)cartridge.ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | entry);
+                var command = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | entry);
                 bool oddFrame = (system.Projectiles.CurrentFrame8 & 1) != 0;
-                if (command == EnemyProjectileInstruction.NoobTubeShardReflectFlicker)
+                if (command == NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + (oddFrame ? 2 : 4)));
                     AssertEqual(oddFrame ? projectile.Variable1 : unchecked((ushort)(256 - projectile.Variable1)), projectile.Position.X.Whole,
                         $"reflected flicker at $86:{entry:X4} column");
                 }
-                else if (command == EnemyProjectileInstruction.NoobTubeShardFlicker)
+                else if (command == NativeEnemyProjectileInstruction.NoobTubeShardFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + 2));
                     AssertEqual(oddFrame ? projectile.Variable1 : NoobTubeProjectileRomData.HiddenXPosition, projectile.Position.X.Whole,

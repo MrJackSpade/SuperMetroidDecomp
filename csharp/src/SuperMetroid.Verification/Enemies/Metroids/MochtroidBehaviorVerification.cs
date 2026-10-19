@@ -17,18 +17,18 @@ internal static class MochtroidBehaviorVerification
     /// The real initializer installs the free-flight loop, which pulses on time; switching to the attached loop starts
     /// it, while re-requesting the installed loop leaves the running animation alone, as the native change detector does.
     /// </summary>
-    internal static void VerifyMochtroidBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyMochtroidBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Mochtroid;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = MochtroidFrameToolingDefinitions.Bank };
-        enemies.MochtroidBehavior.InitializeMochtroid(slot);
+        slot.Bind(EnemyDefinitionId.Mochtroid, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MochtroidFrameToolingDefinitions.Bank });
+        MochtroidBehavior.InitializeMochtroid(slot);
         MochtroidEnemyState state = enemies.MochtroidStates[0] ?? throw new InvalidOperationException("Mochtroid has no state.");
         AssertEqual((MochtroidProgram?)MochtroidProgram.FreeFlight, state.InstalledProgram, "initializer installs free flight");
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MochtroidAnimations.Programs, MochtroidProgram.FreeFlight, MochtroidFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(MochtroidAnimations.Programs, MochtroidProgram.FreeFlight)),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MochtroidAnimations.Programs, MochtroidProgram.FreeFlight, MochtroidFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MochtroidAnimations.Programs, MochtroidProgram.FreeFlight)),
             "Mochtroid free-flight loop");
 
         AnimationProgramCursor<MochtroidProgram> running = state.Program;
@@ -37,8 +37,8 @@ internal static class MochtroidBehaviorVerification
 
         MochtroidBehavior.SetMochtroidProgram(slot, state, MochtroidProgram.Attached);
         AssertEqual(AnimationProgramCursor<MochtroidProgram>.Start(MochtroidProgram.Attached), state.Program, "switching starts the attached loop");
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MochtroidAnimations.Programs, MochtroidProgram.Attached, MochtroidFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(MochtroidAnimations.Programs, MochtroidProgram.Attached)),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MochtroidAnimations.Programs, MochtroidProgram.Attached, MochtroidFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MochtroidAnimations.Programs, MochtroidProgram.Attached)),
             "Mochtroid attached loop");
         Console.WriteLine("  Mochtroid behavior: both pulse loops and the change-detecting install pass.");
     }
@@ -48,7 +48,7 @@ internal static class MochtroidBehaviorVerification
     internal static int MochtroidBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyMochtroidBehavior), () => VerifyMochtroidBehavior(rom));
+        Suite(nameof(VerifyMochtroidBehavior), () => VerifyMochtroidBehavior());
         Suite(nameof(MochtroidAnimationsVerification.VerifyMochtroidAnimations), () => MochtroidAnimationsVerification.VerifyMochtroidAnimations(rom));
         return 0;
     }

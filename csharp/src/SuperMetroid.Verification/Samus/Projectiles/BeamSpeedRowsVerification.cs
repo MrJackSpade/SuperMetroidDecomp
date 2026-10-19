@@ -1,4 +1,3 @@
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectilesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -31,9 +30,9 @@ internal static class BeamSpeedRowsVerification
             // Mechanics now use compiled native rows, not editable presentation data.
             var bus = new BeamSpeedRowAddressSpace(retail);
             var samus = new SamusState { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                EquippedBeams = combination };
+                EquippedBeams = (SamusBeamFlags)combination };
             var projectiles = CreateProjectileFixture();
-            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture());
+            projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture());
             AssertTrue(projectiles.Slots[0].IsActive && projectiles.Slots.Skip(1).All(slot => !slot.IsActive),
                 "speed-row fixture allocates projectile");
             var shot = projectiles.Slots[0];
@@ -51,8 +50,8 @@ internal static class BeamSpeedRowsVerification
         }
         // Unlike the twelve identical authored rows, C..F overread different adjacent
         // words. Exercise the actual initializer to detect a dropped combination index.
-        var initialize = new Action<ISnesAddressSpace, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
-        var guarded = new BeamSpeedRowAddressSpace(retail);
+        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
+        var stationary = new ProjectileInheritanceRecords();
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
             AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address),
                 "All 85 compiled motion words match the pinned ROM without authored reads");
@@ -64,7 +63,7 @@ internal static class BeamSpeedRowsVerification
         for (ushort direction = 0; direction < 10; direction++)
         {
             var slot = new SamusProjectileSlot(0) { Type = combination, Direction = direction };
-            initialize(guarded, slot);
+            initialize(stationary, slot);
             int speed = unchecked((short)retail.ReadCartridgeWord((0x90c2d1 + combination * 4 +
                 (direction is 1 or 3 or 6 or 8 ? 2 : 0))));
             AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)),
@@ -77,7 +76,7 @@ internal static class BeamSpeedRowsVerification
         {
             var bus = new BeamSpeedRowAddressSpace(retail);
             var samus = new SamusState { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                SelectedHudItem = weapon, Missiles = 10, SuperMissiles = 10 };
+                SelectedHudItem = HudItems.Decode(weapon), Missiles = 10, SuperMissiles = 10 };
             var projectiles = CreateProjectileFixture();
             var bombs = CreateBombFixture();
             int vx = direction is 1 or 2 or 3 ? 0x100 : direction is 6 or 7 or 8 ? -0x100 : 0;
@@ -86,7 +85,7 @@ internal static class BeamSpeedRowsVerification
             for (int frame = 0; frame < 6; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 0), bombs);
+                projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 0), bombs);
                 if (frame == 0)
                 {
                     // Anchor the trajectory at the spawn origin: the fire-frame position less
@@ -122,8 +121,6 @@ internal static class BeamSpeedRowsVerification
     {
         /// <summary>Routes WRAM reads through the guarded address-space fixture.</summary>
         public byte ReadWorkRamByte(int address) => ReadByte(address);
-        /// <summary>Routes save-RAM reads through the guarded address-space fixture.</summary>
-        public byte ReadSaveRamByte(int address) => ReadByte(address);
         /// <summary>Routes cartridge reads through the guard that rejects migrated motion tables.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
@@ -156,13 +153,12 @@ internal static class BeamSpeedRowsVerification
         return 0;
     }
 
-    /// <summary>Runs beam speed, production projectile, and magic-number checks together.</summary>
+    /// <summary>Runs beam speed and production projectile checks together.</summary>
     [VerificationCommand("--beam-speed-rows")]
     internal static int BeamSpeedRowsCommand()
     {
         Suite(nameof(VerifyBeamSpeedRows), () => VerifyBeamSpeedRows());
         Suite(nameof(VerifySamusPowerBeamProjectiles), () => VerifySamusPowerBeamProjectiles());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

@@ -91,7 +91,7 @@ internal static class RoomFxRetailInventoryVerification
 
         var doorByPointer = doors.ToDictionary(door => door.Pointer);
         ILookup<ushort, CartridgeDoorHeader> incomingDoors = doors
-            .ToLookup(door => door.DestinationRoomPointer);
+            .ToLookup(door => RoomHeaderDefinitions.PointerOf(door.DestinationRoom));
         var classifications = new Dictionary<RetailLiquidClassification, int>();
         var auditedStatePointers = new HashSet<ushort>();
         var knownExamples = new Dictionary<RoomIdentity, HashSet<RetailLiquidClassification>>();
@@ -123,7 +123,7 @@ internal static class RoomFxRetailInventoryVerification
                 AssertTrue(doorByPointer.TryGetValue(recordDoor, out CartridgeDoorHeader? fxDoor),
                     $"room {room.Identity} state $8F:{room.State.Pointer:X4} FX-specific " +
                     $"door $83:{recordDoor:X4} is a physical retail door");
-                AssertEqual(room.Pointer, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoomPointer,
+                AssertEqual(room.Definition, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoom,
                     $"FX-specific door $83:{recordDoor:X4} enters room {room.Identity}");
             }
 
@@ -172,8 +172,8 @@ internal static class RoomFxRetailInventoryVerification
                             bus,
                             selectedRecord,
                             RoomFxRomDataRecordTooling.LiquidOptionsOffset) &
-                            (RoomFxRomData.LiquidTide.SmallTideOption |
-                             RoomFxRomData.LiquidTide.LargeTideOption)) != 0)
+                            (RoomFxRomDataLiquidTideConstants.SmallTideOption |
+                             RoomFxRomDataLiquidTideConstants.LargeTideOption)) != 0)
                     {
                         VerifyRetailLiquidTide(bus, room, doorPointer);
                         tidalEntryPaths++;
@@ -212,6 +212,10 @@ internal static class RoomFxRetailInventoryVerification
                 .Select(pair => $"{pair.Key}={pair.Value}")) +
             $". Inventory: {Path.GetRelativePath(Directory.GetCurrentDirectory(), inventoryPath)}.");
     }
+
+    /// <summary>The door an entry path names, or none for path zero, which matches only default records.</summary>
+    private static CartridgeDoorHeader? EntryDoor(ushort doorPointer) =>
+        doorPointer == 0 ? null : DoorDefinitions.Get(doorPointer);
 
     /// <summary>Compares independent ROM FX selection and liquid fields with the production owner for one room and entry door.</summary>
     private static RetailFxPathAudit AuditRetailFxEntryPath(
@@ -264,31 +268,31 @@ internal static class RoomFxRetailInventoryVerification
         SeedVisibleRoomFxPalette(cgram);
         var actual = CreateRetailFxState(bus);
         actual.Load(
-            bus,
             vram,
             cgram,
-            room.State.FxPointer,
-            doorPointer,
+            room.State.Fx,
+            EntryDoor(doorPointer),
             randomNumber: 0);
         AssertEqual(expectedRecord,
-            RoomFxRecordDefinitions.Select(room.State.FxPointer, doorPointer),
+            RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, EntryDoor(doorPointer)),
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} record selection");
         AssertEqual(expectedType, actual.Type,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX type");
-        AssertEqual(expectedBase, actual.BaseYPosition,
+        AssertEqual(expectedBase, actual.BaseY.Whole,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX base Y");
-        AssertEqual(expectedTarget, actual.TargetYPosition,
+        AssertEqual(expectedTarget, actual.TargetSurface.Y,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX target Y");
-        AssertEqual(expectedVelocity, actual.PackedYVelocity,
+        AssertEqual(expectedVelocity, actual.YVelocity.RawValue,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX velocity");
 
         bool liquid = expectedType is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid;
-        ushort liquidOptions = actual.LiquidOptions;
+        // The audit report prints the record's liquid-options byte as the cartridge stores it.
+        ushort liquidOptions = actual.LiquidOptions.ToNativeWord();
         RetailLiquidClassification classification = !liquid
             ? expectedType == RoomFxType.None
                 ? RetailLiquidClassification.None
@@ -305,7 +309,7 @@ internal static class RoomFxRetailInventoryVerification
             expectedType,
             actual.Type,
             expectedBase,
-            actual.BaseYPosition,
+            actual.BaseY.Whole,
             expectedTarget,
             expectedVelocity,
             liquidOptions,
@@ -316,14 +320,14 @@ internal static class RoomFxRetailInventoryVerification
         if (unchecked((short)expectedBase) < 0)
         {
             actual.PrimeViewport(new Position16<RoomPixels>(0, 0));
-            actual.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+            actual.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
             RoomLayer3FxRenderSnapshot hiddenSnapshot = actual.CaptureForDisplay()
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} negative liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
             var hiddenFrame = new Rgba32[
                 SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 hiddenFrame,
                 vram,
                 cgram,
@@ -341,7 +345,7 @@ internal static class RoomFxRetailInventoryVerification
             ? unchecked((ushort)(expectedBase - RetailRoomFxDefinitions.AuditSurfaceScreenY))
             : (ushort)0;
         actual.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
-        actual.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+        actual.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
 
         if (expectedType is RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -351,7 +355,7 @@ internal static class RoomFxRetailInventoryVerification
                     "published no render snapshot.");
             var visibleFrame = new Rgba32[
                 SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 visibleFrame,
                 vram,
                 cgram,
@@ -407,11 +411,11 @@ internal static class RoomFxRetailInventoryVerification
             bus,
             states,
             RetailRoomFxDefinitions.VisibleLavaRoom);
-        ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, doorPointer: 0);
+        ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, door: null);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         var fx = CreateRetailFxState(bus);
-        fx.Load(bus, vram, cgram, room.State.FxPointer, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, room.State.Fx, door: null, randomNumber: 0);
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
@@ -419,9 +423,9 @@ internal static class RoomFxRetailInventoryVerification
         cgram.SetColor(26, Bgr555.FromWord(0x03e0));
         cgram.SetColor(27, Bgr555.FromWord(0x7c00));
         ushort cameraY = unchecked((ushort)(
-            fx.BaseYPosition - RetailRoomFxDefinitions.AuditSurfaceScreenY));
+            fx.BaseY.Whole - RetailRoomFxDefinitions.AuditSurfaceScreenY));
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
-        fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+        fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
 
         RoomLayer3FxRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException("Business Center lava published no render snapshot.");
@@ -445,7 +449,7 @@ internal static class RoomFxRetailInventoryVerification
              frame < RetailRoomFxDefinitions.LavaSurfaceFrameDuration;
              frame++)
         {
-            fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+            fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
         }
         Rgba32[] second = RenderRoomFx(
             vram,
@@ -467,7 +471,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(frame, vram, cgram, snapshot);
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(frame, vram, cgram, snapshot);
         return frame;
     }
 
@@ -507,7 +511,7 @@ internal static class RoomFxRetailInventoryVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for one byte field of a retail room-FX record")]
     private static byte ReadRetailFxRecordByte(SuperMetroidAddressSpace bus, ushort record, int fieldOffset)
     {
-        if ((uint)fieldOffset >= RoomFxRomData.Record.ByteCount)
+        if ((uint)fieldOffset >= RoomFxToolingRomData.Record.ByteCount)
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
         return CartridgeImportSource.Require(bus).ReadCartridgeByte(
             RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
@@ -517,7 +521,7 @@ internal static class RoomFxRetailInventoryVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for one word field of a retail room-FX record")]
     private static ushort ReadRetailFxRecordWord(SuperMetroidAddressSpace bus, ushort record, int fieldOffset)
     {
-        if ((uint)fieldOffset > RoomFxRomData.Record.ByteCount - sizeof(ushort))
+        if ((uint)fieldOffset > RoomFxToolingRomData.Record.ByteCount - sizeof(ushort))
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
         return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
@@ -541,12 +545,12 @@ internal static class RoomFxRetailInventoryVerification
             ushort candidateDoor = ReadRetailFxRecordWord(
                 bus,
                 cursor,
-                RoomFxRomDataRecordTooling.DoorPointerOffset);
-            if (candidateDoor == RoomFxRomData.Record.TerminatorDoorPointer)
+                RoomFxRomDataRecordToolingConstants.DoorPointerOffset);
+            if (candidateDoor == RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                 return 0;
             if (candidateDoor == 0 || candidateDoor == doorPointer)
                 return cursor;
-            cursor = unchecked((ushort)(cursor + RoomFxRomData.Record.ByteCount));
+            cursor = unchecked((ushort)(cursor + RoomFxToolingRomData.Record.ByteCount));
         }
 
         throw new InvalidDataException(
@@ -567,11 +571,11 @@ internal static class RoomFxRetailInventoryVerification
             ushort doorPointer = ReadRetailFxRecordWord(
                 bus,
                 cursor,
-                RoomFxRomDataRecordTooling.DoorPointerOffset);
-            if (doorPointer is 0 or RoomFxRomData.Record.TerminatorDoorPointer)
+                RoomFxRomDataRecordToolingConstants.DoorPointerOffset);
+            if (doorPointer is 0 or RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                 yield break;
             yield return doorPointer;
-            cursor = unchecked((ushort)(cursor + RoomFxRomData.Record.ByteCount));
+            cursor = unchecked((ushort)(cursor + RoomFxToolingRomData.Record.ByteCount));
         }
 
         throw new InvalidDataException(
@@ -596,7 +600,7 @@ internal static class RoomFxRetailInventoryVerification
         };
         CartridgeDoorHeader door = doors.Single(candidate =>
             candidate.Pointer == definition.EntryDoor);
-        AssertEqual(room.Pointer, door.DestinationRoomPointer,
+        AssertEqual(room.Definition, door.DestinationRoom,
             $"rising-lava door $83:{door.Pointer:X4} destination");
 
         var vram = new SnesVram();
@@ -604,17 +608,16 @@ internal static class RoomFxRetailInventoryVerification
         SeedVisibleRoomFxPalette(cgram);
         var fx = CreateRetailFxState(bus);
         fx.Load(
-            bus,
             vram,
             cgram,
-            room.State.FxPointer,
-            door.Pointer,
+            room.State.Fx,
+            door,
             randomNumber: 0,
-            roomHeaderPointer: room.Pointer);
+            room: room.Definition);
         AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room} rising FX type");
-        AssertEqual(definition.InitialY, fx.BaseYPosition,
+        AssertEqual(definition.InitialY, fx.BaseY.Whole,
             $"room {definition.Room} initial lava Y");
-        AssertEqual(definition.TargetY, fx.TargetYPosition,
+        AssertEqual(definition.TargetY, fx.TargetSurface.Y,
             $"room {definition.Room} target lava Y");
 
         ushort cameraY = door.DestinationScreen.ToRoomPixels().Y;
@@ -626,13 +629,13 @@ internal static class RoomFxRetailInventoryVerification
         int movingFrames = 0;
         for (; movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames; movingFrames++)
         {
-            fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
-            if (fx.PackedYVelocity == 0)
+            fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+            if (fx.YVelocity.RawValue == 0)
                 break;
         }
         AssertTrue(movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames,
             $"room {definition.Room} lava reaches its cartridge target");
-        AssertEqual(definition.TargetY, fx.BaseYPosition,
+        AssertEqual(definition.TargetY, fx.BaseY.Whole,
             $"room {definition.Room} lava stops at its cartridge target");
 
         RoomLayer3FxRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
@@ -643,7 +646,7 @@ internal static class RoomFxRetailInventoryVerification
             $"room {definition.Room} risen lava enters the gameplay viewport");
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(frame, vram, cgram, finalSnapshot);
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(frame, vram, cgram, finalSnapshot);
         AssertTrue(frame.Any(pixel => pixel != default),
             $"room {definition.Room} risen lava is visibly composed");
     }
@@ -660,7 +663,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         CartridgeDoorHeader door = doors.Single(candidate =>
             candidate.Pointer == RetailRoomFxDefinitions.RisingLavaRoom28.EntryDoor);
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -676,7 +679,7 @@ internal static class RoomFxRetailInventoryVerification
             // total from the old global RNG sequence. The bank-$88 HDMA prologue
             // samples the shared RNG before swapping it and before the main loop
             // advances it.
-            ushort sampledRandom = runtime.System.RandomNumber;
+            int sampledRandom = runtime.System.RandomNumber;
             int expectedRequests = 0;
             if (frame >= 1 && frame <= RetailRoomFxDefinitions.Room28TargetFrame && --referenceSoundTimer < 0)
             {
@@ -758,7 +761,7 @@ internal static class RoomFxRetailInventoryVerification
         int firstMovementFrame = -1;
         int targetFrame = -1;
         int lastShakeFrame = 2;
-        ushort initialY = runtime.RoomLayer3Fx.BaseYPosition;
+        ushort initialY = runtime.RoomLayer3Fx.BaseY.Whole;
         for (int frame = 3; frame < RetailRoomFxDefinitions.MaximumRiseAuditFrames; frame++)
         {
             StepAndVerifySound(frame);
@@ -768,9 +771,9 @@ internal static class RoomFxRetailInventoryVerification
                 lastShakeFrame = frame;
             }
             emittedSounds += EarthquakeSounds();
-            if (firstMovementFrame < 0 && runtime.RoomLayer3Fx.BaseYPosition != initialY)
+            if (firstMovementFrame < 0 && runtime.RoomLayer3Fx.BaseY.Whole != initialY)
                 firstMovementFrame = frame;
-            if (targetFrame < 0 && runtime.RoomLayer3Fx.PackedYVelocity == 0)
+            if (targetFrame < 0 && runtime.RoomLayer3Fx.YVelocity.RawValue == 0)
                 targetFrame = frame;
             if (targetFrame >= 0 && runtime.Enemies.Earthquake.EarthquakeTimer.IsZero)
                 break;
@@ -797,11 +800,10 @@ internal static class RoomFxRetailInventoryVerification
         var fx = CreateRetailFxState(bus);
         var vram = new SnesVram();
         fx.Load(
-            bus,
             vram,
             new SnesCgram(),
-            room.State.FxPointer,
-            doorPointer,
+            room.State.Fx,
+            EntryDoor(doorPointer),
             randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
 
@@ -811,13 +813,13 @@ internal static class RoomFxRetailInventoryVerification
             // A fresh VRAM object is sufficient here because the assertion targets the
             // liquid position, not animation output. The production animated-tile owner
             // still executes and therefore remains covered by fail-loud dispatch.
-            fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
-            int offset = unchecked((short)(fx.CurrentYPosition - fx.BaseYPosition));
+            fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
+            int offset = unchecked((short)(fx.Surface.Y - fx.BaseY.Whole));
             maximumAbsoluteOffset = Math.Max(maximumAbsoluteOffset, Math.Abs(offset));
         }
 
         int expectedMaximum =
-            (fx.LiquidOptions & RoomFxRomData.LiquidTide.SmallTideOption) != 0
+            (fx.LiquidOptions & RoomLiquidOptions.SmallTide) != 0
                 ? RoomFxRomData.LiquidTide.SmallTideScale
                 : RoomFxRomData.LiquidTide.LargeTideScale;
         AssertTrue(maximumAbsoluteOffset > 0 && maximumAbsoluteOffset <= expectedMaximum,
@@ -843,25 +845,25 @@ internal static class RoomFxRetailInventoryVerification
         var cgram = new SnesCgram();
         SeedVisibleRoomFxPalette(cgram);
         var fx = CreateRetailFxState(bus);
-        fx.Load(bus, vram, cgram, visibleRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, visibleRoom.State.Fx, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
-        fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+        fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
         // animated characters remain in VRAM until another producer overwrites them.
-        fx.Load(bus, vram, cgram, fxPointer: 0, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, fx: null, door: null, randomNumber: 0);
         AssertTrue(fx.CaptureForDisplay() is null,
             "transition to no-FX room clears the prior liquid snapshot");
 
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
-        fx.Load(bus, vram, cgram, hiddenRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, hiddenRoom.State.Fx, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
-        fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+        fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
             frame,
             vram,
             cgram,

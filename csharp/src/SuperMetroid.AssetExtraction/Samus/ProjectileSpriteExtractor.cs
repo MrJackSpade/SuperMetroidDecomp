@@ -11,6 +11,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 [CpuBusBoundary("codec: ROM bank-$93 projectile spritemaps → projectile sprite frames")]
 public static class ProjectileSpriteExtractor
 {
+    /// <summary>JSON options: Camel-case property names, indented output.</summary>
+    private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
+
     /// <summary>Decodes all catalogued bank-$93 Samus-projectile OAM compositions and validates the resulting visual catalog.</summary>
     /// <param name="bus">Cartridge-import-capable address space containing the native projectile spritemaps.</param>
     /// <returns>New UTF-8 JSON bytes containing named frames with signed pixel offsets, 8- or 16-pixel part sizes, tile references, palettes, priorities, and flips.</returns>
@@ -47,7 +50,7 @@ public static class ProjectileSpriteExtractor
             frames.Add(ProjectileSpriteDefinitions.Name(id), parts);
         }
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new ProjectileSpriteDocument { Version = ProjectileSpriteDefinitions.Version, Frames = frames },
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
+            CamelCaseIndentedJson);
         return json;
     }
 }

@@ -28,8 +28,7 @@ internal static class CeresExplosionVerification
             IntroCinematicArtworkCatalog artwork = IntroCinematicArtworkFiles.Load(artDirectory, null);
             PowerBombFixedColorCatalog stockColors = colors ?? PowerBombFixedColorCatalog.Load(
                 new MemoryStream(PowerBombFixedColorExtractor.Extract(bus)));
-            var scene = new CeresDestructionCinematicState(colors is null ? bus : guarded,
-                fixedColors: stockColors, artwork: artwork);
+            var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork);
             var reference = new SamusPowerBombExplosionState { PresentationColors = stockColors };
             var phases = new HashSet<PowerBombExplosionPhase>();
             bool spawned = false, finished = false;
@@ -38,7 +37,7 @@ internal static class CeresExplosionVerification
             {
                 // Bank $82 runs HDMA before bank $8B dispatch. The reference is seeded
                 // only when C345 transfers the station map and switches flight handler.
-                reference.StepFrame(bus);
+                reference.StepFrame();
                 var previous = scene.Phase;
                 scene.Step();
                 if (previous == CeresDestructionPhase.ApproachExplosion &&

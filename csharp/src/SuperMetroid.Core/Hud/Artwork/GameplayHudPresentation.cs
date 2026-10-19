@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
@@ -36,11 +37,11 @@ public sealed class GameplayHudPresentation
         templateOverrides = new();
         for (int index = 0; index < template.Length; index++)
             if (template[index] != GameplayHudDefinitions.TemplateWord(index)) templateOverrides.Add(index, template[index]);
-        Blank = CompileCell(document.Blank, "HUD blank");
-        FilledEnergyTank = CompileCell(document.EnergyTanks.Filled, "filled energy tank");
-        EmptyEnergyTank = CompileCell(document.EnergyTanks.Empty, "empty energy tank");
+        Blank = new SnesBgTilemapWord(CompileCell(document.Blank, "HUD blank"));
+        FilledEnergyTank = new SnesBgTilemapWord(CompileCell(document.EnergyTanks.Filled, "filled energy tank"));
+        EmptyEnergyTank = new SnesBgTilemapWord(CompileCell(document.EnergyTanks.Empty, "empty energy tank"));
         energyTankAnchors = CompileAnchors(document.EnergyTanks.Anchors, GameplayHudDefinitions.EnergyTankCount, "energy tank",
-            tank => GameplayHudDefinitions.EnergyTankByteOffset(tank) / sizeof(ushort));
+            tank => GameplayHudDefinitions.EnergyTankCell(tank));
         healthDigits = CompileDigitOverrides(document.Digits.Health, "health digits");
         ammoDigits = CompileDigitOverrides(document.Digits.Ammo, "ammo digits");
         HealthAnchor = ValidateAnchor(document.Digits.HealthAnchor, new(2, 1), "health digits");
@@ -86,11 +87,11 @@ public sealed class GameplayHudPresentation
         }
     }
     /// <summary>Gets the tilemap word used to clear mutable HUD cells.</summary>
-    public ushort Blank { get; }
+    public SnesBgTilemapWord Blank { get; }
     /// <summary>Gets the tilemap word for a filled energy tank.</summary>
-    public ushort FilledEnergyTank { get; }
+    public SnesBgTilemapWord FilledEnergyTank { get; }
     /// <summary>Gets the tilemap word for an empty energy tank.</summary>
-    public ushort EmptyEnergyTank { get; }
+    public SnesBgTilemapWord EmptyEnergyTank { get; }
     /// <summary>Gets the BG palette index applied to the selected item icon.</summary>
     public int SelectedPalette { get; }
     /// <summary>Gets the BG palette index applied to deselected item icons.</summary>
@@ -124,7 +125,7 @@ public sealed class GameplayHudPresentation
         ValidateTilemap(tiles);
         CompiledIcon icon = Icon(itemIndex);
         int first = Index(icon.Anchor);
-        if (new SnesBgTilemapWord(tiles[first]).CharacterIndex != new SnesBgTilemapWord(Blank).CharacterIndex)
+        if (new SnesBgTilemapWord(tiles[first]).CharacterIndex != Blank.CharacterIndex)
             return;
         for (int y = 0; y < CompiledIcon.Height; y++)
         for (int x = 0; x < icon.Width; x++)
@@ -135,13 +136,13 @@ public sealed class GameplayHudPresentation
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     /// <param name="health">Current energy, including full tank hundreds.</param>
     /// <param name="maxHealth">Maximum energy used to determine the visible tank count.</param>
-    public void ApplyEnergy(Span<ushort> tiles, ushort health, ushort maxHealth)
+    public void ApplyEnergy(Span<ushort> tiles, int health, int maxHealth)
     {
         ValidateTilemap(tiles);
         int fullTanks = health / 100;
         int tankCount = Math.Min(maxHealth / 100, GameplayHudDefinitions.EnergyTankCount);
         for (int tank = 0; tank < tankCount; tank++)
-            tiles[EnergyTankCell(tank)] = tank < fullTanks ? FilledEnergyTank : EmptyEnergyTank;
+            tiles[EnergyTankCell(tank)] = (tank < fullTanks ? FilledEnergyTank : EmptyEnergyTank).Raw;
         DrawDigits(tiles, healthDigits, health % 100, HealthAnchor, 2);
     }
 
@@ -149,7 +150,7 @@ public sealed class GameplayHudPresentation
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     /// <param name="itemIndex">Zero for missiles, one for Super Missiles, or two for Power Bombs.</param>
     /// <param name="value">The ammunition count to display.</param>
-    public void ApplyAmmo(Span<ushort> tiles, int itemIndex, ushort value)
+    public void ApplyAmmo(Span<ushort> tiles, int itemIndex, int value)
     {
         ValidateTilemap(tiles);
         (Position16<TilemapCells> anchor, int digits) = itemIndex switch
@@ -159,7 +160,8 @@ public sealed class GameplayHudPresentation
             2 => (PowerBombAmmoAnchor, 2),
             _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
         };
-        DrawDigits(tiles, ammoDigits, value, anchor, digits);
+        // The digits divide the stored word, so a count the cartridge has drained below zero draws as its word.
+        DrawDigits(tiles, ammoDigits, SamusQuantity.Encode(value), anchor, digits);
     }
 
     /// <summary>Draws the AUTO reserve indicator for the requested reserve-energy state.</summary>
@@ -179,25 +181,25 @@ public sealed class GameplayHudPresentation
     {
         ValidateTilemap(tiles);
         for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++)
-            tiles[AutoReserveCell(cell)] = Blank;
+            tiles[AutoReserveCell(cell)] = Blank.Raw;
     }
 
     /// <summary>Applies a palette to every nonblank cell of the selected item icon.</summary>
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     /// <param name="selectedItem">The native one-based selected-item number.</param>
     /// <param name="palette">The BG palette index to apply.</param>
-    public void ToggleItemHighlight(Span<ushort> tiles, ushort selectedItem, int palette)
+    public void ToggleItemHighlight(Span<ushort> tiles, SuperMetroid.Core.Samus.HudItem selectedItem, int palette)
     {
         ValidateTilemap(tiles);
         if ((uint)palette > 7) throw new ArgumentOutOfRangeException(nameof(palette));
-        int itemIndex = selectedItem - 1;
+        int itemIndex = (int)selectedItem - 1;
         if ((uint)itemIndex >= GameplayHudDefinitions.IconNames.Length) return;
         CompiledIcon icon = Icon(itemIndex);
         for (int y = 0; y < CompiledIcon.Height; y++)
         for (int x = 0; x < icon.Width; x++)
         {
             int destination = Index(icon.Anchor + new Offset16<TilemapCells>(checked((short)x), checked((short)y)));
-            if (tiles[destination] != Blank)
+            if (tiles[destination] != Blank.Raw)
                 tiles[destination] = new SnesBgTilemapWord(tiles[destination]).WithPaletteIndex(palette).Raw;
         }
     }
@@ -346,7 +348,7 @@ public sealed class GameplayHudPresentation
 
     /// <summary>Uses an edited tank position when present, otherwise the native HUD offset.</summary>
     private int EnergyTankCell(int tank) => energyTankAnchors.TryGetValue(tank, out int cell)
-        ? cell : GameplayHudDefinitions.EnergyTankByteOffset(tank) / sizeof(ushort);
+        ? cell : GameplayHudDefinitions.EnergyTankCell(tank);
 
     /// <summary>Uses an edited AUTO position when present, otherwise its stock cell.</summary>
     private int AutoReserveCell(int index) => autoAnchors.TryGetValue(index, out int cell)
@@ -408,7 +410,7 @@ public sealed class GameplayHudPresentation
         /// <summary>Converts the native item offset into a 32-column tile coordinate.</summary>
         private static Position16<TilemapCells> StockAnchor(int item)
         {
-            int index = GameplayHudDefinitions.ItemByteOffset(item) / sizeof(ushort);
+            int index = GameplayHudDefinitions.ItemCell(item);
             return new(checked((ushort)(index % GameplayHudDefinitions.Width)), checked((ushort)(index / GameplayHudDefinitions.Width)));
         }
         /// <summary>Validates the icon rectangle and stores only non-stock placement or art.</summary>

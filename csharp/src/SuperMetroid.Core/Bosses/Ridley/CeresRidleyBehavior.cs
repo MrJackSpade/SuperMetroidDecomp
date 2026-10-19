@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
@@ -12,12 +14,16 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The Ceres Ridley species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class CeresRidleyBehavior
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
     /// <summary>Invokes the enemy AI table for Ridley's shared movement callbacks.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Provides room randomness and Ceres artwork state.</summary>
@@ -43,6 +49,7 @@ internal sealed class CeresRidleyBehavior
     /// <summary>Connects Ceres Ridley's enemy AI, drawing, collision and room-main collaborators.</summary>
     internal CeresRidleyBehavior(CeresRidleyBehaviorDependencies dependencies)
     {
+        _frameResults = dependencies.FrameResults;
         _ridleyTail = dependencies.RidleyTail;
         _dispatch = dependencies.Dispatch;
         _room = dependencies.Room;
@@ -61,15 +68,13 @@ internal sealed class CeresRidleyBehavior
     /// subtracts enemy health; the projectile owner performs its normal explosion change.
     /// </summary>
     public int ResolveCeresRidleyProjectileHits(
-        ISnesAddressSpace bus,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
 
-        if (_ridleyEncounter.Ridley is null || _ridleyEncounter.CeresStatus != 0)
+        if (_ridleyEncounter.Ridley is null || _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
             return 0;
 
         RoomEnemySlot slot = _slotTable._slots[0];
@@ -92,7 +97,7 @@ internal sealed class CeresRidleyBehavior
             {
                 continue;
             }
-            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
+            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile.SlotIndex))
                 continue;
 
             ResolveCeresRidleyShotAfterCollision(slot);
@@ -125,7 +130,7 @@ internal sealed class CeresRidleyBehavior
         slot.FlashTimer = NativeCountdown.FromRaw(!slot.FlashTimer.IsZero && (slot.FlashTimer.RawValue & 1) != 0
             ? (ushort)14
             : (ushort)13);
-        state.HitCounter = unchecked((ushort)(state.HitCounter + 1));
+        state.HitCounter++;
 
         // The cartridge draws the hurt palette from the enemy frame that just completed.
         // Collision runs afterward, so publish that same pre-increment frame immediately
@@ -164,18 +169,18 @@ internal sealed class CeresRidleyBehavior
         slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
         slot.Position = slot.Position.WithWhole(new(186, 169));
-        _ridleyEncounter.CeresStatus = 0;
+        _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
 
         _ridleyEncounter.Ridley = new RidleyEnemyState
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
             HitCounter = 0,
-            SpritemapPaletteIndex = EnemyPaletteBits.Palette7,
-            CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
-            MovementAnimationEnabled = 0,
+            SpritemapPaletteIndex = SnesObjPalettes.Index7,
+            CommonDrawPaletteIndex = SnesObjPalettes.Index7,
+            MovementAnimationEnabled = false,
             FacingDirection = RidleyFacing.Left,
-            IdleTailWhipEnabled = 1,
+            IdleTailWhipEnabled = true,
             TailDamage = 15,
             Velocity = new EightEightVector<RoomPixels>(0, 0),
             MovementMinimum = new Position16<RoomPixels>(40, unchecked((ushort)-32)),
@@ -183,8 +188,8 @@ internal sealed class CeresRidleyBehavior
             BabyProgram = AnimationProgramCursor<CeresBabyProgram>.Start(CeresBabyProgram.Initial),
             BabyInstructionTimer = 1,
             BabyFunction = CeresBabyFunction.CarriedInArms,
-            BabyCurrentSpritemap = 0,
-            BabyPosition = slot.Position.Whole + CeresBabyArmsAnchor,
+            BabyCurrentPose = null,
+            BabyPosition = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole + CeresBabyArmsAnchor),
             WingFrame = 5,
             WingAnimationTimer = NativeCountdown.Start(0),
             WingAnimationTimerDelta = 0,
@@ -192,8 +197,8 @@ internal sealed class CeresRidleyBehavior
             TailAngleDelta = 1,
             TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
             TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
-            TailWhipTargetClockwiseAngle = RidleyTailDefinitions.IdleWhipTarget,
-            TailWhipTargetCounterClockwiseAngle = RidleyTailDefinitions.IdleWhipTarget,
+            ClockwiseWhipTarget = null,
+            CounterClockwiseWhipTarget = null,
             TailWhipRequest = 0,
             TailExtensionSpeed = 240,
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle,
@@ -227,13 +232,13 @@ internal sealed class CeresRidleyBehavior
         VramWriteQueue? vramWriteQueue)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(slot);
-        slot.Health = (ushort)short.MaxValue;
+        slot.Health = short.MaxValue;
 
         // $A6:A29F runs after the boss dispatcher and before movement. None of the
         // translated dispatcher branches mutate the flash timer, so selecting the two
         // draw palettes here is equivalent while keeping their decision ahead of the
         // shared movement/composition continuation below.
-        if (state.MovementAnimationEnabled != 0 && _ridleyEncounter.CeresStatus == 0)
+        if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             UpdateRidleyHurtFlashPalettes(slot, state, slot.FrameCounter);
 
         switch (state.Function)
@@ -331,8 +336,8 @@ internal sealed class CeresRidleyBehavior
             case RidleyAiFunction.CeresSwoopSetup:
                 state.Function = RidleyAiFunction.CeresSwoopMoveToPosition;
                 state.FunctionTimer = NativeCountdown.Start(10);
-                state.SwoopAngleAccumulator = 0;
-                state.IdleTailWhipEnabled = 0;
+                state.SwoopAngleAccumulator = SnesAngle.Zero;
+                state.IdleTailWhipEnabled = false;
                 TickCeresRidleySwoopMoveToPosition(slot, state);
                 break;
 
@@ -386,7 +391,7 @@ internal sealed class CeresRidleyBehavior
                 {
                     state.Function = RidleyAiFunction.CeresHovering;
                     state.HoverCounter = 0;
-                    state.IdleTailWhipEnabled = 1;
+                    state.IdleTailWhipEnabled = true;
                 }
                 break;
 
@@ -427,7 +432,7 @@ internal sealed class CeresRidleyBehavior
                 // it cannot remain parked over that separately scoped presentation seam.
                 state.Function = RidleyAiFunction.CeresInactive;
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-                _ridleyEncounter.CeresStatus = 1;
+                _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
                 SetupCeresRidleyMode7(state);
                 break;
 
@@ -451,7 +456,7 @@ internal sealed class CeresRidleyBehavior
         // Once the eye fade enables composite animation, CeresRidley_Main performs the
         // common Ridley 8.8 movement pass after every dispatcher call. Keeping that order
         // matters at A6AF/A6C8: velocity changes affect position in the very same frame.
-        if (state.MovementAnimationEnabled != 0 && _ridleyEncounter.CeresStatus == 0)
+        if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
             IntegrateRidleyMovement(slot, state, ceresWallImpact: true);
             TickRidleyWingAnimation(state);
@@ -459,9 +464,13 @@ internal sealed class CeresRidleyBehavior
             _ridleyTail.TickRidleyTail(slot, state, samus);
             UpdateCeresRidleyHealthPalette(state);
         }
-        if (_ridleyEncounter.CeresStatus == 0)
+        if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             TickCeresBaby(slot, state);
     }
+
+    /// <summary>OBJ palette zero, which the tail and wings select on hurt-flash updates.</summary>
+    private static readonly SnesObjAttributeWord HurtFlashSpritemapPalette =
+        SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 0, priority: 0);
 
     /// <summary>
     /// Ports <c>RidleyHurtFlashHandling</c> at $A6:D4DA and the common extended-enemy
@@ -472,17 +481,17 @@ internal sealed class CeresRidleyBehavior
     internal static void UpdateRidleyHurtFlashPalettes(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        ushort enemyMainExecutionCounter)
+        int enemyMainExecutionCounter)
     {
-        state.CommonDrawPaletteIndex = !slot.FlashTimer.IsZero &&
+        state.CommonDrawPaletteIndex = new SnesObjAttributeWord(!slot.FlashTimer.IsZero &&
             (enemyMainExecutionCounter & 2) != 0
                 ? (ushort)0
-                : slot.PaletteIndex;
+                : checked((ushort)slot.PaletteIndex));
 
         state.SpritemapPaletteIndex = slot.FlashTimer.RawValue > 1 &&
             (unchecked((ushort)(enemyMainExecutionCounter + 1)) & 2) != 0
-                ? (ushort)0
-                : EnemyPaletteBits.Palette7;
+                ? HurtFlashSpritemapPalette
+                : SnesObjPalettes.Index7;
     }
 
     /// <summary>
@@ -537,7 +546,7 @@ internal sealed class CeresRidleyBehavior
         // The other original termination route is Samus energy below 30. A synthetic room
         // fixture may omit Samus, in which case only the shot-counter route is meaningful.
         // $A6:A706 jumps into the real retreat, so its first acceleration runs this call.
-        if (samus is not null && unchecked((short)(samus.Health - 30)) < 0)
+        if (samus is not null && samus.Health < 30)
         {
             state.FightMode = RidleyFightMode.NotFighting;
             BeginCeresRidleyRetreat(state);
@@ -555,7 +564,7 @@ internal sealed class CeresRidleyBehavior
             // timeout. The previous translation inverted this branch and selected attacks
             // while he was still above the arena, making every fireball route hit its
             // intentional 48-frame bailout before the mouth animation could begin.
-            state.HoverCounter = unchecked((ushort)(state.HoverCounter + 1));
+            state.HoverCounter++;
             if (state.HoverCounter < 124)
                 return;
         }
@@ -574,7 +583,7 @@ internal sealed class CeresRidleyBehavior
 
         if (unchecked((short)(slot.Position.Y.Whole - 80)) < 0)
         {
-            state.HoverCounter = unchecked((ushort)(state.HoverCounter + 1));
+            state.HoverCounter++;
             if (state.HoverCounter >= 48)
                 state.Function = RidleyAiFunction.CeresSwoopSetup;
             return;
@@ -596,7 +605,7 @@ internal sealed class CeresRidleyBehavior
     private void TickCeresRidleyFireballShooting(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // $A6:A7F9 reads RandomNumberSeed without generating a number.
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         ushort jitter = (ushort)(random & 7);
         if (unchecked((short)random) < 0)
             jitter = unchecked((ushort)-jitter);
@@ -649,7 +658,7 @@ internal sealed class CeresRidleyBehavior
         {
             state.Function = RidleyAiFunction.CeresSwoopDescendingAimingDown;
             state.FunctionTimer = NativeCountdown.Start(10);
-            state.SwoopAngleAccumulator = 0;
+            state.SwoopAngleAccumulator = SnesAngle.Zero;
         }
     }
 
@@ -683,16 +692,16 @@ internal sealed class CeresRidleyBehavior
             magnitude = Math.Min(targetMagnitude, magnitude + 32);
         else if (magnitude > targetMagnitude)
             magnitude = Math.Max(targetMagnitude, magnitude - 32);
-        state.SwoopSpeedMagnitude = unchecked((ushort)magnitude);
+        state.SwoopSpeedMagnitude = magnitude;
 
-        ushort angle = unchecked((ushort)(state.SwoopAngleAccumulator + angleDelta));
-        // Native CMP branches on N, not signed less-than (N xor V). Preserve word
-        // wrapping, particularly the $8000 recovery target after a rightward swoop.
-        bool negativeDifference = unchecked((short)(angle - targetAngle)) < 0;
+        SnesAngle angle = state.SwoopAngleAccumulator.AddRaw(angleDelta);
+        // Native CMP branches on N, not signed less-than (N xor V). The heading wraps around the
+        // turn, particularly onto the half-turn recovery target after a rightward swoop.
+        bool negativeDifference = unchecked((short)(angle.RawValue - targetAngle)) < 0;
         if (angleDelta < 0 ? negativeDifference : !negativeDifference)
-            angle = unchecked((ushort)targetAngle);
+            angle = SnesAngle.NormalizeRaw(targetAngle);
         state.SwoopAngleAccumulator = angle;
-        byte phase = SnesLittleEndian.HighByte(angle);
+        byte phase = angle.TableIndex;
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, phase)));
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, unchecked((byte)(phase + 64)))));
     }
@@ -739,9 +748,9 @@ internal sealed class CeresRidleyBehavior
     {
         // $BE03 flies Ridley's hand toward the falling Baby. The native collision compares
         // two radius-four rectangles centered on the hand and Baby points.
-        AccelerateRidleyToward(slot, state, state.BabyPosition - CeresRidleyHandToBaby, 12);
+        AccelerateRidleyToward(slot, state, state.BabyPosition.Whole - CeresRidleyHandToBaby, 12);
 
-        Offset16<RoomPixels> fromHand = state.BabyPosition - (slot.Position.Whole + CeresBabyFeetAnchor);
+        Offset16<RoomPixels> fromHand = state.BabyPosition.Whole - (slot.Position.Whole + CeresBabyFeetAnchor);
         if (Math.Abs(fromHand.X) >= 8 || Math.Abs(fromHand.Y) >= 8)
         {
             return;
@@ -761,25 +770,24 @@ internal sealed class CeresRidleyBehavior
                 // Before the fake retreat, the Baby remains at Ridley's original left-hand
                 // anchor. This function is also why the retrieval target begins coherent
                 // even though the Baby is not a separate RoomEnemySlot.
-                state.BabyPosition = slot.Position.Whole + CeresBabyArmsAnchor;
+                state.BabyPosition = state.BabyPosition.WithWhole(slot.Position.Whole + CeresBabyArmsAnchor);
                 return;
 
             case CeresBabyFunction.Drop:
-                state.BabyYSubposition = 0;
+                state.BabyPosition = state.BabyPosition.WithFractionY(0);
                 state.BabyVerticalVelocity = 0;
                 state.BabyFunction = CeresBabyFunction.Dropped;
                 goto case CeresBabyFunction.Dropped;
 
             case CeresBabyFunction.Dropped:
-                state.BabyVerticalVelocity = unchecked((ushort)(state.BabyVerticalVelocity + 8));
-                (ushort babyY, state.BabyYSubposition) = IntegrateUnclampedAxis(
-                    state.BabyPosition.Y,
-                    state.BabyYSubposition,
-                    state.BabyVerticalVelocity);
-                state.BabyPosition = state.BabyPosition.WithY(babyY);
-                if (unchecked((short)(state.BabyPosition.Y - 192)) >= 0)
+                state.BabyVerticalVelocity += 8;
+                // The falling speed only grows from zero and the fall ends at Y=192, so it is always a
+                // nonnegative 8.8 velocity well inside the signed range the integrator accepts.
+                state.BabyPosition = state.BabyPosition.WithY(
+                    state.BabyPosition.Y.AddEightEightToHighFraction(checked((ushort)state.BabyVerticalVelocity)));
+                if (unchecked((short)(state.BabyPosition.Y.Whole - 192)) >= 0)
                 {
-                    state.BabyPosition = state.BabyPosition.WithY(192);
+                    state.BabyPosition = state.BabyPosition.WithWholeY(192);
                     state.BabyFunction = CeresBabyFunction.Idle;
                 }
                 return;
@@ -787,7 +795,7 @@ internal sealed class CeresRidleyBehavior
             case CeresBabyFunction.CarriedInFeet:
                 // Once the hand rectangles overlap, the Baby follows the grasp point for
                 // the real retreat and disappears with Ridley at the status-one handoff.
-                state.BabyPosition = slot.Position.Whole + CeresBabyFeetAnchor;
+                state.BabyPosition = state.BabyPosition.WithWhole(slot.Position.Whole + CeresBabyFeetAnchor);
                 return;
 
             case CeresBabyFunction.Idle:
@@ -1030,14 +1038,14 @@ internal sealed class CeresRidleyBehavior
         {
             state.FadePaletteOffset = 0;
             state.Function = RidleyAiFunction.FadeInBody;
-            state.MovementAnimationEnabled = 1;
+            state.MovementAnimationEnabled = true;
             return;
         }
 
         (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley eye fade requires installed colors."))
             .ApplyEyeFade(_presentation.Cgram, fadeStep.PaletteRow);
-        state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
+        state.FadePaletteOffset++;
     }
 
     /// <summary>Reveals body palette rows, clears intangible collision and queues the battle track at the final row.</summary>
@@ -1048,19 +1056,15 @@ internal sealed class CeresRidleyBehavior
             return;
         state.FunctionTimer = NativeCountdown.Start(0);
 
-        int row = state.FadePaletteOffset /
-            (CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort));
+        // The cartridge steps a colour offset one row of colours at a time; the row it reaches is the fade's progress.
+        int row = state.FadePaletteOffset;
         if (_presentation.CeresRidleyColors is { } bodyColors &&
-            state.FadePaletteOffset %
-                (CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort)) == 0 &&
             row < CeresRidleyPaletteRomData.BodyFadeRowCount)
             bodyColors.ApplyBodyFade(_presentation.Cgram, row);
         else throw new InvalidOperationException(
-            $"Ceres Ridley body-fade offset {state.FadePaletteOffset} is outside the installed color rows.");
-        state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset +
-            CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort)));
-        if (state.FadePaletteOffset < CeresRidleyPaletteRomData.BodyFadeRowCount *
-            CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort))
+            $"Ceres Ridley body-fade row {row} is outside the installed color rows.");
+        state.FadePaletteOffset++;
+        if (state.FadePaletteOffset < CeresRidleyPaletteRomData.BodyFadeRowCount)
             return;
 
         // CeresRidley_Func_5 clears tangible bit $0400 after the final palette row, waits
@@ -1084,7 +1088,7 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common bank-$A0 overlap.</summary>
-    internal void RegisterCeresRidleyBombReactions(EnemyAiTable table)
+    internal void RegisterCeresRidleyBombReactions(EnemySharedReactions table)
     {
         // `$A6:DF8A` branches on area index before it ever reaches common vulnerability damage. Ceres therefore
         // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the bank-$A0
@@ -1095,25 +1099,13 @@ internal sealed class CeresRidleyBehavior
             c => ResolveCeresRidleyShotAfterCollision(c.Enemy));
     }
 
-    /// <summary>Binds the Ceres enemy header to the bank-$A6 Ridley initializer.</summary>
-    internal void RegisterCeresRidleyInitializationAi(EnemyAiTable table)
-    {
+    /// <summary>Ports Ceres Ridley's initialization AI (the bank-$A6 Ridley initializer for the Ceres header).</summary>
+    internal void RunCeresRidleyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
+        InitializeCeresRidley(slot);
 
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Ridley, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCeresRidley(slot);
-        });
-    }
-
-    /// <summary>Binds Ceres Ridley's main dispatcher to the enemy AI table.</summary>
-    internal void RegisterCeresRidleyMainAi(EnemyAiTable table)
-    {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_RidleyCeres, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunCeresRidleyMain(slot, frame.Samus, frame.VramWriteQueue);
-        });
-    }
+    /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
+    internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
+        RunCeresRidleyMain(slot, frame.Samus, frame.VramWriteQueue);
 
     /// <summary>Native wing frame deltas selected from Ridley's movement speed.</summary>
     private static readonly ushort[] CeresRidleyWingAnimationDeltas =
@@ -1146,7 +1138,7 @@ internal sealed class CeresRidleyBehavior
             return;
 
         state.WingAnimationTimer = NativeCountdown.Start(32);
-        state.WingFrame = unchecked((ushort)((state.WingFrame + 1) % 10));
+        state.WingFrame = (state.WingFrame + 1) % 10;
     }
 
     /// <summary>Ports DrawRidleyTail $A6:DB2A and DrawRidleyWings $A6:DAD8.</summary>
@@ -1156,8 +1148,8 @@ internal sealed class CeresRidleyBehavior
         Position16<RoomPixels> camera)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
-        if ((slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != 0) ||
-            state.MovementAnimationEnabled == 0)
+        if ((slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped) ||
+            !state.MovementAnimationEnabled)
             return;
 
         if (state.TailSegments.Length == 7)
@@ -1166,13 +1158,13 @@ internal sealed class CeresRidleyBehavior
             // The tip's sixteen poses split the byte angle into sixteenths.
             int tipIndex = unchecked((byte)(
                 tip.Angle + state.TailSegments[5].Angle + 8)) / 16;
-            ushort tipSpritemap = RidleySupplementalVisualDefinitions.TailTipFrameAt(
+            EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.Of(
                 tipIndex);
             DrawRidleyWorldSpritemap(
                 oam,
                 state.SpritemapPaletteIndex,
                 tip,
-                tipSpritemap,
+                tipFrame,
                 camera);
 
             // $A6:DB59-$DBBF walks back from segment five to the base after emitting the
@@ -1183,16 +1175,16 @@ internal sealed class CeresRidleyBehavior
                     oam,
                     state.SpritemapPaletteIndex,
                     state.TailSegments[index],
-                    RidleySupplementalVisualDefinitions.SegmentFrameAt(index),
+                    RidleySupplementalVisualDefinitions.SegmentFrames.Of(index),
                     camera);
         }
 
         if (state.FacingDirection == RidleyFacing.Turning)
             return;
         int wingPointerIndex = (state.FacingDirection == RidleyFacing.Left ? 0 : 10) + state.WingFrame;
-        ushort wingSpritemap = RidleySupplementalVisualDefinitions.WingFrameAt(
+        EnemyFrameId wingFrame = RidleySupplementalVisualDefinitions.WingFrames.Of(
             wingPointerIndex);
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = wingSpritemap, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 256 });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = wingFrame, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex.PaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 256 });
     }
 
     /// <summary>
@@ -1211,7 +1203,7 @@ internal sealed class CeresRidleyBehavior
         // Ridley's initializer installs this private Baby/door draw path.
         if (_ridleyEncounter.Ridley is null ||
             _slotTable._slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
-            _ridleyEncounter.Ridley.MovementAnimationEnabled != 0)
+            _ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
         DrawCeresRidleyBabyAndDoor(oam, camera);
@@ -1230,7 +1222,7 @@ internal sealed class CeresRidleyBehavior
         _room.EnsureLoaded();
         if (_ridleyEncounter.Ridley is null ||
             _slotTable._slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
-            _ridleyEncounter.Ridley.MovementAnimationEnabled == 0)
+            !_ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
         DrawCeresRidleyBabyAndDoor(oam, camera);
@@ -1244,23 +1236,20 @@ internal sealed class CeresRidleyBehavior
         RidleyEnemyState state = _ridleyEncounter.Ridley
             ?? throw new InvalidOperationException("Ceres Ridley Baby draw requires active state.");
 
-        if (_ridleyEncounter.CeresStatus == 0)
+        if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
-            ushort babySpritemap = AdvanceCeresBabyDrawInstruction(state);
-            if (babySpritemap != 0)
+            if (AdvanceCeresBabyDrawInstruction(state) is { } babyFrame)
             {
-                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresBabyFrameDefinitions.Bank, Pointer = babySpritemap, Origin = state.BabyPosition.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.ToScreen(camera).Y < 256 });
+                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = babyFrame, Origin = state.BabyPosition.Whole.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.Whole.ToScreen(camera).Y < 256 });
             }
         }
 
-        // Enemy one is the ordinary Ridley-room door. Its $F69F instruction sets variable
-        // B when the common enemy pass intentionally hides the actor; $A6:A2FA then draws
-        // this fixed overlay after the Baby. This is a native cross-slot draw hook, not a
-        // replacement for the door actor's own instruction interpreter.
+        // Enemy one is the ordinary Ridley-room door. Its $F69F instruction hands its
+        // drawing to Ridley's scene when the common enemy pass intentionally hides the actor;
+        // $A6:A2FA then draws this fixed overlay after the Baby. This is a native cross-slot
+        // draw hook, not a replacement for the door actor's own instruction interpreter.
         RoomEnemySlot door = _slotTable._slots[1];
-        if (door.EnemyDefinitionPointer ==
-                EnemyDefinitionId.CeresDoor &&
-            door.VariableB != 0)
+        if (door.Entity is IDrawnByCeresRidleyScene { HandsDrawingToRidley: true })
         {
             // The private Ceres hook does not call WriteEnemyOAM and therefore owns a
             // second, cartridge-authored quake adjustment at `$A6:A2F2-$A314`. Its `Y`
@@ -1268,7 +1257,7 @@ internal sealed class CeresRidleyBehavior
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
             int quakeXOffset = CeresDoorQuakeDefinitions.XOffset(_earthquake.EarthquakeTimer.RawValue);
-            _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresDoorFrameDefinitions.Bank, Pointer = CeresDoorFrameDefinitions.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
+            _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
         }
     }
 
@@ -1276,12 +1265,12 @@ internal sealed class CeresRidleyBehavior
     /// Runs the Baby's typed cutscene program one draw update and returns its current spritemap. $A6:DBE7 counts the
     /// elapsed updates up and advances once they reach the pose's duration; the next pose starts at one.
     /// </summary>
-    internal ushort AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
+    internal EnemyFrameId? AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
     {
         if (state.BabyPoseDuration != 0 && state.BabyPoseDuration != state.BabyInstructionTimer)
         {
-            state.BabyInstructionTimer = unchecked((ushort)(state.BabyInstructionTimer + 1));
-            return state.BabyCurrentSpritemap;
+            state.BabyInstructionTimer++;
+            return CeresBabyFrame(state.BabyCurrentPose);
         }
 
         AnimationProgramCursor<CeresBabyProgram> cursor = state.BabyProgram;
@@ -1293,9 +1282,13 @@ internal sealed class CeresRidleyBehavior
             throw new InvalidOperationException($"The Ceres Baby's program ended a draw update with {advance.Kind}.");
         state.BabyPoseDuration = advance.Duration;
         state.BabyInstructionTimer = 1;
-        state.BabyCurrentSpritemap = CeresBabyFrameDefinitions.Spritemap(advance.Frame);
-        return state.BabyCurrentSpritemap;
+        state.BabyCurrentPose = advance.Frame;
+        return CeresBabyFrame(state.BabyCurrentPose);
     }
+
+    /// <summary>The frame the draw shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
+    private static EnemyFrameId? CeresBabyFrame(CeresBabyPose? pose) =>
+        pose is { } shown ? CeresBabyFrameDefinitions.ShownFrames.Of(shown) : null;
 
     /// <summary>Carries out one cue of the Baby's program, returning the program a branch continues at, or null to run on.</summary>
     private CeresBabyProgram? ApplyCeresBabyCue(RidleyEnemyState state, CeresBabyCue cue)
@@ -1341,16 +1334,15 @@ internal sealed class CeresRidleyBehavior
         if (slotIndex < 0)
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a Mode-7 wall.");
 
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus,
-            EnemyDefinitionId.CeresDoor);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.CeresDoor);
         RoomEnemyPopulationRecord population = new(
             EnemyDefinitionId.CeresDoor,
             Position: new(xPosition, 127),
             InitializationParameter: 0,
-            Properties: (ushort)(
+            Properties: new EnemyPropertyWord(
                 EnemyProperties.ProcessInstructions |
                 EnemyProperties.ProcessOffScreen),
-            ExtraProperties: 0,
+            ExtraProperties: new EnemyExtraPropertyWord(EnemyExtraProperties.None),
             Parameter1: parameter1,
             Parameter2: 0);
         RoomEnemySlot wall = _slotTable._slots[slotIndex];
@@ -1363,13 +1355,13 @@ internal sealed class CeresRidleyBehavior
     /// <summary>Projects a Ridley component's world spritemap into OAM using the current camera.</summary>
     private void DrawRidleyWorldSpritemap(
         OamBuffer oam,
-        ushort paletteIndex,
+        SnesObjAttributeWord paletteIndex,
         RidleyTailSegment segment,
-        ushort spritemap,
+        EnemyFrameId frame,
         Position16<RoomPixels> camera)
     {
         Position16<ScreenPixels> screen = segment.Position.ToScreen(camera);
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = spritemap, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = screen.Y < 256 });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = frame, Origin = screen.ToOam(), PaletteBits = paletteIndex.PaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = screen.Y < 256 });
     }
 
     /// <summary>Tests Samus against Ridley's extended body and applies contact response after native invincibility gating.</summary>
@@ -1384,13 +1376,13 @@ internal sealed class CeresRidleyBehavior
         RoomEnemySlot slot = _slotTable._slots[0];
         if (_ridleyEncounter.Ridley is null ||
             !RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != 0 ||
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||
             !samus.InvincibilityTimer.IsZero)
         {
             return false;
         }
 
-        if (slot.SpritemapPointer == 0 ||
+        if (slot.Frame is null ||
             slot.Properties.HasAny(
                 EnemyProperties.Invisible |
                 EnemyProperties.Deleted |
@@ -1404,17 +1396,16 @@ internal sealed class CeresRidleyBehavior
                 samus.Position.Whole,
                 samus.Kinematics.Radius,
                 selectShotCallback: false,
-                out ushort touchAiPointer))
+                out EnemyInteractionCallback? touchAi))
         {
             return false;
         }
-        EnemyInteractionCallback? touchAi = EnemyCollision.HitboxCallback(slot, touchAiPointer);
 
         if (touchAi != EnemyInteractionCallback.RidleyExtendedTouch)
         {
             throw new InvalidDataException(
-                $"Ridley extended body selected touch AI $A6:{touchAiPointer:X4}, expected " +
-                $"$A6:{EnemyAiCodePointers.BankA6.RidleyExtendedTouch:X4} from map $A6:{slot.SpritemapPointer:X4}.");
+                $"Ridley extended body selected touch AI {touchAi?.ToString() ?? "(unnamed)"}, expected " +
+                $"{EnemyInteractionCallback.RidleyExtendedTouch} from map {slot.Frame}.");
         }
 
         // $A6:DF59 enters the common no-death-check handler. That distinction matters for
@@ -1443,15 +1434,13 @@ internal sealed class CeresRidleyBehavior
         int subjectTop = unchecked((ushort)(subject.Y - subjectRadius.Y));
         int subjectBottom = unchecked((ushort)(subject.Y + subjectRadius.Y));
         var components =
-            RidleyCollisionDefinitions.ComponentsAt(slot.SpritemapPointer);
+            RidleyCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(slot.Frame));
         foreach (RidleyCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = slot.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;
             ushort componentY = componentOrigin.Y;
-            ReadOnlySpan<RidleyCollisionHitbox> hitboxes =
-                RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer);
-            foreach (RidleyCollisionHitbox hitbox in hitboxes)
+            foreach (RidleyCollisionHitbox hitbox in component.Hitboxes)
             {
                 int left = unchecked((ushort)(componentX + hitbox.Left));
                 int top = unchecked((ushort)(componentY + hitbox.Top));
@@ -1473,6 +1462,9 @@ internal sealed class CeresRidleyBehavior
         return false;
     }
 
+    /// <summary>A signed 8.8 coefficient of one, unit scale, as the getaway's setup installs it.</summary>
+    private static readonly SnesSignedEightEight Mode7UnitCoefficient = SnesSignedEightEight.FromSignedRaw(256);
+
     /// <summary>
     /// Ports $A6:AA54. Every value below is a literal PPU/actor word installed by the retail
     /// setup routine; in particular B and C intentionally begin at $0100 before the first
@@ -1482,14 +1474,14 @@ internal sealed class CeresRidleyBehavior
     {
         state.Mode7Active = true;
         state.Mode7Finished = false;
-        state.Mode7TableByteIndex = 0;
+        state.Mode7TableIndex = 0;
         state.Mode7Angle = SnesAngle.FromRaw(1);
         state.Mode7Offset = new Offset16<Mode7Pixels>(-128, 32);
         state.Mode7Zoom = 2048;
-        state.Mode7MatrixA = 256;
-        state.Mode7MatrixB = 256;
-        state.Mode7MatrixC = 256;
-        state.Mode7MatrixD = 256;
+        state.Mode7MatrixA = Mode7UnitCoefficient;
+        state.Mode7MatrixB = Mode7UnitCoefficient;
+        state.Mode7MatrixC = Mode7UnitCoefficient;
+        state.Mode7MatrixD = Mode7UnitCoefficient;
         state.Mode7Center = new Position16<Mode7Pixels>(64, 64);
         state.Mode7BabyFrame = 0;
         state.Mode7WingFrame = 0;
@@ -1501,9 +1493,9 @@ internal sealed class CeresRidleyBehavior
     /// frame's enemy AI and Samus processing, so the getaway's first step shares the frame
     /// in which Ridley's escape handoff publishes Ceres status one.
     /// </summary>
-    public void RunCeresRidleyGetawayRoomMain(SamusState? samus, ushort nmiFrameCounter)
+    public void RunCeresRidleyGetawayRoomMain(SamusState? samus, int nmiFrameCounter)
     {
-        if ((_ridleyEncounter.CeresStatus & 1) == 0)
+        if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyEscaped)
             return;
         RidleyEnemyState state = _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
             "Ceres status one requires the Ceres Ridley getaway state.");
@@ -1520,24 +1512,24 @@ internal sealed class CeresRidleyBehavior
     internal void TickCeresRidleyMode7Getaway(
         RidleyEnemyState state,
         SamusState? samus,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
-        ushort tableByteIndex = state.Mode7TableByteIndex;
-        state.Mode7TableByteIndex = unchecked((ushort)(tableByteIndex + 2));
+        int tableIndex = state.Mode7TableIndex;
+        state.Mode7TableIndex = tableIndex + 1;
 
         // HandleCeresRidleyGetawayCutscene queues the departure sound on the first table
         // entry only ($A6:AABD -> QueueSfx2_Max6($4E)). Tying the request to the native
-        // byte index preserves the same one-shot behavior after saves/replays and pauses.
-        if (tableByteIndex == 0)
+        // table index preserves the same one-shot behavior after saves/replays and pauses.
+        if (tableIndex == 0)
             _audio.QueueEnemySound(SoundEffectLibrary2Sounds.CeresRidleyGetaway, maximumQueued: 6);
 
-        // At byte index $D0, `$90:E119` replaces Samus's movement/hack handlers so the
+        // At frame $68 (byte index $D0), `$90:E119` replaces Samus's movement/hack handlers so the
         // rotating boss image cannot overlap her from the following frame onward.
-        if (tableByteIndex == 208 && samus is not null)
+        if (tableIndex == 104 && samus is not null)
             samus.CeresRidleyEjection.Request(samus);
 
-        var frame = CeresRidleyGetawayDefinitions.FromByteIndex(tableByteIndex);
-        ushort zoom = frame.Zoom;
+        var frame = CeresRidleyGetawayDefinitions.FromIndex(tableIndex);
+        ushort zoom = checked((ushort)frame.Zoom);
         if (zoom == CeresRidleyGetawayDefinitions.Finished)
         {
             // $A6:AB2E restores fake BGMODE=$09 and clears all Mode 7/scroll registers.
@@ -1546,10 +1538,10 @@ internal sealed class CeresRidleyBehavior
             state.Mode7Finished = true;
             state.Mode7Active = false;
             state.Mode7Offset = Offset16<Mode7Pixels>.Zero;
-            state.Mode7MatrixA = 0;
-            state.Mode7MatrixB = 0;
-            state.Mode7MatrixC = 0;
-            state.Mode7MatrixD = 0;
+            state.Mode7MatrixA = default;
+            state.Mode7MatrixB = default;
+            state.Mode7MatrixC = default;
+            state.Mode7MatrixD = default;
             state.Mode7Center = Position16<Mode7Pixels>.Zero;
             // $A6:AB55 hands the same extended actor workspace to $A6:C04E. Samus's
             // special push/fall handler remains responsible for restoring normal input;
@@ -1572,21 +1564,21 @@ internal sealed class CeresRidleyBehavior
 
         // Both animations queue into this frame's Mode 7 transfer queue, the capsule first, so
         // the wing descriptors start after the capsule's. Their bytes outlive the transfer.
-        var queue = new Mode7TransferQueue(_room.Bus ?? throw new InvalidOperationException(
-            "The Ceres Ridley getaway requires a loaded room bus for its Mode 7 transfer queue."));
+        var queue = new Mode7TransferQueue(_room.Mode7QueueResidue ?? throw new InvalidOperationException(
+            "The Ceres Ridley getaway requires the session's Mode 7 transfer queue residue."));
 
         // $A6:ACBC advances the Baby capsule on every fourth NMI using 0,1,2,1. The transfer
         // lists patch only the two two-byte rows occupied by that animation in the map.
         if ((nmiFrameCounter & 3) == 0)
         {
-            state.Mode7BabyFrame = unchecked((ushort)((state.Mode7BabyFrame + 1) & 3));
+            state.Mode7BabyFrame = (state.Mode7BabyFrame + 1) % 4;
             ApplyMode7TransferList(CeresMode7TransferDefinitions.BabyFrameForPhase(state.Mode7BabyFrame), ref queue);
         }
 
         // $A6:AD27 alternates the six sparse wing rows on every eighth NMI.
         if ((nmiFrameCounter & 7) == 0)
         {
-            state.Mode7WingFrame = unchecked((ushort)((state.Mode7WingFrame + 1) & 1));
+            state.Mode7WingFrame = (state.Mode7WingFrame + 1) % 2;
             ApplyMode7TransferList(state.Mode7WingFrame == 0
                 ? CeresMode7TransferList.WingFrame0
                 : CeresMode7TransferList.WingFrame1, ref queue);
@@ -1594,15 +1586,23 @@ internal sealed class CeresRidleyBehavior
         queue.CompleteTransfers();
     }
 
+    /// <summary>
+    /// Negates a signed 8.8 coefficient the way the getaway's two's-complement negate does: the most negative value,
+    /// which has no positive counterpart, negates to itself.
+    /// </summary>
+    internal static SnesSignedEightEight NegateMode7Coefficient(SnesSignedEightEight coefficient) =>
+        SnesSignedEightEight.FromSignedRaw(unchecked((short)-coefficient.SignedRawValue));
+
     /// <summary>Updates the getaway's Mode-7 transform matrix from its zoom and rotation words.</summary>
     private static void UpdateCeresRidleyMode7Matrix(RidleyEnemyState state)
     {
         byte angle = state.Mode7Angle.TableIndex;
-        ushort diagonal = EnemyMath.MultiplyCartridgeSinCos(state.Mode7Zoom, unchecked((byte)(angle + 64)));
-        ushort offDiagonal = EnemyMath.MultiplyCartridgeSinCos(state.Mode7Zoom, angle);
+        ushort zoom = checked((ushort)state.Mode7Zoom);
+        var diagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, unchecked((byte)(angle + 64))));
+        var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, angle));
         state.Mode7MatrixA = diagonal;
         state.Mode7MatrixB = offDiagonal;
-        state.Mode7MatrixC = unchecked((ushort)-(short)offDiagonal);
+        state.Mode7MatrixC = NegateMode7Coefficient(offDiagonal);
         state.Mode7MatrixD = diagonal;
     }
 
@@ -1633,8 +1633,8 @@ internal sealed class CeresRidleyBehavior
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
         {
             queue.QueueVramTilemapTransfer(
-                new SnesAddress(Mode7TransferQueueLayout.CeresSourceBank, transfer.SourceOffset),
-                (ushort)transfer.TileNumbers.Count, transfer.DestinationWord);
+                new SnesAddress(Mode7TransferQueueLayout.CeresSourceBank, checked((ushort)transfer.SourceOffset)),
+                (ushort)transfer.TileNumbers.Count, checked((ushort)transfer.DestinationWord));
         }
     }
 
@@ -1656,14 +1656,14 @@ internal sealed class CeresRidleyBehavior
                 // replace their tiles. These are palette indices, not byte offsets.
                 CopyCeresWarningColors(_presentation.CgramRows.BackgroundRow(0), _presentation.CgramRows.BackgroundRow(6));
                 CopyCeresWarningColors(_presentation.CgramRows.BackgroundRow(1), _presentation.CgramRows.BackgroundRow(5));
-                state.CeresEscapeTransferListPointer = CeresEscapeVramTransferDefinitions.TimerSprites;
+                state.CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites;
                 state.FunctionTimer = NativeCountdown.Start(2);
                 goto case 2;
 
             case 2:
                 if (QueueNextCeresEscapeTransfer(state, vramWriteQueue))
                 {
-                    state.CeresEscapeTransferListPointer = CeresEscapeVramTransferDefinitions.TimerBackgrounds;
+                    state.CeresEscapeTransfers = CeresEscapeTransferCursor.TimerBackgrounds;
                     state.FunctionTimer = NativeCountdown.Start(4);
                     goto case 4;
                 }
@@ -1682,22 +1682,17 @@ internal sealed class CeresRidleyBehavior
                     // through the same bank-$80 queue used by every other music producer.
                     state.MusicRequest = MusicCommand.SelectTrack(7);
                     state.FunctionTimer = NativeCountdown.Start(6);
-                    state.CeresEscapeTextDelayTimer = 128;
+                    state.CeresEscapeTextDelayTimer = NativeCountdown.Start(128);
                 }
                 return;
 
             case 6:
                 UpdateCeresSelfDestructPalette(state, _slotTable._slots[0].FrameCounter);
-                ushort oldDelay = state.CeresEscapeTextDelayTimer;
-                state.CeresEscapeTextDelayTimer = unchecked((ushort)(oldDelay - 1));
-                if (oldDelay != 1)
+                NativeWordCounterStep delay = state.CeresEscapeTextDelayTimer.Decrement();
+                state.CeresEscapeTextDelayTimer = delay.Remaining;
+                if (!delay.IsZero)
                     return;
 
-                state.CeresEscapeTextPointer = EscapeTypewriterDefinitions.CeresJapaneseText;
-                state.CeresEscapeTextDestination = 0;
-                state.CeresEscapeTextDelayTimer = 0;
-                state.CeresEscapeTextDelay = 0;
-                state.CeresEscapeTextSoundCounter = 0;
                 state.CeresEscapeTypewriter = _presentation.EscapeTypewriterPresentation is { } presentation
                     ? new(presentation.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase)
                     : null;
@@ -1713,9 +1708,9 @@ internal sealed class CeresRidleyBehavior
 
             case 8:
                 UpdateCeresSelfDestructPalette(state, _slotTable._slots[0].FrameCounter);
-                ushort oldJapaneseDelay = state.CeresEscapeTextDelayTimer;
-                state.CeresEscapeTextDelayTimer = unchecked((ushort)(oldJapaneseDelay - 1));
-                if (oldJapaneseDelay == 1)
+                NativeWordCounterStep japaneseDelay = state.CeresEscapeTextDelayTimer.Decrement();
+                state.CeresEscapeTextDelayTimer = japaneseDelay.Remaining;
+                if (japaneseDelay.IsZero)
                 {
                     state.FunctionTimer = NativeCountdown.Start(10);
                     QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay,
@@ -1736,11 +1731,11 @@ internal sealed class CeresRidleyBehavior
                 state.Velocity = new EightEightVector<RoomPixels>(0, 0);
                 state.FunctionTimer = NativeCountdown.Start(0);
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
-                _ridleyEncounter.CeresStatus = 2;
+                _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 // $A6:C131 sets the area-boss bit inside Ridley's AI, so later slots (the
                 // room's exit door at $A6:F562) observe it in this same EnemyMain pass.
                 _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
-                _roomStatus.CeresEscapeStartedThisFrame = true;
+                _frameResults.CeresEscapeStarted = true;
                 return;
 
             default:
@@ -1781,15 +1776,15 @@ internal sealed class CeresRidleyBehavior
         RidleyEnemyState state,
         VramWriteQueue? vramWriteQueue)
     {
-        ushort pointer = state.CeresEscapeTransferListPointer;
+        CeresEscapeTransferCursor cursor = state.CeresEscapeTransfers;
         ushort byteCount;
         int sourceAddress;
         ushort destination;
-        if (CeresEscapeVramTransferDefinitions.IsTerminator(pointer))
+        if (!cursor.IsStarted)
+            throw new InvalidDataException("The Ceres escape graphics dispatcher was never given a transfer list.");
+        if (cursor.IsFinished)
             return true;
-        if (!CeresEscapeVramTransferDefinitions.TryGet(pointer, out var transfer))
-            throw new InvalidDataException(
-                $"Ceres escape transfer ${pointer:X4} has no compiled record.");
+        CeresEscapeVramTransferDefinition transfer = cursor.Current;
         byteCount = transfer.ByteCount;
         sourceAddress = transfer.SourceAddress;
         destination = transfer.DestinationWord;
@@ -1812,9 +1807,8 @@ internal sealed class CeresRidleyBehavior
             vramWriteQueue, sourceAddress, byteCount, destination) != true)
             vramWriteQueue.Enqueue(byteCount, sourceAddress, VramDmaDestination.FromNative(destination));
 
-        state.CeresEscapeTransferListPointer = unchecked((ushort)(pointer + 7));
-        return CeresEscapeVramTransferDefinitions.IsTerminator(
-            state.CeresEscapeTransferListPointer);
+        state.CeresEscapeTransfers = cursor.Advance();
+        return state.CeresEscapeTransfers.IsFinished;
     }
 
     /// <summary>Queues every record in the one-shot Japanese overlay list at $A6:C3B8.</summary>
@@ -1848,24 +1842,19 @@ internal sealed class CeresRidleyBehavior
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
         bool completed = installed.Step(_presentation.Vram);
-        state.CeresEscapeTextPointer = unchecked((ushort)installed.Pointer);
-        state.CeresEscapeTextDestination = installed.Destination;
-        state.CeresEscapeTextDelayTimer = installed.DelayTimer.RawValue;
-        state.CeresEscapeTextDelay = installed.Delay;
-        state.CeresEscapeTextSoundCounter = unchecked((ushort)(installed.GlyphsWritten & 1));
+        state.CeresEscapeTextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: 3);
         return completed;
     }
 
     /// <summary>Ports the three-color alarm palette cycle at $A6:C19C.</summary>
-    internal void UpdateCeresSelfDestructPalette(RidleyEnemyState state, ushort frameCounter)
+    internal void UpdateCeresSelfDestructPalette(RidleyEnemyState state, int frameCounter)
     {
         if ((frameCounter & 3) != 0)
             return;
 
-        state.CeresEscapePaletteFrame = unchecked((ushort)(
-            (state.CeresEscapePaletteFrame + 1) % 16));
+        state.CeresEscapePaletteFrame = (state.CeresEscapePaletteFrame + 1) % 16;
         if (_presentation.CeresRidleyColors is { } colors)
             colors.ApplyAlarm(_presentation.Cgram, state.CeresEscapePaletteFrame);
         else throw new InvalidOperationException(

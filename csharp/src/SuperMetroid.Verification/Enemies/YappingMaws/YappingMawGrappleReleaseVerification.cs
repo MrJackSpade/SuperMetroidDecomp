@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the reported Yapping Maw release timing through production grapple and enemy updates.</summary>
 internal static class YappingMawGrappleReleaseVerification
@@ -22,21 +23,21 @@ internal static class YappingMawGrappleReleaseVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual((ushort)0xc8c5, bus.ReadCartridgeWord(0x90f15b), "pinned cartridge command three selects Dropped");
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xa293, camera: new Position16<RoomPixels>(768, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RedBrinstarFirefleas, camera: new Position16<RoomPixels>(768, 0));
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.GrappleSwingLeftPose;
         samus.Position = samus.Position.WithWhole(new(936, 172));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 24);
-        samus.Presentation.SetPoseAndAnimationFromScriptedController(bus, samus.Pose, 24, 3, refreshRadius: false);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation(initialFrame: 24);
+        samus.Presentation.SetPoseAndAnimationFromScriptedController(samus.Pose, 24, 3, refreshRadius: false);
         samus.Grapple.Phase = GrapplePhase.ConnectedSwinging;
         samus.Grapple.CancelFromConnectedPose = false;
-        samus.EquippedItems |= (ushort)SamusEquipmentFlags.GrappleBeam;
-        samus.SelectedHudItem = 4;
+        samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;
+        samus.SelectedHudItem = HudItem.Grapple;
         samus.InputLocked = true;
         // Stage the last two frames of the actual Maw's held delay. The report's
         // (936,172) is this population mouth (936,192) plus native held offset (0,-20).
@@ -60,7 +61,7 @@ internal static class YappingMawGrappleReleaseVerification
         // Only the `$9B:C8C5` drop completion publishes a deferred drop pose.
         AssertTrue(heldMovement is { Phase: GrapplePhase.Inactive, PendingDropPose: SamusPoseId.FacingLeftNormalPose }, "Maw uses C8C5 deferred drop, not C856 cancellation");
         AssertTrue(!samus.InputLocked && !maw.HasGrabbedSamus, "native timer expiry releases player control");
-        AssertTrue(samus.PoseMetadata.ReadMovementType(bus) != SamusMovementType.Grappling, "released Samus has an ordinary movement body");
+        AssertTrue(samus.PoseMetadata.ReadMovementType() != SamusMovementType.Grappling, "released Samus has an ordinary movement body");
         runtime.StepFrame((SnesButton.Left | SnesButton.X | SnesButton.R));
         AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "released control accepts a new shoot edge as a new grapple");
         AssertEqual((ushort)936, samus.Position.X.Whole, "Maw release retains native held X");

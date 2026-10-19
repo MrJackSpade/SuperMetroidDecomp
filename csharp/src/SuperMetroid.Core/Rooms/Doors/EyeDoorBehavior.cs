@@ -104,7 +104,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Places sweat below the eye block and loads its native initial velocity pair.</summary>
     private static void InitializeEyeDoorSweat(
         RoomEnemyProjectileSlot projectile,
-        ushort parameter,
+        int parameter,
         Position16<RoomBlocks> block)
     {
         int velocityWord = parameter >> 1;
@@ -126,15 +126,15 @@ internal sealed class EyeDoorBehavior
     /// <summary>Uses one shared random sample for both smoke offsets, then advances the seed.</summary>
     internal void InitializeEyeDoorSmoke(
         RoomEnemyProjectileSlot projectile,
-        ushort parameter,
+        int parameter,
         Position16<RoomBlocks> block)
     {
         byte listOffset = unchecked((byte)parameter);
         MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program((MiscDustAnimation)listOffset);
         MiscDustPlacementDefinition placement =
-            MiscDustProjectileDefinitions.SmokePlacement((ushort)(SnesLittleEndian.HighByte(parameter)));
+            MiscDustProjectileDefinitions.SmokePlacement((ushort)(SnesLittleEndian.HighByte(checked((ushort)parameter))));
 
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         // Native stores only the list pointer, keeping the definition's one-update timer.
         projectile.InstallAnimation(new MiscDustProjectileAnimation(program));
 
@@ -181,7 +181,7 @@ internal sealed class EyeDoorBehavior
         {
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 4)));
             // The floor splash stops the drop's movement, as the native list switch does.
-            projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
+            projectile.PreInstruction = EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
             projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.HitFloor));
             return;
         }
@@ -199,7 +199,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the native list switch does.</summary>
     private static void StartEyeDoorProjectileImpact(RoomEnemyProjectileSlot projectile)
     {
-        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
+        projectile.PreInstruction = EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
         projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Impact));
     }
 
@@ -212,10 +212,10 @@ internal sealed class EyeDoorBehavior
                 AimEyeDoorProjectileAtSamus(projectile, samus ?? throw new InvalidOperationException("The eye-door shot's aim requires Samus."));
                 break;
             case EyeDoorProjectileCueKind.SetPreInstruction:
-                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                projectile.PreInstruction = cue.PreInstruction;
                 break;
             case EyeDoorProjectileCueKind.ClearPreInstruction:
-                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
             case EyeDoorProjectileCueKind.Delete:
                 projectile.Clear();
@@ -362,7 +362,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Routes live eye shots and sweat through their distinct movement routines.</summary>
     internal void RegisterEyeDoorProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterCue<EyeDoorProjectileCue>(ApplyEyeDoorProjectileCue);
+        table.RegisterCue<EyeDoorProjectileCue>((context, cue) => ApplyEyeDoorProjectileCue(context.Projectile, context.Samus, cue));
         // A shot eye-door projectile runs its typed shot program, the list its definition names.
         table.RegisterShotAnimation(RoomEnemyProjectileKind.EyeDoorProjectile, () => new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Shot));
 

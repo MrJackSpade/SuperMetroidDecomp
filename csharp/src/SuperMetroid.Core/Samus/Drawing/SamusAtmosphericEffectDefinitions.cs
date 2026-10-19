@@ -9,6 +9,12 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </summary>
 internal static class SamusAtmosphericEffectDefinitions
 {
+    /// <summary>
+    /// The atmospheric effect type whose native sprite-list pointer is zero (<c>$90:8C03</c>), so <c>$90:8B03</c>'s
+    /// <c>LDA $0000,Y</c> reads direct-page scratch as its attributes.
+    /// </summary>
+    internal const SamusAtmosphericEffectType ScratchListType = SamusAtmosphericEffectType.AlternateFootstepSplash;
+
     /// <summary>The Crateria room indexes whose $90:EDC9/$91:F0F3 entries are nonzero; the other selectors are none.</summary>
     private enum AtmosphericRoom : byte
     {
@@ -53,16 +59,16 @@ internal static class SamusAtmosphericEffectDefinitions
         };
     }
     /// <summary>$90:A424: one contact at phase two of each five-frame running step.</summary>
-    internal static bool IsRunningFootContact(ushort animationFrame)
+    internal static bool IsRunningFootContact(int animationFrame)
     {
         if (animationFrame >= 10)
             throw new InvalidDataException($"Running animation frame {animationFrame} is outside ten foot-contact selectors.");
         return animationFrame % 5 == 2;
     }
     /// <summary>$90:EDC9 and $91:F0F3: room-specific landing/rain and wet-floor policies.</summary>
-    internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(byte roomIndex)
+    internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(int roomIndex)
     {
-        if (roomIndex >= 16)
+        if ((uint)roomIndex >= 16)
             throw new InvalidDataException($"Crateria atmospheric room index ${roomIndex:X2} is outside 16 selectors.");
         if (!Enum.IsDefined((AtmosphericRoom)roomIndex))
             return CrateriaAtmosphericEffectFlags.None;

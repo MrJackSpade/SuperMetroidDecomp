@@ -16,8 +16,8 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
 {
     /// <summary>Caller-selected star positions and tiles retained when calculated attributes exactly match.</summary>
     private readonly Star[] stars;
-    /// <summary>One retained star's drawn position and chosen glint tile, independent of calculated OAM flags.</summary>
-    private readonly record struct Star(int X, byte Y, int Tile);
+    /// <summary>One retained star's drawn offset and chosen glint tile, independent of calculated OAM flags.</summary>
+    private readonly record struct Star(Offset16<OamPixels> Offset, int Tile);
     /// <summary>Owns the selected star drawing after its calculated size and attributes have been validated.</summary>
     private EndingExplosionStarfieldParts(Star[] stars) => this.stars = stars;
 
@@ -31,7 +31,7 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
             CompiledSpritePart part = supplied.Part(index);
             int tile = part.Attributes.TileNumber;
             if (tile != SnesCharacterGrid.Cell(14, 13) && (tile < SnesCharacterGrid.Cell(15, 8) || tile > SnesCharacterGrid.Cell(15, 12))) return supplied;
-            stars[index] = new(part.X.SignedOffset, part.Y, tile);
+            stars[index] = new(new(checked((short)part.X.SignedOffset), (short)part.Y.SignedOffset), tile);
         }
         return supplied.CalculateIfMatching(new EndingExplosionStarfieldParts(stars));
     }
@@ -45,7 +45,7 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             Star star = stars[index];
-            return new(SnesSpritemapXWord.Create(star.X, star.Tile == SnesCharacterGrid.Cell(14, 13)), star.Y,
+            return new(SnesSpritemapXWord.Create(star.Offset.X, star.Tile == SnesCharacterGrid.Cell(14, 13)), SnesSpritemapYByte.Create(star.Offset.Y),
                 SnesObjAttributeWord.Create(star.Tile, 0, 0), true);
         }
     }

@@ -19,28 +19,28 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </remarks>
 public static class SamusHurtFlashPalette
 {
+    /// <summary>How many values the hurt-flash counter counts through before it returns to zero, as the cartridge's word does.</summary>
+    private const int HurtFlashCounterPeriod = 65536;
+
     /// <summary>
     /// Advances one native hurt-flash call, optionally replacing all sixteen colors of
     /// OBJ palette four and publishing the exact recovery sound side effects.
     /// </summary>
-    /// <param name="bus">Address space used to resolve Samus's movement type for counter-forty spin-audio recovery.</param>
     /// <param name="cgram">Live palette memory; only Samus's sixteen OBJ-palette-four colors may be replaced.</param>
     /// <param name="samus">Owner of the hurt counter, equipment palettes, movement/grapple state, sound queue, and deferred charging-audio latch.</param>
     /// <param name="controllerInput">Current held SNES buttons; X permits the deferred charging-beam sound request.</param>
     /// <param name="presentationColors">Installed hurt/intro colors, required only when the selected flash call loads one of those palettes.</param>
     /// <returns>An empty step marker; counter, palette, and audio outcomes are applied directly to the supplied state.</returns>
     public static SamusHurtFlashPaletteStepResult Update(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         SamusState samus,
         SnesButton controllerInput,
         SamusHurtColorCatalog? presentationColors = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         Ensure.NotNull(samus);
 
-        ushort counterBefore = samus.HurtFlashCounter;
+        int counterBefore = samus.HurtFlashCounter;
         if (counterBefore == 0)
         {
             return new SamusHurtFlashPaletteStepResult();
@@ -85,12 +85,12 @@ public static class SamusHurtFlashPalette
         // Native stores the increment before either comparison. The signed branch against
         // sixty is preserved rather than simplified to an unsigned host range, retaining
         // the exact wrap behavior for manually corrupted/debugger-written counters.
-        ushort counterAfter = unchecked((ushort)(counterBefore + 1));
+        int counterAfter = (counterBefore + 1) % HurtFlashCounterPeriod;
         samus.HurtFlashCounter = counterAfter;
 
         SamusHurtFlashRecoveryAction recovery = SamusHurtFlashRecoveryAction.None;
         if (counterAfter == 40)
-            recovery = RecoverInterruptedSound(bus, samus, controllerInput);
+            recovery = RecoverInterruptedSound(samus, controllerInput);
 
         if (unchecked((short)(counterAfter - 60)) >= 0)
         {
@@ -122,7 +122,7 @@ public static class SamusHurtFlashPalette
     public static bool ConsumeResumeChargingBeamSound(SamusState samus, SnesButton controllerInput)
     {
         Ensure.NotNull(samus);
-        if (samus.ResumeChargingBeamSoundFlag == 0)
+        if (samus.ResumeChargingBeamSound == ResumeChargingBeamSoundLatch.Clear)
             return false;
 
         bool queued = (controllerInput & SnesButton.X) != 0;
@@ -131,7 +131,7 @@ public static class SamusHurtFlashPalette
             samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.ResumeChargingBeam, maximumQueued: 9);
         }
 
-        samus.ResumeChargingBeamSoundFlag = 0;
+        samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.Clear;
         return queued;
     }
 
@@ -140,13 +140,12 @@ public static class SamusHurtFlashPalette
     /// spin or active grapple state; a charged flare instead defers beam audio.
     /// </summary>
     private static SamusHurtFlashRecoveryAction RecoverInterruptedSound(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton controllerInput)
     {
         if (samus.Grapple.Phase == GrapplePhase.Inactive)
         {
-            if (SamusSpinSoundCommand.Select(bus, samus) is { } sound)
+            if (SamusSpinSoundCommand.Select(samus) is { } sound)
             {
                 samus.LiquidPhysics.QueueMovementSound(sound, maximumQueued: 9);
                 return sound == SoundEffectLibrary1Sounds.ScrewAttack
@@ -159,7 +158,7 @@ public static class SamusHurtFlashPalette
             if (samus.ProjectileFlareCounter >= 16 &&
                 (controllerInput & SnesButton.X) != 0)
             {
-                samus.ResumeChargingBeamSoundFlag = 1;
+                samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
                 return SamusHurtFlashRecoveryAction.ResumeChargingBeamRequested;
             }
 

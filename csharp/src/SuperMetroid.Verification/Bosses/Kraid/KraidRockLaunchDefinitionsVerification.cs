@@ -39,8 +39,7 @@ internal static class KraidRockLaunchDefinitionsVerification
         }
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KraidRockLaunchDefinitionsRomByte(rom, address), KraidRockLaunchDefinitionsRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(NewKraidRockGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         ushort random = 0;
         int reads = 0;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return random; });
@@ -80,9 +79,4 @@ internal static class KraidRockLaunchDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid rock launch definitions")]
     private static byte KraidRockLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Rejects runtime access to the migrated speed table and unexpected bus writes.</summary>
-    private static CartridgeReadGuard NewKraidRockGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .ForbidRange(0xa7bc65, 0xa7bc75 - 0xa7bc65, _ => "Unexpected migrated Kraid rock velocity read.")
-            .RejectWrites(_ => "Unexpected Kraid rock bus write.");
 }

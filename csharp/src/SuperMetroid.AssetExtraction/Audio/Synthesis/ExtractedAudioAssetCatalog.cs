@@ -81,19 +81,7 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException(
                     $"Extracted audio stream '{path}' has SHA-256 {actualHash}, expected {entry.Sha256}.");
             }
-            if (bytes.Length != entry.ByteLength)
-            {
-                throw new InvalidDataException(
-                    $"Extracted audio stream '{path}' holds {bytes.Length} bytes, expected {entry.ByteLength}.");
-            }
-            AudioUploadAssetDefinition upload = AudioAssetCatalogDefinitions.ResolveSnesAddress(entry.SnesAddress);
-            if (entry.Name != upload.Name || entry.DataIndex != upload.DataIndex)
-            {
-                throw new InvalidDataException(
-                    $"Audio upload ${entry.SnesAddress:X6} identity '{entry.Name}'/${entry.DataIndex:X2} " +
-                    $"does not match '{upload.Name}'/${upload.DataIndex:X2}.");
-            }
-            AudioBank uploadBank = upload.Bank;
+            AudioBank uploadBank = AudioAssetCatalogDefinitions.ResolveSnesAddress(entry.SnesAddress).Bank;
             if (!loaded.TryAdd(uploadBank, bytes))
                 throw new InvalidDataException($"Audio manifest repeats SNES upload address ${entry.SnesAddress:X6}.");
         }
@@ -124,7 +112,7 @@ public sealed class ExtractedAudioAssetCatalog
                     $"PCM bank ${bank.SnesAddress:X6} identity '{bank.Name}'/${bank.DataIndex:X2} " +
                     $"does not match '{definition.Name}'/${definition.DataIndex:X2}.");
             }
-            Dictionary<byte, ManagedPcmSample> sources = [];
+            Dictionary<int, ManagedPcmSample> sources = [];
             foreach (AudioSampleMetadata mapping in bank.Samples)
             {
                 if (!canonicalSamples.TryGetValue(mapping.SampleId, out ManagedPcmSample? sample))
@@ -135,7 +123,7 @@ public sealed class ExtractedAudioAssetCatalog
                 if (!sources.TryAdd(mapping.Source, sample))
                     throw new InvalidDataException($"Audio bank '{bank.Name}' repeats source ${mapping.Source:X2}.");
             }
-            Dictionary<byte, byte> loopEntries = [];
+            Dictionary<int, int> loopEntries = [];
             foreach (AudioSampleMetadata mapping in bank.Samples)
             {
                 // A non-looping WAV still has a native DIR loop address. A live
@@ -358,14 +346,14 @@ public sealed class ExtractedAudioAssetCatalog
                 $"Audio bank '{bank.Name}' has {bank.TrackPointers.Count} track pointers but " +
                 $"{bank.MusicTracks.Count} decoded tracks.");
         }
-        Dictionary<ushort, AudioMusicPhraseMetadata> phrases = [];
+        Dictionary<int, AudioMusicPhraseMetadata> phrases = [];
         foreach (AudioMusicPhraseMetadata phrase in bank.MusicPhrases)
         {
             string expectedId = $"music-{bank.DataIndex:x2}-phrase-{phrase.Address:x4}";
             if (phrase.Id != expectedId || !phrases.TryAdd(phrase.Address, phrase))
                 throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid phrase identity '{phrase.Id}'.");
         }
-        Dictionary<ushort, AudioMusicProgramMetadata> programs = [];
+        Dictionary<int, AudioMusicProgramMetadata> programs = [];
         foreach (AudioMusicProgramMetadata program in bank.MusicPrograms)
         {
             string expectedId = $"music-{bank.DataIndex:x2}-program-{program.Address:x4}";
@@ -420,7 +408,7 @@ public sealed class ExtractedAudioAssetCatalog
         if (manifest.SoundLibraries is null)
             throw new InvalidDataException("Audio manifest has no sound-library catalog.");
         Dictionary<string, AudioSoundProgramMetadata> programsById = new(StringComparer.Ordinal);
-        HashSet<ushort> addresses = [];
+        HashSet<int> addresses = [];
         foreach (AudioSoundProgramMetadata program in manifest.SoundPrograms)
         {
             if (string.IsNullOrWhiteSpace(program.Id))

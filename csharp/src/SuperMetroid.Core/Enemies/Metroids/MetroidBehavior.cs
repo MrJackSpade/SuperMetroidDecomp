@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Metroids.Artwork;
@@ -12,8 +14,14 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Metroid species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MetroidBehavior : IEnemySpecies
+internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metroid];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MetroidEntity(this, slot, common);
+
     /// <summary>Supplies room RNG for the five scattered death drops and idle cries.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Probes terrain while the Metroid seeks or recoils.</summary>
@@ -67,17 +75,12 @@ internal sealed class MetroidBehavior : IEnemySpecies
     /// <summary>Native number of independently randomized drops after a frozen Metroid dies.</summary>
     private const int MetroidSpecialDropCount = 5;
 
-    /// <summary>Per-slot function, velocity, attachment, and outer-body state for active Metroids.</summary>
-    internal readonly MetroidEnemyState?[] _metroidStates =
-        new MetroidEnemyState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Drop publications generated after a frozen Metroid's death animation begins.</summary>
     internal readonly List<MetroidDropRequest> _metroidDropRequests = new();
 
     /// <summary>Most recent library-two Metroid sound requested during this enemy frame.</summary>
-    public ushort? LastMetroidSoundEffectLibrary2 { get; private set; }
+    public SoundEffectId? LastMetroidSoundEffectLibrary2 { get; private set; }
 
-    /// <summary>Most recent library-three Metroid sound requested during this enemy frame.</summary>
-    public ushort? LastMetroidSoundEffectLibrary3 { get; private set; }
 
     /// <summary>Ports <c>Metroid_Init</c> at <c>$A3:EA4F</c>.</summary>
     internal void InitializeMetroid(RoomEnemySlot slot)
@@ -94,12 +97,12 @@ internal sealed class MetroidBehavior : IEnemySpecies
             graphicsIndex) ?? throw new InvalidOperationException(
                 "Metroid initialization exhausted the retail 32-slot sprite-object pool.");
 
-        var state = new MetroidEnemyState(slot, outerBodyA, outerBodyB)
+        var state = new MetroidEnemyState(outerBodyA, outerBodyB)
         {
             DrainAccumulator = 0,
             Function = MetroidAiFunction.Homing,
         };
-        _metroidStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus);
     }
 
@@ -227,7 +230,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
     }
 
     /// <summary>Ports the family-specific tail of <c>Metroid_Frozen</c>.</summary>
-    internal void RunMetroidFrozen(RoomEnemySlot slot)
+    internal static void RunMetroidFrozen(RoomEnemySlot slot)
     {
         MetroidEnemyState state = RequireMetroidState(slot);
         if (!state.EscapeTimer.IsZero)
@@ -236,29 +239,25 @@ internal sealed class MetroidBehavior : IEnemySpecies
             slot.FlashTimer = NativeCountdown.Start(2);
         }
 
-        FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyDefinitions.OuterBodyAFrozenInstructionList);
-        FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenInstructionList);
+        FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyDefinitions.OuterBodyAFrozenProgram);
+        FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenProgram);
     }
 
     /// <summary>Ports the palette-bit modulation in custom hurt AI <c>$A3:EB33</c>.</summary>
-    internal void ApplyMetroidHurt(RoomEnemySlot slot)
+    internal static void ApplyMetroidHurt(RoomEnemySlot slot)
     {
         MetroidEnemyState state = RequireMetroidState(slot);
         if ((slot.FlashTimer.RawValue & 2) != 0)
         {
-            state.OuterBodyA.GraphicsIndex =
-                new SnesObjAttributeWord(state.OuterBodyA.GraphicsIndex)
-                    .WithPaletteBits(new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits);
-            state.OuterBodyB.GraphicsIndex =
-                new SnesObjAttributeWord(state.OuterBodyB.GraphicsIndex)
-                    .WithPaletteBits(new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits);
+            state.OuterBodyA.Attributes = state.OuterBodyA.Attributes
+                .WithPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits);
+            state.OuterBodyB.Attributes = state.OuterBodyB.Attributes
+                .WithPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits);
             return;
         }
 
-        state.OuterBodyA.GraphicsIndex =
-            new SnesObjAttributeWord(state.OuterBodyA.GraphicsIndex).WithPaletteIndex(0);
-        state.OuterBodyB.GraphicsIndex =
-            new SnesObjAttributeWord(state.OuterBodyB.GraphicsIndex).WithPaletteIndex(0);
+        state.OuterBodyA.Attributes = state.OuterBodyA.Attributes.WithPaletteIndex(0);
+        state.OuterBodyB.Attributes = state.OuterBodyB.Attributes.WithPaletteIndex(0);
     }
 
     /// <summary>Ports ordinary/contact-damage branches of <c>Metroid_Touch</c>.</summary>
@@ -285,7 +284,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
 
         if (state.Function != MetroidAiFunction.PowerBombEscape)
         {
-            if ((_frameContext._randomEnemyCounter & 7) == 7 && unchecked((short)(samus.Health - 30)) >= 0)
+            if ((_frameContext._randomEnemyCounter & 7) == 7 && samus.Health >= 30)
                 _audio.QueueEnemySound(SoundEffectLibrary3Sounds.AttachedEnemyDrain, maximumQueued: 6);
             DrainSamusWithMetroid(state, samus);
         }
@@ -313,14 +312,12 @@ internal sealed class MetroidBehavior : IEnemySpecies
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                 ? MetroidBehaviorDefinitions.VariaDrainFraction
                 : MetroidBehaviorDefinitions.PowerSuitDrainFraction;
-        ushort oldAccumulator = state.DrainAccumulator;
-        state.DrainAccumulator = unchecked((ushort)(oldAccumulator - drainRate));
-        if (oldAccumulator >= drainRate)
+        if (!state.DrainBorrows(drainRate))
             return;
 
         // Samus_DealDamage(1) performs a saturating subtract and deliberately does not
         // start ordinary hurt flash, invincibility, knockback, or suit division.
-        samus.Health = samus.Health == 0 ? (ushort)0 : unchecked((ushort)(samus.Health - 1));
+        samus.Health = samus.Health == 0 ? 0 : samus.Health - 1;
     }
 
     /// <summary>Handles non-frozen recoil/ice accumulation after bank-$A0 accepts a shot.</summary>
@@ -356,13 +353,12 @@ internal sealed class MetroidBehavior : IEnemySpecies
 
         if (new SamusProjectileTypeWord(collisionProjectileType).BeamCombination.HasIce)
         {
-            LastMetroidSoundEffectLibrary3 = EnemySoundEffectDefinitions.MetroidIceSoundEffect;
             slot.FlashTimer = NativeCountdown.Start(4);
             if (collisionProjectileDamage >= slot.Parameter2)
             {
                 slot.Parameter2 = 0;
                 slot.FrozenTimer = NativeCountdown.Start(MetroidFrozenDuration);
-                slot.AiHandlerBits |= EnemyAiHandlerMasks.Frozen;
+                slot.AiStates |= EnemyAiStates.Frozen;
                 return;
             }
             slot.Parameter2 = unchecked((ushort)(slot.Parameter2 - collisionProjectileDamage));
@@ -385,12 +381,12 @@ internal sealed class MetroidBehavior : IEnemySpecies
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
-    internal void FinishMetroidDeath(RoomEnemySlot slot, SamusState? samus)
+    internal static void FinishMetroidDeath(RoomEnemySlot slot, SamusState? samus)
     {
         MetroidEnemyState state = RequireMetroidState(slot);
         state.Velocity = state.Velocity.WithWholeX(0);
-        state.OuterBodyA.InstructionPointer = 0;
-        state.OuterBodyB.InstructionPointer = 0;
+        state.OuterBodyA.Cursor = null;
+        state.OuterBodyB.Cursor = null;
         if (samus is not null)
             samus.SpecialSuperPaletteFlags = 0;
     }
@@ -403,7 +399,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
     {
         for (int dropIndex = 0; dropIndex < MetroidSpecialDropCount; dropIndex++)
         {
-            ushort random = _room.Random.Generate();
+            int random = _room.Random.Generate();
             // Each axis adds a five-bit random byte minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
                 unchecked((short)((random & EnemyDropMasks.ScatterBits) - 16)),
@@ -439,22 +435,20 @@ internal sealed class MetroidBehavior : IEnemySpecies
         ushort graphicsIndex)
     {
         outerBody.Position = outerBody.Position.WithWhole(metroid.Position.Whole);
-        outerBody.GraphicsIndex = graphicsIndex;
-        outerBody.DisableFlags = 0;
+        outerBody.Attributes = new SnesObjAttributeWord(graphicsIndex);
+        outerBody.UpdatesDisabled = false;
     }
 
     /// <summary>Switches an outer-body sprite to frozen art without resetting its retained instruction timer.</summary>
     private static void FreezeMetroidOuterBody(
         RoomSpriteObjectSlot outerBody,
-        ushort frozenInstructionList)
+        RoomSpriteObjectProgram frozenProgram)
     {
-        outerBody.GraphicsIndex = MetroidOuterBodyDefinitions.FrozenSpritePalette;
-        outerBody.DisableFlags = 1;
-        outerBody.InstructionPointer = frozenInstructionList;
+        outerBody.Attributes = new SnesObjAttributeWord(MetroidOuterBodyDefinitions.FrozenSpritePalette);
+        outerBody.UpdatesDisabled = true;
         // Native drawing reads the selected record even while animation is disabled.
-        // Refresh the cached visual without resetting the retained instruction timer.
-        outerBody.SpritemapPointer = RoomSpriteObjectVisualDefinitions.FrameAt(
-            unchecked((ushort)(frozenInstructionList + 2)));
+        // Show the frozen program's first frame without resetting the retained timer.
+        RoomSpriteObjectPool.ShowFirstFrameKeepingTimer(outerBody, frozenProgram);
     }
 
     /// <summary>Restarts a Metroid animation at timer one after its function changes.</summary>
@@ -465,12 +459,12 @@ internal sealed class MetroidBehavior : IEnemySpecies
     }
 
     /// <summary>Finds initialized Metroid state for a live enemy slot or rejects an invalid callback.</summary>
-    internal MetroidEnemyState RequireMetroidState(RoomEnemySlot slot) =>
-        _metroidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static MetroidEnemyState RequireMetroidState(RoomEnemySlot slot) =>
+        slot.SpeciesState<MetroidEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Metroid state.");
 
     /// <summary>Routes bomb-family collisions through Metroid's attachment and recoil rules.</summary>
-    internal void RegisterMetroidBombReactions(EnemyAiTable table)
+    internal void RegisterMetroidBombReactions(EnemySharedReactions table)
     {
         // Metroid shot AI ignores bombs while frozen, detaches an attached body for family $0500, or applies its
         // peculiar slot-zero recoil otherwise.
@@ -481,47 +475,37 @@ internal sealed class MetroidBehavior : IEnemySpecies
                 if (c.Enemy.FrozenTimer.IsZero)
                 {
                     SamusProjectileSlot recoilOrigin = c.OrdinaryProjectiles.Slots[0];
-                    ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, c.Bomb.Damage, recoilOrigin.Position.Whole, c.Samus);
+                    ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.PackedType.Raw, checked((ushort)c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
                 }
             });
     }
 
-    /// <summary>Registers Metroid initialization and its outer-body sprite setup.</summary>
-    internal void RegisterMetroidInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Metroid's initialization AI.</summary>
+    internal void RunMetroidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Metroid, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMetroid(slot);
-        });
+        InitializeMetroid(slot);
     }
 
-    /// <summary>Registers the four-function Metroid movement dispatcher.</summary>
-    internal void RegisterMetroidMainAi(EnemyAiTable table)
+    /// <summary>Ports Metroid's main AI.</summary>
+    internal void RunMetroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Metroid, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMetroidMain(slot, frame.Samus, frame.Level);
-        });
+        RunMetroidMain(slot, frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs the Metroid's chasing and draining pulse loops as typed programs (#641).</summary>
-    internal void RegisterMetroidTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireMetroidState(slot);
-            AnimationProgramCursor<MetroidProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, MetroidAnimations.Programs, ref cursor, MetroidFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyMetroidCue(cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Metroid's typed animation.</summary>
+    internal void AdvanceMetroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireMetroidState(slot);
+        AnimationProgramCursor<MetroidProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, MetroidAnimations.Programs, ref cursor, MetroidFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyMetroidCue(cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Registers the Metroid Power Bomb callback that clears its outer body before generic death.</summary>
-    internal void RegisterMetroidPowerBombReactions(EnemyAiTable table)
+    internal static void RegisterMetroidPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.MetroidPowerBomb)
@@ -531,7 +515,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
     }
 
     /// <summary>Registers Metroid touch behavior, including attachment and suit-dependent draining.</summary>
-    internal void RegisterMetroidTouch(EnemyAiTable table)
+    internal void RegisterMetroidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MetroidTouch,
@@ -542,16 +526,13 @@ internal sealed class MetroidBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastMetroidSoundEffectLibrary2 = null;
-        LastMetroidSoundEffectLibrary3 = null;
         _metroidDropRequests.Clear();
-        Array.Clear(_metroidStates);
     }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastMetroidSoundEffectLibrary2 = null;
-        LastMetroidSoundEffectLibrary3 = null;
     }
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation after the shared projectile prelude.</summary>
@@ -577,12 +558,11 @@ internal sealed class MetroidBehavior : IEnemySpecies
             int frozenDamage = (c.ProjectileDamage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(frozenVulnerability);
             if (!EnemyVulnerabilityDefinitions.IsSentinel(frozenVulnerability) && frozenDamage != 0)
             {
-                ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
-                enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-                enemy.AiHandlerBits |= EnemyAiHandlerMasks.Hurt;
+                enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
+                enemy.AiStates |= EnemyAiStates.Hurt;
                 enemy.Health = frozenDamage >= enemy.Health
-                    ? (ushort)0
-                    : unchecked((ushort)(enemy.Health - frozenDamage));
+                    ? 0
+                    : enemy.Health - frozenDamage;
             }
 
             if (enemy.Health == 0)
@@ -601,18 +581,18 @@ internal sealed class MetroidBehavior : IEnemySpecies
         // Custom Metroid shot AI does not call normal shot AI. Preserve the collision prelude, then apply recoil/ice
         // or attached power-bomb escape without inventing vulnerability-based health damage.
         c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-        ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, c.Projectile.Damage, c.Projectiles.Slots[0].Position.Whole, c.Samus);
+        ResolveMetroidNonFrozenShot(enemy, c.Projectile.PackedType.Raw, checked((ushort)c.Projectile.Damage), c.Projectiles.Slots[0].Position.Whole, c.Samus);
         return true;
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastMetroidSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastMetroidSoundEffectLibrary2, maximumQueued: 6);
     }
 
     /// <summary>Routes ordinary projectile hits to Metroid-specific frozen and nonfrozen shot handling.</summary>
-    internal void RegisterMetroidShotReactions(EnemyAiTable table)
+    internal void RegisterMetroidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MetroidShot)
@@ -623,10 +603,10 @@ internal sealed class MetroidBehavior : IEnemySpecies
     }
 
     /// <summary>Registers hurt AI ahead of frozen AI when both native handler bits are set; animation bytecode still advances.</summary>
-    internal void RegisterMetroidHurtAi(EnemyAiTable table) =>
+    internal static void RegisterMetroidHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid, (slot, _) => ApplyMetroidHurt(slot));
 
     /// <summary>Registers the frozen Metroid handler that retains its outer-body state.</summary>
-    internal void RegisterMetroidFrozenAi(EnemyAiTable table) =>
+    internal static void RegisterMetroidFrozenAi(EnemySharedReactions table) =>
         table.AddFrozen(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid, RunMetroidFrozen);
 }

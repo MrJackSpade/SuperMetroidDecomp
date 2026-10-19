@@ -23,7 +23,7 @@ public static class SamusBlockCollision
     /// not commit Samus's whole-pixel probe position. Collision still writes subpixels.
     /// </summary>
     public static BlockMoveResult ProbeWallHorizontal(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusKinematicsState state,
         int signedDistance,
@@ -37,7 +37,7 @@ public static class SamusBlockCollision
         // but bank-$94 collision side effects are not observational: touching a scroll
         // trigger still wakes its bank-$84 owner. Pass that shared owner through rather
         // than treating an extension-resolved trigger as an orphan during wall-jump checks.
-        BlockMoveResult result = MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, probe, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
+        BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, probe, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         // Submerging sand writes these real motion words even through wall observation.
         state.YSpeed = probe.YSpeed;
         state.YSubspeed = probe.YSubspeed;
@@ -70,7 +70,7 @@ public static class SamusBlockCollision
     /// <param name="move">One horizontal block move: the displacement and which collision side effects it publishes (#633).</param>
     public static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, HorizontalBlockMove move)
     {
-        Ensure.NotNull(terrain.Bus);
+
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
 
@@ -166,8 +166,7 @@ public static class SamusBlockCollision
                         }
 
                         acceptedDisplacement = SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(
-                            terrain.Bus,
-                            block.Behavior,
+                            block.Bts.Value,
                             acceptedDisplacement,
                             state.VerticalSpeedFixed);
                         break;
@@ -190,8 +189,7 @@ public static class SamusBlockCollision
                         // Samus into the doorway. Elevator pseudo-destinations have bit 15
                         // clear and fall through to the ordinary solid clipping routine.
                         DoorListEntry horizontalDoor = terrain.Level.ResolveDoorCollision(
-                            terrain.Bus,
-                            block.Behavior,
+                            block.Bts.Value,
                             state.CollisionPose,
                             move.PublishDoorSideEffects);
                         if (horizontalDoor.IsElevatorPseudoDoor)
@@ -233,7 +231,6 @@ public static class SamusBlockCollision
                         if (state.SamusOwner is { } horizontalSamus)
                         {
                             SamusTerrainHazardCollision.ApplySolidSpikeCollision(
-                                terrain.Bus,
                                 horizontalSamus,
                                 block);
                         }
@@ -293,7 +290,7 @@ public static class SamusBlockCollision
                                  roomWidthInBlocks: terrain.Level.Size.X)))
                         {
                             throw new InvalidOperationException(
-                                $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
+                                $"Station access block {block.Index} BTS ${block.Bts.Value:X2} " +
                                 "has no active map/resource/save-station PLM owner.");
                         }
                         acceptedDisplacement = ClipHorizontalToSolid(
@@ -325,7 +322,7 @@ public static class SamusBlockCollision
                         if (!block.Bts.IsNormalReactionIndex(8))
                         {
                             throw new InvalidDataException(
-                                $"Collision bomb block {block.Index} has invalid BTS ${block.Behavior:X2}.");
+                                $"Collision bomb block {block.Index} has invalid BTS ${block.Bts.Value:X2}.");
                         }
                         // Production movement supplies the active room PLM owner, matching
                         // `$94:933F`'s immediate long call into Spawn_PLM. Keeping the null
@@ -354,10 +351,10 @@ public static class SamusBlockCollision
 
         // Only the live bank-$90 movement wrapper publishes inheritance. Copies used
         // for prospective poses and wall probes must not replace the preceding move.
-        if (ReferenceEquals(state.SamusOwner?.Kinematics, state) &&
+        if (state.SamusOwner is { } mover && ReferenceEquals(mover.Kinematics, state) &&
             move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
             move.AlignToSlopeAfterMovement)
-            SamusProjectileInheritance.Record(terrain.Bus,
+            mover.ProjectileInheritance.Record(
                 move.Displacement < 0 ? SamusCollisionDirection.Left : SamusCollisionDirection.Right,
                 acceptedDisplacement);
 
@@ -365,13 +362,12 @@ public static class SamusBlockCollision
         // Direct bank-$94 callers (notably the prospective-running-pose probe)
         // omit that wrapper step and must retain the unaligned whole-pixel Y.
         SlopeAlignmentResult alignment = SamusSlopePhysics.AlignYPosition(
-            terrain.Bus,
             terrain.Level,
             state.Position.Whole,
             state.Radius.Y,
             horizontalSlopeCollisionEnabled: move.AlignToSlopeAfterMovement &&
                 (state.HorizontalSlopeCollisionEnable & 2) != 0);
-        state.Position = state.Position.WithWholeY(alignment.YPosition);
+        state.Position = state.Position.WithWholeY(alignment.Position.Y);
         // $94:87F4 only sets this latch; it does not clear a square-floor contact
         // published by the previous vertical pass. $90:923F consumes it before
         // $94:9763 clears it on entry to the next nonzero terrain Y move.
@@ -389,7 +385,7 @@ public static class SamusBlockCollision
     /// </summary>
     public static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, VerticalBlockMove move)
     {
-        Ensure.NotNull(terrain.Bus);
+
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
 
@@ -450,9 +446,9 @@ public static class SamusBlockCollision
         }
 
         state.Position = state.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(acceptedDisplacement));
-        if (ReferenceEquals(state.SamusOwner?.Kinematics, state) &&
+        if (state.SamusOwner is { } mover && ReferenceEquals(mover.Kinematics, state) &&
             move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe)
-            SamusProjectileInheritance.Record(terrain.Bus,
+            mover.ProjectileInheritance.Record(
                 move.Displacement < 0 ? SamusCollisionDirection.Up : SamusCollisionDirection.Down,
                 acceptedDisplacement);
         // $94:9763 publishes sand contact after either signed movement direction.
@@ -530,7 +526,6 @@ public static class SamusBlockCollision
                     // CollisionMovementDirection, not the distance's sign. The changed-
                     // pose probe's direction $F therefore tests both ways as a floor.
                     (acceptedDisplacement, collided) = ClipVerticalToNonSquareSlope(
-                        terrain.Bus,
                         state,
                         block,
                         blockX,
@@ -556,8 +551,7 @@ public static class SamusBlockCollision
                     // its carry result here; the room-level owner publishes the same
                     // native door pointer for the frontend dispatcher to consume.
                     DoorListEntry verticalDoor = terrain.Level.ResolveDoorCollision(
-                        terrain.Bus,
-                        block.Behavior,
+                        block.Bts.Value,
                         state.CollisionPose,
                         move.PublishDoorSideEffects);
                     if (verticalDoor.IsElevatorPseudoDoor)
@@ -601,7 +595,6 @@ public static class SamusBlockCollision
                     if (state.SamusOwner is { } verticalSamus)
                     {
                         SamusTerrainHazardCollision.ApplySolidSpikeCollision(
-                            terrain.Bus,
                             verticalSamus,
                             block);
                     }
@@ -657,7 +650,7 @@ public static class SamusBlockCollision
                         {
                             throw new InvalidOperationException(
                                 $"Contact crumble block {block.Index} BTS " +
-                                $"${block.Behavior:X2} requires an active room PLM owner.");
+                                $"${block.Bts.Value:X2} requires an active room PLM owner.");
                         }
 
                         // `$94:9102` always returns carry set for CE37. Setup removes
@@ -683,7 +676,7 @@ public static class SamusBlockCollision
                              roomWidthInBlocks: terrain.Level.Size.X)))
                     {
                         throw new InvalidOperationException(
-                            $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
+                            $"Station access block {block.Index} BTS ${block.Bts.Value:X2} " +
                             "has no active map/resource/save-station PLM owner.");
                     }
                     acceptedDisplacement = ClipVerticalToSolid(
@@ -715,7 +708,7 @@ public static class SamusBlockCollision
                     if (!block.Bts.IsNormalReactionIndex(8))
                     {
                         throw new InvalidDataException(
-                            $"Collision bomb block {block.Index} has invalid BTS ${block.Behavior:X2}.");
+                            $"Collision bomb block {block.Index} has invalid BTS ${block.Bts.Value:X2}.");
                     }
                     if (terrain.Plms is null)
                         ClearCollisionTypeWithoutLifecycle(terrain.Level, block.Index);
@@ -741,24 +734,23 @@ public static class SamusBlockCollision
     /// Unlike <c>$94:9763</c> it has no zero-distance exit, so a zero probe still tests the
     /// blocks under the current bottom boundary. It checks no solid enemies.
     /// </summary>
-    /// <param name="bus">Cartridge address space read by slope and block reactions.</param>
     /// <param name="level">The room's collision blocks.</param>
     /// <param name="state">A collision probe copy; its position receives the accepted distance.</param>
     /// <param name="displacement">Signed 16.16 distance to test; zero tests the current bottom boundary.</param>
     /// <param name="scanLeftToRight">Scan order chosen by the NMI frame counter's parity.</param>
     /// <param name="plms">The room's PLM owner for special and bombable blocks.</param>
     public static BlockMoveResult ProbeChangedPoseVertical(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusKinematicsState state,
         int displacement,
         bool scanLeftToRight,
         RoomPlmSystem? plms)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(state);
-        VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
+        VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Level = level, Plms = plms }, state, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         state.Position = state.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(scan.AcceptedDisplacement));
         return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);
     }
@@ -807,7 +799,6 @@ public static class SamusBlockCollision
     /// the clipped 16.16 distance when the slope intercepts the requested travel.
     /// </summary>
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
-        ISnesAddressSpace bus,
         SamusKinematicsState state,
         RoomCollisionBlock block,
         int blockX,
@@ -827,7 +818,7 @@ public static class SamusBlockCollision
             if (block.Bts.SlopeFlipsVertically)
                 return (displacement, false);
 
-            int height = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.Position.X.Whole);
+            int height = SamusSlopePhysics.ReadAlignmentHeight(block.Bts, state.Position.X.Whole);
             int bottomNibble = unchecked((ushort)(state.Radius.Y + targetCenter - 1)) & 15;
             short correction = unchecked((short)(height - bottomNibble - 1));
             if (correction > 0)
@@ -843,7 +834,7 @@ public static class SamusBlockCollision
             if (!block.Bts.SlopeFlipsVertically)
                 return (displacement, false);
 
-            int height = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.Position.X.Whole);
+            int height = SamusSlopePhysics.ReadAlignmentHeight(block.Bts, state.Position.X.Whole);
             int invertedTopNibble = ((targetCenter - state.Radius.Y) & 15) ^ 15;
             short correction = unchecked((short)(height - invertedTopNibble - 1));
             if (correction > 0)
@@ -1145,7 +1136,7 @@ public static class SamusBlockCollision
             {
                 throw new InvalidDataException(
                     $"Collision extension block {block.Index} type ${(int)block.CollisionType:X1}/" +
-                    $"BTS ${block.Behavior:X2} resolves outside room level data.");
+                    $"BTS ${block.Bts.Value:X2} resolves outside room level data.");
             }
             block = level.GetCollisionBlockByIndex(targetIndex);
         }
@@ -1158,24 +1149,24 @@ public static class SamusBlockCollision
     /// Native PostGrappleCollisionDetection ($90:EF22), using the vertical dispatcher
     /// at $94:84CD. Call before replacing the connected pose and its collision radius.
     /// </summary>
-    public static void EjectAfterGrapple(ISnesAddressSpace bus, RoomLevelData level, SamusKinematicsState state)
+    public static void EjectAfterGrapple(RoomLevelData level, SamusKinematicsState state)
     {
         // Native horizontal scans only populate scratch distances: this routine never
         // applies them. These probes do not trigger PLMs, doors, damage, or enemies.
-        int up = GrappleVerticalOverlap(bus, level, state, down: true);
-        int down = GrappleVerticalOverlap(bus, level, state, down: false);
+        int up = GrappleVerticalOverlap(level, state, down: true);
+        int down = GrappleVerticalOverlap(level, state, down: false);
         if (up == 0 || down != 0) return;
         state.Position -= new Offset16<RoomPixels>(0, unchecked((short)up));
         // Tall bodies may overlap two rows. Retail repeats once, not until clear.
         if (state.Radius.Y >= 16)
-            state.Position = state.Position.WithWholeY(unchecked((ushort)(state.Position.Y.Whole - GrappleVerticalOverlap(bus, level, state, down: true))));
+            state.Position = state.Position.WithWholeY(unchecked((ushort)(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, down: true))));
     }
 
     /// <summary>
     /// Measures block overlap in the selected vertical direction after grapple releases
     /// Samus, allowing the caller to eject her before the new pose radius is installed.
     /// </summary>
-    private static int GrappleVerticalOverlap(ISnesAddressSpace bus, RoomLevelData level, SamusKinematicsState state, bool down)
+    private static int GrappleVerticalOverlap(RoomLevelData level, SamusKinematicsState state, bool down)
     {
         int boundary = unchecked((ushort)(state.Position.Y.Whole + (down ? state.Radius.Y - 1 : -state.Radius.Y)));
         int left = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
@@ -1200,7 +1191,7 @@ public static class SamusBlockCollision
                     depth = boundary & 15;
                 else
                 {
-                    int difference = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.Position.X.Whole) - (boundary & 15) - 1;
+                    int difference = SamusSlopePhysics.ReadAlignmentHeight(block.Bts, state.Position.X.Whole) - (boundary & 15) - 1;
                     depth = down ? (difference <= 0 ? ~difference : -1) : (difference >= 0 ? difference : -1);
                 }
             }

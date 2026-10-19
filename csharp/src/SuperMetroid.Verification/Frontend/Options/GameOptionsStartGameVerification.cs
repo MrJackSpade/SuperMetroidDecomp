@@ -25,7 +25,7 @@ internal static class GameOptionsStartGameVerification
             (SaveLoadingGameState.OpeningCinematic, GameOptionsPhase.FadeOutToIntro),
         })
         {
-            var options = new GameOptionsMenuState(bus, mapPresentation: RetailPresentationFixture()) { LoadingGameState = route };
+            var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture()) { LoadingGameState = route };
             for (int frame = 0; frame < 80 && options.Phase != GameOptionsPhase.Main; frame++)
                 options.Step(SnesButton.None);
             AssertEqual(GameOptionsPhase.Main, options.Phase, $"{route} save reaches the primary options page");

@@ -28,7 +28,7 @@ internal static class BotwoonSpeedsVerification
         }
         Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthPhase;
         var head = new RoomEnemySystem().SlotTable.Slots[0];
-        var state = new BotwoonEnemyState(head) { HalfHealth = 1500, QuarterHealth = 750 };
+        var state = new BotwoonEnemyState() { HalfHealth = 1500, QuarterHealth = 750 };
         for (int health = 0; health <= 3000; health++)
         {
             head.Health = (ushort)health;

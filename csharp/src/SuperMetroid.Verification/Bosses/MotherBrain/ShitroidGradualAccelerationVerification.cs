@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces two issue #1269 Shitroid arithmetic details from the recorded encounter.</summary>
 internal static class ShitroidGradualAccelerationVerification
@@ -17,22 +18,23 @@ internal static class ShitroidGradualAccelerationVerification
     internal static void VerifyShitroidGradualAcceleration()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.BigBoy);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid);
 
         // The movie's state when the drain ends, entering RiseAfterFeeding with no velocity.
-        shitroid.VariableA = (ushort)ShitroidAiFunction.RiseAfterFeeding;
-        shitroid.VariableB = 0;
-        shitroid.VariableC = 0;
+        ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
+            ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
+        state.Function = ShitroidAiFunction.RiseAfterFeeding;
+        state.Velocity = default;
         shitroid.Position = shitroid.Position.WithWholeX(0x02d6).WithWholeY(0x009c).WithFractionY(0x6b00);
         runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.Samus, new Position16<RoomPixels>((ushort)0x0200, (ushort)0x0000), null);
 
-        AssertEqual((ushort)0xfff1, shitroid.VariableC, "the reversal step borrows once, reaching Y velocity $FFF1");
+        AssertEqual((ushort)0xfff1, state.Velocity.Y.RawValue, "the reversal step borrows once, reaching Y velocity $FFF1");
         AssertEqual((ushort)0x009c, shitroid.Position.Y.Whole, "the rise stays within the same pixel");
         AssertEqual((ushort)0x5c00, shitroid.Position.Y.Fraction, "the Y subpixel moves by -$F00");
         Console.WriteLine("Shitroid gradual acceleration: the native SBC borrow chain sets the first rise's velocity.");
@@ -46,19 +48,21 @@ internal static class ShitroidGradualAccelerationVerification
     internal static void VerifyShitroidDrainCarry()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.BigBoy);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid);
         var samus = runtime.Player.IntroducedSamus;
+        ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
+            ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         foreach ((ushort ySpeed, ushort expectedX, ushort expectedSpeed) in new (ushort, ushort, ushort)[]
             { (5, 0x01c4, 2), (1, 0x01c3, 1) })
         {
-            shitroid.VariableA = (ushort)ShitroidAiFunction.DrainSamus;
-            shitroid.VariableB = shitroid.VariableC = 0;
+            state.Function = ShitroidAiFunction.DrainSamus;
+            state.Velocity = default;
             shitroid.FrameCounter = 0;
             samus.Health = 500;
             samus.Position = samus.Position.WithWhole(new(0x01c3, 0x00b9));

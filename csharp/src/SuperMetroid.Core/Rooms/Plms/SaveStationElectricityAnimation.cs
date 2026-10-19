@@ -13,6 +13,6 @@ internal sealed class SaveStationElectricityAnimation(SaveStationElectricityProg
     private protected override AnimationProgramSet<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Programs => SaveStationElectricityAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(SaveStationElectricityFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(SaveStationElectricityFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(SaveStationElectricityFrame frame) =>
+        SaveStationElectricityFrameDefinitions.ShownProjectileFrames[frame];
 }

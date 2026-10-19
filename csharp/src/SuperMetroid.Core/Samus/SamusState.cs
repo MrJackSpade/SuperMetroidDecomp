@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Hud;
@@ -99,7 +100,11 @@ public sealed class SamusState
     }
 
     /// <summary>Current animation-frame index, corresponding to WRAM <c>$0A96</c>.</summary>
-    public ushort AnimationFrame { get; set; }
+    public int AnimationFrame
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// Countdown at WRAM <c>$0A94</c>. Zero and negative-after-decrement both advance,
@@ -108,10 +113,10 @@ public sealed class SamusState
     public NativeCountdown AnimationFrameTimer { get; internal set; }
 
     /// <summary>
-    /// Delay added for speed/liquid physics at WRAM <c>$0A9A</c>. The translated standing
-    /// dry-room slice keeps this equal to <see cref="XSpeedDivisor"/>.
+    /// Delay, in updates, added to each animation frame for speed and liquid physics: zero, two or three, or the
+    /// <see cref="XSpeedDivisor"/> on dry ground; 0 through 65535.
     /// </summary>
-    public ushort AnimationFrameBuffer { get; internal set; }
+    public int AnimationFrameBuffer { get; internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
     /// Exact bank-$90 fixed-point horizontal-speed registers used by ordinary grounded
@@ -174,49 +179,86 @@ public sealed class SamusState
     public SamusCeresRidleyEjectionState CeresRidleyEjection { get; } = new();
 
     /// <summary>
-    /// Compatibility/debugger view of <c>samus_x_speed_divisor</c> at WRAM <c>$0A66</c>.
-    /// The backing word belongs to <see cref="HorizontalSpeed"/>, just as the native word
-    /// is both a movement-speed divisor and the no-FX animation delay buffer.
+    /// The X-speed divisor, 0 through 65535, as Samus's own view of <see cref="SamusHorizontalSpeedState.SpeedDivisor"/>:
+    /// the one stored value is both a movement-speed divisor and the no-FX animation delay buffer, and its setter
+    /// rejects values outside that range.
     /// </summary>
-    public ushort XSpeedDivisor
+    public int XSpeedDivisor
     {
         get => HorizontalSpeed.SpeedDivisor;
         set => HorizontalSpeed.SpeedDivisor = value;
     }
 
     /// <summary>Current energy at WRAM `$09C2`, also used by animation command `$F6`.</summary>
-    public ushort Health { get; set; } = 99;
+    public int Health { get; set; } = 99;
 
     /// <summary>
     /// WRAM $0A12, PreviousEnergyHurtCheck: initialized from Energy by $91:E164,
     /// then compared and refreshed after Samus/projectile drawing by $90:EAD7-EAFD.
     /// </summary>
-    public ushort PreviousHealthForHurtCheck { get; set; } = 99;
+    public int PreviousHealthForHurtCheck { get; set; } = 99;
 
     /// <summary>
-    /// Fractional energy word consumed by `$90:E9CE` before the whole-energy subtraction.
-    /// Ordinary HUD/debug output shows only <see cref="Health"/>, but lava/acid damage uses
-    /// this word's borrow so sub-energy cannot be rounded independently on every frame.
+    /// Fractional energy, 0 through 65535 in units of 1/65536 of one <see cref="Health"/> unit. Ordinary HUD and
+    /// debug output shows only <see cref="Health"/>, but periodic damage borrows from this fraction
+    /// (<see cref="TakeFractionalEnergyDamage"/>) so sub-energy cannot be rounded independently on every frame.
+    /// The setter rejects values outside the range.
     /// </summary>
-    public ushort SubunitHealth { get; set; }
+    public int SubunitHealth
+    {
+        get => _subunitHealth;
+        set => _subunitHealth = Ensure.BetweenInclusive(0, SubunitsPerHealthUnit - 1, value);
+    }
+
+    /// <summary>Backing value of <see cref="SubunitHealth"/>, always 0 through 65535.</summary>
+    private int _subunitHealth;
+
+    /// <summary>How many <see cref="SubunitHealth"/> units make one <see cref="Health"/> unit.</summary>
+    private const int SubunitsPerHealthUnit = 65536;
+
+    /// <summary>
+    /// Takes periodic damage as <c>$90:E9CE</c> does: the fractional damage comes off <see cref="SubunitHealth"/>
+    /// first, and when it takes the fraction below zero the fraction wraps to the remainder and one more whole unit is
+    /// owed; the whole damage and that borrowed unit then come off <see cref="Health"/>. A result below zero energy
+    /// clamps both the energy and its fraction to zero instead.
+    /// </summary>
+    /// <param name="subunitDamage">Fractional damage, 0 through 65535 subunits.</param>
+    /// <param name="wholeDamage">Whole damage in energy units, zero or more.</param>
+    internal void TakeFractionalEnergyDamage(int subunitDamage, int wholeDamage)
+    {
+        Ensure.BetweenInclusive(0, SubunitsPerHealthUnit - 1, subunitDamage);
+        Ensure.AtLeastZero(wholeDamage);
+        int subunit = SubunitHealth - subunitDamage;
+        int borrowed = subunit < 0 ? 1 : 0;
+        int health = Health - wholeDamage - borrowed;
+        if (health < 0)
+        {
+            SubunitHealth = 0;
+            Health = 0;
+            return;
+        }
+
+        SubunitHealth = subunit + borrowed * SubunitsPerHealthUnit;
+        Health = health;
+    }
 
     /// <summary>Maximum normal energy at WRAM `$09C4`; defaults to the initial 99.</summary>
-    public ushort MaxHealth { get; set; } = 99;
+    public int MaxHealth { get; set; } = 99;
 
     /// <summary>Current reserve energy at WRAM `$09D6`.</summary>
-    public ushort ReserveEnergy { get; set; }
+    public int ReserveEnergy { get; set; }
 
     /// <summary>Maximum reserve energy at WRAM `$09D4`.</summary>
-    public ushort MaxReserveEnergy { get; set; }
+    public int MaxReserveEnergy { get; set; }
 
     /// <summary>Reserve-tank mode at WRAM `$09C0`: zero off, one auto, two manual.</summary>
-    public ushort ReserveTankMode { get; set; }
+    public ReserveTankMode ReserveTankMode { get; set; }
 
     /// <summary>Current missiles at WRAM `$09C6`.</summary>
-    public ushort Missiles { get; set; }
+    public int Missiles { get; set; }
 
     /// <summary>Maximum missiles at WRAM `$09C8`.</summary>
-    public ushort MaxMissiles { get; set; }
+    public int MaxMissiles { get; set; }
 
     /// <summary>
     /// Retail WRAM $09D8. Super Metroid never exposes a missile-reserve tank in normal
@@ -224,25 +266,25 @@ public sealed class SamusState
     /// max missiles or 99. Retaining the otherwise-unused word makes enemy drops exact and
     /// lets a debugger observe the original quirk.
     /// </summary>
-    public ushort ReserveMissiles { get; set; }
+    public int ReserveMissiles { get; set; }
 
     /// <summary>Current super missiles at WRAM `$09CA`.</summary>
-    public ushort SuperMissiles { get; set; }
+    public int SuperMissiles { get; set; }
 
     /// <summary>Maximum super missiles at WRAM `$09CC`.</summary>
-    public ushort MaxSuperMissiles { get; set; }
+    public int MaxSuperMissiles { get; set; }
 
     /// <summary>Current power bombs at WRAM `$09CE`.</summary>
-    public ushort PowerBombs { get; set; }
+    public int PowerBombs { get; set; }
 
     /// <summary>Maximum power bombs at WRAM `$09D0`.</summary>
-    public ushort MaxPowerBombs { get; set; }
+    public int MaxPowerBombs { get; set; }
 
     /// <summary>Selected HUD item at WRAM <c>$09D2</c>: 0 none, 1 missiles, 2 supers, 3 bombs.</summary>
-    public ushort SelectedHudItem { get; set; }
+    public HudItem SelectedHudItem { get; set; }
 
     /// <summary>Native HUD auto-cancel index at WRAM <c>$0A04</c>.</summary>
-    public ushort AutoCancelHudItemIndex { get; set; }
+    public HudItem AutoCancelHudItemIndex { get; set; }
 
     /// <summary>
     /// Debugger-readable identity of the normal-versus-locked Samus state-handler pair.
@@ -267,21 +309,22 @@ public sealed class SamusState
     /// Equipped beam bitfield at WRAM `$09A6`. Drained-controller function three replaces
     /// this with `$1009`, the exact charge/wave/plasma plus hyper-beam configuration.
     /// </summary>
-    public ushort EquippedBeams { get; set; }
+    public SamusBeamFlags EquippedBeams { get; set; }
 
     /// <summary>
     /// Collected-beam bitfield at WRAM <c>$09A8</c>. Unlike
     /// <see cref="EquippedBeams"/>, this retains beams disabled from the pause equipment
     /// screen and is therefore the authoritative ownership word saved to SRAM.
     /// </summary>
-    public ushort CollectedBeams { get; set; }
+    public SamusBeamFlags CollectedBeams { get; set; }
 
     /// <summary>
     /// WRAM <c>SamusProjectile_FlareCounter</c>. Values at least $003C mean the charge
     /// beam is fully charged; spin and wall-jump movement use that producer-owned word to
-    /// publish contact-damage index four without owning the projectile charge lifecycle.
+    /// publish contact-damage index four without owning the projectile charge lifecycle. It mirrors the projectile
+    /// charge's flare counter, 0 through 65535.
     /// </summary>
-    public ushort ProjectileFlareCounter { get; set; }
+    public int ProjectileFlareCounter { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
     /// WRAM <c>$0CD0</c>, the shared bomb-spread charge timeout. The cartridge clears this
@@ -290,7 +333,19 @@ public sealed class SamusState
     /// selected the transition. Keeping it separate from the beam flare counter prevents a
     /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
     /// </summary>
-    public ushort BombSpreadChargeTimeoutCounter { get; set; }
+    /// <remarks>
+    /// Updates of Down held while a spread is charged, 0 through 65535; the setter rejects values outside that range.
+    /// Its only advance stops once bits six and seven are both set, so it never passes 65535 and never wraps; the
+    /// clears and the native snapshot import are its other producers.
+    /// </remarks>
+    public int BombSpreadChargeTimeoutCounter
+    {
+        get => _bombSpreadChargeTimeoutCounter;
+        set => _bombSpreadChargeTimeoutCounter = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>Backing value of <see cref="BombSpreadChargeTimeoutCounter"/>, always 0 through 65535.</summary>
+    private int _bombSpreadChargeTimeoutCounter;
 
     /// <summary>
     /// WRAM <c>$0B5E</c>, <c>PoseTransitionShotDirection</c>. A pose initializer can
@@ -303,33 +358,44 @@ public sealed class SamusState
     /// fresh-shot normal-jump transition and `$0100` marks a moonwalk turn. Keeping the raw
     /// word visible makes both native producers and the single consumer debugger-auditable.
     /// </remarks>
-    public ushort PoseTransitionShotDirection { get; internal set; }
+    public int PoseTransitionShotDirection
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>WRAM `$0A76`; `$8000` marks Mother Brain's hyper beam as enabled.</summary>
-    public ushort HyperBeam { get; set; }
+    /// <summary>WRAM `$0A76`: whether Mother Brain's hyper beam is enabled (native `$8000`).</summary>
+    public bool HyperBeamEnabled { get; set; }
 
     /// <summary>
     /// Equipped-item bitfield corresponding to WRAM <c>$09A2</c>. Bit two ($0004) is Morph
     /// Ball, bit one ($0002) is Spring Ball, and bit twelve ($1000) is Bombs. Animation
     /// command $F9 and the Morph-Ball projectile handler read this word directly.
     /// </summary>
-    public ushort EquippedItems { get; set; }
+    public SamusEquipmentFlags EquippedItems { get; set; }
 
     /// <summary>
     /// Collected-item bitfield corresponding to WRAM <c>$09A4</c>. This normally contains
     /// every equipped item, but equipment-menu toggles can make the two words differ. Enemy
     /// logic such as the morph-ball eye tests ownership through this word specifically.
     /// </summary>
-    public ushort CollectedItems { get; set; }
+    public SamusEquipmentFlags CollectedItems { get; set; }
 
     /// <summary>
-    /// WRAM <c>samus_special_super_palette_flags</c>. Ordinary Metroid command $12 writes
-    /// one while attached; bank-$91 palette handling then increments the word every frame,
-    /// alternating the speed-boost and normal suit palettes until command $13 clears it.
-    /// Bit $8000 belongs to the separate drained/rainbow sequence modeled by
-    /// <see cref="Drained"/> and is therefore never synthesized by Metroid AI.
+    /// The Metroid-attachment palette phase, 0 through 65535 (native <c>samus_special_super_palette_flags</c>). Zero
+    /// is inactive. Ordinary Metroid command $12 writes one while attached; bank-$91 palette handling then advances
+    /// the phase every frame, alternating the speed-boost and normal suit palettes until command $13 clears it. A
+    /// phase of 32768 or more is the separate drained/rainbow branch modeled by <see cref="Drained"/>: Metroid AI
+    /// never produces it and the alternation never advances it. The setter rejects values outside the range.
     /// </summary>
-    public ushort SpecialSuperPaletteFlags { get; internal set; }
+    public int SpecialSuperPaletteFlags
+    {
+        get => _specialSuperPaletteFlags;
+        internal set => _specialSuperPaletteFlags = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>Backing value of <see cref="SpecialSuperPaletteFlags"/>, always 0 through 65535.</summary>
+    private int _specialSuperPaletteFlags;
 
     /// <summary>
     /// Morph-ball bounce state at WRAM <c>$0B20</c>: zero is not bouncing, one is the first
@@ -342,7 +408,11 @@ public sealed class SamusState
     /// WRAM `$0A56`: low byte 1/2/3 is left/straight/right; bit `$0800` marks the bank-$91
     /// special prospective command as accepted and prevents the same explosion rearming it.
     /// </summary>
-    public ushort BombJumpDirection { get; set; }
+    public int BombJumpDirection
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>True for `$90:E025`'s one-frame velocity-initialization handler.</summary>
     public bool BombJumpStarting { get; set; }
@@ -353,15 +423,11 @@ public sealed class SamusState
     /// <summary>Bomb command installed RTS pose input; independent of the current movement handler.</summary>
     public bool BombJumpPoseInputLocked { get; set; }
 
-    /// <summary>
-    /// WRAM `$0A52`: zero means no knockback, one/two mean up-left/up-right, and four/five
-    /// mean down-left/down-right. Value three is the retail routine's unused straight-up
-    /// table entry and is intentionally rejected by the translated live path.
-    /// </summary>
-    public ushort KnockbackDirection { get; set; }
+    /// <summary>Which way the pending or running knockback moves Samus, or none.</summary>
+    public Movement.SamusKnockbackDirection KnockbackDirection { get; set; }
 
-    /// <summary>WRAM `$0A54`: zero moves knockback left; one moves it right.</summary>
-    public ushort KnockbackXDirection { get; set; }
+    /// <summary>Which way the pending or active knockback moves Samus horizontally.</summary>
+    public Movement.KnockbackHorizontalDirection KnockbackXDirection { get; set; }
 
     /// <summary>
     /// WRAM <c>$0A48</c>, the shared hurt-flash palette counter. Ordinary knockback starts
@@ -373,16 +439,18 @@ public sealed class SamusState
     /// <remarks>
     /// This word belongs to Samus rather than the shinespark child state. Keeping it here
     /// preserves the cartridge's intentional sharing between unrelated damage, palette,
-    /// and special-movement producers and makes the complete effect debugger-watchable.
+    /// and special-movement producers and makes the complete effect debugger-watchable. Its value is 0 through 65535:
+    /// gameplay keeps it below sixty, and a debugger-written value at or above 32768 advances with the cartridge's
+    /// 16-bit wrap (<see cref="Palettes.SamusHurtFlashPalette"/>) until the signed sixty test ends it.
     /// </remarks>
-    public ushort HurtFlashCounter { get; set; }
+    public int HurtFlashCounter { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
     /// WRAM <c>ResumeChargingBeamSFXFlag</c>. Hurt-flash recovery sets one at counter forty
     /// when a non-spinning Samus is still holding a sufficiently charged beam; the native
     /// post-draw sound handler consumes and clears it later in the same gameplay pass.
     /// </summary>
-    public ushort ResumeChargingBeamSoundFlag { get; internal set; }
+    public ResumeChargingBeamSoundLatch ResumeChargingBeamSound { get; internal set; }
 
     /// <summary>
     /// WRAM `$18A8`, the general Samus invincibility timer tested by enemy, projectile,
@@ -433,10 +501,11 @@ public sealed class SamusState
     /// launches from a solid/frozen enemy instead of room terrain.
     /// </summary>
     /// <remarks>
-    /// Enemy AI owns consumption of this word. Retaining the slot index now makes the
-    /// movement result complete even before the general live-enemy update loop is translated.
+    /// Holds the enemy slot, or null for the native `$FFFF` none. Enemy AI owns consumption.
+    /// Retaining the slot now makes the movement result complete even before the general
+    /// live-enemy update loop is translated.
     /// </remarks>
-    public ushort EnemyIndexToShake { get; set; } = ushort.MaxValue;
+    public int? EnemySlotToShake { get; set; }
 
     /// <summary>
     /// Host-visible equivalent of movement-handler pointer `$90:DF38`. It is separate from
@@ -446,12 +515,6 @@ public sealed class SamusState
 
     /// <summary>Bank-$91 address of the active pose's byte-oriented delay program.</summary>
     public int AnimationDelayListAddress { get; internal set; }
-
-    /// <summary>
-    /// Most recent high-bit delay command, or null when the last advance selected a plain
-    /// delay. This is a host-only debugger watch rather than original WRAM.
-    /// </summary>
-    public byte? LastAnimationDelayCommand { get; internal set; }
 
     /// <summary>
     /// Operand published by animation command $F8 through the native “super-special
@@ -466,6 +529,19 @@ public sealed class SamusState
 
     /// <summary>Exact fixed-point position/radius words consumed by bank-$94 collision.</summary>
     public SamusKinematicsState Kinematics { get; }
+
+    /// <summary>
+    /// The projectile-inheritance block her movement and the camera publish and her shots read at launch. A new Samus
+    /// starts with it zeroed; the cartridge's movement records are zero between frames too, and the scrolling routine
+    /// republishes the camera subspeed every frame.
+    /// </summary>
+    public ProjectileInheritanceRecords ProjectileInheritance { get; } = new();
+
+    /// <summary>
+    /// The session's Mode 7 transfer queue residue, which her bank-$91 low-half delay reads alias. The room loader, attract
+    /// driver and intro bind it when they create her; a detached Samus that reaches such a read fails loudly.
+    /// </summary>
+    public SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? Mode7QueueResidue { get; set; }
 
     /// <summary>
     /// Room-dependent admission for spike-block BTS zero, populated by the alpha-phase
@@ -497,11 +573,11 @@ public sealed class SamusState
     public uint AbsoluteMovedLastFrameXFixed { get; internal set; }
 
     /// <summary>
-    /// WRAM <c>SamusSolidVerticalCollisionResult</c>. Most translated movement methods
-    /// return collision results directly; movement type `$1A` has no displacement and its
-    /// sole bank-$90 side effect is explicitly clearing this otherwise-stale word.
+    /// The solid vertical collision result the latest vertical movement or wall jump published. Most translated
+    /// movement methods return collision results directly; movement type `$1A` has no displacement and its sole
+    /// bank-$90 side effect is explicitly clearing this otherwise-stale result.
     /// </summary>
-    public ushort SolidVerticalCollisionResult { get; set; }
+    public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; set; }
 
     /// <summary>Samus's room-pixel 16.16 position, owned by <see cref="Kinematics"/>.</summary>
     public FixedPosition<RoomPixels> Position
@@ -522,10 +598,10 @@ public sealed class SamusState
     /// enemy collision is deliberately outside the current room slice, with no substitute.
     /// </remarks>
     internal LargerPoseCollisionOutcome ResolveLargerPoseCollision(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId targetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms,
         out int centerAdjustment)
     {
@@ -562,13 +638,13 @@ public sealed class SamusState
         // The probes run against independent copies. Native stores both available-distance
         // results before choosing a branch, so neither probe may move the live body early.
         BlockMoveResult upward = ProbeChangedPoseVertical(
-            bus,
+
             level,
             displacement: unchecked(SnesSixteenSixteen.FromWhole(-radiusDifference)),
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
             targetPose, plms);
         BlockMoveResult downward = ProbeChangedPoseVertical(
-            bus,
+
             level,
             displacement: SnesSixteenSixteen.FromWhole(radiusDifference),
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
@@ -597,7 +673,7 @@ public sealed class SamusState
             // A collision here takes `$91:FE82` and restores PreviousPose; it does not use
             // `$91:FFA7`'s crouch selector because the initial flags were not both set.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
-                bus, level,
+level,
                 displacement: SnesSixteenSixteen.FromWhole(centerAdjustment),
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
                 targetPose, plms: plms);
@@ -616,7 +692,7 @@ public sealed class SamusState
 
             // `$91:FF2B` is the downward mirror of the opposite-side check above.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
-                bus, level,
+level,
                 displacement: SnesSixteenSixteen.FromWhole(centerAdjustment),
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
                 targetPose, plms: plms);
@@ -671,7 +747,7 @@ public sealed class SamusState
     /// before calling `$91:FDAE`, so the elevator pseudo-door's below-$09 gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         int displacement,
         bool scanLeftToRight,
@@ -697,7 +773,7 @@ public sealed class SamusState
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.CollisionPose = targetPose;
             BlockMoveResult result = SamusBlockCollision.ProbeChangedPoseVertical(
-                bus, level, probe, amount, scanLeftToRight, plms);
+level, probe, amount, scanLeftToRight, plms);
             // Submerging sand clears native speed/gravity even during an observation.
             // Preserve these reaction writes without committing the probe's position.
             Kinematics.YSpeed = probe.YSpeed;
@@ -717,10 +793,10 @@ public sealed class SamusState
     /// Applies `$91:FFA7`'s non-morph fallback after simultaneous above/below collision.
     /// Direction metadata selects `$27/$28`; an aimed crouch consequently loses its aim.
     /// </summary>
-    internal void ApplyPoseChangeCollisionCrouchFallback(ISnesAddressSpace bus, SamusPoseId sourcePose)
+    internal void ApplyPoseChangeCollisionCrouchFallback(SamusPoseId sourcePose)
     {
         ushort oldRadius = Kinematics.Radius.Y;
-        SamusPoseId fallbackPose = PoseMetadata.IsFacingLeft(bus)
+        SamusPoseId fallbackPose = PoseMetadata.IsFacingLeft()
             ? SamusPoseId.CrouchingLeftPose
             : SamusPoseId.CrouchingRightPose;
         if (sourcePose == fallbackPose)
@@ -739,15 +815,22 @@ public sealed class SamusState
                 Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius))));
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
-        Presentation.InitializeAnimation(bus, initialFrame: 0);
+        Presentation.InitializeAnimation(initialFrame: 0);
     }
 
-    /// <summary>Absolute previous-Y word written by a pose-collision correction this frame.</summary>
-    private ushort? _poseCollisionPreviousYPosition;
+    /// <summary>
+    /// Absolute previous whole-pixel Y, 0 through 65535, written by a pose-collision correction this frame; null when
+    /// nothing wrote it. Only <see cref="WritePreviousYPosition"/> stores it, and its readers wrap its sum with the
+    /// alignment delta at sixteen bits, as the room coordinate does.
+    /// </summary>
+    private int? _poseCollisionPreviousYPosition;
     /// <summary>Relative previous-Y correction accumulated while preserving feet across a pose change.</summary>
     private int _poseAlignmentPreviousYDelta;
-    /// <summary>Absolute previous-X word written by a room or pose owner this frame.</summary>
-    private ushort? _previousXPositionWrite;
+    /// <summary>
+    /// Absolute previous whole-pixel X, 0 through 65535, written by a room or pose owner this frame; null when nothing
+    /// wrote it. Only <see cref="WritePreviousXPosition"/> stores it.
+    /// </summary>
+    private int? _previousXPositionWrite;
     /// <summary>Masked writes to previous X/Y fractions $0B12/$0B16; zero masks mean no write.</summary>
     private PreviousFractionWrites _previousFractionWrites;
 
@@ -799,7 +882,7 @@ public sealed class SamusState
     /// frame-start checkpoint with this frame's writes so far, without consuming them.
     /// </summary>
     internal (ushort X, ushort Y) PeekPreviousPositionWords(FixedPosition<RoomPixels> previous) => (
-        _previousXPositionWrite ?? previous.X.Whole,
+        checked((ushort)(_previousXPositionWrite ?? previous.X.Whole)),
         unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta)));
 
     /// <summary>
@@ -810,7 +893,7 @@ public sealed class SamusState
     {
         ushort correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
             + _poseAlignmentPreviousYDelta));
-        ushort xPosition = _previousXPositionWrite ?? previous.X.Whole;
+        ushort xPosition = checked((ushort)(_previousXPositionWrite ?? previous.X.Whole));
         ushort xSubposition = _previousFractionWrites.X.ApplyTo(previous.X.Fraction);
         ushort ySubposition = _previousFractionWrites.Y.ApplyTo(previous.Y.Fraction);
         _poseCollisionPreviousYPosition = null;
@@ -824,13 +907,14 @@ public sealed class SamusState
 
     /// <summary>
     /// Bit-masked pending writes to one previous-fraction word: bits set in
-    /// <see cref="Mask"/> are replaced by the matching <see cref="Value"/> bits on apply.
+    /// <see cref="Mask"/> are replaced by the matching <see cref="Value"/> bits on apply. Both are sixteen-bit
+    /// patterns of the fraction word, 0 through 65535, because a store covers either its high byte or all of it.
     /// </summary>
-    private readonly record struct MaskedWordWrite(ushort Mask, ushort Value)
+    private readonly record struct MaskedWordWrite(int Mask, int Value)
     {
         /// <summary>Records a byte ($FF00) or word ($FFFF) store; later stores replace the bits they cover.</summary>
         public MaskedWordWrite Write(ushort mask, ushort value) =>
-            new((ushort)(Mask | mask), (ushort)((Value & ~mask) | (value & mask)));
+            new(Mask | mask, (Value & ~mask) | (value & mask));
 
         /// <summary>Applies only the bits written this frame to an earlier fraction word.</summary>
         public ushort ApplyTo(ushort word) => (ushort)((word & ~Mask) | Value);
@@ -873,11 +957,10 @@ public sealed class SamusState
     /// $91:E83A/E867, called by unpause command $0C: reconcile Morph/Spring Ball
     /// equipment without changing position, velocity, or vertical direction.
     /// </summary>
-    public void ReconcilePauseBallEquipment(ISnesAddressSpace bus)
+    public void ReconcilePauseBallEquipment()
     {
-        Ensure.NotNull(bus);
         bool springEquipped = EquippedItems.HasAny(SamusEquipmentFlags.SpringBall);
-        SamusMovementType movement = PoseMetadata.ReadMovementType(bus);
+        SamusMovementType movement = PoseMetadata.ReadMovementType();
         bool enable = springEquipped && movement is
             SamusMovementType.MorphBallGround or SamusMovementType.MorphBallFalling;
         bool disable = !springEquipped && movement is
@@ -887,14 +970,14 @@ public sealed class SamusState
 
         // The native handlers select the stationary pose even while airborne. Keeping
         // ascent intact here permits the equipment-toggle mid-air Spring Ball jump.
-        bool left = PoseMetadata.IsFacingLeft(bus);
+        bool left = PoseMetadata.IsFacingLeft();
         Pose = enable
             ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
             : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
-        PoseMetadata.RefreshCollisionRadii(bus);
+        PoseMetadata.RefreshCollisionRadii();
         // $91:F9F4/FA56 preserve animation only within the same ball family. Crossing
         // families through the equipment menu therefore runs the normal frame-zero setup.
-        Presentation.InitializeAnimation(bus);
+        Presentation.InitializeAnimation();
     }
 
     /// <summary>
@@ -910,9 +993,9 @@ public sealed class SamusState
     /// Transition owners must call this after their final pose/metadata selection,
     /// not for intermediate assignments, rollbacks, or ordinary frame sampling.
     /// </summary>
-    internal void CommitPoseHistory(ISnesAddressSpace bus)
+    internal void CommitPoseHistory()
     {
-        ushort metadata = (ushort)(SnesLittleEndian.Word(PoseMetadata.ReadPoseXDirection(bus), (byte)PoseMetadata.ReadMovementType(bus)));
+        ushort metadata = (ushort)(SnesLittleEndian.Word(PoseMetadata.ReadPoseXDirection(), (byte)PoseMetadata.ReadMovementType()));
         PoseHistory.CommitTransition(Pose, metadata);
     }
 }

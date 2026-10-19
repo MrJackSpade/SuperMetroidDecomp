@@ -29,7 +29,7 @@ internal static class MotherBrainRoomFlashAudit
     /// <summary>Checks all compiled Mother Brain flash presentation operands against the exported entry domain.</summary>
     internal static void Inspect(string source, ResourceIndex exports, AuditReport report) =>
         RequireOperands(Enumerable.Range(0, MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
-            .Select(MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress).ToArray(), source, exports, report);
+            .Select(MotherBrainRoomColorExtractor.FlashPaletteOperandAddress).ToArray(), source, exports, report);
 
     /// <summary>Converts palette operand addresses to timed-entry keys and records resolved coverage for the resource audit.</summary>
     internal static void RequireOperands(ReadOnlySpan<ushort> operands, string source,
@@ -54,15 +54,14 @@ internal static class MotherBrainRoomFlashAudit
         // A synthetic RGB5 payload, not a native resource identity.
         const ushort syntheticPalettePointer = 0xf000;
         var source = new SyntheticCartridge(
-            address => new InvalidDataException($"Room-flash audit requested undeclared bytes at {address:X6}."),
-            _ => new InvalidOperationException("Static color extraction cannot mutate emulated state."));
+            address => new InvalidDataException($"Room-flash audit requested undeclared bytes at {address:X6}."));
         for (int index = 0; index < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; index++)
             source.SetWord(MotherBrainRoomColorRomData.SourceBank |
-                MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(index), syntheticPalettePointer);
+                MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(index), syntheticPalettePointer);
         void AddColors(int start, int count) => source.DeclareZero(start, count * sizeof(ushort));
         AddColors(MotherBrainRoomColorRomData.SourceBank | syntheticPalettePointer,
             MotherBrainRoomColorRomData.SliceColors * 2);
-        AddColors(MotherBrainRoomColorRomData.SourceBank | MotherBrainRoomPaletteProgramDefinitions.FinalPalette,
+        AddColors(MotherBrainRoomColorRomData.SourceBank | MotherBrainRoomFlashSourceDefinitions.FinalPalette,
             MotherBrainRoomColorRomData.SliceColors * 2);
         AddColors(MotherBrainRoomColorRomData.PhaseTwoAttackSource, MotherBrainRoomColorRomData.PhaseTwoColors);
         AddColors(MotherBrainRoomColorRomData.PhaseTwoRearLegSource, MotherBrainRoomColorRomData.PhaseTwoColors);

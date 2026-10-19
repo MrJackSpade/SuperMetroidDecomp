@@ -26,7 +26,6 @@ internal sealed class MotherBrainGlassPlms
         _sounds = sounds;
     }
     /// <summary>Only pre-instruction accepted from the installed Mother Brain glass header.</summary>
-    private const ushort MotherBrainGlassPreInstruction = MotherBrainGlassPlmProgramDefinitions.HitPreInstruction;
     /// <summary>Four shard spawns emitted by the most recent shatter instruction.</summary>
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
@@ -34,8 +33,11 @@ internal sealed class MotherBrainGlassPlms
     private int _motherBrainGlassSlotIndex = -1;
     /// <summary>Whether the current room loaded the glass PLM before head damage can update it.</summary>
     internal bool _motherBrainGlassWasLoaded;
-    /// <summary>Last shot count retained when the glass PLM's physical slot has been deleted.</summary>
-    internal ushort _motherBrainGlassLastRoomArgument;
+    /// <summary>
+    /// Glass hit count retained after the glass PLM's physical slot has been deleted. Only glass-phase head hits
+    /// add to it, so it stays far below the slot word's range; nothing in play reads it back.
+    /// </summary>
+    internal int _motherBrainGlassLastRoomArgument;
 
     /// <summary>Shard actors requested by the most recent PLM handler pass.</summary>
     public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>
@@ -61,7 +63,7 @@ internal sealed class MotherBrainGlassPlms
         slot.StartAnimation(new MotherBrainGlassPlmAnimation());
         slot.RoomArgument = 0;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
-        ushort glassLevelWord = unchecked((ushort)((original.LevelWord & MotherBrainGlassBlockDefinitions.TileNumberBits) | MotherBrainGlassBlockDefinitions.GlassBlockType));
+        ushort glassLevelWord = unchecked((ushort)((original.PackedWord.Raw & MotherBrainGlassBlockDefinitions.TileNumberBits) | MotherBrainGlassBlockDefinitions.GlassBlockType));
         level.SetForegroundEntry(slot.BlockIndex, glassLevelWord);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
         streamer.SetLevelEntry(slot.BlockIndex, glassLevelWord);
@@ -89,8 +91,7 @@ internal sealed class MotherBrainGlassPlms
         if (TryGetMotherBrainGlassSlot(out PlmSlot? slot))
             slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
         else
-            _motherBrainGlassLastRoomArgument = unchecked((ushort)(
-                _motherBrainGlassLastRoomArgument + 1));
+            _motherBrainGlassLastRoomArgument++;
     }
 
     /// <summary>Clears shard spawn requests before processing the next room frame.</summary>
@@ -109,17 +110,7 @@ internal sealed class MotherBrainGlassPlms
     /// <summary>Counts missile or super-missile block hits through the installed glass pre-instruction.</summary>
     internal static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass || slot.PreInstruction == 0)
-            return;
-        if (slot.PreInstruction != MotherBrainGlassPreInstruction)
-        {
-            // Header `$D5F6` installs exactly `$D4BF`; a different live word indicates
-            // corrupted PLM state or an incorrectly reused slot, not another glass route.
-            throw new InvalidDataException(
-                $"Mother Brain glass has invalid pre-instruction $84:{slot.PreInstruction:X4}.");
-        }
-
-        SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
+        SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
             slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
         slot.LoopTimer = 0;
@@ -141,7 +132,7 @@ internal sealed class MotherBrainGlassPlms
             checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth)));
         foreach (MotherBrainGlassShard shard in shards)
             _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
-                (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard, (ushort)shard, glassBlock));
+                RoomEnemyProjectileKind.MotherBrainGlassShard, shard, glassBlock));
     }
 
     /// <summary>Sets the glass-destroyed event.</summary>
@@ -180,6 +171,6 @@ internal sealed class MotherBrainGlassPlms
         // Deleted physical slots are reusable. Clear the family discriminator now so a
         // later ordinary PLM cannot accidentally inherit glass-only instruction dispatch.
         slot.HeaderPointer = 0;
-        slot.PreInstruction = 0;
+        slot.PreInstruction = PlmPreInstructions.Inert;
     }
 }

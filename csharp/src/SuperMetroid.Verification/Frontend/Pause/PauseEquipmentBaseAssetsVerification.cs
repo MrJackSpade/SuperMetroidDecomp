@@ -34,8 +34,8 @@ internal static class PauseEquipmentBaseAssetsVerification
             "all 1024 equipment base cells match native words");
 
         var guard = NewPauseEquipmentBaseReadGuard(bus);
-        var native = new PauseMenuState(bus, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original });
-        var installed = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var native = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var installed = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original });
         int toMap = PausePageTransitionNativeLength + 1;
         for (int frame = 0; frame < toMap + PausePageTransitionNativeLength + 2; frame++)
         {
@@ -61,8 +61,8 @@ internal static class PauseEquipmentBaseAssetsVerification
         using (var output = File.Create(path)) PauseEquipmentBasePresentation.Write(output, document with { Cells = cells });
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "equipment base override changes content identity");
-        var stockPause = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original });
-        var editedPause = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = edited });
+        var stockPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var editedPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = edited });
         EnterEquipment(stockPause); EnterEquipment(editedPause);
         AssertTrue(!stockPause.Render().SequenceEqual(editedPause.Render()),
             "edited static equipment cell reaches actual menu pixels");
@@ -119,14 +119,14 @@ internal static class PauseEquipmentBaseAssetsVerification
 
         static SamusState Samus() => new()
         {
-            CollectedBeams = (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Wave),
-            EquippedBeams = (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Wave),
-            CollectedItems = (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit |
+            CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Wave),
+            EquippedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
+            CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit |
                 SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.HiJumpBoots |
                 SamusEquipmentFlags.SpeedBooster),
-            EquippedItems = (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
+            EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
                 SamusEquipmentFlags.Bombs | SamusEquipmentFlags.HiJumpBoots),
-            MaxHealth = 499, Health = 499, MaxReserveEnergy = 400, ReserveEnergy = 245, ReserveTankMode = 1,
+            MaxHealth = 499, Health = 499, MaxReserveEnergy = 400, ReserveEnergy = 245, ReserveTankMode = ReserveTankMode.Auto,
         };
         static void EnterEquipment(PauseMenuState pause)
         {

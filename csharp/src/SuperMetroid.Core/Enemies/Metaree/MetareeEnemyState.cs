@@ -5,63 +5,44 @@ using SuperMetroid.Core.Enemies.Skree;
 namespace SuperMetroid.Core.Enemies.Metaree;
 
 /// <summary>
-/// Typed view of Metaree's six private words at <c>$0FA8-$0FB2</c>. The wrapper deliberately
-/// aliases the live enemy slot: debugger edits and native-width wrapping remain observable,
-/// while the runtime no longer spreads anonymous <c>VariableA-F</c> accesses through its AI.
+/// The state of one Metaree. Every value here is one the cartridge keeps in the enemy's common record, so it is
+/// emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class MetareeEnemyState
 {
-    /// <summary>Physical enemy slot backing Metaree's timer, function, animation, and dive speed.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects Metaree's six private words from its occupied enemy slot.</summary>
-    internal MetareeEnemyState(RoomEnemySlot slot) => _slot = slot;
-
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<SkreeMetareeProgram> Program { get; set; }
 
     /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>
-    public NativeCountdown BurrowTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableA);
-        internal set => _slot.VariableA = value.RawValue;
-    }
+    public NativeCountdown BurrowTimer { get; internal set; }
 
-    /// <summary>Direct bank-$A3 state-function pointer dispatched by main AI.</summary>
-    public MetareeEnemyFunction Function
-    {
-        get => (MetareeEnemyFunction)_slot.VariableB;
-        internal set => _slot.VariableB = (ushort)value;
-    }
+    /// <summary>The idle, preparing, diving or burrowing behaviour; none once a kill has emptied the record.</summary>
+    public MetareeEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Instruction-list index requested by AI.</summary>
-    public SkreeMetareeAnimationPhase RequestedInstructionListIndex
-    {
-        get => (SkreeMetareeAnimationPhase)_slot.VariableC;
-        internal set => _slot.VariableC = (ushort)value;
-    }
+    /// <summary>Animation phase requested by AI.</summary>
+    public SkreeMetareeAnimationPhase RequestedInstructionListIndex { get; internal set; }
 
-    /// <summary>Instruction-list index currently installed in the common slot.</summary>
-    public SkreeMetareeAnimationPhase InstalledInstructionListIndex
-    {
-        get => (SkreeMetareeAnimationPhase)_slot.VariableD;
-        internal set => _slot.VariableD = (ushort)value;
-    }
+    /// <summary>Animation phase currently installed.</summary>
+    public SkreeMetareeAnimationPhase InstalledInstructionListIndex { get; internal set; }
 
-    /// <summary>Set by instruction <c>$A3:8956</c> after the launch crouch completes.</summary>
-    public bool AttackReady
-    {
-        get => _slot.VariableE != 0;
-        internal set => _slot.VariableE = value ? (ushort)1 : (ushort)0;
-    }
+    /// <summary>Set by the launch crouch's finishing cue.</summary>
+    public bool AttackReady { get; internal set; }
 
     /// <summary>
-    /// Unsigned whole-pixel downward speed calculated once from Samus's vertical position.
-    /// The unsigned type is important: the original game's above-Samus bug relies on wrap.
+    /// Whole-pixel downward speed calculated once from Samus's vertical position: the wrapped (unsigned) vertical
+    /// distance divided by 24, plus four, so 4 through 2734. A Samus above the Metaree wraps the distance and gives
+    /// the original game's enormous dive.
     /// </summary>
-    public ushort YVelocity
+    public int YVelocity { get; internal set; }
+
+    /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        BurrowTimer = NativeCountdown.Start(0);
+        Function = null;
+        RequestedInstructionListIndex = SkreeMetareeAnimationPhase.Idling;
+        InstalledInstructionListIndex = SkreeMetareeAnimationPhase.Idling;
+        AttackReady = false;
+        YVelocity = 0;
     }
 }

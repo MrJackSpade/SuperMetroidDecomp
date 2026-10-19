@@ -82,7 +82,7 @@ internal static class EnemyTileArtworkVerification
             int destination = copy.DestinationWord - 0x4000;
             for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
                 expected[destination + index] = rom.ReadCartridgeByte(
-                    ((int)new SnesAddress(pass.SourceBank, unchecked((ushort)(copy.SourceWord + index)))));
+                    ((int)new SnesAddress(checked((byte)pass.SourceBank), checked((ushort)(copy.SourceWord + index)))));
         }
         return expected;
     }
@@ -210,7 +210,7 @@ internal static class EnemyTileArtworkVerification
                 CrocomireBodyProgram.MeltingTwoTopRow);
             foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
             {
-                byte[] actual = VerifyInstalledCrocomireMeltingPass(bus, stock, pass);
+                byte[] actual = VerifyInstalledCrocomireMeltingPass(stock, pass);
                 byte[] expected = ReadNativeCrocomireMeltingPassScratch(bus, pass);
                 AssertTrue(actual.SequenceEqual(expected),
                     $"installed Crocomire melt pass ${pass.HeaderOffset:X4} preserves native scratch bytes");
@@ -267,18 +267,17 @@ internal static class EnemyTileArtworkVerification
             }
             EnemyTileArtworkCatalog editedMelt = EnemyTileArtworkFiles.Load(
                 directory, overrideDirectory);
-            byte[] changedMelt = VerifyInstalledCrocomireMeltingPass(bus, editedMelt,
+            byte[] changedMelt = VerifyInstalledCrocomireMeltingPass(editedMelt,
                 CrocomireMeltingTransferDefinitions.Passes[0]);
             AssertEqual((byte)(stockMeltImages[0][0] ^ 0x80), changedMelt[0],
                 "Crocomire melt PNG edit changes the live first planar pixel");
             AssertTrue(changedMelt.AsSpan(1).SequenceEqual(stockMeltImages[0].AsSpan(1)),
                 "Crocomire melt PNG edit leaves all other scratch bytes unchanged");
-            AssertTrue(VerifyInstalledCrocomireMeltingPass(bus, editedMelt,
+            AssertTrue(VerifyInstalledCrocomireMeltingPass(editedMelt,
                     CrocomireMeltingTransferDefinitions.Passes[1])
                 .SequenceEqual(stockMeltImages[1]),
                 "first-melt PNG edit does not change the second pass");
-            AssertTrue(VerifyInstalledCrocomireMeltingPass(bus,
-                    EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+            AssertTrue(VerifyInstalledCrocomireMeltingPass(EnemyTileArtworkFiles.Load(directory, overrideDirectory),
                     CrocomireMeltingTransferDefinitions.Passes[0])
                 .SequenceEqual(changedMelt),
                 "Crocomire melt override survives catalog reload");
@@ -416,6 +415,36 @@ internal static class EnemyTileArtworkVerification
         new(nameof(VerifyEnemyColorArtwork), () => VerifyEnemyColorArtwork()),
         new(nameof(VerifyEnemyFrameArtwork), () => VerifyEnemyFrameArtwork()),
     ];
+
+    /// <summary>Runs only the installed Zebetite pulse-colour comparison against retail.</summary>
+    [VerificationCommand("--zebetite-colors")]
+    internal static int ZebetiteColorsCommand()
+    {
+        using var fixture = new EnemyTileFixture();
+        var (bus, directory, stock) = fixture;
+        VerifyInstalledZebetiteColors(bus, directory, stock);
+        return 0;
+    }
+
+    /// <summary>Runs only the installed Phantoon colour comparison against retail.</summary>
+    [VerificationCommand("--phantoon-colors")]
+    internal static int PhantoonColorsCommand()
+    {
+        using var fixture = new EnemyTileFixture();
+        var (bus, directory, stock) = fixture;
+        VerifyInstalledPhantoonColors(bus, directory, stock);
+        return 0;
+    }
+
+    /// <summary>Runs only the installed Dachora palette-colour comparison against retail.</summary>
+    [VerificationCommand("--dachora-colors")]
+    internal static int DachoraColorsCommand()
+    {
+        using var fixture = new EnemyTileFixture();
+        var (bus, directory, stock) = fixture;
+        VerifyInstalledDachoraColors(bus, directory, stock);
+        return 0;
+    }
 
     /// <summary>Runs artwork comparisons alongside mapped source routing and room-enemy loading checks.</summary>
     [VerificationCommand("--enemy-tile-artwork")]

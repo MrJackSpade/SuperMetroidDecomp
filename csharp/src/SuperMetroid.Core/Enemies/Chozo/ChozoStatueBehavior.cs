@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Fx;
@@ -8,12 +9,19 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The Chozo statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ChozoStatueBehavior : IEnemySpecies
+internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Chozo, EnemyDefinitionId.NoobTubeCrack];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ChozoStatueEntity(this, slot, common);
+
     /// <summary>Supplies installed palette art, room events, scroll grid and Samus-control service.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Clips walking-statue movement before the carried Samus position is written.</summary>
@@ -41,10 +49,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         _roomFx = roomFx;
     }
 
-
-    /// <summary>Per-slot statue phase and carry-motion state cleared on room load.</summary>
-    internal readonly ChozoStatueState?[] _chozoStatueStates =
-        new ChozoStatueState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Pending hardcoded and footstep PLM requests consumed by the shared allocator.</summary>
     internal readonly List<ChozoStatuePlmRequest> _chozoStatuePlmRequests = new();
 
@@ -58,32 +62,32 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Library-two sound queued as the statue grabs Samus.</summary>
+    private static readonly SoundEffectId ChozoGrabsSamusSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.ChozoGrabsSamusSound);
+    /// <summary>Library-two sound queued by the walking statue's footsteps.</summary>
+    private static readonly SoundEffectId ChozoFootstepsSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.ChozoFootstepsSound);
+
     /// <summary>Last library-two sound requested by either walking sequence.</summary>
-    public ushort? LastChozoStatueSoundEffect { get; private set; }
+    public SoundEffectId? LastChozoStatueSoundEffect { get; private set; }
 
     /// <summary>Last value sent through native <c>CallSomeSamusCode(0/1)</c>.</summary>
     public bool ChozoStatueSamusControlsEnabled { get; private set; } = true;
 
-    /// <summary>FX timer written by instruction $AA:E429.</summary>
-    public ushort ChozoStatueFxTimer { get; private set; }
-
-    /// <summary>FX Y velocity written by instruction $AA:E429.</summary>
-    public ushort ChozoStatueFxYVelocity { get; private set; }
-
-    /// <summary>FX base Y written by instruction $AA:E436.</summary>
-    public ushort ChozoStatueFxBaseYPosition { get; private set; }
+    /// <summary>Whether the Lower Norfair statue has started lowering the acid in this room (instruction $AA:E429).</summary>
+    public bool ChozoStatueAcidLoweringStarted { get; private set; }
 
     /// <summary>Clears prior-room statue state, pending PLMs, sound, Samus-control and FX publications.</summary>
     internal void ResetChozoStatueRoomState(IChozoStatueRoomServices services)
     {
         Ensure.NotNull(services);
-        Array.Clear(_chozoStatueStates);
+        foreach (RoomEnemySlot cleared in _slotTable._slots)
+            cleared.SetSpeciesState<ChozoStatueState>(null);
         _chozoStatuePlmRequests.Clear();
         LastChozoStatueSoundEffect = null;
         ChozoStatueSamusControlsEnabled = true;
-        ChozoStatueFxTimer = 0;
-        ChozoStatueFxYVelocity = 0;
-        ChozoStatueFxBaseYPosition = 0;
+        ChozoStatueAcidLoweringStarted = false;
     }
 
     /// <summary>
@@ -112,17 +116,17 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             EnemyProperties.SolidToSamus |
             EnemyProperties.ProcessInstructions |
             EnemyProperties.ProcessOffScreen);
-        statue.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        statue.Frame = EnemyFrameId.Empty;
         statue.InstructionTimer = NativeCountdown.Start(1);
         statue.Timer = NativeCountdown.Start(0);
         statue.Parameter1 = 0;
         statue.PaletteIndex = 0;
 
-        var state = new ChozoStatueState(statue)
+        var state = new ChozoStatueState
         {
             PreInstruction = ChozoStatuePreInstruction.Idle,
         };
-        _chozoStatueStates[statue.SlotIndex] = state;
+        statue.SetSpeciesState(state, state.ClearWithRecord);
 
         // The native initializer writes enemy_data[0].layer regardless of cur_enemy_index.
         // Every retail population places this singleton in slot zero, but preserve the alias
@@ -224,14 +228,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
                 {
                     state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipActivated);
                     statue.InstructionTimer = NativeCountdown.Start(1);
-                    state.VariableA = unchecked((ushort)-256);
-                    state.VariableB = 256;
                 }
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Chozo statue pre-instruction $AA:{(ushort)state.PreInstruction:X4} is not translated.");
+                    $"Chozo statue pre-instruction {state.PreInstruction?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -257,18 +259,15 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
                 return null;
 
             case ChozoStatueCueKind.StartLoweringAcid:
-                ChozoStatueFxTimer = ChozoStatueFxData.LoweringDelay;
-                ChozoStatueFxYVelocity = ChozoStatueFxData.LoweringVelocity;
-                // Native AI writes the same FX words consumed by the liquid handler.
-                // Apply once at instruction execution, not every frame from the retained
-                // diagnostic values, which would repeatedly reset the delay.
+                ChozoStatueAcidLoweringStarted = true;
+                // Native AI writes the FX words consumed by the liquid handler once, at
+                // instruction execution; the FX owns them from then on.
                 _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(
-                    timer: ChozoStatueFxTimer, packedYVelocity: ChozoStatueFxYVelocity);
+                    timer: ChozoStatueFxData.LoweringDelay, packedYVelocity: ChozoStatueFxData.LoweringVelocity);
                 return null;
 
             case ChozoStatueCueKind.SetLoweredAcidPosition:
-                ChozoStatueFxBaseYPosition = ChozoStatuePlmRomData.LoweredAcidY;
-                _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(baseYPosition: ChozoStatueFxBaseYPosition);
+                _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(baseYPosition: ChozoStatuePlmRomData.LoweredAcidY);
                 return null;
 
             case ChozoStatueCueKind.UnlockSamus:
@@ -276,22 +275,20 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
                 return null;
 
             case ChozoStatueCueKind.PlayGrabSound:
-                LastChozoStatueSoundEffect = EnemySoundEffectDefinitions.ChozoGrabsSamusSound;
-                _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
-                    LastChozoStatueSoundEffect.Value), maximumQueued: 6);
+                LastChozoStatueSoundEffect = ChozoGrabsSamusSound;
+                _audio.QueueEnemySound(ChozoGrabsSamusSound, maximumQueued: 6);
                 return null;
 
             case ChozoStatueCueKind.PlayFootstepSound:
-                LastChozoStatueSoundEffect = EnemySoundEffectDefinitions.ChozoFootstepsSound;
-                _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
-                    LastChozoStatueSoundEffect.Value), maximumQueued: 6);
+                LastChozoStatueSoundEffect = ChozoFootstepsSound;
+                _audio.QueueEnemySound(ChozoFootstepsSound, maximumQueued: 6);
                 return null;
 
             case ChozoStatueCueKind.Footstep:
                 ProcessChozoStatueFootstep(
                     statue,
                     RequireChozoLevel(level),
-                    cue.Value);
+                    cue.FootstepOffset);
                 return null;
 
             case ChozoStatueCueKind.Move:
@@ -300,7 +297,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
                     state,
                     RequireChozoSamus(samus),
                     RequireChozoLevel(level),
-                    cue.Value);
+                    cue.CarryRecord);
                 return null;
 
             case ChozoStatueCueKind.ReleaseSamus:
@@ -318,10 +315,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         ChozoStatueState state,
         SamusState samus,
         RoomLevelData level,
-        ushort tableOffset)
+        int carryRecord)
     {
-        var motion = ChozoCarryMotionDefinitions.Read(tableOffset);
-        state.MovementTableOffset = tableOffset;
+        var motion = ChozoCarryMotionDefinitions.Read(carryRecord);
+        state.CarryRecord = carryRecord;
         short signedVelocity = motion.Velocity;
 
         // Enemy_MoveRight_IgnoreSlopes receives a signed 8.8 word promoted to 16.16 by
@@ -336,7 +333,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             SnesSixteenSixteen.FromEightEight(Math.Abs((int)signedVelocity)));
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, statue);
 
-        // The two 32-word tables are joint offsets indexed by the exact byte offset above.
+        // The two 32-word tables are joint offsets indexed by the same record.
         // Writing Samus after collision reproduces the native cutscene's absolute ownership.
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + motion.SamusX)), unchecked((ushort)(statue.Position.Y.Whole + motion.SamusY))));
     }
@@ -345,10 +342,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
     private void ProcessChozoStatueFootstep(
         RoomEnemySlot statue,
         RoomLevelData level,
-        ushort rawXOffset)
+        Offset16<RoomPixels> footstepOffset)
     {
-        short xOffset = unchecked((short)rawXOffset);
-        ushort probeX = unchecked((ushort)(statue.Position.X.Whole + xOffset));
+        ushort probeX = unchecked((ushort)(statue.Position.X.Whole + footstepOffset.X));
         ushort probeY = unchecked((ushort)(statue.Position.Y.Whole + 28));
         RoomCollisionBlock current = level.GetCollisionBlockAtPixel(new Position16<RoomPixels>(probeX, probeY));
         int belowIndex = current.Index + level.Size.X;
@@ -362,11 +358,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
             new Position16<RoomPixels>(probeX, probeY).ToRoomBlock(),
             IsHardcoded: false));
-        SpawnWreckedShipChozoFootstep(statue, rawXOffset);
+        SpawnWreckedShipChozoFootstep(statue, footstepOffset);
     }
 
     /// <summary>Places the Wrecked Ship footstep projectile beneath the statue at its signed horizontal offset.</summary>
-    internal void SpawnWreckedShipChozoFootstep(RoomEnemySlot statue, ushort xOffset)
+    internal void SpawnWreckedShipChozoFootstep(RoomEnemySlot statue, Offset16<RoomPixels> footstepOffset)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -376,7 +372,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             projectile,
             RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
             graphicsIndex: 0);
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + unchecked((short)xOffset))), unchecked((ushort)(statue.Position.Y.Whole + 28))));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + footstepOffset.X)), unchecked((ushort)(statue.Position.Y.Whole + 28))));
     }
 
     /// <summary>Restores Samus controls, publishes the native overlapping scroll writes and queues slope-access terrain.</summary>
@@ -411,8 +407,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             IsHardcoded: true));
 
     /// <summary>Requires initialized bank-$AA state before statue AI dispatch.</summary>
-    private ChozoStatueState RequireChozoStatueState(RoomEnemySlot statue) =>
-        _chozoStatueStates[statue.SlotIndex] ?? throw new InvalidOperationException(
+    private static ChozoStatueState RequireChozoStatueState(RoomEnemySlot statue) =>
+        statue.SpeciesState<ChozoStatueState>() ?? throw new InvalidOperationException(
             $"Chozo statue slot {statue.SlotIndex} has no initialized bank-$AA state.");
 
     /// <summary>Requires the live Samus actor for cutscene carry movement.</summary>
@@ -425,53 +421,39 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         level ?? throw new InvalidOperationException(
             "Chozo statue movement requires the active room level.");
 
-    /// <summary>Registers separate tube-crack palette and statue initialization entry points.</summary>
-    internal void RegisterChozoStatueInitializationAi(EnemyAiTable table)
+    /// <summary>Ports NoobTubeCrack's initialization AI.</summary>
+    internal void RunNoobTubeCrackInitializationAi(RoomEnemySlot _, RoomLevelData? _1, SamusState? _2, SnesButton _3, ushort _4)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_NoobTubeCrack, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.NoobTubeCrack, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeN00bTubeCracks();
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Chozo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeChozoStatue(slot);
-        });
+        InitializeN00bTubeCracks();
     }
 
-    /// <summary>Registers the common statue phase dispatcher for the Chozo enemy identity.</summary>
-    internal void RegisterChozoStatueMainAi(EnemyAiTable table)
+    /// <summary>Ports Chozo's initialization AI.</summary>
+    internal void RunChozoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Chozo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunChozoStatueMain(slot, RequireChozoStatueState(slot));
-        });
+        InitializeChozoStatue(slot);
     }
 
-    /// <summary>Runs the Chozo statues' animations as typed programs (#641).</summary>
-    internal void RegisterChozoStatueTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo, (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireChozoStatueState(slot);
-            AnimationProgramCursor<ChozoStatueProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
-            state.Program = cursor;
-        });
+    /// <summary>Ports ChozoStatue's main AI.</summary>
+    internal void RunChozoStatueMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
+    {
+        RunChozoStatueMain(slot, RequireChozoStatueState(slot));
+    }
 
+    /// <summary>Advances ChozoStatue's typed animation.</summary>
+    internal void AdvanceChozoStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireChozoStatueState(slot);
+        AnimationProgramCursor<ChozoStatueProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
+        state.Program = cursor;
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         ResetChozoStatueRoomState(request.Services);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

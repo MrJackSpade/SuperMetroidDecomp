@@ -44,6 +44,12 @@ internal sealed class AuditReport
                 $"Referenced resource {key} has no definition in the audited production provider catalog."));
     }
 
+    /// <summary>The report's counts, every finding and every classification, for a self-check failure message.</summary>
+    public string Describe() =>
+        $"classified {Classifications.Count}, unresolved {UnresolvedCount}, missing {MissingCount}, consumers {Consumers.Count}; findings: " +
+        string.Join(" | ", Findings.Select(finding => $"{finding.Owner} {finding.Resource} {finding.Message} ({finding.Source})")) +
+        "; classified: " + string.Join(" | ", Classifications.Select(item => $"{item.Owner} ({item.Source})"));
+
     /// <summary>Records a production reference whose identity cannot be resolved statically.</summary>
     public void Gap(string domain, string owner, string source, string message) =>
         Findings.Add(new(Unresolved, domain, owner, string.Empty, source, message));

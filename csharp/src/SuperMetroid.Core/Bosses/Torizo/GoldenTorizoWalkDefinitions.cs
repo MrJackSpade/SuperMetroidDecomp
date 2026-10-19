@@ -10,9 +10,9 @@ public static class GoldenTorizoWalkDefinitions
         (short)((index < 10 ? -1 : 1) * GoldenTorizoStrideGeometryDefinitions.HorizontalAdvance(index % 10));
 
     /// <summary>Preserves complete byte-indexed word windows; normal instruction operands are even.</summary>
-    public static ushort Velocity(ushort byteOffset)
+    public static ushort Velocity(int byteOffset)
     {
-        if (byteOffset > 38) throw new ArgumentOutOfRangeException(nameof(byteOffset));
+        if (byteOffset is < 0 or > 38) throw new ArgumentOutOfRangeException(nameof(byteOffset));
         ushort value = unchecked((ushort)Displacement(byteOffset >> 1));
         return (byteOffset & 1) == 0 ? value : SnesLittleEndian.Word(SnesLittleEndian.HighByte(value), unchecked((byte)Displacement((byteOffset >> 1) + 1)));
     }

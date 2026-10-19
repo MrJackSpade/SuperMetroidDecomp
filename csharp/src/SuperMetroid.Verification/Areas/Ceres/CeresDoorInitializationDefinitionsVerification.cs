@@ -21,7 +21,6 @@ internal static class CeresDoorInitializationDefinitionsVerification
     {
         const int instructionTable = 0xa6f52c;
         const int functionTable = 0xa6f72b;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var guarded = NewCeresDoorInitializationReadGuard(rom);
 
@@ -37,15 +36,16 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 $"Ceres door instruction selector {variant}");
 
             var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._vram = new SnesVram();
             enemies.Presentation._cgram = new SnesCgram();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = variant;
 
+            slot.Bind(EnemyDefinitionId.CeresDoor, slot.Definition);
             enemies.CeresDoorBehavior.InitializeCeresDoor(slot);
 
-            AssertEqual((ushort)definition.MainFunction, slot.VariableA,
+            AssertEqual<CeresDoorFunction?>(definition.MainFunction, slot.SpeciesState<CeresDoorEnemyState>()?.Function,
                 $"production Ceres door function selector {variant}");
             AssertEqual(AnimationProgramCursor<CeresDoorProgram>.Start(definition.Program), enemies.CeresDoorPrograms[slot.SlotIndex],
                 $"production Ceres door program selector {variant}");

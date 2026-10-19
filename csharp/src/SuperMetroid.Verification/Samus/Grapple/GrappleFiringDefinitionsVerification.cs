@@ -19,6 +19,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks compiled Grapple launch, origin, and movement data through production firing and connection paths.</summary>
 internal static class GrappleFiringDefinitionsVerification
 {
+    /// <summary>Both running states of a charge-flare placement key.</summary>
+    private static readonly bool[] RunningStates =
+        [false, true];
+
     /// <summary>Compares launch and draw origins across authored poses, input directions, wrap boundaries, and trajectory frames.</summary>
     internal static void VerifyGrappleFiringDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -26,8 +30,8 @@ internal static class GrappleFiringDefinitionsVerification
         Suite(nameof(VerifyGrappleLaunchYSelection), () => VerifyGrappleLaunchYSelection(rom));
         Suite(nameof(VerifyGrappleLaunchAngleAlgorithm), () => VerifyGrappleLaunchAngleAlgorithm(rom));
         short Word(int address) => unchecked((short)(SnesLittleEndian.Word(GrappleFiringDefinitionsRomByte(rom, address), GrappleFiringDefinitionsRomByte(rom, address + 1))));
-        var refresh = new Action<ISnesAddressSpace, SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
-        Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
+        var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
+        Func<SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId sourcePose = SamusPoseId.FacingRightNormalPose;
         var bus = NewGrappleFiringReadGuard(rom, () => sourcePose);
         var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
@@ -37,7 +41,7 @@ internal static class GrappleFiringDefinitionsVerification
             ChargeFlarePlacementCatalog.Write(new()
             {
                 Version = ChargeFlarePlacementDefinitions.Version,
-                Offsets = new[] { false, true }.SelectMany(running => Enumerable.Range(0, 16)
+                Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, 16)
                     .Select(direction => (running, direction))).ToDictionary(
                         entry => ChargeFlarePlacementDefinitions.Key(entry.running, entry.direction),
                         _ => new ChargeFlareOffset { X = 0x55aa, Y = 0x55aa }),
@@ -76,7 +80,7 @@ internal static class GrappleFiringDefinitionsVerification
                 samus.Position = samus.Position.WithWhole(new((ushort)raw, unchecked((ushort)~raw)));
                 grapple.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
-                SamusGrappleMovement.BeginFiring(bus, samus);
+                SamusGrappleMovement.BeginFiring(samus);
                 AssertEqual(vx, grapple.ExtensionVelocity.X.SignedRawValue, "Actual launch X velocity");
                 AssertEqual(vy, grapple.ExtensionVelocity.Y.SignedRawValue, "Actual launch Y velocity");
                 AssertEqual(angle, grapple.Angle.RawValue, "Actual launch angle");
@@ -90,7 +94,7 @@ internal static class GrappleFiringDefinitionsVerification
                 // not reuse stale offsets or move the independent collision endpoint.
                 samus.Position += new Offset16<RoomPixels>(7, -5);
                 grapple.OriginOffset = new(1234, 1234);
-                refresh(bus, samus, grapple);
+                refresh(samus, grapple);
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + x)), grapple.RopeStart.X, "Late physical Start X");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + correctedY)), grapple.RopeStart.Y, "Late physical Start Y");
                 AssertEqual(anchorX, grapple.Anchor.X, "Late draw retains endpoint X");
@@ -116,12 +120,12 @@ internal static class GrappleFiringDefinitionsVerification
             samus.Position = samus.Position.WithWhole(new(512, 512));
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.BeginFiring(bus, samus);
+            SamusGrappleMovement.BeginFiring(samus);
             if (replaceFlare)
                 AssertEqual(0x55aa, grapple.FlareOffset.X, "Presentation override is actually consumed");
             for (int frame = 1; frame <= 10; frame++)
             {
-                SamusGrappleMovement.StepFiring(bus, empty, samus, SnesButton.X);
+                SamusGrappleMovement.StepFiring(empty, samus, SnesButton.X);
                 int dx = Word(0x9bc0db + direction * 2) * 256 * frame;
                 int dy = Word(0x9bc0ef + direction * 2) * 256 * frame;
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");
@@ -156,8 +160,8 @@ internal static class GrappleFiringDefinitionsVerification
                 outward && (input & (int)SnesButton.Up) != 0 ? (left ? 8 : 1) : (left ? 7 : 2);
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.BeginFiring(bus, samus, (SnesButton)input);
-            AssertEqual(direction, grapple.FireDirection, "Held aim selection");
+            SamusGrappleMovement.BeginFiring(samus, (SnesButton)input);
+            AssertEqual((SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction, grapple.FireDirection, "Held aim selection");
             AssertEqual(Word(0x9bc0db + direction * 2), grapple.ExtensionVelocity.X.SignedRawValue, "Held launch X");
             AssertEqual(Word(0x9bc0ef + direction * 2), grapple.ExtensionVelocity.Y.SignedRawValue, "Held launch Y");
             AssertEqual(unchecked((ushort)Word(0x9bc104 + direction * 2)), grapple.Angle.RawValue, "Held launch angle");
@@ -175,12 +179,12 @@ internal static class GrappleFiringDefinitionsVerification
             samus.Presentation.TileTransfers.BindArtwork(SamusGraphicsOffsetFixture(127));
             samus.Position = samus.Position.WithWhole(new(coordinate, coordinate));
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
-            grapple.FireDirection = direction;
+            grapple.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction;
             grapple.Anchor = grapple.Anchor.WithX(unchecked((ushort)(coordinate + 24)));
             grapple.Anchor = grapple.Anchor.WithY(unchecked((ushort)(coordinate + 8)));
             grapple.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            connect(bus, samus, grapple, new(coordinate, coordinate), true, false);
+            connect(samus, grapple, new(coordinate, coordinate), true, false);
             if (grapple.Phase != GrapplePhase.ConnectedLocked) continue;
             locked++;
             AssertEqual(unchecked((ushort)(grapple.RopeStart.X - Word(0x9bc122 + direction * 2))), samus.Position.X.Whole, "Locked connection body X");

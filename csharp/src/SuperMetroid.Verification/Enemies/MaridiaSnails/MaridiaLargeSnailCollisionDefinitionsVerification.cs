@@ -34,16 +34,16 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewOumNoReadBus();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var compiled = new RoomEnemySystem();
-        compiled.BindFixtureBus(denied);
-        var nativeSlot = new RoomEnemySlot(0);
+        compiled.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        nativeSlot.Definition = compiledSlot.Definition =
-            default(RoomEnemyDefinition) with
+        var boundDefinition = default(RoomEnemyDefinition) with
             { Bank = MaridiaLargeSnailCollisionDefinitions.Bank };
-        nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
-        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Oum;
+        nativeSlot.Bind(nativeSlot.EnemyDefinitionPointer, boundDefinition);
+        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, boundDefinition);
+        nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
+        compiledSlot.Bind(EnemyDefinitionId.Oum, compiledSlot.Definition);
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitions.FramePointers.Length,
             "all Oum extended frames have compiled collision");
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitions.HitboxPointers.Count(),
@@ -76,8 +76,8 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top, "Oum top");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), box.Right, "Oum right");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom, "Oum bottom");
-                AssertEqual(rom.ReadCartridgeWord((record + 8)), box.TouchAi, "Oum touch callback");
-                AssertEqual(rom.ReadCartridgeWord((record + 10)), box.ShotAi, "Oum shot callback");
+                AssertEqual(rom.ReadCartridgeWord((record + 8)), EnemyInteractionCallbackAccess.Word(box.TouchAi), "Oum touch callback");
+                AssertEqual(rom.ReadCartridgeWord((record + 10)), EnemyInteractionCallbackAccess.Word(box.ShotAi), "Oum shot callback");
                 boxesChecked++;
             }
 

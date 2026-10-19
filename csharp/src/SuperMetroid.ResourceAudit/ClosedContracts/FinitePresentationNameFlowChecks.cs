@@ -114,7 +114,7 @@ internal static class FinitePresentationNameFlowChecks
             "Escaped", "UnknownField", "RefField", "TupleField", "CyclicField", "PublicField" })
             Require(results[unknown].Result == NamedSelectionResult.Unresolved, unknown + " must retain its unknown boundary");
         Require(results["MissingFactory"].Result == NamedSelectionResult.Missing &&
-            results["MissingFactory"].Report.MissingCount == 1, "finite absent names must remain concrete missing identities");
+            results["MissingFactory"].Report.MissingCount == 1, "finite absent names must remain concrete missing identities" + " (" + results["MissingFactory"].Report.Describe() + ")");
         Require(results.Count == 18 && results["ValidLocal"].Report.ReferenceCount == 3 &&
             results["Receive"].Report.ReferenceCount == 2 && results["LocalFunction"].Report.ReferenceCount == 2,
             "all potential assignments/call inputs must be inventoried, not only the nearest one");

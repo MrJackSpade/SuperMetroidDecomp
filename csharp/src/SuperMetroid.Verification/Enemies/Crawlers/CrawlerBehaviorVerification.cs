@@ -19,7 +19,7 @@ internal static class CrawlerBehaviorVerification
     /// installs the movement function (vertical crawling on the side walls, horizontal on floors and ceilings, with the
     /// orange Zoomer's own functions) and its poses then loop on time. Every pose has installed artwork when supplied.
     /// </summary>
-    internal static void VerifyCrawlerBehavior(SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
+    internal static void VerifyCrawlerBehavior(EnemyTileArtworkCatalog? artwork = null)
     {
         (CrawlerAnimationFamily Family, EnemyDefinitionId Definition, ushort? SpeciesOffset)[] families =
         [
@@ -33,18 +33,18 @@ internal static class CrawlerBehaviorVerification
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = definition;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank };
+            slot.Bind(definition, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank });
             // The population parameter, read before initialization, selects the surface; InitAI_Viola reads the property bits.
             slot.CurrentInstruction = (ushort)orientation;
             if (family == CrawlerAnimationFamily.Viola)
-                slot.Properties = (ushort)orientation;
+                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)orientation));
             if (family == CrawlerAnimationFamily.HZoomer)
-                enemies.CrawlersBehavior.InitializeHZoomer(slot);
+                CrawlersBehavior.InitializeHZoomer(slot);
             else
-                enemies.CrawlersBehavior.InitializeCrawler(slot, family, speciesOffset);
+                CrawlersBehavior.InitializeCrawler(slot, family, speciesOffset);
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
             CrawlerProgram program = CrawlerAnimationDefinitions.InitialProgram(family, orientation);
             string context = $"{family} {orientation}";
@@ -53,7 +53,7 @@ internal static class CrawlerBehaviorVerification
             CrawlerProgram loop = CrawlerAnimations.Programs.Steps(program)
                 .Single(step => step.Kind is AnimationProgramStepKind.FallInto or AnimationProgramStepKind.GoTo).Target;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Programs, loop, CrawlerFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Programs, loop)), $"{context} loop");
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Programs, loop)), $"{context} loop");
             bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;
             CrawlerEnemyFunction expected = family == CrawlerAnimationFamily.HZoomer
                 ? sideWall ? CrawlerEnemyFunction.HZoomerCrawlingVertically : CrawlerEnemyFunction.HZoomerCrawlingHorizontally
@@ -72,7 +72,7 @@ internal static class CrawlerBehaviorVerification
     internal static int CrawlerBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyCrawlerBehavior), () => VerifyCrawlerBehavior(rom));
+        Suite(nameof(VerifyCrawlerBehavior), () => VerifyCrawlerBehavior());
         Suite(nameof(CrawlerAnimationsVerification.VerifyCrawlerAnimations), () => CrawlerAnimationsVerification.VerifyCrawlerAnimations(rom));
         return 0;
     }

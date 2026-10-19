@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Deaths;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Runtime;
@@ -6,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces enemy death-explosion animation during a reserve-refill
 /// gameplay freeze, when projectile instructions still advance.</summary>
@@ -19,25 +21,25 @@ internal static class FrozenTimeEnemyProjectilesVerification
     internal static void VerifyFrozenTimeEnemyProjectiles()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xd0b9);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MtEverest);
         runtime.Player.IntroducedSamus.InputLocked = true;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         RoomEnemySlot victim = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
         runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(victim, (ushort)2);
         RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         runtime.StepFrame(0);
-        ushort pointer = explosion.InstructionPointer;
+        var program = (EnemyDeathProjectileAnimation)(explosion.Animation ?? throw new InvalidOperationException("The explosion plays a program."));
+        var cursor = program.Cursor;
         ushort timer = explosion.InstructionTimer.RawValue;
 
         runtime.Freeze.GameplayTimeFrozen = true;
         runtime.StepFrame(0);
 
-        AssertTrue(explosion.InstructionPointer != pointer || explosion.InstructionTimer.RawValue != timer,
+        AssertTrue(program.Cursor != cursor || explosion.InstructionTimer.RawValue != timer,
             "the explosion's instructions advance while time is frozen");
         Console.WriteLine("  Frozen-time enemy projectiles: instructions keep running under a reserve-refill freeze.");
     }

@@ -14,6 +14,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 [CpuBusBoundary("codec: ROM extended-enemy $FFFE BG2 tilemap streams → enemy BG2 frame files")]
 internal static class EnemyBg2FrameFiles
 {
+    /// <summary>JSON options: Camel-case property names, indented output.</summary>
+    private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
+
     /// <summary>Extracts ordered BG2 tile writes from each extended frame, skipping mixed OAM components when allowed.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus, byte bank,
         EnemyBg2FrameDefinitionSequence definitions, int version,
@@ -97,11 +100,7 @@ internal static class EnemyBg2FrameFiles
         {
             Version = version,
             Frames = frames,
-        }, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true,
-        });
+        }, CamelCaseIndentedJson);
         _ = EnemyBg2FrameCatalog.Load(new MemoryStream(json, writable: false),
             definitions, version, family);
         return json;

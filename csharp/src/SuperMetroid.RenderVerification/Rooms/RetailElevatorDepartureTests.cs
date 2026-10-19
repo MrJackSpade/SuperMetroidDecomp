@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -22,15 +23,15 @@ internal static class RetailElevatorDepartureTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = RepositoryInstallation.CreateRuntime(bus);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        var runtime = RepositoryInstallation.CreateRuntime();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.RoomLoader.InitializePostCeresZebesRoom();
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.Presentation.InitializeAnimation(bus);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BlueBrinstarElevatorRoom);
+        samus.Presentation.InitializeAnimation();
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.ElevToBlueBrinstar);
         var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
         samus.Position = samus.Position.WithWhole(new(actor.Position.X.Whole, unchecked((ushort)(actor.Position.Y.Whole - ElevatorCaptureFixtureDefinitions.SamusAttachmentOffset))));
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
@@ -38,7 +39,7 @@ internal static class RetailElevatorDepartureTests
         int samples = 0, departure = 0, scrolling = 0, returning = 0;
         void Compare(string phase)
         {
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+            var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
                 GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()) ?? throw new InvalidOperationException("Missing elevator capture."));
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
@@ -47,7 +48,7 @@ internal static class RetailElevatorDepartureTests
         }
         runtime.StepFrame(SnesButton.Down);
         Compare("departure start");
-        if (runtime.Enemies.ElevatorBehavior.LastElevatorEvent != ElevatorFrameEvent.DepartureStarted)
+        if (runtime.Enemies.LastEnemyFrame.Elevator != ElevatorFrameEvent.DepartureStarted)
             throw new InvalidOperationException("Downward elevator did not accept the input edge.");
         while (!runtime.RoomLoader.HasPendingDoorTransition && departure < 240)
         {
@@ -63,7 +64,7 @@ internal static class RetailElevatorDepartureTests
             if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrolling++;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance); Compare(transition.Phase.ToString());
         }
-        if (transition.IsActive || scrolling < 12 || runtime.Room.ActiveRoom?.Pointer != RoomHeaderPointers.MorphBallRoom)
+        if (transition.IsActive || scrolling < 12 || runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.MorphBall)
             throw new InvalidOperationException("Downward elevator did not complete the authored transition.");
         while (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive && returning < 1200)
         {

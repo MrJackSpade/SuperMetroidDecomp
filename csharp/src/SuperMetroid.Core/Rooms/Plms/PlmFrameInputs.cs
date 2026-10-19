@@ -9,18 +9,22 @@ public readonly record struct PlmFrameInputs
     /// <summary>Scrolls.</summary>
     public required RoomScrollGrid? Scrolls { get; init; }
 
-    /// <summary>Enemy deaths.</summary>
-    public required ushort EnemyDeaths { get; init; }
+    /// <summary>The room's kill count (<see cref="Enemies.EnemyRoomStatus.EnemiesKilled"/>), 0 through 65535.</summary>
+    public required int EnemyDeaths { get; init; }
 
-    /// <summary>Enemy death quota.</summary>
-    public required byte EnemyDeathQuota { get; init; }
+    /// <summary>The room's kill-count requirement for enemy-clear triggers, 0 through 255.</summary>
+    public required int EnemyDeathQuota { get; init; }
 
     /// <summary>Controller new input.</summary>
     public required SnesButton ControllerNewInput { get; init; }
 
     /// <summary>Collected items.</summary>
-    public ushort CollectedItems { get; init; }
+    public SuperMetroid.Core.Samus.SamusEquipmentFlags CollectedItems { get; init; }
 
     /// <summary>Power bomb explosion status.</summary>
-    public ushort PowerBombExplosionStatus { get; init; }
+    public int PowerBombExplosionStatus
+    {
+        get;
+        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 }

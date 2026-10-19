@@ -19,7 +19,7 @@ internal static class SaveStationElectricityBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, SaveStationElectricityNativeListAddresses.Extent, "save-station electricity");
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Projectiles.SpawnSaveStationElectricity(42, 16);
         RoomEnemyProjectileSlot electricity = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         AssertTrue(electricity.Animation is SaveStationElectricityAnimation { Cursor.Program: SaveStationElectricityProgram.Start }, "the electricity starts its cycles");

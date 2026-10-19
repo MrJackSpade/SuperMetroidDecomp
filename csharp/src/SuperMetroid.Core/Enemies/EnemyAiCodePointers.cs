@@ -224,6 +224,18 @@ internal static class EnemyAiCodePointers
     /// <summary>Bank-$A9 Mother Brain and dead-Tourian interaction callbacks.</summary>
     public static class BankA9
     {
+        /// <summary>Dead Zoomer's touch and shot rot trigger at $A9:DCF8.</summary>
+        public const ushort DeadZoomerTouchAndShot = 0xdcf8;
+        /// <summary>Dead Zoomer's Power Bomb rot trigger at $A9:DCED.</summary>
+        public const ushort DeadZoomerPowerBomb = 0xdced;
+        /// <summary>Dead Ripper's touch and shot rot trigger at $A9:DD08.</summary>
+        public const ushort DeadRipperTouchAndShot = 0xdd08;
+        /// <summary>Dead Ripper's Power Bomb rot trigger at $A9:DCFD.</summary>
+        public const ushort DeadRipperPowerBomb = 0xdcfd;
+        /// <summary>Dead Skree's touch and shot rot trigger at $A9:DD18.</summary>
+        public const ushort DeadSkreeTouchAndShot = 0xdd18;
+        /// <summary>Dead Skree's Power Bomb rot trigger at $A9:DD0D.</summary>
+        public const ushort DeadSkreePowerBomb = 0xdd0d;
         /// <summary>Mother Brain body shot callback at $A9:B503.</summary>
         public const ushort MotherBrainBodyShot = 0xb503;
         /// <summary>Mother Brain head shot callback at $A9:B507.</summary>

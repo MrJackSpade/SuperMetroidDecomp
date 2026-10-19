@@ -26,13 +26,13 @@ internal static class WaverAnimationDefinitionsVerification
         for (int index = 0; index < 4; index++)
         {
             var selector = (WaverAnimationSelector)index;
-            var slot = new RoomEnemySlot(0)
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 CurrentInstruction = 0x7777,
                 InstructionTimer = NativeCountdown.Start(0x2222),
                 Timer = NativeCountdown.Start(0x3333),
             };
-            var state = new WaverEnemyState(slot)
+            var state = new WaverEnemyState
             {
                 CurrentInstructionListIndex = selector == WaverAnimationSelector.None
                     ? WaverAnimationSelector.FacingRight
@@ -55,10 +55,11 @@ internal static class WaverAnimationDefinitionsVerification
         for (ushort parameter = 0; parameter < 2; parameter++)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
             slot.Parameter1 = parameter;
-            enemies.WaverBehavior.InitializeWaver(slot);
+            WaverBehavior.InitializeWaver(slot);
             var expected = (WaverAnimationSelector)parameter;
             AssertEqual(expected, (enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].")).RequestedInstructionListIndex,
                 $"production Waver initial requested selector {parameter}");

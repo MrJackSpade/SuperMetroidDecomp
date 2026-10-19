@@ -46,13 +46,13 @@ internal static class BeamCallbackTablesVerification
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                EquippedBeams = unchecked((ushort)(beamType | (charged ? 0x1000 : 0))),
+                EquippedBeams = unchecked((SamusBeamFlags)((ushort)(beamType | (charged ? 0x1000 : 0)))),
             };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             if (initializeOnly)
             {
-                projectiles.Firing.TryFireBeam(bus, room, samus, SnesButton.X, shared, null, charged);
+                projectiles.Firing.TryFireBeam(room, samus, SnesButton.X, shared, null, charged);
                 AssertTrue(projectiles.Slots[0].Type != 0 || projectiles.Slots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
                 AssertEqual((SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType)).Translated ?? throw new InvalidOperationException("Verification requires SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beam....")),
@@ -64,12 +64,12 @@ internal static class BeamCallbackTablesVerification
             {
                 for (int frame = 0; frame < 60; frame++)
                 {
-                    shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, 0, 0);
-                    projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), shared);
+                    shared.StepFrame(new SamusTerrain { Level = room }, samus, 0, 0);
+                    projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), shared);
                 }
             }
-            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = charged ? (ushort)0 : SnesButton.X, ControllerNewInput = charged ? (ushort)0 : SnesButton.X }, new(0, 0), shared);
-            AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
+            projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = charged ? (ushort)0 : SnesButton.X, ControllerNewInput = charged ? (ushort)0 : SnesButton.X }, new(0, 0), shared);
+            AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
                 $"charged={charged} beam {beamType:X1} fires");
             // The fixture starts with every ordinary slot empty, so the fired shot is the
             // lowest live slot after the release frame.

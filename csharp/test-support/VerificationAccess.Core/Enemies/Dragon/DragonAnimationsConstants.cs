@@ -13,5 +13,5 @@ internal static class DragonAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params DragonProgram[] programs) =>
         programs.SelectMany(program => DragonAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => DragonFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => DragonFrameToolingDefinitions.Spritemap(step.Frame));
 }

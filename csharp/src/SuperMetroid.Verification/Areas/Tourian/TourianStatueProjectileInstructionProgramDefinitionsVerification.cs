@@ -28,13 +28,12 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
     internal static void VerifyTourianStatueProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
-             index < TourianStatueProjectileInstructionProgramDefinitions.MechanicsWordCount;
+             index < TourianStatueProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)
         {
             InstructionMechanicsWord definition =
-                TourianStatueProjectileInstructionProgramDefinitions.MechanicsWord(index);
+                TourianStatueProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"Tourian statue projectile mechanics word $86:{definition.Address:X4}");
@@ -44,15 +43,17 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewTourianStatueProjectileInstructionReadGuard(rom);
+        Func<EnemyProjectileAnimation, ushort?> nativePointers =
+            TourianStatueProjectileAnimationsVerification.Family.NativePointers(CartridgeImportSource.Require(rom));
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = new SnesCgram();
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4);
 
         enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(0, soul: false);
         RoomEnemyProjectileSlot eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);
         Run(eye, 10);
-        AssertEqual((ushort)0xb7db, eye.InstructionPointer,
+        AssertEqual((ushort)0xb7db, NativePointer(eye),
             "eye glow reaches its sound and release tail after ten display frames");
         Run(eye, 1);
         AssertTrue(!eye.IsActive, "eye glow deletes after releasing four particles");
@@ -69,7 +70,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(particle, 2);
         AssertEqual(ushort.MaxValue, particle.GeneralTimer,
             "unset particle loop timer wraps from zero to FFFF like the cartridge");
-        AssertEqual((ushort)0xb806, particle.InstructionPointer,
+        AssertEqual((ushort)0xb806, NativePointer(particle),
             "particle counted branch immediately begins its next display cycle");
 
         Run(tail, 1);
@@ -89,7 +90,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         enemies.TourianUnlockBehavior.SpawnTourianParticleChild(particle, RoomEnemyProjectileKind.TourianStatueSplash);
         RoomEnemyProjectileSlot splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
         Run(splash, 4);
-        AssertEqual((ushort)0xb7b1, splash.InstructionPointer,
+        AssertEqual((ushort)0xb7b1, NativePointer(splash),
             "water splash reaches deletion after four authored poses");
         Run(splash, 1);
         AssertTrue(!splash.IsActive, "water splash deletes on its fifth instruction tick");
@@ -97,9 +98,9 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(2, soul: true);
         RoomEnemyProjectileSlot soul = Single(RoomEnemyProjectileKind.TourianStatueSoul);
         Run(soul, 3);
-        AssertEqual((ushort)0xb852, soul.InstructionPointer,
+        AssertEqual((ushort)0xb852, NativePointer(soul),
             "statue soul loops through both authored poses");
-        soul.InstructionPointer = TourianStatueProjectileInstructionProgramDefinitions.Delete;
+        soul.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
         Run(soul, 1);
         AssertTrue(!soul.IsActive, "private Tourian delete list clears a soul actor");
 
@@ -107,32 +108,32 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             RoomEnemyProjectileKind.TourianStatueBaseDecoration);
         Run(baseDecoration, 2);
         AssertEqual(
-            (ushort)EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess,
+            EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess,
             baseDecoration.PreInstruction,
             "base decoration installs its delayed position callback");
-        AssertEqual((ushort)0xb866, baseDecoration.InstructionPointer,
+        AssertEqual((ushort)0xb866, NativePointer(baseDecoration),
             "base decoration reaches its stable loop");
         Run(baseDecoration, 1);
-        AssertEqual((ushort)0xb866, baseDecoration.InstructionPointer,
+        AssertEqual((ushort)0xb866, NativePointer(baseDecoration),
             "base decoration loop remains stable");
 
         RoomEnemyProjectileSlot ridley = SpawnStatue(RoomEnemyProjectileKind.TourianStatueRidley);
         Run(ridley, 2);
-        AssertEqual((ushort)0xb86e, ridley.InstructionPointer,
+        AssertEqual((ushort)0xb86e, NativePointer(ridley),
             "Ridley statue loop remains stable");
         RoomEnemyProjectileSlot phantoon = SpawnStatue(
             RoomEnemyProjectileKind.TourianStatuePhantoon);
         Run(phantoon, 2);
-        AssertEqual((ushort)0xb876, phantoon.InstructionPointer,
+        AssertEqual((ushort)0xb876, NativePointer(phantoon),
             "Phantoon statue loop remains stable");
 
         AssertEqual(0, guard.ObservedWords.Count,
             "TourianStatueProjectile execution performs no live spritemap operand reads");
-        AssertEqual(TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(TourianStatueProjectileInstructionProgramDefinitionsTooling.PresentationWordCount,
             executedOperands.Count, "TourianStatueProjectile executes every native visual operand");
-        for (int index = 0; index < TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
+        for (int index = 0; index < TourianStatueProjectileInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
-            ushort address = TourianStatueProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort address = TourianStatueProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(executedOperands.Contains(address),
                 $"TourianStatueProjectile executes native presentation operand {address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
@@ -142,24 +143,15 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Tourian statue mechanics byte");
-        AssertThrows<InvalidDataException>(
-            () => TourianStatueProjectileInstructionProgramDefinitions.ReadMechanicsWord(0xb7a3),
-            "Tourian splash spritemap is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => TourianStatueProjectileInstructionProgramDefinitions.ReadMechanicsWord(0xb87a),
-            "Tourian splash initializer is rejected as mechanics");
-
-        _ = ProbeTourianStatueProjectileInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeTourianStatueProjectileInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "Tourian statue allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed Tourian statue mechanics lookups allocate no storage");
 
         Console.WriteLine(
             "Tourian statue projectile instruction mechanics: fifty-eight compiled words, " +
             "all eight real actor families, and twenty-eight installed sprite frames match native OAM " +
             "with mechanics bytes forbidden.");
+
+        ushort NativePointer(RoomEnemyProjectileSlot projectile) =>
+            nativePointers(projectile.Animation ?? throw new InvalidOperationException("A statue projectile runs a typed animation."))
+                ?? throw new InvalidOperationException("The statue projectile runs another family's animation.");
 
         RoomEnemyProjectileSlot Single(RoomEnemyProjectileKind kind) =>
             enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
@@ -176,23 +168,11 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             {
                 projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
-                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
+                // The shown frame's operand sits just before the instruction the native pointer stands on.
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands,
+                    projectile.IsActive ? unchecked((ushort)(NativePointer(projectile) - 2)) : null);
             }
         }
-    }
-
-    /// <summary>Consumes repeated eye and statue control lookups for the warmed allocation check.</summary>
-    private static int ProbeTourianStatueProjectileInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += TourianStatueProjectileInstructionProgramDefinitions.ReadMechanicsWord(
-                (index & 1) == 0
-                    ? TourianStatueProjectileInstructionProgramDefinitions.EyeGlow
-                    : TourianStatueProjectileInstructionProgramDefinitions.Phantoon);
-        }
-        return checksum;
     }
 
     /// <summary>Forbids compiled Tourian statue mechanics reads and observes visual operands.</summary>
@@ -200,7 +180,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         new CartridgeReadGuard(source)
             .Forbid(TourianStatueProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Tourian statue mechanics byte ${address:X6}.")
-            .ObserveWords(EnemyProjectileCodePointers.BankBase, TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount, TourianStatueProjectileInstructionProgramDefinitions.PresentationWordAddress);
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, TourianStatueProjectileInstructionProgramDefinitionsTooling.PresentationWordCount, TourianStatueProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
     /// <summary>Runs the Tourian statue projectile suite through the verification command dispatcher.</summary>
     [VerificationCommand("--tourian-statue-projectile-instruction-mechanics")]

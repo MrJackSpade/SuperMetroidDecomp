@@ -3,6 +3,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation;
 
@@ -54,11 +55,11 @@ internal static class RepositoryInstallation
     internal static GameInstallation Installation => installation.Value;
 
     /// <summary>A gameplay runtime bound to the installation's presentation catalogs.</summary>
-    internal static SuperMetroidRuntime CreateRuntime(ISnesAddressSpace addressSpace,
+    internal static SuperMetroidRuntime CreateRuntime(
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false)
     {
-        var runtime = new SuperMetroidRuntime(addressSpace, new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes());
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes());
         BindRuntime(runtime);
         return runtime;
     }

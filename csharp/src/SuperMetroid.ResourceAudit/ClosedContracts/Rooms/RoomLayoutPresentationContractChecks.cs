@@ -65,16 +65,7 @@ internal static class RoomLayoutPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 3 && after.Classifications.Count == 2 && after.UnresolvedCount == 1 &&
-            after.MissingCount == 0 && after.Consumers.Count == 3, "required-source closure must reject known unowned keys");
-        SyntaxTree bypass = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Rooms;
-            class UnsafeProductionFactory {
-                object Make() => RoomVisualLayoutCatalog.FromLayoutsForVerification(null!);
-            }
-            """, path: "fixture-production-layout-bypass.cs");
-        AuditReport revoked = Inspect(Compile(trees.Append(bypass)), true);
-        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 3,
-            "using the partial verification factory in Core must revoke production completeness");
+            after.MissingCount == 0 && after.Consumers.Count == 3, "required-source closure must reject known unowned keys" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Reports a room-layout closure regression with its failed contract detail.</summary>

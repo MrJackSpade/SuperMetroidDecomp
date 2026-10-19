@@ -48,7 +48,7 @@ internal static class IntroEggEffectDefinitions
         if ((uint)index >= ParticleCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         return new(
-            0xa994,
+            CinematicSpritePreInstruction.MetroidEggParticle,
             index switch
             {
                 0 => CinematicSpriteProgram.MetroidEggParticle1,
@@ -74,5 +74,5 @@ internal static class IntroEggEffectDefinitions
     /// identities and do not infer a sixth frame from adjacent ROM data.
     /// </remarks>
     public static IntroEggEffectActorDefinition SlimeDrop =>
-        new(0xaab3, CinematicSpriteProgram.MetroidEggParticle7);
+        new(CinematicSpritePreInstruction.MetroidEggSlimeDrops, CinematicSpriteProgram.MetroidEggParticle7);
 }

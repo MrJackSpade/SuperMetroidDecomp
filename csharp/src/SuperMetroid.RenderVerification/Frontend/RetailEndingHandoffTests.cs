@@ -22,8 +22,8 @@ internal static class RetailEndingHandoffTests
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
-        var legacy = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
-        var captured = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
+        var legacy = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         var audioAssets = DesktopAccess.LoadAudioClips();
         legacy.BindAudio(audioAssets);
         captured.BindAudio(audioAssets);
@@ -36,13 +36,13 @@ internal static class RetailEndingHandoffTests
             var actual = captured.StepCaptured(input, ++sequence, 1);
             legacy.CopyAudioFrame(leftAudio);
             captured.CopyAudioFrame(rightAudio);
-            if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||
+            if (expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification) ||
                 !leftAudio.SequenceEqual(rightAudio))
                 throw new InvalidOperationException("Ending handoff changed frontend cadence/audio.");
-            if (pixels) PixelComparison.Verify((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")), expected.Pixels,
-                renderer.RenderForReadback((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))), $"{device.Kind}: ending handoff {sequence}, {expected.Phase}");
+            if (pixels) PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(),
+                renderer.RenderForReadback(actual.Snapshot), $"{device.Kind}: ending handoff {sequence}, {expected.Phase}");
         }
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None, false);
@@ -50,18 +50,18 @@ internal static class RetailEndingHandoffTests
         foreach (var game in new[] { legacy, captured })
         {
             var runtime = game.GameplayRuntimeForVerification;
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
             var top = runtime.Enemies.SlotTable.Slots.First(slot =>
-                (((int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer))) == (int)EnemyAiRoutine.InitAI_ShipTop);
+                slot.EnemyDefinitionPointer == EnemyDefinitionId.ShipTop);
             // Stage the existing accelerating integrator near its native completion
             // threshold. It—not the fixture—publishes the frontend escape event.
-            top.VariableF = (ushort)GunshipFunction.AcceleratingLiftoff;
+            GunshipPartState.Of(top).Function = GunshipFunction.AcceleratingLiftoff;
             // The staged hull starts outside this fixture's camera. Explicitly keep
             // its AI active; this is handoff coverage, not full departure validation.
             top.Properties = top.Properties.With(EnemyProperties.ProcessOffScreen);
             runtime.Player.IntroducedSamus.InputLocked = true;
             runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(EndingHandoffFixtureDefinitions.TakeoffBoundaryY);
-            runtime.NmiHandler.RunNmi(0, true);
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
         bool sawFade = false;
         int endingFrames = 0, frames = 0;
@@ -71,7 +71,7 @@ internal static class RetailEndingHandoffTests
             sawFade |= legacy.GameState == SuperMetroidGameState.SamusEscapesFromZebes;
             if (legacy.GameState == SuperMetroidGameState.EndingAndCredits && ++endingFrames == 60) break;
         }
-        if (!sawFade || endingFrames != 60) throw new InvalidOperationException($"Ending fixture missed native escape fade/credits handoff: state={legacy.GameState}, fade={sawFade}, ending={endingFrames}, health={legacy.GameplayRuntimeForVerification.Player.IntroducedSamus.Health}, event={legacy.GameplayRuntimeForVerification.Enemies.GunshipBehavior.LastGunshipEvent}.");
+        if (!sawFade || endingFrames != 60) throw new InvalidOperationException($"Ending fixture missed native escape fade/credits handoff: state={legacy.GameState}, fade={sawFade}, ending={endingFrames}, health={legacy.GameplayRuntimeForVerification.Player.IntroducedSamus.Health}, event={legacy.GameplayRuntimeForVerification.Enemies.LastEnemyFrame.Gunship}.");
         Console.WriteLine($"{device.Kind}: {frames + 1} exact gunship-event/fade/ending frames with matching PCM and frontend state.");
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
@@ -28,8 +29,8 @@ internal static class SamusImpulseDefinitionsVerification
         for (int gravity = 0; gravity <= 1; gravity++)
         for (int direction = 1; direction <= 3; direction++)
         {
-            bomb.EquippedItems = (ushort)(SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster |
-                (gravity == 1 ? SamusEquipmentFlags.GravitySuit : 0));
+            bomb.EquippedItems = (SamusEquipmentFlags)((ushort)(SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster |
+                (gravity == 1 ? SamusEquipmentFlags.GravitySuit : 0)));
             bomb.HorizontalSpeed.ExtraRunSpeed = ushort.MaxValue;
             bomb.HorizontalSpeed.ExtraRunSubspeed = ushort.MaxValue;
             bomb.LiquidPhysics.FxYPosition = liquid == 1 ? (ushort)raw : ushort.MaxValue;
@@ -39,7 +40,7 @@ internal static class SamusImpulseDefinitionsVerification
             bomb.BombJumpActive = false;
             bomb.Kinematics.YAcceleration = 7;
             bomb.Kinematics.YSubacceleration = 123;
-            SamusBombJumpMovement.Start(noReads, bomb);
+            SamusBombJumpMovement.Start(bomb);
             int medium = gravity == 0 && raw < bombBottom ? liquid : 0;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ef5 + medium * 2)), bomb.Kinematics.YSpeed, "Bomb native whole launch");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909efb + medium * 2)), bomb.Kinematics.YSubspeed, "Bomb native fractional launch");
@@ -62,20 +63,20 @@ internal static class SamusImpulseDefinitionsVerification
         foreach (SnesButton input in new SnesButton[] { 0, SnesButton.Left, SnesButton.Right })
         {
             var hurt = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-            hurt.PoseMetadata.RefreshCollisionRadii(poseOnly);
-            hurt.EquippedItems = (ushort)(((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) |
+            hurt.PoseMetadata.RefreshCollisionRadii();
+            hurt.EquippedItems = (SamusEquipmentFlags)((ushort)(((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) |
                 ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) |
-                ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));
+                ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0)));
             hurt.LiquidPhysics.FxYPosition = environment is 1 or 3 ? (ushort)0 : ushort.MaxValue;
             hurt.LiquidPhysics.LavaAcidYPosition = environment == 2 ? (ushort)0 : ushort.MaxValue;
-            hurt.LiquidPhysics.LiquidOptions = environment == 3 ? (ushort)4 : (ushort)0;
+            hurt.LiquidPhysics.LiquidOptions = environment == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
             hurt.BombJumpDirection = 0x0801;
             hurt.BombJumpStarting = true;
             hurt.BombJumpActive = true;
             hurt.HorizontalSpeed.ExtraRunSpeed = ushort.MaxValue;
             hurt.HorizontalSpeed.ExtraRunSubspeed = ushort.MaxValue;
             hurt.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
-            AssertTrue(SamusKnockbackMovement.Start(poseOnly, hurt, input, new KnockbackLaunch { KnockbackXDirection = side, KnockbackTimer = 11 }), "Native hurt branch admitted");
+            AssertTrue(SamusKnockbackMovement.Start(hurt, input, new KnockbackLaunch { KnockbackXDirection = side == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right, KnockbackTimer = NativeCountdown.Start(11) }), "Native hurt branch admitted");
             int medium = (equipment & 4) != 0 || environment == 3 ? 0 : environment;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ee9 + medium * 2)), hurt.Kinematics.YSpeed, "Hurt native whole launch");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909eef + medium * 2)), hurt.Kinematics.YSubspeed, "Hurt native fractional launch");

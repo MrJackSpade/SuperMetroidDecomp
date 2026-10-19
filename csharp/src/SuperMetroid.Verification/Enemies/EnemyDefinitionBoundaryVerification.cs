@@ -50,7 +50,7 @@ internal static class EnemyDefinitionBoundaryVerification
         {
             AssertTrue((artwork.ExtendedFrames ?? throw new InvalidOperationException("Verification requires artwork.ExtendedFrames.")).TryGet(TorizoFrameDefinitions.Bank, frame, out _),
                 $"installed Torizo extended frame {frame:X4}");
-            OamBuffer actual = DrawExtendedForBank(artwork, memory, TorizoFrameDefinitions.Bank, frame, new(x, y));
+            OamBuffer actual = DrawExtendedForBank(artwork, TorizoFrameDefinitions.Bank, frame, new(x, y));
             var expected = new OamBuffer();
             int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | frame));
             for (int index = 0; index < count; index++)
@@ -60,48 +60,90 @@ internal static class EnemyDefinitionBoundaryVerification
                 ushort cy = unchecked((ushort)(y + (short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 2))));
                 if (((cx + 128) & 0xfe00) != 0 || ((cy + 128) & 0xfe00) != 0)
                     continue;
-                DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = TorizoFrameDefinitions.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (SnesLittleEndian.HighByte(cy)) == 0 });
+                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitions.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (SnesLittleEndian.HighByte(cy)) == 0 });
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
             AssertTrue(expected.ImageEquals(actual), "Torizo composed OAM bytes and origin arithmetic");
             drawCases++;
         }
-        AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, memory,
-                TorizoFrameDefinitions.Bank, 0x87d0, new(128, 96)),
+        AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, TorizoFrameDefinitions.Bank, 0x87d0, new(128, 96)),
             "missing enemy artwork cannot recover an address decoder");
         Console.WriteLine($"Enemy definitions: all 106 Torizo physical frames, corpse metadata, 50 Crocomire reactions, 393 editable palette colors and {drawCases} composed OAM cases pass.");
     }
 
-    /// <summary>Checks Torizo's physical components and hitbox records against bank AA.</summary>
+    /// <summary>
+    /// Checks Torizo's physical components and hitbox lists against bank AA. The cartridge names each
+    /// component's list by address; only this oracle knows those addresses. Every compiled component must
+    /// hold the list the ROM names (the same rectangles, and reactions that encode to the ROM's callback
+    /// words), every component naming one address must hold one list instance, and each mirrored
+    /// right-facing frame must hold the right-facing counterpart the ROM pairs with its left-facing list.
+    /// </summary>
     private static void VerifyCompleteTorizoDefinitions(ISnesAddressSpace source)
     {
         // The lists themselves are typed programs (#1289); VerifyTorizoAnimations matches them to the native lists.
+        IImportCartridgeSource rom = CartridgeImportSource.Require(source);
+        int bank = TorizoCollisionDefinitions.Bank << 16;
         AssertEqual(106, TorizoCollisionDefinitions.FrameCount, "complete Torizo physical frame count");
+        var seenLists = new Dictionary<int, TorizoHitboxList>();
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         {
             TorizoCollisionComponents components = TorizoCollisionDefinitions.ComponentsAt(frame);
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | frame)), components.Length, "Torizo component count");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(bank | frame), components.Length, "Torizo component count");
             for (int i = 0; i < components.Length; i++)
             {
-                int address = 0xaa0000 | (frame + 2 + i * 8);
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(address)), components[i].Offset.X, "Torizo physical X");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((address + 2))), components[i].Offset.Y, "Torizo physical Y");
-                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((address + 6)), components[i].HitboxList, "Torizo hitbox identity");
+                int address = bank | (frame + 2 + i * 8);
+                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address)), components[i].Offset.X, "Torizo physical X");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address + 2)), components[i].Offset.Y, "Torizo physical Y");
+                int list = bank | rom.ReadCartridgeWordFixedBank(address + 6);
+                TorizoHitboxList hitboxes = components[i].Hitboxes;
+                AssertNativeTorizoHitboxList(rom, list, hitboxes, $"Torizo frame {frame:X4} component {i}");
+                if (seenLists.TryGetValue(list, out TorizoHitboxList? shared))
+                    AssertTrue(ReferenceEquals(shared, hitboxes),
+                        $"Torizo frame {frame:X4} component {i} shares the list every component naming {list:X6} holds");
+                else
+                    seenLists.Add(list, hitboxes);
             }
         }
-        foreach (ushort pointer in TorizoCollisionDefinitions.HitboxPointers)
+
+        // The cartridge lays each left-facing list's right-facing counterpart a fixed distance after it, except the
+        // shared empty list, which both facings name directly. The compiled pairing must be exactly the ROM's.
+        const int RightFacingListDistanceBytes = 350;
+        ushort right = TorizoCollisionDefinitions.RightStart;
+        for (int index = 0; index < TorizoCollisionDefinitions.MirroredCount; index++)
         {
-            ReadOnlySpan<GoldenTorizoCollisionHitbox> boxes = TorizoCollisionDefinitions.HitboxesAt(pointer);
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | pointer)), boxes.Length, "Torizo rectangle count");
-            for (int i = 0; i < boxes.Length; i++)
+            ushort left = TorizoCollisionDefinitions.FramePointers
+                .Skip(2).ElementAt(index);
+            GoldenTorizoCollisionComponent[] leftComponents = TorizoCollisionDefinitions.LeftFacing(index);
+            for (int i = 0; i < leftComponents.Length; i++)
             {
-                int address = 0xaa0000 | (pointer + 2 + i * 12);
-                var box = boxes[i];
-                ushort[] words = [unchecked((ushort)box.Left), unchecked((ushort)box.Top),
-                    unchecked((ushort)box.Right), unchecked((ushort)box.Bottom), box.TouchAi, box.ShotAi];
-                for (int w = 0; w < words.Length; w++)
-                    AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((address + w * 2)), words[w], "Torizo rectangle/callback word");
+                int leftList = bank | rom.ReadCartridgeWordFixedBank(bank | (left + 2 + i * 8 + 6));
+                int rightList = bank | rom.ReadCartridgeWordFixedBank(bank | (right + 2 + i * 8 + 6));
+                AssertTrue(rightList == leftList || rightList == leftList + RightFacingListDistanceBytes,
+                    $"Torizo right-facing frame {right:X4} component {i} names its left list's counterpart");
+                AssertTrue(ReferenceEquals(seenLists[rightList], leftComponents[i].Hitboxes.RightFacing),
+                    $"Torizo left-facing frame {left:X4} component {i} pairs with the right-facing list the ROM names");
             }
+            right = TorizoCollisionDefinitions.Next(right, leftComponents.Length);
+        }
+    }
+
+    /// <summary>Checks one compiled Torizo hitbox list against the ROM list at <paramref name="list"/>.</summary>
+    private static void AssertNativeTorizoHitboxList(IImportCartridgeSource rom, int list, TorizoHitboxList actual, string context)
+    {
+        IReadOnlyList<GoldenTorizoCollisionHitbox> boxes = actual.Rectangles;
+        AssertEqual(rom.ReadCartridgeWordFixedBank(list), boxes.Count, $"{context} rectangle count");
+        for (int i = 0; i < boxes.Count; i++)
+        {
+            int address = list + 2 + i * 12;
+            GoldenTorizoCollisionHitbox box = boxes[i];
+            AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address)), box.Left, $"{context} rectangle {i} left");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address + 2)), box.Top, $"{context} rectangle {i} top");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address + 4)), box.Right, $"{context} rectangle {i} right");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address + 6)), box.Bottom, $"{context} rectangle {i} bottom");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(address + 8), TorizoHitboxCallbackCodec.ToCallbackWord(box.Touch),
+                $"{context} rectangle {i} touch reaction");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(address + 10), TorizoHitboxCallbackCodec.ToCallbackWord(box.Shot),
+                $"{context} rectangle {i} shot reaction");
         }
     }
 
@@ -112,7 +154,7 @@ internal static class EnemyDefinitionBoundaryVerification
             { (0xe226, 13), (0xe240, 6), (0xe24c, 3), (0xe252, 3), (0xe258, 5) })
             for (int i = 0; i < count; i++)
                 AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 2))),
-                    DeadMonsterRottingDefinitions.RotationOffset(pointer, (ushort)(i * 8)), "corpse rotation offset");
+                    DeadMonsterRottingDefinitionsConstants.RotationOffset(pointer, (ushort)(i * 8)), "corpse rotation offset");
         foreach (ushort pointer in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
         {
             var records = DeadMonsterRottingDefinitions.ForTransferTable(pointer);
@@ -129,7 +171,8 @@ internal static class EnemyDefinitionBoundaryVerification
         AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa9d77c), boxes.Length, "dead Torizo asymmetric rectangle count");
         for (int i = 0; i < boxes.Length; i++)
         {
-            ushort[] words = [boxes[i].Left, boxes[i].Top, boxes[i].Right, boxes[i].Bottom];
+            ushort[] words = [unchecked((ushort)boxes[i].Left), unchecked((ushort)boxes[i].Top),
+                unchecked((ushort)boxes[i].Right), unchecked((ushort)boxes[i].Bottom)];
             for (int w = 0; w < words.Length; w++)
                 AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d77e + i * 8 + w * 2)), words[w], "dead Torizo asymmetric word");
         }
@@ -148,10 +191,10 @@ internal static class EnemyDefinitionBoundaryVerification
         {
             var frame = new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, index);
             CrocomireBodyProgram expected = CrocomireBodyProgram.PowerBombReactionMouthNotOpen;
-            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | frame.Spritemap));
+            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | CrocomireBodyFrameSpritemapsTooling.Spritemap(frame)));
             for (int i = 0; i < count; i++)
             {
-                ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (frame.Spritemap + 6 + i * 8)));
+                ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (CrocomireBodyFrameSpritemapsTooling.Spritemap(frame) + 6 + i * 8)));
                 if (sprite == 0xd600) { expected = CrocomireBodyProgram.PowerBombReactionMouthFullyOpen; break; }
                 if (sprite == 0xd51c) { expected = CrocomireBodyProgram.PowerBombReactionMouthPartiallyOpen; break; }
             }

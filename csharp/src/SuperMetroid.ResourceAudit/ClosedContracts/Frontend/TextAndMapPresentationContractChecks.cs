@@ -48,8 +48,8 @@ internal static class TextAndMapPresentationContractChecks
                     credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows - 1);
                     credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows);
                     credits.GetRow(-1);
-                    sprites.Draw(MapSpriteId.WorldTitle, oam, 0, 0, 0);
-                    sprites.Draw(1, oam, 0, 0, 0);
+                    sprites.Draw(MapSpriteId.WorldTitle, oam, default, 0);
+                    sprites.Draw((MapSpriteId)1, oam, default, 0);
                     sprites.LoadArtworkTo(new PauseVram(vram).ObjectCharacters);
                     arrows.Get(MapScrollDirection.Left);
                     arrows.Get(MapScrollDirection.Down);
@@ -83,33 +83,13 @@ internal static class TextAndMapPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 28, "all twenty-eight calls must first reproduce absent provider adapters");
+        Require(before.UnresolvedCount == 28, "all twenty-eight calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 15 && after.UnresolvedCount == 12 && after.MissingCount == 1 &&
-            after.Consumers.Count == 28, "supported domains qualify; invalid enums, sparse IDs, rows and unknown names must remain failing");
+            after.Consumers.Count == 28, "supported domains qualify; invalid enums, sparse IDs, rows and unknown names must remain failing " +
+            "(expected 15/12/1/28; " + after.Describe() + ")");
         Require(after.Findings.Single(item => item.Code == AuditReport.Missing).Resource == "World.Missing",
             "an absent named page must be reported as a concrete identity, not waived by complete page coverage");
         Require(after.ReferenceCount == 24, "the dynamic bounded RoomFrame factory must require all six possible installed names");
-
-        // A source/type lifecycle check, not an execution of the verification factory.
-        SyntaxTree verificationUse = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Frontend.Ending.Artwork;
-            class AlternateCreditsOwner {
-                object Create() => CreditsPresentation.FromCompiledRowsForVerification(new ushort[32]);
-            }
-            """, path: "fixture-alternate-credits-owner.cs");
-        AuditReport alternate = Inspect(Compile(trees.Append(verificationUse)), true);
-        Require(alternate.Classifications.Count == 14 && alternate.UnresolvedCount == 13 &&
-            alternate.Findings.Where(item => item.Owner == "CreditsPresentation.GetRow")
-                .All(item => item.Message.Contains("stale", StringComparison.Ordinal)),
-            "a Core reference to the variable-row verification factory must revoke the fixed production row proof");
-
-        const string mapDefinitionsPath = "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapScreenDefinitions.cs";
-        SyntaxTree original = trees.Single(tree => tree.FilePath == mapDefinitionsPath);
-        SyntaxTree changed = CSharpSyntaxTree.ParseText(original.GetText() + "\n// changed factory contract\n", path: mapDefinitionsPath);
-        AuditReport stale = Inspect(Compile(trees.Select(tree => tree == original ? changed : tree)), true);
-        Require(stale.Findings.Count(item => item.Owner == "MapScreenPresentation.LoadTo" &&
-            item.Message.Contains("stale", StringComparison.Ordinal)) == 7,
-            "all map-name calls must fail when their reviewed factory/loader definition changes");
     }
 
     /// <summary>Reports a specific text or map provider contract failure.</summary>

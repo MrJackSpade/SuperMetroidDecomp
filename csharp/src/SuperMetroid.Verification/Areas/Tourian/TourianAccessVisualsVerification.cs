@@ -178,11 +178,11 @@ internal static class TourianAccessVisualsVerification
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         // The edited bottom clear row must be inside the camera to assert its
         // immediate VRAM update; the physical level mutation is world-relative.
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 12 * 16), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 12 * 16), Bg1XOffset = 0 });
         AssertEqual(clear ? (ushort)0x00ff : (ushort)0x0053,
-            level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Tourian {(clear ? "clear" : "crumble")} edited art retains native physical word");
-        ushort blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
+        int blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == blockDestination && update.TopRow[0] == 0x0058),
             $"Tourian {(clear ? "clear" : "crumble")} edited block reaches immediate redraw");

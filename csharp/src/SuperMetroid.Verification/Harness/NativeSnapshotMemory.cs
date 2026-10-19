@@ -258,8 +258,6 @@ internal static class NativeSnapshotMemory
     /// <summary>$0A56: Samus BombJumpDirection native movement state.</summary>
     public const int BombJumpDirection = 0x0a56;
 
-    /// <summary>$84:84E6: RTS installed as the default PLM pre-instruction.</summary>
-    public const ushort PlmDefaultPreInstruction = 0x84e6;
     /// <summary>$84:BE4B: grey-door condition pre-instruction dispatch table.</summary>
     public const int GreyDoorConditionTable = 0x84be4b;
     /// <summary>Bank $84 contains PLM programs and callback identities.</summary>
@@ -353,7 +351,7 @@ internal static class NativeSnapshotMemory
     /// <summary>$1ADB: enemy projectile YVelocity, word-strided per slot.</summary>
     public const int EnemyProjectileYVelocity = 0x1adb;
     /// <summary>$1B47: enemy projectile Instruction, word-strided per slot.</summary>
-    public const int EnemyProjectileInstruction = 0x1b47;
+    public const int NativeEnemyProjectileInstruction = 0x1b47;
     /// <summary>$1B6B: enemy projectile Spritemap, word-strided per slot.</summary>
     public const int EnemyProjectileSpritemap = 0x1b6b;
     /// <summary>$1B8F: enemy projectile InstructionTimer, word-strided per slot.</summary>
@@ -582,10 +580,6 @@ internal static class NativeSnapshotMemory
     public const int PlmHeaders = 0x1c37;
     /// <summary>$0998: game_state, imported from the original movie.</summary>
     public const int GameState = 0x998;
-    /// <summary>$8F:B37A: room containing the movie's initial snapshot.</summary>
-    public const ushort SourceRoom = 0xb37a;
-    /// <summary>$8F:B32E: Ridley's room, entered in the supplied movie.</summary>
-    public const ushort RidleyRoom = 0xb32e;
     /// <summary>$80:9459: ReadControllerInput, accepted-NMI input checkpoint.</summary>
     public const int ReadControllerInput = 0x809459;
     /// <summary>$B3:8A25: strong pipe-bug visual cursor in native update 157.</summary>

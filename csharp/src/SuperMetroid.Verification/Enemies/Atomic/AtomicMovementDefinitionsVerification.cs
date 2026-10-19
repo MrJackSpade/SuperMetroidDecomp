@@ -33,10 +33,10 @@ internal static class AtomicMovementDefinitionsVerification
         Suite(nameof(VerifyAtomicInitialProgramSelection), () => VerifyAtomicInitialProgramSelection(rom));
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewAtomicInstructionReadGuard(new TestAddressSpace()));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Atomic;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = AtomicFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Atomic, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = AtomicFrameToolingDefinitions.Bank });
 
         for (ushort selector = 0; selector < 4; selector++)
         {
@@ -51,14 +51,12 @@ internal static class AtomicMovementDefinitionsVerification
             ushort speedOffset = (ushort)(slot.Parameter2 * 8);
             (short positiveWhole, ushort positiveFraction) = EnemyLinearSpeedDefinitions.Read(speedOffset);
             (short negativeWhole, ushort negativeFraction) = EnemyLinearSpeedDefinitions.Read((ushort)(speedOffset + 4));
-            AssertEqual(unchecked((ushort)positiveWhole), state.SpeedWhole, $"Atomic positive whole speed {selector}");
-            AssertEqual(positiveFraction, state.SpeedFraction, $"Atomic positive fractional speed {selector}");
-            AssertEqual(unchecked((ushort)negativeWhole), state.NegativeSpeedWhole, $"Atomic negative whole speed {selector}");
-            AssertEqual(negativeFraction, state.NegativeSpeedFraction, $"Atomic negative fractional speed {selector}");
+            AssertEqual(SnesSignedSixteenSixteen.FromParts(positiveWhole, positiveFraction), state.Speed, $"Atomic positive speed {selector}");
+            AssertEqual(SnesSignedSixteenSixteen.FromParts(negativeWhole, negativeFraction), state.NegativeSpeed, $"Atomic negative speed {selector}");
 
             slot.InstructionTimer = NativeCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Programs, program, AtomicFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Programs, program)),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Programs, program, AtomicFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Programs, program)),
                 $"Atomic spinning loop {selector}");
         }
 
@@ -67,10 +65,6 @@ internal static class AtomicMovementDefinitionsVerification
             "spinning loops pass with the selector table forbidden.");
     }
 
-    /// <summary>Rejects initializer reads from the migrated four-entry direction table.</summary>
-    private static CartridgeReadGuard NewAtomicInstructionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa8e380 and < 0xa8e388,
-            address => $"Atomic initializer attempted migrated instruction read ${address:X6}.");
 
     /// <summary>Runs the retail-backed Atomic movement checks and program oracle.</summary>
     [VerificationCommand("--atomic-instruction-mechanics")]

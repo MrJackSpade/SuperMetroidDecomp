@@ -40,8 +40,7 @@ internal static class GrappleTileArtworkVerification
             .Forbid(address => GrappleTileDefinitions.Transfers.Any(transfer =>
                     address >= transfer.SourceAddress && address < transfer.SourceAddress + transfer.ByteCount),
                 _ => "Grapple still reads tile pixel ROM.");
-        AssertThrows<InvalidOperationException>(() => SamusGrappleMovement.DrawConnectedBeam(guard,
-                new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = NativeCountdown.Start(5) },
+        AssertThrows<InvalidOperationException>(() => SamusGrappleMovement.DrawConnectedBeam(new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = NativeCountdown.Start(5) },
                 new SpriteFrameBuffer(), new(0, 0)),
             "The grapple beam fails loudly without installed grapple artwork");
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
@@ -56,9 +55,9 @@ internal static class GrappleTileArtworkVerification
         foreach (ushort timer in new ushort[] { 0, 1, 5, 65535 })
         {
             SamusGrappleState native = Seed(), selected = Seed(), changed = Seed();
-            OamBuffer oa = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleMovement.DrawConnectedBeam(bus, native, sprites, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects));
-            OamBuffer ob = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleMovement.DrawConnectedBeam(guard, selected, sprites, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects));
-            OamBuffer oc = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleMovement.DrawConnectedBeam(guard, changed, sprites, new(0, 0), edited, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+            OamBuffer oa = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleMovement.DrawConnectedBeam(native, sprites, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+            OamBuffer ob = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleMovement.DrawConnectedBeam(selected, sprites, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+            OamBuffer oc = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleMovement.DrawConnectedBeam(changed, sprites, new(0, 0), edited, standardObjects: SpriteFrameTestArtwork.StandardObjects));
             AssertTrue(oa.ImageEquals(ob) && oa.ImageEquals(oc), "Grapple PNG edits do not change rope OBJ placement or composition");
             AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(selected)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Grapple PNG edits preserve entire rope/animation simulation state");
             // The binding holds the endpoint frame's character, then the angle sector's four rope characters, exactly

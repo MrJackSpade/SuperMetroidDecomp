@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
@@ -6,12 +7,19 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The Etecoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class EtecoonBehavior : IEnemySpecies
+internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Etecoon];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new EtecoonEntity(this, slot, common);
+
     /// <summary>Probes the floor, walls, and ceiling throughout the teaching route.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Pauses instruction timing while a room earthquake is active.</summary>
@@ -68,24 +76,30 @@ internal sealed class EtecoonBehavior : IEnemySpecies
     /// <summary>Fractional X speed paired with leftward runs.</summary>
     private const ushort EtecoonLeftSubvelocity = 0;
 
-    /// <summary>Per-slot route function, velocity, and timer state cleared on room load.</summary>
-    internal readonly EtecoonEnemyState?[] _etecoonStates =
-        new EtecoonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Library-two sound queued when an Etecoon wakes near Samus.</summary>
+    private static readonly SoundEffectId EtecoonWakeSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EtecoonWakeSound);
+    /// <summary>Library-two sound queued at an audible teaching hop.</summary>
+    private static readonly SoundEffectId EtecoonJumpSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EtecoonJumpSound);
+    /// <summary>Library-two sound queued when an airborne Etecoon meets a wall.</summary>
+    private static readonly SoundEffectId EtecoonWallSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EtecoonWallSound);
 
     /// <summary>Most recent library-two Etecoon sound request during this frame.</summary>
-    public ushort? LastEtecoonSoundEffect { get; private set; }
+    public SoundEffectId? LastEtecoonSoundEffect { get; private set; }
 
     /// <summary>Ports <c>Etecoon_Init</c> at <c>$A7:E912</c>.</summary>
-    internal void InitializeEtecoon(RoomEnemySlot slot)
+    internal static void InitializeEtecoon(RoomEnemySlot slot)
     {
-        var state = new EtecoonEnemyState(slot);
-        _etecoonStates[slot.SlotIndex] = state;
+        var state = new EtecoonEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Native ORs property $2000 (`DisableSamusColl`). The host scheduler also uses the
         // same raw bit to admit the ROM instruction interpreter, so retain the authored
         // bit instead of inferring animation activity from the population record.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Initial);
@@ -177,7 +191,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Etecoon function $A7:{(ushort)state.Function:X4} is not translated.");
+                    $"Etecoon function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -206,7 +220,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             return;
 
         if ((slot.Parameter2 & 3) == 0)
-            LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonWakeSound;
+            LastEtecoonSoundEffect = EtecoonWakeSound;
         InstallEtecoonInstruction(slot, state, EtecoonProgram.Flexing);
         state.FunctionTimer = NativeCountdown.Start(256);
     }
@@ -225,7 +239,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = EtecoonAiFunction.InitialJump;
         if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-            LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonJumpSound;
+            LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
     /// <summary>Finishes the initial hop and either faces nearby Samus or schedules another hop.</summary>
@@ -351,7 +365,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             state.Function = EtecoonAiFunction.WallPause;
             state.FunctionTimer = NativeCountdown.Start(8);
             if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-                LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonWallSound;
+                LastEtecoonSoundEffect = EtecoonWallSound;
             return;
         }
 
@@ -577,7 +591,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
         slot.InstructionTimer = NativeCountdown.Start(1);
         if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-            LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonJumpSound;
+            LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
     /// <summary>Starts the long run when Samus approaches; otherwise schedules another teaching hop.</summary>
@@ -602,7 +616,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
             state.Function = EtecoonAiFunction.TeachingJump;
             if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-                LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonJumpSound;
+                LastEtecoonSoundEffect = EtecoonJumpSound;
         }
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
@@ -679,8 +693,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies
     /// <summary>Adds a signed 16.16 whole/fraction increment to the Etecoon's vertical speed.</summary>
     private static void AddEtecoonFixed(
         EtecoonEnemyState state,
-        ushort wholeIncrement,
-        ushort fractionIncrement)
+        int wholeIncrement,
+        int fractionIncrement)
     {
         SnesSignedSixteenSixteen increment =
             SnesSignedSixteenSixteen.FromParts(unchecked((short)wholeIncrement), fractionIncrement);
@@ -754,47 +768,37 @@ internal sealed class EtecoonBehavior : IEnemySpecies
     }
 
     /// <summary>Finds initialized state for a live Etecoon or rejects an unrelated slot callback.</summary>
-    private EtecoonEnemyState RequireEtecoonState(RoomEnemySlot slot) =>
-        _etecoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static EtecoonEnemyState RequireEtecoonState(RoomEnemySlot slot) =>
+        slot.SpeciesState<EtecoonEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Etecoon state.");
 
-    /// <summary>Runs the Etecoon's animations as typed programs (#641).</summary>
-    internal void RegisterEtecoonTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireEtecoonState(slot);
-            AnimationProgramCursor<EtecoonProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, EtecoonAnimations.Programs, ref cursor, EtecoonFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Registers the bank-$A7 Etecoon initializer for its enemy definition.</summary>
-    internal void RegisterEtecoonInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Etecoon's typed animation.</summary>
+    internal static void AdvanceEtecoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Etecoon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeEtecoon(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireEtecoonState(slot);
+        AnimationProgramCursor<EtecoonProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, EtecoonAnimations.Programs, ref cursor, EtecoonFrameDefinitions.ShownFrames.Of);
+        state.Program = cursor;
     }
 
-    /// <summary>Registers the Etecoon function dispatcher under its native main AI identity.</summary>
-    internal void RegisterEtecoonMainAi(EnemyAiTable table)
+    /// <summary>Ports Etecoon's initialization AI.</summary>
+    internal static void RunEtecoonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeEtecoon(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Etecoon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunEtecoonMain(slot, RequireEtecoonState(slot), frame.Samus, frame.Level);
-        });
+    /// <summary>Ports Etecoon's main AI.</summary>
+    internal void RunEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunEtecoonMain(slot, RequireEtecoonState(slot), frame.Samus, frame.Level);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastEtecoonSoundEffect = null;
-        Array.Clear(_etecoonStates);
     }
 
     /// <inheritdoc/>
@@ -806,7 +810,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastEtecoonSoundEffect, library: SoundEffectLibrary.Library2,
-            maximumQueued: LastEtecoonSoundEffect == EnemySoundEffectDefinitions.EtecoonWakeSound ? (byte)15 : (byte)6);
+        if (LastEtecoonSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: sound == EtecoonWakeSound ? (byte)15 : (byte)6);
     }
 }

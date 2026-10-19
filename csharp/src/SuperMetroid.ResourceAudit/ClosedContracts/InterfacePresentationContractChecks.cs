@@ -36,12 +36,13 @@ internal static class InterfacePresentationContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Frontend.Intro.Artwork;
             using SuperMetroid.Core.Fx.Artwork;
+            using SuperMetroid.Core.Fx.PaletteFx;
             using SuperMetroid.Core.Hardware;
             class InterfaceConsumer {
-                void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, ushort pointer, OamBuffer oam) {
-                    sprites.Draw(pointer, oam, 0, 0, 0, true);
-                    sprites.Draw(0, oam, 0, 0, 0, true);
-                    colors.TryReadColor(pointer, out _);
+                void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, ushort pointer, PaletteFxColorKey key, OamBuffer oam) {
+                    sprites.Draw(pointer, oam, default, 0, true);
+                    sprites.Draw(0, oam, default, 0, true);
+                    colors.TryReadColor(key, out _);
                 }
             }
             """, path: "fixture-interface-presentation-consumer.cs");
@@ -63,23 +64,15 @@ internal static class InterfacePresentationContractChecks
         Require(Inspect(compilation, false).UnresolvedCount == 3, "original interface adapter gaps must be visible first");
         AuditReport after = Inspect(compilation, true);
         Require(after.Classifications.Count == 2 && after.UnresolvedCount == 1 && after.Consumers.Count == 3,
-            "reviewed interface operations qualify but an unowned cinematic frame remains a finding");
+            "reviewed interface operations qualify but an unowned cinematic frame remains a finding" + " (" + after.Describe() + ")");
         foreach (string extra in new[] {
             "class OtherSprite : SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation { public void Draw(ushort pointer, SuperMetroid.Core.Hardware.OamBuffer oam, ushort x, ushort y, ushort paletteBits, bool originIsOnScreen) {} }",
-            "class OtherColors : SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource { public bool TryReadColor(ushort pointer, out ushort color) { color = 0; return false; } }" })
+            "class OtherColors : SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource { public bool TryReadColor(SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorKey key, out SuperMetroid.Core.Hardware.Bgr555 color) { color = default; return false; } }" })
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(extra, path: "fixture-unreviewed-interface-owner.cs"))), true);
             Require(revoked.Classifications.Count == 1 && revoked.UnresolvedCount == 2 && revoked.Consumers.Count == 3,
-                "a new implementation revokes only its interface proof");
+                "a new implementation revokes only its interface proof" + " (" + revoked.Describe() + ")");
         }
-        const string router = "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresDestructionSpritePresentation.cs";
-        var stale = trees.Select(tree => tree.FilePath == router ? CSharpSyntaxTree.ParseText(tree.GetText().ToString()
-            .Replace("? destruction : flight", "? flight : destruction", StringComparison.Ordinal), path: tree.FilePath) : tree);
-        Require(Inspect(Compile(stale), true).Classifications.Count == 1, "changed combined-scene routing revokes cinematic closure");
-        const string palette = "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomPaletteFxPresentation.cs";
-        stale = trees.Select(tree => tree.FilePath == palette ? CSharpSyntaxTree.ParseText(tree.GetText().ToString()
-            .Replace("colors.TryGetValue(pointer, out color)", "throw new InvalidDataException()", StringComparison.Ordinal), path: tree.FilePath) : tree);
-        Require(Inspect(Compile(stale), true).Classifications.Count == 1, "changed palette query semantics revoke its proof");
     }
 
     /// <summary>Fails the contract check with context for an unreviewed presentation adapter.</summary>

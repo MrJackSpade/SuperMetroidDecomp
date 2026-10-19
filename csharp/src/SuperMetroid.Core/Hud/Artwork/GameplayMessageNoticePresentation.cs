@@ -178,13 +178,13 @@ public sealed class GameplayMessageNoticePresentation
             }
 
             compiled.Add(id, new(rowCount,
-                value.Template.Select(static cell => cell.Raw).ToArray(),
+                value.Template.Select(static cell => cell.Word.Raw).ToArray(),
                 text.ToArray(),
-                value.YesSelection?.Select(static cell => cell.Raw).ToArray(),
-                value.NoSelection?.Select(static cell => cell.Raw).ToArray()));
+                value.YesSelection?.Select(static cell => cell.Word.Raw).ToArray(),
+                value.NoSelection?.Select(static cell => cell.Word.Raw).ToArray()));
         }
 
-        return new(compiled, document.Border.Select(static cell => cell.Raw).ToArray(),
+        return new(compiled, document.Border.Select(static cell => cell.Word.Raw).ToArray(),
             Convert.ToHexString(SHA256.HashData(source)));
     }
 

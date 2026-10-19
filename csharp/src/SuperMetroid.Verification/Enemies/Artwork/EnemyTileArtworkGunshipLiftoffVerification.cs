@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
@@ -46,7 +47,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
                     $"gunship frame {index} byte {offset} matches cartridge art");
         }
 
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.Enemies.TileArtwork = stock;
         VramWriteQueue stockQueue = QueueAllTakeoffFrames(stock);
         var nativeQueue = new VramWriteQueue();
@@ -56,14 +57,14 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             AssertEqual(transfer.Asset, stockQueue.Entries[index].AssetId,
                 $"takeoff frame {index} is a typed installed upload");
             AssertEqual(transfer.DestinationWord,
-                stockQueue.Entries[index].EncodedVramDestination,
+                stockQueue.Entries[index].Destination.Encoded,
                 $"takeoff frame {index} keeps the compiled VRAM target");
             nativeQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
                 transfer.SourceAddress, VramDmaDestination.FromNative(transfer.DestinationWord));
         }
         var installedVram = new SnesVram();
         var nativeVram = new SnesVram();
-        stockQueue.DrainTo(installedVram, ReferenceMutableMemory.From(bus), runtime.Artwork);
+        stockQueue.DrainTo(installedVram, runtime.Artwork);
         ImportedVramOracle.Drain(nativeQueue, nativeVram, bus);
         AssertTrue(installedVram.ImageEquals(nativeVram),
             "all five installed takeoff uploads match the native VRAM image");
@@ -86,7 +87,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         runtime.Enemies.TileArtwork = edited;
         VramWriteQueue pending = QueueAllTakeoffFrames(stock);
         var editedVram = new SnesVram();
-        pending.DrainTo(editedVram, ReferenceMutableMemory.From(bus), runtime.Artwork);
+        pending.DrainTo(editedVram, runtime.Artwork);
         int firstDestinationByte = transfers[0].DestinationWord * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestinationByte) ^ 0x80),
             editedVram.ReadByte(firstDestinationByte),
@@ -100,7 +101,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         legacyQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
             transfers[0].SourceAddress, VramDmaDestination.FromNative(transfers[0].DestinationWord));
         var legacyVram = new SnesVram();
-        legacyQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(bus), runtime.Artwork);
+        legacyQueue.DrainTo(legacyVram, runtime.Artwork);
         AssertEqual(editedVram.ReadByte(firstDestinationByte),
             legacyVram.ReadByte(firstDestinationByte),
             "older pending cartridge-source takeoff upload rebinds to current art");
@@ -123,6 +124,8 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         {
             var enemies = new RoomEnemySystem { TileArtwork = art };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
+            var part = new GunshipPartState();
+            top.SetSpeciesState(part, part.ClearWithRecord);
             var queue = new VramWriteQueue();
             for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
                 enemies.GunshipBehavior.QueueGunshipTakeoffTiles(top, queue);

@@ -1,7 +1,10 @@
 using static SuperMetroid.Core.Map.MapTileWordMasks;
 namespace SuperMetroid.Core.Map;
 
-/// <summary>A lossless view over one cartridge map tilemap word.</summary>
+/// <summary>
+/// The codec of one area-map cell word: the single type that reads and writes a map cell's character, palette,
+/// priority and flip fields and applies the map's explored-palette and HUD attribute operations to them.
+/// </summary>
 /// <remarks>
 /// Map cells use the ordinary SNES BG tile layout, but bank <c>$82</c> gives one palette
 /// bit additional gameplay meaning: clearing bit <c>$0400</c> changes a discovered cell
@@ -10,6 +13,7 @@ namespace SuperMetroid.Core.Map;
 /// character, priority, and flip bit supplied by the cartridge.
 /// </remarks>
 /// <param name="Raw">Unmodified 16-bit BG word: ten character bits, three palette bits, priority at bit 13, and horizontal/vertical flips at bits 14/15.</param>
+[SnesEncodingOwner]
 public readonly record struct MapTileWord(ushort Raw)
 {
 

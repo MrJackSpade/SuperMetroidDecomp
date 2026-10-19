@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.ScenarioFixtures;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Development commands for exporting and tracing the reproduced
 /// shutter bomb arc against native WRAM and trajectory evidence.</summary>
@@ -17,7 +18,7 @@ internal static class ShutterNativeArc
     internal static int ExportShutterBombArc()
     {
         var bus = RepositoryRom.Load();
-        var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus);
+        var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
         var arc = new List<string>();
         string directory = ShutterBombArcScenario.FixtureDirectory;
         using var bombInputs = new BinaryWriter(File.Create(Path.Combine(directory, "bomb-arc.projectiles")));
@@ -46,14 +47,14 @@ internal static class ShutterNativeArc
     internal static int TraceShutterBombArc()
     {
         var bus = RepositoryRom.Load();
-        var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus);
+        var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
         var shutter = scenario.Runtime.Enemies.VerticalShutterStates[0];
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
         {
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
                 Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)scenario.Samus.Pose:X2} " +
-                    $"shutter={(ushort)(shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function:X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
+                    $"shutter={(ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function ?? throw new InvalidOperationException("The live shutter has no function.")):X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
                     $"rev={shutter.ReactionDirection:X4} act={(shutter.ShotActivated ? 1 : 0):X4}");
         }
         return 0;
@@ -73,7 +74,7 @@ internal static class ShutterNativeArc
         foreach (int rollAt in new[] { 30, 45, 60, 75, 90, 105, 120, 150 })
         foreach (int duration in new[] { 4, 8, 16 })
         {
-            var scenario = ShutterBombArcScenario.Create(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus, slotIndex, approach, interval, rollAt, duration);
+            var scenario = ShutterBombArcScenario.Create(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true), slotIndex, approach, interval, rollAt, duration);
             var samus = scenario.Samus;
             var platform = scenario.Platform;
             for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
@@ -109,8 +110,8 @@ internal static class ShutterNativeArc
         for (int i = 0; i < level.Size.X * level.Size.Y; i++)
         {
             var block = level.GetCollisionBlockByIndex(i);
-            Word(0x10002 + i * 2, block.LevelWord);
-            ram[0x16402 + i] = block.Behavior;
+            Word(0x10002 + i * 2, block.PackedWord.Raw);
+            ram[0x16402 + i] = checked((byte)block.Bts.Value);
         }
         Word(0xAF6, k.Position.X.Whole); Word(0xAF8, k.Position.X.Fraction);
         Word(0xAFA, k.Position.Y.Whole); Word(0xAFC, k.Position.Y.Fraction);
@@ -125,7 +126,7 @@ internal static class ShutterNativeArc
         Word(0xB42, speed.ExtraRunSpeed); Word(0xB44, speed.ExtraRunSubspeed);
         Word(0xB46, speed.BaseSpeed); Word(0xB48, speed.BaseSubspeed); Word(0xB4A, speed.AccelerationMode);
         Word(0x195E, 0xFFFF); Word(0x1962, 0xFFFF);
-        Word(0x5B6, runtime.Nmi.NmiFrameCounter);
+        Word(0x5B6, runtime.Clock.Counter);
         // Retain both solid platforms, even though only slot zero is moving here.
         Word(0x17A6, 4); Word(0x17EC, 0); Word(0x17EE, 64); Word(0x17F0, 0xFFFF);
         for (int i = 0; i < 2; i++)
@@ -133,20 +134,20 @@ internal static class ShutterNativeArc
             int offset = i * 64;
             var slot = runtime.Enemies.SlotTable.Slots[i];
             Word(0xF78 + offset, (ushort)slot.EnemyDefinitionPointer);
-            Word(0xF8E + offset, slot.SpritemapPointer);
+            Word(0xF8E + offset, EnemyFrames.Spritemap(slot.Frame));
             ram[0xFA6 + offset] = slot.Definition.Bank;
             Word(0xF7A + offset, slot.Position.X.Whole); Word(0xF7E + offset, slot.Position.Y.Whole);
             Word(0xF80 + offset, slot.Position.Y.Fraction); Word(0xF82 + offset, slot.Radius.X);
             Word(0xF84 + offset, slot.Radius.Y); Word(0xF86 + offset, 0x8000);
         }
         var shutter = runtime.Enemies.VerticalShutterStates[0];
-        Word(0xFA8, (ushort)(shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function);
-        Word(0xFB0, shutter.UpSubvelocity); Word(0xFB2, unchecked((ushort)shutter.UpVelocity));
-        Word(0xFAC, shutter.DownSubvelocity); Word(0xFAE, unchecked((ushort)shutter.DownVelocity));
+        Word(0xFA8, (ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function ?? throw new InvalidOperationException("The live shutter has no function.")));
+        Word(0xFB0, shutter.UpVelocity.Fraction); Word(0xFB2, shutter.UpVelocity.WholeWord);
+        Word(0xFAC, shutter.DownVelocity.Fraction); Word(0xFAE, shutter.DownVelocity.WholeWord);
         Word(0x780E, shutter.InitialFunctionTableOffset); Word(0x7818, shutter.ShotActivated ? 1 : 0);
-        Word(0x7812, shutter.MovedDownRestTime); Word(0x7820, shutter.MaximumYPosition);
+        Word(0x7812, shutter.MovedDownRestTime); Word(0x7820, shutter.LowerEndpoint.Y);
         Word(0x8000, shutter.ReactionDirection);
-        Word(0x781E, shutter.MinimumYPosition); Word(0x7810, shutter.MovedUpRestTime);
+        Word(0x781E, shutter.UpperEndpoint.Y); Word(0x7810, shutter.MovedUpRestTime);
         File.WriteAllBytes(path, ram);
 
         void Word(int address, int value) => BinaryPrimitives.WriteUInt16LittleEndian(ram.AsSpan(address, 2), unchecked((ushort)value));

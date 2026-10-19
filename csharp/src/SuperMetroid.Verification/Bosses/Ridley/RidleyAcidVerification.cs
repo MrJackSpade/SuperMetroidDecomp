@@ -9,6 +9,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Norfair Ridley's shared FX acid rise and death drain through room rendering.</summary>
 internal static class RidleyAcidVerification
@@ -17,14 +18,14 @@ internal static class RidleyAcidVerification
     internal static void VerifyRidleyAcid()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xb32e);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
         var fx = runtime.RoomLayer3Fx;
         AssertEqual(RoomFxType.Acid, fx.Type, "final Ridley room authors acid, not lava");
-        AssertEqual((ushort)528, fx.BaseYPosition, "acid starts below the arena");
+        AssertEqual((ushort)528, fx.BaseY.Whole, "acid starts below the arena");
         var state = runtime.Enemies.RidleyEncounter.Ridley;
         // The shared Ridley state has no Ceres Baby program in Norfair. The
         // global actor-draw seam must not invoke Ceres's private graphics hook.
@@ -47,20 +48,20 @@ internal static class RidleyAcidVerification
         state.FadePaletteOffset = 0;
         for (int frame = 0; frame < 200 && state.Function == RidleyAiFunction.WaitBeforeLiftoff; frame++)
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, SharedProjectiles = runtime.BombProjectiles });
-        AssertEqual((ushort)440, fx.TargetYPosition, "native reveal writes acid rise target to shared FX");
-        AssertEqual(unchecked((ushort)-96), fx.PackedYVelocity, "native reveal writes rising velocity");
+        AssertEqual((ushort)440, fx.TargetSurface.Y, "native reveal writes acid rise target to shared FX");
+        AssertEqual(unchecked((ushort)-96), fx.YVelocity.RawValue, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.Timer.RawValue, "native reveal writes rise delay once");
-        for (int frame = 0; frame < 400; frame++) fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, MainGameLoopCarry = true });
-        AssertEqual((ushort)440, fx.BaseYPosition, "acid reaches native visible battle height");
+        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, MainGameLoopCarry = true });
+        AssertEqual((ushort)440, fx.BaseY.Whole, "acid reaches native visible battle height");
         AssertAcidVisible(true);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
         state.FunctionTimer = NativeCountdown.Start(0);
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, SharedProjectiles = runtime.BombProjectiles });
-        AssertEqual((ushort)528, fx.TargetYPosition, "native death roar writes acid drain target");
-        AssertEqual((ushort)64, fx.PackedYVelocity, "native death writes draining velocity");
+        AssertEqual((ushort)528, fx.TargetSurface.Y, "native death roar writes acid drain target");
+        AssertEqual((ushort)64, fx.YVelocity.RawValue, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.Timer.RawValue, "native death writes drain delay once");
-        for (int frame = 0; frame < 400; frame++) fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, MainGameLoopCarry = true });
-        AssertEqual((ushort)528, fx.BaseYPosition, "acid drains below arena after death");
+        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, MainGameLoopCarry = true });
+        AssertEqual((ushort)528, fx.BaseY.Whole, "acid drains below arena after death");
         AssertAcidVisible(false);
         Console.WriteLine("Ridley acid: retail reveal raises 528 -> 440; death roar drains 440 -> 528 through shared FX.");
 

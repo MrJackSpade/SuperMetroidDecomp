@@ -134,15 +134,13 @@ public static class RoomPlmDynamicCollectibleArtFiles
         PaletteDocument stockPalettes = ReadJson<PaletteDocument>(stockPaletteBytes,
             Path.Combine(stockDirectory, PaletteFileName));
         byte[][] stockOffsets = ParsePalettes(stockPalettes);
-        for (int index = 0; index < stockOffsets.Length; index++)
+        // ParsePalettes accepts exactly one entry per dynamic graphic, in collectible-kind order.
+        int graphicIndex = 0;
+        foreach (RoomPlmDynamicCollectibleGraphic graphic in RoomPlmDynamicCollectibleGraphicsDefinitions.All)
         {
-            InWorldCollectibleKind kind = (InWorldCollectibleKind)(
-                RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind + index);
-            if (!stockOffsets[index].SequenceEqual(
-                    RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind)
-                        .PaletteOffsets.Span))
+            if (!stockOffsets[graphicIndex++].SequenceEqual(graphic.PaletteOffsets.Span))
                 throw new InvalidDataException(
-                    $"Stock item palette offsets for {kind} differ from compiled cartridge data.");
+                    $"Stock item palette offsets for {graphic.Kind} differ from compiled cartridge data.");
         }
 
         string? paletteOverride = overrideDirectory is null ? null :

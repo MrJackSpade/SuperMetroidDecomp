@@ -48,11 +48,6 @@ internal static class Program
                 Console.WriteLine("Derived room-layout and X-ray source admission contracts passed.");
                 return 0;
             }
-            if (args is ["--plm-program-self-check"])
-            {
-                PlmProgramContractChecks.Run();
-                return 0;
-            }
             if (args is ["--enemy-artwork-contract-check"])
             {
                 EnemyTileArtworkPresentationContractChecks.Run();
@@ -124,7 +119,6 @@ internal static class Program
             }
             string root = Directory.GetCurrentDirectory();
             string? jsonPath = null;
-            bool plmPrograms = false;
             bool vramDma = false;
             for (int index = 0; index < args.Length; index++)
             {
@@ -132,7 +126,6 @@ internal static class Program
                 {
                     case "--root" when index + 1 < args.Length: root = args[++index]; break;
                     case "--json" when index + 1 < args.Length: jsonPath = args[++index]; break;
-                    case "--plm-program-audit": plmPrograms = true; break;
                     case "--vram-dma-audit": vramDma = true; break;
                     default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | " +
                         "--self-check | --enemy-visual-program-audit REPOSITORY REPORT_JSON | --enemy-visual-audit-self-check | " +
@@ -140,14 +133,12 @@ internal static class Program
                         "--work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
                         "--friendly-animal-resource-check FAMILY | --ordinary-enemy-resource-check FAMILY | " +
                         "--crocomire-skeleton-resource-check | --kraid-part-resource-check Foot|Lint | " +
-                        "--nuclear-waffle-resource-check | --plm-program-self-check | " +
-                        "--plm-program-audit [--root REPOSITORY] [--json REPORT] | " +
+                        "--nuclear-waffle-resource-check | " +
                         "--vram-dma-audit [--root REPOSITORY] [--json REPORT] | --vram-dma-self-check | --vram-dma-artwork-check MAP_DIRECTORY");
                 }
             }
             root = Path.GetFullPath(root);
             if (vramDma) return VramDmaAudit.Run(root, jsonPath);
-            if (plmPrograms) return PlmProgramAudit.Run(root, jsonPath);
             var report = new AuditReport();
             ResourceIndex exports = DefinitionAudit.Collect(root, report);
             ConsumerAudit.Run(root, exports, report);

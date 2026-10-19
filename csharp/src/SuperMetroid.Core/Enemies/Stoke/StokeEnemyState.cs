@@ -3,60 +3,32 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
-/// Typed view over Stoke's six generic enemy-variable words. These properties remain backed
-/// by <see cref="RoomEnemySlot"/> rather than duplicating state in host-only fields: inspecting
-/// variables A-F consequently shows the same values as <c>$0FA8-$0FB2</c> in the original.
+/// The state of one Stoke: its walking speeds, facing and behaviour. Every value here is one the cartridge keeps in
+/// the enemy's common record, so it is emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class StokeEnemyState
 {
-    /// <summary>The live enemy slot whose generic variables hold Stoke's speed and AI state.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Binds Stoke's typed state view to its existing room enemy slot.</summary>
-    internal StokeEnemyState(RoomEnemySlot slot) => _slot = slot;
-
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<StokeProgram> Program { get; set; }
 
-    /// <summary>Fractional half of the positive 16.16 walking displacement.</summary>
-    public ushort RightSubvelocity
-    {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
+    /// <summary>Signed 16.16 room-pixel displacement per walking update to the right, from the positive half of the population's linear-speed record.</summary>
+    public SnesSignedSixteenSixteen RightVelocity { get; internal set; }
 
-    /// <summary>Signed whole half of the positive 16.16 walking displacement.</summary>
-    public ushort RightVelocity
-    {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
+    /// <summary>Signed 16.16 room-pixel displacement per walking update to the left, from the negative half of the population's linear-speed record.</summary>
+    public SnesSignedSixteenSixteen LeftVelocity { get; internal set; }
 
-    /// <summary>Fractional half of the negative 16.16 walking displacement.</summary>
-    public ushort LeftSubvelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
+    /// <summary>Facing latch changed by animation cues, one update after a turn request; initialized from population parameter 1.</summary>
+    public StokeDirection Direction { get; internal set; }
 
-    /// <summary>Signed whole half of the negative 16.16 walking displacement.</summary>
-    public ushort LeftVelocity
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
-    }
+    /// <summary>The current walking or attacking behaviour; none once a kill has emptied the record.</summary>
+    public StokeAiFunction? Function { get; internal set; }
 
-    /// <summary>Facing latch changed by animation commands, one frame after a turn request.</summary>
-    public StokeDirection Direction
+    /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => (StokeDirection)_slot.VariableE;
-        internal set => _slot.VariableE = (ushort)value;
-    }
-
-    /// <summary>Current indirect main-AI routine.</summary>
-    public StokeAiFunction Function
-    {
-        get => (StokeAiFunction)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
+        RightVelocity = SnesSignedSixteenSixteen.Zero;
+        LeftVelocity = SnesSignedSixteenSixteen.Zero;
+        Direction = StokeDirection.Left;
+        Function = null;
     }
 }

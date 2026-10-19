@@ -51,14 +51,14 @@ internal sealed class EscapeAnimalPlms
             PlmSlot slot = _slotTable._slots[index];
             if (slot.Active)
                 continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = level.GetBlockIndex(
                 new(CrateriaMainstreetEscapePassagePlmDefinitions.BlockX, CrateriaMainstreetEscapePassagePlmDefinitions.BlockY));
             slot.RestoreLevelWord = 0;
             slot.HeaderPointer = PlmHeaderId.CrateriaMainstreetEscapePassage;
             slot.LoopTimer = 0;
-            slot.InstructionPointer = CrateriaMainstreetEscapePassagePlmDefinitions.InstructionList;
+            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.CrateriaPassage));
             slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }
@@ -77,14 +77,14 @@ internal sealed class EscapeAnimalPlms
         {
             PlmSlot slot = _slotTable._slots[index];
             if (slot.Active) continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = EscapeAnimalPlmRomData.ReactionList;
+            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EscapeAnimalReaction));
             slot.InstructionTimer = NativeCountdown.Start(1);
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            slot.RestoreLevelWord = (ushort)((block.LevelWord & EscapeAnimalPlmRomData.ReactionCollisionMask) | EscapeAnimalPlmRomData.ReactionVisualBlock);
-            level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord & EscapeAnimalPlmRomData.ReactionTemporaryCollisionMask));
+            slot.RestoreLevelWord = (ushort)((block.PackedWord.Raw & EscapeAnimalPlmRomData.ReactionCollisionMask) | EscapeAnimalPlmRomData.ReactionVisualBlock);
+            level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord.Raw & EscapeAnimalPlmRomData.ReactionTemporaryCollisionMask));
             return true;
         }
         return false;

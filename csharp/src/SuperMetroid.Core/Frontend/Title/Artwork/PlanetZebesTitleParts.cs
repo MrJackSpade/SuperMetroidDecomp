@@ -24,7 +24,7 @@ internal sealed class PlanetZebesTitleParts : IReadOnlyList<CompiledSpritePart>
             int glyph = Count - 1 - index;
             int column = glyph + (glyph >= PlanetZebesTitleGlyphDefinitions.SpaceColumn ? 1 : 0);
             return new(SnesSpritemapXWord.Create(-4 * PlanetZebesTitleGlyphDefinitions.Text.Length + 8 * column, false),
-                unchecked((byte)-8), SnesObjAttributeWord.Create(PlanetZebesTitleGlyphDefinitions.Tile(PlanetZebesTitleGlyphDefinitions.Text[column]), 0, 0, 0), true);
+                SnesSpritemapYByte.Create(-8), SnesObjAttributeWord.Create(PlanetZebesTitleGlyphDefinitions.Tile(PlanetZebesTitleGlyphDefinitions.Text[column]), 0, 0, 0), true);
         }
     }
     /// <summary>Enumerates title letters from the rightmost glyph to the leftmost.</summary>

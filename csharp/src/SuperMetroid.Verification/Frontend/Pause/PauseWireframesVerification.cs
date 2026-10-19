@@ -53,10 +53,10 @@ internal static class PauseWireframesVerification
             ushort items = (ushort)(((int)kind & 1) * 0x100 | ((int)kind >> 1));
             foreach (bool gravity in new[] { false, true })
             {
-                ushort equipped = (ushort)(items | (gravity ? (ushort)SamusEquipmentFlags.GravitySuit : 0));
-                var samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = (ushort)SamusBeamFlags.Charge };
-                var native = new PauseMenuState(bus, new PauseMenuEntry { Samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original });
-                var pause = new PauseMenuState(guard, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original });
+                SamusEquipmentFlags equipped = (SamusEquipmentFlags)items | (gravity ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.None);
+                var samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = SamusBeamFlags.Charge };
+                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original });
+                var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original });
                 // Every tick compares the complete render inputs; identical inputs cannot render
                 // differently, so pixels are rasterized once each page change settles.
                 void StepBoth(SnesButton input)
@@ -98,9 +98,9 @@ internal static class PauseWireframesVerification
             }
         }
         // Exercise selection through real menu actions, not only a direct bit fixture.
-        var toggledSamus = new SamusState { CollectedItems = (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots),
-            EquippedItems = (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots) };
-        var toggles = new PauseMenuState(guard, new PauseMenuEntry { Samus = toggledSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var toggledSamus = new SamusState { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots),
+            EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots) };
+        var toggles = new PauseMenuState(new PauseMenuEntry { Samus = toggledSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         EnterEquipment(toggles); AssertPage(toggles, original, PauseWireframeKind.VariaSuitHiJump);
         toggles.Step(0, SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuitHiJump);
         toggles.Step(0, SnesButton.Down);

@@ -29,8 +29,8 @@ internal static class PauseReserveUiAssetsVerification
         var guard = NewPauseReserveUiReadGuard(bus);
 
         var nativeSamus = Samus(); var installedSamus = Samus();
-        var native = new PauseMenuState(bus, new PauseMenuEntry { Samus = nativeSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
-        var installed = new PauseMenuState(guard, new PauseMenuEntry { Samus = installedSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var installed = new PauseMenuState(new PauseMenuEntry { Samus = installedSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
         EnterEquipment(native); EnterEquipment(installed);
         for (int frame = 0; frame < 64; frame++)
         {
@@ -60,8 +60,8 @@ internal static class PauseReserveUiAssetsVerification
         using (var output = File.Create(path)) PauseReserveUiPresentation.Write(output, editedDocument);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "reserve UI override changes selected content identity");
-        var stockPause = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
-        var editedPause = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = edited });
+        var stockPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var editedPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = edited });
         AssertTrue(stockPause.ReadReserveSupplyDigit(2) != editedPause.ReadReserveSupplyDigit(2),
             "edited reserve digit reaches the actual mutable equipment page");
         EnterEquipment(stockPause); EnterEquipment(editedPause);
@@ -111,7 +111,7 @@ internal static class PauseReserveUiAssetsVerification
         static SamusState Samus() => new()
         {
             MaxHealth = 499, Health = 499, MaxReserveEnergy = 400, ReserveEnergy = 245,
-            ReserveTankMode = 1,
+            ReserveTankMode = ReserveTankMode.Auto,
         };
         static void EnterEquipment(PauseMenuState pause)
         {

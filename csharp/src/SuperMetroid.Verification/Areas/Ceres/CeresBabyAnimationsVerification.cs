@@ -52,7 +52,7 @@ internal static class CeresBabyAnimationsVerification
             {
                 AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: pose");
                 AssertEqual((int)word, step.Duration, $"{at}: duration");
-                AssertEqual(operand, CeresBabyFrameDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
+                AssertEqual(operand, CeresBabyFrameDefinitionsConstants.Spritemap(step.Frame), $"{at}: spritemap");
                 continue;
             }
             AssertTrue(Instructions.TryGetValue(word, out CeresBabyCueKind? kind), $"{at}: native instruction ${word:X4} is known");

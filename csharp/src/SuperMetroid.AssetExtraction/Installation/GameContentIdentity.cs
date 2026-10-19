@@ -30,7 +30,7 @@ public sealed record GameContentIdentity(
 
     /// <summary>Further decoded presentation domains selected by the host, in stable name order.</summary>
     public IReadOnlyDictionary<string, string> AdditionalContentSha256 { get; private init; } =
-        System.Collections.Frozen.FrozenDictionary<string, string>.Empty;
+        new SortedDictionary<string, string>(StringComparer.Ordinal);
 
     /// <summary>Identity equality compares digest values, not a dictionary allocation's identity.</summary>
     public bool Equals(GameContentIdentity? other) => other is not null &&
@@ -115,8 +115,7 @@ public sealed record GameContentIdentity(
             projectileContentSha256,
             Convert.ToHexString(hash.GetHashAndReset()))
         {
-            AdditionalContentSha256 = System.Collections.Frozen.FrozenDictionary.ToFrozenDictionary(
-                additional, StringComparer.Ordinal),
+            AdditionalContentSha256 = new SortedDictionary<string, string>(additional, StringComparer.Ordinal),
         };
     }
 

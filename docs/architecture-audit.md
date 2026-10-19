@@ -1,4 +1,4 @@
-# Architecture audit (#621)
+# Architecture audit
 
 Every type declared in the repository's source is listed in
 [`architecture-inventory.json`](architecture-inventory.json) with its kind, scope (product, test or
@@ -24,8 +24,7 @@ Each type's disposition comes from its shape:
 
 ## Findings
 
-Some structural findings need a reviewed acceptance in
-[`architecture-reviews.json`](architecture-reviews.json):
+The audit reports four structural findings:
 
 | Flag | Meaning |
 | --- | --- |
@@ -34,8 +33,23 @@ Some structural findings need a reviewed acceptance in
 | `context-bag` | The type carries eight or more service-typed members and has no behaviour. |
 | `large` | A product class has more than 1,500 hand-written lines. |
 
-Each review names the type, the exact flags it accepts, a disposition and the reason. A review
-whose finding no longer exists fails the audit, so accepted exceptions cannot accumulate.
+Every finding fails the audit unless the type itself justifies it:
+
+```csharp
+[ArchitectureReview("context-bag", "A record of installed artwork catalogs; its members are data, not services.")]
+public sealed record EnemyTileArtworkParts
+```
+
+The attribute names the finding kind (`back-reference`, `context-bag`, `service-locator`, `large`) and a reason
+specific to that type. The audit requires one per current finding and fails on a review whose finding is gone, so
+justifications cannot outlive the shape they excuse. There is no central list: nothing outside the type can
+justify its finding, and the audit never accepts a finding in bulk.
+
+A justification is legitimate only when the site is intrinsic (a framework callback that must reach its host, a
+test fixture whose purpose is to carry services) or a false positive of the heuristic (a record of artwork data
+counted as services). Every flag names a shape the design forbids (`manifesto.md`: entities and services with
+explicit dependencies, no context bags, no reach-backs, no monoliths), so "it is a large boss translation" or
+"the Samus aggregate constructs its parts" is not a reason; it is the finding restated. Those types are fixed.
 
 ## Partial types
 
@@ -94,12 +108,9 @@ checked by `SuperMetroid.EnsureVerification`.
 **SME6401** requires the file to be named after that type: `Type.cs`, or `Type.Purpose.cs` for a deliberate partial
 part. Files declaring no type (entry-point statements, assembly attributes) are not named by the rule.
 
-Because a file now identifies one type, the production magic-number audit keys each reviewed finding on its declaring
-type rather than its path, so moving or renaming a file keeps the finding's reviewed identity.
-
 ## Core source layout
 
-Core is organized by gameplay domain first and then by cohesive feature (#626). Each directory is a module whose
+Core is organized by gameplay domain first and then by cohesive feature. Each directory is a module whose
 namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kraid`):
 
 | Module | Owns |
@@ -116,7 +127,7 @@ namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kra
 | `Runtime` | the gameplay frame loop that composes the simulation, with `Attract` (demo playback), door transitions, checkpoint autosaves and the runtime's renderer and audio publication |
 | `Frontend/<Screen>` | the game-state dispatcher and host options, and one module per screen or cinematic (title, intro, `CeresCinematics`, file select, pause map, options, game over, ending, recordings) |
 | `Assets` | artwork infrastructure every domain shares: PNG and JSON documents (`ArtworkJson`), tile encoders, base palettes |
-| `Hardware`, `Rendering`, `Audio`, `Spatial`, `Input` | the SNES models and host colors, renderers, SPC driver, spatial and fixed-point types, and controller input |
+| `Hardware`, `Rendering`, `Audio`, `Spatial`, `Input` | the SNES models and host colors, renderers, SPC driver, spatial and fixed-point types, and controller input. `Hardware` shrinks as the machine is removed; its destination is the handful of stubs that reproduce gameplay-observable timing and idiosyncrasies (`manifesto.md`), not a model of the console |
 
 A domain's installed-artwork layer (catalogs, presentations, formats and documents of extracted artwork) lives in
 its `Artwork` module, so gameplay code and the artwork it draws stay separable. The resource audit uses that layer
@@ -143,6 +154,11 @@ Core's layers, lowest first, are Geometry (`Spatial`), Hardware, Foundation (`In
 Code below the frontend reads frontend-owned content through narrow contracts that the frontend implements, never
 through the frontend's types; documentation crefs are not dependencies.
 
+**SME6407** keeps species behind the enemy system. Outside the `Enemies` and `Bosses` modules, Core reads and
+commands species only through `RoomEnemySystem`'s capability interfaces (`Elevator`, `Gunship`, `Ceres`,
+`RoomMainHooks`, `LoaderHooks`, `GrappleTargets`, `PlmSpawns`, `TourianStatue`, `DisplaySources`), never through a
+`*Behavior` or `*Encounter` property.
+
 `SuperMetroid.BuildPolicyVerification` checks what an analyzer cannot: every directory under `csharp/src`,
 `csharp/test-support` and `csharp/tools` is registered; each project's `ProjectReference` and `.projitems` imports
 equal the map's lists; production projects reference only production projects; and no build or tool output sits in
@@ -150,5 +166,5 @@ a source root outside each project's own ignored `bin` and `obj` (test fixtures 
 
 The architecture audit also writes `docs/module-inventory.json`: every compiled source file with its module, role,
 namespace, assemblies, Core layer and the modules it references, each module's aggregate dependencies, and the
-dependency cycles among Core modules. A cycle fails the audit unless `acceptedCycles` in the map lists exactly that
-set of modules with its tracking issues; the remaining Simulation cycle is tracked by #1362, #1315 and #1328.
+dependency cycles among Core modules. A cycle among Core modules fails the audit, and the map has no list of
+accepted cycles; a cycle is broken, never recorded.

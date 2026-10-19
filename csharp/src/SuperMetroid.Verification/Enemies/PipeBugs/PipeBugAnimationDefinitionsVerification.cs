@@ -18,20 +18,19 @@ internal static class PipeBugAnimationDefinitionsVerification
     {
         const int normalTable = 0xb3882b;
         const int strongTable = 0xb38833;
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewPipeBugAnimationReadGuard(rom);
 
         foreach (bool strong in new[] { false, true })
         {
             var initializedEnemies = new RoomEnemySystem();
-            initializedEnemies.BindFixtureBus(guarded);
+            initializedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot initializedSlot = initializedEnemies.SlotTable.Slots[0];
-            initializedSlot.EnemyDefinitionPointer = strong
+            initializedSlot.Bind(strong
                 ? EnemyDefinitionId.Zebbo
-                : EnemyDefinitionId.Zeb;
+                : EnemyDefinitionId.Zeb, initializedSlot.Definition);
             initializedSlot.Parameter1 = strong ? (ushort)1 : (ushort)0;
             initializedSlot.Position = initializedSlot.Position.WithWhole(new(0x0100, 0x0080));
-            initializedEnemies.PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
+            PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
             AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugDefinitions.BrinstarProgram(
                     strong,
                     PipeBugAnimationSelector.None)),
@@ -47,8 +46,8 @@ internal static class PipeBugAnimationDefinitionsVerification
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
                 var enemies = new RoomEnemySystem();
-                enemies.BindFixtureBus(guarded);
-                var slot = new RoomEnemySlot(0)
+                enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+                var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
                 {
                     Parameter1 = strong ? (ushort)1 : (ushort)0,
                     InstructionTimer = NativeCountdown.Start(0x2222),

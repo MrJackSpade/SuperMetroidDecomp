@@ -98,7 +98,8 @@ internal static class RidleyAnimationsVerification
                             AssertEqual(BodyProgramAt(operand), cue.Target, $"{at}: goto target");
                             break;
                         case RidleyBodyCueKind.SetFeetDistance:
-                            AssertEqual(operand, cue.FeetDistanceIndex, $"{at}: feet-distance index");
+                            // The native operand is the pose's byte offset into the word-sized claw-height table.
+                            AssertEqual((int)operand, cue.FeetDistanceIndex * sizeof(ushort), $"{at}: claw-height pose");
                             break;
                         case RidleyBodyCueKind.Move:
                             AssertEqual(unchecked((short)operand), cue.Displacement.X, $"{at}: X move");
@@ -136,7 +137,7 @@ internal static class RidleyAnimationsVerification
             AssertEqual(2, steps.Count, $"{at}: one frame and a hold");
             AssertEqual(AnimationProgramStepKind.Show, steps[0].Kind, $"{at}: frame");
             AssertEqual((int)cartridge.ReadCartridgeWord(address), steps[0].Duration, $"{at}: duration");
-            AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitions.Spritemap(steps[0].Frame), $"{at}: spritemap");
+            AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitionsConstants.Spritemap(steps[0].Frame), $"{at}: spritemap");
             AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address + 4)), $"{at}: sleep");
             AssertEqual(AnimationProgramStepKind.Hold, steps[1].Kind, $"{at}: hold");
         }
@@ -174,27 +175,27 @@ internal static class RidleyAnimationsVerification
             {
                 AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
                 AssertEqual((int)word, step.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), RidleyFireballVisualDefinitions.PresentationKey(step.Frame), $"{at}: presentation key");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(RidleyFireballVisualDefinitions.ShownProjectileFrames[step.Frame]), $"{at}: presentation key");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
-            switch ((EnemyProjectileInstruction)word)
+            switch ((NativeEnemyProjectileInstruction)word)
             {
-                case EnemyProjectileInstruction.ClearPreInstruction:
+                case NativeEnemyProjectileInstruction.ClearPreInstruction:
                     AssertEqual(RidleyFireballCue.ClearPreInstruction, step.Cue, $"{at}: clear pre-instruction");
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
-                case EnemyProjectileInstruction.PreInstructionInY:
-                    AssertEqual((ushort)EnemyProjectilePreInstruction.RidleyFireball, operand, $"{at}: the fireball's moving pre-instruction");
+                case NativeEnemyProjectileInstruction.PreInstructionInY:
+                    AssertEqual(EnemyProjectilePreInstructionAccess.Word(EnemyProjectilePreInstruction.RidleyFireball), operand, $"{at}: the fireball's moving pre-instruction");
                     AssertEqual(RidleyFireballCue.BeginFlight, step.Cue, $"{at}: begin flight");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
-                case EnemyProjectileInstruction.GotoY:
+                case NativeEnemyProjectileInstruction.GotoY:
                     AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
                     AssertEqual(FireballProgramAt(operand), step.Target, $"{at}: goto target");
                     AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
                     return addresses;
-                case EnemyProjectileInstruction.Delete:
+                case NativeEnemyProjectileInstruction.Delete:
                     AssertEqual(RidleyFireballCue.Delete, step.Cue, $"{at}: delete");
                     AssertEqual(AnimationProgramStepKind.Hold, steps[index + 1].Kind, $"{at}: deletion ends the program");
                     AssertEqual(steps.Count, index + 2, $"{at}: deletion ends the program");
@@ -215,19 +216,19 @@ internal static class RidleyAnimationsVerification
     private static (RoomEnemySystem Enemies, RidleyEnemyState State, RoomEnemySlot Body) NewRidley(EnemyDefinitionId definition, RidleyFacing facing)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var state = new RidleyEnemyState { FacingDirection = facing };
         enemies.RidleyEncounter.Ridley = state;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = definition;
+        body.Bind(definition, body.Definition);
         return (enemies, state, body);
     }
 
     /// <summary>Runs one body update, expiring the current frame first.</summary>
-    private static void Pass(RoomEnemySystem enemies, RoomEnemySlot body, SamusState? samus)
+    private static void Pass(RoomEnemySlot body, SamusState? samus)
     {
         body.InstructionTimer = NativeCountdown.Start(1);
-        enemies.Instructions.ProcessInstructions(body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyInstructionInterpreter.ProcessInstructions(body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>A right-facing Ridley starting a left-facing entry runs its right-facing program in the same update.</summary>
@@ -235,14 +236,14 @@ internal static class RidleyAnimationsVerification
     {
         (RoomEnemySystem enemies, RidleyEnemyState state, RoomEnemySlot body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Right);
         CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.OpeningRoar);
-        Pass(enemies, body, samus: null);
+        Pass(body, samus: null);
         AssertEqual(RidleyBodyProgram.OpeningRoarFacingRight, state.BodyProgram.Program, "a right-facing Ridley roars facing right");
         AssertEqual((ushort)RidleyCollisionDefinitions.BodyFrame.Right, body.SpritemapPointer, "the right-facing roar shows its first frame at once");
         AssertEqual((ushort)6, body.InstructionTimer.RawValue, "the right-facing roar's first frame lasts six updates");
 
         (enemies, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
         CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.OpeningRoar);
-        Pass(enemies, body, samus: null);
+        Pass(body, samus: null);
         AssertEqual(RidleyBodyProgram.OpeningRoar, state.BodyProgram.Program, "a left-facing Ridley keeps the left-facing roar");
         AssertEqual((ushort)RidleyCollisionDefinitions.BodyFrame.Left, body.SpritemapPointer, "the left-facing roar shows its first frame");
     }
@@ -256,7 +257,7 @@ internal static class RidleyAnimationsVerification
         (RoomEnemySystem enemies, RidleyEnemyState state, RoomEnemySlot body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
         state.Roaring = true;
         CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
-        Pass(enemies, body, new SamusState { Health = 29 });
+        Pass(body, new SamusState { Health = 29 });
         AssertEqual(RidleyBodyProgram.FireballingEnd, state.BodyProgram.Program, "low energy in Ceres skips to the fireballing tail");
         AssertEqual((ushort)8, state.FunctionTimer.RawValue, "low energy shortens the hover to eight updates");
         AssertTrue(!state.Roaring, "the fireballing tail clears the roaring flag");
@@ -264,12 +265,12 @@ internal static class RidleyAnimationsVerification
 
         (enemies, state, body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
         CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
-        Pass(enemies, body, new SamusState { Health = 30 });
+        Pass(body, new SamusState { Health = 30 });
         AssertEqual(RidleyBodyProgram.Fireballing, state.BodyProgram.Program, "thirty energy keeps the full fireballing");
 
         (enemies, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
         CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
-        Pass(enemies, body, new SamusState { Health = 1 });
+        Pass(body, new SamusState { Health = 1 });
         AssertEqual(RidleyBodyProgram.Fireballing, state.BodyProgram.Program, "Lower Norfair Ridley ignores Samus's energy");
     }
 

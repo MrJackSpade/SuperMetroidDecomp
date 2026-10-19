@@ -12,25 +12,22 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks cannon processing and door exit after Draygon has already been defeated.</summary>
 internal static class DraygonDefeatedRoomVerification
 {
-    /// <summary>Verifies cannon WRAM writes without a boss actor and a single scroll finalization before destination fade.</summary>
+    /// <summary>Verifies cannon disabling without a boss actor and a single scroll finalization before destination fade.</summary>
     internal static void VerifyDraygonDefeatedRoom()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetBossBits(AreaId.Maridia, BossBits.AreaBoss);
-        runtime.LoadCartridgeRoomForDebug(0xda60);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
         AssertTrue(runtime.Enemies.DraygonBehavior.Draygon is null, "defeated retail state has no Draygon actor");
-        runtime.StepFrame(0);
-        AssertEqual((ushort)1, new DraygonCannonVerificationMemory(bus).ControlWord(DraygonCannonControlWord.UpperLeft),
-            "pre-destroyed cannon publishes WRAM control word without boss actor");
-        for (int frame = 0; frame < 120; frame++) runtime.StepFrame(0);
+        for (int frame = 0; frame < 121; frame++) runtime.StepFrame(0);
         AssertTrue(runtime.Enemies.DraygonBehavior.Draygon is null, "cannon processing must not recreate defeated boss");
-        Console.WriteLine("Defeated Draygon room: native cannon WRAM write and 121 gameplay frames pass without boss actor.");
-        runtime.LoadCartridgeRoomForDebug(0xd9aa);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, 0, runtime.Player.IntroducedSamus.Pose);
+        Console.WriteLine("Defeated Draygon room: pre-destroyed cannon and 121 gameplay frames pass without boss actor.");
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.SpaceJump);
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(0, runtime.Player.IntroducedSamus.Pose);
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);

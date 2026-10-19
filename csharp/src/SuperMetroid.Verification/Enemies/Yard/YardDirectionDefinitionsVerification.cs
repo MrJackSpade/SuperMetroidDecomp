@@ -23,8 +23,6 @@ internal static class YardDirectionDefinitionsVerification
         const int oppositeAddress = 0xa3cdc2;
         const int movementAddress = 0xa3cdd2;
         int[] airborneAddresses = [0xa3d1ab, 0xa3d50f, 0xa3d5a4];
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
 
         for (ushort direction = 0; direction < 8; direction++)
         {
@@ -33,7 +31,7 @@ internal static class YardDirectionDefinitionsVerification
             int record = directionAddress + direction * 8;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingProgram),
                 $"Yard direction {direction} crawling list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), definition.PropertyBits,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), (ushort)definition.PropertyBits,
                 $"Yard direction {direction} property bits");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
                 $"Yard direction {direction} hiding list");
@@ -72,12 +70,13 @@ internal static class YardDirectionDefinitionsVerification
         for (ushort direction = 0; direction < 8; direction++)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
             slot.Parameter1 = 0;
-            slot.Properties = 0x4000;
-            enemies.YardBehavior.InitializeYard(slot);
+            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x4000));
+            slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
+            YardEnemyBehavior.InitializeYard(slot);
 
             YardEnemyState state = enemies.YardStates[0] ??
                 throw new InvalidDataException("Yard initializer produced no typed state.");
@@ -108,13 +107,14 @@ internal static class YardDirectionDefinitionsVerification
         foreach (ushort direction in new ushort[] { 0, 1 })
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
             slot.Parameter1 = 0;
-            enemies.YardBehavior.InitializeYard(slot);
+            slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
+            YardEnemyBehavior.InitializeYard(slot);
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
-            ushort facing = (state ?? throw new InvalidOperationException("Verification requires state.")).AirborneFacingDirection;
+            int facing = (state ?? throw new InvalidOperationException("Verification requires state.")).AirborneFacingDirection;
             YardAirborneInstructionDefinition expected =
                 YardDirectionDefinitions.ForAirborneFacing(facing);
 
@@ -131,11 +131,11 @@ internal static class YardDirectionDefinitionsVerification
                     : SamusPoseId.FacingRightNormalPose,
                 AbsoluteMovedLastFrameXFixed = 0x00018000,
             };
-            enemies.YardBehavior.KickYardIntoAir(slot, state, samus);
+            YardEnemyBehavior.KickYardIntoAir(slot, state, samus);
             AssertYardAirborneLists(state, expected,
                 $"Yard contact kick facing {facing}");
 
-            enemies.YardBehavior.ShootYardIntoAir(slot, state, samus);
+            YardEnemyBehavior.ShootYardIntoAir(slot, state, samus);
             AssertYardAirborneLists(state, expected,
                 $"Yard shot launch facing {facing}");
         }
@@ -154,7 +154,7 @@ internal static class YardDirectionDefinitionsVerification
     {
         AssertEqual(AnimationProgramCursor<YardProgram>.Start(expected.CrawlingProgram), state.Program,
             $"{name} crawling list");
-        AssertEqual(expected.PropertyBits, (ushort)(slot.Properties & 3),
+        AssertEqual(expected.PropertyBits, (byte)(slot.Properties.FamilyData & 3),
             $"{name} property bits");
         AssertEqual((YardProgram?)expected.HidingProgram, state.HidingProgram,
             $"{name} hiding list");

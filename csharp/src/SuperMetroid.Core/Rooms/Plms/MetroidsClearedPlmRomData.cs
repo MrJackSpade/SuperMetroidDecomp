@@ -15,22 +15,11 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class MetroidsClearedPlmRomData
 {
 
-    /// <summary>$84:DAD5: the first of nine consecutive one-byte no-op RTS handlers.</summary>
-    private const ushort FirstNoOp = 0xdad5;
-    /// <summary>$84:DADE: first of four sixteen-byte quota observers, for event $10.</summary>
-    private const ushort FirstQuotaObserver = 0xdade;
-    /// <summary>Resolves the native pre-instruction pointer selected during PLM setup.</summary>
-    public static ushort ResolvePreInstruction(ushort roomArgument)
-    {
-        int wordIndex = ValidateAndGetWordIndex(roomArgument);
-        return (ushort)(wordIndex < 9 ? FirstNoOp + wordIndex : FirstQuotaObserver + (wordIndex - 9) * 16);
-    }
-
     /// <summary>
     /// Resolves the event written after the enemy death quota is met, or null for one of the
     /// cartridge's nine intentional no-op argument entries.
     /// </summary>
-    public static EventNumber? ResolveEvent(ushort roomArgument)
+    public static EventNumber? ResolveEvent(int roomArgument)
     {
         int wordIndex = ValidateAndGetWordIndex(roomArgument);
         return wordIndex < 9 ? null : QuotaObserverEvents[wordIndex - 9];
@@ -46,7 +35,7 @@ internal static class MetroidsClearedPlmRomData
     ];
 
     /// <summary>Converts a room argument into one of thirteen native table entries, rejecting odd or out-of-range byte offsets.</summary>
-    private static int ValidateAndGetWordIndex(ushort roomArgument)
+    private static int ValidateAndGetWordIndex(int roomArgument)
     {
         if ((roomArgument & 1) != 0 || roomArgument / 2 >= 13)
         {

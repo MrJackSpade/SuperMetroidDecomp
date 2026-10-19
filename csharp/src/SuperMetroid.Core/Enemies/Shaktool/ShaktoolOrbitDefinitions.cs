@@ -6,9 +6,6 @@ internal static class ShaktoolOrbitDefinitions
     /// <summary>One angle-table entry of a 16-bit angle: the straightening step and its extra centre step.</summary>
     internal const ushort TableStep = 0x0100;
 
-    /// <summary>Bit 15 of the centre segment's orientation word: the chain runs reversed, so its midpoint flips a half turn.</summary>
-    internal const ushort ReversedOrientationBit = 0x8000;
-
     /// <summary>Rounds a midpoint's table angle to one of eight direction buckets.</summary>
     internal const int DirectionBucketMask = 0x00e0;
 

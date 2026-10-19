@@ -17,10 +17,9 @@ internal sealed class MenuPpuState
     public static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
 
     /// <summary>Installs shared world, map, sprite, and palette assets into menu PPU memory.</summary>
-    public MenuPpuState(ISnesAddressSpace bus, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? sprites = null,
+    public MenuPpuState(MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? sprites = null,
         bool loadInitialBackground = true)
     {
-        Ensure.NotNull(bus);
         BindWorldArtwork(worldArtwork);
         BindMapTiles(mapTiles);
         BindMapSprites(sprites);

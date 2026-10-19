@@ -19,19 +19,18 @@ internal static class EnemyEffectResourcesVerification
     /// <summary>Confirms missing or invalid corpse and melt resources fail before mutating actors, WRAM, or VRAM.</summary>
     internal static void VerifyEnemyEffectResources()
     {
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var staging = new EnemyStagingSurfaces();
         var corpse = new MotherBrainCorpseRottingState();
-        byte[] before = memory.WorkRam.ToArray();
-        AssertTrue(before.SequenceEqual(memory.WorkRam), "missing corpse art must not initialize the rot table before throwing");
+        byte[] before = StagingBytes(staging);
         AssertEqual(false, corpse.IsInitialized, "failed corpse initialization remains uninitialized");
         AssertEqual(0u, corpse.ProcessCallCount, "failed corpse initialization preserves its clock");
         using var shortPng = EffectPng(RoomCharacterAtlasFormat.BytesPerTile, RoomCharacterAtlasFormat.BytesPerTile, 0x55);
         RoomCharacterAtlas shortArt = RoomCharacterAtlas.Load(shortPng, RoomCharacterAtlasFormat.BytesPerTile);
-        AssertThrows<InvalidDataException>(() => corpse.Initialize(memory, shortArt), "wrong-size corpse art fails loudly");
-        AssertTrue(before.SequenceEqual(memory.WorkRam), "wrong-size corpse art leaves WRAM unchanged");
-        AssertThrows<InvalidDataException>(() => new MotherBrainRainbowBeamAttackSequence().InitializeCorpseRotting(memory),
+        AssertThrows<InvalidDataException>(() => corpse.Initialize(staging, shortArt), "wrong-size corpse art fails loudly");
+        AssertTrue(before.SequenceEqual(StagingBytes(staging)), "wrong-size corpse art leaves the staging unchanged");
+        AssertThrows<InvalidDataException>(() => new MotherBrainRainbowBeamAttackSequence(corpseStaging: staging).InitializeCorpseRotting(),
             "sequence setup requires corpse art");
-        AssertTrue(before.SequenceEqual(memory.WorkRam), "missing sequence corpse art leaves WRAM unchanged");
+        AssertTrue(before.SequenceEqual(StagingBytes(staging)), "missing sequence corpse art leaves the staging unchanged");
 
         CheckCrocomireResourceFailure(null, fixture => fixture.InitializeMap((int)CrocomireMeltingTilemapAddress.FirstTilemap),
             "missing melt tilemap");
@@ -48,7 +47,6 @@ internal static class EnemyEffectResourcesVerification
     /// <summary>Checks every dead Tourian corpse variant with absent artwork and unchanged enemy state.</summary>
     private static void VerifyDeadTourianMissingArtwork()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach ((EnemyDefinitionId definition, int variants) in new[] { (EnemyDefinitionId.CorpseZoomer, 3),
             (EnemyDefinitionId.CorpseRipper, 2), (EnemyDefinitionId.CorpseSkree, 3) })
         for (int variant = 0; variant < variants; variant++)
@@ -56,18 +54,23 @@ internal static class EnemyEffectResourcesVerification
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var expected = new RoomEnemySystem(); var actual = new RoomEnemySystem();
-            expected.SlotTable.Slots[0].EnemyDefinitionPointer = actual.SlotTable.Slots[0].EnemyDefinitionPointer = definition;
+            var boundEnemyDefinitionPointer = definition;
+            expected.SlotTable.Slots[0].Bind(boundEnemyDefinitionPointer, expected.SlotTable.Slots[0].Definition);
+            actual.SlotTable.Slots[0].Bind(boundEnemyDefinitionPointer, actual.SlotTable.Slots[0].Definition);
             expected.SlotTable.Slots[0].Parameter1 = actual.SlotTable.Slots[0].Parameter1 = (ushort)(variant * 2);
             if (emptyCatalog) actual.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-            actual.BindFixtureBus(memory);
+            actual.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initialize = new Action<RoomEnemySlot>(actual.DeadTourianBehavior.InitializeDeadTourianCorpse);
-            byte[] before = memory.WorkRam.ToArray();
+            byte[] before = StagingBytes(actual.Room.Staging);
             AssertThrows<InvalidDataException>(() => initialize(actual.SlotTable.Slots[0]), "missing Tourian corpse art fails loudly");
-            AssertTrue(before.SequenceEqual(memory.WorkRam), "missing Tourian corpse art leaves its rot table/graphics unchanged");
+            AssertTrue(before.SequenceEqual(StagingBytes(actual.Room.Staging)), "missing Tourian corpse art leaves its rot table/graphics unchanged");
             AssertTrue(actual.DeadTourianCorpses.All(state => state is null), "failed corpse setup must not publish an owner");
             AssertAnimationValues(expected.SlotTable.Slots[0], actual.SlotTable.Slots[0], "failed Tourian corpse setup must not mutate the slot");
         }
     }
+
+    /// <summary>Both enemy staging buffers' bytes, group A then group B.</summary>
+    private static byte[] StagingBytes(EnemyStagingSurfaces staging) => [.. staging._bg2.Bytes, .. staging._rottingHeap.Bytes];
 
     /// <summary>Checks that one Crocomire resource error leaves effect mechanics, tilemap, graphics, and VRAM intact.</summary>
     private static void CheckCrocomireResourceFailure(CrocomireMeltingArtwork? art,

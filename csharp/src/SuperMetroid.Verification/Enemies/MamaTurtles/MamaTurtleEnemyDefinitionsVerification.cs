@@ -40,13 +40,13 @@ internal static class MamaTurtleEnemyDefinitionsVerification
 
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
         var installation = RepositoryInstallation.Installation;
-        CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room, installation.LoadRoomCharacters(),
+        CartridgeRoomAssets assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.Load(new RoomEnemyLoadRequest(guard, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(() => 0)) { Level = assets.LevelData, Samus = new SamusState() });
+        enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, vram, cgram, new StandaloneRoomEnemyServices(() => 0)) { Level = assets.LevelData, Samus = new SamusState() });
 
         AssertEqual(5, enemies.SlotTable.EnemyCount, "Mama Turtle retail population count");
         AssertEqual(EnemyDefinitionId.MamaTurtle,

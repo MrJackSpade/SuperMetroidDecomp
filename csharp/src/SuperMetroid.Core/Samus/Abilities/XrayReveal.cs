@@ -24,11 +24,19 @@ internal sealed class XrayReveal
     private readonly Bank80SystemState _system;
     /// <summary>Supplies the BG1 tilemap pages captured after NMI video writes.</summary>
     private readonly SnesVram _vram;
-    /// <summary>Owns WRAM tables for saved BG1 pages and the constructed reveal map.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
+    /// <summary>The session's BG tilemap staging; the frozen reveal map is built in its bytes (<c>$7E:4000</c>).</summary>
+    private readonly Bg2TilemapStaging _tilemapStaging;
+    /// <summary>
+    /// The two BG1 tilemap screens captured during setup (cartridge <c>$7E:6000-$6FFF</c>): the first screen is read by
+    /// <c>$91:CB57</c>, the second by <c>$91:CB1C</c>.
+    /// </summary>
+    internal readonly ushort[] _savedBg1 = new ushort[XrayTilemapLayout.BufferWords];
+
+    /// <summary>The frozen reveal map; it is never rebuilt from later room or VRAM changes.</summary>
+    internal StagingWordView RevealTilemap => _tilemapStaging.TilemapWords;
 
     /// <summary>Binds the gameplay owners used to capture BG1 and construct the X-ray reveal.</summary>
-    internal XrayReveal(BackgroundScrollState backgroundScroll, SamusFrameState player, RoomPlmSystem plms, ActiveRoomState room, Bank80SystemState system, SnesVram vram, ISnesAddressSpace addressSpace)
+    internal XrayReveal(BackgroundScrollState backgroundScroll, SamusFrameState player, RoomPlmSystem plms, ActiveRoomState room, Bank80SystemState system, SnesVram vram, Bg2TilemapStaging tilemapStaging)
     {
         _backgroundScroll = backgroundScroll;
         _player = player;
@@ -36,7 +44,7 @@ internal sealed class XrayReveal
         _room = room;
         _system = system;
         _vram = vram;
-        _addressSpace = addressSpace;
+        _tilemapStaging = tilemapStaging;
     }
     /// <summary>Installed X-ray art, rebound by the host after debugger-state restore.</summary>
     [field: NonSerialized]
@@ -44,8 +52,8 @@ internal sealed class XrayReveal
 
     /// <summary>
     /// Setup call four's reveal construction (<c>$91:CB8E</c>), run before the setup stage
-    /// advances. WRAM owns these buffers, so state saves retain the exact captured map and
-    /// rendering never reruns game logic to synthesize a replacement.
+    /// advances. The captured pages and the reveal map are owned state, so state saves retain the
+    /// exact captured map and rendering never reruns game logic to synthesize a replacement.
     /// </summary>
     internal void BuildXrayRevealTilemap()
     {
@@ -54,15 +62,14 @@ internal sealed class XrayReveal
         // The builder reads only BG1 tilemap words. Feed the two captured pages,
         // not current VRAM: each page was read on a different setup call.
         var captured = new SnesVram();
-        var xrayMemory = new XrayMemory(RuntimeMemory.RequireBus(_addressSpace));
-        new GameplayVram(captured).Bg1Tilemap.Write(xrayMemory.SavedBg1.ToArray());
+        new GameplayVram(captured).Bg1Tilemap.Write(_savedBg1);
         Position16<RoomPixels> layer1 = _backgroundScroll.Layer1Position;
         Position16<RoomPixels> bg1Scroll = layer1 + _backgroundScroll.Bg1Offset;
         var map = XrayRevealTilemap.Build(level, captured, bg1Scroll, layer1,
             (byte)room.AreaIndex, XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, map, _plms.CollectiblePlms.Collectibles, _system,
-            room.State.XrayPointer, layer1, XrayRevealVisuals);
-        WorkRamWordTable reveal = xrayMemory.RevealTilemap;
+            room.State.XrayOverlay, layer1, XrayRevealVisuals);
+        StagingWordView reveal = RevealTilemap;
         for (int i = 0; i < map.Length; i++) reveal[i] = map[i];
     }
 
@@ -84,7 +91,7 @@ internal sealed class XrayReveal
             _ => throw new InvalidOperationException($"Undefined X-ray setup stage {xray.SetupStage}."),
         };
         if (read is not (int sourceScreen, int savedScreen)) return;
-        WorkRamWordTable saved = new XrayMemory(RuntimeMemory.RequireBus(_addressSpace)).SavedBg1;
+        ushort[] saved = _savedBg1;
         VramRegion bg1 = new GameplayVram(_vram).Bg1Tilemap;
         int firstWord = savedScreen * XrayTilemapLayout.ScreenWords;
         int sourceWord = sourceScreen * XrayTilemapLayout.ScreenWords;

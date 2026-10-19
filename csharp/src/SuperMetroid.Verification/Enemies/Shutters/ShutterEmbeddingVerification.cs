@@ -27,18 +27,18 @@ internal static class ShutterEmbeddingVerification
         {
             int offset = slot == 0 ? 32 : -32;
             SnesButton direction = slot == 0 ? SnesButton.Left : SnesButton.Right;
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, new Position16<RoomPixels>(0, 0));
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope, new Position16<RoomPixels>(0, 0));
             var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.SlotTable.Slots[slot];
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.InputLocked = false;
-            samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.EquippedItems |= SamusEquipmentFlags.Bombs;
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole + offset), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
             runtime.StepFrame(0);
             bool activated = false;

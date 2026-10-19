@@ -21,7 +21,7 @@ public static class KraidRockLaunchDefinitions
     /// sample or chronological random-number generator. Preserve the original
     /// branch assignment even though each speed has the same one-quarter weight.
     /// </remarks>
-    public static ushort FromRandom(ushort random) => (random & 0x000e) switch
+    public static ushort FromRandom(int random) => (random & 0x000e) switch
     {
         0 or 10 => NormalLeft,
         4 or 8 => FastestLeft,

@@ -11,17 +11,23 @@ public sealed class ControllerInputState
     /// <c>$87/$89</c>. They default to zero because the retail game's secondary "fake new"
     /// output is unused; tools can provide small values to exercise repeat behavior.
     /// </summary>
-    public ControllerInputState(ushort initialRepeatDelay = 0, ushort subsequentRepeatDelay = 0)
+    public ControllerInputState(int initialRepeatDelay = 0, int subsequentRepeatDelay = 0)
     {
         InitialRepeatDelay = initialRepeatDelay;
         SubsequentRepeatDelay = subsequentRepeatDelay;
     }
 
-    /// <summary>Delay loaded when input is released or changes.</summary>
-    public ushort InitialRepeatDelay { get; set; }
+    /// <summary>
+    /// Frames loaded into <see cref="RepeatTimer"/> when input is released or changes, 0 through 65,535: any value the
+    /// repeat countdown can start at. The delay is only ever reloaded, never counted itself; the countdown keeps the wrap.
+    /// </summary>
+    public int InitialRepeatDelay { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
-    /// <summary>Delay loaded after a held-input repeat pulse.</summary>
-    public ushort SubsequentRepeatDelay { get; set; }
+    /// <summary>
+    /// Frames loaded into <see cref="RepeatTimer"/> after a held-input repeat pulse, 0 through 65,535: any value the
+    /// repeat countdown can start at. The delay is only ever reloaded, never counted itself; the countdown keeps the wrap.
+    /// </summary>
+    public int SubsequentRepeatDelay { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>Controller buttons currently down, corresponding to direct page <c>$8B</c>.</summary>
     public SnesButton Current { get; private set; }
@@ -92,14 +98,14 @@ public sealed class ControllerInputState
             if (RepeatTimer.IsZero)
             {
                 NewlyPressedWithRepeat = Current;
-                RepeatTimer = NativeCountdown.FromRaw(SubsequentRepeatDelay);
+                RepeatTimer = NativeCountdown.Start(SubsequentRepeatDelay);
             }
         }
         else
         {
             // A release, first press, or change in a multi-button chord all reload the
             // longer initial delay. The genuine newly-pressed output remains unaffected.
-            RepeatTimer = NativeCountdown.FromRaw(InitialRepeatDelay);
+            RepeatTimer = NativeCountdown.Start(InitialRepeatDelay);
         }
 
         Previous = Current;

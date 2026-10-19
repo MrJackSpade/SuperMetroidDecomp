@@ -60,8 +60,11 @@ public sealed record SuperMetroidGameOptions
     /// <summary>Lets Ceres and Zebes escape countdowns run normally, but holds them at 00:01.00 instead of expiring.</summary>
     public bool PreventEscapeTimeout { get; init; }
 
-    /// <summary>Optional total minutes used only for ending time/reward selection; null preserves actual playtime and SRAM is never changed.</summary>
-    public ushort? EndingTimeOverrideMinutes { get; init; }
+    /// <summary>
+    /// Optional total minutes, 0 through 65535 (the INI and recording formats accept up to 5999), used only for ending
+    /// time/reward selection; null preserves actual playtime and SRAM is never changed.
+    /// </summary>
+    public int? EndingTimeOverrideMinutes { get; init => field = value is { } minutes ? Ensure.BetweenInclusive(0, ushort.MaxValue, minutes) : null; }
 
     /// <summary>Temporary map visibility used by the HUD and pause-map presentations.</summary>
     /// <remarks>

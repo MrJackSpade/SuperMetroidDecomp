@@ -52,9 +52,9 @@ internal static class MessagePresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 8, "all eight calls must reproduce the missing family adapter first");
+        Require(before.UnresolvedCount == 8, "all eight calls must reproduce the missing family adapter first" + " (" + before.Describe() + ")");
         Require(report.Classifications.Count == 5 && report.UnresolvedCount == 3 && report.MissingCount == 0 &&
-            report.Consumers.Count == 8, "five owned operations qualify; three cross-family/save-only requests must fail");
+            report.Consumers.Count == 8, "five owned operations qualify; three cross-family/save-only requests must fail" + " (" + report.Describe() + ")");
         Require(report.Consumers.Single(item => item.Owner.EndsWith(".Contains", StringComparison.Ordinal))
             .Resolution == "closed-provider", "an unowned membership query is valid and does not demand its artwork");
         Require(report.Findings.All(item => item.Message.Contains("not owned", StringComparison.Ordinal)),

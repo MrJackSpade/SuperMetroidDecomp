@@ -33,7 +33,7 @@ internal static class CrocomireBodyVisualDefinitions
     private const ushort LaterBodyStart = 0xc752;
 
     /// <summary>Enumerates selected body roots without caching a duplicate pointer table.</summary>
-    internal static CrocomireBodyFrameSequence Frames => new(BodyFrameCount);
+    internal static IReadOnlyList<ushort> Frames => [.. Enumerable.Range(0, BodyFrameCount).Select(FramePointer)];
 
     /// <summary>Enumerates native frame roots in ascending order. A frame has a
     /// two-byte count plus eight bytes per component: strides $32, $3A and $0A.

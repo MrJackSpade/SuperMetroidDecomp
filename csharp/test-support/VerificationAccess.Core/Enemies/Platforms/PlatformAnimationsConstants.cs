@@ -13,5 +13,5 @@ internal static class PlatformAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params PlatformProgram[] programs) =>
         programs.SelectMany(program => PlatformAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => PlatformFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => PlatformFrameToolingDefinitions.Spritemap(step.Frame));
 }

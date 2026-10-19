@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms;
 
 
 namespace SuperMetroid.Core.Fx;
@@ -22,16 +23,6 @@ public static class RoomFxRomData
         public const int Tilemaps = 0x8a0000;
         /// <summary>SNES bank base containing palette-effect objects and bytecode.</summary>
         public const int PaletteFx = 0x8d0000;
-    }
-
-    /// <summary>Layout of one bank-$83 <c>FxDef</c> entry.</summary>
-    public static class Record
-    {
-        /// <summary>Size in bytes of one bank-$83 room-FX definition.</summary>
-        public const int ByteCount = 16;
-
-        /// <summary>Door word that terminates an FX list without selecting a record.</summary>
-        public const ushort TerminatorDoorPointer = ushort.MaxValue;
     }
 
     /// <summary>Fixed pointer tables shared by room loading and effect interpreters.</summary>
@@ -157,13 +148,6 @@ public static class RoomFxRomData
     /// <summary>Bank-$88 water-surface HDMA constants at <c>$88:C3FF-$C644</c>.</summary>
     public static class Water
     {
-        /// <summary>
-        /// Liquid-options bit two at WRAM <c>$197E</c>. When set, Samus movement ignores
-        /// the water surface; the n00b-tube PLM clears this bit at <c>$84:D525</c> after
-        /// the glass breaks.
-        /// </summary>
-        public const ushort PhysicsDisabledOption = 0x0004;
-
         /// <summary>Frames between BG3 wave-table rotations.</summary>
         public const ushort Bg3WavePhaseDuration = 10;
 
@@ -199,11 +183,6 @@ public static class RoomFxRomData
     /// <summary>Bank-$88 lava/acid BG2 distortion data at <c>$88:B4D5-$B628</c>.</summary>
     public static class LavaAcid
     {
-        /// <summary>Liquid-options bit selecting the vertical BG2 wave used by heat rooms.</summary>
-        public const ushort VerticalBg2WaveOption = 0x0002;
-
-        /// <summary>Liquid-options bit selecting the alternate horizontal BG2 wave.</summary>
-        public const ushort HorizontalBg2WaveOption = 0x0004;
 
         /// <summary>Frames between vertical-wave rotations in <c>$88:B5A9</c>.</summary>
         public const ushort VerticalWavePhaseDuration = 4;
@@ -261,11 +240,6 @@ public static class RoomFxRomData
     /// <summary>Shared water/lava/acid tide encoding consumed by <c>FxHandleTide</c>.</summary>
     public static class LiquidTide
     {
-        /// <summary>Liquid-options bit seven selects the ±8-pixel tide.</summary>
-        public const ushort SmallTideOption = 0x0080;
-
-        /// <summary>Liquid-options bit six selects the ±32-pixel tide.</summary>
-        public const ushort LargeTideOption = 0x0040;
 
         /// <summary>Small-tide sine scale before the native byte-shifted fixed add.</summary>
         public const int SmallTideScale = 8;
@@ -325,7 +299,7 @@ public static class RoomFxRomData
             };
             ushort subspeed = (ushort)(index < 17 ? 0x8000 + (index & 1) * 0x4000 :
                 index == 17 ? 0x7000 : index < 20 ? 0xc000 - (index - 18) * 0x4000 : 0);
-            return new(top, subspeed, 0, index == 11 ? 8 : index);
+            return new(top, SnesSignedSixteenSixteen.FromParts(0, subspeed), index == 11 ? 8 : index);
         }
         /// <summary>Number of horizontal-scroll accumulator and HDMA data slots.</summary>
         public const int DataSlotCount = 23;
@@ -390,30 +364,23 @@ public static class RoomFxRomData
         /// <summary>Rooms whose special-FX initialization suppresses quake sounds.</summary>
         public static class SoundSuppressedRooms
         {
-            /// <summary>The six room headers, valued by their bank-$8F header address.</summary>
-            private enum Room : ushort
-            {
-                /// <summary>Bomb Torizo room header <c>$8F:9804</c>.</summary>
-                BombTorizo = 0x9804,
-                /// <summary>Climb room header <c>$8F:96BA</c>.</summary>
-                Climb = 0x96ba,
-                /// <summary>Ridley room header <c>$8F:B32E</c>.</summary>
-                Ridley = 0xb32e,
-                /// <summary>Pillar room header <c>$8F:B457</c>.</summary>
-                Pillar = 0xb457,
-                /// <summary>Mother Brain room header <c>$8F:DD58</c>.</summary>
-                MotherBrain = 0xdd58,
-                /// <summary>Fourth Tourian escape room header <c>$8F:DEDE</c>.</summary>
-                TourianEscape4 = 0xdede,
-            }
+            /// <summary>The six rooms, in the order <c>$88:82CD..82E9</c> compares them.</summary>
+            private static readonly RoomHeaderDefinition[] Rooms =
+            [
+                RoomHeaderDefinitions.BombTorizo,
+                RoomHeaderDefinitions.Climb,
+                RoomHeaderDefinitions.Ridley,
+                RoomHeaderDefinitions.Pillar,
+                RoomHeaderDefinitions.MotherBrain,
+                RoomHeaderDefinitions.TourianEscape4,
+            ];
 
-            /// <summary>Whether room initialization disables earthquake sounds for this identity.</summary>
+            /// <summary>Whether room initialization disables earthquake sounds in <paramref name="room"/>.</summary>
             /// <remarks>Ports the six named comparisons at $88:82CD..82E9, whose shared
-            /// branch initializes the sound timer to FFFF. All other ushort identities,
-            /// including zero and unknown rooms, return false. Verified against original
-            /// NTSC J/U v1.0 instruction operands and pinned bank_88.asm
-            /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). No stored membership list remains.</remarks>
-            public static bool Contains(ushort room) => Enum.IsDefined((Room)room);
+            /// branch initializes the sound timer to FFFF. Every other room returns false.
+            /// Verified against original NTSC J/U v1.0 instruction operands and pinned
+            /// bank_88.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).</remarks>
+            public static bool Contains(RoomHeaderDefinition room) => Rooms.Contains(room);
         }
     }
     /// <summary>$8A:8000: first of the contiguous layer-3 FX tilemap pages.</summary>

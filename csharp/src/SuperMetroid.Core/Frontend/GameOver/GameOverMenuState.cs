@@ -10,13 +10,6 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 /// <summary>Retail game-over prompt at <c>$81:90AE-$81:93F7</c>.</summary>
 public sealed class GameOverMenuState
 {
-    /// <summary>Reusable OBJ raster cleared on each render; excluded from saved menu state.</summary>
-    [NonSerialized] private Rgba32[]? objectLayerScratch;
-    /// <summary>Scene-owned final frame; callers may retain its pixels only until the next render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
-
-    /// <summary>Address-space context retained for menu PPU construction and rebinding.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly CartridgeAudioState audio;
     /// <summary>Owns the scene's VRAM, palette, and installed menu presentation state.</summary>
@@ -31,12 +24,10 @@ public sealed class GameOverMenuState
     internal int missileTimer = 1;
     /// <summary>Current cursor animation frame shared by Yes and No positions.</summary>
     private int missileFrame;
-    /// <summary>Current compiled Baby animation instruction address.</summary>
-    internal ushort babyInstructionPointer;
+    /// <summary>Current step of the Baby pose program, or null before the first animation update of this visit.</summary>
+    internal int? babyStep;
     /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
     internal NativeCountdown babyInstructionTimer;
-    /// <summary>Native spritemap identity corresponding to the current Baby frame.</summary>
-    internal ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound after debugger restoration without changing menu timing.</summary>
@@ -46,27 +37,24 @@ public sealed class GameOverMenuState
         throw new InvalidOperationException("No map presentation is installed for the game-over screen.");
 
     /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
-    /// <param name="bus">Address-space context passed to the menu PPU and later presentation rebinding.</param>
     /// <param name="audio">Shared cartridge-style music and sound queue used by menu updates.</param>
     /// <param name="mapPresentation">Required installed presentation bundle, despite the compatibility default of null.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="audio"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="audio"/> is null.</exception>
     /// <exception cref="InvalidOperationException">No installed presentation bundle is supplied.</exception>
     /// <param name="continueLoadsCeresArrival">
     /// True when <c>SRAMMirror_LoadingGameState</c> is <c>$1F</c>: <c>$81:915D</c> then answers Yes by
     /// publishing the Ceres loader immediately instead of fading into the area map.
     /// </param>
     public GameOverMenuState(
-        ISnesAddressSpace bus,
         CartridgeAudioState audio,
         AreaMapPresentationCatalog? mapPresentation = null,
         bool continueLoadsCeresArrival = false)
     {
         this.continueLoadsCeresArrival = continueLoadsCeresArrival;
-        this.bus = Ensure.NotNull(bus);
         this.audio = Ensure.NotNull(audio);
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
-        ppu = new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,
+        ppu = new MenuPpuState(mapPresentation.Tiles, mapPresentation.Palettes,
             mapPresentation.WorldArtwork, mapPresentation.Sprites,
             loadInitialBackground: false);
         LoadGameOverTilemap(mapPresentation.GameOver);
@@ -113,10 +101,9 @@ public sealed class GameOverMenuState
         ppu.BindMapSprites(catalog.Sprites);
         ppu.BindMapPalettes(catalog.Palettes);
         LoadGameOverTilemap(catalog.GameOver);
-        if (babyInstructionPointer != 0)
+        if (babyStep is int step)
         {
-            GameOverBabyInstruction instruction =
-                GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
+            GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(step);
             catalog.GameOver.ApplyBabyPalette(ppu.Cgram, instruction.Palette);
         }
     }
@@ -161,7 +148,7 @@ public sealed class GameOverMenuState
             case GameOverMenuPhase.Initialize:
                 audio.QueueMusicDelayed8(MusicCommand.Stop);
                 audio.QueueMusicDelayed8(MusicCommand.LoadData(GameOverRomData.Music.DataIndex));
-                babyInstructionPointer = 0;
+                babyStep = null;
                 babyInstructionTimer = NativeCountdown.Start(0);
                 StepBabyMetroid();
                 SelectedItem = 0;
@@ -230,24 +217,6 @@ public sealed class GameOverMenuState
         }
     }
 
-    /// <summary>Composites the current BG1, Baby, egg, and selection cursor into a brightness-filtered 256x224 frame without advancing menu timing.</summary>
-    /// <returns>The scene-owned row-major RGBA buffer, valid only until this scene renders again; copy it before retaining a frame across later renders.</returns>
-    [PpuLayoutBoundary("backend: game-over software PPU composition")]
-    public Rgba32[] Render()
-    {
-        // `TM=$11` enables BG1 and OBJ only. Game-over does not retain the menu starfield.
-        Rgba32[] output = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
-        SnesBgTilemapRenderer.Composite4BppViewport(output, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), TilemapSize = new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight) });
-
-        PrepareRenderOam();
-        Rgba32[] objectLayer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objectLayer, ObjSpriteImage.OamOnly(oam), ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
-        SnesLayerCompositor.Composite(output,
-            objectLayer);
-        MasterBrightnessFilter.Apply(output, (byte)brightness);
-        return output;
-    }
-
     /// <summary>Copies installed BG1 game-over cells into the menu VRAM tilemap.</summary>
     private void LoadGameOverTilemap(GameOverPresentation presentation) =>
         presentation.LoadTilemapTo(new MenuVram(ppu.Vram).Bg1Tilemap);
@@ -269,9 +238,7 @@ public sealed class GameOverMenuState
         oam.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
-        GameOverBabyInstruction instruction = babyInstructionPointer == 0
-            ? GameOverBabyAnimationDefinitions.Get(GameOverBabyAnimationDefinitions.FirstPointer)
-            : GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
+        GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(babyStep ?? 0);
         content.GameOver.DrawBaby(oam, instruction.Frame);
         content.GameOver.DrawEgg(oam);
         content.GameOver.DrawCursor(oam, missileFrame, SelectedItem != 0);
@@ -289,26 +256,22 @@ public sealed class GameOverMenuState
     {
         if (babyInstructionTimer.IsZero)
         {
-            babyInstructionPointer = GameOverBabyAnimationDefinitions.FirstPointer;
-            babyInstructionTimer =
-                NativeCountdown.FromRaw(GameOverBabyAnimationDefinitions.Get(babyInstructionPointer).Duration);
+            babyStep = 0;
+            babyInstructionTimer = NativeCountdown.Start(GameOverBabyAnimation.Get(0).Duration);
         }
 
         babyInstructionTimer = babyInstructionTimer.Decrement().Remaining;
+        GameOverBabyInstruction current = GameOverBabyAnimation.Get(babyStep ??
+            throw new InvalidOperationException("The game-over Baby program is held before its first step."));
         if (babyInstructionTimer.IsZero)
         {
-            GameOverBabyInstruction completed =
-                GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
-            if (completed.SoundAfter != GameOverBabySound.None)
-                QueueCompiledBabySound(completed.SoundAfter);
-            babyInstructionPointer = completed.NextPointer;
-            babyInstructionTimer =
-                NativeCountdown.FromRaw(GameOverBabyAnimationDefinitions.Get(completed.NextPointer).Duration);
+            if (current.SoundAfter != GameOverBabySound.None)
+                QueueCompiledBabySound(current.SoundAfter);
+            current = GameOverBabyAnimation.Get(current.NextStep);
+            babyStep = current.Step;
+            babyInstructionTimer = NativeCountdown.Start(current.Duration);
         }
 
-        GameOverBabyInstruction current =
-            GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
-        babySpritemap = GameOverBabyAnimationDefinitions.NativeSpritemap(current.Frame);
         MapPresentation.GameOver.ApplyBabyPalette(ppu.Cgram, current.Palette);
     }
 

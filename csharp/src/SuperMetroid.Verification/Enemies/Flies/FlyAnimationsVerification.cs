@@ -14,7 +14,7 @@ internal static class FlyAnimationsVerification
     internal static void VerifyFlyAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, FlyAnimations.Programs,
-            FlyFrameDefinitions.Spritemap,
+            FlyFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  fly-family programs: {Entries.Length} programs ({steps} steps) match bank $A2.");

@@ -27,26 +27,26 @@ internal static class YardInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyYardInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        RoomEnemySystem enemies = CreateYardInstructionSystem(rom, out RoomEnemySlot yard);
-        YardEnemyState state = enemies.YardBehavior._yardStates[0] ?? throw new InvalidOperationException("The Yard has no state.");
+        RoomEnemySystem enemies = CreateYardInstructionSystem(out RoomEnemySlot yard);
+        YardEnemyState state = enemies.SlotTable.Slots[0].EntityState<YardEntity, YardEnemyState>() ?? throw new InvalidOperationException("The Yard has no state.");
         foreach (YardProgram program in Enum.GetValues<YardProgram>())
         {
             state.Program = AnimationProgramCursor<YardProgram>.Start(program);
-            RunYard(enemies, yard, 80);
+            RunYard(yard, 80);
         }
 
         // Hiding: the repeat cue resumes at the pose before it however often it runs.
         ushort repeatedPose = YardAnimations.Spritemaps(YardProgram.HidingUpsideUpMovingLeft).Last();
         state.Behavior = YardBehavior.Hiding;
         state.Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.HidingUpsideUpMovingLeft);
-        RunYard(enemies, yard, 20);
+        RunYard(yard, 20);
         AssertEqual(YardProgram.HidingUpsideUpMovingLeft, state.Program.Program, "a hiding Yard stays in its hiding animation");
         AssertEqual(repeatedPose, yard.SpritemapPointer, "a hiding Yard keeps re-showing the pose before the repeat cue");
 
         // Visible, with the fixture's even random draw: the cue runs on into the hidden animation.
         state.Behavior = YardBehavior.NormalCrawling;
         state.Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.HidingUpsideUpMovingLeft);
-        RunYard(enemies, yard, 3);
+        RunYard(yard, 3);
         AssertEqual(YardProgram.HiddenUpsideUpMovingLeft, state.Program.Program, "a visible Yard's even draw runs on into the hidden animation");
 
         Suite(nameof(YardAnimationsVerification.VerifyYardAnimations), () => YardAnimationsVerification.VerifyYardAnimations(rom));
@@ -54,30 +54,28 @@ internal static class YardInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Forces the requested number of animation updates.</summary>
-    private static void RunYard(RoomEnemySystem enemies, RoomEnemySlot yard, int updates)
+    private static void RunYard(RoomEnemySlot yard, int updates)
     {
         for (int update = 0; update < updates; update++)
         {
             yard.InstructionTimer = NativeCountdown.Start(1);
-            enemies.Instructions.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, (ushort)0);
+            EnemyInstructionInterpreter.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, (ushort)0);
         }
     }
 
     /// <summary>Creates a bank A3 Yard slot with deterministic random input and its behavior state installed.</summary>
     internal static RoomEnemySystem CreateYardInstructionSystem(
-        ISnesAddressSpace bus,
         out RoomEnemySlot yard)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 
         yard = enemies.SlotTable.Slots[0];
-        yard.EnemyDefinitionPointer = EnemyDefinitionId.Yard;
-        yard.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
-        var state = new YardEnemyState(yard) { Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.CrawlingUpsideUpMovingLeft) };
-        var states = (YardEnemyState?[])enemies.YardBehavior._yardStates;
-        states[0] = state;
+        yard.Bind(EnemyDefinitionId.Yard, yard.Definition);
+        yard.Bind(yard.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
+        var state = new YardEnemyState() { Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.CrawlingUpsideUpMovingLeft) };
+        yard.SetSpeciesState(state);
         return enemies;
     }
 

@@ -16,11 +16,11 @@ internal static class DraygonEyeEffectsVerification
     {
         foreach (bool facingRight in new[] { false, true })
         {
-            var runtime = CreateRetailRuntimeFixture(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
+            var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Draygon);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
             var eye = (runtime.Enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.DraygonBehavior.Draygon.")).Eye;
             eye.Position = eye.Position.WithWhole(new(128, 128));
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 256)) };

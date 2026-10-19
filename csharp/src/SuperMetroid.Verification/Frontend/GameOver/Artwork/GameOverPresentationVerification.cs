@@ -30,8 +30,8 @@ internal static class GameOverPresentationVerification
 
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new GameOverMenuState(bus, nativeAudio, original);
-        var installed = new GameOverMenuState(NewForbiddenMapBus(), installedAudio, original);
+        var native = new GameOverMenuState(nativeAudio, original);
+        var installed = new GameOverMenuState(installedAudio, original);
         bool choseNo = false;
         bool released = false;
         int comparedFrames = 0;
@@ -41,10 +41,10 @@ internal static class GameOverPresentationVerification
                 "installed game-over phase matches cartridge path");
             AssertEqual(native.SelectedItem, installed.SelectedItem,
                 "installed game-over selection matches cartridge path");
-            AssertEqual(native.BabyInstructionPointer, installed.BabyInstructionPointer,
-                "compiled Baby sequence retains native pointer identity");
-            AssertEqual(native.BabySpritemap, installed.BabySpritemap,
-                "compiled Baby sequence selects native frame identity");
+            AssertEqual(native.BabyStep, installed.BabyStep,
+                "compiled Baby sequence reaches the same program step");
+            AssertEqual(native.BabyFrame, installed.BabyFrame,
+                "compiled Baby sequence selects the same pose");
             AssertTrue(native.Render().SequenceEqual(installed.Render()),
                 $"installed game-over frame {tick} matches cartridge pixels");
             comparedFrames++;
@@ -108,9 +108,9 @@ internal static class GameOverPresentationVerification
         var originalEditAudio = new CartridgeAudioState();
         var editedAudio = new CartridgeAudioState();
         var originalMenu = new GameOverMenuState(
-            NewForbiddenMapBus(), originalEditAudio, original);
+            originalEditAudio, original);
         var editedMenu = new GameOverMenuState(
-            NewForbiddenMapBus(), editedAudio, edited);
+            editedAudio, edited);
         for (int frame = 0; frame < 40; frame++)
         {
             originalMenu.Step(0);
@@ -123,11 +123,11 @@ internal static class GameOverPresentationVerification
 
         for (int frame = 0; frame < 23; frame++)
             originalMenu.Step(0);
-        ushort pointerBeforeRebind = originalMenu.BabyInstructionPointer;
+        int? stepBeforeRebind = originalMenu.BabyStep;
         GameOverMenuPhase phaseBeforeRebind = originalMenu.Phase;
         byte babyXBeforeRebind = originalMenu.CaptureRenderSnapshot().Memory.Oam[0];
         originalMenu.BindMapPresentation(edited);
-        AssertEqual(pointerBeforeRebind, originalMenu.BabyInstructionPointer,
+        AssertEqual(stepBeforeRebind, originalMenu.BabyStep,
             "game-over content rebind preserves Baby animation phase");
         AssertEqual(phaseBeforeRebind, originalMenu.Phase,
             "game-over content rebind preserves menu phase");

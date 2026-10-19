@@ -22,6 +22,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks installed Draygon BG2 frames and collision components against native streams and live drawing.</summary>
 internal static class EnemyTileArtworkDraygonBg2FramesVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Compares 34 installed frames and 102 ordered tilemap writes with ROM, then checks guarded rendering and editable overrides.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon BG2 frames")]
     internal static void VerifyInstalledDraygonBg2Frames(
@@ -77,8 +80,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             }
             writeCount += native.Count;
             AssertTrue(ReadReferenceExtendedBg2Vram(rom, DraygonBg2FrameDefinitions.Bank, frame.Pointer, true)
-                    .SequenceEqual(DrawDraygonBg2(stock, noCartridge,
-                        frame.Pointer, true)),
+                    .SequenceEqual(DrawDraygonBg2(stock, frame.Pointer, true)),
                 $"Draygon {frame.Name} stock VRAM matches native without cartridge reads");
         }
         AssertEqual(34, DraygonBg2FrameDefinitions.Frames.Length,
@@ -110,7 +112,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         string overridePath = Path.Combine(overrideDirectory,
             DraygonBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            CamelCaseJson));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue((edited.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(editedIdentity.Pointer,
@@ -119,11 +121,9 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         int vramByte = (EnemyBg2FrameLayout.VramBase +
             editedFrame.Span[0].DestinationWord) * 2;
         AssertEqual((ushort)changedTile,
-            BitConverter.ToUInt16(DrawDraygonBg2(edited, noCartridge,
-                editedIdentity.Pointer, true), vramByte),
+            BitConverter.ToUInt16(DrawDraygonBg2(edited, editedIdentity.Pointer, true), vramByte),
             "Draygon visual override changes the live BG2 tile word");
-        AssertTrue(DrawDraygonBg2(edited, noCartridge,
-                editedIdentity.Pointer, false).All(value => value == 0),
+        AssertTrue(DrawDraygonBg2(edited, editedIdentity.Pointer, false).All(value => value == 0),
             "Draygon override preserves the native new-frame producer gate");
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
@@ -133,7 +133,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             "Draygon BG2 override survives reload");
         document.Frames[editedIdentity.Name][0] = first with { X = 32 };
         using var invalid = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            CamelCaseJson));
         AssertThrows<InvalidDataException>(
             () => DraygonBg2FrameCatalog.Load(invalid),
             "Draygon BG2 write outside its tilemap fails loudly");
@@ -145,7 +145,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     internal static void VerifyCompiledDraygonBg2Collision(
         SuperMetroidAddressSpace rom)
     {
-        var nativeLists = new HashSet<ushort>();
+        var nativeLists = new Dictionary<ushort, IReadOnlyList<DraygonCollisionHitbox>>();
         foreach (EnemyBg2FrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
             int root = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, frame.Pointer));
@@ -161,22 +161,22 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                     $"Draygon {frame.Name} collision X offset");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)component.Offset.Y),
                     $"Draygon {frame.Name} collision Y offset");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), (ushort)component.HitboxPointer,
-                    $"Draygon {frame.Name} hitbox list identity");
-                nativeLists.Add((ushort)component.HitboxPointer);
+                ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
+                if (nativeLists.TryGetValue(pointer, out IReadOnlyList<DraygonCollisionHitbox>? shared))
+                    AssertTrue(ReferenceEquals(shared, component.Hitboxes),
+                        $"Draygon {frame.Name} shares the list every frame naming hitbox list {pointer:X4} holds");
+                else
+                    nativeLists.Add(pointer, component.Hitboxes);
             }
         }
         AssertEqual(3, nativeLists.Count,
             "Draygon BG2 frames have three distinct native hitbox lists");
-        foreach (ushort pointer in nativeLists)
+        foreach ((ushort pointer, IReadOnlyList<DraygonCollisionHitbox> hitboxes) in nativeLists)
         {
             int list = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, pointer));
-            ReadOnlySpan<DraygonCollisionHitbox> hitboxes =
-                DraygonCollisionDefinitions.HitboxesAt(
-                ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list"));
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Length,
+            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
                 $"Draygon hitbox list {pointer:X4} rectangle count");
-            for (int index = 0; index < hitboxes.Length; index++)
+            for (int index = 0; index < hitboxes.Count; index++)
             {
                 int record = list + 2 + index * 12;
                 DraygonCollisionHitbox box = hitboxes[index];
@@ -188,24 +188,23 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                     $"Draygon list {pointer:X4} box {index} right");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
                     $"Draygon list {pointer:X4} box {index} bottom");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), box.TouchAi,
-                    $"Draygon list {pointer:X4} box {index} touch callback");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), box.ShotAi,
-                    $"Draygon list {pointer:X4} box {index} shot callback");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch),
+                    $"Draygon list {pointer:X4} box {index} touch reaction");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot),
+                    $"Draygon list {pointer:X4} box {index} shot reaction");
             }
         }
 
         // Invoke the production overlap walker with all cartridge reads
         // denied. This checks the actual dispatch, not just a matching table.
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody;
-        slot.Definition = default(RoomEnemyDefinition) with
+        slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = DraygonBg2FrameDefinitions.Bank,
-        };
+        });
         slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
         foreach (ushort pointer in new ushort[] { 0xa31b, 0xa643, 0xa36b })
         {
@@ -230,20 +229,19 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     /// <summary>Draws one selected Draygon frame through the enemy layer producer and captures its resulting VRAM bytes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] DrawDraygonBg2(EnemyTileArtworkCatalog art,
-        ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)
+        ushort pointer, bool newInstructionFrame)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
         var vram = new SnesVram();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody;
-        slot.Definition = default(RoomEnemyDefinition) with
+        slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = DraygonBg2FrameDefinitions.Bank,
-        };
+        });
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         if (newInstructionFrame)

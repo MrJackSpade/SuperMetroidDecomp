@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Checks Bomb Torizo's hand PLM from inventory gating through debris, VRAM transfer, and deletion.</summary>
 internal static class BombTorizoHandVerification
@@ -56,17 +57,17 @@ internal static class BombTorizoHandVerification
         ]);
         plms.Drawing.BombTorizoHandVisuals = editedVisuals;
 
-        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "undefeated Bomb Torizo hand occupies PLM slot");
         AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "enemy header scan sees live Bomb Torizo hand");
 
         // First pass draws the closed hand; second installs D33B and reaches sleep. Many
         // additional passes prove that neither a countdown nor host wall clock bypasses it.
-        plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         int handOrigin = level.GetBlockIndex(new(13, 11));
         AssertEqual((ushort)0x8065,
-            level.GetCollisionBlockByIndex(handOrigin).LevelWord,
+            level.GetCollisionBlockByIndex(handOrigin).PackedWord.Raw,
             "edited Bomb Torizo hand keeps the cartridge's physical level word");
         AssertEqual((ushort)0x0053,
             plms.TilemapUpdates[0].TopRow[0],
@@ -75,35 +76,35 @@ internal static class BombTorizoHandVerification
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                 handOrigin, 0).TopRow[0],
             "edited hand survives later background streaming");
-        AssertEqual((ushort)0x8064, level.GetCollisionBlock(new(12, 11)).LevelWord,
+        AssertEqual((ushort)0x8064, level.GetCollisionBlock(new(12, 11)).PackedWord.Raw,
             "multi-run hand geometry retains the second native run");
-        AssertEqual((ushort)0x8049, level.GetCollisionBlock(new(14, 12)).LevelWord,
+        AssertEqual((ushort)0x8049, level.GetCollisionBlock(new(14, 12)).PackedWord.Raw,
             "multi-run hand geometry retains the fourth native run");
-        plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         for (int frame = 0; frame < 180; frame++)
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "hand remains resident while Samus lacks Bombs");
         AssertEqual(0, plms.BombTorizoHand.VramWriteRequests.Count,
             "sleeping hand performs no premature DMA");
 
-        samus.CollectedItems |= (ushort)SamusEquipmentFlags.Bombs;
-        plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }); // D33B skips sleep, starts 120-frame wait.
+        samus.CollectedItems |= SamusEquipmentFlags.Bombs;
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }); // D33B skips sleep, starts 120-frame wait.
         AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "Bombs wake starts authored delay without deleting hand");
 
         for (int frame = 0; frame < 119; frame++)
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, plms.BombTorizoHand.VramWriteRequests.Count,
             "DMA waits for complete 120-frame post-pickup delay");
-        plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(1, plms.BombTorizoHand.VramWriteRequests.Count,
             "120th frame emits one PLM VRAM write");
         AssertEqual(0x0400, plms.BombTorizoHand.VramWriteRequests[0].SizeInBytes,
             "hand DMA byte count");
         AssertEqual(0xadb200, plms.BombTorizoHand.VramWriteRequests[0].SourceAddress,
             "hand DMA source address");
-        AssertEqual(0x6e00, plms.BombTorizoHand.VramWriteRequests[0].EncodedVramDestination,
+        AssertEqual(0x6e00, plms.BombTorizoHand.VramWriteRequests[0].Destination.Encoded,
             "hand DMA VRAM destination");
 
         if (installedArtwork is not null)
@@ -112,38 +113,38 @@ internal static class BombTorizoHandVerification
             // Drain that exact production request through the runtime's installed-art
             // provider and RAM-only memory boundary, as the accepted NMI does.
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(memory, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: BombTorizoHandFixturePalette());
+            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: BombTorizoHandFixturePalette());
             runtime.Enemies.TileArtwork = installedArtwork;
             PlmVramWriteRequest request = plms.BombTorizoHand.VramWriteRequests[0];
-            runtime.VramWrites.Enqueue(request.SizeInBytes, request.SourceAddress,
-                VramDmaDestination.FromNative(request.EncodedVramDestination));
-            runtime.VramWrites.DrainTo(runtime.Vram, memory, runtime.Artwork);
+            runtime.VramWrites.Enqueue(checked((ushort)request.SizeInBytes), request.SourceAddress,
+                request.Destination);
+            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
             AssertTrue(installedArtwork.TryResolve(request.SourceAddress,
                 request.SizeInBytes, out ReadOnlyMemory<byte> expected),
                 "Bomb Torizo PLM transfer resolves installed artwork");
             for (int offset = 0; offset < expected.Length; offset++)
                 AssertEqual(expected.Span[offset],
-                    runtime.Vram.ReadByte(request.EncodedVramDestination * 2 + offset),
+                    runtime.Vram.ReadByte(request.Destination.Encoded * 2 + offset),
                     $"Bomb Torizo debris DMA installs exact tile byte {offset:X4}");
             AssertEqual(0, runtime.VramWrites.TailInBytes,
                 "successful debris DMA clears the pending queue");
         }
 
-        var parameters = new List<ushort>();
+        var fragments = new List<int>();
         for (int frame = 0; frame < 400 && plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand); frame++)
         {
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            parameters.AddRange(plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Select(
-                request => request.Parameter));
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fragments.AddRange(plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Select(
+                request => request.Fragment));
         }
         AssertSequenceEqual(
-            new ushort[] { 0, 2, 4, 6, 8, 10, 12, 14 },
-            parameters,
-            "hand fragment parameters preserve cartridge order");
+            new[] { 0, 1, 2, 3, 4, 5, 6, 7 },
+            fragments,
+            "hand fragments preserve cartridge order");
         AssertTrue(!plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "final delete removes header seen by Torizo AI");
         AssertEqual((ushort)0x00ff,
-            level.GetCollisionBlockByIndex(handOrigin).LevelWord,
+            level.GetCollisionBlockByIndex(handOrigin).PackedWord.Raw,
             "five-run cleared hand removes its physical origin block");
         AssertEqual(1, plms.BombTorizoHand.MusicRequests.Count,
             "terminal hand pass queues one music command");
@@ -153,7 +154,7 @@ internal static class BombTorizoHandVerification
             "terminal hand music request");
 
         var defeated = new RoomPlmSystem();
-        AssertEqual(1, defeated.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
+        AssertEqual(1, defeated.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
             "single loader still parses defeated hand record before setup deletes it");
         AssertTrue(!defeated.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "defeated setup exposes no transient hand header");

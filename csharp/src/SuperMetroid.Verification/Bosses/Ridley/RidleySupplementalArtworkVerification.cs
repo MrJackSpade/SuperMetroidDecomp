@@ -34,9 +34,9 @@ internal static class RidleySupplementalArtworkVerification
             RidleyFacing facing = index < 10 ? RidleyFacing.Left : RidleyFacing.Right;
             ushort wingFrame = (ushort)(index % 10);
             OamBuffer actual = DrawInstalledRidleySupplement(
-                stock, rom, facing, wingFrame, tailDirection: null);
+                stock, facing, wingFrame, tailDirection: null);
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = native, Origin = new(200, 100), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = native, Origin = new(200, 100), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             AssertRidleySupplementOam(expected, actual,
                 $"Ridley wing selection {index} uses installed OAM without table or frame reads");
         }
@@ -49,11 +49,11 @@ internal static class RidleySupplementalArtworkVerification
             AssertEqual(nativeTip, RidleySupplementalVisualDefinitions.TailTipFrameAt(direction),
                 $"Ridley tail-tip direction {direction} matches the pinned ROM");
             OamBuffer actual = DrawInstalledRidleySupplement(
-                stock, rom, facing: RidleyFacing.Turning, wingFrame: 0, tailDirection: direction);
+                stock, facing: RidleyFacing.Turning, wingFrame: 0, tailDirection: direction);
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = nativeTip, Origin = new(140, 138), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = nativeTip, Origin = new(140, 138), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             for (int segment = 5; segment >= 0; segment--)
-                DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = RidleySupplementalVisualDefinitions.SegmentFrameAt(segment), Origin = new(unchecked((ushort)(80 + segment * 10)), unchecked((ushort)(120 + segment * 3))), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+                DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = RidleySupplementalVisualDefinitionsConstants.SegmentFrameAt(segment), Origin = new(unchecked((ushort)(80 + segment * 10)), unchecked((ushort)(120 + segment * 3))), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             AssertRidleySupplementOam(expected, actual,
                 $"Ridley tail direction {direction} retains tip-first reverse-segment OAM");
         }
@@ -68,21 +68,19 @@ internal static class RidleySupplementalArtworkVerification
 
     /// <summary>Constructs a Ridley state and draws its installed wing or articulated-tail supplement.</summary>
     internal static OamBuffer DrawInstalledRidleySupplement(
-        EnemyTileArtworkCatalog artwork, ISnesAddressSpace rom,
-        RidleyFacing facing, ushort wingFrame, int? tailDirection)
+        EnemyTileArtworkCatalog artwork, RidleyFacing facing, ushort wingFrame, int? tailDirection)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        enemies.BindFixtureBus(NewRidleySupplementReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
+        slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         slot.Position = slot.Position.WithWhole(new(200, 100));
         var state = new RidleyEnemyState
         {
-            MovementAnimationEnabled = 1,
+            MovementAnimationEnabled = true,
             FacingDirection = facing,
             WingFrame = wingFrame,
-            SpritemapPaletteIndex = 0x0200,
+            SpritemapPaletteIndex = SnesObjPalettes.Index1,
             TailSegments = tailDirection is null ? [] :
                 [.. Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 {
@@ -106,9 +104,4 @@ internal static class RidleySupplementalArtworkVerification
         AssertTrue(expected.ImageEquals(actual) &&
                    expected.NextByteOffset == actual.NextByteOffset, description);
 
-    /// <summary>Forbids wing, tail-tip, and segment ROM reads while installed Ridley art is drawn.</summary>
-    private static CartridgeReadGuard NewRidleySupplementReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6db02 and < 0xa6db2a or
-                >= 0xa6dc90 and < 0xa6de7a,
-            address => $"Installed Ridley supplement reread ROM byte ${address:X6}.");
 }

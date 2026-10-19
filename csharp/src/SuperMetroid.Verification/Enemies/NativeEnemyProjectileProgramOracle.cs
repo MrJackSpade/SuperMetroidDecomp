@@ -14,12 +14,12 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class NativeEnemyProjectileProgramOracle
 {
     /// <summary>The control commands every projectile list shares, and what each becomes.</summary>
-    private static readonly Dictionary<EnemyProjectileInstruction, AnimationProgramStepKind> ControlWords = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, AnimationProgramStepKind> ControlWords = new()
     {
-        [EnemyProjectileInstruction.GotoY] = AnimationProgramStepKind.GoTo,
-        [EnemyProjectileInstruction.Sleep] = AnimationProgramStepKind.Hold,
-        [EnemyProjectileInstruction.TimerInY] = AnimationProgramStepKind.SetCounter,
-        [EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = AnimationProgramStepKind.RepeatWhileCounting,
+        [NativeEnemyProjectileInstruction.GotoY] = AnimationProgramStepKind.GoTo,
+        [NativeEnemyProjectileInstruction.Sleep] = AnimationProgramStepKind.Hold,
+        [NativeEnemyProjectileInstruction.TimerInY] = AnimationProgramStepKind.SetCounter,
+        [NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = AnimationProgramStepKind.RepeatWhileCounting,
     };
 
     /// <summary>Compares every program with its native list under <paramref name="rules"/> and returns the total step count.</summary>
@@ -119,6 +119,11 @@ internal static class NativeEnemyProjectileProgramOracle
                 AssertEqual(following, fall.Target, $"{at}: fall-through target");
                 break;
             }
+            if (rules.EndsAt?.Invoke(cursor) == true)
+            {
+                AssertEqual(AnimationProgramStepKind.Hold, Next("end where routine code follows").Kind, $"{at}: the program ends where its list does");
+                break;
+            }
             int address = NativeEnemyProjectileListDefinitions.ProjectileBank | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
@@ -131,7 +136,7 @@ internal static class NativeEnemyProjectileProgramOracle
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
-            if (ControlWords.TryGetValue((EnemyProjectileInstruction)word, out AnimationProgramStepKind control))
+            if (ControlWords.TryGetValue((NativeEnemyProjectileInstruction)word, out AnimationProgramStepKind control))
             {
                 var step = Next(control.ToString());
                 AssertEqual(control, step.Kind, $"{at}: {control}");

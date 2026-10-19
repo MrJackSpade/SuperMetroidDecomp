@@ -34,7 +34,7 @@ public static class DoorClosingPlmRomData
             _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door direction."),
         },
         DoorClosingBehavior.EscapeGateCloses => new(PlmHeaderId.MotherBrainEscapeRoomGateClosing,
-            PlmProgramStart.Native(RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing)),
+            PlmProgramStart.Typed(ScriptedRoomPlmProgram.MotherBrainEscapeGateClosing)),
         _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door closing behavior."),
     };
 }

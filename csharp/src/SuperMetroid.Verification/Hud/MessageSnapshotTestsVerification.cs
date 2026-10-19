@@ -32,8 +32,8 @@ internal static class MessageSnapshotTestsVerification
         {
             if (id == GameplayMessageId.None) continue;
             var state = CreateGameplayMessageFixture();
-            AssertTrue(GameplayMessageBoxRenderer.Capture(state) is null, "inactive message has no overlay");
-            state.Begin(bus, id, 0);
+            AssertTrue(GameplayMessageBoxRendererConstants.Capture(state, vram) is null, "inactive message has no overlay");
+            state.Begin(id, 0);
             int previousRadius = -1;
             bool previousYes = true;
             bool toggledSave = false, releasedSave = false;
@@ -47,7 +47,7 @@ internal static class MessageSnapshotTestsVerification
                     previousYes = state.ConfirmationSelectionYes;
                     Rgba32[] expected = baseline.ToArray();
                     GameplayMessageBoxRendererConstants.Composite(expected, state, vram, cgram);
-                    MessageBoxRenderLayer? layer = GameplayMessageBoxRenderer.Capture(state);
+                    MessageBoxRenderLayer? layer = GameplayMessageBoxRendererConstants.Capture(state, vram);
                     RenderLayer[] layers = layer is null ? [] : [layer];
                     var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick),
                         new LayeredRenderSnapshot(memory, layers, 3, 15));
@@ -55,7 +55,8 @@ internal static class MessageSnapshotTestsVerification
                         $"message {id}, radius {state.RadiusPixels}");
                     if (layer is not null)
                     {
-                        AssertTrue(layer.Tilemap.SequenceEqual(state.Tilemap), "captured message words match source");
+                        AssertTrue(layer.Text.Cells.SequenceEqual(state.Tilemap.SelectToArray(word => BgCell.FromTilemapWord(new SnesBgTilemapWord(word)))),
+                            "captured message cells match the source words");
                         if (held is null) { held = packet; heldPixels = expected; }
                     }
                 }
@@ -72,7 +73,7 @@ internal static class MessageSnapshotTestsVerification
             }
             AssertTrue(!state.IsActive, $"message {id} completes reveal/close fixture");
             // Reuse the same live owner after closing, replacing its tilemap and radius.
-            state.Begin(bus, GameplayMessageIds.SaveCompleted, 0);
+            state.Begin(GameplayMessageIds.SaveCompleted, 0);
             AssertTrue(held is not null && heldPixels.SequenceEqual(RenderForComparison(held)),
                 "retained message survives closing and reuse of the source owner");
         }
@@ -80,13 +81,13 @@ internal static class MessageSnapshotTestsVerification
         // Independent geometric oracle: solid color-one glyphs must paint exactly the
         // intersection of the art's centered extent and the half-open reveal window.
         vram = new SnesVram();
-        for (int y = 0; y < 8; y++) vram.LoadBytes(GameplayMessageRomData.Layout.CharacterBaseWord * 2 + y * 2, [255, 0]);
+        for (int y = 0; y < 8; y++) vram.LoadBytes(GameplayVramLayout.HudCharacterWord * 2 + y * 2, [255, 0]);
         memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
         for (int rows = 3; rows <= 6; rows++)
         for (int radius = 0; radius <= 24; radius++)
         {
             ushort[] tiles = Enumerable.Repeat((ushort)(6 << 10), rows * 32).ToArray();
-            var layer = new MessageBoxRenderLayer(tiles, radius);
+            var layer = GameplayMessageBoxRendererConstants.Layer(tiles, radius, vram.CaptureImage());
             Array.Clear(tiles);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [layer], 3, 15));
             Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
@@ -104,8 +105,8 @@ internal static class MessageSnapshotTestsVerification
                 AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "older format rejects message operation");
             }
         }
-        AssertThrows<ArgumentException>(() => new MessageBoxRenderLayer(new ushort[95], 1), "partial message row rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => new MessageBoxRenderLayer(new ushort[96], 25), "invalid reveal radius rejected");
+        AssertThrows<ArgumentException>(() => GameplayMessageBoxRendererConstants.Layer(new ushort[95], 1, vram.CaptureImage()), "partial message row rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageBoxRendererConstants.Layer(new ushort[96], 25, vram.CaptureImage()), "invalid reveal radius rejected");
         Console.WriteLine($"  Message snapshots: {samples} retail/glyph-window comparisons and ownership/codec checks agree.");
     }
 }

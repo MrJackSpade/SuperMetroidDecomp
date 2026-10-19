@@ -77,10 +77,10 @@ internal static class EnemyGameplayAcceptanceVerification
         // immediately preceding physical slot. Choose one complete retail pair list,
         // not a hand-written visual-only approximation or a full room playthrough.
         CartridgeRoomState state = RoomStateDefinitions.All
-            .Where(candidate => IsKiHunterPairList(candidate.EnemyPopulationPointer))
-            .OrderBy(candidate => RoomEnemyPopulationDefinitions.Get(candidate.EnemyPopulationPointer).Records.Length)
-            .ThenBy(candidate => candidate.EnemyPopulationPointer).First();
-        RoomEnemyPopulationDefinition population = RoomEnemyPopulationDefinitions.Get(state.EnemyPopulationPointer);
+            .Where(candidate => IsKiHunterPairList(RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)))
+            .OrderBy(candidate => candidate.EnemyPopulation.Records.Length)
+            .ThenBy(candidate => RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)).First();
+        RoomEnemyPopulationDefinition population = state.EnemyPopulation;
         (RoomEnemySystem baseline, SnesVram beforeVram, SnesCgram beforeColors) = Load(stock);
         AssertEqual(population.Records.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
         AssertEqual(population.Records.Length * RoomEnemySystem.NativeSlotSize, baseline.SlotTable.FirstFreeEnemyIndex,
@@ -146,7 +146,7 @@ internal static class EnemyGameplayAcceptanceVerification
         AssertEqual(baseline.PopulationLoader.DeathQuota, changed.PopulationLoader.DeathQuota, "enemy artwork cannot change death quota");
         AssertEqual(baseline.SlotTable.FirstFreeEnemyIndex, changed.SlotTable.FirstFreeEnemyIndex, "enemy artwork cannot change slot allocation");
         AssertEqual(baseline.RoomStatus.BossId, changed.RoomStatus.BossId, "enemy artwork cannot change boss selection");
-        Console.WriteLine($"Enemy population binding: {population.Records.Length} linked slots at $A1:{population.Pointer:X4} " +
+        Console.WriteLine($"Enemy population binding: {population.Records.Length} linked slots at {population.Name} " +
             "initialize with RAM-only memory; PNG edits change VRAM, not any slot field or quota.");
 
         (RoomEnemySystem, SnesVram, SnesCgram) Load(EnemyTileArtworkCatalog artwork)
@@ -154,7 +154,7 @@ internal static class EnemyGameplayAcceptanceVerification
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             var vram = new SnesVram(); var colors = new SnesCgram();
-            enemies.Load(new RoomEnemyLoadRequest(memory, state.EnemyPopulationPointer, state.EnemyTilesetPointer, vram, colors, new StandaloneRoomEnemyServices(() => 1)));
+            enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, state.EnemyPopulation, state.EnemyGraphicsSet, vram, colors, new StandaloneRoomEnemyServices(() => 1)));
             return (enemies, vram, colors);
         }
 

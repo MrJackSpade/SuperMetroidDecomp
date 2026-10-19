@@ -20,25 +20,25 @@ internal static class WrapShotRoomsVerification
     internal static void VerifyRetailWrapShotDoors()
     {
         foreach (var setup in new[] {
-            (Room: RoomHeaderPointers.LandingSite, X: 2260, Y: 546, Target: 0x1561, Beams: 9, Hit: 9),
-            (Room: RoomHeaderPointers.Crocomire, X: 2004, Y: 34, Target: 0x0301, Beams: 9, Hit: 9),
-            (Room: RoomHeaderPointers.GreenBrinstarMainShaft, X: 38, Y: 1606, Target: 0x2981, Beams: 5, Hit: 5),
+            (Room: RoomHeaderDefinitions.LandingSite, X: 2260, Y: 546, Target: 0x1561, Beams: 9, Hit: 9),
+            (Room: RoomHeaderDefinitions.Crocomire, X: 2004, Y: 34, Target: 0x0301, Beams: 9, Hit: 9),
+            (Room: RoomHeaderDefinitions.GreenBrinstarMainShaft, X: 38, Y: 1606, Target: 0x2981, Beams: 5, Hit: 5),
         })
         foreach (int beams in new[] { setup.Beams, 1, 0 })
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = CreateRetailRuntimeFixture(bus);
+            var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(setup.Room);
             var level = runtime.Room.LoadedLevelData;
-            bool left = setup.Room == RoomHeaderPointers.GreenBrinstarMainShaft;
+            bool left = setup.Room == RoomHeaderDefinitions.GreenBrinstarMainShaft;
             var samus = runtime.Player.IntroducedSamus;
             samus.Position = samus.Position.WithWhole(new((ushort)setup.X, (ushort)setup.Y));
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
             samus.PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose;
-            samus.EquippedBeams = (ushort)beams;
+            samus.EquippedBeams = (SamusBeamFlags)((ushort)beams);
             AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(setup.Target).CollisionType, "Retail remote cap begins closed");
             int firstHit = -1, firstClear = -1;
             bool openingSound = false;
@@ -47,11 +47,11 @@ internal static class WrapShotRoomsVerification
             for (int frame = 0; frame < 40; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                runtime.BombProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-                runtime.Projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
+                runtime.BombProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+                runtime.Projectiles.StepFrame(new SamusTerrain { Level = level, Plms = runtime.Plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
                 if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))
                     firstHit = frame;
-                runtime.Plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(cameraX, cameraY), Bg1XOffset = 0 });
+                runtime.Plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(cameraX, cameraY), Bg1XOffset = 0 });
                 openingSound |= runtime.Plms.Sounds.SoundRequests.Any(request => request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
                 if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.X).CollisionType == RoomCollisionType.Air))
                     firstClear = frame;

@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -58,7 +59,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
                 $"Tourian statue entry parameter {parameter} preserves full native CGRAM");
             AssertEqual(ReadReferenceWord(0xaad810 + parameter),
                 NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
-                    (installed.TourianEntranceStatueBehavior._statuePrograms[0] ?? throw new InvalidOperationException("The statue has no animation.")).Program),
+                    (installed.TourianEntranceStatueBehavior._extensions[0].Program ?? throw new InvalidOperationException("The statue has no animation.")).Program),
                 $"Tourian statue entry parameter {parameter} keeps instruction selection");
             AssertEqual(parameter == 0 ? 3 : 0,
                 installed.Projectiles.EnemyProjectiles.Count(x => x.IsActive),
@@ -214,26 +215,25 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         static (RoomEnemySystem, SnesCgram) CreateEnemy(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemy = new RoomEnemySystem { TileArtwork = artwork };
             SnesCgram cgram = SeedColors();
-            enemy.BindFixtureBus(source);
+            enemy.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemy.Presentation._cgram = cgram;
             return (enemy, cgram);
         }
 
         static void Initialize(RoomEnemySystem enemy, ushort parameter)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Parameter1 = parameter;
+            slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             enemy.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
         }
 
         static SuperMetroidRuntime CreateGreyRoom(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
-            var runtime = CreateRetailRuntimeFixture(source, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.Enemies.TileArtwork = artwork;
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -242,7 +242,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
                 runtime.System.SetBossBits(area, BossBits.AreaBoss);
             for (int greyEvent = 6; greyEvent <= 9; greyEvent++)
                 runtime.System.SetEventRaw(greyEvent);
-            runtime.LoadCartridgeRoomForDebug(0xa66a);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
             AssertTrue(runtime.TourianStatues.Enabled,
                 "retail Tourian statue room enables grey animation programs");
             return runtime;

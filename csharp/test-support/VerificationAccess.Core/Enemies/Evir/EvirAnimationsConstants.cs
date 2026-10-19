@@ -13,5 +13,5 @@ internal static class EvirAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params EvirProgram[] programs) =>
         programs.SelectMany(program => EvirAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => EvirFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => EvirFrameToolingDefinitions.Spritemap(step.Frame));
 }

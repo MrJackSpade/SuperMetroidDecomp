@@ -19,7 +19,6 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         SuperMetroidAddressSpace rom)
     {
         const int populationAddress = 0xa9be28;
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         RoomEnemyPopulationRecord population =
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
@@ -28,11 +27,11 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             (ushort)population.DefinitionPointer,
             population.Position.X,
             population.Position.Y,
-            population.InitializationParameter,
-            population.Properties,
-            population.ExtraProperties,
-            population.Parameter1,
-            population.Parameter2,
+            checked((ushort)population.InitializationParameter),
+            population.Properties.ToNativeWord(),
+            population.ExtraProperties.ToNativeWord(),
+            checked((ushort)population.Parameter1),
+            checked((ushort)population.Parameter2),
         ];
         for (int word = 0; word < actual.Length; word++)
         {
@@ -45,11 +44,11 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 
         var guarded = NewMotherBrainBabyPopulationReadGuard(rom);
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = new SnesCgram();
 
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
+        body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         var state = new MotherBrainEnemyState(body)
         {
             RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(),

@@ -13,6 +13,6 @@ internal sealed class PolypRockAnimation(PolypRockProgram program)
     private protected override AnimationProgramSet<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue> Programs => PolypRockAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(PolypRockFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(PolypRockFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(PolypRockFrame frame) =>
+        PolypRockFrameDefinitions.ShownProjectileFrames[frame];
 }

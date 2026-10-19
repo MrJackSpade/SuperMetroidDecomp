@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
@@ -16,5 +18,15 @@ internal static class RinkaFrameDefinitions
         3 => 0xba4d,
         4 => 0xba54,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Rinka pose."),
+    };
+
+    /// <summary>The installed frame each <see cref="RinkaFrame"/> shows.</summary>
+    internal static EnemyFrameTable<RinkaFrame> ShownFrames { get; } = new()
+    {
+        { new(Pose: 0), EnemyFrameId.RinkaSpinBa38 },
+        { new(Pose: 1), EnemyFrameId.RinkaSpinBa3f },
+        { new(Pose: 2), EnemyFrameId.RinkaSpinBa46 },
+        { new(Pose: 3), EnemyFrameId.RinkaSpinBa4d },
+        { new(Pose: 4), EnemyFrameId.RinkaSpinBa54 },
     };
 }

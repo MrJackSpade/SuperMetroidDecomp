@@ -18,7 +18,7 @@ internal static class SamusBeamLoadoutWordAccess
         {
             if ((uint)combinationIndex > CombinationMask)
                 throw new ArgumentOutOfRangeException(nameof(combinationIndex));
-            return (ushort)((self.Raw & ~CombinationMask) | combinationIndex);
+            return (ushort)((self.Beams.ToNativeWord() & ~CombinationMask) | combinationIndex);
         }
     }
 }

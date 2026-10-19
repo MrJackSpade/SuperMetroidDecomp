@@ -12,6 +12,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Mother Brain's persistent head collision frame separately from her drawn brain animation.</summary>
 internal static class MotherBrainHeadHitboxVerification
@@ -22,25 +23,24 @@ internal static class MotherBrainHeadHitboxVerification
     /// </summary>
     internal static void VerifyMotherBrainHeadHitbox()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot head = state.Head;
         AssertEqual(AnimationProgramCursor<MotherBrainHeadProgram>.Start(MotherBrainHeadProgram.Initial), state.BrainCursor,
             "the brain program starts at InstList_MotherBrainHead_Initial");
 
-        runtime.Enemies.Instructions.ProcessInstructions(head, null, null, Position16<RoomPixels>.Zero, (ushort)0);
+        EnemyInstructionInterpreter.ProcessInstructions(head, null, null, Position16<RoomPixels>.Zero, (ushort)0);
         AssertEqual((ushort)0xa320, head.SpritemapPointer, "the head enemy carries the dummy list's hitbox frame");
 
         // The movie's frame: second form, head at ($7C,$58) when the beam at ($9E,$81) reaches
         // it. A 16-pixel radius test misses by one pixel (41 > 40); the hitbox overlaps.
-        state.Form = 2;
+        state.Form = MotherBrainForm.SecondPhase;
         head.Health = 18000;
         head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
         head.InvincibilityTimer = NativeCountdown.Start(0);
@@ -49,7 +49,7 @@ internal static class MotherBrainHeadHitboxVerification
         shot.Type = 0x901b; shot.Damage = 900; shot.Direction = 8;
         shot.Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.Radius = new(24, 24);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus);
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus);
         AssertEqual((ushort)17100, head.Health, "the charged beam lands on the head's native hitbox");
         Console.WriteLine("Mother Brain head hitbox: the head enemy keeps $A320; the brain list runs separately.");
     }

@@ -8,14 +8,19 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal sealed class EnemyFrameContext
 {
-    /// <summary>Enemy-pass random counter read by native AI and projectile routines.</summary>
-    internal ushort _randomEnemyCounter;
+    /// <summary>
+    /// Enemy-pass random counter read by native AI and projectile routines, 0 through 65535. Its one advance wraps
+    /// from 65535 back to zero, and every reader takes its low bits or copies it whole, so a wider store holds exactly
+    /// the counter the cartridge keeps.
+    /// </summary>
+    internal int _randomEnemyCounter;
 
     /// <summary>
-    /// The 16-bit NMI_FrameCounter ($05B6) for the current enemy pass. It is independent of
-    /// the 8-bit $05B5 counter; standalone audits seed both from the same enemy clock.
+    /// The sixteen-bit frame counter for the current enemy pass, 0 through 65535, copied from the frame clock (or the
+    /// random counter when the pass has none). It is independent of the eight-bit counter; standalone audits seed both
+    /// from the same enemy clock. Readers take its low bits.
     /// </summary>
-    internal ushort _enemyFrameNmiFrameCounter;
+    internal int _enemyFrameNmiFrameCounter;
     /// <summary>Live projectile system supplied by EnemyMain to both ordinary and custom enemy-touch callbacks.</summary>
     internal SamusProjectileSystem? _samusProjectilesForEnemyFrame;
     /// <summary>Forces every enemy slot through the current pass when native processing requires a full sweep.</summary>

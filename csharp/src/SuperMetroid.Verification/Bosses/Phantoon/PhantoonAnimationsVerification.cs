@@ -26,19 +26,19 @@ using SuperMetroid.Core;
 internal static class PhantoonAnimationsVerification
 {
     /// <summary>Creates the four linked Phantoon parts and a deterministic random source.</summary>
-    internal static RoomEnemySystem CreatePhantoonSystem(ISnesAddressSpace bus)
+    internal static RoomEnemySystem CreatePhantoonSystem()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
         RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];
         RoomEnemySlot mouth = enemies.SlotTable.Slots[3];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
-        eye.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonEye;
-        tentacles.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonTentacles;
-        mouth.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonMouth;
+        body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
+        eye.Bind(EnemyDefinitionId.PhantoonEye, eye.Definition);
+        tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.Definition);
+        mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.Definition);
         enemies.PhantoonBehavior.Phantoon = new PhantoonEnemyState(body)
         {
             Eye = eye,
@@ -103,7 +103,7 @@ internal static class PhantoonAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, steps[index].Kind, $"{at}: frame");
                     AssertEqual((int)word, steps[index].Duration, $"{at}: duration");
-                    AssertEqual(operand, steps[index].Frame.Spritemap, $"{at}: spritemap");
+                    AssertEqual(operand, PhantoonPartFrameSpritemapsConstants.Spritemap(steps[index].Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
                     continue;
@@ -137,11 +137,11 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>Runs one part update, optionally expiring the current frame first.</summary>
-    private static void Pass(RoomEnemySystem enemies, RoomEnemySlot part, bool forceExpiry = false)
+    private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
     {
         if (forceExpiry)
             part.InstructionTimer = NativeCountdown.Start(1);
-        enemies.Instructions.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyInstructionInterpreter.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>
@@ -150,39 +150,39 @@ internal static class PhantoonAnimationsVerification
     /// </summary>
     private static void VerifyEyeOpening()
     {
-        RoomEnemySystem enemies = CreatePhantoonSystem(NewSlopeHeightNoReadBus());
+        RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemySlot eye = state.Eye;
         state.PartProgram(eye) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.EyeOpen);
         eye.InstructionTimer = NativeCountdown.Start(1);
         for (int frame = 0; frame < 3; frame++)
         {
-            Pass(enemies, eye, forceExpiry: true);
-            AssertEqual(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, frame).Spritemap, eye.SpritemapPointer, $"opening eye frame {frame}");
+            Pass(eye, forceExpiry: true);
+            AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, frame)), eye.SpritemapPointer, $"opening eye frame {frame}");
         }
         AssertTrue(state.LastMaterializationSound is null, "the materialization sound waits for the last frame to expire");
-        Pass(enemies, eye, forceExpiry: true);
+        Pass(eye, forceExpiry: true);
         AssertTrue(state.LastMaterializationSound.HasValue, "the opened eye queues its materialization sound");
         AssertEqual(PhantoonPartProgram.EyeHitboxBody, PartProgram(enemies, state.Body), "the opened eye installs the eye-only body hitbox");
         AssertEqual(PhantoonPartProgram.EyeOpen, PartProgram(enemies, eye), "the list's sleep keeps the eye on its opened program");
-        AssertEqual(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, 2).Spritemap, eye.SpritemapPointer, "the opened eye keeps its last frame");
+        AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, 2)), eye.SpritemapPointer, "the opened eye keeps its last frame");
         AssertEqual((ushort)1, eye.InstructionTimer.RawValue, "the callback's one-update timer survives the sleep");
     }
 
     /// <summary>The mouth's flame program spawns one casual flame and runs on into its initial frame.</summary>
     private static void VerifyMouthFlame()
     {
-        RoomEnemySystem enemies = CreatePhantoonSystem(NewSlopeHeightNoReadBus());
+        RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemySlot mouth = state.Mouth;
         state.PartProgram(mouth) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.MouthSpawnFlame);
-        Pass(enemies, mouth, forceExpiry: true);
-        Pass(enemies, mouth, forceExpiry: true);
+        Pass(mouth, forceExpiry: true);
+        Pass(mouth, forceExpiry: true);
         AssertEqual(0, ActiveFlames(enemies), "the mouth opens before it spawns");
-        Pass(enemies, mouth, forceExpiry: true);
+        Pass(mouth, forceExpiry: true);
         AssertEqual(1, ActiveFlames(enemies), "the mouth spawns one casual flame");
         AssertEqual(PhantoonPartProgram.MouthInitial, PartProgram(enemies, mouth), "the mouth runs on into its initial program");
-        AssertEqual(new PhantoonPartFrame(PhantoonPartFrameKind.Mouth, 0).Spritemap, mouth.SpritemapPointer, "the mouth shows its closed frame at once");
+        AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.Mouth, 0)), mouth.SpritemapPointer, "the mouth shows its closed frame at once");
     }
 
     /// <summary>Active Phantoon destroyable flames.</summary>
@@ -231,7 +231,7 @@ internal static class PhantoonAnimationsVerification
     /// <summary>A projectile system whose drops have a Samus to read.</summary>
     private static RoomEnemySystem NewFlameSystem()
     {
-        RoomEnemySystem enemies = CreatePhantoonSystem(NewSlopeHeightNoReadBus());
+        RoomEnemySystem enemies = CreatePhantoonSystem();
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 128);
         enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -268,7 +268,7 @@ internal static class PhantoonAnimationsVerification
     private static void VerifyPrePhantoonRoomAnimation(IImportCartridgeSource cartridge)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var scroll = new BackgroundScrollState();
         enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile(scroll);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoom);
@@ -285,7 +285,7 @@ internal static class PhantoonAnimationsVerification
             // The native operand selects the empty projectile spritemap, which has no installed program frame.
             AssertEqual(cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | native.Operand), projectile.SpritemapPointer,
                 $"pre-Phantoon room update {update}: spritemap");
-            AssertEqual(EnemyProjectileAnimation.EmptyFrameKey, projectile.PresentationOperandAddress, $"pre-Phantoon room update {update}: no program frame");
+            AssertTrue(projectile.Frame == EnemyProjectileFrameId.Blank, $"pre-Phantoon room update {update}: the blank frame, no program frame");
         }
         AssertTrue(native.Deleted, "the pre-Phantoon room projectile deletes itself");
     }

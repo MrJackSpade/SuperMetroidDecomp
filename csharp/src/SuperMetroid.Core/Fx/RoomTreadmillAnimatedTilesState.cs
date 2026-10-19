@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -13,13 +14,11 @@ public sealed class RoomTreadmillAnimatedTilesState
     internal readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
     /// <summary>Clears the previous population and follows the selected FX record's native bit order.</summary>
-    public void LoadRoom(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer, AreaId area)
+    public void LoadRoom(RoomFxDefinition? fx, CartridgeDoorHeader? door, AreaId area)
     {
         objects.Clear();
-        if (fxPointer == 0) return;
-        ushort record = RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
-        if (record == 0) return;
-        byte bits = RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
+        if (fx?.Select(door) is not { } record) return;
+        byte bits = record.AnimatedTileBitset;
         for (int bit = 0; bit < 8; bit++)
         {
             if ((bits & (1 << bit)) == 0) continue;
@@ -43,14 +42,14 @@ public sealed class RoomTreadmillAnimatedTilesState
             // native object identity, not room number or an assumed area-specific bit.
             if (direction is null) continue;
             var animation = new WreckedShipTreadmillAnimatedTilesState();
-            animation.Start(bus, direction.Value);
+            animation.Start(direction.Value);
             objects.Add(animation);
         }
     }
 
     /// <summary>Runs each selected native list; its boss wait gates graphics independently of floor collision.</summary>
-    public void Step(ISnesAddressSpace bus, bool areaBossDefeated, VramWriteQueue writes)
+    public void Step(bool areaBossDefeated, VramWriteQueue writes)
     {
-        foreach (var animation in objects) animation.Step(bus, areaBossDefeated, writes);
+        foreach (var animation in objects) animation.Step(areaBossDefeated, writes);
     }
 }

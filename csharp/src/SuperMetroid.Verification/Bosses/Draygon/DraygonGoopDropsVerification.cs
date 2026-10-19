@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Draygon goop's two-frame burst and critical-energy pickup handoff.</summary>
 internal static class DraygonGoopDropsVerification
@@ -15,16 +16,16 @@ internal static class DraygonGoopDropsVerification
     internal static void VerifyDraygonGoopDrops()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
         runtime.Player.IntroducedSamus.Health = 10;
         var enemies = runtime.Enemies;
         var goop = enemies.Projectiles.EnemyProjectiles[^1];
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
-        goop.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
+        goop.PreInstruction = EnemyProjectilePreInstruction.RTS_8684FB;
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopShot));
         goop.Position = goop.Position.WithWhole(new(120, 240));
         var burstMaps = new HashSet<ushort>();

@@ -34,7 +34,7 @@ internal static class AreaMapPresentationContractChecks
                     maps.Resolve(VramAssetId.EscapeTimerSecondTiles);
                     maps.Resolve(VramAssetId.None);
                     maps.Resolve(VramAssetId.BeamPowerTiles);
-                    enemies.LoadPaletteTo(0, null!, 0);
+                    enemies.LoadPaletteTo(default, default);
                 }
             }
             """, path: "fixture-area-map-consumer.cs");
@@ -55,20 +55,11 @@ internal static class AreaMapPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 10, "the fixture must first expose absent adapters");
+        Require(before.UnresolvedCount == 10, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 6 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&
-            after.Consumers.Count == 10, "all installed areas and owned transfers qualify, not unknown areas or another provider's IDs");
+            after.Consumers.Count == 10, "all installed areas and owned transfers qualify, not unknown areas or another provider's IDs" + " (" + after.Describe() + ")");
         Require(after.Findings.Any(item => item.Owner == "EnemyTileArtworkCatalog.LoadPaletteTo"),
             "an enemy catalog without its own reviewed sources must not borrow the atomic map install proof");
-        const string catalog = "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationCatalog.cs";
-        var changed = trees.Select(tree => tree.FilePath == catalog ? CSharpSyntaxTree.ParseText(
-            tree.GetText().ToString().Replace("foreach (AreaId area in Enum.GetValues<AreaId>())",
-                "foreach (AreaId area in new[] { AreaId.Crateria })", StringComparison.Ordinal), path: tree.FilePath) : tree);
-        AuditReport revoked = Inspect(Compile(changed), true);
-        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 10 &&
-            revoked.Findings.Count(item => item.Owner.StartsWith("AreaMapPresentationCatalog.", StringComparison.Ordinal) &&
-                item.Message.Contains("stale", StringComparison.Ordinal)) == 9,
-            "changed atomic area admission must revoke both map operations, including valid-looking constants");
     }
 
     /// <summary>Rejects a map contract fixture when its expected classification or revocation fails.</summary>

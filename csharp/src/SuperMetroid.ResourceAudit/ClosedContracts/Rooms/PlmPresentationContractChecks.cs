@@ -34,6 +34,17 @@ internal static class PlmPresentationContractChecks
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
+        // The consumer names draws through these internal enums; compiled from source so its constants bind.
+        trees.AddRange(new[]
+        {
+            "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonDraw.cs", "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueDraw.cs",
+            "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessDraw.cs", "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidRoomDraw.cs",
+            "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaDraw.cs", "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFakeDeathDraw.cs",
+            "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandDraw.cs", "csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorPlatformDraw.cs",
+            "csharp/src/SuperMetroid.Core/Rooms/LevelData/BombBlockRestoreDraw.cs", "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCeilingDraw.cs",
+            "csharp/src/SuperMetroid.Core/Rooms/Plms/SamusEaterDraw.cs",
+        }.Where(path => trees.All(tree => tree.FilePath != path))
+            .Select(path => CSharpSyntaxTree.ParseText(File.ReadAllText(path), path: path)));
         const string consumer = """
             using SuperMetroid.Core.Areas.Maridia;
             using SuperMetroid.Core.Areas.Tourian;
@@ -114,6 +125,10 @@ internal static class PlmPresentationContractChecks
             platforms.Append(typeof(RoomPlmShotBlockVisualCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        // An unbound consumer argument has no constant, which silently widens a selection to every draw.
+        Diagnostic[] consumerErrors = [.. compilation.GetSemanticModel(calls).GetDiagnostics()
+            .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)];
+        Require(consumerErrors.Length == 0, "the fixture consumer must bind every selection: " + string.Join(" | ", consumerErrors.Select(error => error.ToString())));
         var exports = new ResourceIndex();
         var adapter = new ClosedPresentationAudit(compilation, exports);
         var before = new AuditReport();
@@ -123,9 +138,10 @@ internal static class PlmPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 41, "the forty-one calls must reproduce the identified missing adapters first");
+        Require(before.UnresolvedCount == 41, "the forty-one calls must reproduce the identified missing adapters first" + " (" + before.Describe() + ")");
         Require(report.Classifications.Count == 20 && report.UnresolvedCount == 21 && report.MissingCount == 0 &&
-            report.Consumers.Count == 41, "complete valid-domain calls qualify, but wrong pointers and tuple components still fail");
+            report.Consumers.Count == 41, "complete valid-domain calls qualify, but wrong pointers and tuple components still fail " +
+            "(expected 20/21/0/41; " + report.Describe() + ")");
         Require(report.Findings.Any(item => item.Message.Contains("drawPointer", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("runIndex", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("word/block", StringComparison.Ordinal)),

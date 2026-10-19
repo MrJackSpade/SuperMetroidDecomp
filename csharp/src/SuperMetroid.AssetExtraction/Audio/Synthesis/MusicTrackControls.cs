@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal static class MusicTrackControls
 {
     /// <summary>Distinguishes a control word from a phrase pointer, end marker or repeat count.</summary>
-    internal static bool TryDecode(ushort record, out MusicTrackControl control)
+    internal static bool TryDecode(int record, out MusicTrackControl control)
     {
         if (!Enum.IsDefined((MusicTrackControl)record))
         {
@@ -16,6 +16,6 @@ internal static class MusicTrackControls
     }
 
     /// <summary>True when <paramref name="record"/> is exactly <paramref name="control"/>.</summary>
-    internal static bool Is(ushort record, MusicTrackControl control) =>
+    internal static bool Is(int record, MusicTrackControl control) =>
         TryDecode(record, out MusicTrackControl decoded) && decoded == control;
 }

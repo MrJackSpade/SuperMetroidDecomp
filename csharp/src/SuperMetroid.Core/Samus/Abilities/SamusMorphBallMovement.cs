@@ -23,16 +23,16 @@ public static class SamusMorphBallMovement
 {
     /// <summary>Executes movement type four at <c>$90:A521</c>.</summary>
     public static MorphBallMovementResult StepGrounded(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Validate(bus, level, samus);
+        Validate(level, samus);
         bool ordinary = SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose);
         bool spring = SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose);
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
         if ((!ordinary || movementType != SamusMovementType.MorphBallGround) &&
             (!spring || movementType != SamusMovementType.SpringBallGround))
         {
@@ -52,10 +52,10 @@ public static class SamusMorphBallMovement
             // `$90:A546` passes an explicit zero base magnitude through the ordinary
             // direction-aware displacement path. With no external displacement this is a
             // zero-pixel block scan, but it still publishes total X speed just like SNES.
-            var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: 0);
+            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
             if (horizontal.Collided)
-                speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+                speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         }
         else
         {
@@ -66,11 +66,11 @@ public static class SamusMorphBallMovement
                 movementType, controllerInput: 0,
                 speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
                 liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidMedium.Air);
-            uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
-            var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
+            uint baseSpeed = speed.CalculateBaseSpeed(movementType);
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
+            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
             if (horizontal.Collided)
-                speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+                speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         }
 
         BlockMoveResult vertical;
@@ -81,7 +81,7 @@ public static class SamusMorphBallMovement
             // `Simple_Samus_Y_Movement` handles a rebound already in progress through the
             // same falling check and one-frame-lag gravity routine as airborne morph.
             vertical = MoveVerticallyWithGravity(
-                bus,
+
                 level,
                 samus,
                 nmiFrameCounter,
@@ -92,7 +92,7 @@ public static class SamusMorphBallMovement
         else
         {
             vertical = RunNoSpeedCalculationGroundingProbe(
-                bus,
+
                 level,
                 samus,
                 nmiFrameCounter,
@@ -102,7 +102,7 @@ public static class SamusMorphBallMovement
             // Only the stable-pose branch performs `$90:A551-$90:A561` cleanup, and only
             // after the no-speed Y path. A moving ball retains its newly calculated speed.
             if (speed.AccelerationMode == 0 && stationaryPose)
-                speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+                speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         }
 
         return new MorphBallMovementResult(vertical, landed, hitCeiling);
@@ -110,18 +110,18 @@ public static class SamusMorphBallMovement
 
     /// <summary>Executes movement type eight at <c>$90:A5CA</c>.</summary>
     public static MorphBallMovementResult StepFalling(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Validate(bus, level, samus);
+        Validate(level, samus);
         bool ordinary = SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose);
         bool spring = samus.Pose is SamusPoseId.SpringBallFallingRightPose or
             SamusPoseId.SpringBallFallingLeftPose;
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
         if ((!ordinary || movementType != SamusMovementType.MorphBallFalling) &&
             (!spring || movementType != SamusMovementType.SpringBallFalling))
         {
@@ -136,10 +136,10 @@ public static class SamusMorphBallMovement
             // The outer `$90:A5CD` wrapper clears persistent motion before dispatching to
             // either the falling or bouncing subroutine. The inner routine still calculates
             // once, then erases base speed and moves horizontally by zero.
-            samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         }
 
-        return StepMorphedFallingOrBouncing(bus, level, samus, controllerInput, nmiFrameCounter, plms, movementType);
+        return StepMorphedFallingOrBouncing(level, samus, controllerInput, nmiFrameCounter, plms, movementType);
     }
 
     /// <summary>
@@ -149,11 +149,11 @@ public static class SamusMorphBallMovement
     /// and both Spring Ball air handlers ($90:A6F1, $90:A703) dispatch here.
     /// </summary>
     private static MorphBallMovementResult StepMorphedFallingOrBouncing(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms,
         SamusMovementType movementType)
     {
@@ -163,28 +163,28 @@ public static class SamusMorphBallMovement
         bool directionHeld = (controllerInput &
             (SnesButton.Left | SnesButton.Right)) != 0;
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType);
+            speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
         SamusHorizontalDisplacement requestedHorizontal;
         if (!directionHeld && speed.AccelerationMode == 0)
         {
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
-            requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
+            requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: 0);
         }
         else
         {
-            requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
+            requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, calculation.Speed);
         }
 
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         BlockMoveResult vertical;
         bool landed;
         bool hitCeiling;
         if (samus.MorphBallBounceState != SamusBallBounceState.None &&
-            samus.KnockbackDirection == 0 &&
+            samus.KnockbackDirection == Movement.SamusKnockbackDirection.None &&
             samus.Kinematics.ExtraDisplacement.Y != SnesSignedSixteenSixteen.Zero)
         {
             // `$90:91E5-$921D` gives an external producer priority over the rebound arc.
@@ -195,7 +195,7 @@ public static class SamusMorphBallMovement
             samus.Kinematics.YSubspeed = 0;
             int displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
                 throw new InvalidOperationException("A nonzero external Y displacement always yields a scan distance.");
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
             landed = displacement >= 0 && vertical.Collided;
             hitCeiling = displacement < 0 && vertical.Collided;
         }
@@ -205,7 +205,7 @@ public static class SamusMorphBallMovement
             // rejoin at the same falling-check/gravity routine. Bounce state changes only
             // when the later bank-$91 solid-vertical handler sees a downward collision.
             vertical = MoveVerticallyWithGravity(
-                bus,
+
                 level,
                 samus,
                 nmiFrameCounter,
@@ -218,16 +218,16 @@ public static class SamusMorphBallMovement
 
     /// <summary>Executes Spring Ball movement type $12 at <c>$90:A6F1</c>.</summary>
     public static MorphBallMovementResult StepSpringBallInAir(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Validate(bus, level, samus);
+        Validate(level, samus);
         if (samus.Pose is not (SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose) ||
-            samus.PoseMetadata.ReadMovementType(bus) != SamusMovementType.SpringBallInAir)
+            samus.PoseMetadata.ReadMovementType() != SamusMovementType.SpringBallInAir)
         {
             throw new InvalidOperationException(
                 $"Spring-Ball powered jump requires type-$12 pose $7F/$80, not ${(int)samus.Pose:X2}.");
@@ -238,7 +238,7 @@ public static class SamusMorphBallMovement
         if (samus.MorphBallBounceState != SamusBallBounceState.None)
         {
             return StepMorphedFallingOrBouncing(
-                bus, level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBallInAir);
+level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBallInAir);
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -258,7 +258,6 @@ public static class SamusMorphBallMovement
 
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(
-                bus,
                 movementType: SamusMovementType.SpringBallInAir);
         bool directionHeld = (controllerInput &
             (SnesButton.Left | SnesButton.Right)) != 0;
@@ -276,7 +275,7 @@ public static class SamusMorphBallMovement
         }
         else
         {
-            var calculated = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
+            var calculated = SamusHorizontalDisplacement.ForPoseDirection(samus, calculation.Speed);
             requestedHorizontal = calculated.Displacement;
             collisionDirection = calculated.CollisionDirection;
         }
@@ -284,12 +283,12 @@ public static class SamusMorphBallMovement
         // $90:902B skips MoveSamus_Horizontally entirely, including its slope alignment.
         BlockMoveResult horizontal = collisionDirection is null
             ? BlockMoveResult.NotMoved
-            : SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal, CollisionMovementDirection = collisionDirection });
+            : SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal, CollisionMovementDirection = collisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         BlockMoveResult vertical = MoveVerticallyWithGravity(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -304,15 +303,15 @@ public static class SamusMorphBallMovement
     /// <c>$90:A61C</c>, including its airborne gravity branch.
     /// </summary>
     public static MorphBallMovementResult StepTransition(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Validate(bus, level, samus);
+        Validate(level, samus);
         if (!SamusPoseMetadata.IsMorphTransitionPose(samus.Pose) ||
-            samus.PoseMetadata.ReadMovementType(bus) != SamusMovementType.PostureTransition)
+            samus.PoseMetadata.ReadMovementType() != SamusMovementType.PostureTransition)
         {
             throw new InvalidOperationException(
                 $"Morph transition movement requires type-$0F pose $37/$38/$3D/$3E, not ${(int)samus.Pose:X2}.");
@@ -322,17 +321,17 @@ public static class SamusMorphBallMovement
 
         // `$90:A635` deliberately supplies zero base speed but still uses pose direction,
         // collision, and the already-published total-speed words.
-        var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: 0);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         BlockMoveResult vertical;
         bool landed = false;
         if (samus.Kinematics.YDirection == SamusVerticalDirection.None)
         {
             vertical = RunNoSpeedCalculationGroundingProbe(
-                bus,
+
                 level,
                 samus,
                 nmiFrameCounter,
@@ -342,7 +341,7 @@ public static class SamusMorphBallMovement
         else
         {
             vertical = MoveVerticallyWithGravity(
-                bus,
+
                 level,
                 samus,
                 nmiFrameCounter,
@@ -368,10 +367,10 @@ public static class SamusMorphBallMovement
 
     /// <summary>Moves the ball by its previous vertical speed, then advances gravity and reports collisions for the later bank-$91 transition.</summary>
     private static BlockMoveResult MoveVerticallyWithGravity(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms,
         out bool landed,
         out bool hitCeiling)
@@ -412,7 +411,7 @@ public static class SamusMorphBallMovement
         displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             displacement);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, state, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
 
         hitCeiling = displacement < 0 && vertical.Collided;
         landed = displacement >= 0 && vertical.Collided;
@@ -424,17 +423,17 @@ public static class SamusMorphBallMovement
 
     /// <summary>Scans for ground or ceiling contact using external displacement while leaving vertical speed unchanged.</summary>
     private static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms,
         out bool hitCeiling)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
         // No-speed Y movement can still go UP when a platform carries Samus. The
         // cartridge publishes the same deferred ceiling command as a velocity-driven
         // jump. Its speed/direction writes belong to the later winning transition.
@@ -444,11 +443,9 @@ public static class SamusMorphBallMovement
 
     /// <summary>Rejects missing cartridge, level, or Samus state before entering a morph movement path.</summary>
     private static void Validate(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
     }

@@ -25,8 +25,8 @@ internal static class FileSelectCaptureComparison
         if (!SHA256.HashData(bus.Rom).SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Journal and local ROM differ.");
         // Caller must select a reset-origin journal, not a debugger-state continuation.
-        SaveRamImage.Load(bus, recording.InitialSaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var game = new SuperMetroidGame(
+            SaveRamCodec.Decode(recording.InitialSaveRam, RepositoryInstallation.Installation.LoadMaps()), recording.GameOptions);
         ClipAudioCatalog clips = RepositoryInstallation.Installation.LoadAudioClips();
         game.BindAudio(clips);
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
@@ -40,13 +40,13 @@ internal static class FileSelectCaptureComparison
             var frame = game.StepCaptured(recording.InputAt(tick), tick + 1, 1).Frame;
             static bool IsSwoosh(AudioEvent audioEvent) => audioEvent.Kind == AudioEventKind.StartSoundEffect &&
                 audioEvent.SoundEffect == SoundEffectLibrary1Sounds.FileSelectSwoosh;
-            if (game.lastAudioEvents.Any(IsSwoosh))
+            if (game.Session.lastAudioEvents.Any(IsSwoosh))
             {
                 requests++;
                 Console.WriteLine($"Swoosh start: tick={tick}, phase={frame.Phase}");
             }
             game.CopyAudioFrame(pcm);
-            muted.Render(new AudioFrameEvents([.. game.lastAudioEvents.Where(audioEvent => !IsSwoosh(audioEvent))]), suppressed);
+            muted.Render(new AudioFrameEvents([.. game.Session.lastAudioEvents.Where(audioEvent => !IsSwoosh(audioEvent))]), suppressed);
             for (int i = 0; i < pcm.Length; i += 2)
             {
                 double sample = (pcm[i] + pcm[i + 1]) * 0.5;

@@ -1,10 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <!-- Code fixes load in every IDE analyzer host, not only the .NET compiler; netstandard2.0 loads in all (RS1041). -->
+    <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.EnsureAnalyzer/SuperMetroid.EnsureAnalyzer.csproj" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" PrivateAssets="all" />
+    <!-- netstandard2.0 lacks the init-accessor marker the records need; share the analyzer's polyfill. -->
+    <Compile Include="../SuperMetroid.EnsureAnalyzer/Polyfills/Runtime/CompilerServices/IsExternalInit.cs" Link="Polyfills/Runtime/CompilerServices/IsExternalInit.cs" />
   </ItemGroup>
 </Project>

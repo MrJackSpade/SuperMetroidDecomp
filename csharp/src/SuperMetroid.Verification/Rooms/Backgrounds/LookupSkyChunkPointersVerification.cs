@@ -51,8 +51,14 @@ internal static class LookupSkyChunkPointersVerification
             ushort lower = unchecked((ushort)((camera & 0x07f8) + 240));
             int upperSource = 0x8a0000 | unchecked((ushort)(Original(SnesLittleEndian.HighByte(upper)) + (SnesLittleEndian.LowByte(upper)) * 8));
             int lowerSource = 0x8a0000 | unchecked((ushort)(Original(SnesLittleEndian.HighByte(lower)) + (SnesLittleEndian.LowByte(lower)) * 8));
-            AssertEqual(upperSource, queue.Entries[0].SourceAddress, "Sky upper source from native pointer");
-            AssertEqual(upperSource + 64, queue.Entries[1].SourceAddress, "Sky upper continuation");
+            // Ocean index 255 points the top rows at live WRAM; they upload blank instead (#1318).
+            bool upperBlank = table == ScrollingSkyChunkTable.Ocean && SnesLittleEndian.HighByte(upper) == byte.MaxValue;
+            AssertEqual(upperBlank, queue.Entries[0].ZeroFill && queue.Entries[1].ZeroFill, "Sky upper blank only for ocean's wrapped top");
+            if (!upperBlank)
+            {
+                AssertEqual(upperSource, queue.Entries[0].SourceAddress, "Sky upper source from native pointer");
+                AssertEqual(upperSource + 64, queue.Entries[1].SourceAddress, "Sky upper continuation");
+            }
             AssertEqual(lowerSource, queue.Entries[2].SourceAddress, "Sky lower source from native pointer");
             AssertEqual(lowerSource + 64, queue.Entries[3].SourceAddress, "Sky lower continuation");
         }

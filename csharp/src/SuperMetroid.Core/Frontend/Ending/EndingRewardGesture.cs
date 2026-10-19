@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Runs E342's reward gesture actors until their native jumping-actor handoff.</summary>
 internal sealed class EndingRewardGesture
 {
-    /// <summary>Construction address space retained by the gesture API; actor setup uses compiled definitions.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Reward actor set in native spawn order, advanced before inactive actors are removed.</summary>
     private readonly List<IntroDiscoverySprite> actors = [];
     /// <summary>Signals that the jumping-actor handoff must be consumed before another gesture tick.</summary>
@@ -16,9 +14,8 @@ internal sealed class EndingRewardGesture
     public bool SuitlessJumpRequested { get; private set; }
 
     /// <summary>Spawns the suitless pair or the suited head, body, and arm in E342 allocation order.</summary>
-    public EndingRewardGesture(ISnesAddressSpace bus, EndingReward reward)
+    public EndingRewardGesture(EndingReward reward)
     {
-        this.bus = bus;
         if (reward == EndingReward.Suitless)
         {
             Spawn(EndingRewardActor.SuitlessUpper);
@@ -81,7 +78,7 @@ internal sealed class EndingRewardGesture
             new((ushort)x, (ushort)y),
             (ushort)palette,
             record.Program);
-        actor.PreInstructionPointerForDiscovery(record.PreInstruction);
+        actor.InstallPreInstruction(record.PreInstruction);
         actors.Add(actor);
     }
 }

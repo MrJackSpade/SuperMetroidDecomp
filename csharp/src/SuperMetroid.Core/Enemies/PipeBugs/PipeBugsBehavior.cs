@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 using SuperMetroid.Core.Fx;
@@ -7,8 +9,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>The pipe bugs species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class PipeBugsBehavior : IEnemySpecies
+internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Gamet, EnemyDefinitionId.Geega, EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PipeBugsEntity(this, slot, common);
+
     /// <summary>Provides the consecutive physical slots used by Norfair's five-bug formation.</summary>
     private readonly EnemySlotTable _slotTable;
 
@@ -19,7 +27,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
     }
 
     /// <summary>Pixels a Brinstar pipe bug rises above its stored spawn Y before flying.</summary>
-    private const ushort BrinstarPipeBugEmergenceHeight = 16;
+    private const int BrinstarPipeBugEmergenceHeight = 16;
     /// <summary>Strict horizontal range that wakes a hidden Brinstar pipe bug.</summary>
     private const ushort BrinstarPipeBugTriggerWidth = 64;
     /// <summary>Vertical band above a Brinstar bug in which Samus can trigger emergence.</summary>
@@ -41,24 +49,16 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
     /// <summary>First quadratic-speed index for the yellow bug's vertical arc.</summary>
     private const ushort YellowPipeBugArcCounterStart = 40;
 
-    /// <summary>Per-slot Zeb, Zebbo, Gamet, and Geega state cleared on room load.</summary>
-    internal readonly PipeBugEnemyState?[] _pipeBugStates =
-        new PipeBugEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
-    /// <summary>Recognizes the two Brinstar variants that share bank-$B3 pipe-bug AI.</summary>
-    internal static bool IsBrinstarPipeBugDefinition(EnemyDefinitionId definition) =>
-        definition is EnemyDefinitionId.Zeb or
-            EnemyDefinitionId.Zebbo;
-
     /// <summary>Releases every initialized species state before a new room population loads.</summary>
-    internal void ResetPipeBugRoomState() => Array.Clear(_pipeBugStates);
+    internal void ResetPipeBugRoomState() =>
+        Array.ForEach(_slotTable._slots, cleared => cleared.SetSpeciesState<PipeBugEnemyState>(null));
 
     /// <summary>Ports <c>BrinstarPipeBug_Init</c> at $B3:883B.</summary>
-    internal void InitializeBrinstarPipeBug(RoomEnemySlot slot)
+    internal static void InitializeBrinstarPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
-        state.EmergenceTopY = unchecked((ushort)(slot.Position.Y.Whole - BrinstarPipeBugEmergenceHeight));
+        state.EmergenceTop = state.SpawnPosition + new Offset16<RoomPixels>(0, -BrinstarPipeBugEmergenceHeight);
         state.Function = PipeBugEnemyFunction.BrinstarWaitUntilOnScreen;
         state.RespawnDelay = NativeCountdown.Start(BrinstarPipeBugRespawnFrames);
         state.AnimationState = PipeBugAnimationSelector.None;
@@ -69,12 +69,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
     }
 
     /// <summary>Ports <c>NorfairPipeBug_Init</c> at $B3:8B61.</summary>
-    internal void InitializeNorfairPipeBug(RoomEnemySlot slot)
+    internal static void InitializeNorfairPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.LinearSpeedTableOffset = unchecked((ushort)((SnesLittleEndian.HighByte(slot.Parameter2)) * 8));
+        state.LinearSpeedTableOffset = SnesLittleEndian.HighByte(slot.Parameter2) * EnemyLinearSpeedDefinitions.RecordSize;
         state.FormationCounter = 0;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -83,7 +83,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
     }
 
     /// <summary>Ports <c>BrinstarYellowPipeBug_Init</c> at $B3:8F4C.</summary>
-    internal void InitializeYellowPipeBug(RoomEnemySlot slot)
+    internal static void InitializeYellowPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
@@ -97,13 +97,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         // Parameter two is a logical entry index. Each common linear-speed record is eight
         // bytes: positive fraction/whole followed by its separately authored negative pair.
         ushort speedOffset = unchecked((ushort)(slot.Parameter2 * 8));
-        (short positiveWhole, ushort positiveFraction) = EnemyMath.ReadLinearEnemySpeed(speedOffset);
-        (short negativeWhole, ushort negativeFraction) =
-            EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedOffset + 4)));
-        state.PositiveVelocityWhole = unchecked((ushort)positiveWhole);
-        state.PositiveVelocityFraction = positiveFraction;
-        state.NegativeVelocityWhole = unchecked((ushort)negativeWhole);
-        state.NegativeVelocityFraction = negativeFraction;
+        state.PositiveVelocity = ReadPipeBugLinearVelocity(speedOffset);
+        state.NegativeVelocity = ReadPipeBugLinearVelocity(unchecked((ushort)(speedOffset + 4)));
         state.Function = PipeBugEnemyFunction.YellowWaitForSamus;
         state.ArcCompleted = false;
     }
@@ -156,7 +151,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairLeaderStagger:
-                state.FormationCounter = unchecked((ushort)(state.FormationCounter + 1));
+                state.CountFormationTick();
                 state.Function = PipeBugEnemyFunction.NorfairWaitForStagger;
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
@@ -213,7 +208,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Pipe Bug function $B3:{(ushort)state.Function:X4} is not translated.");
+                    $"Pipe Bug function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -227,8 +222,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         if (deltaY >= 0 || unchecked((short)(deltaY + BrinstarPipeBugTriggerTop)) < 0)
             return;
 
-        ushort deltaX = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
-        state.VariableA = (ushort)(state.VariableA & EnemyWordMasks.BelowSignBits | (deltaX & EnemyWordMasks.SignBit));
+        state.BrinstarFliesLeft = (samus.Position.Whole - slot.Position.Whole).X < 0;
         if (EnemyMath.WrappedMagnitude(unchecked((ushort)(slot.Position.X.Whole - samus.Position.X.Whole))) >=
             BrinstarPipeBugTriggerWidth)
         {
@@ -238,7 +232,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = PipeBugEnemyFunction.BrinstarEmerge;
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
         slot.Timer = NativeCountdown.Start(0);
-        state.AnimationState = EnemyMath.IsNegative16(state.VariableA)
+        state.AnimationState = state.BrinstarFliesLeft
             ? PipeBugAnimationSelector.None
             : PipeBugAnimationSelector.FacingRight;
         SelectBrinstarPipeBugAnimation(slot, state);
@@ -258,7 +252,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         slot.Position = slot.Position.WithY(new(
             unchecked((ushort)(y.Whole + (oldSubpositionWasNonzero ? -1 : -2))),
             unchecked((ushort)(y.Fraction - 1))));
-        if (unchecked((short)(state.EmergenceTopY - slot.Position.Y.Whole)) < 0 ||
+        if ((state.EmergenceTop - slot.Position.Whole).Y < 0 ||
             slot.Position.Y.Whole >= samus.Position.Y.Whole)
         {
             return;
@@ -276,7 +270,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         ushort cameraX)
     {
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
-            (EnemyMath.IsNegative16(state.VariableA) ? -2 : 2))));
+            (state.BrinstarFliesLeft ? -2 : 2))));
         // $B3:8949 tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;
@@ -336,7 +330,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
             return;
         }
 
-        leaderState.FormationCounter = unchecked((ushort)(leaderState.FormationCounter + 1));
+        leaderState.CountFormationTick();
         // $B3:8C19-$8C1F resets only the current (leader) slot. The following
         // formation stores change every instruction pointer, but leave follower
         // timers intact, including zero timers in cleared respawn placeholders.
@@ -372,7 +366,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
             return;
 
         state.Function = state.NorfairPostRiseFunction;
-        state.EmergenceY = slot.Position.Y.Whole;
+        state.RiseEnd = slot.Position.Whole;
         InstallPipeBugProgram(slot, state,
             unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0
                 ? PipeBugProgram.GametRisingRight
@@ -385,20 +379,21 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         PipeBugEnemyState state,
         short signedOffset)
     {
-        state.FormationCounter = unchecked((ushort)(state.FormationCounter + 1));
+        state.CountFormationTick();
         // Negative offsets move upward with table entry 66; positive offsets move downward
         // with entry 64. The native routine clamps exactly at emergenceY +/- 16/32.
         AddPipeBugLinearVelocity(
             slot,
             horizontal: false,
             byteOffset: signedOffset < 0 ? 132 : 128);
-        ushort target = unchecked((ushort)(state.EmergenceY + signedOffset));
+        Position16<RoomPixels> target = state.RiseEnd + new Offset16<RoomPixels>(0, signedOffset);
+        short distancePastTarget = (slot.Position.Whole - target).Y;
         bool reached = signedOffset < 0
-            ? unchecked((short)(slot.Position.Y.Whole - target)) < 0
-            : unchecked((short)(slot.Position.Y.Whole - target)) >= 0;
+            ? distancePastTarget < 0
+            : distancePastTarget >= 0;
         if (!reached)
             return;
-        slot.Position = slot.Position.WithY(new(target, 0));
+        slot.Position = slot.Position.WithY(new(target.Y, 0));
         state.Function = PipeBugEnemyFunction.NorfairWaitForStagger;
     }
 
@@ -408,8 +403,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         PipeBugEnemyState state,
         SamusState samus)
     {
-        state.FormationCounter = unchecked((ushort)(state.FormationCounter + 1));
-        if (unchecked((short)(state.FormationCounter - state.StaggerTarget)) < 0)
+        state.CountFormationTick();
+        if (!state.HasReachedStaggerTarget)
             return;
 
         state.FormationCounter = 0;
@@ -452,7 +447,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         for (int index = 0; index < formation.Length; index++)
         {
             RoomEnemySlot member = _slotTable._slots[leader.SlotIndex + index];
-            PipeBugEnemyState? state = _pipeBugStates[member.SlotIndex];
+            PipeBugEnemyState? state = member.SpeciesState<PipeBugEnemyState>();
             if (state?.DefinitionAtInitialization != EnemyDefinitionId.Gamet)
             {
                 throw new InvalidDataException(
@@ -533,11 +528,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = movingLeft
             ? PipeBugEnemyFunction.YellowArcLeft
             : PipeBugEnemyFunction.YellowArcRight;
-        // The yellow arc clears the native word the other species use as delay or formation counter.
-        state.FormationCounter = 0;
         state.ArcCounter = YellowPipeBugArcCounterStart;
-        state.ArcPhase = 1;
-        state.ArcStartX = slot.Position.X.Whole;
+        state.ArcRising = true;
         InstallPipeBugProgram(slot, state,
             movingLeft
                 ? PipeBugProgram.GeegaArcingLeft
@@ -554,26 +546,26 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         if (ResetYellowPipeBugIfOffScreen(slot, state, camera))
             return;
         AddYellowPipeBugHorizontalVelocity(slot, state, movingLeft);
-        if (state.ArcPhase != 0)
+        if (state.ArcRising)
         {
-            NativeWordCounterStep arc = NativeWordCounter.Decrement(state.ArcCounter);
-            state.ArcCounter = arc.Value;
-            if (arc.IsNegative)
+            // The cartridge decrements and ends the rise when the record would go below zero, holding it at zero; the
+            // count never goes below zero, so the end is tested before the decrement.
+            if (state.ArcCounter == 0)
             {
-                state.ArcCounter = 0;
-                state.ArcPhase = 0;
+                state.ArcRising = false;
             }
             else
             {
+                state.ArcCounter--;
                 AddPipeBugDisplacement(slot, horizontal: false,
-                    EnemyMath.ReadQuadraticEnemySpeed(state.ArcCounter, negative: false));
+                    EnemyMath.ReadQuadraticEnemySpeed(checked((ushort)state.ArcCounter), negative: false));
             }
             return;
         }
 
-        state.ArcCounter = unchecked((ushort)(state.ArcCounter + 1));
+        state.ArcCounter++;
         AddPipeBugDisplacement(slot, horizontal: false,
-            EnemyMath.ReadQuadraticEnemySpeed(state.ArcCounter, negative: true));
+            EnemyMath.ReadQuadraticEnemySpeed(checked((ushort)state.ArcCounter), negative: true));
         bool returnedToSpawnY = movingLeft
             ? unchecked((short)(slot.Position.Y.Whole - state.SpawnPosition.Y)) < 0
             : unchecked((short)(state.SpawnPosition.Y - slot.Position.Y.Whole)) >= 0;
@@ -581,7 +573,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
             return;
 
         state.ArcCompleted = true;
-        state.ArcPhase = 1;
+        state.ArcRising = true;
         state.Function = movingLeft
             ? PipeBugEnemyFunction.YellowFlyLeft
             : PipeBugEnemyFunction.YellowFlyRight;
@@ -618,43 +610,24 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         PipeBugEnemyState state,
         bool movingLeft)
     {
-        ushort whole = movingLeft ? state.NegativeVelocityWhole : state.PositiveVelocityWhole;
-        ushort fraction = movingLeft
-            ? state.NegativeVelocityFraction
-            : state.PositiveVelocityFraction;
-        AddPipeBugFixedVelocity(slot, horizontal: true, whole, fraction);
+        slot.Position = slot.Position.AdvanceX(movingLeft ? state.NegativeVelocity : state.PositiveVelocity);
     }
 
-    /// <summary>Reads a native linear-speed entry and adds its whole and fraction words to one axis.</summary>
+    /// <summary>Reads a native linear-speed entry and adds it to one axis, carrying the fraction into the whole.</summary>
     private static void AddPipeBugLinearVelocity(
         RoomEnemySlot slot,
         bool horizontal,
         int byteOffset)
     {
-        (short whole, ushort fraction) = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)byteOffset));
-        AddPipeBugFixedVelocity(slot, horizontal, unchecked((ushort)whole), fraction);
+        SnesSignedSixteenSixteen velocity = ReadPipeBugLinearVelocity(unchecked((ushort)byteOffset));
+        slot.Position = horizontal ? slot.Position.AdvanceX(velocity) : slot.Position.AdvanceY(velocity);
     }
 
-    /// <summary>Adds whole and fraction velocity with the 65816 carry from fractional overflow.</summary>
-    private static void AddPipeBugFixedVelocity(
-        RoomEnemySlot slot,
-        bool horizontal,
-        ushort whole,
-        ushort fraction)
+    /// <summary>The signed 16.16 entry of the common linear speed table at <paramref name="byteOffset"/>.</summary>
+    private static SnesSignedSixteenSixteen ReadPipeBugLinearVelocity(ushort byteOffset)
     {
-        ushort position = horizontal ? slot.Position.X.Whole : slot.Position.Y.Whole;
-        ushort subposition = horizontal ? slot.Position.X.Fraction : slot.Position.Y.Fraction;
-        uint sum = (uint)subposition + fraction;
-        position = unchecked((ushort)(position + whole + (sum > ushort.MaxValue ? 1 : 0)));
-        subposition = unchecked((ushort)sum);
-        if (horizontal)
-        {
-            slot.Position = slot.Position.WithX(new(position, subposition));
-        }
-        else
-        {
-            slot.Position = slot.Position.WithY(new(position, subposition));
-        }
+        (short whole, ushort fraction) = EnemyMath.ReadLinearEnemySpeed(byteOffset);
+        return SnesSignedSixteenSixteen.FromParts(whole, fraction);
     }
 
     /// <summary>Adds a wrapped signed 16.16 displacement to one position axis.</summary>
@@ -678,16 +651,16 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
     }
 
     /// <summary>Creates species state at the enemy's physical slot before its first AI pass.</summary>
-    private PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
+    private static PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
     {
         var state = new PipeBugEnemyState(slot);
-        _pipeBugStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }
 
     /// <summary>Finds initialized state for a callback and rejects an unrelated or uninitialized slot.</summary>
-    private PipeBugEnemyState RequirePipeBugState(RoomEnemySlot slot) =>
-        _pipeBugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static PipeBugEnemyState RequirePipeBugState(RoomEnemySlot slot) =>
+        slot.SpeciesState<PipeBugEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Pipe Bug state.");
 
     /// <summary>Restarts an animation at timer one and clears its animation frame timer.</summary>
@@ -705,67 +678,48 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
             throw new InvalidOperationException("Pipe Bug behavior requires the active Samus actor.");
     }
 
-    /// <summary>Runs the Pipe Bugs' loops as typed programs (#641).</summary>
-    internal void RegisterPipeBugTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo or EnemyDefinitionId.Gamet or EnemyDefinitionId.Geega, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequirePipeBugState(slot);
-            AnimationProgramCursor<PipeBugProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, PipeBugAnimations.Programs, ref cursor, PipeBugFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-
-    /// <summary>Registers initialization callbacks for Brinstar Zeb/Zebbo, Norfair Gamet, and yellow Geega.</summary>
-    internal void RegisterPipeBugsInitializationAi(EnemyAiTable table)
+    /// <summary>Advances PipeBugs's typed animation.</summary>
+    internal static void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Zeb_Zebbo, slot => IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer), (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBrinstarPipeBug(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Gamet, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Gamet, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeNorfairPipeBug(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Geega, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Geega, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeYellowPipeBug(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequirePipeBugState(slot);
+        AnimationProgramCursor<PipeBugProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, PipeBugAnimations.Programs, ref cursor, PipeBugFrameDefinitions.ShownFrames.Of);
+        state.Program = cursor;
     }
 
-    /// <summary>Routes the three pipe-bug definition families through their shared function dispatcher.</summary>
-    internal void RegisterPipeBugsMainAi(EnemyAiTable table)
+    /// <summary>Ports Zeb's initialization AI.</summary>
+    internal static void RunZebInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeBrinstarPipeBug(slot);
+    }
 
-        EnemyMainAiHandler shared88 = (slot, frame, nmiFrameCounter8) =>
-        {
-            RunPipeBugMain(
-                slot,
-                RequirePipeBugState(slot),
-                frame.Samus,
-                frame.Camera);
-        };
+    /// <summary>Ports Gamet's initialization AI.</summary>
+    internal static void RunGametInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeNorfairPipeBug(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Zeb_Zebbo, slot => IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer), shared88);
+    /// <summary>Ports Geega's initialization AI.</summary>
+    internal static void RunGeegaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeYellowPipeBug(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Gamet, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Gamet, shared88);
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Geega, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Geega, shared88);
+    /// <summary>Ports PipeBugs's main AI.</summary>
+    internal void RunPipeBugsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunPipeBugMain(
+            slot,
+            RequirePipeBugState(slot),
+            frame.Samus,
+            frame.Camera);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         ResetPipeBugRoomState();
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

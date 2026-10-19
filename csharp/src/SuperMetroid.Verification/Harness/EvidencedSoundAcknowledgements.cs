@@ -62,7 +62,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementSour
     /// </summary>
     public CartridgeAudioAcknowledgements ForUpdate(CartridgeAudioAcknowledgements spc, NativeCheckpointMemory nativeAfter)
     {
-        byte[] ports = [spc.Port1, spc.Port2, spc.Port3];
+        int[] ports = [spc.Port1, spc.Port2, spc.Port3];
         for (int library = 0; library < LibraryCount; library++)
         {
             byte before = states[library];

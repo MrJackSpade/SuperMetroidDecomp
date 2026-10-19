@@ -14,6 +14,11 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks ending artwork role mapping and decoded-content identity behavior.</summary>
 internal static class EndingContentIdentityVerification
 {
+    /// <summary>JSON options: Camel-case property names, indented output.</summary>
+    private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Checks ending scene selection and original import metadata without a playthrough.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending Mode 7 role selection")]
     internal static void VerifyEndingMode7RoleSelection()
@@ -154,11 +159,7 @@ internal static class EndingContentIdentityVerification
         string? edit = null, bool reverse = false)
     {
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = edit == "json-indent",
-            }));
+            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
 
         RoomCharacterAtlas Characters(string name, int bytes, int seed = 0)
         {

@@ -8,6 +8,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks Maridia sand animation selection, timing, NMI transfers, and room departure.</summary>
 internal static class SandAnimatedTilesVerification
@@ -44,12 +45,12 @@ internal static class SandAnimatedTilesVerification
             SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
         var provider = new RoomFxArtworkTestProvider(atlas);
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
-        sand.LoadRoom(guarded, sandFxRecord, 0, AreaId.Maridia);
+        sand.LoadRoom(RoomFxDefinitions.Suffix(sandFxRecord), null, AreaId.Maridia);
         AssertEqual(2, sand.Count, "both FX sand bits create objects");
         for (int tick = 0; tick < 31; tick++)
         {
             byte before = vram.ReadByte(0x2000);
-            sand.Step(guarded, vram, queue);
+            sand.Step(vram, queue);
             AssertEqual(before, vram.ReadByte(0x2000), "sand animation does not bypass NMI");
             AssertEqual(tick % 10 == 0 ? 2 : 0, queue.Entries.Count,
                 "sand source changes follow compiled cartridge durations");
@@ -64,7 +65,7 @@ internal static class SandAnimatedTilesVerification
                     AssertEqual(expectedSource, queue.Entries[slot].SourceAddress,
                         "sand NMI transfer uses the compiled artwork source identity");
                 }
-            queue.DrainTo(vram, ReferenceMutableMemory.From(bus), provider);
+            queue.DrainTo(vram, provider);
             for (int slot = 0; slot < 2; slot++)
             {
                 AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
@@ -79,9 +80,9 @@ internal static class SandAnimatedTilesVerification
                 }
             }
         }
-        sand.LoadRoom(guarded, 0, 0, AreaId.Maridia);
+        sand.LoadRoom(null, null, AreaId.Maridia);
         AssertEqual(0, sand.Count, "next room without FX clears sand owners");
-        sand.Step(guarded, vram, queue);
+        sand.Step(vram, queue);
         AssertEqual(0, queue.Entries.Count, "departed room cannot continue writing sand graphics");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "sand runtime never reads artwork from ROM");
         Console.WriteLine("  Sand animation: FX selection, timed loops, NMI visibility, and room reset agree.");

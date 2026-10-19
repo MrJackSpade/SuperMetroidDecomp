@@ -8,8 +8,8 @@ public sealed record GitHubErrorContext(
     string? GameState = null,
     string? Phase = null,
     SnesButton? ControllerInput = null,
-    ushort? RoomPointer = null,
-    ushort? RoomStatePointer = null,
-    ushort? DoorPointer = null,
+    string? Room = null,
+    string? RoomState = null,
+    string? Door = null,
     string? InputRecordingPath = null,
     string? FrameDiagnostics = null);

@@ -12,5 +12,5 @@ internal static class DeadTorizoAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params DeadTorizoProgram[] programs) =>
         programs.SelectMany(program => DeadTorizoAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => DeadTorizoFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => DeadTorizoFrameToolingDefinitions.Spritemap(step.Frame));
 }

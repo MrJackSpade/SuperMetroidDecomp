@@ -56,6 +56,102 @@ internal static class RoomPlmProgramsVerification
         Console.WriteLine($"  Speed Booster lavaquake program: {steps} typed steps match bank $84.");
     }
 
+    /// <summary>The block-reaction programs equal their native lists; the restore instruction draws the saved block.</summary>
+    internal static void VerifyBlockReactionPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BlockReactionPlmProgramDefinitions.Programs, BlockReactionEntries,
+            frame => BlockReactionPlmDrawDefinitions.DrawLists[frame], BlockReactionCueAt, "block reaction", BlockReactionRestoreAt);
+        Console.WriteLine($"  Block-reaction programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The scripted room programs equal their native lists.</summary>
+    internal static void VerifyScriptedRoomPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), ScriptedRoomPlmProgramDefinitions.Programs, ScriptedRoomEntries,
+            frame => ScriptedRoomPlmDrawDefinitions.DrawLists[frame], ScriptedRoomCueAt, "scripted room");
+        Console.WriteLine($"  Scripted room programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The scripted rooms' instructions, with their operands.</summary>
+    private static bool ScriptedRoomCueAt(IImportCartridgeSource cartridge, ushort cursor, out ScriptedRoomPlmCue cue, out int length)
+    {
+        (cue, length) = (default, 2);
+        switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
+        {
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
+                (cue, length) = (new(ScriptedRoomPlmCueKind.QueueSoundLibrary2Maximum3, ReadOperandByte(cartridge, cursor + 2)), 3);
+                return true;
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
+                (cue, length) = (new(ScriptedRoomPlmCueKind.QueueSoundLibrary2Maximum6, ReadOperandByte(cartridge, cursor + 2)), 3);
+                return true;
+            case RoomPlmInstruction.InstallPreInstruction:
+                ushort routine = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
+                ScriptedRoomPlmPreInstruction installed =
+                    routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomPreInstructions.Controller) ? ScriptedRoomPlmPreInstruction.ShaktoolRoomController
+                    : routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Areas.Tourian.TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus) ? ScriptedRoomPlmPreInstruction.OldTourianWallWaitForSamus
+                    : routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Enemies.Chozo.ChozoStatuePreInstructions.WaitForLowerNorfairHand) ? ScriptedRoomPlmPreInstruction.LowerNorfairChozoHandWait
+                    : throw new InvalidDataException($"Scripted room list installs untranslated pre-instruction ${routine:X4}.");
+                (cue, length) = (new(ScriptedRoomPlmCueKind.InstallPreInstruction, PreInstruction: installed), 4);
+                return true;
+            case RoomPlmInstruction.ClearPreInstruction:
+                cue = new(ScriptedRoomPlmCueKind.ClearPreInstruction);
+                return true;
+            case RoomPlmInstruction.SetAnimalsEscapedEvent:
+                cue = new(ScriptedRoomPlmCueKind.SetAnimalsEscapedEvent);
+                return true;
+            case RoomPlmInstruction.MoveRightFourBlocks:
+                cue = new(ScriptedRoomPlmCueKind.MoveRightFourBlocks);
+                return true;
+            case RoomPlmInstruction.GotoIfEventSet:
+                AssertEqual((ushort)SuperMetroid.Core.Progression.EventNumber.LowerNorfairChozoLoweredAcid, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "Chozo hand event");
+                AssertEqual(ScriptedRoomEntries.Single(entry => entry.Program == ScriptedRoomPlmProgram.LowerNorfairChozoHandLowered).Entry,
+                    cartridge.ReadCartridgeWord(ProgramBank | (cursor + 4)), "Chozo hand lowered-acid target");
+                (cue, length) = (new(ScriptedRoomPlmCueKind.ContinueIfLowerNorfairAcidLowered), 6);
+                return true;
+            case RoomPlmInstruction.SetLoweredAcidHeight:
+                cue = new(ScriptedRoomPlmCueKind.SetLoweredAcidHeight);
+                return true;
+            case RoomPlmInstruction.TransformSpikesToSlopes:
+                cue = new(ScriptedRoomPlmCueKind.TransformSpikesToSlopes);
+                return true;
+            case RoomPlmInstruction.RevertSlopesToSpikes:
+                cue = new(ScriptedRoomPlmCueKind.RevertSlopesToSpikes);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>The block reactions' sound queues and grapple BTS write.</summary>
+    private static bool BlockReactionCueAt(IImportCartridgeSource cartridge, ushort cursor, out BlockReactionPlmCue cue, out int length)
+    {
+        (cue, length) = (default, 0);
+        switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
+        {
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct:
+                (cue, length) = (new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum1, ReadOperandByte(cartridge, cursor + 2)), 3);
+                return true;
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
+                (cue, length) = (new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum3, ReadOperandByte(cartridge, cursor + 2)), 3);
+                return true;
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
+                (cue, length) = (new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum6, ReadOperandByte(cartridge, cursor + 2)), 3);
+                return true;
+            case RoomPlmInstruction.SetPlmBtsToOne:
+                (cue, length) = (new(BlockReactionPlmCueKind.SetBtsToOne, 0), 2);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>The restore instruction, which draws the saved block for one update.</summary>
+    private static bool BlockReactionRestoreAt(IImportCartridgeSource cartridge, ushort cursor, out BlockReactionPlmFrame frame, out int duration, out int length)
+    {
+        (frame, duration, length) = (BlockReactionPlmFrame.RestoredBlock, 1, 2);
+        return InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.DrawPlmBlock;
+    }
+
     /// <summary>The Speed Booster blocks' programs equal their native lists; both restore instructions draw the saved block.</summary>
     internal static void VerifySpeedBoosterBlockPrograms(ISnesAddressSpace rom)
     {
@@ -213,7 +309,7 @@ internal static class RoomPlmProgramsVerification
     {
         (BlueDoorCue Cue, int Length)? decoded = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (DoorSoundCue(ReadOperandByte(cartridge, cursor + 2), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
+            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (DoorSoundCue(Library3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
             RoomPlmInstruction.SetPlmBtsFromByte => (BlueDoorCue.RestoreBlueBts, 3),
             _ => null,
         };
@@ -221,13 +317,15 @@ internal static class RoomPlmProgramsVerification
         return decoded is not null;
     }
 
-    /// <summary>A door sound operand as its cue: seven opens, eight closes.</summary>
-    private static TCue DoorSoundCue<TCue>(byte sound, TCue open, TCue close) => sound switch
-    {
-        BlueDoorPlmProgramDefinitions.OpenSound => open,
-        BlueDoorPlmProgramDefinitions.CloseSound => close,
-        _ => throw new InvalidOperationException($"Door sound ${sound:X2} is neither the open nor the close sound."),
-    };
+    /// <summary>The library-3 sound a queue-sound instruction at <paramref name="cursor"/> names.</summary>
+    private static SoundEffectId Library3Sound(IImportCartridgeSource cartridge, int cursor) =>
+        new(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2));
+
+    /// <summary>A door sound as its cue: the open or the close sound.</summary>
+    private static TCue DoorSoundCue<TCue>(SoundEffectId sound, TCue open, TCue close) =>
+        sound == BlueDoorPlmProgramDefinitions.OpenSound ? open :
+        sound == BlueDoorPlmProgramDefinitions.CloseSound ? close :
+        throw new InvalidOperationException($"Door sound {sound} is neither the open nor the close sound.");
 
     /// <summary>Every coloured cap's programs equal their native lists.</summary>
     internal static void VerifyColoredDoorPrograms(ISnesAddressSpace rom)
@@ -286,7 +384,7 @@ internal static class RoomPlmProgramsVerification
                 (cue, length) = (ColoredDoorCue.CountHit, 5);
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
-                byte sound = ReadOperandByte(cartridge, cursor + 2);
+                SoundEffectId sound = Library3Sound(cartridge, cursor);
                 (cue, length) = (sound == ColoredDoorPlmProgramDefinitions.RedHitSound
                     ? ColoredDoorCue.QueueHitSound
                     : DoorSoundCue(sound, ColoredDoorCue.QueueOpenSound, ColoredDoorCue.QueueCloseSound), 3);
@@ -354,7 +452,7 @@ internal static class RoomPlmProgramsVerification
                 (cue, length) = (GreyDoorCue.CountHit, 5);
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
-                (cue, length) = (DoorSoundCue(ReadOperandByte(cartridge, cursor + 2), GreyDoorCue.QueueOpenSound, GreyDoorCue.QueueCloseSound), 3);
+                (cue, length) = (DoorSoundCue(Library3Sound(cartridge, cursor), GreyDoorCue.QueueOpenSound, GreyDoorCue.QueueCloseSound), 3);
                 return true;
             case RoomPlmInstruction.GotoIfSamusHasNoBombs:
                 AssertEqual(EntryOf(GreyDoorProgram.Closing), Word(2), "Bomb Torizo door repeats its closing");
@@ -405,7 +503,7 @@ internal static class RoomPlmProgramsVerification
                 }, 4);
                 return true;
             case RoomPlmInstruction.GotoIfSamusNear:
-                var near = new EyeDoorProximity(ReadOperandByte(cartridge, cursor + 2), ReadOperandByte(cartridge, cursor + 3), ProgramAt(Word(4)));
+                var near = new EyeDoorProximity(new(ReadOperandByte(cartridge, cursor + 2), ReadOperandByte(cartridge, cursor + 3)), ProgramAt(Word(4)));
                 (cue, length) = (Enum.GetValues<EyeDoorPlmCue>().Single(candidate => candidate is EyeDoorPlmCue.ActivateIfSamusNear
                     or EyeDoorPlmCue.CloseIfSamusInFront or EyeDoorPlmCue.WatchIfSamusNear or EyeDoorPlmCue.PulseIfSamusNear
                     or EyeDoorPlmCue.KeepPulsingIfSamusNear && EyeDoorPlmProgramDefinitions.ProximityOf(candidate) == near), 6);
@@ -524,7 +622,7 @@ internal static class RoomPlmProgramsVerification
         if (decoded is null)
             return false;
         if (cue == SamusEaterCue.HoldSamus)
-            AssertEqual(SamusEaterPlmRomData.HoldPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
+            AssertEqual(SamusEaterPlmRomDataConstants.HoldPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
         if (cue == SamusEaterCue.QueueChewSound)
         {
             AssertEqual(SamusEaterPlmRomData.ChewSound, ReadOperandByte(cartridge, cursor + 2), "plant chew sound");

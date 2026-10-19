@@ -13,5 +13,5 @@ internal static class OwtchAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params OwtchProgram[] programs) =>
         programs.SelectMany(program => OwtchAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => OwtchFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => OwtchFrameToolingDefinitions.Spritemap(step.Frame));
 }

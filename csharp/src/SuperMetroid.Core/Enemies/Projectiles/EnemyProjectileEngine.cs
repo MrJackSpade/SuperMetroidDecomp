@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -90,7 +89,7 @@ internal sealed class EnemyProjectileEngine
             EnemyProjectilePreInstruction.RTS_86E6D1,
             EnemyProjectilePreInstruction.DownwardGateInertPreInstruction,
             EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction);
-        table.RegisterCue<EnemyProjectileCommonCue>(ApplyCommonCue);
+        table.RegisterCue<EnemyProjectileCommonCue>((context, cue) => ApplyCommonCue(context.Projectile, context.Samus, cue));
         foreach (IEnemyProjectileHandlerSource source in _handlerSources)
             source.RegisterEnemyProjectileHandlers(table);
         return table;
@@ -105,16 +104,16 @@ internal sealed class EnemyProjectileEngine
                 projectile.Clear();
                 break;
             case EnemyProjectileCommonCueKind.SetPreInstruction:
-                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                projectile.PreInstruction = cue.PreInstruction;
                 break;
             case EnemyProjectileCommonCueKind.ClearPreInstruction:
-                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
             case EnemyProjectileCommonCueKind.Scatter:
                 Scatter(projectile, cue.Scatter);
                 break;
             case EnemyProjectileCommonCueKind.ReturnToOrigin:
-                projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
+                projectile.Position = projectile.Position.WithWhole(new(checked((ushort)projectile.Variable0), checked((ushort)projectile.Variable1)));
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue.Kind}.");
@@ -147,7 +146,7 @@ internal sealed class EnemyProjectileEngine
             .Select(index => new RoomEnemyProjectileSlot(index))
             .ToArray();
     /// <summary>The 8-bit frame counter sampled by the current projectile pass; verification drives it to step instructions.</summary>
-    internal byte CurrentFrame8 { get; set; }
+    internal int CurrentFrame8 { get; set; }
 
     /// <summary>A shot meets an enemy projectile only inside the same 32-pixel cell: the shift that selects the cell.</summary>
     private const int CoarseContactCellShift = 5;
@@ -159,7 +158,7 @@ internal sealed class EnemyProjectileEngine
     private const int HalfBlockPixelMask = 7;
 
     /// <summary>The 16-bit NMI_FrameCounter ($05B6) for the current projectile pass.</summary>
-    internal ushort CurrentFrame16 { get; private set; }
+    internal int CurrentFrame16 { get; private set; }
 
     /// <summary>All eighteen physical bank-$86 slots, including currently inactive slots.</summary>
     public IReadOnlyList<RoomEnemyProjectileSlot> EnemyProjectiles => _enemyProjectiles;
@@ -168,7 +167,7 @@ internal sealed class EnemyProjectileEngine
     /// Last library-one dud sound requested when an indestructible enemy projectile blocked
     /// a Samus shot. This is a frame publication; the audio mixer remains an outer seam.
     /// </summary>
-    public ushort? LastEnemyProjectileDudSoundEffect { get; internal set; }
+    public SoundEffectId? LastEnemyProjectileDudSoundEffect { get; internal set; }
 
     /// <summary>
     /// Ports <c>EprojProjCollDet</c> and <c>HandleEprojCollWithProj</c> at
@@ -176,11 +175,9 @@ internal sealed class EnemyProjectileEngine
     /// Kago bugs remember the incoming projectile type and switch to their ROM shot list.
     /// </summary>
     public int ResolveEnemyProjectileSamusProjectileHits(
-        ISnesAddressSpace bus,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
         _room.EnsureLoaded();
@@ -221,13 +218,13 @@ internal sealed class EnemyProjectileEngine
                 // cannot rewrite a freshly fired Super Missile (or its invisible link) to
                 // family $0800 in the producer frame. Its own pre-instruction consumes the
                 // mark on the next projectile pass.
-                ushort collidedProjectileType = shot.Type;
+                ushort collidedProjectileType = shot.PackedType.Raw;
                 if ((collidedProjectileType & 8) == 0)
                     shot.Direction = shot.PackedDirection.WithCollisionLifecycleState();
 
                 if (enemyProjectile.CollisionOption == 1)
                 {
-                    LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot.Value;
+                    LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot;
                 }
                 else
                 {
@@ -236,7 +233,7 @@ internal sealed class EnemyProjectileEngine
                     enemyProjectile.StartAnimation(Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation)
                         ? shotAnimation()
                         : EnemyProjectileDeleteAnimation.Instance);
-                    enemyProjectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
+                    enemyProjectile.PreInstruction = EnemyProjectilePreInstruction.RTS_8684FB;
 
                     // Native masks properties with $0FFF. The typed fields below are the
                     // three high property bits represented by this runtime, so clearing
@@ -252,8 +249,11 @@ internal sealed class EnemyProjectileEngine
         return hitCount;
     }
 
-    /// <summary>Fallback frame clock for standalone calls without a supplied NMI counter.</summary>
-    private byte _standaloneFrameCounter8;
+    /// <summary>How many passes the standalone clock counts before it returns to zero, as the short NMI counter does.</summary>
+    private const int StandaloneFrameCounter8Period = 256;
+
+    /// <summary>Fallback frame clock for standalone calls without a supplied NMI counter, 0 through 255.</summary>
+    private int _standaloneFrameCounter8;
 
     /// <summary>Discards every projectile and restarts the standalone clock when a room loads.</summary>
     internal void ResetForRoom()
@@ -263,14 +263,22 @@ internal sealed class EnemyProjectileEngine
             projectile.Clear();
     }
 
+    /// <summary>Returns the standalone clock's current frame and advances it, wrapping after 255.</summary>
+    private int AdvanceStandaloneFrameCounter8()
+    {
+        int frame = _standaloneFrameCounter8;
+        _standaloneFrameCounter8 = (frame + 1) % StandaloneFrameCounter8Period;
+        return frame;
+    }
+
     /// <summary>One bank-$86 projectile pass: every live slot's pre-instruction, then its instruction list.</summary>
     internal void RunPass(
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        byte? nmiFrameCounter8,
+        int? nmiFrameCounter8,
         SamusBombProjectileSystem? samusBombs,
-        ushort? nmiFrameCounter)
+        int? nmiFrameCounter)
     {
         Ensure.NotNull(level);
 
@@ -287,7 +295,7 @@ internal sealed class EnemyProjectileEngine
         // pass after the pre-instruction returns. Reading each array entry at loop time
         // preserves all three cases and prevents host collection semantics from inventing a
         // universal one-frame spawn delay.
-        byte projectileFrame = nmiFrameCounter8 ?? _standaloneFrameCounter8++;
+        int projectileFrame = nmiFrameCounter8 ?? AdvanceStandaloneFrameCounter8();
         CurrentFrame8 = projectileFrame;
         // Standalone audits seed both counters from the same projectile clock.
         CurrentFrame16 = nmiFrameCounter ?? projectileFrame;
@@ -328,7 +336,7 @@ internal sealed class EnemyProjectileEngine
             samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
             return;
 
-        ushort? finalKnockbackXDirection = null;
+        KnockbackHorizontalDirection? finalKnockbackXDirection = null;
         for (int index = _enemyProjectiles.Length - 1; index >= 0; index--)
         {
             RoomEnemyProjectileSlot projectile = _enemyProjectiles[index];
@@ -419,7 +427,7 @@ internal sealed class EnemyProjectileEngine
 
             if (!projectile.IsActive ||
                 projectile.DrawPriority != priority ||
-                projectile.SpritemapPointer == 0)
+                projectile.Frame is not { } frame)
                 continue;
 
             Position16<ScreenPixels> screen = (projectile.Position.Whole + shake).ToScreen(camera);
@@ -428,10 +436,8 @@ internal sealed class EnemyProjectileEngine
 
             var artwork = _room.Artwork?.ProjectileSpritemaps ?? throw new InvalidOperationException(
                 "Room enemy projectiles require installed sprite artwork.");
-            ReadOnlyMemory<EnemySpritemapPart> parts = projectile.PresentationOperandAddress != 0
-                ? artwork.GetProgramFrame(projectile.PresentationOperandAddress)
-                : artwork.Get(projectile.SpritemapPointer);
-            ushort paletteBits = new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits;
+            ReadOnlyMemory<EnemySpritemapPart> parts = EnemyProjectileFrames.Parts(artwork, frame);
+            ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
             EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
                 EnemySpriteFrames.Frame(parts, unchecked((byte)projectile.GraphicsIndex), paletteBits), screen, paletteBits);
         }
@@ -467,14 +473,15 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
         projectile.Kind = kind;
         projectile.PreInstruction = definition.PreInstruction;
+        // SpawnEprojInner starts the instruction timer at one, so the first step runs on the first pass. A kind without
+        // a typed start has its spawner start the program its producer chooses.
+        projectile.InstructionTimer = NativeCountdown.Start(1);
         if (EnemyProjectileTypedStarts.Initial(kind) is { } animation)
             projectile.StartAnimation(animation);
-        else
-            projectile.StartNativeProgram(definition.InitialInstructionList);
 
-        // SpawnEprojInner initializes the drawable map to $8000 before the first list tick.
-        // It is intentionally not the first list map; bank-$86 advances it on its own pass.
-        projectile.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
+        // SpawnEprojInner shows the blank frame before the first list tick. It is intentionally not the program's first
+        // frame; bank-$86 advances to that on its own pass.
+        projectile.Frame = EnemyProjectileFrameId.Blank;
         projectile.Radius = definition.Radius;
         projectile.Damage = definition.Damage;
         projectile.InvincibilityFrames = 96;
@@ -493,15 +500,15 @@ internal sealed class EnemyProjectileEngine
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        byte nmiFrameCounter8,
+        int nmiFrameCounter8,
         SamusBombProjectileSystem? samusBombs)
     {
         if (Handlers.TryInterceptPreInstruction(projectile)) return;
-        EnemyProjectilePreInstruction id = ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(projectile.PreInstruction, "enemy-projectile pre-instruction");
+        EnemyProjectilePreInstruction id = projectile.PreInstruction;
         if (!Handlers.TryGetPreInstruction(id, out EnemyProjectilePreInstructionHandler? handler))
         {
             throw new InvalidDataException(
-                $"Enemy projectile pre-instruction $86:{projectile.PreInstruction:X4} is not translated.");
+                $"Enemy projectile pre-instruction {projectile.PreInstruction} is not translated.");
         }
         handler(new EnemyProjectilePreInstructionContext(projectile, level, samus, camera, nmiFrameCounter8, samusBombs));
     }
@@ -714,7 +721,7 @@ internal sealed class EnemyProjectileEngine
         level.GetCollisionBlock(new(unchecked((ushort)(pixel.X >> 4)), unchecked((ushort)(pixel.Y >> 4)))).CollisionType != RoomCollisionType.Air;
 
     /// <summary>Checks radius overlap and publishes touch-list or damage behavior for a projectile that reaches Samus.</summary>
-    internal ushort? ResolveEnemyProjectileSamusCollision(
+    internal KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
     {
@@ -735,15 +742,15 @@ internal sealed class EnemyProjectileEngine
             return null;
         }
 
-        ushort damage = SamusSuitDamage.Reduce(projectile.Damage, samus.EquippedItems);
+        ushort damage = SamusSuitDamage.Reduce(checked((ushort)projectile.Damage), samus.EquippedItems);
         samus.Health = samus.Health <= damage
-            ? (ushort)0
-            : unchecked((ushort)(samus.Health - damage));
-        samus.InvincibilityTimer = NativeCountdown.FromRaw(projectile.InvincibilityFrames);
-        ushort knockbackXDirection = unchecked((short)(
+            ? 0
+            : samus.Health - damage;
+        samus.InvincibilityTimer = NativeCountdown.FromRaw(checked((ushort)projectile.InvincibilityFrames));
+        KnockbackHorizontalDirection knockbackXDirection = unchecked((short)(
             samus.Position.X.Whole - projectile.Position.X.Whole)) >= 0
-            ? (ushort)1
-            : (ushort)0;
+            ? KnockbackHorizontalDirection.Right
+            : KnockbackHorizontalDirection.Left;
 
         // `$A0:9930-$993F` installs the definition's touch list before consulting property
         // $4000. Mother Brain's turret bullet depends on that ordering: it survives contact
@@ -765,7 +772,7 @@ internal sealed class EnemyProjectileEngine
         return knockbackXDirection;
     }
 
-    /// <summary>Ticks a slot's bank-$86 timed list and interprets common or registered species opcodes.</summary>
+    /// <summary>Advances a slot's typed program one projectile pass.</summary>
     internal void ProcessEnemyProjectileInstructions(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus,
@@ -773,262 +780,14 @@ internal sealed class EnemyProjectileEngine
     {
         if (projectile.Animation is { } animation)
         {
-            animation.Advance(projectile, Handlers, samus);
+            animation.Advance(new(projectile, samus, camera), Handlers);
             return;
         }
 
-        ushort oldTimer = projectile.InstructionTimer.RawValue;
-        projectile.InstructionTimer = projectile.InstructionTimer.Decrement().Remaining;
-        if (oldTimer != 1)
+        // A slot its pre-instruction cleared this pass has no program left, so its instructions do nothing.
+        if (!projectile.IsActive)
             return;
-
-        ushort cursor = projectile.InstructionPointer;
-        for (int operationCount = 0; operationCount < 24; operationCount++)
-        {
-            ushort word = ReadEnemyProjectileInstructionMechanicsWord(projectile, cursor);
-            // As the native sign test does: a non-negative word is a frame duration, a negative one a command.
-            if (unchecked((short)word) >= 0)
-            {
-                if (word == 0)
-                    throw new InvalidDataException($"Enemy projectile frame $86:{cursor:X4} has zero duration.");
-                projectile.InstructionTimer = NativeCountdown.FromRaw(word);
-                ushort visualOperand = unchecked((ushort)(cursor + 2));
-                SetEnemyProjectileVisualOperand(projectile, visualOperand);
-                projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
-                return;
-            }
-
-            if (Handlers.TryInterceptInstruction(projectile, word, ref cursor)) continue;
-            EnemyProjectileInstruction instruction = ClosedNativeWords.Decode<EnemyProjectileInstruction>(word, "enemy-projectile instruction");
-            EnemyProjectileInstructionOutcome outcome = Handlers.TryExecuteInstruction(instruction, projectile, samus, camera, word, ref cursor);
-            switch (outcome)
-            {
-                case EnemyProjectileInstructionOutcome.Stop:
-                    return;
-                case EnemyProjectileInstructionOutcome.Continue:
-                    continue;
-                case EnemyProjectileInstructionOutcome.NotHandled:
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined EnemyProjectileInstructionOutcome {outcome}.");
-            }
-            switch (instruction)
-            {
-                case EnemyProjectileInstruction.Delete:
-                    projectile.Clear();
-                    return;
-                case EnemyProjectileInstruction.Properties_OrY:
-                {
-                    ushort mask = ReadEnemyProjectileInstructionMechanicsWord(
-                        projectile,
-                        unchecked((ushort)(cursor + 2)));
-                    projectile.Damage = unchecked((ushort)(projectile.Damage | EnemyProjectilePropertyWord.Damage(mask)));
-                    SetPropertyFlags(projectile, EnemyProjectilePropertyWord.Flags(mask));
-                    cursor = unchecked((ushort)(cursor + 4));
-                    break;
-                }
-                case EnemyProjectileInstruction.Properties_AndY:
-                {
-                    ushort mask = ReadEnemyProjectileInstructionMechanicsWord(
-                        projectile,
-                        unchecked((ushort)(cursor + 2)));
-                    projectile.Damage = unchecked((ushort)(projectile.Damage & EnemyProjectilePropertyWord.Damage(mask)));
-                    ClearPropertyFlags(projectile, EnemyProjectilePropertyWord.Flags(unchecked((ushort)~mask)));
-                    cursor = unchecked((ushort)(cursor + 4));
-                    break;
-                }
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProj_EnableCollisionWithSamusProj_868248:
-                    projectile.BlocksSamusProjectiles = true;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.DisableCollisionWIthSamusProj:
-                    projectile.BlocksSamusProjectiles = false;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.DisableCollisionWithSamus:
-                    projectile.CanDamageSamus = false;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_EnableCollisionWithSamus_868266:
-                    projectile.CanDamageSamus = true;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_SetToNotDieOnContact_868270:
-                    projectile.PersistsOnSamusContact = true;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_SetToDieOnContact_86827A:
-                    projectile.PersistsOnSamusContact = false;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.SetHighPriority:
-                    projectile.DrawPriority = EnemyProjectileDrawPriority.High;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_SetLowPriority_86828E:
-                    projectile.DrawPriority = EnemyProjectileDrawPriority.Low;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.XYRadiusInY:
-                {
-                    ushort radii = ReadEnemyProjectileInstructionMechanicsWord(
-                        projectile,
-                        unchecked((ushort)(cursor + 2)));
-                    projectile.Radius = new(unchecked((byte)radii), SnesLittleEndian.HighByte(radii));
-                    cursor = unchecked((ushort)(cursor + 4));
-                    break;
-                }
-                case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_XYRadius_0:
-                    projectile.Radius = new(0, 0);
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_QueueMusicTrackInY:
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max6_868309:
-                case EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6:
-                case EnemyProjectileInstruction.QueueSoundInY_Lib3_Max6:
-                case EnemyProjectileInstruction.QueueSoundInY_Lib1_Max15:
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max15_86832D:
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib3_Max15_868336:
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max3_86833F:
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max3_868348:
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib3_Max3_868351:
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max9_86835A:
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max9_868363:
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max9_86836C:
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max1_868375:
-                case EnemyProjectileInstruction.QueueSoundInY_Lib2_Max1:
-                case EnemyProjectileInstruction.QueueSoundInY_Lib3_Max1:
-                    // Audio is an outer-runtime seam, but these commands are byte-packed.
-                    // Advancing by three (two-byte opcode plus one-byte ID) is essential:
-                    // rounding to a word would desynchronize every following frame.
-                    cursor = unchecked((ushort)(cursor + 3));
-                    break;
-                case EnemyProjectileInstruction.Sleep:
-                    // The native command rewinds Y to its own opcode, stores that pointer,
-                    // pops the instruction-handler return address, and leaves timer zero.
-                    // Subsequent frames wrap zero to FFFF and therefore never parse again.
-                    projectile.InstructionPointer = cursor;
-                    projectile.InstructionTimer = NativeCountdown.Start(0);
-                    return;
-                case EnemyProjectileInstruction.PreInstructionInY:
-                    projectile.PreInstruction = ReadEnemyProjectileInstructionMechanicsWord(
-                        projectile,
-                        unchecked((ushort)(cursor + 2)));
-                    cursor = unchecked((ushort)(cursor + 4));
-                    break;
-                case EnemyProjectileInstruction.ClearPreInstruction:
-                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.GotoY:
-                    cursor = ReadEnemyProjectileInstructionMechanicsWord(
-                        projectile,
-                        unchecked((ushort)(cursor + 2)));
-                    break;
-                case EnemyProjectileInstruction.GotoY_Y:
-                    throw new InvalidDataException(
-                        $"Projectile relative branch at $86:{cursor:X4} is outside the compiled program domain.");
-                case EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero:
-                {
-                    ushort before = projectile.GeneralTimer;
-                    projectile.GeneralTimer = unchecked((ushort)(before - 1));
-                    cursor = before == 1
-                        ? unchecked((ushort)(cursor + 4))
-                        : ReadEnemyProjectileInstructionMechanicsWord(
-                            projectile,
-                            unchecked((ushort)(cursor + 2)));
-                    break;
-                }
-                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProj_DecrementTimer_GotoY_YIfNonZero_8681CE:
-                    throw new InvalidDataException(
-                        $"Unused projectile relative branch at $86:{cursor:X4} is outside the compiled program domain.");
-                case EnemyProjectileInstruction.TimerInY:
-                    projectile.GeneralTimer = ReadEnemyProjectileInstructionMechanicsWord(
-                        projectile,
-                        unchecked((ushort)(cursor + 2)));
-                    cursor = unchecked((ushort)(cursor + 4));
-                    break;
-                case EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius:
-                    MoveEnemyProjectileRandomlyWithinRadius(projectile, cursor);
-                    cursor = unchecked((ushort)(cursor + 6));
-                    break;
-                case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProj_MoveHorizontally_GotoY_86AD92:
-                    projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
-                    cursor = ReadEnemyProjectileInstructionMechanicsWord(projectile,
-                        unchecked((ushort)(cursor +
-                            (unchecked((short)projectile.Velocity.X.RawValue) < 0 ? 2 : 4))));
-                    break;
-                case EnemyProjectileInstruction.UNUSED_Instruction_ResetPosition_86B436:
-                    projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                default:
-                    throw new InvalidDataException(
-                        $"Enemy projectile instruction $86:{word:X4} at $86:{cursor:X4} is not translated.");
-            }
-        }
-
-        throw new InvalidDataException(
-            "Enemy projectile list did not reach a timed frame within 24 operations.");
-    }
-
-    /// <summary>
-    /// Applies a visual-only bank-$86 operand without promoting its bank-$8D pointer to
-    /// gameplay data. The placeholder map preserves a drawable native slot; OAM resolves
-    /// the exact installed operand on the corresponding draw pass.
-    /// </summary>
-    internal static void SetEnemyProjectileVisualOperand(RoomEnemyProjectileSlot projectile,
-        ushort operandAddress)
-    {
-        if (EnemyProjectilePresentationFrameDefinitions.Contains(operandAddress))
-        {
-            projectile.PresentationOperandAddress = operandAddress;
-            projectile.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
-            return;
-        }
-
-        projectile.PresentationOperandAddress = 0;
-        projectile.SpritemapPointer =
-            CompiledEnemyVisualSelectors.TryGet(SnesLittleEndian.BankByte(EnemyProjectileCodePointers.BankBase),
-                    operandAddress, out ushort selector)
-                    ? selector
-                    : throw new InvalidDataException(
-                        $"Enemy projectile visual operand $86:{operandAddress:X4} has no compiled selector.");
-    }
-
-    /// <summary>Reads an instruction operand only from installed bank-$86 mechanics definitions.</summary>
-    internal static ushort ReadEnemyProjectileInstructionMechanicsWord(
-        RoomEnemyProjectileSlot projectile,
-        ushort address)
-    {
-        if (OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind))
-            return OldTourianEscapeShaftWallExplosionDefinitions.ReadMechanicsWord(address);
-
-        if (SpacePirateProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return SpacePirateProjectileInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
-        if (MotherBrainTopTubeInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return MotherBrainTopTubeInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (TourianStatueProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return TourianStatueProjectileInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
-        throw new InvalidDataException(
-            $"Enemy projectile {projectile.Kind} reached uncompiled bank-$86 mechanics " +
-            $"pointer ${address:X4}.");
+        throw new InvalidOperationException($"Enemy projectile {projectile.Kind} in slot {projectile.SlotIndex} runs no program.");
     }
 
     /// <summary>
@@ -1043,29 +802,12 @@ internal sealed class EnemyProjectileEngine
         int mask,
         int center)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         ushort x = unchecked((ushort)(
             projectile.Position.X.Whole + (random & mask) - center));
         ushort y = unchecked((ushort)(
             projectile.Position.Y.Whole + (SnesLittleEndian.HighByte(unchecked((ushort)random)) & mask) - center));
         _ = _spriteObjects.SpawnRoomSpriteObject(new(x, y), kind, graphicsIndex: 0);
-    }
-
-    /// <summary>Decodes a native scatter command's packed X and Y mask/center bytes and scatters the projectile.</summary>
-    private void MoveEnemyProjectileRandomlyWithinRadius(
-        RoomEnemyProjectileSlot projectile,
-        ushort instructionPointer)
-    {
-        // $86:81DF consumes four packed bytes: X mask/center followed by Y mask/center.
-        ushort xParameters = ReadEnemyProjectileInstructionMechanicsWord(
-            projectile,
-            unchecked((ushort)(instructionPointer + 2)));
-        ushort yParameters = ReadEnemyProjectileInstructionMechanicsWord(
-            projectile,
-            unchecked((ushort)(instructionPointer + 4)));
-        Scatter(projectile, new EnemyProjectileScatter(
-            new(unchecked((byte)xParameters), unchecked((byte)yParameters)),
-            new(SnesLittleEndian.HighByte(xParameters), SnesLittleEndian.HighByte(yParameters))));
     }
 
     /// <summary>
@@ -1081,7 +823,7 @@ internal sealed class EnemyProjectileEngine
         byte xCenter = checked((byte)scatter.Center.X);
         byte yMask = checked((byte)scatter.Range.Y);
         byte yCenter = checked((byte)scatter.Center.Y);
-        ushort signSample = _room.Random.Generate();
+        int signSample = _room.Random.Generate();
 
         int xOffset;
         do
@@ -1156,8 +898,9 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Deletes a gunship dust cloud when its program ends.</summary>
     internal static void RegisterGunshipDustCues(EnemyProjectileHandlerTable table) =>
-        table.RegisterCue<GunshipDustCue>((projectile, _, cue) =>
+        table.RegisterCue<GunshipDustCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case GunshipDustCue.Delete:
@@ -1276,7 +1019,7 @@ internal sealed class EnemyProjectileEngine
             projectile.Position.Whole,
             RoomSpriteObjectKind.EnemyProjectileDud,
             graphicsIndex: 0);
-        LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot.Value;
+        LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot;
         projectile.Direction = unchecked((ushort)(projectile.Direction | SamusProjectileDirectionMasks.Spent));
     }
 
@@ -1304,7 +1047,8 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastEnemyProjectileDudSoundEffect, library: SoundEffectLibrary.Library1, maximumQueued: 3);
+        if (LastEnemyProjectileDudSoundEffect is { } dudSound)
+            audio.QueueEnemySound(dudSound, maximumQueued: 3);
     }
 
     /// <summary>Registers Skree/Metaree particle movement with falling acceleration and camera-square deletion.</summary>

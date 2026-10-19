@@ -29,10 +29,10 @@ internal static class GameOptionsPresentationVerification
 
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new GameOptionsMenuState(bus, nativeAudio,
+        var native = new GameOptionsMenuState(nativeAudio,
             mapPresentation: original);
         var installed = new GameOptionsMenuState(
-            NewForbiddenMapBus(), installedAudio, mapPresentation: original);
+            installedAudio, mapPresentation: original);
         int comparedFrames = 0;
 
         Until(GameOptionsPhase.Main);
@@ -94,10 +94,8 @@ internal static class GameOptionsPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "options override changes selected catalog identity");
 
-        var stockMenu = new GameOptionsMenuState(NewForbiddenMapBus(),
-            mapPresentation: original);
-        var editedMenu = new GameOptionsMenuState(NewForbiddenMapBus(),
-            mapPresentation: edited);
+        var stockMenu = new GameOptionsMenuState(mapPresentation: original);
+        var editedMenu = new GameOptionsMenuState(mapPresentation: edited);
         // Native indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int frame = 0; frame < 18; frame++)
         {

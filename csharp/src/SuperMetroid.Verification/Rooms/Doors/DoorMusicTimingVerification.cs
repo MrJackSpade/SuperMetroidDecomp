@@ -14,6 +14,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks room music dispatch timing during a retail Parlor-to-Landing-Site door transition.</summary>
 internal static class DoorMusicTimingVerification
@@ -22,39 +23,38 @@ internal static class DoorMusicTimingVerification
     internal static void VerifyDoorMusicTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0x92fd);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
         var level = runtime.Room.LoadedLevelData;
         int doorX = -1, doorY = -1;
-        byte behavior = 0;
+        int behavior = 0;
         for (int y = 0; y < level.Size.Y && doorX < 0; y++)
         for (int x = 0; x < level.Size.X; x++)
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
-            if (door.Door?.DestinationRoomPointer != 0x91f8) continue;
-            doorX = x; doorY = y; behavior = block.Behavior; break;
+            var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
+            if (door.Door?.DestinationRoom != RoomHeaderDefinitions.LandingSite) continue;
+            doorX = x; doorY = y; behavior = block.Bts.Value; break;
         }
         AssertTrue(doorX >= 0, "Parlor has the retail Landing Site door");
-        runtime.LoadCartridgeRoomForDebug(0x92fd,
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor,
             camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, behavior, samus.Pose, true);
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
-        var audio = game.audio;
+        var audio = game.Session.audio;
         audio.AdvanceFrame(default);
         audio.QueueRoomMusic(9, 5);
         for (int frame = 0; frame < 40; frame++) audio.AdvanceFrame(default);
@@ -81,7 +81,7 @@ internal static class DoorMusicTimingVerification
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay && trackFrame >= 0) break;
         }
-        AssertEqual((ushort)0x91f8, runtime.Room.LoadedRoom.Pointer, "transition reaches Landing Site");
+        AssertEqual(RoomHeaderDefinitions.LandingSite, runtime.Room.LoadedRoom.Definition, "transition reaches Landing Site");
         AssertEqual(musicWaitFrame + 15, uploadFrame, "stop and upload delays advance on outer dispatches after scrolling");
         AssertEqual(uploadFrame + 9, trackFrame, "track queued after upload is acquired on the next prologue, then waits eight dispatches");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "music transition resumes gameplay");

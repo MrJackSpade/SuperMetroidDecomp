@@ -1,7 +1,10 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Runtime.Attract;
 
@@ -9,55 +12,55 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// <remarks>The exact playlist, initial staging and editorial cutoffs select this recorded demonstration performance. Physical alignment, capacity units, shared abilities and control dispatch calculate independently.</remarks>
 public static class StockAttractDemoScenes
 {
-    /// <summary>Mutually exclusive demonstration identities, each naming its native bank-91 input object.</summary>
-    private enum Demonstration : ushort
+    /// <summary>Mutually exclusive demonstration identities.</summary>
+    private enum Demonstration
     {
         /// <summary><c>$91:9E52</c> input object; <c>$82:8774</c> room staging for LandingSite.</summary>
-        LandingSite = 0x9e52,
+        LandingSite,
         /// <summary><c>$91:9E88</c> input object; <c>$82:8786</c> room staging for MissileDoor.</summary>
-        MissileDoor = 0x9e88,
+        MissileDoor,
         /// <summary><c>$91:9EAC</c> input object; <c>$82:8798</c> room staging for PreSporeSpawnHall.</summary>
-        PreSporeSpawnHall = 0x9eac,
+        PreSporeSpawnHall,
         /// <summary><c>$91:9E5E</c> input object; <c>$82:87AA</c> room staging for SpeedBooster.</summary>
-        SpeedBooster = 0x9e5e,
+        SpeedBooster,
         /// <summary><c>$91:9EB2</c> input object; <c>$82:87BC</c> room staging for GrappleBeam.</summary>
-        GrappleBeam = 0x9eb2,
+        GrappleBeam,
         /// <summary><c>$91:9E58</c> input object; <c>$82:87CE</c> room staging for PseudoScrewAttack.</summary>
-        PseudoScrewAttack = 0x9e58,
+        PseudoScrewAttack,
         /// <summary><c>$91:9EB8</c> input object; <c>$82:87E2</c> room staging for IceBeam.</summary>
-        IceBeam = 0x9eb8,
+        IceBeam,
         /// <summary><c>$91:9E94</c> input object; <c>$82:87F4</c> room staging for FirefleaRoom.</summary>
-        FirefleaRoom = 0x9e94,
+        FirefleaRoom,
         /// <summary><c>$91:9EA0</c> input object; <c>$82:8806</c> room staging for BrinstarDiagonalRoom.</summary>
-        BrinstarDiagonalRoom = 0x9ea0,
+        BrinstarDiagonalRoom,
         /// <summary><c>$91:9E76</c> input object; <c>$82:8818</c> room staging for LowerNorfairEntrance.</summary>
-        LowerNorfairEntrance = 0x9e76,
+        LowerNorfairEntrance,
         /// <summary><c>$91:9E9A</c> input object; <c>$82:882A</c> room staging for ScrewAttack.</summary>
-        ScrewAttack = 0x9e9a,
+        ScrewAttack,
         /// <summary><c>$91:9E64</c> input object; <c>$82:883C</c> room staging for Dachora.</summary>
-        Dachora = 0x9e64,
+        Dachora,
         /// <summary><c>$91:9E70</c> input object; <c>$82:8850</c> room staging for PrePhantoonHall.</summary>
-        PrePhantoonHall = 0x9e70,
+        PrePhantoonHall,
         /// <summary><c>$91:9E82</c> input object; <c>$82:8862</c> room staging for DiagonalShinespark.</summary>
-        DiagonalShinespark = 0x9e82,
+        DiagonalShinespark,
         /// <summary><c>$91:9E7C</c> input object; <c>$82:8874</c> room staging for EyeDoor.</summary>
-        EyeDoor = 0x9e7c,
+        EyeDoor,
         /// <summary><c>$91:9E6A</c> input object; <c>$82:8886</c> room staging for RedBrinstarElevator.</summary>
-        RedBrinstarElevator = 0x9e6a,
+        RedBrinstarElevator,
         /// <summary><c>$91:9E8E</c> input object; <c>$82:8898</c> room staging for Kraid.</summary>
-        Kraid = 0x9e8e,
+        Kraid,
         /// <summary><c>$91:9ED6</c> input object; <c>$82:88AA</c> room staging for TourianEntrance.</summary>
-        TourianEntrance = 0x9ed6,
+        TourianEntrance,
         /// <summary><c>$91:9EBE</c> input object; <c>$82:88BE</c> room staging for GauntletEntrance.</summary>
-        GauntletEntrance = 0x9ebe,
+        GauntletEntrance,
         /// <summary><c>$91:9EC4</c> input object; <c>$82:88D0</c> room staging for AdvancedGrappleBeam.</summary>
-        AdvancedGrappleBeam = 0x9ec4,
+        AdvancedGrappleBeam,
         /// <summary><c>$91:9ECA</c> input object; <c>$82:88E2</c> room staging for InfiniteBombJump.</summary>
-        InfiniteBombJump = 0x9eca,
+        InfiniteBombJump,
         /// <summary><c>$91:9ED0</c> input object; <c>$82:88F4</c> room staging for SpecialBeamAttack.</summary>
-        SpecialBeamAttack = 0x9ed0,
+        SpecialBeamAttack,
         /// <summary><c>$91:9EDC</c> input object; <c>$82:8906</c> room staging for CrystalFlash.</summary>
-        CrystalFlash = 0x9edc,
+        CrystalFlash,
     }
 
     /// <summary>
@@ -65,7 +68,7 @@ public static class StockAttractDemoScenes
     /// Preserve the exact staged word without assigning this bit an invented ability;
     /// this chosen copied metadata is part of the exact demonstration staging, not an additional named ability.
     /// </summary>
-    private const ushort ChosenShinesparkUnassignedItemBit = 1 << 4;
+    private const SamusEquipmentFlags ChosenShinesparkUnassignedItemBit = (SamusEquipmentFlags)(1 << 4);
     /// <summary>Returns a staged demonstration or its exact native end-of-set sentinel.</summary>
     public static AttractDemoScene? Get(int set, int scene)
     {
@@ -111,8 +114,8 @@ public static class StockAttractDemoScenes
     private static AttractDemoScene Stage(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite => new(
-            RoomPointer: StockAttractDemoRoomPointers.LandingSiteRoom,
-            DoorPointer: StockAttractDemoRoomPointers.LandingSiteDoor,
+            Room: RoomHeaderDefinitions.LandingSite,
+            Door: DoorDefinitions.Parlor1,
             CameraPosition: CameraAtScreen(new(4, 4)),
             SamusOffset: new(1, 64),
             Duration: 1235,
@@ -125,10 +128,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(0),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractLandingSite),
         Demonstration.MissileDoor => new(
-            RoomPointer: StockAttractDemoRoomPointers.MissileDoorRoom,
-            DoorPointer: StockAttractDemoRoomPointers.MissileDoorDoor,
+            Room: RoomHeaderDefinitions.ConstructionZone,
+            Door: DoorDefinitions.MorphBall1,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-46, GroundedY(8, demonstration)),
             Duration: 337,
@@ -141,10 +144,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(0),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractMissileDoor),
         Demonstration.PreSporeSpawnHall => new(
-            RoomPointer: StockAttractDemoRoomPointers.PreSporeSpawnHallRoom,
-            DoorPointer: StockAttractDemoRoomPointers.PreSporeSpawnHallDoor,
+            Room: RoomHeaderDefinitions.SporeSpawnKihunters,
+            Door: DoorDefinitions.BigPink0,
             CameraPosition: CameraAtScreen(new(1, 0)),
             SamusOffset: new(-32, GroundedY(13, demonstration)),
             Duration: 378,
@@ -157,10 +160,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(1),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractPreSporeSpawnHall),
         Demonstration.SpeedBooster => new(
-            RoomPointer: StockAttractDemoRoomPointers.SpeedBoosterRoom,
-            DoorPointer: StockAttractDemoRoomPointers.SpeedBoosterDoor,
+            Room: RoomHeaderDefinitions.FrogSpeedway,
+            Door: DoorDefinitions.UpperNorfairFarming0,
             CameraPosition: CameraAtScreen(new(7, 0)),
             SamusOffset: new(72, GroundedY(10, demonstration)),
             Duration: 420,
@@ -173,10 +176,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractSpeedBooster),
         Demonstration.GrappleBeam => new(
-            RoomPointer: StockAttractDemoRoomPointers.GrappleBeamRoom,
-            DoorPointer: StockAttractDemoRoomPointers.GrappleBeamDoor,
+            Room: RoomHeaderDefinitions.SpikyAcidSnakesTunnel,
+            Door: DoorDefinitions.UpperNorfairRefill1,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-62, GroundedY(10, demonstration)),
             Duration: 444,
@@ -189,10 +192,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(3),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractGrappleBeam),
         Demonstration.PseudoScrewAttack => new(
-            RoomPointer: StockAttractDemoRoomPointers.PseudoScrewAttackRoom,
-            DoorPointer: StockAttractDemoRoomPointers.PseudoScrewAttackDoor,
+            Room: RoomHeaderDefinitions.BigPink,
+            Door: DoorDefinitions.GreenHillZone0,
             CameraPosition: CameraAtScreen(new(2, 6)),
             SamusOffset: new(39, GroundedY(10, demonstration)),
             Duration: 613,
@@ -205,10 +208,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(1),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractPseudoScrewAttack),
         Demonstration.IceBeam => new(
-            RoomPointer: StockAttractDemoRoomPointers.IceBeamRoom,
-            DoorPointer: StockAttractDemoRoomPointers.IceBeamDoor,
+            Room: RoomHeaderDefinitions.BelowSpazer,
+            Door: DoorDefinitions.WestTunnel1,
             CameraPosition: CameraAtScreen(new(1, 1)),
             SamusOffset: new(86, GroundedY(10, demonstration)),
             Duration: 509,
@@ -221,10 +224,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractIceBeam),
         Demonstration.FirefleaRoom => new(
-            RoomPointer: StockAttractDemoRoomPointers.FirefleaRoomRoom,
-            DoorPointer: StockAttractDemoRoomPointers.FirefleaRoomDoor,
+            Room: RoomHeaderDefinitions.GreenBrinstarFirefleas,
+            Door: DoorDefinitions.GreenBrinstarMainShaft3,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(73, GroundedY(10, demonstration)),
             Duration: 410,
@@ -237,10 +240,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(1),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractFirefleaRoom),
         Demonstration.BrinstarDiagonalRoom => new(
-            RoomPointer: StockAttractDemoRoomPointers.BrinstarDiagonalRoomRoom,
-            DoorPointer: StockAttractDemoRoomPointers.BrinstarDiagonalRoomDoor,
+            Room: RoomHeaderDefinitions.GreenHillZone,
+            Door: DoorDefinitions.BigPink3,
             CameraPosition: CameraAtScreen(new(5, 3)),
             SamusOffset: new(-30, GroundedY(12, demonstration)),
             Duration: 279,
@@ -253,10 +256,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(1),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractBrinstarDiagonalRoom),
         Demonstration.LowerNorfairEntrance => new(
-            RoomPointer: StockAttractDemoRoomPointers.LowerNorfairEntranceRoom,
-            DoorPointer: StockAttractDemoRoomPointers.LowerNorfairEntranceDoor,
+            Room: RoomHeaderDefinitions.LavaDive,
+            Door: DoorDefinitions.KronicBoost2,
             CameraPosition: CameraAtScreen(new(3, 0)),
             SamusOffset: new(75, GroundedY(10, demonstration)),
             Duration: 970,
@@ -269,10 +272,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(8),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractLowerNorfairEntrance),
         Demonstration.ScrewAttack => new(
-            RoomPointer: StockAttractDemoRoomPointers.ScrewAttackRoom,
-            DoorPointer: StockAttractDemoRoomPointers.ScrewAttackDoor,
+            Room: RoomHeaderDefinitions.Flyway,
+            Door: DoorDefinitions.Parlor3,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-15, GroundedY(13, demonstration)),
             Duration: 213,
@@ -285,10 +288,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractScrewAttack),
         Demonstration.Dachora => new(
-            RoomPointer: StockAttractDemoRoomPointers.DachoraRoom,
-            DoorPointer: StockAttractDemoRoomPointers.DachoraDoor,
+            Room: RoomHeaderDefinitions.Dachora,
+            Door: DoorDefinitions.BigPink1,
             CameraPosition: CameraAtScreen(new(4, 2)),
             SamusOffset: new(5, 128),
             Duration: 791,
@@ -301,10 +304,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(3),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractDachora),
         Demonstration.PrePhantoonHall => new(
-            RoomPointer: StockAttractDemoRoomPointers.PrePhantoonHallRoom,
-            DoorPointer: StockAttractDemoRoomPointers.PrePhantoonHallDoor,
+            Room: RoomHeaderDefinitions.Basement,
+            Door: DoorDefinitions.WreckedShipMainShaft3,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(4, 96),
             Duration: 751,
@@ -317,10 +320,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(3),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractPrePhantoonHall),
         Demonstration.DiagonalShinespark => new(
-            RoomPointer: StockAttractDemoRoomPointers.DiagonalShinesparkRoom,
-            DoorPointer: StockAttractDemoRoomPointers.DiagonalShinesparkDoor,
+            Room: RoomHeaderDefinitions.LandingSite,
+            Door: DoorDefinitions.Parlor1,
             CameraPosition: CameraAtScreen(new(3, 4)),
             SamusOffset: new(0, 176),
             Duration: 199,
@@ -333,10 +336,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractDiagonalShinespark),
         Demonstration.EyeDoor => new(
-            RoomPointer: StockAttractDemoRoomPointers.EyeDoorRoom,
-            DoorPointer: StockAttractDemoRoomPointers.EyeDoorDoor,
+            Room: RoomHeaderDefinitions.KraidEyeDoor,
+            Door: DoorDefinitions.MiniKraid1,
             CameraPosition: CameraAtScreen(new(0, 1)),
             SamusOffset: new(-46, GroundedY(10, demonstration)),
             Duration: 723,
@@ -349,10 +352,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractEyeDoor),
         Demonstration.RedBrinstarElevator => new(
-            RoomPointer: StockAttractDemoRoomPointers.RedBrinstarElevatorRoom,
-            DoorPointer: StockAttractDemoRoomPointers.RedBrinstarElevatorDoor,
+            Room: RoomHeaderDefinitions.Caterpillar,
+            Door: DoorDefinitions.AlphaPowerBomb0,
             CameraPosition: CameraAtScreen(new(0, 7)),
             SamusOffset: new(-86, GroundedY(10, demonstration)),
             Duration: 356,
@@ -365,10 +368,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractRedBrinstarElevator),
         Demonstration.Kraid => new(
-            RoomPointer: StockAttractDemoRoomPointers.KraidRoom,
-            DoorPointer: StockAttractDemoRoomPointers.KraidDoor,
+            Room: RoomHeaderDefinitions.Kraid,
+            Door: DoorDefinitions.KraidEyeDoor1,
             CameraPosition: CameraAtScreen(new(0, 1)),
             SamusOffset: new(-65, GroundedY(10, demonstration)),
             Duration: 319,
@@ -381,10 +384,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractKraid),
         Demonstration.TourianEntrance => new(
-            RoomPointer: StockAttractDemoRoomPointers.TourianEntranceRoom,
-            DoorPointer: StockAttractDemoRoomPointers.TourianEntranceDoor,
+            Room: RoomHeaderDefinitions.Statues,
+            Door: DoorDefinitions.StatuesHallway1,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-79, GroundedY(10, demonstration)),
             Duration: 407,
@@ -397,10 +400,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractTourianEntrance),
         Demonstration.GauntletEntrance => new(
-            RoomPointer: StockAttractDemoRoomPointers.GauntletEntranceRoom,
-            DoorPointer: StockAttractDemoRoomPointers.GauntletEntranceDoor,
+            Room: RoomHeaderDefinitions.LandingSite,
+            Door: DoorDefinitions.DemoSet3024,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(48, 128),
             Duration: 256,
@@ -413,10 +416,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractGauntletEntrance),
         Demonstration.AdvancedGrappleBeam => new(
-            RoomPointer: StockAttractDemoRoomPointers.AdvancedGrappleBeamRoom,
-            DoorPointer: StockAttractDemoRoomPointers.AdvancedGrappleBeamDoor,
+            Room: RoomHeaderDefinitions.MtEverest,
+            Door: DoorDefinitions.RedFish0,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(0, GroundedY(12, demonstration)),
             Duration: 818,
@@ -429,10 +432,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractAdvancedGrappleBeam),
         Demonstration.InfiniteBombJump => new(
-            RoomPointer: StockAttractDemoRoomPointers.InfiniteBombJumpRoom,
-            DoorPointer: StockAttractDemoRoomPointers.InfiniteBombJumpDoor,
+            Room: RoomHeaderDefinitions.LandingSite,
+            Door: DoorDefinitions.DemoSet3024,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(32, 123),
             Duration: 389,
@@ -445,10 +448,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractInfiniteBombJump),
         Demonstration.SpecialBeamAttack => new(
-            RoomPointer: StockAttractDemoRoomPointers.SpecialBeamAttackRoom,
-            DoorPointer: StockAttractDemoRoomPointers.SpecialBeamAttackDoor,
+            Room: RoomHeaderDefinitions.GreenBrinstarMainShaft,
+            Door: DoorDefinitions.BrinstarPreMap1,
             CameraPosition: CameraAtScreen(new(0, 4)),
             SamusOffset: new(-73, GroundedY(10, demonstration)),
             Duration: 394,
@@ -461,10 +464,10 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractSpecialBeamAttack),
         Demonstration.CrystalFlash => new(
-            RoomPointer: StockAttractDemoRoomPointers.CrystalFlashRoom,
-            DoorPointer: StockAttractDemoRoomPointers.CrystalFlashDoor,
+            Room: RoomHeaderDefinitions.LandingSite,
+            Door: DoorDefinitions.DemoSet3024,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(4, GroundedY(10, demonstration)),
             Duration: 512,
@@ -477,7 +480,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractCrystalFlash),
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 
@@ -534,7 +537,7 @@ public static class StockAttractDemoScenes
     };
 
     /// <summary>$91:888D-89FC: chosen loadouts share actual item abilities, rather than repeating full equipment words. Stage membership and additional abilities remain selected performance inputs; the unassigned shinespark bit is preserved without inventing an ability.</summary>
-    private static ushort ItemsFor(Demonstration demonstration)
+    private static SamusEquipmentFlags ItemsFor(Demonstration demonstration)
     {
         const SamusEquipmentFlags mobility = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
             SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster;
@@ -544,20 +547,20 @@ public static class StockAttractDemoScenes
         const SamusEquipmentFlags bombAbilities = screwAttack | SamusEquipmentFlags.Bombs;
         return demonstration switch
         {
-            Demonstration.LandingSite => (ushort)SamusEquipmentFlags.None,
+            Demonstration.LandingSite => SamusEquipmentFlags.None,
             Demonstration.MissileDoor or Demonstration.PreSporeSpawnHall or Demonstration.PseudoScrewAttack or
-            Demonstration.FirefleaRoom or Demonstration.BrinstarDiagonalRoom => (ushort)SamusEquipmentFlags.MorphBall,
+            Demonstration.FirefleaRoom or Demonstration.BrinstarDiagonalRoom => SamusEquipmentFlags.MorphBall,
             Demonstration.SpeedBooster or Demonstration.IceBeam or Demonstration.RedBrinstarElevator or
-            Demonstration.TourianEntrance => (ushort)mobility,
-            Demonstration.GrappleBeam => (ushort)(mobility | SamusEquipmentFlags.GrappleBeam),
-            Demonstration.Dachora or Demonstration.PrePhantoonHall => (ushort)exploration,
-            Demonstration.LowerNorfairEntrance => (ushort)spaceJump,
-            Demonstration.ScrewAttack => (ushort)screwAttack,
-            Demonstration.DiagonalShinespark => (ushort)((ushort)(bombAbilities | SamusEquipmentFlags.SpringBall) |
-                ChosenShinesparkUnassignedItemBit),
-            Demonstration.EyeDoor or Demonstration.Kraid => (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots),
+            Demonstration.TourianEntrance => mobility,
+            Demonstration.GrappleBeam => mobility | SamusEquipmentFlags.GrappleBeam,
+            Demonstration.Dachora or Demonstration.PrePhantoonHall => exploration,
+            Demonstration.LowerNorfairEntrance => spaceJump,
+            Demonstration.ScrewAttack => screwAttack,
+            Demonstration.DiagonalShinespark => bombAbilities | SamusEquipmentFlags.SpringBall |
+                ChosenShinesparkUnassignedItemBit,
+            Demonstration.EyeDoor or Demonstration.Kraid => (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots),
             Demonstration.GauntletEntrance or Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump or
-            Demonstration.SpecialBeamAttack or Demonstration.CrystalFlash => (ushort)bombAbilities,
+            Demonstration.SpecialBeamAttack or Demonstration.CrystalFlash => bombAbilities,
             _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
         };
     }
@@ -566,13 +569,13 @@ public static class StockAttractDemoScenes
     /// $91:8899-89F9 equipped-beam selections for each demonstration. These choose composable
     /// native beam abilities; the selected per-scene loadouts belong to this recorded demonstration.
     /// </summary>
-    private static ushort EquippedBeamsFor(Demonstration demonstration) => demonstration switch
+    private static SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags EquippedBeamsFor(Demonstration demonstration) => demonstration switch
     {
-        Demonstration.PreSporeSpawnHall or Demonstration.PseudoScrewAttack or Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or Demonstration.CrystalFlash => (ushort)(SamusBeamFlags.Charge),
-        Demonstration.GrappleBeam or Demonstration.IceBeam => (ushort)(SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
-        Demonstration.TourianEntrance or Demonstration.SpecialBeamAttack => (ushort)(SamusBeamFlags.Plasma | SamusBeamFlags.Charge),
-        Demonstration.SpeedBooster or Demonstration.EyeDoor => (ushort)(SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
-        Demonstration.LandingSite or Demonstration.MissileDoor or Demonstration.FirefleaRoom or Demonstration.ScrewAttack or Demonstration.RedBrinstarElevator or Demonstration.Kraid or Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump => (ushort)SamusBeamFlags.None,
+        Demonstration.PreSporeSpawnHall or Demonstration.PseudoScrewAttack or Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or Demonstration.CrystalFlash => SamusBeamFlags.Charge,
+        Demonstration.GrappleBeam or Demonstration.IceBeam => (SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
+        Demonstration.TourianEntrance or Demonstration.SpecialBeamAttack => (SamusBeamFlags.Plasma | SamusBeamFlags.Charge),
+        Demonstration.SpeedBooster or Demonstration.EyeDoor => (SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
+        Demonstration.LandingSite or Demonstration.MissileDoor or Demonstration.FirefleaRoom or Demonstration.ScrewAttack or Demonstration.RedBrinstarElevator or Demonstration.Kraid or Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump => SamusBeamFlags.None,
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 
@@ -580,9 +583,9 @@ public static class StockAttractDemoScenes
     /// $91:888D-89FC: collected beams equal equipped beams in22 scenes. The diagonal-shinespark
     /// scene at $91:895D collects all beam types but equips only Charge.
     /// </summary>
-    private static ushort CollectedBeamsFor(Demonstration demonstration) =>
+    private static SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags CollectedBeamsFor(Demonstration demonstration) =>
         demonstration == Demonstration.DiagonalShinespark
-            ? (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
+            ? (SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
             : EquippedBeamsFor(demonstration);
 
     /// <summary>$82:86A9-86B8 camera origins use whole256-pixel room screens.</summary>

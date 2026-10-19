@@ -51,9 +51,9 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
 
         foreach (FuneNamiheProgramCase program in programs)
         {
-            AssertEqual(program.Entry, FuneNamiheDefinitions.InstructionList(program.SelectorCursor),
+            AssertEqual(program.Entry, FuneNamiheSelectorOracle.ProgramAt(program.SelectorCursor),
                 $"Fune/Namihe selector $A8:{program.SelectorCursor:X4} names {program.Entry}");
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = RunFuneNamiheProgram(rom, program);
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = RunFuneNamiheProgram(program);
             int activeProjectiles = enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
             AssertEqual(program.Active ? 1 : 0, activeProjectiles, $"Fune/Namihe {program.Entry} projectile count");
 
@@ -69,7 +69,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
                 (enemies.FuneNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[slot.SlotIndex].")).Function,
                 $"Fune/Namihe {program.Entry} returns main-AI ownership");
         }
-        AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList(0x96e3), "Fune/Namihe selector beyond the table fails loudly");
+        AssertThrows<InvalidDataException>(() => FuneNamiheSelectorOracle.ProgramAt(0x96e3), "Fune/Namihe selector beyond the table fails loudly");
 
         Suite(nameof(FuneNamiheAnimationsVerification.VerifyFuneNamiheAnimations), () => FuneNamiheAnimationsVerification.VerifyFuneNamiheAnimations(rom));
         Console.WriteLine(
@@ -78,34 +78,34 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
 
     /// <summary>Seeds one variant and direction into an enemy slot, then advances enough updates to observe projectile and AI handoff behavior.</summary>
     private static (RoomEnemySystem System, RoomEnemySlot Slot) RunFuneNamiheProgram(
-        ISnesAddressSpace bus,
         FuneNamiheProgramCase program)
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+        slot.Bind(program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
         slot.Parameter1 = unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0)));
         slot.Parameter2 = 0;
         slot.Position = slot.Position.WithWhole(new(128, 128));
         slot.InstructionTimer = NativeCountdown.Start(1);
 
-        var state = new FuneNamiheEnemyState(slot)
+        var state = new FuneNamiheEnemyState
         {
-            InstructionListPointerTableCursor = program.SelectorCursor,
+            ShowsActiveAnimation = program.Active,
+            FacingRight = program.Right,
             Function = program.Active
                 ? program.Namihe ? FuneNamiheEnemyFunction.NamiheActivityNoOp : FuneNamiheEnemyFunction.FuneActivityNoOp
                 : program.Namihe ? FuneNamiheEnemyFunction.NamiheWaitForSamus : FuneNamiheEnemyFunction.FuneWaitForCooldown,
             VariantIndex = program.Namihe ? (ushort)1 : (ushort)0,
             Program = AnimationProgramCursor<FuneNamiheProgram>.Start(program.Entry),
         };
-        ((FuneNamiheEnemyState?[])enemies.FuneNamiheBehavior._funeNamiheStates)[0] = state;
-        enemies.BindFixtureBus(bus);
+        enemies.SlotTable.Slots[0].SetSpeciesState(state);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         int frames = program.Active ? 140 : 4;
         for (int frame = 0; frame < frames; frame++)
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
 
         return (enemies, slot);
     }

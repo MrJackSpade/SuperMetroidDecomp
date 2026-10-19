@@ -112,15 +112,15 @@ internal static class RoomPlmPopulationVerification
                 new byte[16],
                 blockDefinitions: new byte[0x400 * 8]);
             var door = new CartridgeDoorHeader(
-                Pointer: 0,
-                DestinationRoomPointer: 0,
+                Name: "fixture door",
+                DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: CartridgeDoorOrientation.Decode(direction),
                 PlmBlock: new(1, 1),
                 DestinationScreen: new(0, 0),
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
             bool spawned = plms.DoorPlms.TrySpawnDoorClosingPlm(
-                new TestAddressSpace(), level, door, new Bank80SystemState());
+                level, door, new Bank80SystemState());
             AssertEqual(expectedHeader != 0, spawned,
                 $"door-closing direction {direction} fallback admission matches cartridge");
             if (expectedHeader == 0)
@@ -182,7 +182,7 @@ internal static class RoomPlmPopulationVerification
             const ushort population = 0x9000;
             byte blockX = (byte)(1 + definitionIndex % 4);
             byte blockY = (byte)(1 + definitionIndex / 4);
-            var decoded = new RoomPlmPopulationDefinition(population,
+            var decoded = new RoomPlmPopulationDefinition($"$8F:{population:X4}",
             [
                 // Two directional caps are not placed in any retail room population,
                 // so they are absent from the 70-header population catalog. Decode
@@ -199,18 +199,18 @@ internal static class RoomPlmPopulationVerification
                 blockDefinitions: new byte[0x400 * 8]);
             var system = new Bank80SystemState();
             var plms = new RoomPlmSystem();
-            AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), system, AreaId.Crateria), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), system, AreaId.Crateria), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"resident door $84:{raw:X4} loads through production setup");
 
             var enteringDoor = new CartridgeDoorHeader(
-                Pointer: 0,
-                DestinationRoomPointer: 0,
+                Name: "fixture door",
+                DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                 PlmBlock: new(blockX, blockY),
                 DestinationScreen: new(0, 0),
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
-            AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
+            AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
                 $"resident door $84:{raw:X4} accepts transition redirect");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertTrue(typedClosing is null
@@ -281,7 +281,7 @@ internal static class RoomPlmPopulationVerification
             MaxMissiles = 15,
         };
         var plms = new RoomPlmSystem();
-        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         AssertEqual(4, parsed, "single parser consumes every six-byte record once");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
@@ -293,21 +293,21 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(37, slots[2].NativeSlotIndex, "later station receives descending slot");
         AssertEqual(0xb6df, (ushort)slots[2].HeaderPointer, "station header remains observable");
         AssertEqual(1, plms.ElevatorPlatforms.Count, "elevator platform family is resident");
-        AssertEqual(0x0000, level.GetCollisionBlock(new(12, 8)).LevelWord,
+        AssertEqual(0x0000, level.GetCollisionBlock(new(12, 8)).PackedWord.Raw,
             "elevator setup clears collision bits through shared setup dispatcher");
 
         // Energy right access is parent+1 and retains solid type B while publishing the
         // parent trigger. The next PLM pass refills through live Samus state and emits the
         // cartridge message ID; it does not require a room-name callback.
-        AssertEqual(0xb000, level.GetCollisionBlock(new(21, 8)).LevelWord,
+        AssertEqual(0xb000, level.GetCollisionBlock(new(21, 8)).PackedWord.Raw,
             "energy setup installs type-B right access");
-        AssertEqual(0x49, level.GetCollisionBlock(new(21, 8)).Behavior,
+        AssertEqual(0x49, level.GetCollisionBlock(new(21, 8)).Bts.Value,
             "energy setup installs BTS $49");
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(21, 8)), 0x49),
             "generic BTS dispatcher locates energy-station parent");
         AssertTrue(samus.InputLocked,
             "station access setup runs command six before its first PLM handler pass");
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(samus.InputLocked,
             "station access command locks Samus during six-plus-$60 insertion");
         AssertTrue(plms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x37), 6)),
@@ -315,9 +315,9 @@ internal static class RoomPlmPopulationVerification
         // The triggering pass installs the six-frame timer without decrementing it, so the
         // activation opcode runs on pass 1 + 6 + $60 = 103.
         for (int frame = 1; frame < 102; frame++)
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(25, samus.Health, "energy station has not activated before its 103rd pass");
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(199, samus.Health, "energy station restores health to cartridge maximum");
         AssertEqual(1, plms.Stations.StationActivationEvents.Count,
             "energy station publishes one shared message request");
@@ -327,7 +327,7 @@ internal static class RoomPlmPopulationVerification
 
         Suite(nameof(VerifyOtherStationFamilies), () => VerifyOtherStationFamilies(bus));
         Suite(nameof(VerifySaveStationConfirmation), () => VerifySaveStationConfirmation(bus));
-        Suite(nameof(VerifyNativeOutOfBoundsPopulationSetupOrder), () => VerifyNativeOutOfBoundsPopulationSetupOrder(bus));
+        Suite(nameof(VerifyNativeOutOfBoundsPopulationSetupOrder), () => VerifyNativeOutOfBoundsPopulationSetupOrder());
         Suite(nameof(VerifyMetroidsClearedStatePlm), () => VerifyMetroidsClearedStatePlm(bus));
         Suite(nameof(VerifyShaktoolRoomPlm), () => VerifyShaktoolRoomPlm());
         Suite(nameof(VerifyMotherBrainEscapeRoomGate), () => VerifyMotherBrainEscapeRoomGate(bus));
@@ -380,38 +380,38 @@ internal static class RoomPlmPopulationVerification
         var system = new Bank80SystemState();
         var samus = new SamusState
         {
-            CollectedItems = SamusEquipmentFlags.Bombs.ToNativeWord(),
+            CollectedItems = SamusEquipmentFlags.Bombs,
         };
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Bomb Torizo grey door loads through the shared room population");
 
         var enteringDoor = new CartridgeDoorHeader(
-            Pointer: 0x8bc2,
-            DestinationRoomPointer: RoomHeaderPointers.BombTorizoRoom,
+            Name: nameof(DoorDefinitions.Flyway1),
+            DestinationRoom: RoomHeaderDefinitions.BombTorizo,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
             SetupCodePointer: DoorSetupCode.None);
-        AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
+        AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
             "Bomb Torizo entry redirects the resident door to its secondary list");
         AssertEqual(GreyDoorPhase.Closing, plms.GreyDoorSnapshots.Single().Phase,
             "redirected actor retains explicit grey-door ownership while closing");
 
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
-        AssertEqual(0x0482, level.GetCollisionBlock(new(doorX, doorY)).LevelWord,
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
+        AssertEqual(0x0482, level.GetCollisionBlock(new(doorX, doorY)).PackedWord.Raw,
             "collected Bombs admit the secondary list's closing draw");
 
         for (int frame = 0; frame < 80 &&
              plms.GreyDoorSnapshots.Single().Phase == GreyDoorPhase.Closing; frame++)
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
         AssertEqual(GreyDoorPhase.Locked, plms.GreyDoorSnapshots.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");
         AssertEqual(initialList, RoomPlmProgramsVerification.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true),
                 GreyDoorProgram.Waiting),
             "rejoined actor's waiting program stands for the cartridge first list");
-        AssertEqual(0xc4ae, level.GetCollisionBlock(new(doorX, doorY)).LevelWord,
+        AssertEqual(0xc4ae, level.GetCollisionBlock(new(doorX, doorY)).PackedWord.Raw,
             "re-entry draws the locked grey-door frame in the same handler pass");
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "rejoined Bomb Torizo door remains resident for the battle condition");
@@ -491,23 +491,23 @@ internal static class RoomPlmPopulationVerification
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Brinstar pre-map grey door loads through the shared population path");
 
         var enteringDoor = new CartridgeDoorHeader(
-            Pointer: 0x8cb2,
-            DestinationRoomPointer: 0x9b9d,
+            Name: nameof(DoorDefinitions.GreenBrinstarMainShaft1),
+            DestinationRoom: RoomHeaderDefinitions.BrinstarPreMap,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
             SetupCodePointer: DoorSetupCode.None);
-        AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
+        AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
             "room $9B9D redirects its resident grey door to closing list $BE59");
 
         for (int frame = 0; frame < 10; frame++)
         {
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 1, ControllerNewInput = 0, CollectedItems = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 1, ControllerNewInput = 0, CollectedItems = 0 });
         }
 
         AssertEqual(GreyDoorPhase.Locked, plms.GreyDoorSnapshots.Single().Phase,
@@ -556,35 +556,27 @@ internal static class RoomPlmPopulationVerification
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.WreckedShip), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.WreckedShip), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Wrecked Ship attic record is accepted by sequential loader");
         RoomPlmSlotSnapshot loaded = plms.PopulationSlots.Single();
         AssertEqual(39, loaded.NativeSlotIndex,
             "Wrecked Ship attic actor receives the native highest free slot");
         AssertTrue(loaded.Animation is WreckedShipAtticPlmAnimation, "Wrecked Ship attic actor starts its typed program");
-        AssertEqual(0, loaded.PreInstruction,
+        AssertEqual(PlmPreInstructionDefinitions.SpawnDefault, loaded.PreInstruction,
             "Wrecked Ship attic callback is not installed before its first handler pass");
 
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
         AssertEqual(WreckedShipAtticPlmRomData.NoOpCallback, sleeping.PreInstruction,
             "Wrecked Ship attic list installs exact BAFA pre-instruction");
         AssertTrue(sleeping.Animation is WreckedShipAtticPlmAnimation { Cursor.Position: 1 },
             "Wrecked Ship attic actor sleeps permanently on its program's sleep");
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "inert attic callback leaves its resident actor alive");
-        AssertEqual(0x9123, level.GetCollisionBlock(new(blockX, blockY)).LevelWord,
+        AssertEqual(0x9123, level.GetCollisionBlock(new(blockX, blockY)).PackedWord.Raw,
             "inert attic callback leaves authored terrain unchanged");
-
-        // A saved/corrupt live state can still supply an unsupported callback even
-        // though the compiled retail list cannot. Inject that state after install so
-        // the family dispatcher remains loudly exhaustive without reopening ROM reads.
-        plms.SlotTable._slots[39].PreInstruction = 0x9876;
-        AssertThrows<InvalidDataException>(
-            () => plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }),
-            "unknown Wrecked Ship attic pre-instruction fails loudly");
     }
 
     /// <summary>
@@ -631,7 +623,7 @@ internal static class RoomPlmPopulationVerification
             Action<ushort> writeEarthquake)
         {
             var plms = new RoomPlmSystem();
-            AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent }, RoomFx = fx, Earthquake = new FixtureRoomEarthquake { WriteTimer = writeEarthquake } }),
+            AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent }, RoomFx = fx, Earthquake = new FixtureRoomEarthquake { WriteTimer = writeEarthquake } }),
                 "Speed Booster escape record is accepted by sequential loader");
             return plms;
         }
@@ -660,13 +652,13 @@ internal static class RoomPlmPopulationVerification
             unequippedLevel,
             value => earthquakeTimer = value);
         BackgroundTilemapStreamer unequippedStreamer = unequippedLevel.CreateBackgroundStreamer();
-        unequipped.Step(bus, unequippedLevel, unequippedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        unequipped.Step(bus, unequippedLevel, unequippedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        unequipped.Step(unequippedLevel, unequippedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        unequipped.Step(unequippedLevel, unequippedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, unequipped.SlotTable.ActiveCount,
             "missing Speed Booster deletes the resident controller");
-        AssertEqual(ushort.MaxValue, unequippedFx.TargetYPosition,
+        AssertEqual(ushort.MaxValue, unequippedFx.TargetSurface.Y,
             "missing Speed Booster disables the FX target");
-        AssertEqual(0, unequippedFx.PackedYVelocity,
+        AssertEqual(0, unequippedFx.YVelocity.RawValue,
             "missing Speed Booster clears packed FX velocity");
         AssertEqual(0, unequippedFx.Timer.RawValue,
             "missing Speed Booster clears FX timer");
@@ -676,7 +668,7 @@ internal static class RoomPlmPopulationVerification
         var disabledSystem = new Bank80SystemState();
         var disabledSamus = new SamusState
         {
-            CollectedItems = (ushort)SamusEquipmentFlags.SpeedBooster,
+            CollectedItems = SamusEquipmentFlags.SpeedBooster,
         };
         RoomLevelData disabledLevel = CreateLevel();
         RoomPlmSystem disabled = Load(
@@ -686,15 +678,15 @@ internal static class RoomPlmPopulationVerification
             disabledLevel,
             _ => { });
         BackgroundTilemapStreamer disabledStreamer = disabledLevel.CreateBackgroundStreamer();
-        disabled.Step(bus, disabledLevel, disabledStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        disabled.Step(bus, disabledLevel, disabledStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        disabled.Step(disabledLevel, disabledStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        disabled.Step(disabledLevel, disabledStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, disabled.SlotTable.ActiveCount,
             "negative FX target deletes collected-Speed-Booster controller");
 
         var activeSystem = new Bank80SystemState();
         var activeSamus = new SamusState
         {
-            CollectedItems = (ushort)SamusEquipmentFlags.SpeedBooster,
+            CollectedItems = SamusEquipmentFlags.SpeedBooster,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0ae1, 0)),
         };
         RoomLayer3FxState activeFx = CreateFx(0x0300, 0x0100, 0, 0);
@@ -706,38 +698,38 @@ internal static class RoomPlmPopulationVerification
             activeLevel,
             _ => { });
         BackgroundTilemapStreamer activeStreamer = activeLevel.CreateBackgroundStreamer();
-        active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(SpeedBoosterEscapePlmRomData.InitialLavaquakeVelocity,
-            activeFx.PackedYVelocity,
+            activeFx.YVelocity.RawValue,
             "collected Speed Booster starts the regional lavaquake velocity");
-        active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, activeFx.Timer.RawValue,
             "Samus right of $0AE0 leaves FX motion sleeping");
         activeSamus.Position = activeSamus.Position.WithWholeX(SpeedBoosterEscapePlmRomData.StartFxMotionSamusX);
-        active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(1, activeFx.Timer.RawValue,
             "Samus reaching $0AE0 starts FX motion");
 
         activeSamus.Position = activeSamus.Position.WithWholeX(0x072c);
-        active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0x0300, activeFx.BaseYPosition,
+        active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(0x0300, activeFx.BaseY.Whole,
             "first lava stage waits while Samus remains right of its threshold");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x072b);
-        active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0x01bf, activeFx.BaseYPosition,
+        active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(0x01bf, activeFx.BaseY.Whole,
             "first lava stage clamps maximum FX Y");
-        AssertEqual(0xff50, activeFx.PackedYVelocity,
+        AssertEqual(0xff50, activeFx.YVelocity.RawValue,
             "first lava stage installs ROM velocity");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x050a);
-        active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0x0167, activeFx.BaseYPosition,
+        active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(0x0167, activeFx.BaseY.Whole,
             "second lava stage clamps maximum FX Y");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x0244);
-        active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0x0100, activeFx.BaseYPosition,
+        active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(0x0100, activeFx.BaseY.Whole,
             "third lava stage clamps maximum FX Y");
-        active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(activeSystem.HasEvent(EventNumber.OutranSpeedBoosterLavaquake),
             "stage-table terminator marks event $15");
         AssertEqual(1, active.SlotTable.ActiveCount,
@@ -751,7 +743,7 @@ internal static class RoomPlmPopulationVerification
     /// must preserve that harmless order without weakening bounds for PLMs whose setup
     /// genuinely consumes logical terrain.
     /// </summary>
-    private static void VerifyNativeOutOfBoundsPopulationSetupOrder(TestAddressSpace bus)
+    private static void VerifyNativeOutOfBoundsPopulationSetupOrder()
     {
         const ushort population = 0x96c0;
         const ushort malformedPopulation = 0x96e0;
@@ -762,7 +754,7 @@ internal static class RoomPlmPopulationVerification
         const int inRoomX = 2;
         const int inRoomY = 2;
 
-        var decoded = new RoomPlmPopulationDefinition(population,
+        var decoded = new RoomPlmPopulationDefinition($"$8F:{population:X4}",
         [
             new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.GreenDoorFacingRight),
                 new(offRoomX, offRoomY), 0x27),
@@ -776,7 +768,7 @@ internal static class RoomPlmPopulationVerification
             blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem();
-        AssertEqual(2, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(2, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room colored door and following record both run setup");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
         AssertEqual(39, slots[0].NativeSlotIndex,
@@ -785,22 +777,22 @@ internal static class RoomPlmPopulationVerification
             "off-room record retains native unchecked row-major block index");
         AssertEqual(38, slots[1].NativeSlotIndex,
             "following record retains descending native slot order");
-        AssertEqual(0, level.GetCollisionBlockByIndex(width * height - 1).LevelWord,
+        AssertEqual(0, level.GetCollisionBlockByIndex(width * height - 1).PackedWord.Raw,
             "off-room setup cannot corrupt the final authored host block");
 
         // Both resident actors execute their first draw. The off-room write remains in the
         // bounded native tail while the ordinary record updates logical terrain normally.
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0xc004, level.GetCollisionBlock(new(inRoomX, inRoomY)).LevelWord,
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(0xc004, level.GetCollisionBlock(new(inRoomX, inRoomY)).PackedWord.Raw,
             "in-room record following the harmless tail actor still draws normally");
 
-        var malformed = new RoomPlmPopulationDefinition(malformedPopulation,
+        var malformed = new RoomPlmPopulationDefinition($"$8F:{malformedPopulation:X4}",
         [
             new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),
                 new(offRoomX, offRoomY), 0x9800, new byte[] { 0x80 }),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
-            () => new RoomPlmSystem().PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), malformed, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            () => new RoomPlmSystem().PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), malformed, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room scroll owner fails when setup consumes a required logical block");
     }
 
@@ -824,7 +816,7 @@ internal static class RoomPlmPopulationVerification
 
         SeedPlmProgramWords(bus, 0xc8ca, 0xb3c1);
         SeedPlmProgramWords(bus, 0xc8cc, RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed);
-        SeedPlmProgramWords(bus, 0xc8ce, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
+        SeedPlmProgramWords(bus, 0xc8ce, RoomPlmInstructionListsConstants.MotherBrainEscapeRoomGateClosing);
         SeedPlmProgramWords(bus, 0xc8d0, 0xb3c1);
         SeedRoomPlmPopulation(bus, population,
         [
@@ -856,21 +848,20 @@ internal static class RoomPlmPopulationVerification
         BackgroundTilemapStreamer ordinaryStreamer = ordinaryLevel.CreateBackgroundStreamer();
         var ordinary = new RoomPlmSystem();
         var system = new Bank80SystemState();
-        AssertEqual(1, ordinary.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, ordinaryLevel, ordinaryStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, ordinary.PopulationLoader.LoadRoomPopulation(new PlmRoom(ordinaryLevel, ordinaryStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "escape gate population record is accepted by the sequential loader");
-        AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).LevelWord,
+        AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).PackedWord.Raw,
             "C8CA setup clears collision class bits without deleting its resident slot");
         AssertEqual(39, ordinary.PopulationSlots.Single().NativeSlotIndex,
             "escape gate retains the highest native population slot");
-        AssertEqual(RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed,
-            ordinary.PopulationSlots.Single().InstructionPointer,
-            "ordinary entry retains C8CA's first closed-gate list");
-        ordinary.Step(guarded, ordinaryLevel, ordinaryStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.MotherBrainEscapeGate), ordinary.PopulationSlots.Single()),
+            "ordinary entry runs C8CA's first closed-gate program");
+        ordinary.Step(ordinaryLevel, ordinaryStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(closedGateMiddleWord,
-            ordinaryLevel.GetCollisionBlock(new(gateX, gateY + 1)).LevelWord,
+            ordinaryLevel.GetCollisionBlock(new(gateX, gateY + 1)).PackedWord.Raw,
             "non-escape entry draws the cartridge's already-closed gate");
         for (int frame = 0; frame < 6; frame++)
-            ordinary.Step(guarded, ordinaryLevel, ordinaryStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            ordinary.Step(ordinaryLevel, ordinaryStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, ordinary.SlotTable.ActiveCount,
             "non-escape closed-gate actor releases its slot after six authored frames");
 
@@ -881,40 +872,39 @@ internal static class RoomPlmPopulationVerification
         escapeLevel.SetForegroundEntry(gateBlock, originalGateWord);
         BackgroundTilemapStreamer escapeStreamer = escapeLevel.CreateBackgroundStreamer();
         var escape = new RoomPlmSystem();
-        escape.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, escapeLevel, escapeStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        escape.PopulationLoader.LoadRoomPopulation(new PlmRoom(escapeLevel, escapeStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         var motherBrainExit = new CartridgeDoorHeader(
-            Pointer: 0xaa8c,
-            DestinationRoomPointer: 0xde4d,
+            Name: nameof(DoorDefinitions.MotherBrain1),
+            DestinationRoom: RoomHeaderDefinitions.TourianEscape1,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             PlmBlock: new(gateX, gateY),
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
             SetupCodePointer: DoorSetupCode.None);
-        AssertTrue(escape.DoorPlms.TrySpawnDoorClosingPlm(guarded, escapeLevel, motherBrainExit, system),
+        AssertTrue(escape.DoorPlms.TrySpawnDoorClosingPlm(escapeLevel, motherBrainExit, system),
             "direction-nine Mother Brain exit redirects the resident gate");
         AssertEqual(1, escape.SlotTable.ActiveCount,
             "resident escape gate is redirected in place rather than duplicated");
         AssertEqual(39, escape.PopulationSlots.Single().NativeSlotIndex,
             "redirect preserves native room-population slot ordering");
-        AssertEqual(RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing,
-            escape.PopulationSlots.Single().InstructionPointer,
-            "door transition selects C8CA's second instruction list");
+        AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.MotherBrainEscapeGateClosing), escape.PopulationSlots.Single()),
+            "door transition selects C8CA's second program");
 
-        escape.Step(guarded, escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).LevelWord,
+        escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).PackedWord.Raw,
             "closing frame one draws the fully open gate");
-        escape.Step(guarded, escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).LevelWord,
+        escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).PackedWord.Raw,
             "two-frame gate timer retains the open image on its countdown frame");
-        escape.Step(guarded, escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(halfClosedGateTopWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).LevelWord,
+        escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(halfClosedGateTopWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).PackedWord.Raw,
             "closing frame two draws the half-closed gate");
-        escape.Step(guarded, escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        escape.Step(guarded, escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(closedGateMiddleWord, escapeLevel.GetCollisionBlock(new(gateX, gateY + 1)).LevelWord,
+        escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(closedGateMiddleWord, escapeLevel.GetCollisionBlock(new(gateX, gateY + 1)).PackedWord.Raw,
             "closing frame three installs the final solid gate collision");
-        escape.Step(guarded, escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        escape.Step(guarded, escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, escape.SlotTable.ActiveCount,
             "escape gate releases its slot after the final two-frame hold");
 
@@ -924,17 +914,17 @@ internal static class RoomPlmPopulationVerification
             blockDefinitions: new byte[0x400 * 8]);
         fallbackLevel.SetForegroundEntry(gateBlock, originalGateWord);
         var fallback = new RoomPlmSystem();
-        AssertTrue(fallback.DoorPlms.TrySpawnDoorClosingPlm(guarded, fallbackLevel, motherBrainExit, system),
+        AssertTrue(fallback.DoorPlms.TrySpawnDoorClosingPlm(fallbackLevel, motherBrainExit, system),
             "special door without a resident cap spawns C8D0 fallback");
         AssertEqual(PlmHeaderId.MotherBrainEscapeRoomGateClosing,
             fallback.PopulationSlots.Single().HeaderPointer,
             "fallback actor uses the cartridge's dedicated C8D0 header");
-        AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).LevelWord,
+        AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).PackedWord.Raw,
             "fallback C8D0 executes the shared deactivate setup");
 
         var nonClosingDoor = motherBrainExit with { Orientation = new(DoorDirection.Right, DoorClosingBehavior.None) };
         var nonClosing = new RoomPlmSystem();
-        AssertTrue(!nonClosing.DoorPlms.TrySpawnDoorClosingPlm(guarded, fallbackLevel, nonClosingDoor, system),
+        AssertTrue(!nonClosing.DoorPlms.TrySpawnDoorClosingPlm(fallbackLevel, nonClosingDoor, system),
             "directions zero through three retain the native no-closing-PLM branch");
         AssertEqual(0, nonClosing.SlotTable.ActiveCount,
             "non-closing door does not consume a PLM slot");
@@ -994,10 +984,10 @@ internal static class RoomPlmPopulationVerification
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();
-        AssertEqual(5, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
+        AssertEqual(5, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
             "Metroids-cleared population loads all argument families");
 
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, enemyDeaths: 2, enemyDeathQuota: 3);
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, enemyDeaths: 2, enemyDeathQuota: 3);
         foreach (EventNumber eventNumber in new[]
                  {
                      EventNumber.FirstMetroidHallCleared,
@@ -1010,7 +1000,7 @@ internal static class RoomPlmPopulationVerification
                 $"Metroids-cleared {eventNumber} remains clear below quota");
         }
 
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, enemyDeaths: 3, enemyDeathQuota: 3);
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, enemyDeaths: 3, enemyDeathQuota: 3);
         foreach (EventNumber eventNumber in new[]
                  {
                      EventNumber.FirstMetroidHallCleared,
@@ -1035,7 +1025,7 @@ internal static class RoomPlmPopulationVerification
             0x00, 0x00,
         ]);
         AssertThrows<InvalidDataException>(
-            () => new RoomPlmSystem().PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, invalidPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            () => new RoomPlmSystem().PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, invalidPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "odd Metroids-cleared room argument fails loudly");
     }
 
@@ -1051,8 +1041,8 @@ internal static class RoomPlmPopulationVerification
             : null;
         for (int index = 0; index < 3; index++)
         {
-            ushort address = checked((ushort)(ShaktoolRoomPlmRomData.InstructionList + index * 2));
-            AssertTrue(ShaktoolRoomPlmRomData.TryReadInstructionWord(address, out ushort compiled),
+            ushort address = checked((ushort)(ShaktoolRoomPlmRomDataConstants.InstructionList + index * 2));
+            AssertTrue(ShaktoolRoomPlmRomDataConstants.TryReadInstructionWord(address, out ushort compiled),
                 $"Shaktool room list word ${address:X4} is compiled");
             if (rom is not null)
             {
@@ -1063,8 +1053,8 @@ internal static class RoomPlmPopulationVerification
             }
             SeedPlmProgramWords(bus, address, 0xdead);
         }
-        AssertTrue(!ShaktoolRoomPlmRomData.TryReadInstructionWord(
-                checked((ushort)(ShaktoolRoomPlmRomData.InstructionList + 6)), out _),
+        AssertTrue(!ShaktoolRoomPlmRomDataConstants.TryReadInstructionWord(
+                checked((ushort)(ShaktoolRoomPlmRomDataConstants.InstructionList + 6)), out _),
             "Shaktool room list owner excludes adjacent setup code");
 
         const ushort emptyPopulation = 0x9780;
@@ -1072,12 +1062,12 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData level = CreateRoom(new(32, 32), new ushort[32 * 32],
             new byte[32 * 32], blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(bus,
+        RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(),
             new byte[RoomScrollGrid.StorageByteCount], new Extent16<RoomScreens>(2, 2));
         var samus = new SamusState();
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();
-        AssertEqual(0, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, emptyPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
+        AssertEqual(0, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, emptyPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
             "empty fixture reserves no PLM before Shaktool setup spawn");
         AssertTrue(plms.Shaktool.TrySpawnShaktoolRoomController(scrolls),
             "Shaktool room setup spawns its resident controller");
@@ -1086,15 +1076,14 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadState(3),
             "Shaktool setup keeps later scroll cells red");
 
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
-        AssertEqual(ShaktoolRoomPlmRomData.PreInstruction, sleeping.PreInstruction,
+        AssertEqual(ShaktoolRoomPlmRomDataConstants.PreInstruction, sleeping.PreInstruction,
             "compiled list installs Shaktool room pre-instruction");
-        AssertEqual(checked((ushort)(ShaktoolRoomPlmRomData.InstructionList + 4)),
-            sleeping.InstructionPointer,
-            "compiled list sleeps on its last instruction");
+        AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.ShaktoolRoomController), sleeping),
+            "the controller runs its typed program, resting on its closing sleep");
 
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionStatus = 1 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionStatus = 1 });
         for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
             AssertEqual(RoomScrollState.Blue, scrolls.ReadState(cell),
                 $"Shaktool power bomb opens scroll cell {cell}");
@@ -1102,7 +1091,7 @@ internal static class RoomPlmPopulationVerification
             "Shaktool controller remains resident until Samus passes the threshold");
 
         samus.Position = samus.Position.WithWholeX(checked((ushort)(ShaktoolRoomPlmRomData.ClearedPathXBoundary + 1)));
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         AssertTrue(system.HasEvent(EventNumber.ShaktoolClearedPath),
             "Shaktool path event follows the native X threshold");
         AssertEqual(0, plms.SlotTable.ActiveCount,
@@ -1129,18 +1118,18 @@ internal static class RoomPlmPopulationVerification
         var system = new Bank80SystemState();
         var samus = new SamusState { Health = 99, MaxHealth = 99, Missiles = 0, MaxMissiles = 10 };
         var plms = new RoomPlmSystem { Drawing = { StationVisuals = visuals } };
-        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         AssertEqual(3, plms.StationSnapshots.Count, "map, missile, and save parents share one pool");
-        AssertEqual(0x47, level.GetCollisionBlock(new(7, 6)).Behavior,
+        AssertEqual(0x47, level.GetCollisionBlock(new(7, 6)).Bts.Value,
             "map right access setup uses BTS $47");
-        AssertEqual(0x48, level.GetCollisionBlock(new(4, 6)).Behavior,
+        AssertEqual(0x48, level.GetCollisionBlock(new(4, 6)).Bts.Value,
             "map left access setup uses native two-block offset");
-        AssertEqual(0x4b, level.GetCollisionBlock(new(13, 6)).Behavior,
+        AssertEqual(0x4b, level.GetCollisionBlock(new(13, 6)).Bts.Value,
             "missile right access setup uses BTS $4B");
-        AssertEqual(0x4c, level.GetCollisionBlock(new(11, 6)).Behavior,
+        AssertEqual(0x4c, level.GetCollisionBlock(new(11, 6)).Bts.Value,
             "missile left access setup uses BTS $4C");
-        AssertEqual(0x4d, level.GetCollisionBlock(new(18, 6)).Behavior,
+        AssertEqual(0x4d, level.GetCollisionBlock(new(18, 6)).Bts.Value,
             "save station setup installs trigger BTS $4D");
 
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(7, 6)), 0x47),
@@ -1151,14 +1140,14 @@ internal static class RoomPlmPopulationVerification
             "missile access resolves parent");
         // Activation runs on the triggering pass plus 6 + $60 later passes.
         for (int frame = 0; frame < 102; frame++)
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(!system.HasAreaMap(2), "map station has not activated before its 103rd pass");
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0xb859, level.GetCollisionBlock(new(18, 6)).LevelWord,
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(0xb859, level.GetCollisionBlock(new(18, 6)).PackedWord.Raw,
             "compiled save-pod idle draw installs its physical floor word");
-        AssertEqual(0x005b, level.GetCollisionBlock(new(18, 2)).LevelWord,
+        AssertEqual(0x005b, level.GetCollisionBlock(new(18, 2)).PackedWord.Raw,
             "compiled save-pod draw extends its shaft above the trigger");
-        AssertEqual(0x8059, level.GetCollisionBlock(new(18, 1)).LevelWord,
+        AssertEqual(0x8059, level.GetCollisionBlock(new(18, 1)).PackedWord.Raw,
             "compiled save-pod draw installs its upper cap");
         AssertTrue(system.HasAreaMap(2), "map station marks current area acquired");
         AssertEqual(10, samus.Missiles, "missile station restores missiles");
@@ -1173,19 +1162,19 @@ internal static class RoomPlmPopulationVerification
         // the original instruction lists execute three six-frame phases: post-message
         // hold, retract, and final hold, without looping the access sound.
         for (int frame = 0; frame < 18; frame++)
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0x8128, level.GetCollisionBlock(new(7, 6)).LevelWord,
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertEqual(0x8128, level.GetCollisionBlock(new(7, 6)).PackedWord.Raw,
             "map access retracts to its compiled right-side parent word");
-        AssertEqual(0x8528, level.GetCollisionBlock(new(4, 6)).LevelWord,
+        AssertEqual(0x8528, level.GetCollisionBlock(new(4, 6)).PackedWord.Raw,
             "map access retracts its linked left-side block");
-        AssertEqual(0xb4c3, level.GetCollisionBlock(new(13, 6)).LevelWord,
+        AssertEqual(0xb4c3, level.GetCollisionBlock(new(13, 6)).PackedWord.Raw,
             "missile access retracts to its compiled resource word");
         AssertTrue(!samus.InputLocked,
             "Samus stays released through the post-message retraction");
 
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(18, 6)), 0x4d),
             "save trigger resolves its same-block parent");
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(StationKind.Save, plms.Stations.StationActivationEvents.Single().Kind,
             "save trigger publishes typed confirmation request");
         AssertEqual(3, plms.Stations.StationActivationEvents.Single().StationIndex,
@@ -1194,16 +1183,16 @@ internal static class RoomPlmPopulationVerification
         StationActivationEvent saveRequest = plms.Stations.StationActivationEvents.Single();
         samus.Position = samus.Position.WithWholeX(0x0127);
         ushort[] levelBeforeSave = Enumerable.Range(0, level.Size.X * level.Size.Y)
-            .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).LevelWord)
+            .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).PackedWord.Raw)
             .ToArray();
         SaveStationConfirmationResult confirmation =
-            plms.Stations.ResolveSaveStationConfirmation(bus, saveRequest, accepted: true, level: level, streamer: streamer, view: new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Stations.ResolveSaveStationConfirmation(saveRequest, accepted: true, level: level, streamer: streamer, view: new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(confirmation.Saving, "accepted save resumes the sleeping cartridge PLM");
         // #1269: $84:AFF4-$AFFA run in the PLM pass the message returned into.
         AssertTrue(plms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2e), 6)),
             "the confirming pass queues cartridge library-one sound $2E");
         AssertTrue(Enumerable.Range(0, levelBeforeSave.Length).Any(block => levelBeforeSave[block] !=
-                level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).LevelWord),
+                level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).PackedWord.Raw),
             "the confirming pass draws the first electricity frame");
         AssertEqual(0x0120, samus.Position.X.Whole,
             "save animation centers Samus on the station's 16-pixel boundary");
@@ -1221,7 +1210,7 @@ internal static class RoomPlmPopulationVerification
             SaveStationAnimationDefinitions.SaveAnimationLoops * 8 + 8;
         for (int frame = 0; frame < maximumSaveAnimationFrames && !completionPublished; frame++)
         {
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (plms.Stations.StationActivationEvents.Count != 0)
             {
                 completion = plms.Stations.StationActivationEvents.Single();
@@ -1245,7 +1234,7 @@ internal static class RoomPlmPopulationVerification
 
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(18, 6)), 0x4d),
             "locked save trigger remains a solid station block");
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, plms.Stations.StationActivationEvents.Count,
             "locked save station cannot reopen until room re-entry");
     }
@@ -1262,7 +1251,7 @@ internal static class RoomPlmPopulationVerification
         SeedSaveStationElectricityProjectile(bus);
 
         var enemies = new RoomEnemySystem();
-        enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0x4040)) { Level = level, Samus = new SamusState() });
+        enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0x4040)) { Level = level, Samus = new SamusState() });
         enemies.Projectiles.SpawnSaveStationElectricity(saveBlockIndex, level.Size.X);
 
         var visible = new SpriteVisualPart
@@ -1271,12 +1260,12 @@ internal static class RoomPlmPopulationVerification
             Size = 8, Priority = 1, Palette = 0, FlipX = false, FlipY = false,
         };
         HashSet<ushort> electricityOperands = Enumerable.Range(0, SaveStationElectricityFrameDefinitions.PoseCount)
-            .Select(index => SaveStationElectricityFrameDefinitions.PresentationKey(new(index))).ToHashSet();
+            .Select(index => EnemyProjectileFrames.ProgramFrameKey(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)])).ToHashSet();
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
             Version = (int)EnemyProjectileSpritemapVersion.Current,
             Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Item2, _ => Array.Empty<SpriteVisualPart>()),
-            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToDictionary(
+            ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
                 frame => frame.Name, frame => electricityOperands.Contains(frame.OperandAddress) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
         };
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ProjectileSpritemaps = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
@@ -1290,7 +1279,7 @@ internal static class RoomPlmPopulationVerification
             "save electricity starts two blocks above the station PLM");
 
         enemies.StepEnemyProjectiles(level, samus: null);
-        AssertEqual(SaveStationElectricityFrameDefinitions.PresentationKey(new(0)),
+        AssertEqual(EnemyProjectileFrames.ProgramFrameKey(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(0)]),
             electricity.PresentationOperandAddress, "save electricity selects its first installed frame through its typed program");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,
             "installed program artwork does not retain a cartridge spritemap pointer");
@@ -1300,7 +1289,7 @@ internal static class RoomPlmPopulationVerification
         oam.FinalizeFrame();
         AssertTrue(Enumerable.Range(0, oam.LastFinalizedSpriteCount)
             .Select(oam.GetEntry)
-            .Any(entry => entry.X == 0x0030 && entry.Y == 0x40),
+            .Any(entry => entry.Position.X == 0x0030 && entry.Position.Y == 0x40),
             "save electricity reaches the ordinary room enemy-projectile draw path");
     }
 
@@ -1322,7 +1311,7 @@ internal static class RoomPlmPopulationVerification
         NotSupportedException? error = null;
         try
         {
-            plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         }
         catch (NotSupportedException caught)
         {
@@ -1342,7 +1331,7 @@ internal static class RoomPlmPopulationVerification
     private static void VerifySaveStationConfirmation(TestAddressSpace bus)
     {
         GameplayMessageTitleCell[] Cells(int count, ushort first) => Enumerable.Range(0, count)
-            .Select(index => new GameplayMessageTitleCell { Raw = unchecked((ushort)(first + index)) }).ToArray();
+            .Select(index => new GameplayMessageTitleCell { Word = unchecked((ushort)(first + index)) }).ToArray();
         var notices = new GameplayMessageNoticeDocument
         {
             Version = GameplayMessageNoticeDefinitions.Version,
@@ -1366,7 +1355,7 @@ internal static class RoomPlmPopulationVerification
 
         var message = new GameplayMessageBoxState();
         message.BindPresentation(null, notices: presentation);
-        message.Begin(bus, GameplayMessageIds.SaveConfirmation, 0);
+        message.Begin(GameplayMessageIds.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)
@@ -1403,7 +1392,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(false, message.ConsumeConfirmationResult(),
             "save confirmation publishes selected no result after close");
 
-        message.Begin(bus, GameplayMessageIds.SaveConfirmation, 0);
+        message.Begin(GameplayMessageIds.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)

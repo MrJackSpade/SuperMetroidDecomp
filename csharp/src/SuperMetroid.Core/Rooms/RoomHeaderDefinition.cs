@@ -6,12 +6,11 @@ namespace SuperMetroid.Core.Rooms;
 /// native state-selection program.
 /// </summary>
 public sealed record RoomHeaderDefinition(
-    ushort Pointer,
+    string Name,
     byte RoomIndex,
     AreaId AreaIndex,
     Position16<MapTiles> MapPosition,
     Extent16<RoomScreens> Size,
     byte UpScroller,
     byte DownScroller,
-    byte CreBitset,
-    ushort DoorListPointer);
+    byte CreBitset);

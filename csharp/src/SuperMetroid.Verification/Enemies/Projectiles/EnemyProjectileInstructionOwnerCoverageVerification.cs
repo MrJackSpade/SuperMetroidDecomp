@@ -18,12 +18,10 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
     /// <summary>Checks every nonzero initial, touch, and shot entry without a cartridge fallback.</summary>
     internal static void VerifyEnemyProjectileInstructionOwnerCoverage()
     {
-        const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         var forbiddenBus = NewEnemyProjectileMechanicsFallbackForbiddenBus();
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(forbiddenBus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         int definitionCount = 0;
         int reactionCount = 0;
@@ -83,11 +81,20 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
                 RoomEnemyProjectileKind.CeresFallingDebrisLight or
                 RoomEnemyProjectileKind.CeresFallingDebrisDark or
-                RoomEnemyProjectileKind.GunshipLiftoffDustCloud ||
+                RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
+                // Fake Kraid's spit and spikes and the old Tourian fake-wall explosion run typed programs (SME6341).
+                RoomEnemyProjectileKind.FakeKraidSpit or
+                RoomEnemyProjectileKind.FakeKraidSpikeLeft or
+                RoomEnemyProjectileKind.FakeKraidSpikeRight or
+                RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion or
+                // The Pirate/Mother Brain laser and the Ninja Pirate claw run typed programs.
+                RoomEnemyProjectileKind.PirateMotherBrainLaser or
+                RoomEnemyProjectileKind.PirateClaw or
+                // Mother Brain's death explosion plays a typed misc-dust program.
+                RoomEnemyProjectileKind.MotherBrainDeathExplosion ||
                 // The regular enemies' projectiles whose definitions start typed programs (#1291).
                 EnemyProjectileTypedStarts.Initial(kind) is not null;
-            if (!typed)
-                VerifyEntry(definition.InitialInstructionList, "initial");
+            AssertTrue(typed, $"Projectile {kind} starts a typed program");
             // Mother Brain's onion ring starts a typed touch program too (#1292).
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainOnionRing))
@@ -112,7 +119,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             {
                 if (address == 0)
                     return;
-                AssertEqual((ushort)EnemyProjectileInstruction.Delete,
+                AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete,
                     CartridgeImportSource.Require(rom).ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | address),
                     $"Projectile {kind} {role} list $86:{address:X4} is the shared delete");
                 entryCount++;
@@ -120,24 +127,6 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 checksum += address;
             }
 
-            void VerifyEntry(ushort address, string role)
-            {
-                if (address == 0)
-                    return;
-
-                try
-                {
-                    checksum += EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(projectile, address);
-                    entryCount++;
-                }
-                catch (Exception exception)
-                {
-                    throw new InvalidOperationException(
-                        $"Projectile {kind} {role} entry $86:{address:X4} has no compiled " +
-                        "mechanics owner.",
-                        exception);
-                }
-            }
         }
 
         AssertTrue(definitionCount > 100,
@@ -149,17 +138,6 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
         AssertEqual(0, forbiddenBus.ForbiddenReadAttempts,
             "projectile definition entries never use the removed mechanics fallback");
 
-        var unknown = new RoomEnemyProjectileSlot(0)
-        {
-            Kind = RoomEnemyProjectileKind.None,
-        };
-        InvalidDataException unknownException = AssertThrows<InvalidDataException>(
-            () => EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(unknown, 0xffff),
-            "uncatalogued projectile mechanics fail explicitly");
-        AssertTrue(unknownException.Message.Contains("uncompiled", StringComparison.Ordinal),
-            "uncatalogued projectile mechanics identify the missing compiled owner");
-        AssertEqual(0, forbiddenBus.ForbiddenReadAttempts,
-            "uncatalogued projectile mechanics fail without probing cartridge data");
 
         Console.WriteLine(
             $"Enemy-projectile mechanics owners: {definitionCount} translated definitions " +

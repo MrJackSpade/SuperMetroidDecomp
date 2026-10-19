@@ -66,11 +66,11 @@ public static class ManagedAudioRegressionSmokeTest
 
         RunSoundScenario(
             "library-1-power-beam",
-            [(ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.PowerBeam.Value)],
+            [(ApuPort.SoundLibrary1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value))],
             tally);
         RunSoundScenario(
             "library-2-door",
-            [(ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.DoorOpening.Value)],
+            [(ApuPort.SoundLibrary2, checked((byte)SoundEffectLibrary2Sounds.DoorOpening.Value))],
             tally);
         RunSoundScenario(
             "library-3-cinematic",
@@ -79,8 +79,8 @@ public static class ManagedAudioRegressionSmokeTest
         RunSoundScenario(
             "three-library-overlap-and-cancel",
             [
-                (ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.PowerBeam.Value),
-                (ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.DoorOpening.Value),
+                (ApuPort.SoundLibrary1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value)),
+                (ApuPort.SoundLibrary2, checked((byte)SoundEffectLibrary2Sounds.DoorOpening.Value)),
                 (ApuPort.SoundLibrary3, 0x23),
             ],
             tally,
@@ -227,9 +227,9 @@ public static class ManagedAudioRegressionSmokeTest
         CartridgeAudioAcknowledgements acknowledgements = engine.Acknowledgements;
         Span<byte> ports = stackalloc byte[AudioRomData.Apu.PortCount];
         foreach (ApuPort port in Enum.GetValues<ApuPort>())
-            ports[(int)port] = acknowledgements[port];
+            ports[(int)port] = checked((byte)acknowledgements[port]);
         // The corpus pinned port zero as the sequencer's music echo, which the session never publishes.
-        ports[(int)ApuPort.Music] = engine.PlayerForVerification.musicPortToSnes;
+        ports[(int)ApuPort.Music] = checked((byte)engine.PlayerForVerification.musicPortToSnes);
         tally.Acknowledgements.AppendData(ports);
         tally.Frames++;
         tally.Samples += pcm.Length;

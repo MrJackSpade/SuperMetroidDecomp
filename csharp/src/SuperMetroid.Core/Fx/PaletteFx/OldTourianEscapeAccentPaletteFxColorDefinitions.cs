@@ -8,26 +8,12 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class OldTourianEscapeAccentPaletteFxColorDefinitions
 {
-    /// <summary><c>PalFxDef_Crateria10</c> at <c>$8D:FFDD</c>.</summary>
-    public const ushort OrangeRailingsDefinitionPointer = 0xffdd;
-
-    /// <summary><c>PalFxInstList_Crateria10</c> at <c>$8D:FBC1</c>.</summary>
-    public const ushort OrangeRailingsProgramStart = 0xfbc1;
-
-    /// <summary><c>PalFxDef_Crateria20</c> at <c>$8D:FFE1</c>.</summary>
-    public const ushort YellowPanelsDefinitionPointer = OrangeRailingsDefinitionPointer + 4;
-
-    /// <summary><c>PalFxInstList_Crateria20</c> at <c>$8D:FC5F</c>.</summary>
-    public const ushort YellowPanelsProgramStart = OrangeRailingsProgramStart + 4 + FrameCount * FrameByteCount + 4;
 
     /// <summary>Both loops contain fifteen timed records.</summary>
     public const int FrameCount = 15;
 
     /// <summary>Each record writes three live BGR555 colors.</summary>
     public const int ColorsPerFrame = 3;
-
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 10;
 
     /// <summary>$8D:FBC1 selects $00D2: palette-six/color-nine railings.</summary>
     private const ushort RailingsColorByteIndex = (6 * 16 + 9) * sizeof(ushort);
@@ -40,13 +26,13 @@ public static class OldTourianEscapeAccentPaletteFxColorDefinitions
     {
         /// <summary>The escape accent has separate railing and panel palette-FX definitions.</summary>
         public int Count => 2;
-        /// <summary>Constructs the selected program with its CGRAM byte and bank 8D entry pointer.</summary>
+        /// <summary>Constructs the selected program with its object, first record and CGRAM byte.</summary>
         public OldTourianEscapeAccentPaletteFxColorDefinition this[int index] => index switch
         {
             (int)OldTourianEscapeAccentPaletteOwner.OrangeRailings => new(OldTourianEscapeAccentPaletteOwner.OrangeRailings,
-                OrangeRailingsDefinitionPointer, OrangeRailingsProgramStart, RailingsColorByteIndex),
+                PaletteFxObject.OldTourianBackgroundRailingsFlashYellow, 581, RailingsColorByteIndex),
             (int)OldTourianEscapeAccentPaletteOwner.YellowPanels => new(OldTourianEscapeAccentPaletteOwner.YellowPanels,
-                YellowPanelsDefinitionPointer, YellowPanelsProgramStart, PanelsColorByteIndex),
+                PaletteFxObject.OldTourianBackgroundPanelsFlashYellow, 596, PanelsColorByteIndex),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         /// <summary>Visits both accent programs in the same order as the owner enum.</summary>

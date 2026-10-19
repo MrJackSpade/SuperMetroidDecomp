@@ -237,7 +237,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
                 int after = at + from.Length;
                 bool endsWord = after == name.Length || char.IsUpper(name[after]) || char.IsDigit(name[after]) || name[after] == '_';
                 if (startsWord && endsWord)
-                    return name[..at] + to + name[after..];
+                    return name.Substring(0, at) + to + name.Substring(after);
                 at = after;
             }
         }

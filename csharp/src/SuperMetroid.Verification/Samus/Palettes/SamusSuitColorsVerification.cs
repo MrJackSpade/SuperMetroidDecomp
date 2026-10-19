@@ -71,8 +71,8 @@ internal static class SamusSuitColorsVerification
         ushort[] equipment =
         [
             0,
-            (ushort)SamusEquipmentFlags.VariaSuit,
-            (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
+            SamusEquipmentFlags.VariaSuit.ToNativeWord(),
+            ((SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit).ToNativeWord()),
         ];
         int[] sourceAddresses =
         [
@@ -84,7 +84,7 @@ internal static class SamusSuitColorsVerification
         for (int suit = 0; suit < equipment.Length; suit++)
         {
             var cgram = new SnesCgram();
-            ushort pointer = SamusNormalSuitPalette.Load(cgram, equipment[suit], colors);
+            ushort pointer = SamusNormalSuitPalette.Load(cgram, (SamusEquipmentFlags)equipment[suit], colors);
             AssertEqual(SamusPaletteRomData.Common.NormalSuitPalettePointer((ushort)(suit * 2)),
                 pointer, $"suit {suit} retains its native diagnostic pointer");
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
@@ -155,13 +155,13 @@ internal static class SamusSuitColorsVerification
         ushort[] equipment =
         [
             0,
-            (ushort)SamusEquipmentFlags.VariaSuit,
-            (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
+            SamusEquipmentFlags.VariaSuit.ToNativeWord(),
+            ((SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit).ToNativeWord()),
         ];
         for (int suit = 0; suit < equipment.Length; suit++)
         {
-            samus.EquippedItems = equipment[suit];
-            samus.Presentation.LoadSuitPalette(guard, cgram);
+            samus.EquippedItems = (SamusEquipmentFlags)equipment[suit];
+            samus.Presentation.LoadSuitPalette(cgram);
             AssertEqual(edited.SamusSuitColors.Resolve(offsets[suit], 1),
                 cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
                 $"edited suit {suit} reaches live Samus CGRAM");
@@ -170,10 +170,10 @@ internal static class SamusSuitColorsVerification
                 $"edited suit {suit} differs from stock");
         }
 
-        samus.EquippedItems = equipment[1];
+        samus.EquippedItems = (SamusEquipmentFlags)equipment[1];
         samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
         AssertTrue(samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
-                guard, cgram, samus.EquippedItems, edited.SamusSuitColors),
+                cgram, samus.EquippedItems, edited.SamusSuitColors),
             "momentum cancellation admits installed normal suit restoration");
         AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
@@ -184,21 +184,22 @@ internal static class SamusSuitColorsVerification
         ushort hurtRestoreSentinel = unchecked((ushort)(edited.SamusSuitColors.Resolve(2, 1).ToWord() ^ 0x7fff));
         cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + 1, Bgr555.FromWord(checked((ushort)(hurtRestoreSentinel))));
         SamusHurtFlashPalette.Update(
-            guard, cgram, samus, controllerInput: 0);
+            cgram, samus, controllerInput: 0);
         AssertTrue(cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1].ToWord() != hurtRestoreSentinel,
             "even hurt-flash frame restores the normal suit");
         AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
             "hurt-flash recovery preserves edited Varia color");
 
-        samus.EquippedItems = (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
-        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(guard, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }, suitColors: edited.SamusSuitColors),
+        samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
+        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }, suitColors: edited.SamusSuitColors),
             "Screw Attack recovery frame restores the normal suit");
         AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
             "Screw Attack recovery preserves edited Varia color");
 
-        var runtime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = edited } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

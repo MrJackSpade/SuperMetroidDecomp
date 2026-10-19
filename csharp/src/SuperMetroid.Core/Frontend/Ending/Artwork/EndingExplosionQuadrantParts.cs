@@ -88,7 +88,7 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
         bool right = pose != Pose.SupernovaSecond;
         int x = column * 8 - 24, y = row * 8 - 24;
         if (right) x = -x - (large ? 16 : 8);
-        return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+        return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
             SnesObjAttributeWord.Create(atlasOrigin + row * 16 + column, 0, 0,
                 right ? SnesTileFlipFlags.Horizontal : 0), true);
     }
@@ -110,7 +110,7 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
             int size = part.X.IsLarge ? 16 : 8;
             // Arbitrary edits outside the signed coordinate mirror domain stay explicit.
             if (-part.X.SignedOffset - size is < -256 or > 255 ||
-                -unchecked((sbyte)part.Y) - size is < -128 or > 127) return supplied;
+                -part.Y.SignedOffset - size is < -128 or > 127) return supplied;
             basis[index] = part;
         }
         return supplied.CalculateIfMatching(new EndingExplosionQuadrantParts(basis, pose, first));
@@ -129,11 +129,11 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
             bool reflectY = quadrant is 1 or 2;
             CompiledSpritePart part = basis is null ? StockBasis(pose, index % basisCount) : basis[index % basisCount];
             int size = part.X.IsLarge ? 16 : 8;
-            int x = part.X.SignedOffset, y = unchecked((sbyte)part.Y);
+            int x = part.X.SignedOffset, y = part.Y.SignedOffset;
             SnesTileFlipFlags flips = part.Attributes.FlipFlags ^
                 (reflectX ? SnesTileFlipFlags.Horizontal : 0) ^ (reflectY ? SnesTileFlipFlags.Vertical : 0);
             return new(SnesSpritemapXWord.Create(reflectX ? -x - size : x, part.X.IsLarge),
-                unchecked((byte)(reflectY ? -y - size : y)),
+                SnesSpritemapYByte.Create(reflectY ? -y - size : y),
                 SnesObjAttributeWord.Create(part.Attributes.TileNumber, part.Attributes.PaletteIndex, part.Attributes.Priority, flips),
                 part.InheritPalette);
         }

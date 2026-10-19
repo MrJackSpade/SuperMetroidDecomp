@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The collaborators a <see cref="MotherBrainBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record MotherBrainBehaviorDependencies
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    public required EnemyFrameResultBuilder FrameResults { get; init; }
+
     /// <summary>Dispatch.</summary>
     public required IEnemyDispatch Dispatch { get; init; }
 

@@ -30,7 +30,7 @@ internal sealed record AttractDemoDriverDependencies
     public required GameplayHudSetup HudSetup { get; init; }
 
     /// <summary>Nmi handler.</summary>
-    public required NmiHandler NmiHandler { get; init; }
+    public required AcceptedFrameBoundary FrameBoundary { get; init; }
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
@@ -43,7 +43,4 @@ internal sealed record AttractDemoDriverDependencies
 
     /// <summary>System.</summary>
     public required Bank80SystemState System { get; init; }
-
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
 }

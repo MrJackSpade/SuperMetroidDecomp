@@ -26,20 +26,20 @@ internal static class GateJumpTraceVerification
             var expected = File.ReadLines($"csharp/test-fixtures/movement-release/gate-jump-403-{suffix}.csv").Skip(1).ToArray();
             AssertEqual(140, expected.Length, "Complete native gate jump trace");
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = CreateRetailRuntimeFixture(bus);
+            var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
             samus.Position = samus.Position.WithWhole(new(140, 379));
-            samus.EquippedItems = samus.EquippedBeams = 0;
-            samus.SelectedHudItem = 1;
+            samus.EquippedItems = 0; samus.EquippedBeams = 0;
+            samus.SelectedHudItem = HudItem.Missile;
             samus.Missiles = samus.MaxMissiles = 10;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 224));
             bool activated = false;
             for (int frame = -60; frame < 80; frame++)
@@ -62,11 +62,10 @@ internal static class GateJumpTraceVerification
         Console.WriteLine("PASS 1120 original-CPU gate jump frames: ordinary/spin successes, adjacent misses and falling control.");
     }
 
-    /// <summary>The gate's native instruction pointer, or the address its typed program stands for.</summary>
+    /// <summary>The native instruction address the gate's typed program stands for.</summary>
     private static ushort NativeGateInstruction(ISnesAddressSpace bus, RoomPlmSlotSnapshot gate) =>
-        gate.Animation is DownwardGatePlmAnimation typed
-            ? RoomPlmProgramsVerification.DownwardGateNativeInstruction(bus, typed)
-            : gate.InstructionPointer;
+        RoomPlmProgramsVerification.DownwardGateNativeInstruction(bus, gate.Animation as DownwardGatePlmAnimation
+            ?? throw new InvalidDataException($"Gate at block {gate.BlockIndex} runs no typed gate program."));
 
     /// <summary>Runs the focused gate-jump trace verification command.</summary>
     [VerificationCommand("--gate-jump-traces")]

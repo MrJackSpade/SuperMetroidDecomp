@@ -27,7 +27,7 @@ internal static class TitleGradientExtractor
                     Red = line.Red,
                     Green = line.Green,
                     Blue = line.Blue,
-                    ColorMathControl = line.Control,
+                    ColorMathControl = line.Control.ToNativeByte(),
                 }).ToArray(),
             };
         }

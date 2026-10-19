@@ -9,10 +9,6 @@ namespace SuperMetroid.Tooling;
 /// </summary>
 public static class RequiredReflection
 {
-    /// <summary>The value of a constant field, which must be a <typeparamref name="T"/>.</summary>
-    public static T RequiredConstant<T>(this FieldInfo field) => field.GetRawConstantValue() is T value
-        ? value
-        : throw new InvalidOperationException($"{field.DeclaringType?.FullName}.{field.Name} is not a {typeof(T).Name} constant.");
 
     /// <summary>The runtime's trusted platform assembly paths, which every .NET host publishes.</summary>
     public static string[] TrustedPlatformAssemblies() =>

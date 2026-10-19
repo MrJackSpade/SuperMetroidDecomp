@@ -32,20 +32,19 @@ internal static class GoldenTorizoCodeVerification
         void Check(EnemyDefinitionId header, SnesButton held, bool defeated, bool grants)
         {
             var enemies = new RoomEnemySystem();
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._cgram = new SnesCgram();
             enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);
-            var initialize = new Action<RoomEnemySlot, RoomLevelData?, SamusState?, SnesButton, ushort>(enemies.RunInitializationAi);
+            var initialize = new Action<RoomEnemySlot, RoomLevelData?, SamusState?, SnesButton, ushort>(RoomEnemySystem.RunInitializationAi);
             var actor = enemies.SlotTable.Slots[0];
-            actor.EnemyDefinitionPointer = header;
-            actor.Definition = RoomEnemyDefinitionCatalog.Get(header);
+            actor.Bind(header, actor.Definition);
+            actor.Bind(actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(header));
             var samus = new SamusState
             {
                 Health = 1500, MaxHealth = 1599, ReserveEnergy = 400, MaxReserveEnergy = 400,
                 Missiles = 200, MaxMissiles = 230, SuperMissiles = 40, MaxSuperMissiles = 50,
-                PowerBombs = 40, MaxPowerBombs = 50, EquippedItems = 8, CollectedItems = 8,
-                EquippedBeams = 0, CollectedBeams = 0, ReserveTankMode = 2, ReserveMissiles = 7,
+                PowerBombs = 40, MaxPowerBombs = 50, EquippedItems = (SamusEquipmentFlags)8, CollectedItems = (SamusEquipmentFlags)8,
+                EquippedBeams = 0, CollectedBeams = 0, ReserveTankMode = ReserveTankMode.Manual, ReserveMissiles = 7,
             };
             ushort[] before = Snapshot(samus);
             initialize(actor, null, samus, held, 0);
@@ -55,15 +54,16 @@ internal static class GoldenTorizoCodeVerification
                 : before;
             AssertTrue(expected.SequenceEqual(Snapshot(samus)),
                 $"GT code inventory: header ${(int)header:X4}, held ${held:X}, defeated {defeated}");
-            AssertEqual((ushort)2, samus.ReserveTankMode, "GT code does not set reserve mode");
+            AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "GT code does not set reserve mode");
             AssertEqual((ushort)7, samus.ReserveMissiles, "GT code does not alter reserve missiles");
         }
 
         static ushort[] Snapshot(SamusState samus) =>
-            [samus.Health, samus.MaxHealth, samus.ReserveEnergy, samus.MaxReserveEnergy,
-             samus.Missiles, samus.MaxMissiles, samus.SuperMissiles, samus.MaxSuperMissiles,
-             samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems, samus.CollectedItems,
-             samus.EquippedBeams, samus.CollectedBeams];
+            [.. new[] { samus.Health, samus.MaxHealth, samus.ReserveEnergy, samus.MaxReserveEnergy,
+                samus.Missiles, samus.MaxMissiles, samus.SuperMissiles, samus.MaxSuperMissiles,
+                samus.PowerBombs, samus.MaxPowerBombs }.Select(SamusQuantity.Encode),
+             samus.EquippedItems.ToNativeWord(), samus.CollectedItems.ToNativeWord(),
+             samus.EquippedBeams.ToNativeWord(), samus.CollectedBeams.ToNativeWord()];
     }
 
     /// <summary>Reads a cartridge byte for the native code's input mask and inventory oracle.</summary>

@@ -23,7 +23,7 @@ internal sealed class RoomPlmRuntimeServices(
     public SamusState? Current => player.Samus;
 
     /// <summary>Reads the live Tourian entrance statue completion state.</summary>
-    public bool IsFinished => enemies.TourianEntranceStatueBehavior.TourianEntranceStatueFinished;
+    public bool IsFinished => enemies.TourianStatue.Finished;
 
     /// <summary>Publishes a PLM-triggered quake countdown to the shared room earthquake.</summary>
     public void SetTimer(ushort timer) => enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(timer);
@@ -33,16 +33,16 @@ internal sealed class RoomPlmRuntimeServices(
 
     /// <summary>Spawns a Noob Tube projectile with the active room width for placement.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>
-        enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request, room.LoadedLevelData.Size.X);
+        enemies.PlmSpawns.SpawnNoobTubeProjectile(request, room.LoadedLevelData.Size.X);
 
     /// <summary>Spawns an eye-door projectile using the active room width and system state.</summary>
     public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request) =>
-        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, room.LoadedLevelData.Size.X, system);
+        enemies.PlmSpawns.SpawnEyeDoorProjectile(request, room.LoadedLevelData.Size.X, system);
 
     /// <summary>Delegates the old Tourian escape shaft wall blast to its resident enemy behavior.</summary>
     public void SpawnOldTourianEscapeShaftWallExplosion() =>
-        enemies.OldTourianEscapeShaftWallBehavior.SpawnOldTourianEscapeShaftWallExplosion();
+        enemies.PlmSpawns.SpawnOldTourianEscapeShaftWallExplosion();
 
     /// <summary>Lets a PLM disable the Draygon cannon identified by its enemy variable pointer.</summary>
-    public void DisableDraygonCannon(DraygonCannonControlWord word) => enemies.DraygonBehavior.DisableDraygonCannon(word);
+    public void DisableDraygonCannon(DraygonCannonControlWord word) => enemies.PlmSpawns.DisableDraygonCannon(word);
 }

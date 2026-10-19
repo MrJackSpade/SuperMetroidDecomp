@@ -59,18 +59,6 @@ public static class SamusMovementRomData
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>
     public static class HorizontalMotion
     {
-        /// <summary><c>$90:9F49 kSamusSpeedTable_Normal_X</c>.</summary>
-        public const ushort NormalSpeedTable = 0x9f49;
-
-        /// <summary>First ordinary-air movement-type record after the standalone entry.</summary>
-        public const ushort NormalAirSpeedTable = NormalSpeedTable + SpeedTableEntry.ByteCount;
-
-        /// <summary>Bank-$90 base selected below water without Gravity Suit.</summary>
-        public const ushort WaterSpeedTable = 0xa08d;
-
-        /// <summary>Bank-$90 base selected below lava/acid without Gravity Suit.</summary>
-        public const ushort LavaAcidSpeedTable = 0xa1dd;
-
         /// <summary>High-nibble stage mask used by setup <c>$84:CDEA</c>.</summary>
         public const ushort SpeedBoostStageMask = 0x0f00;
 

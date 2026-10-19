@@ -35,6 +35,7 @@ using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Hoppers;
+using SuperMetroid.Core.Enemies.Inert;
 using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.Kzan;
@@ -95,7 +96,7 @@ namespace SuperMetroid.Core.Enemies;
 /// WRAM-array aliasing to copy fields from earlier slots. A compact host list would appear
 /// cleaner while destroying behavior that the original code expects.
 /// </remarks>
-public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSource
+public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSource, IEnemyFrameResults
 {
     /// <summary>The <see cref="EnemyDrawList"/> owner of this RoomEnemySystem.</summary>
     internal EnemyDrawList Drawing { get; }
@@ -435,11 +436,17 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     internal RoomEarthquake Earthquake { get; }
 
     /// <summary>
-    /// Resolves native AI addresses to species handlers. The table contains delegates and is
-    /// rebuilt from its owners on first access after a debugger restore.
+    /// The reactions several species share. The lists contain delegates and are rebuilt from their owners on first
+    /// access after a debugger restore.
     /// </summary>
     [field: NonSerialized]
-    internal EnemyAiTable Ai => field ??= BuildEnemyAiTable();
+    internal EnemySharedReactions SharedReactions => field ??= BuildSharedReactions();
+
+    /// <summary>The shared reactions, for the common participation to resolve at use.</summary>
+    private EnemySharedReactions GetSharedReactions() => SharedReactions;
+
+    /// <summary>The species registry that binds each installed occupant's entity.</summary>
+    internal EnemySpeciesRegistry Species { get; }
 
     /// <summary>The loaded room's address space, services and artwork, shared with the composed owners.</summary>
     internal EnemyRoomBinding Room { get; } = new();
@@ -490,6 +497,52 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// <summary>Post-AI collision snapshots for active physical enemy slots.</summary>
     private readonly List<SolidEnemyCollisionBody> _interactiveCollisionBodies = new();
 
+    /// <summary>The elevator journey the runtime reads and resets.</summary>
+    internal IElevatorJourney Elevator => ElevatorBehavior;
+
+    /// <summary>The gunship's save prompt and health handler.</summary>
+    [field: NonSerialized]
+    internal IGunshipSession Gunship => field ??= new GunshipSession(GunshipBehavior, GunshipHealthBehavior);
+
+    /// <summary>The Ceres encounter's status and runtime operations.</summary>
+    [field: NonSerialized]
+    internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior);
+
+    /// <summary>The state and hooks the room main routines and scrolling use.</summary>
+    [field: NonSerialized]
+    internal IEnemyRoomMainHooks RoomMainHooks => field ??= new EnemyRoomMainHooks(CrocomireBehavior, SporeSpawnBehavior, ZebetiteBehavior);
+
+    /// <summary>The operations the room loader runs.</summary>
+    [field: NonSerialized]
+    internal IEnemyLoaderHooks LoaderHooks => field ??= new EnemyLoaderHooks(RinkaBehavior, PrePhantoonRoomBehavior);
+
+    /// <summary>The enemy setup the attract demo's room setups perform.</summary>
+    [field: NonSerialized]
+    internal IEnemyAttractDemoHooks AttractDemoHooks => field ??= new EnemyAttractDemoHooks(KraidBehavior);
+
+    /// <summary>The enemy-side effects room PLMs and room effects trigger.</summary>
+    [field: NonSerialized]
+    internal IEnemyPlmSpawns PlmSpawns => field ??= new EnemyPlmSpawns(NoobTubeBehavior, EyeDoorBehavior, OldTourianEscapeShaftWallBehavior,
+        DraygonBehavior, MotherBrainBehavior, BombTorizoBehavior, EscapeExplosionsBehavior);
+
+    /// <summary>The Tourian statue sequence's operations.</summary>
+    [field: NonSerialized]
+    internal ITourianStatueActors TourianStatue => field ??= new TourianStatueActors(TourianEntranceStatueBehavior, TourianUnlockBehavior);
+
+    /// <summary>The live enemy state the display latch and drawing read.</summary>
+    [field: NonSerialized]
+    internal IEnemyDisplaySources DisplaySources => field ??= new EnemyDisplaySources(MotherBrainEncounter, DraygonBehavior,
+        PhantoonBehavior, RidleyEncounter, KraidBehavior, CrocomireBehavior, MorphBallEyeBehavior);
+
+    /// <summary>Grapple endpoint resolution against the room's enemies.</summary>
+    internal IGrappleTargets GrappleTargets => GrappleBehavior;
+
+    /// <summary>The current pass's results, written by their producers and read back until the next pass.</summary>
+    internal EnemyFrameResultBuilder FrameResults { get; } = new();
+
+    /// <inheritdoc/>
+    public EnemyFrameResult LastEnemyFrame => FrameResults.Build();
+
     /// <summary>Creates all 32 stable physical slot objects without loading a room or binding memory, graphics, random-number, or gameplay services.</summary>
     public RoomEnemySystem()
     {
@@ -507,7 +560,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         Audio = new EnemyAudioQueue();
         Projectiles = new EnemyProjectileEngine(Room, SpriteObjects, Earthquake, Audio);
         Projectiles.AddHandlerSource(this);
-        GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable);
+        GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);
         Terrain = new EnemyTerrain();
         DeadMonsters = new DeadMonsterFrame(Room);
         MotherBrainEncounter = new MotherBrainEncounter(Presentation, Room);
@@ -516,7 +569,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = this, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Presentation = Presentation, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable });
         RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
-        ElevatorBehavior = new ElevatorBehavior(Room, Audio, MotherBrainEncounter);
+        ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
         ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Dispatch = this, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, Presentation = Presentation, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision });
         YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision);
         YappingMawBehavior = new YappingMawBehavior(Room, Projectiles, SpriteObjects, ScrollCap);
@@ -528,20 +581,20 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, Presentation);
         TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Room, Projectiles, Presentation);
         StokeBehavior = new StokeBehavior(Room, Terrain, Projectiles);
-        SporeSpawnBehavior = new SporeSpawnBehavior(Room, Projectiles, SpriteObjects, Presentation, FrameContext, Collision, DeathsAndDrops);
+        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = FrameResults });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, SpriteObjects);
         SparkBehavior = new SparkBehavior(Room, FallingSparksBehavior);
         SkulteraBehavior = new SkulteraBehavior(Terrain);
         SkreeBehavior = new SkreeBehavior(Audio, Projectiles, DeathsAndDrops);
         ShuttersBehavior = new ShuttersBehavior();
         DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, DeadMonsters = DeadMonsters });
-        ShitroidBehavior = new ShitroidBehavior(Room, SlotTable, Presentation, DeadSidehopperBehavior, ZebetiteBehavior);
+        ShitroidBehavior = new ShitroidBehavior(Room, SlotTable, Presentation, DeadSidehopperBehavior, ZebetiteBehavior, FrameResults);
         ShaktoolBehavior = new ShaktoolBehavior(Terrain, Projectiles, SlotTable, Collision);
         SbugBehavior = new SbugBehavior(Room, Terrain);
         RipperBehavior = new RipperBehavior(Terrain);
         RioBehavior = new RioBehavior(Room, Terrain);
         RinkaBehavior = new RinkaBehavior(this, SlotTable, Collision, FrameContext, Projectiles, Room, DeathsAndDrops);
-        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { Dispatch = this, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus });
+        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = FrameResults, Dispatch = this, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus });
         RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Dispatch = this, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, RoomStatus = RoomStatus, RoomFx = RoomFx });
         PuyoBehavior = new PuyoBehavior(Room, Terrain);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Room, Projectiles);
@@ -559,7 +612,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         NinjaSpacePirateBehavior = new NinjaSpacePirateBehavior(Room, Terrain, Projectiles, SpriteObjects, Presentation, WalkingSpacePirateBehavior);
         MultiviolaBehavior = new MultiviolaBehavior(Terrain);
         BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Dispatch = this, Room = Room, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter });
-        MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { Dispatch = this, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, BabyMetroidCutsceneBehavior = BabyMetroidCutsceneBehavior, RinkaBehavior = RinkaBehavior, WalkingSpacePirateBehavior = WalkingSpacePirateBehavior, RidleyProjectiles = RidleyProjectiles, RoomStatus = RoomStatus });
+        MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { FrameResults = FrameResults, Dispatch = this, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, BabyMetroidCutsceneBehavior = BabyMetroidCutsceneBehavior, RinkaBehavior = RinkaBehavior, WalkingSpacePirateBehavior = WalkingSpacePirateBehavior, RidleyProjectiles = RidleyProjectiles, RoomStatus = RoomStatus });
         MorphBallEyeBehavior = new MorphBallEyeBehavior(SlotTable);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, MorphBallEyeBehavior, Room, SlotTable);
         MochtroidBehavior = new MochtroidBehavior(Terrain, Audio, FrameContext, Collision);
@@ -570,7 +623,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         MagdolliteBehavior = new MagdolliteBehavior(Room, Projectiles, SlotTable, Presentation, Collision, DeathsAndDrops);
         LowerNorfairRioBehavior = new LowerNorfairRioBehavior(Room, Terrain, SlotTable);
         KzanBehavior = new KzanBehavior(SlotTable);
-        KraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior });
+        KraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { FrameResults = FrameResults, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior });
         KiHunterBehavior = new KiHunterBehavior(Room, Terrain, Projectiles, Audio, SlotTable);
         KagoBehavior = new KagoBehavior(Room, Projectiles, Earthquake, SlotTable, DeathsAndDrops, RoomStatus);
         HoppersBehavior = new HoppersBehavior(Room, Terrain);
@@ -586,13 +639,13 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         EtecoonBehavior = new EtecoonBehavior(Terrain, Earthquake, ElevatorBehavior);
         EscapeExplosionsBehavior = new EscapeExplosionsBehavior(Audio, SpriteObjects);
         EscapeAnimalsBehavior = new EscapeAnimalsBehavior(Room, Terrain);
-        DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, RoomStatus = RoomStatus, ScrollCap = ScrollCap });
+        DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { FrameResults = FrameResults, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, RoomStatus = RoomStatus, ScrollCap = ScrollCap });
         DragonBehavior = new DragonBehavior(Projectiles, SlotTable, Collision, Audio);
         DownwardGateBehavior = new DownwardGateBehavior(Room, Projectiles);
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, DeadMonsters);
         DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation);
         DachoraBehavior = new DachoraBehavior(Room, Terrain, SlotTable, Presentation);
-        CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior, RoomStatus = RoomStatus });
+        CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { FrameResults = FrameResults, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior, RoomStatus = RoomStatus });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
         ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, SlotTable, Presentation, RoomFx);
         ChootBehavior = new ChootBehavior();
@@ -602,8 +655,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BullBehavior = new BullBehavior();
         BoyonBehavior = new BoyonBehavior();
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles);
-        BotwoonBehavior = new BotwoonBehavior(Room, Projectiles, SpriteObjects, SlotTable, Presentation, Collision, DeathsAndDrops);
-        Instructions = new EnemyInstructionInterpreter(CrocomireBehavior, MotherBrainEncounter, Presentation, Room, this);
+        BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = FrameResults });
+        Instructions = new EnemyInstructionInterpreter(CrocomireBehavior, MotherBrainEncounter, Presentation, Room);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { CeresRidleyBehavior = CeresRidleyBehavior, DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, RidleyEncounter = RidleyEncounter, Room = Room, SlotTable = SlotTable });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(Room, Presentation, ElevatorBehavior);
@@ -693,8 +746,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
+        Species = EnemySpeciesRegistry.ForRetailRooms(new EnemyCommonParticipation(GetSharedReactions), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, BombTorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior,
+            new RidleyEntityFactory(RidleyBehavior, CeresRidleyBehavior, RidleyEncounter), new InertEnemyFactory()]);
         for (int slotIndex = 0; slotIndex < SlotTable._slots.Length; slotIndex++)
-            SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex);
+            SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex, Species);
     }
 
     /// <summary>Collision words read from the current slots after their AI has run.</summary>
@@ -720,8 +775,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     public void Load(IRoomEnemyLoad request)
     {
         Ensure.NotNull(request);
-        ISnesAddressSpace bus = request.Bus;
-        Room.Bus = bus;
+        IRoomEnemyDefinitionSource definitions = request.Definitions;
+        Room.Definitions = definitions;
         GunshipBehavior._gunshipLoadScenario = request.GunshipScenario;
         FrameContext._deferLoaderTimeCameraReads = request.DeferLoaderTimeCameraReads;
         GunshipBehavior._samusAtEnemyInitialization = request.Samus;
@@ -733,19 +788,18 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         Room.Services = request.Services;
         Presentation._vram = request.Vram;
         Presentation._cgram = request.Cgram;
-        PopulationLoader.PopulationPointer = request.PopulationPointer;
-        PopulationLoader.TilesetPointer = request.TilesetPointer;
         SlotTable.EnemyCount = 0;
         RoomStatus.EnemiesKilled = 0;
         RoomStatus.BossId = 0;
-        GunshipBehavior.LastGunshipEvent = GunshipFrameEvent.None;
+        FrameResults.Begin();
         BeginEnemySoundRequestFrame();
-        // Each species resets its own room state, in the original order.
+        // Each species resets its own room state, in the original order; the slots drop the species states they hold.
+        foreach (RoomEnemySlot slot in SlotTable._slots)
+            slot.ClearSpeciesStates();
         foreach (IEnemySpecies species in _species)
             species.ResetForRoomLoad(request);
         GunshipBehavior.GunshipSavePromptPending = false;
         GunshipBehavior.GunshipSaveRequested = false;
-        RoomStatus.BeginFrame();
         RoomStatus.EnemyDoorTransitionActive = false;
         Projectiles.LastEnemyProjectileDudSoundEffect = null;
         RoomStatus.FirefleaDarknessLevel = 0;
@@ -771,12 +825,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         // $A0:8A6D does not even inspect the room's enemy set when the first population
         // word is the terminator. This is observable: an empty room must not overwrite
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
-        RoomEnemyPopulationDefinition population =
-            EnemyPopulationLoader.ResolveRoomEnemyPopulation(bus, request.PopulationPointer);
+        RoomEnemyPopulationDefinition population = request.Population;
         if (!population.Records.IsEmpty)
-            PopulationLoader.LoadGraphicsSet(bus, request.TilesetPointer, request.Vram, request.Cgram);
+            PopulationLoader.LoadGraphicsSet(definitions, request.GraphicsSet, request.Vram, request.Cgram);
         PopulationLoader.LoadPopulation(
-            bus,
+            definitions,
             population,
             request.Level,
             request.Samus,
@@ -789,7 +842,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// live collision bodies and frame requests, and builds queues for the later draw phase.
     /// </summary>
     /// <param name="frame">What one enemy pass reads from the rest of the frame: the camera, Samus and her projectiles, controller input, clocks and the room systems enemies touch (#633).</param>
-    public void StepFrame(RoomEnemyFrame frame)
+    public EnemyFrameResult StepFrame(RoomEnemyFrame frame)
     {
         using var terrainScope = new EnemyTerrain.EnemyTerrainScope(Terrain, frame.CollisionPlms);
         Room.EnsureLoaded();
@@ -801,13 +854,13 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
         // counter begins at zero and advances at the same end-of-frame point, which gives
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
-        byte enemyNmiFrameCounter8 = frame.NmiFrameCounter8 ?? unchecked((byte)FrameContext._randomEnemyCounter);
         FrameContext._enemyFrameNmiFrameCounter = frame.NmiFrameCounter ?? FrameContext._randomEnemyCounter;
-        GunshipBehavior.LastGunshipEvent = GunshipFrameEvent.None;
+        var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(
+            frame.NmiFrameCounter8 ?? unchecked((byte)FrameContext._randomEnemyCounter)));
+        FrameResults.Begin();
         BeginEnemySoundRequestFrame();
         foreach (IEnemySpecies species in _species)
             species.BeginEnemyFrame(frame);
-        RoomStatus.BeginFrame();
         Projectiles.LastEnemyProjectileDudSoundEffect = null;
         if (!frame.ProcessingListPrepared)
             ProcessingWindow.PrepareEnemyProcessingList(frame.Camera);
@@ -831,11 +884,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 // Native extended collision runs projectiles before bombs/touch and
                 // before selecting hurt/main AI. In particular, a retained Plasma
                 // hit must publish Phantoon's hurt clock before this frame ticks it.
-                if (slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
-                    frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
-                    PhantoonBehavior.ResolvePhantoonProjectileHits(Room.LoadedBus, frame.SamusProjectiles, frame.SharedProjectiles);
+                if (slot.Entity is IEnemyContactHooks hooks)
+                    hooks.ResolveBeforeOrdinaryHits(frame);
                 if (frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
-                    Collision.ResolveOrdinaryProjectileHits(Room.LoadedBus, frame.SamusProjectiles, frame.SharedProjectiles,
+                    Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles,
                         frame.Samus, nativeIndex);
                 // Alpha already updated the bomb slots. Native EnemyMain checks
                 // them before this actor's touch and AI, so escape starts now.
@@ -844,21 +896,21 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 if (slot.EnemyDefinitionPointer == 0)
                     continue;
                 Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, nativeIndex);
-                if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer))
-                    CeresRidleyBehavior.ResolveRidleyBodySamusContact(frame.Samus);
+                if (slot.Entity is IEnemyContactHooks contact)
+                    contact.ResolveAfterSamusContact(frame.Samus);
                 if (slot.EnemyDefinitionPointer == 0)
                     continue;
             }
             if (!frame.TimeIsFrozen)
             {
-                bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(slot, frame, enemyNmiFrameCounter8);
+                bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(slot, aiFrame);
                 // Hurt AI replaces main AI while the hurt bit is set; the first registered match runs.
                 // Native selects the lowest AI bit even when its handler is just
                 // RTL. Hurt therefore delays frozen AI until flash housekeeping
                 // clears bit two; falling through here prematurely clears flash.
                 if (!ranActorAi &&
-                    (slot.AiHandlerBits & EnemyAiHandlerMasks.Hurt) != 0 &&
-                    Ai.FindHurt(slot) is { } hurt)
+                    (slot.AiStates & EnemyAiStates.Hurt) != 0 &&
+                    (slot.Entity as IEnemyHurtAi)?.FindHurt() is { } hurt)
                 {
                     hurt(slot, frame);
                     ranActorAi = true;
@@ -866,12 +918,13 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 // $A0:9044 selects the handler from the lowest set AI bit alone. A frozen
                 // clock without bit four (a Geruta flame sharing its parent's freeze)
                 // still runs main AI.
-                if (!ranActorAi && (slot.AiHandlerBits & EnemyAiHandlerMasks.Frozen) != 0)
+                if (!ranActorAi && (slot.AiStates & EnemyAiStates.Frozen) != 0)
                 {
                     // Rinka's termination tail clears/replaces the current actor record.
                     // The active-index array was frozen before AI, so skip the remainder
                     // of this stale entry exactly as the private routine's death call does.
-                    if (Ai.TryPreemptFrozen(slot))
+                    var frozen = slot.Entity as IEnemyFrozenAi;
+                    if (frozen?.FindFrozenPreemption() is { } preemption && preemption(slot))
                         continue;
 
                     // Test the clock before decrementing: reaching zero retains frozen
@@ -882,36 +935,37 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                     slot.FlashTimer = NativeCountdown.Start(0);
                     bool thaw = slot.FrozenTimer.IsZero ||
                         (frame.Samus is not null &&
-                            (frame.Samus.EquippedBeams & (ushort)SamusBeamFlags.Ice) == 0);
+                            (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == 0);
                     if (!thaw)
                         slot.FrozenTimer = slot.FrozenTimer.Decrement().Remaining;
                     else
                     {
-                        slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~EnemyAiHandlerMasks.Frozen));
-                        slot.FrozenTimer = NativeCountdown.FromRaw(slot.AiHandlerBits);
+                        slot.AiStates = slot.AiStates & ~EnemyAiStates.Frozen;
+                        slot.FrozenTimer = NativeCountdown.FromRaw(slot.AiStates.NativeWord);
                     }
-                    Ai.RunFrozen(slot);
+                    foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
+                        handler(slot);
                     // The native frame clock advances after every selected AI call,
                     // including frozen AI. Instruction gating below remains separate.
                     ranActorAi = true;
                 }
                 else if (!ranActorAi)
                 {
-                    RunMainAi(slot, frame, enemyNmiFrameCounter8);
+                    RunMainAi(slot, aiFrame);
                     ranActorAi = true;
                 }
 
                 if (ranActorAi)
                 {
-                    slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
+                    slot.FrameCounter = NativeWordCounter.IncrementWord(slot.FrameCounter);
                     // `$A0:8FF7` skips the instruction interpreter whenever frozen bit
                     // four is present, even if lower-priority hurt bit two selected an
                     // enemy-specific hurt callback above. Testing only `ranActorAi` here
                     // incorrectly advanced a Metroid's body animation while its frozen
                     // callback still owned the two composited outer sprite objects.
-                    if ((slot.AiHandlerBits & EnemyAiHandlerMasks.Frozen) == 0 &&
+                    if ((slot.AiStates & EnemyAiStates.Frozen) == 0 &&
                         slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
-                        Instructions.ProcessInstructions(
+                        EnemyInstructionInterpreter.ProcessInstructions(
                             slot,
                             frame.Samus,
                             frame.Level,
@@ -939,7 +993,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 // eight. This is a signed comparison and applies even when another AI bit
                 // remains set; omitting it would strand Metroid in custom hurt forever.
                 if (unchecked((short)(slot.FlashTimer.RawValue - 8)) < 0)
-                    slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~EnemyAiHandlerMasks.Hurt));
+                    slot.AiStates = slot.AiStates & ~EnemyAiStates.Hurt;
             }
         }
 
@@ -954,7 +1008,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 nativeIndex,
                 slot.Position.Whole,
                 new(slot.Radius.X, slot.Radius.Y),
-                slot.FrozenTimer.RawValue,
+                !slot.FrozenTimer.IsZero,
                 slot.Properties));
         }
         FrameContext._randomEnemyCounter = unchecked((ushort)(FrameContext._randomEnemyCounter + 1));
@@ -967,6 +1021,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         if (!frame.TimeIsFrozen)
             SpriteObjects.StepRoomSpriteObjects();
         CollectLegacyEnemyAudioRequests();
+        return FrameResults.Build();
     }
 
     /// <summary>
@@ -980,50 +1035,38 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     {
         (ushort tileIndex, ushort paletteIndex) = PopulationLoader.FindGraphicsIndexes(population.DefinitionPointer);
 
-        slot.EnemyDefinitionPointer = population.DefinitionPointer;
-        slot.Definition = definition;
+        slot.Bind(population.DefinitionPointer, definition);
         slot.Radius = new(definition.Radius.X, definition.Radius.Y);
         slot.Health = definition.Health;
         slot.Layer = definition.Layer;
         slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
         slot.CurrentInstruction = population.InitializationParameter;
-        _ = population.Properties.ReadFlagsChecked();
         slot.Properties = population.Properties;
         slot.ExtraProperties = population.ExtraProperties;
-        slot.AiHandlerBits = 0;
-        slot.Parameter1 = population.Parameter1;
-        slot.Parameter2 = population.Parameter2;
+        slot.AiStates = EnemyAiStates.None;
+        slot.Parameter1 = checked((ushort)population.Parameter1);
+        slot.Parameter2 = checked((ushort)population.Parameter2);
         slot.Timer = NativeCountdown.Start(0);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.FrameCounter = 0;
-        slot.AiBank = definition.Bank;
         slot.HurtAiTime = definition.HurtAiTime;
         slot.PaletteIndex = paletteIndex;
         slot.VramTilesIndex = tileIndex;
-        slot.Spawn = new RoomEnemySpawnSnapshot(
-            population,
-            tileIndex);
+        slot.Spawn = new RoomEnemySpawnSnapshot(population);
     }
 
     /// <summary>Dispatches the definition's banked initialization pointer for the newly loaded slot.</summary>
-    internal void RunInitializationAi(
+    internal static void RunInitializationAi(
         RoomEnemySlot slot,
         RoomLevelData? level = null,
         SamusState? samus = null,
         SnesButton controllerInput = SnesButton.None,
         ushort cameraX = 0)
     {
-        int address = ((int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer));
-        var routine = (EnemyAiRoutine)address;
-        if (!Enum.IsDefined(routine))
+        EnemyInitializationAiHandler handler = (slot.Entity as IEnemyInitialization)?.FindInitialization() ??
             throw new InvalidDataException(
-                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} initialization AI ${address:X6} is not translated.");
-        if (!Ai.TryGetInitialization(routine, slot, out EnemyInitializationAiHandler? handler))
-        {
-            throw new InvalidDataException(
-                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} initialization AI ${address:X6} is not translated.");
-
-        }
+                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} initialization AI " +
+                $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer):X6} is not translated.");
         handler(slot, level, samus, controllerInput, cameraX);
     }
 
@@ -1038,30 +1081,19 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RunInitializationAi(slot, level, samus, controllerInput, cameraX);
 
     /// <summary>Routes a scheduled enemy update through its banked main AI handler.</summary>
-    void IEnemyDispatch.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8) =>
-        RunMainAi(slot, frame, nmiFrameCounter8);
-
-    /// <summary>Shares the lazily rebuilt handler table with the enemy scheduler.</summary>
-    EnemyAiTable IEnemyDispatch.Ai => Ai;
+    void IEnemyDispatch.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
+        RunMainAi(slot, frame);
 
     /// <summary>Exposes native slot offsets selected for Samus collision checks this frame.</summary>
-    IReadOnlyList<ushort> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow._interactiveEnemyIndexes;
+    IReadOnlyList<int> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow._interactiveEnemyIndexes;
 
     /// <summary>Dispatches a loaded slot's banked main AI pointer through the compiled table.</summary>
-    internal void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
+    internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        int address = ((int)new SnesAddress(slot.Definition.Bank, slot.Definition.MainAiPointer));
-        var routine = (EnemyAiRoutine)address;
-        if (!Enum.IsDefined(routine))
-            throw new InvalidDataException(
-                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
-        if (!Ai.TryGetMain(routine, slot, out EnemyMainAiHandler? handler))
-        {
-            throw new InvalidDataException(
-                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
-
-        }
-        handler(slot, frame, nmiFrameCounter8);
+        EnemyMainAiHandler handler = (slot.Entity as IEnemyMainAi)?.FindMain() ?? throw new InvalidDataException(
+            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} main AI " +
+            $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.MainAiPointer):X6} is not translated.");
+        handler(slot, frame);
     }
 
     /// <summary>Ports <c>Handle_Room_Shaking</c> at $A0:8687-$8711: the earthquake's frame step, then the actor shake it selects.</summary>
@@ -1166,15 +1198,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     }
 
     /// <summary>
-    /// Rebuilds the handler table after construction or debugger restore. Species handlers
-    /// precede shared handlers; owned instructions preserve first-match registration order.
+    /// Rebuilds the shared reactions after construction or debugger restore, in the established first-match order.
     /// </summary>
-    private EnemyAiTable BuildEnemyAiTable()
+    private EnemySharedReactions BuildSharedReactions()
     {
-        var table = new EnemyAiTable();
-        RegisterInitializationAi(table);
-        RegisterMainAi(table);
-        RegisterTypedAnimations(table);
+        var table = new EnemySharedReactions();
         RegisterTouchHandlers(table);
         RegisterShotReactions(table);
         RegisterBombReactions(table);
@@ -1184,300 +1212,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         return table;
     }
 
-    /// <summary>Registers species initializers before generic and cross-species room-load handlers.</summary>
-    private void RegisterInitializationAi(EnemyAiTable table)
-    {
-        // Species register first; generic and cross-species registrations follow.
-        AlcoonBehavior.RegisterAlcoonInitializationAi(table);
-        AtomicBehavior.RegisterAtomicInitializationAi(table);
-        BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneInitializationAi(table);
-        BeetomBehavior.RegisterBeetomInitializationAi(table);
-        BlueBrinstarFaceBlockBehavior.RegisterBlueBrinstarFaceBlockInitializationAi(table);
-        BombTorizoBehavior.RegisterBombTorizoInitializationAi(table);
-        BotwoonBehavior.RegisterBotwoonInitializationAi(table);
-        BoulderBehavior.RegisterBoulderInitializationAi(table);
-        BoyonBehavior.RegisterBoyonInitializationAi(table);
-        BullBehavior.RegisterBullInitializationAi(table);
-        CacatacBehavior.RegisterCacatacInitializationAi(table);
-        CeresDoorBehavior.RegisterCeresDoorInitializationAi(table);
-        CeresRidleyBehavior.RegisterCeresRidleyInitializationAi(table);
-        CeresSteamBehavior.RegisterCeresSteamInitializationAi(table);
-        ChootBehavior.RegisterChootInitializationAi(table);
-        ChozoStatueBehavior.RegisterChozoStatueInitializationAi(table);
-        CrawlersBehavior.RegisterCrawlersInitializationAi(table);
-        CrocomireBehavior.RegisterCrocomireInitializationAi(table);
-        DachoraBehavior.RegisterDachoraInitializationAi(table);
-        DeadSidehopperBehavior.RegisterDeadSidehopperInitializationAi(table);
-        DeadTorizoBehavior.RegisterDeadTorizoInitializationAi(table);
-        DeadTourianBehavior.RegisterDeadTourianInitializationAi(table);
-        DragonBehavior.RegisterDragonInitializationAi(table);
-        DraygonBehavior.RegisterDraygonInitializationAi(table);
-        ElevatorBehavior.RegisterElevatorInitializationAi(table);
-        EscapeAnimalsBehavior.RegisterEscapeAnimalsInitializationAi(table);
-        EtecoonBehavior.RegisterEtecoonInitializationAi(table);
-        EvirBehavior.RegisterEvirInitializationAi(table);
-        FakeKraidBehavior.RegisterFakeKraidInitializationAi(table);
-        FirefleaBehavior.RegisterFirefleaInitializationAi(table);
-        FliesBehavior.RegisterFliesInitializationAi(table);
-        FuneNamiheBehavior.RegisterFuneNamiheInitializationAi(table);
-        HibashiBehavior.RegisterHibashiInitializationAi(table);
-        HoppersBehavior.RegisterHoppersInitializationAi(table);
-        KagoBehavior.RegisterKagoInitializationAi(table);
-        KiHunterBehavior.RegisterKiHunterInitializationAi(table);
-        KraidBehavior.RegisterKraidInitializationAi(table);
-        KzanBehavior.RegisterKzanInitializationAi(table);
-        LowerNorfairRioBehavior.RegisterLowerNorfairRioInitializationAi(table);
-        MagdolliteBehavior.RegisterMagdolliteInitializationAi(table);
-        MamaTurtleBehavior.RegisterMamaTurtleInitializationAi(table);
-        MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailInitializationAi(table);
-        MetareeBehavior.RegisterMetareeInitializationAi(table);
-        MetroidBehavior.RegisterMetroidInitializationAi(table);
-        MochtroidBehavior.RegisterMochtroidInitializationAi(table);
-        MorphBallEyeBehavior.RegisterMorphBallEyeInitializationAi(table);
-        MotherBrainBehavior.RegisterMotherBrainInitializationAi(table);
-        MultiviolaBehavior.RegisterMultiviolaInitializationAi(table);
-        NinjaSpacePirateBehavior.RegisterNinjaSpacePirateInitializationAi(table);
-        NorfairLavaJumpingEnemyBehavior.RegisterNorfairLavaJumpingEnemyInitializationAi(table);
-        NorfairRioBehavior.RegisterNorfairRioInitializationAi(table);
-        NuclearWaffleBehavior.RegisterNuclearWaffleInitializationAi(table);
-        OwtchBehavior.RegisterOwtchInitializationAi(table);
-        PhantoonBehavior.RegisterPhantoonInitializationAi(table);
-        PipeBugsBehavior.RegisterPipeBugsInitializationAi(table);
-        PlatformsBehavior.RegisterPlatformsInitializationAi(table);
-        PolypBehavior.RegisterPolypInitializationAi(table);
-        PowampBehavior.RegisterPowampInitializationAi(table);
-        PuyoBehavior.RegisterPuyoInitializationAi(table);
-        RidleyBehavior.RegisterRidleyInitializationAi(table);
-        RinkaBehavior.RegisterRinkaInitializationAi(table);
-        RioBehavior.RegisterRioInitializationAi(table);
-        RipperBehavior.RegisterRipperInitializationAi(table);
-        SbugBehavior.RegisterSbugInitializationAi(table);
-        ShaktoolBehavior.RegisterShaktoolInitializationAi(table);
-        ShitroidBehavior.RegisterShitroidInitializationAi(table);
-        ShuttersBehavior.RegisterShuttersInitializationAi(table);
-        SkreeBehavior.RegisterSkreeInitializationAi(table);
-        SkulteraBehavior.RegisterSkulteraInitializationAi(table);
-        SparkBehavior.RegisterSparkInitializationAi(table);
-        SporeSpawnBehavior.RegisterSporeSpawnInitializationAi(table);
-        StokeBehavior.RegisterStokeInitializationAi(table);
-        TourianEntranceStatueBehavior.RegisterTourianEntranceStatueInitializationAi(table);
-        WalkingSpacePirateBehavior.RegisterWalkingSpacePirateInitializationAi(table);
-        WallSpacePirateBehavior.RegisterWallSpacePirateInitializationAi(table);
-        WaverBehavior.RegisterWaverInitializationAi(table);
-        WorkRobotBehavior.RegisterWorkRobotInitializationAi(table);
-        WreckedShipGhostBehavior.RegisterWreckedShipGhostInitializationAi(table);
-        YappingMawBehavior.RegisterYappingMawInitializationAi(table);
-        YardBehavior.RegisterYardInitializationAi(table);
-        ZebetiteBehavior.RegisterZebetiteInitializationAi(table);
-        ZoaBehavior.RegisterZoaInitializationAi(table);
-
-        GunshipBehavior.RegisterGunshipTopInitializationAi(table);
-
-        GunshipBehavior.RegisterGunshipBottomInitializationAi(table);
-
-        table.RegisterInitialization(EnemyAiRoutine.RTL_A2804C, null, (slot, level, samus, controllerInput, cameraX) =>
-        { });
-    }
-
-    /// <summary>Registers the per-frame routines addressed by enemy definitions.</summary>
-    private void RegisterMainAi(EnemyAiTable table)
-    {
-        // Species register first; generic and cross-species registrations follow.
-        AlcoonBehavior.RegisterAlcoonMainAi(table);
-        AtomicBehavior.RegisterAtomicMainAi(table);
-        BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneMainAi(table);
-        BeetomBehavior.RegisterBeetomMainAi(table);
-        BlueBrinstarFaceBlockBehavior.RegisterBlueBrinstarFaceBlockMainAi(table);
-        BombTorizoBehavior.RegisterBombTorizoMainAi(table);
-        BotwoonBehavior.RegisterBotwoonMainAi(table);
-        BoulderBehavior.RegisterBoulderMainAi(table);
-        BoyonBehavior.RegisterBoyonMainAi(table);
-        BullBehavior.RegisterBullMainAi(table);
-        CacatacBehavior.RegisterCacatacMainAi(table);
-        CeresDoorBehavior.RegisterCeresDoorMainAi(table);
-        CeresRidleyBehavior.RegisterCeresRidleyMainAi(table);
-        CeresSteamBehavior.RegisterCeresSteamMainAi(table);
-        ChootBehavior.RegisterChootMainAi(table);
-        ChozoStatueBehavior.RegisterChozoStatueMainAi(table);
-        CrawlersBehavior.RegisterCrawlersMainAi(table);
-        CrocomireBehavior.RegisterCrocomireMainAi(table);
-        DachoraBehavior.RegisterDachoraMainAi(table);
-        DeadSidehopperBehavior.RegisterDeadSidehopperMainAi(table);
-        DeadTorizoBehavior.RegisterDeadTorizoMainAi(table);
-        DeadTourianBehavior.RegisterDeadTourianMainAi(table);
-        DragonBehavior.RegisterDragonMainAi(table);
-        DraygonBehavior.RegisterDraygonMainAi(table);
-        ElevatorBehavior.RegisterElevatorMainAi(table);
-        EscapeAnimalsBehavior.RegisterEscapeAnimalsMainAi(table);
-        EtecoonBehavior.RegisterEtecoonMainAi(table);
-        EvirBehavior.RegisterEvirMainAi(table);
-        FakeKraidBehavior.RegisterFakeKraidMainAi(table);
-        FirefleaBehavior.RegisterFirefleaMainAi(table);
-        FliesBehavior.RegisterFliesMainAi(table);
-        FuneNamiheBehavior.RegisterFuneNamiheMainAi(table);
-        HibashiBehavior.RegisterHibashiMainAi(table);
-        HoppersBehavior.RegisterHoppersMainAi(table);
-        KagoBehavior.RegisterKagoMainAi(table);
-        KiHunterBehavior.RegisterKiHunterMainAi(table);
-        KraidBehavior.RegisterKraidMainAi(table);
-        KzanBehavior.RegisterKzanMainAi(table);
-        LowerNorfairRioBehavior.RegisterLowerNorfairRioMainAi(table);
-        MagdolliteBehavior.RegisterMagdolliteMainAi(table);
-        MamaTurtleBehavior.RegisterMamaTurtleMainAi(table);
-        MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailMainAi(table);
-        MetareeBehavior.RegisterMetareeMainAi(table);
-        MetroidBehavior.RegisterMetroidMainAi(table);
-        MochtroidBehavior.RegisterMochtroidMainAi(table);
-        MorphBallEyeBehavior.RegisterMorphBallEyeMainAi(table);
-        MotherBrainBehavior.RegisterMotherBrainMainAi(table);
-        MultiviolaBehavior.RegisterMultiviolaMainAi(table);
-        NinjaSpacePirateBehavior.RegisterNinjaSpacePirateMainAi(table);
-        NorfairLavaJumpingEnemyBehavior.RegisterNorfairLavaJumpingEnemyMainAi(table);
-        NorfairRioBehavior.RegisterNorfairRioMainAi(table);
-        NuclearWaffleBehavior.RegisterNuclearWaffleMainAi(table);
-        OwtchBehavior.RegisterOwtchMainAi(table);
-        PhantoonBehavior.RegisterPhantoonMainAi(table);
-        PipeBugsBehavior.RegisterPipeBugsMainAi(table);
-        PlatformsBehavior.RegisterPlatformsMainAi(table);
-        PolypBehavior.RegisterPolypMainAi(table);
-        PowampBehavior.RegisterPowampMainAi(table);
-        PuyoBehavior.RegisterPuyoMainAi(table);
-        RidleyBehavior.RegisterRidleyMainAi(table);
-        RinkaBehavior.RegisterRinkaMainAi(table);
-        RioBehavior.RegisterRioMainAi(table);
-        RipperBehavior.RegisterRipperMainAi(table);
-        SbugBehavior.RegisterSbugMainAi(table);
-        ShaktoolBehavior.RegisterShaktoolMainAi(table);
-        ShitroidBehavior.RegisterShitroidMainAi(table);
-        ShuttersBehavior.RegisterShuttersMainAi(table);
-        SkreeBehavior.RegisterSkreeMainAi(table);
-        SkulteraBehavior.RegisterSkulteraMainAi(table);
-        SparkBehavior.RegisterSparkMainAi(table);
-        SporeSpawnBehavior.RegisterSporeSpawnMainAi(table);
-        StokeBehavior.RegisterStokeMainAi(table);
-        WalkingSpacePirateBehavior.RegisterWalkingSpacePirateMainAi(table);
-        WallSpacePirateBehavior.RegisterWallSpacePirateMainAi(table);
-        WaverBehavior.RegisterWaverMainAi(table);
-        WorkRobotBehavior.RegisterWorkRobotMainAi(table);
-        WreckedShipGhostBehavior.RegisterWreckedShipGhostMainAi(table);
-        YappingMawBehavior.RegisterYappingMawMainAi(table);
-        YardBehavior.RegisterYardMainAi(table);
-        ZebetiteBehavior.RegisterZebetiteMainAi(table);
-        ZebetiteBehavior.RegisterZebetiteTypedAnimations(table);
-        ZoaBehavior.RegisterZoaMainAi(table);
-        table.RegisterMain(EnemyAiRoutine.RTL_A3804C, null, (slot, frame, nmiFrameCounter8) =>
-        { });
-
-        CrocomireBehavior.RegisterCrocomireTongueMainAi(table);
-
-        GunshipBehavior.RegisterGunshipMainAi(table);
-        GunshipBehavior.RegisterGunshipTypedAnimations(table);
-
-        table.RegisterMain(EnemyAiRoutine.RTL_A2804C, null, (slot, frame, nmiFrameCounter8) =>
-        { });
-
-        PhantoonBehavior.RegisterPhantoonEyeMainAi(table);
-
-        WorkRobotBehavior.RegisterUnpoweredWorkRobotMainAi(table);
-
-        EscapeAnimalsBehavior.RegisterEscapeDachoraMainAi(table);
-
-        PhantoonBehavior.RegisterPhantoonMouthAndTentaclesMainAi(table);
-
-        TourianEntranceStatueBehavior.RegisterTourianStatueMainAi(table);
-    }
-
-    // Owners match disjoint enemies; the first registration that matches an enemy runs its animation.
-    /// <summary>Registers every owner's typed animations.</summary>
-    private void RegisterTypedAnimations(EnemyAiTable table)
-    {
-        BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneTypedAnimations(table);
-        BoyonBehavior.RegisterBoyonTypedAnimations(table);
-        StokeBehavior.RegisterStokeTypedAnimations(table);
-        MamaTurtleBehavior.RegisterMamaTurtleTypedAnimations(table);
-        DragonBehavior.RegisterDragonTypedAnimations(table);
-        KraidBehavior.RegisterKraidTypedAnimations(table);
-        PhantoonBehavior.RegisterPhantoonTypedAnimations(table);
-        MotherBrainBehavior.RegisterMotherBrainTypedAnimations(table);
-        MotherBrainBehavior.RegisterMotherBrainTubeTypedAnimations(table);
-        DraygonBehavior.RegisterDraygonTypedAnimations(table);
-        BotwoonBehavior.RegisterBotwoonTypedAnimations(table);
-        CrocomireBehavior.RegisterCrocomireTypedAnimations(table);
-        WallSpacePirateBehavior.RegisterWallSpacePirateTypedAnimations(table);
-        NinjaSpacePirateBehavior.RegisterNinjaSpacePirateTypedAnimations(table);
-        WorkRobotBehavior.RegisterWorkRobotTypedAnimations(table);
-        BeetomBehavior.RegisterBeetomTypedAnimations(table);
-        YappingMawBehavior.RegisterYappingMawTypedAnimations(table);
-        CacatacBehavior.RegisterCacatacTypedAnimations(table);
-        OwtchBehavior.RegisterOwtchTypedAnimations(table);
-        FuneNamiheBehavior.RegisterFuneNamiheTypedAnimations(table);
-        EvirBehavior.RegisterEvirTypedAnimations(table);
-        YardBehavior.RegisterYardTypedAnimations(table);
-        HoppersBehavior.RegisterHopperTypedAnimations(table);
-        ZoaBehavior.RegisterZoaTypedAnimations(table);
-        MetroidBehavior.RegisterMetroidTypedAnimations(table);
-        CrawlersBehavior.RegisterCrawlerTypedAnimations(table);
-        SkreeBehavior.RegisterSkreeTypedAnimations(table);
-        WaverBehavior.RegisterWaverTypedAnimations(table);
-        MetareeBehavior.RegisterMetareeTypedAnimations(table);
-        SkulteraBehavior.RegisterSkulteraTypedAnimations(table);
-        PlatformsBehavior.RegisterPlatformTypedAnimations(table);
-        AlcoonBehavior.RegisterAlcoonTypedAnimations(table);
-        KiHunterBehavior.RegisterKiHunterTypedAnimations(table);
-        SparkBehavior.RegisterSparkTypedAnimations(table);
-        HibashiBehavior.RegisterHibashiTypedAnimations(table);
-        FakeKraidBehavior.RegisterFakeKraidTypedAnimations(table);
-        WalkingSpacePirateBehavior.RegisterWalkingSpacePirateTypedAnimations(table);
-        RidleyBehavior.RegisterRidleyTypedAnimations(table);
-        CeresSteamBehavior.RegisterCeresSteamTypedAnimations(table);
-        CeresDoorBehavior.RegisterCeresDoorTypedAnimations(table);
-        DeadSidehopperBehavior.RegisterDeadSidehopperTypedAnimations(table);
-        ShitroidBehavior.RegisterShitroidTypedAnimations(table);
-        SporeSpawnBehavior.RegisterSporeSpawnTypedAnimations(table);
-        RinkaBehavior.RegisterRinkaTypedAnimations(table);
-        RioBehavior.RegisterRioTypedAnimations(table);
-        NorfairLavaJumpingEnemyBehavior.RegisterNorfairLavaJumpingEnemyTypedAnimations(table);
-        NorfairRioBehavior.RegisterNorfairRioTypedAnimations(table);
-        LowerNorfairRioBehavior.RegisterLowerNorfairRioTypedAnimations(table);
-        MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailTypedAnimations(table);
-        MagdolliteBehavior.RegisterMagdolliteTypedAnimations(table);
-        ShaktoolBehavior.RegisterShaktoolTypedAnimations(table);
-        ChozoStatueBehavior.RegisterChozoStatueTypedAnimations(table);
-        EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
-        RipperBehavior.RegisterRipperTypedAnimations(table);
-        TourianEntranceStatueBehavior.RegisterTourianEntranceStatueTypedAnimations(table);
-        EtecoonBehavior.RegisterEtecoonTypedAnimations(table);
-        DachoraBehavior.RegisterDachoraTypedAnimations(table);
-        PuyoBehavior.RegisterPuyoTypedAnimations(table);
-        PowampBehavior.RegisterPowampTypedAnimations(table);
-        MochtroidBehavior.RegisterMochtroidTypedAnimations(table);
-        MorphBallEyeBehavior.RegisterMorphBallEyeTypedAnimations(table);
-        BlueBrinstarFaceBlockBehavior.RegisterBlueBrinstarFaceBlockTypedAnimations(table);
-        PipeBugsBehavior.RegisterPipeBugTypedAnimations(table);
-        MultiviolaBehavior.RegisterMultiviolaTypedAnimations(table);
-        DeadTorizoBehavior.RegisterDeadTorizoTypedAnimations(table);
-        DeadTourianBehavior.RegisterDeadTourianTypedAnimations(table);
-        ElevatorBehavior.RegisterElevatorTypedAnimations(table);
-        ShuttersBehavior.RegisterShuttersTypedAnimations(table);
-        ChootBehavior.RegisterChootTypedAnimations(table);
-        BoulderBehavior.RegisterBoulderTypedAnimations(table);
-        BullBehavior.RegisterBullTypedAnimations(table);
-        AtomicBehavior.RegisterAtomicTypedAnimations(table);
-        FirefleaBehavior.RegisterFirefleaTypedAnimations(table);
-        WreckedShipGhostBehavior.RegisterWreckedShipGhostTypedAnimations(table);
-        SbugBehavior.RegisterSbugTypedAnimations(table);
-        PolypBehavior.RegisterPolypTypedAnimations(table);
-        KzanBehavior.RegisterKzanTypedAnimations(table);
-        KagoBehavior.RegisterKagoTypedAnimations(table);
-        FliesBehavior.RegisterFliesTypedAnimations(table);
-        NuclearWaffleBehavior.RegisterNuclearWaffleTypedAnimations(table);
-        BombTorizoBehavior.RegisterBombTorizoTypedAnimations(table);
-}
-
     // Each species registers its own run of reactions; first match wins, so the interleaving below is the
     // established precedence between species and shared registrations.
     /// <summary>Maps enemy-definition bomb reaction pointers to translated handlers.</summary>
-    private void RegisterBombReactions(EnemyAiTable table)
+    private void RegisterBombReactions(EnemySharedReactions table)
     {
         CrocomireBehavior.RegisterCrocomireBombReactions(table);
         KraidBehavior.RegisterKraidBombReactions(table);
@@ -1496,19 +1234,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DeadTorizoBehavior.RegisterDeadTorizoBombReactions(table);
         DeadSidehopperBehavior.RegisterDeadSidehopperBombReactions(table);
         DeadTourianBehavior.RegisterDeadTourianBombReactions(table);
-        // `$A5:8046` is CreateDudShot. The native extended walker has already marked the physical bomb; no
-        // vulnerability, health, or boss state follows. Bomb-owned dud sprite/sound presentation remains a shared
-        // projectile-system seam, so the enemy-visible contract ends here.
-        table.AddBombSpecialAfterNoOp(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.DraygonBody or EnemyDefinitionId.SporeSpawn &&
-                                           c.SelectedShotAi == EnemyInteractionCallback.DudShot,
-            static _ => { });
-        // `$A8:E70E/$E91D` do not call common shot AI. Their entire callback clears direction bit $10, undoing the
-        // mark installed immediately above and allowing the physical bomb actor to remain untouched.
-        table.AddBombSpecialAfterNoOp(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark &&
-                                           c.SelectedShotAi == EnemyInteractionCallback.SparkShot ||
-                                           c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
-                                           c.SelectedShotAi == EnemyInteractionCallback.BlueBrinstarFaceBlockShot,
-            c => c.Bomb.Direction = unchecked((ushort)(c.Bomb.Direction & ~SamusProjectileDirectionMasks.Spent)));
         PhantoonBehavior.RegisterPhantoonBombReactions(table);
         MamaTurtleBehavior.RegisterMamaTurtleBombReactions(table);
         RinkaBehavior.RegisterRinkaBombReactions(table);
@@ -1538,7 +1263,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BeetomBehavior.RegisterBeetomBombReactions(table);
         PowampBehavior.RegisterPowampBombReactions(table);
         WorkRobotBehavior.RegisterWorkRobotBombReactions(table);
-        BullBehavior.RegisterBullBombReactions(table);
         KiHunterBehavior.RegisterKiHunterBombReactions(table);
         OwtchBehavior.RegisterOwtchBombReactions(table);
 }
@@ -1547,7 +1271,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     // established precedence between species and shared registrations.
     // Matches are mutually exclusive: each names its definition and header reaction callback.
     /// <summary>Maps banked power-bomb reaction pointers for each supported species.</summary>
-    private void RegisterPowerBombReactions(EnemyAiTable table)
+    private void RegisterPowerBombReactions(EnemySharedReactions table)
     {
         // These headers install private callbacks instead of falling through common power-bomb damage. A literal RTL
         // intentionally does nothing; the shutter callbacks only run their trigger state machines. All still
@@ -1575,11 +1299,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         KiHunterBehavior.RegisterKiHunterPowerBombReactions(table);
         BotwoonBehavior.RegisterBotwoonPowerBombReactions(table);
         WallSpacePirateBehavior.RegisterWallSpacePiratePowerBombReactions(table);
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.RidleyPowerBomb)
-        {
-            ExemptFromGenericDeath = true,
-        });
+        RidleyBehavior.RegisterRidleyPowerBombReactions(table);
         DraygonBehavior.RegisterDraygonPowerBombReactions(table);
 }
 
@@ -1588,16 +1308,15 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera = default,
-        byte? nmiFrameCounter8 = null,
+        int? nmiFrameCounter8 = null,
         SamusBombProjectileSystem? samusBombs = null,
         BackgroundScrollState? backgroundScroll = null,
-        ushort? nmiFrameCounter = null)
+        int? nmiFrameCounter = null)
     {
         Room.EnsureLoaded();
         DeathsAndDrops._samusForEnemyDrops = samus;
         PrePhantoonRoomBehavior._enemyProjectileBackgroundScroll = backgroundScroll;
         DeathsAndDrops.LastEnemyPickupSoundEffect = null;
-        DeathsAndDrops.LastCollectedEnemyPickup = null;
         DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 = null;
         Projectiles.RunPass(level, samus, camera, nmiFrameCounter8, samusBombs, nmiFrameCounter);
     }
@@ -1656,7 +1375,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         EnemyProjectileEngine.RegisterGunshipDustCues(table);
 
 
-        OldTourianEscapeShaftWallBehavior.RegisterWallExplosionSoundInstruction(table);
+        OldTourianEscapeShaftWallBehavior.RegisterWallExplosionCues(table);
 
         NoobTubeBehavior.RegisterNoobTubeProjectileCues(table);
 
@@ -1673,7 +1392,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     // Matches are mutually exclusive. Kraid's parts precede the generic literal no-op header and the ordinary
     // normal-shot reaction is last, because Crocomire's tongue also uses NormalEnemyShot.
     /// <summary>Maps shot-response pointers, including species-specific damage behavior.</summary>
-    private void RegisterShotReactions(EnemyAiTable table)
+    private void RegisterShotReactions(EnemySharedReactions table)
     {
         DeadTorizoBehavior.RegisterDeadTorizoShotReactions(table);
         DeadSidehopperBehavior.RegisterDeadSidehopperShotReactions(table);
@@ -1691,26 +1410,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CrocomireBehavior.RegisterCrocomireShotReactions(table);
         OwtchBehavior.RegisterOwtchShotReactions(table);
         WallSpacePirateBehavior.RegisterWallSpacePirateShotReactions(table);
-
-        // Spark's private `$A8:E70E` handler never enters common shot AI. It only clears direction bit $10 on the
-        // colliding Samus projectile, allowing the beam/missile actor to continue rather than becoming an impact
-        // animation. This must occur before TryStartEnemyImpact, which would irreversibly rewrite the projectile
-        // family to explosion `$0700`. Blue Brinstar's face block shares that behavior.
-        EnemyShotStage passThrough = (in EnemyShotContext c) =>
-        {
-            c.Projectile.Direction = unchecked((ushort)(c.Projectile.Direction & ~SamusProjectileDirectionMasks.Spent));
-            return true;
-        };
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SparkShot)
-        {
-            AfterSuperMissileQuake = passThrough,
-        });
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BlueBrinstarFaceBlockShot)
-        {
-            AfterSuperMissileQuake = passThrough,
-        });
         ShuttersBehavior.RegisterShuttersShotReactions(table);
 
         MetroidBehavior.RegisterMetroidShotReactions(table);
@@ -1728,7 +1427,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BeetomBehavior.RegisterBeetomShotReactions(table);
         PowampBehavior.RegisterPowampShotReactions(table);
         WorkRobotBehavior.RegisterWorkRobotShotReactions(table);
-        BullBehavior.RegisterBullShotReactions(table);
         FakeKraidBehavior.RegisterFakeKraidShotReactions(table);
         MamaTurtleBehavior.RegisterMamaTurtleShotReactions(table);
         KagoBehavior.RegisterKagoShotReactions(table);
@@ -1749,7 +1447,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         MochtroidBehavior.RegisterMochtroidShotReactions(table);
         // Several retail helper/projectile definitions point their shot callback at a literal RTL in their own enemy
         // bank. Radius collision still dispatches those callbacks after its projectile prelude.
-        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.IsLiteralNoOpEnemyAi(enemy.Definition.Bank, enemy.Definition.ShotAiPointer)));
+        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition.Bank, EnemyCollision.ShotAi(enemy))));
         table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot));
 }
 
@@ -1758,7 +1456,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     // Matches are mutually exclusive (each names its definition and header callback); the ordinary normal-touch
     // handler is last because Crocomire's tongue also uses NormalEnemyTouch.
     /// <summary>Registers Samus-contact handlers after species instruction registrations.</summary>
-    private void RegisterTouchHandlers(EnemyAiTable table)
+    private void RegisterTouchHandlers(EnemySharedReactions table)
     {
         KraidBehavior.RegisterKraidNailTouch(table);
         KraidBehavior.RegisterKraidTouch(table);
@@ -1834,7 +1532,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
     // Hurt AI is a first-match list in EnemyMain's original dispatch order; the shared literal no-op hurt pointer is last.
     /// <summary>Maps hurt-state AI pointers used while enemies are flashing or reacting.</summary>
-    private void RegisterHurtAi(EnemyAiTable table)
+    private void RegisterHurtAi(EnemySharedReactions table)
     {
         MetroidBehavior.RegisterMetroidHurtAi(table);
         BombTorizoBehavior.RegisterBombTorizoHurtAi(table);
@@ -1846,7 +1544,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
     // Rinka's frozen tail runs before the common thaw and can consume the frame; the others run after it.
     /// <summary>Maps frozen-state AI pointers used while ice suspends normal behavior.</summary>
-    private void RegisterFrozenAi(EnemyAiTable table)
+    private void RegisterFrozenAi(EnemySharedReactions table)
     {
         RinkaBehavior.RegisterRinkaFrozenPreemption(table);
         MetroidBehavior.RegisterMetroidFrozenAi(table);

@@ -26,13 +26,13 @@ internal sealed class EnemyBreakableTerrainPlms
         {
             PlmSlot slot = _slotTable._slots[index];
             if (slot.Active) continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = PlmHeaderId.EnemyBreakableBlock;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = EnemyBreakableTerrainDefinitions.InstructionList;
+            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EnemyBreakableTerrain));
             slot.InstructionTimer = NativeCountdown.Start(1);
-            level.SetForegroundEntry(blockIndex, new RoomLevelWord(block.LevelWord)
+            level.SetForegroundEntry(blockIndex, block.PackedWord
                 .WithCollisionType(RoomCollisionType.Air).Raw);
             return true;
         }

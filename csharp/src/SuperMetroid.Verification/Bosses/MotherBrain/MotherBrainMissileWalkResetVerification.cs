@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks that a missile hit resets Mother Brain's sequence-owned walk counter.</summary>
 internal static class MotherBrainMissileWalkResetVerification
@@ -18,23 +19,22 @@ internal static class MotherBrainMissileWalkResetVerification
     /// </summary>
     internal static void VerifyMotherBrainMissileWalkReset()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot head = state.Head;
 
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        sequence.Body.Form = 4;
-        sequence.Phase3WalkCounter = (ushort)0x0040;
+        sequence.Body.Form = MotherBrainForm.ThirdPhase;
+        sequence.Phase3WalkCounter = MotherBrainWalkCredit.Of(64);
         state.RainbowBeamSequence = sequence;
-        state.Form = 4;
-        state.WalkCounter = 0x0040;
+        state.Form = MotherBrainForm.ThirdPhase;
+        state.WalkCounter = MotherBrainWalkCredit.Of(64);
         head.Health = 0x8bd8;
 
         var shot = runtime.Projectiles.Slots[0];
@@ -42,8 +42,8 @@ internal static class MotherBrainMissileWalkResetVerification
         shot.Position = shot.Position.WithWhole(head.Position.Whole);
         shot.Radius = new(8, 8);
         runtime.Enemies.MotherBrainBehavior.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, new SamusProjectileTypeWord(0x8100), (ushort)100);
-        AssertEqual((ushort)0, sequence.Phase3WalkCounter, "a missile zeroes the sequence-owned walk counter");
-        AssertEqual((ushort)0, state.WalkCounter, "the encounter projection publishes the reset");
+        AssertEqual(MotherBrainWalkCredit.Empty, sequence.Phase3WalkCounter, "a missile empties the sequence-owned walk credit");
+        AssertEqual(MotherBrainWalkCredit.Empty, state.WalkCounter, "the encounter projection publishes the reset");
         Console.WriteLine("Mother Brain missile walk reset: the reaction reaches the counter's owner.");
     }
 

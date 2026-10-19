@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Nuclear.Artwork;
 
 /// <summary>
@@ -19,5 +21,18 @@ internal static class NuclearWaffleFrameDefinitions
         6 => 0x997e,
         7 => 0x9985,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Nuclear Waffle pose."),
+    };
+
+    /// <summary>The installed frame each <see cref="NuclearWaffleFrame"/> shows.</summary>
+    internal static EnemyFrameTable<NuclearWaffleFrame> ShownFrames { get; } = new()
+    {
+        { new(Pose: 0), EnemyFrameId.NuclearWaffle00 },
+        { new(Pose: 1), EnemyFrameId.NuclearWaffle01 },
+        { new(Pose: 2), EnemyFrameId.NuclearWaffle03 },
+        { new(Pose: 3), EnemyFrameId.NuclearWaffle04 },
+        { new(Pose: 4), EnemyFrameId.NuclearWaffle02 },
+        { new(Pose: 5), EnemyFrameId.NuclearWaffle05 },
+        { new(Pose: 6), EnemyFrameId.NuclearWaffle06 },
+        { new(Pose: 7), EnemyFrameId.NuclearWaffle07 },
     };
 }

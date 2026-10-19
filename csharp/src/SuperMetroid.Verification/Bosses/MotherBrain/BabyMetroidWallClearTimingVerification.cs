@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the frame ordering between Baby Metroid's wall-clear spawn and Samus's movement in the escape room.</summary>
 internal static class BabyMetroidWallClearTimingVerification
@@ -24,11 +25,11 @@ internal static class BabyMetroidWallClearTimingVerification
     internal static void VerifyBabyMetroidWallClearTiming()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.BigBoy);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         const int WallColumn = 0x30, WallRow = 11;
         // The wall as Baby Metroid's earlier create request leaves it: rows 9-12 solid.
@@ -36,7 +37,6 @@ internal static class BabyMetroidWallClearTimingVerification
             level.SetForegroundEntry(row * level.Size.X + WallColumn,
                 RoomLevelWord.Create(0x00ff, 0, RoomCollisionType.SolidBlock).Raw);
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var shitroid = (ShitroidEnemyState)(runtime.Enemies.ShitroidBehavior._shitroid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.ShitroidBehavior._shitroid."));
         (shitroid ?? throw new InvalidOperationException("Verification requires shitroid.")).Function = ShitroidAiFunction.RiseAfterFeeding;
         shitroid.StateTimer = NativeCountdown.Start(0);
@@ -46,8 +46,8 @@ internal static class BabyMetroidWallClearTimingVerification
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.MovingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x02f9, 0x00bb));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
         samus.HorizontalSpeed.BaseSubspeed = 0x3000;
         samus.HorizontalSpeed.ExtraRunSpeed = 2;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0xc000;

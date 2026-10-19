@@ -11,7 +11,10 @@ namespace SuperMetroid.Core.Hardware;
 /// The packed word is reachable only through explicit <see cref="FromWord"/>/<see cref="ToWord"/>
 /// conversions at ROM, memory, CGRAM-port and serialization boundaries. No implicit numeric
 /// conversion exists, so the representation cannot leak back into color logic.
+/// This type is the single owner of the BGR555 colour encoding: channel packing, the bit-15
+/// rule and the CGRAM data port's masking all live here, so its stored word is that encoding.
 /// </remarks>
+[SnesEncodingOwner]
 public readonly record struct Bgr555
 {
     /// <summary>Bytes in one encoded color word, as stored in ROM, WRAM and CGRAM.</summary>

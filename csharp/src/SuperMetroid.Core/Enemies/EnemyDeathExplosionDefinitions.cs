@@ -9,7 +9,7 @@ internal static class EnemyDeathExplosionDefinitions
     internal const EnemyDeathProjectileProgram NoDropTail = EnemyDeathProjectileProgram.RespawnTail;
 
     /// <summary>The death program of each mutually exclusive enemy-death animation variant ($86:EFD5-$86:EFDE).</summary>
-    internal static EnemyDeathProjectileProgram Program(ushort animation) => (EnemyDeathAnimation)animation switch
+    internal static EnemyDeathProjectileProgram Program(int animation) => (EnemyDeathAnimation)animation switch
     {
         EnemyDeathAnimation.SmallExplosion => EnemyDeathProjectileProgram.SmallExplosion,
         EnemyDeathAnimation.KilledBySamusContact => EnemyDeathProjectileProgram.KilledBySamusContact,

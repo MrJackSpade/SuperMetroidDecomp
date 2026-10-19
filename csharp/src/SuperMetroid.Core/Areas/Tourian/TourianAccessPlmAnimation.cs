@@ -16,7 +16,7 @@ internal sealed class TourianAccessPlmAnimation(TourianAccessProgram program)
     private protected override ushort DrawList(TourianAccessDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override TourianAccessProgram? Publish(TourianAccessCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override TourianAccessProgram? Publish(TourianAccessCue cue, PlmSlot slot, PlmStepContext context)
     {
         if (cue != TourianAccessCue.MoveDown)
             throw new InvalidOperationException($"Undefined {nameof(TourianAccessCue)} {cue}.");

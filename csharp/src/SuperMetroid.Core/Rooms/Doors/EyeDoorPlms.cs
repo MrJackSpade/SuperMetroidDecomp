@@ -8,8 +8,15 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Eye-door PLMs (Tourian and Kraid lair): eye projectile spawning, hit reaction and conversion to a blue door.</summary>
-internal sealed class EyeDoorPlms
+internal sealed class EyeDoorPlms : IPlmFamilySource
 {
+    /// <summary>Registers the EyeDoor family, which has no step of its own: its slots take the shared path.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.EyeDoor, static (_, _) => PlmStepOutcome.Shared);
+    }
+
     /// <summary>Supplies Samus, persistence bits, and enemy projectile spawning to eye-door bytecode.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Queues rejected-shot and launched-projectile sounds.</summary>
@@ -53,7 +60,7 @@ internal sealed class EyeDoorPlms
             _ => throw new ArgumentOutOfRangeException(
                 nameof(slot), slot.HeaderPointer, "Not an eye-door PLM header."),
         };
-        slot.EyeDoor = new EyeDoorPlmState(component);
+        slot.Family = new EyeDoorPlmState(component);
         slot.StartAnimation(new EyeDoorPlmAnimation(orientation, component,
             component == EyeDoorComponent.Eye ? EyeDoorPlmProgram.EyeStart : EyeDoorPlmProgram.ComponentStart));
 
@@ -82,37 +89,34 @@ internal sealed class EyeDoorPlms
     }
 
     /// <summary>Wakes opened components or consumes a pending missile hit before instruction dispatch.</summary>
-    internal void RunEyeDoorPreInstruction(PlmSlot slot)
+    internal void RunEyeDoorPreInstruction(PlmSlot slot, EyeDoorPreInstruction preInstruction)
     {
-        if (slot.EyeDoor is null || slot.PreInstruction == 0)
-            return;
-
+        EyeDoorPlmState eyeDoor = slot.Family as EyeDoorPlmState
+            ?? throw new InvalidOperationException("An eye door's wake ran without its component state.");
         Bank80SystemState system = _bindings.System ??
             throw new InvalidOperationException("A live eye door has no persistence owner.");
-        EyeDoorPreInstruction preInstruction =
-            ClosedNativeWords.Decode<EyeDoorPreInstruction>(slot.PreInstruction, "eye-door PLM pre-instruction");
         switch (preInstruction)
         {
             case EyeDoorPreInstruction.WakeWhenDoorBitSet:
                 if (unchecked((short)slot.RoomArgument) >= 0 &&
                     system.HasOpenedDoorBit(slot.RoomArgument))
                 {
-                    slot.PreInstruction = 0;
+                    slot.PreInstruction = PlmPreInstructions.Inert;
                     slot.WakeAtLink();
                 }
                 return;
 
             case EyeDoorPreInstruction.MissileHit:
-                if (!slot.EyeDoor.HasPendingHit)
+                if (!eyeDoor.HasPendingHit)
                     return;
 
-                SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
+                SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
                 slot.LoopTimer = 0;
-                slot.EyeDoor.HasPendingHit = false;
+                eyeDoor.HasPendingHit = false;
                 if (family == SamusProjectileFamily.SuperMissile)
                 {
                     // $BD50 seeds the counter so the next increment meets the threshold.
-                    slot.EyeDoor.HitCounter = EyeDoorPlmProgramDefinitions.SuperMissileHitCounter;
+                    eyeDoor.HitCounter = EyeDoorPlmProgramDefinitions.SuperMissileHitCounter;
                 }
                 else if (family != SamusProjectileFamily.Missile)
                 {
@@ -133,7 +137,7 @@ internal sealed class EyeDoorPlms
     }
 
     /// <summary><c>$84:8D41</c>: whether Samus stands within <paramref name="columns"/> blocks across and <paramref name="rows"/> blocks up or down of the PLM.</summary>
-    internal bool IsSamusNear(RoomLevelData level, PlmSlot slot, byte columns, byte rows)
+    internal bool IsSamusNear(RoomLevelData level, PlmSlot slot, Extent16<RoomBlocks> reach)
     {
         SamusState samus = _bindings.Samus?.Current
             ?? throw new InvalidOperationException("Eye-door proximity requires Samus.");
@@ -141,7 +145,7 @@ internal sealed class EyeDoorPlms
         int plmY = slot.BlockIndex / level.Size.X;
         int deltaX = Math.Abs((samus.Position.X.Whole >> 4) - plmX);
         int deltaY = Math.Abs((samus.Position.Y.Whole >> 4) - plmY);
-        return deltaX <= columns && deltaY <= rows;
+        return deltaX <= reach.X && deltaY <= reach.Y;
     }
 
     /// <summary><c>$84:D77A</c>: fires an eye-door projectile and queues its sound.</summary>
@@ -171,9 +175,9 @@ internal sealed class EyeDoorPlms
     /// <summary><c>$84:8A91</c>: counts a hit on the eye; true when it opens the door.</summary>
     internal static bool CountEyeHit(PlmSlot slot, DoorPlms doors)
     {
-        EyeDoorPlmState eye = slot.EyeDoor
+        EyeDoorPlmState eye = (slot.Family as EyeDoorPlmState)
             ?? throw new InvalidOperationException("An eye's hit reached a slot without its eye-door state.");
-        eye.HitCounter = unchecked((byte)(eye.HitCounter + 1));
+        eye.HitCounter++;
         if (eye.HitCounter < EyeDoorPlmProgramDefinitions.HitThreshold)
             return false;
         doors.MarkDoorOpened(slot);
@@ -224,12 +228,15 @@ internal sealed class EyeDoorPlms
     }
 
     /// <summary>Per-component hit state retained across eye-door instruction frames.</summary>
-    internal sealed class EyeDoorPlmState(EyeDoorComponent component)
+    internal sealed class EyeDoorPlmState(EyeDoorComponent component) : PlmFamilyState
     {
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.EyeDoor;
+
         /// <summary>Identifies whether this slot is the eye, middle, or bottom component.</summary>
         public EyeDoorComponent Component { get; } = component;
-        /// <summary>Missile-hit count used by the door's threshold instruction.</summary>
-        public byte HitCounter { get; set; }
+        /// <summary>Missile-hit count used by the door's threshold instruction. It only counts up, by one per hit or to 120 on a Super Missile hit, and the door opens once it reaches its threshold, so it stays far below the 255 the cartridge's byte could hold.</summary>
+        public int HitCounter { get; set; }
         /// <summary>Whether a projectile collision awaits the eye's missile pre-instruction.</summary>
         public bool HasPendingHit { get; set; }
     }

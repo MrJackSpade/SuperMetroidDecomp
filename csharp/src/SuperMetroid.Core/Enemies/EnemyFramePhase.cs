@@ -37,7 +37,7 @@ internal sealed class EnemyFramePhase
     /// <summary>Controls whether frozen-time encounters advance presentation effects.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Supplies frame counters consumed by enemy AI and animation.</summary>
-    private readonly NmiClock _nmi;
+    private readonly FrameClock _clock;
     /// <summary>Receives Ceres Ridley's immediate Baby and door sprites before queued enemy layers.</summary>
     private readonly OamBuffer _oam;
     /// <summary>Exposes Samus's pose, motion, and collision handoffs around EnemyMain.</summary>
@@ -52,8 +52,7 @@ internal sealed class EnemyFramePhase
     private readonly RoomLayer3FxState _roomLayer3Fx;
     /// <summary>Collects VRAM writes produced during the enemy pass.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Shared memory context for enemy operations and Samus presentation reloads.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
+
 
     /// <summary>Binds gameplay owners that exchange state at the native EnemyMain frame boundary.</summary>
     internal EnemyFramePhase(EnemyFramePhaseDependencies dependencies)
@@ -67,7 +66,7 @@ internal sealed class EnemyFramePhase
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _escapeTimer = dependencies.EscapeTimer;
         _freeze = dependencies.Freeze;
-        _nmi = dependencies.Nmi;
+        _clock = dependencies.Clock;
         _oam = dependencies.Oam;
         _player = dependencies.Player;
         _plms = dependencies.Plms;
@@ -75,13 +74,12 @@ internal sealed class EnemyFramePhase
         _room = dependencies.Room;
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _vramWrites = dependencies.VramWrites;
-        _addressSpace = dependencies.AddressSpace;
+
     }
     /// <summary>Resolves Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.</summary>
     internal void ResolveUpdatedBeamHits()
     {
-        _enemies.CeresRidleyBehavior.ResolveCeresRidleyProjectileHits(
-            _addressSpace,
+        _enemies.Ceres.ResolveCeresRidleyProjectileHits(
             _projectiles,
             _bombProjectiles);
     }
@@ -95,7 +93,7 @@ internal sealed class EnemyFramePhase
             // published last frame therefore becomes `$0E16=1` immediately before this
             // frame's elevator actor dispatcher, preserving the native producer order.
             if (_room.LevelData?.ConsumeElevatorDoorContact() == true)
-                _enemies.ElevatorBehavior.PublishElevatorDoorContact();
+                _enemies.Elevator.PublishElevatorDoorContact();
             if (_player.Samus is not null)
             {
                 // `$94:9B60-$9B72` clears all four external-displacement words before
@@ -120,9 +118,9 @@ internal sealed class EnemyFramePhase
     {
         if (_room.Camera is not null && _enemies.IsLoaded)
         {
-            _enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = _projectiles, NmiFrameCounter8 = _nmi.NmiFrameCounter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = _bombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = _plms, NmiFrameCounter = _nmi.NmiFrameCounter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
-            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects();
-            if (_enemies.ElevatorBehavior.LastElevatorEvent == ElevatorFrameEvent.DepartureStarted)
+            EnemyFrameResult result = _enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = _projectiles, NmiFrameCounter8 = _clock.Counter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = _bombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = _plms, NmiFrameCounter = _clock.Counter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
+            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects);
+            if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha
                 // has sampled this frame's controls. Do not apply that stale Down
@@ -133,9 +131,9 @@ internal sealed class EnemyFramePhase
                 // clears flare/projectile state, but cannot restore runtime-owned CGRAM.
                 // Without this write, cancelling charge leaves its last flashing colors
                 // behind after the palette handler becomes inactive.
-                _player.IntroducedSamus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
+                _player.IntroducedSamus.Presentation.LoadSuitPalette(_cgram);
             }
-            if (_enemies.RoomStatus.DraygonDiscardedSamusPoseRequestsThisFrame)
+            if (result.DraygonDiscardedSamusPoseRequests)
             {
                 // The grab (`$90:E289-$E295`) and release (`$90:E329-$E332`) discard the transitions
                 // alpha chose for the old pose, including the no-input fallback that shares the
@@ -150,6 +148,9 @@ internal sealed class EnemyFramePhase
                     rainbowHead.Position.Whole,
                     rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
             }
+            // $A7:C85E writes PreviousLayer1XBlock during EnemyMain: every BG1 column streams as new.
+            if (result.KraidLayer1XBlockReset)
+                _backgroundScroll.ResetPreviousLayer1XBlock();
             if (_enemies.PhantoonBehavior.Phantoon is { } phantoon)
             {
                 // Phantoon's body is BG2 artwork anchored by the bank-$A7 scroll writes,
@@ -158,14 +159,15 @@ internal sealed class EnemyFramePhase
                 // The room's fixed layer-two axes preserve them during camera scrolling.
                 _backgroundScroll.SetBg2ScrollRegisters(phantoon.Bg2Scroll);
             }
-            if (_enemies.RoomStatus.CeresEscapeStartedThisFrame)
+            if (result.CeresEscapeStarted)
             {
                 // $A6:C117 starts the escape timer on the same EnemyMain call that changes
                 // ceres_status from one to two; the actor sets the boss bit itself.
                 _escapeTimer.RequestCeresStart();
             }
-            if (_enemies.ShitroidBehavior.RequestedShitroidCameraX is ushort shitroidCameraX)
+            if (result.LayerOneXOverride is int layerOneX)
             {
+                ushort shitroidCameraX = checked((ushort)layerOneX);
                 // `$A9:EFE6` writes layer1_x_pos during EnemyMain, before the ordinary
                 // scrolling routine later in this frame. Do not route it through entry
                 // placement, which would clear subposition and ideal-camera state.
@@ -173,9 +175,9 @@ internal sealed class EnemyFramePhase
                 _backgroundScroll.Layer1Position = _backgroundScroll.Layer1Position.WithX(shitroidCameraX);
             }
             // `$A9:8C0C` deletes HDMA objects 0-3; the next frame's HDMA pass runs none of them.
-            if (_enemies.MotherBrainEncounter.MotherBrainDeletedHdmaObjects)
+            if (result.DeleteLiquidHdmaObjects)
                 _roomLayer3Fx.DeleteLiquidHdmaObjects();
-            if (_enemies.ElevatorBehavior.ElevatorClearedProjectileData)
+            if (result.ElevatorClearedProjectileData)
             {
                 // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary
                 // beam/missile slots were reset inside the actor call; bombs and the shared
@@ -185,22 +187,22 @@ internal sealed class EnemyFramePhase
             // `$A6:A2DF` does not install the post-enemy hook until Ridley's animation word
             // becomes nonzero. Before the reveal it branches directly into `$A6:A2E3`
             // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
-            _enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(
+            _enemies.Ceres.DrawCeresRidleyImmediateBabyAndDoor(
                 _oam,
                 _room.Camera.PixelPosition);
             if (_player.Samus is not null)
             {
                 _player.Samus.Kinematics.InteractiveEnemies = _enemies.InteractiveCollisionBodies;
-                if (_enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.EntryStarted)
+                if (result.Gunship == GunshipFrameEvent.EntryStarted)
                 {
                     // MakeSamusFaceForward performs a direct suit-palette reload and the
                     // ship explicitly clears elevator status after installing locked demo
                     // handlers. The enemy system owns pose/motion; these two global words
                     // remain runtime-owned and are applied on its typed event boundary.
-                    _player.Samus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
-                    _enemies.ElevatorBehavior.SetElevatorStatusForDebugging(0);
+                    _player.Samus.Presentation.LoadSuitPalette(_cgram);
+                    _enemies.Elevator.ResetStatus();
                 }
-                else if (_enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.LandingCompleted)
+                else if (result.Gunship == GunshipFrameEvent.LandingCompleted)
                 {
                     // `$A2:A987` restores the ordinary Samus handler pair only after the
                     // closing-pad hold. Enemy AI has already unlocked Samus.InputLocked;

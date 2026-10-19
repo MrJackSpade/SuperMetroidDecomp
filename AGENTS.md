@@ -1,21 +1,27 @@
 # Project Working Instructions
 
-## Future Godot migration only
+## Read the manifesto first
 
-- Only when explicitly working on the future, currently unstarted Godot
-  migration, read
-  [the architectural plan](docs/godot-architecture.md). It records conditional
-  design guidance for phase dispatch, entities, services, shared state, scene
-  authoring, and behavior preservation.
-- This plan does not apply to existing C# development or current tickets. It adds
-  no requirements, acceptance gates, or refactoring obligations to that work;
-  examples of existing code are migration evidence, not a cleanup queue.
-- For migration work, establish the applicable source constraints before choosing
-  a preferred pattern; illustrative phase and interface names are not a completed
-  design. Record the execution, state-ownership, and lifetime contracts for the
-  affected slice.
-- This guidance does not change active-ticket ownership or authorize migration
-  implementation merely because the plan exists.
+- [docs/manifesto.md](docs/manifesto.md) is the reference for every design decision in
+  this repository: what the project is, where it is going, why the analyzers exist, why
+  their findings are never excused, and what a correct change looks like. Read it before
+  changing code, and include its section 8 rules in every subagent prompt. Where a shorter
+  rule here or in another document conflicts with it, the manifesto wins.
+
+## The Godot destination
+
+- [The architectural plan](docs/godot-architecture.md) describes the shape the
+  simulation is converging on: phase dispatch through entities into domain services,
+  shared state as explicit relationships with real lifetimes, one owner of simulation
+  advancement, a display snapshot boundary, semantic audio and input contracts. That
+  shape is the design reference for every change in the C# product, not only for the
+  migration itself: a change that moves code toward it is progress, a change that
+  moves away from it is not, whatever ticket it serves.
+- What is not started is the Godot host, scene authoring and engine integration. The
+  plan does not authorize beginning that work, switching away from the active ticket,
+  or treating its illustrative names as a completed design. For migration work,
+  establish the applicable source constraints before choosing a pattern and record the
+  execution, state-ownership and lifetime contracts for the affected slice.
 
 ## Discord version updates
 
@@ -94,6 +100,27 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   recoverable-error report. It never means a focus-stealing dialog. Tests for expected
   failures must catch them inside the test harness rather than leaking them from the
   process.
+
+## Analyzer findings are addressed, never grandfathered
+
+- Analyzers exist to find bad code so it gets resolved. Every build error and every
+  analyzer finding must be ADDRESSED: fix the code, or put a justification on that one
+  site stating why it cannot be fixed or why it is a false positive that does not violate
+  the spirit of the rule (for example `SuppressMessage` with a real `Justification`, a
+  same-line `#pragma warning disable` reason, or the rule's own boundary attribute with
+  its reason).
+- NEVER grandfather existing code. Do not create or extend any mechanism that excuses
+  findings in bulk: per-file allowed counts, baseline files, "may only shrink" lists,
+  accepted-fingerprint files, allow-lists kept as hooks, tools that regenerate allowances,
+  assembly- or namespace-wide suppressions, placeholder justifications such as
+  `<Pending>`, or severity downgrades (`NoWarn`, `WarningsNotAsErrors`, lowering a rule
+  below error) to keep a build green.
+- A new or tightened rule ships at full severity. If it fires on existing code, those
+  sites are fixed or individually justified as part of the same work; the rule does not
+  ship with exemptions for them.
+- The size of the work is never a reason to stop, ask, or excuse findings. A fix that
+  touches a whole subsystem, every family or hundreds of sites is done, in committed
+  batches, like any other fix.
 
 ## Recorded-movie acceptance scope
 
@@ -267,9 +294,6 @@ constraint, not a side concern.
 - `tools/verify-all.ps1` is not a commit gate, a batch gate or a per-ticket gate. Run it
   only when the user asks. The script refuses a second start within 120 minutes of the
   previous one; a refused start is the rule working, not an obstacle to route around.
-- Do not run `CartridgeEncodingAudit --write` as a separate pre-commit step. It recompiles
-  the solution only to rewrite baseline files. Use it when a build or CI actually requires
-  a rewritten baseline, not as routine.
 - Do not invent pre-commit or per-batch checks of your own (for example a private "slice"
   or audit script run before every commit). Writing a new script is fine. Making it a
   recurring step is the user's decision.
@@ -350,17 +374,24 @@ constraint, not a side concern.
 - Per-batch progress reports are brief. The full self-contained summary required by
   "Batch handoff summaries" is for handoff.
 
-## Cartridge constants and definition data
+## Identities, definition data and cartridge addresses
 
-- Put ROM addresses, native dispatcher identifiers, instruction-list pointers, phase IDs,
-  table offsets, and similar definition sets in dedicated, domain-named catalog types. Do
-  not park them as constants at the top of a functional runtime, renderer, or state class.
-- Call sites should read as named domain operations, for example
-  `DoorCodes.DoorCode_Scroll6_Green`, rather than raw hexadecimal values with explanatory
-  comments beside the behavior.
-- Put the address, native symbol, and identity explanation on the catalog member's XML
-  summary. Keep comments in functional code for behavior, ordering, and non-obvious side
-  effects instead of repeating what a numeric value denotes.
+- Identities are semantic names: enum members, types, behaviour-object instances. Their
+  backing values are arbitrary and nothing reads them. An enum or constant whose value is a
+  ROM address, a code pointer or an instruction-list pointer, and whose value is read,
+  compared, indexed or switched on, is cartridge coupling and is removed, not extended.
+- Definition data (durations, speeds, shapes, damage, frame lists, names) lives in
+  domain-named catalog types with the meaning on each member's XML summary. Catalog files
+  hold data only: no `if`, `switch`, loops or decisions. Call sites read as named domain
+  operations.
+- The ROM is known only to the import and extraction pipeline. The mapping from an address
+  to a semantic identity is that pipeline's private knowledge, decoded once. An address
+  catalog inside the simulation is scaffolding on the way out: it is never the destination,
+  and no new address is added to the simulation because a catalog exists for it.
 - Use an enum only when values are a proven mutually exclusive domain. Use `[Flags]` only
   when the cartridge demonstrably treats the values as composable bits; do not infer flag
-  semantics from suggestive values alone.
+  semantics from suggestive values alone. The flags stay typed; one codec at the import or
+  export boundary converts them to a word.
+- Comments in functional code explain behaviour, ordering and non-obvious side effects,
+  never what a numeric value denotes. If a comment is needed to say what a number means,
+  the number should be a name.

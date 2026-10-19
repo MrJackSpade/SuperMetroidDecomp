@@ -21,18 +21,18 @@ internal static class OceanSkyVerification
     internal static void VerifyOceanSky()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean, camera: new Position16<RoomPixels>(128, 768));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.WestOcean, camera: new Position16<RoomPixels>(128, 768));
         // Capture consumes the accepted NMI's register snapshot, not the room's
         // mutable scroll state. Draining only VRAM left the BG2 scanline window at
         // its zero-initialized 0..0 range, so both page layouts rendered no sky.
-        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-        Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2MapSize.X}x{ordinary.Registers.Bg2MapSize.Y}, sky={runtime.Room.ScrollingSky is not null}");
+        Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainCallback}, BG2={ordinary.Registers.Bg2MapSize.X}x{ordinary.Registers.Bg2MapSize.Y}, sky={runtime.Room.ScrollingSky is not null}");
 
         AssertEqual(32, ordinary.Registers.Bg2MapSize.X, "Ocean setup $88:A800 writes BG2SC=$4A: 32 tiles wide");
         AssertEqual(64, ordinary.Registers.Bg2MapSize.Y, "Ocean setup uses two vertically stacked BG2 pages");
@@ -43,7 +43,7 @@ internal static class OceanSkyVerification
         for (ushort cameraY = 0; cameraY <= 768; cameraY += 8)
         {
             (runtime.Room.ScrollingSky ?? throw new InvalidOperationException("Verification requires runtime.Room.ScrollingSky.")).ProcessFrame(cameraY, false, writes, runtime.Room.LoadedRoom.State.MainCallback);
-            writes.DrainTo(runtime.Vram, ReferenceMutableMemory.From(bus), runtime.Artwork);
+            writes.DrainTo(runtime.Vram, runtime.Artwork);
             if (cameraY < 256) continue;
             for (int line = 32; line < 224; line += 8)
             {
@@ -81,8 +81,8 @@ internal static class OceanSkyVerification
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 128), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 128)));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
         runtime.StepFrame(0);
         ushort upper = unchecked((ushort)((runtime.Room.LoadedCamera.PixelPosition.Y & 0x7F8) - 16));
         int sourcePointer = 0x88ADA6 + (SnesLittleEndian.HighByte(upper)) * 2;

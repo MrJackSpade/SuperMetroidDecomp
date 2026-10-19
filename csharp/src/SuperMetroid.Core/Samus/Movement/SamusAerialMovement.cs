@@ -24,9 +24,8 @@ public static class SamusAerialMovement
     /// <c>$90:98BC</c>. Air/water/lava select word offsets zero/two/four in the normal or
     /// Hi-Jump tables; Gravity Suit forces offset zero before that equipment choice.
     /// </summary>
-    public static void InitializeJump(ISnesAddressSpace bus, SamusState samus)
+    public static void InitializeJump(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
@@ -36,7 +35,7 @@ public static class SamusAerialMovement
         (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
             SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: false);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
-        ConfigureEnvironmentGravity(bus, samus);
+        ConfigureEnvironmentGravity(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
     }
 
@@ -44,9 +43,8 @@ public static class SamusAerialMovement
     /// Ports <c>Make_Samus_WallJump</c> at <c>$90:9949</c> without duplicating its three
     /// liquid entries in pose code. Extra-run bonus and 16-bit arithmetic match normal jump.
     /// </summary>
-    public static void InitializeWallJump(ISnesAddressSpace bus, SamusState samus)
+    public static void InitializeWallJump(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
@@ -54,7 +52,7 @@ public static class SamusAerialMovement
         (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
             SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: true);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
-        ConfigureEnvironmentGravity(bus, samus);
+        ConfigureEnvironmentGravity(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
     }
 
@@ -80,9 +78,8 @@ public static class SamusAerialMovement
     /// Ports <c>Determine_Samus_YAcceleration</c> at <c>$90:9C5B</c>. The three adjacent
     /// ROM words at `$90:9EA1/$9EA7` are indexed by the exact bottom-boundary medium.
     /// </summary>
-    public static void ConfigureEnvironmentGravity(ISnesAddressSpace bus, SamusState samus)
+    public static void ConfigureEnvironmentGravity(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         (samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration) =
             SamusVerticalMotionDefinitions.Gravity(samus.LiquidPhysics.DetermineMovementMedium(samus));
@@ -93,17 +90,17 @@ public static class SamusAerialMovement
     /// <c>$90:8FB3</c>.
     /// </summary>
     public static AerialMovementResult StepNormalJump(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ValidateCommon(bus, level, samus);
-        if (samus.PoseMetadata.ReadMovementKind(bus) != SamusMovementType.NormalJumping)
+        ValidateCommon(level, samus);
+        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.NormalJumping)
             throw new InvalidOperationException(
-                $"Normal-jump movement requires type 2, not ${(byte)samus.PoseMetadata.ReadMovementType(bus):X2}.");
+                $"Normal-jump movement requires type 2, not ${(byte)samus.PoseMetadata.ReadMovementType():X2}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: SamusMovementType.NormalJumping,
             controllerInput,
@@ -124,10 +121,10 @@ public static class SamusAerialMovement
             SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose)
         {
             samus.HorizontalSpeed.AccelerationMode = 0;
-            var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
-            BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: 0);
+            BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
             if (horizontal.Collided)
-                samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+                samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
             // `$90:8FD6` is not an empty Y frame: it applies only the externally produced
             // displacement. Zero returns before collision, positive values gain the native
@@ -137,7 +134,7 @@ public static class SamusAerialMovement
             BlockMoveResult? vertical = null;
             if (externalY is int displacement)
             {
-                vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+                vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
             }
             return new AerialMovementResult(
                 Landed: externalY >= 0 && vertical is { Collided: true },
@@ -146,13 +143,13 @@ public static class SamusAerialMovement
 
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontalMove = MoveNormalAerialX(
-            bus,
+
             level,
             samus,
             controllerInput,
             movementType: SamusMovementType.NormalJumping,
             plms);
-        return FinishVerticalMovement(bus, level, samus, nmiFrameCounter, plms: plms);
+        return FinishVerticalMovement(level, samus, nmiFrameCounter, plms: plms);
     }
 
     /// <summary>
@@ -160,18 +157,18 @@ public static class SamusAerialMovement
     /// <c>$90:9040</c>, including `$90:9D35`'s block-wall contact and launch test.
     /// </summary>
     public static AerialMovementResult StepSpinJump(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerNewInput = SnesButton.None,
         RoomPlmSystem? plms = null)
     {
-        ValidateCommon(bus, level, samus);
-        if (samus.PoseMetadata.ReadMovementKind(bus) != SamusMovementType.SpinJumping)
+        ValidateCommon(level, samus);
+        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.SpinJumping)
             throw new InvalidOperationException(
-                $"Spin-jump movement requires type 3, not ${(byte)samus.PoseMetadata.ReadMovementType(bus):X2}.");
+                $"Spin-jump movement requires type 3, not ${(byte)samus.PoseMetadata.ReadMovementType():X2}.");
 
         // `$90:A436-$90:A4CB` runs this before ordinary spin movement. Space Jump is not a
         // host-side double-jump: it only accepts a fresh Jump edge while descending and
@@ -180,7 +177,7 @@ public static class SamusAerialMovement
             !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
             samus.LiquidPhysics.IsTopBoundarySubmerged(samus);
         if (!fullySubmergedWithoutGravity)
-            TryRestartSpaceJump(bus, samus, controllerNewInput);
+            TryRestartSpaceJump(samus, controllerNewInput);
 
         // `$90:A4D7-$A4F1` plays the underwater Space Jump sound only at the last tick of
         // animation frames zero and eight. It is movement-owned, so publish it before the
@@ -215,12 +212,12 @@ public static class SamusAerialMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType: SamusMovementType.SpinJumping);
+            speed.CalculateBaseSpeedDecelerationDisallowed(movementType: SamusMovementType.SpinJumping);
 
         // If acceleration did not overshoot the cap, spin jump retains motion only while
         // turning (mode 1) or while the input matching the pose's facing direction is held.
         // The carry-set cap path bypasses this test exactly as $90:906C does.
-        bool forwardHeld = IsForwardHeld(bus, samus, controllerInput);
+        bool forwardHeld = IsForwardHeld(samus, controllerInput);
         bool allowHorizontal = calculation.ReachedMaximum ||
             speed.AccelerationMode == 1 ||
             forwardHeld;
@@ -238,13 +235,13 @@ public static class SamusAerialMovement
             speed.AccelerationMode = 2;
         }
 
-        var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
+        var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, calculation.Speed);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         WallJumpCheckResult wall = CheckBlockWallJump(
-            bus,
+
             level,
             samus,
             controllerInput,
@@ -264,7 +261,7 @@ public static class SamusAerialMovement
         }
 
         AerialMovementResult verticalResult = FinishVerticalMovement(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -281,15 +278,15 @@ public static class SamusAerialMovement
     /// selected contact damage before the ordinary jumping routine.
     /// </summary>
     public static AerialMovementResult StepWallJump(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ValidateCommon(bus, level, samus);
-        if (samus.PoseMetadata.ReadMovementKind(bus) != SamusMovementType.WallJumping ||
+        ValidateCommon(level, samus);
+        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.WallJumping ||
             !SamusPoseMetadata.IsWallJumpPose(samus.Pose))
             throw new InvalidOperationException($"Wall-jump movement requires type $14 pose, not ${(int)samus.Pose:X2}.");
 
@@ -309,13 +306,13 @@ public static class SamusAerialMovement
                 SamusLiquidMedium.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontal = MoveNormalAerialX(
-            bus,
+
             level,
             samus,
             controllerInput,
             movementType: SamusMovementType.WallJumping,
             plms);
-        return FinishVerticalMovement(bus, level, samus, nmiFrameCounter, plms: plms);
+        return FinishVerticalMovement(level, samus, nmiFrameCounter, plms: plms);
     }
 
     /// <summary>
@@ -324,15 +321,15 @@ public static class SamusAerialMovement
     /// height jump cutoff, type-indexed X physics, block collision, gravity, and landing.
     /// </summary>
     public static AerialMovementResult StepDamageBoost(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ValidateCommon(bus, level, samus);
-        if (samus.PoseMetadata.ReadMovementKind(bus) != SamusMovementType.DamageBoost ||
+        ValidateCommon(level, samus);
+        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.DamageBoost ||
             samus.Pose is not (SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose))
         {
             throw new InvalidOperationException(
@@ -347,13 +344,13 @@ public static class SamusAerialMovement
                 SamusLiquidMedium.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontal = MoveNormalAerialX(
-            bus,
+
             level,
             samus,
             controllerInput,
             movementType: SamusMovementType.DamageBoost,
             plms);
-        return FinishVerticalMovement(bus, level, samus, nmiFrameCounter, plms: plms);
+        return FinishVerticalMovement(level, samus, nmiFrameCounter, plms: plms);
     }
 
     /// <summary>
@@ -362,14 +359,14 @@ public static class SamusAerialMovement
     /// release; the three-frame turn animation therefore preserves native reversal momentum.
     /// </summary>
     public static AerialMovementResult StepTurningInAir(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ValidateCommon(bus, level, samus);
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
+        ValidateCommon(level, samus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
         // Crouched aimed turns use movement type `$17` even though they normally remain on
         // the floor. If a producer gives one nonzero Y direction, `$90:A790` immediately
         // executes the same X/simple-Y path as the ordinary `$2F/$30/$8F-$92/$9E/$9F`
@@ -390,11 +387,11 @@ public static class SamusAerialMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidMedium.Air);
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
-        var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
+        uint baseSpeed = speed.CalculateBaseSpeed(movementType);
+        var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         // Simple_Samus_Y_Movement calls this before the shared gravity routine. A signed
         // underflow at the apex becomes a stationary downward state on this same frame.
@@ -411,11 +408,11 @@ public static class SamusAerialMovement
         AerialMovementResult result;
         if (samus.Kinematics.YDirection == SamusVerticalDirection.None)
         {
-            SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(bus, level, samus, nmiFrameCounter, plms);
+            SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(level, samus, nmiFrameCounter, plms);
             result = new AerialMovementResult(false, false);
         }
         else
-            result = FinishVerticalMovement(bus, level, samus, nmiFrameCounter,
+            result = FinishVerticalMovement(level, samus, nmiFrameCounter,
                 plms: plms, deferCeilingResponse: true);
         // Turning clears the collision-to-pose request after movement. A floor
         // collision clamps position but does not reset accumulated falling speed
@@ -425,7 +422,7 @@ public static class SamusAerialMovement
         // preserve upward velocity even while the head is touching the ceiling.
 
         // `$90:A79E/$90:A7BB` cancel speed boost and explicitly clear both extra words.
-        speed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+        speed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         return result with { Landed = false, HitCeiling = false };
@@ -433,17 +430,17 @@ public static class SamusAerialMovement
 
     /// <summary>Executes one movement-type-6 frame from <c>$90:9168</c>.</summary>
     public static AerialMovementResult StepFalling(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ValidateCommon(bus, level, samus);
-        if (samus.PoseMetadata.ReadMovementKind(bus) != SamusMovementType.Falling)
+        ValidateCommon(level, samus);
+        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.Falling)
             throw new InvalidOperationException(
-                $"Falling movement requires type 6, not ${(byte)samus.PoseMetadata.ReadMovementType(bus):X2}.");
+                $"Falling movement requires type 6, not ${(byte)samus.PoseMetadata.ReadMovementType():X2}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Falling,
             controllerInput,
@@ -452,7 +449,7 @@ public static class SamusAerialMovement
                 SamusLiquidMedium.Air);
 
         BlockMoveResult horizontal = MoveNormalAerialX(
-            bus,
+
             level,
             samus,
             controllerInput,
@@ -470,7 +467,7 @@ public static class SamusAerialMovement
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         }
 
-        AerialMovementResult result = FinishVerticalMovement(bus, level, samus, nmiFrameCounter, plms: plms);
+        AerialMovementResult result = FinishVerticalMovement(level, samus, nmiFrameCounter, plms: plms);
         // The movement wrapper selects fast-fall art after physics, before AnimateSamus.
         // Aimed falling poses have their own lists and do not enter this branch.
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
@@ -495,14 +492,14 @@ public static class SamusAerialMovement
     /// acquiring ordinary jump input/caps one frame too early.
     /// </remarks>
     public static AerialMovementResult StepReleasedFromGrapple(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ValidateCommon(bus, level, samus);
+        ValidateCommon(level, samus);
         if (!samus.Grapple.ReleasedMovementActive)
             throw new InvalidOperationException("Released-grapple movement handler is not active.");
 
@@ -526,16 +523,14 @@ public static class SamusAerialMovement
         // clear base speed instead of calling the horizontal mover.
         speed.AccelerationMode = 2;
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
-        int speedRecordAddress = medium switch
+        SamusStandaloneSpeedRecord speedRecord = medium switch
         {
-            SamusLiquidMedium.Water =>
-                (int)SamusStandaloneSpeedRecord.GrappleReleaseWater,
-            SamusLiquidMedium.LavaOrAcid =>
-                (int)SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid,
-            SamusLiquidMedium.Air => (int)SamusStandaloneSpeedRecord.GrappleReleaseAir,
+            SamusLiquidMedium.Water => SamusStandaloneSpeedRecord.GrappleReleaseWater,
+            SamusLiquidMedium.LavaOrAcid => SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid,
+            SamusLiquidMedium.Air => SamusStandaloneSpeedRecord.GrappleReleaseAir,
             _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
-        uint baseSpeed = speed.CalculateBaseSpeedAtAddress(bus, speedRecordAddress);
+        uint baseSpeed = speed.CalculateBaseSpeed(speedRecord);
 
         bool horizontalInput = (controllerInput &
             (SnesButton.Left | SnesButton.Right)) != 0;
@@ -546,25 +541,25 @@ public static class SamusAerialMovement
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
             // This branch bypasses $90:E4E6; retain the previous total-speed pair.
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new HorizontalBlockMove { Displacement = 0 });
+            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, state, new HorizontalBlockMove { Displacement = 0 });
         }
         else
         {
-            var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
+            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, state, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
             if (horizontal.Collided)
-                speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+                speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         }
 
         AerialMovementResult result = FinishVerticalMovement(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
             plms: plms);
         // `$90:94BF` reads the whole word: any downward pass, or a ceiling hit, ends the
         // special handler. Only a free upward pass keeps it for another frame.
-        if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResults.None)
+        if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResult.None)
             restoreNormalHandler = true;
 
         samus.Grapple.ReleasedMovementActive = !restoreNormalHandler;
@@ -573,7 +568,7 @@ public static class SamusAerialMovement
 
     /// <summary>Applies the selected medium's base speed and wall collision, preserving the native no-input bypass and wall-jump exception.</summary>
     private static BlockMoveResult MoveNormalAerialX(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
@@ -583,7 +578,7 @@ public static class SamusAerialMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType);
+            speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
 
         // $90:8FEF-$8FFB: a wall jump promotes zero acceleration mode to two
         // after calculating speed, then bypasses the held-direction admission test.
@@ -603,24 +598,24 @@ public static class SamusAerialMovement
             return BlockMoveResult.NotMoved;
         }
 
-        var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
+        var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, calculation.Speed);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         return horizontal;
     }
 
     /// <summary>Runs the shared Y mover and reduces its collision scan to landing and ceiling signals for the caller.</summary>
     private static AerialMovementResult FinishVerticalMovement(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         bool canBreakBombBlocks = false,
         RoomPlmSystem? plms = null,
         bool deferCeilingResponse = false)
     {
-        BlockMoveResult vertical = StepVerticalWithSpeedCalculations(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, canBreakBombBlocks, deferCeilingResponse);
+        BlockMoveResult vertical = StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, Plms = plms }, samus, nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, canBreakBombBlocks, deferCeilingResponse);
         bool landed = downwardDisplacement && vertical.Collided;
 
         return new AerialMovementResult(landed, hitCeiling);
@@ -636,9 +631,9 @@ public static class SamusAerialMovement
     /// is important: the old-speed displacement, equality-only terminal-speed check, and
     /// ceiling response are observable native behavior, not general-purpose host physics.
     /// </remarks>
-    internal static BlockMoveResult StepVerticalWithSpeedCalculations(SamusTerrain terrain, SamusState samus, ushort nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, bool canBreakBombBlocks = false, bool deferCeilingResponse = false)
+    internal static BlockMoveResult StepVerticalWithSpeedCalculations(SamusTerrain terrain, SamusState samus, int nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, bool canBreakBombBlocks = false, bool deferCeilingResponse = false)
     {
-        ValidateCommon(terrain.Bus, terrain.Level, samus);
+        ValidateCommon(terrain.Level, samus);
         SamusKinematicsState state = samus.Kinematics;
 
         // `$90:90E5` snapshots the OLD speed into displacement before changing the stored
@@ -677,15 +672,15 @@ public static class SamusAerialMovement
         if (downwardDisplacement)
         {
             if (vertical.Collided)
-                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.Landed;
-            else if ((SnesLittleEndian.LowByte(samus.SolidVerticalCollisionResult)) != SamusVerticalCollisionResults.WallJump)
-                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.Falling;
+                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.Landed;
+            else if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResult.WallJump)
+                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.Falling;
         }
         else
         {
             samus.SolidVerticalCollisionResult = vertical.Collided
-                ? SamusVerticalCollisionResults.HitCeiling
-                : SamusVerticalCollisionResults.None;
+                ? SamusVerticalCollisionResult.HitCeiling
+                : SamusVerticalCollisionResult.None;
         }
 
         hitCeiling = displacement < 0 && vertical.Collided;
@@ -721,10 +716,9 @@ public static class SamusAerialMovement
 
     /// <summary>Tests the directional button matching the current facing pose.</summary>
     private static bool IsForwardHeld(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton controllerInput) =>
-        samus.PoseMetadata.IsFacingLeft(bus)
+        samus.PoseMetadata.IsFacingLeft()
             ? (controllerInput & SnesButton.Left) != 0
             : (controllerInput & SnesButton.Right) != 0;
 
@@ -732,7 +726,7 @@ public static class SamusAerialMovement
     /// Ports `$90:9D35`'s block and solid-enemy wall probes, including enemy-shake publication.
     /// </summary>
     private static WallJumpCheckResult CheckBlockWallJump(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
@@ -754,7 +748,7 @@ public static class SamusAerialMovement
         // the wall behind the newly facing spin pose.
         int requested = heldLeft ? 8 << 16 : -(8 << 16);
         BlockMoveResult probe = SamusBlockCollision.ProbeWallHorizontal(
-            bus,
+
             level,
             samus.Kinematics,
             requested,
@@ -762,7 +756,9 @@ public static class SamusAerialMovement
         if (!probe.Collided)
             return default;
 
-        ushort distance = unchecked((ushort)Math.Abs(SnesSixteenSixteen.WholeOf(probe.AcceptedDisplacement)));
+        // The accepted whole travel is a signed word, so its magnitude is at most 32768 and the
+        // distance holds the exact value the native unsigned word would.
+        int distance = Math.Abs(SnesSixteenSixteen.WholeOf(probe.AcceptedDisplacement));
         ushort firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
             ? (ushort)27
             : (ushort)11;
@@ -781,13 +777,13 @@ public static class SamusAerialMovement
             // `$90:9E7F`. This is not merely an internal boolean. `$0DC6` is shared WRAM
             // state, so retain the publication even though the host result below also tells
             // the runtime to install the wall-jump pose explicitly.
-            samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.WallJump;
+            samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
 
-            if (probe.EnemyCollision is { EnemyIndex: ushort enemyIndex })
+            if (probe.EnemyCollision is { EnemySlot: int enemySlot })
             {
                 // `$90:9E64-$90:9E66` publishes only enemy-backed launches. Terrain wall
                 // jumps intentionally leave the previous `$0E18` value alone.
-                samus.EnemyIndexToShake = enemyIndex;
+                samus.EnemySlotToShake = enemySlot;
             }
         }
         return new WallJumpCheckResult(triggered, Contact: true, distance);
@@ -799,7 +795,6 @@ public static class SamusAerialMovement
     /// equipped even though its visible pose is `$81/$82`.
     /// </summary>
     private static bool TryRestartSpaceJump(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton controllerNewInput)
     {
@@ -831,7 +826,7 @@ public static class SamusAerialMovement
 
         // This is the same Samus_InitJump used by a grounded launch: ROM-authored initial
         // magnitude, Speed Booster's split-word bonus, dry-air gravity, and upward direction.
-        SamusAerialMovement.InitializeJump(bus, samus);
+        SamusAerialMovement.InitializeJump(samus);
         return true;
     }
 
@@ -845,11 +840,9 @@ public static class SamusAerialMovement
 
     /// <summary>Checks that terrain, address space and Samus state are available before an aerial step.</summary>
     private static void ValidateCommon(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
     }

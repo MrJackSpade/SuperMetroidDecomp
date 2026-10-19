@@ -24,7 +24,7 @@ internal static class PauseMapArrowsVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
-        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(10, 10) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(10, 10) });
         pause.mapScroll = new PauseMapScroll(new(0, 0), new(512, 256));
         pause.mapArrows = null;
         pause.BindMapPresentation(RetailPresentationFixture());

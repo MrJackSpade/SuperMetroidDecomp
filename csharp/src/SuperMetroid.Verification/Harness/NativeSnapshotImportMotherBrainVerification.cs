@@ -21,9 +21,9 @@ internal static class NativeSnapshotImportMotherBrainVerification
     {
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The native snapshot holds Mother Brain, but the room load did not create her.");
-        state.Form = W(MotherBrainMemory.Form);
+        state.Form = DecodeForm(W(MotherBrainMemory.Form));
         state.Pose = (MotherBrainBodyPose)W(MotherBrainMemory.Pose);
-        state.HitboxesEnabled = W(MotherBrainMemory.HitboxesEnabled);
+        state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
         state.Function = (MotherBrainBodyFunction)W(MotherBrainMemory.BodyFunction);
         state.BrainFunction = MotherBrainNativeListAddresses.NativeBrainFunctions[W(MotherBrainMemory.BrainFunction)];
         state.FunctionTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BodyFunctionTimer));
@@ -40,18 +40,18 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.FakeDeathExplosionTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
         state.EnableUnpauseHook = W(MotherBrainMemory.EnableUnpauseHook) != 0;
-        state.NeckPaletteIndex = W(MotherBrainMemory.NeckPaletteIndex);
-        state.BrainPaletteIndex = W(MotherBrainMemory.BrainPaletteIndex);
+        state.NeckPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex));
+        state.BrainPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex));
         ushort brain = W(MotherBrainMemory.BrainInstructionList);
         // Bit 15 clear means the brain list is not live.
         state.BrainCursor = unchecked((short)brain) >= 0 ? null : MotherBrainNativeListAddresses.CompareHead(cartridge)[brain];
         state.BrainFrameTimer = W(MotherBrainMemory.BrainInstructionTimer);
         Dictionary<ushort, AnimationProgramCursor<MotherBrainBodyProgram>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
-        state.BodyCursor = body[state.Body.CurrentInstruction];
-        state.HeadSlotCursor = body[state.Head.CurrentInstruction];
+        state.BodyCursor = body[checked((ushort)state.Body.CurrentInstruction)];
+        state.HeadSlotCursor = body[checked((ushort)state.Head.CurrentInstruction)];
         Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes))
-            runtime.Enemies.MotherBrainBehavior.FallingTubeCursors[tube.SlotIndex] = tubes[tube.CurrentInstruction];
+            runtime.Enemies.MotherBrainBehavior._extensions[tube.SlotIndex].FallingTubeCursor = tubes[checked((ushort)tube.CurrentInstruction)];
         state.BrainMainShakeTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.RainbowPaletteCursor = W(MotherBrainMemory.RainbowPaletteIndex);
@@ -68,22 +68,22 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.NeckSegment2 = Segment(2);
         state.NeckSegment3 = Segment(3);
         state.NeckSegment4 = Segment(4);
-        state.LowerNeckAngle = W(MotherBrainMemory.LowerNeckAngle);
-        state.UpperNeckAngle = W(MotherBrainMemory.UpperNeckAngle);
+        state.LowerNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
+        state.UpperNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
         state.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
         state.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
         state.LowerNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
         state.UpperNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
-        state.SpriteTileTransferEntryPointer = W(MotherBrainMemory.SpriteTileTransferEntry);
+        state.NextLegTilePage = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
         state.GrayTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         state.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
         state.DroolProjectileParameter = W(MotherBrainMemory.DroolProjectileParameter);
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         state.SmallPurpleBreathActive = W(MotherBrainMemory.SmallPurpleBreathActive) != 0;
-        state.WalkCounter = W(MotherBrainMemory.WalkCounter);
+        state.WalkCounter = MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));
         state.AttackPhase = (MotherBrainAttackPhase)W(MotherBrainMemory.AttackPhase);
         state.AttackCooldown = NativeCountdown.FromRaw(W(MotherBrainMemory.BodyAttackCooldown));
         state.BombCounter = W(MotherBrainMemory.BombCounter);
@@ -135,21 +135,36 @@ internal static class NativeSnapshotImportMotherBrainVerification
         sequence.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
         sequence.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         sequence.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
-        sequence.Phase2CorpseState = W(MotherBrainMemory.Phase2CorpseState);
+        sequence.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
-        sequence.BrainPaletteIndex = W(MotherBrainMemory.BrainPaletteIndex);
+        sequence.BrainPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex));
         sequence.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
         sequence.RainbowBeamPaletteAnimationIndex = W(MotherBrainMemory.RainbowPaletteIndex);
         sequence.DeathExplosionIntervalTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunction));
         sequence.DeathAndEscapeExplosionIndex = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunctionTimer));
-        sequence.LowerNeckAngle = W(MotherBrainMemory.LowerNeckAngle);
-        sequence.UpperNeckAngle = W(MotherBrainMemory.UpperNeckAngle);
+        sequence.LowerNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
+        sequence.UpperNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
         sequence.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
-        sequence.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled);
+        sequence.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
         sequence.LowerNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
         sequence.UpperNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.RainbowBeamSequence = sequence;
     }
+
+    /// <summary>Decodes the snapshot's form word, rejecting a stage the encounter does not have.</summary>
+    internal static MotherBrainForm DecodeForm(ushort word) =>
+        ClosedNativeWords.Decode<MotherBrainForm>(word, "Mother Brain form");
+
+    /// <summary>Decodes the snapshot's corpse-handshake word, rejecting a value outside living, corpse and revived.</summary>
+    internal static MotherBrainPhase2CorpseState DecodePhase2CorpseState(ushort word) =>
+        ClosedNativeWords.Decode<MotherBrainPhase2CorpseState>(word, "Mother Brain phase-two corpse state");
+
+    /// <summary>
+    /// Decodes the snapshot's leg-transfer list pointer into the next leg-artwork page. A zero pointer is a list that
+    /// is not running, which starts from the first page; any other pointer must name one of the twelve records.
+    /// </summary>
+    internal static int DecodeLegTilePage(ushort word) =>
+        word == 0 ? 0 : MotherBrainLegTileTransferDefinitionsConstants.IndexOf(word);
 }

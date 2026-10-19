@@ -18,7 +18,7 @@ internal static class DeadTorizoVramTransferDefinitions
     private const ushort SandDestination = 0x7000;
 
     /// <summary>Selects the even or odd corpse-transfer half without copying the mutable WRAM source pixels.</summary>
-    internal static PhaseRows ForPhase(ushort phase) => new((phase & 1) != 0);
+    internal static PhaseRows ForHalf(bool odd) => new(odd);
 
     /// <summary>Six body rows and one sand strip; body bounds clip unused tiles on each scanline.</summary>
     internal readonly struct PhaseRows(bool odd) : IReadOnlyList<DeadTorizoVramTransferDefinition>

@@ -14,7 +14,7 @@ internal static class ZoaAnimationsVerification
     internal static void VerifyZoaAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, ZoaAnimations.Programs,
-            ZoaFrameDefinitions.Spritemap,
+            ZoaFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

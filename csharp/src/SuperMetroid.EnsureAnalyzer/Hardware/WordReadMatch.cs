@@ -6,7 +6,7 @@ namespace SuperMetroid.EnsureAnalyzer.Hardware;
 /// <summary>One little-endian word rebuilt from two adjacent byte reads of a canonical memory source.</summary>
 /// <param name="Expression">The whole expression to replace, including a covering cast or <c>unchecked</c>.</param>
 /// <param name="Receiver">The byte source, as written.</param>
-/// <param name="ByteMethod">The byte read: ReadCartridgeByte, ReadWorkRamByte or ReadSaveRamByte.</param>
+/// <param name="ByteMethod">The byte read: ReadCartridgeByte or ReadWorkRamByte.</param>
 /// <param name="Address">The low byte's address.</param>
 /// <param name="Progression">How the high byte's address follows.</param>
 /// <param name="OtherOperands">Further operands OR'd into the same expression, such as a bank.</param>

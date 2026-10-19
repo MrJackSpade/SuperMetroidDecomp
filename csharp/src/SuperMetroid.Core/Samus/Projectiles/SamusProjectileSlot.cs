@@ -14,22 +14,26 @@ public sealed class SamusProjectileSlot
     public int NativeByteIndex => SlotIndex * 2;
 
     /// <summary>Damage doubles as the producer's free-slot sentinel.</summary>
-    public ushort Damage { get; internal set; }
+    public int Damage
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Projectile family/beam flags from WRAM <c>$0C18</c>.</summary>
-    public ushort Type { get; internal set; }
+    public int Type { get; internal set; }
 
     /// <summary>
     /// Lossless semantic view of <see cref="Type"/>. Raw storage remains public for exact
     /// WRAM comparison and debugging; consumers no longer need to repeat packed masks.
     /// </summary>
-    public SamusProjectileTypeWord PackedType => new(Type);
+    public SamusProjectileTypeWord PackedType => new(checked((ushort)Type));
 
     /// <summary>Low nibble is direction 0..9; upper bits are lifecycle flags.</summary>
-    public ushort Direction { get; internal set; }
+    public int Direction { get; internal set; }
 
     /// <summary>Lossless semantic view of <see cref="Direction"/>.</summary>
-    public SamusProjectileDirectionWord PackedDirection => new(Direction);
+    public SamusProjectileDirectionWord PackedDirection => new(checked((ushort)Direction));
 
     /// <summary>Room-pixel 16.16 position: whole words <c>$0B64/$0B78</c>, subpixels <c>$0B8C/$0BA0</c>.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
@@ -43,17 +47,25 @@ public sealed class SamusProjectileSlot
     /// <summary>Where the slot's projectile program resumes; null marks the slot inactive for animation.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
     /// <summary>The bank-$93 instruction pointer the cursor stands for; zero marks the slot inactive.</summary>
-    public ushort InstructionPointer => SamusProjectileProgramAddresses.Address(Cursor);
+    public int InstructionPointer => SamusProjectileProgramAddresses.Address(Cursor);
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Bank-relative pointer to the projectile's current spritemap.</summary>
-    public ushort SpritemapPointer { get; internal set; }
+    public int SpritemapPointer { get; internal set; }
     /// <summary>Current animation frame index.</summary>
-    public ushort AnimationFrame { get; internal set; }
+    public int AnimationFrame
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Countdown controlling projectile-trail emission.</summary>
     public NativeCountdown TrailTimer { get; internal set; }
     /// <summary>WRAM <c>$0C7C</c>; missile ignition/acceleration state in the high byte.</summary>
-    public ushort Variable { get; internal set; }
+    public int Variable
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>WRAM $0CA4: phase word used by Spazer special-attack particles.</summary>
     public SpazerComboPhase AuxiliaryPhase { get; internal set; }
     /// <summary>Semantic identity of the slot's bank-$90 pre-instruction.</summary>

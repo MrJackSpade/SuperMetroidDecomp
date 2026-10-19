@@ -35,7 +35,7 @@ internal static class StokeAnimations
         [P.AttackingLeft] =
         [
             Show(2, 16),
-            Cue(new(K.SpawnFireball, Value: 0)),
+            Cue(new(K.SpawnFireball, FireballDirection: StokeDirection.Left)),
             Show(4, 16),
             GoTo(P.MovingLeft),
         ],
@@ -58,7 +58,7 @@ internal static class StokeAnimations
         [P.AttackingRight] =
         [
             Show(7, 16),
-            Cue(new(K.SpawnFireball, Value: 1)),
+            Cue(new(K.SpawnFireball, FireballDirection: StokeDirection.Right)),
             Show(9, 16),
             GoTo(P.MovingRight),
         ],

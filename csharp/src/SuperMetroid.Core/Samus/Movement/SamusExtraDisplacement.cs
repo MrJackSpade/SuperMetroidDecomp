@@ -48,7 +48,7 @@ internal static class SamusExtraDisplacement
             return 1 << 16;
 
         uint total = (SnesSixteenSixteen.FromWhole((uint)horizontalSpeed.TotalSpeed)) |
-            horizontalSpeed.TotalSubspeed;
+            (uint)horizontalSpeed.TotalSubspeed;
         return unchecked((int)(total + (1u << 16)));
     }
 

@@ -31,18 +31,15 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
 
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
-
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 36;
     /// <summary>Native Power-suit definition $8D:E1F4 selects program $DB62.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Power =
-        new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, 0xe1f4, 0xdb62);
+        new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, PaletteFxObject.SamusLoadingPowerSuit, 238);
     /// <summary>Native Varia-suit definition $8D:E1F8 selects program $DCC8.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Varia =
-        new(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit, 0xe1f8, 0xdcc8);
+        new(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit, PaletteFxObject.SamusLoadingVariaSuit, 247);
     /// <summary>Native Gravity-suit definition $8D:E1FC selects program $DE2E.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Gravity =
-        new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, 0xe1fc, 0xde2e);
+        new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, PaletteFxObject.SamusLoadingGravitySuit, 256);
 
     /// <summary>The power, Varia, and gravity programs in definition order.</summary>
     /// <remarks>Named program identities replace the former indexed descriptor array.
@@ -73,18 +70,5 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
         }
         /// <summary>Uses the same suit order for non-generic enumeration.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-    /// <summary>Returns the bank-local offset of one counted group.</summary>
-    /// <remarks>Native $8D:DB62/DCC8/DE2E programs have a four-byte color-index
-    /// setup and three-byte initial timer command, so the first record starts at7.
-    /// Each next group is two36-byte color records, four-byte loop command/target,
-    /// and three-byte timer command later: offset=7+79*group for group0..3.
-    /// Independently decoded from supported NTSC J/U v1.0 and pinned bank_8D.asm
-    /// for #1165. No stored group-offset array remains.</remarks>
-    public static ushort GroupStartOffset(int group)
-    {
-        if ((uint)group >= GroupCount)
-            throw new ArgumentOutOfRangeException(nameof(group));
-        return (ushort)(7 + group * (FramesPerGroup * FrameByteCount + 4 + 3));
     }
 }

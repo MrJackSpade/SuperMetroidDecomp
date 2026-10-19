@@ -42,15 +42,15 @@ internal static class MapScreensVerification
             installed.SelectArea(index);
             AssertTrue(native.RenderBackgrounds().SequenceEqual(installed.RenderBackgrounds()), "reselection reloads authored world background without ROM reads");
             var area = (AreaId)index;
-            var nativeRoom = new FileSelectRoomMapGraphics(bus, system, area,
+            var nativeRoom = new FileSelectRoomMapGraphics(system, area,
                 mapPresentation: original);
-            var installedRoom = new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original);
+            var installedRoom = new FileSelectRoomMapGraphics(system, area, mapPresentation: original);
             AssertTrue(nativeRoom.Vram.ImageEquals(installedRoom.Vram), "stock resolved frame/footer/area label matches full native VRAM");
             AssertTrue(nativeRoom.RenderFrameOnly().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
                 AssertTrue(nativeRoom.RenderBackgrounds(new(scroll, scroll)).SequenceEqual(installedRoom.RenderBackgrounds(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");
         }
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original, verifyCapturedRendering: true));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original, verifyCapturedRendering: true));
         Directory.CreateDirectory(overrides);
         string jsonPath = Path.Combine(overrides, MapScreenDefinitions.FileName);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -63,9 +63,9 @@ internal static class MapScreensVerification
             var oneEdit = AreaMapPresentationCatalog.Load(stock, overrides);
             bool room = page.Key.StartsWith("Room.", StringComparison.Ordinal);
             var area = page.Key == MapScreenDefinitions.WorldForeground ? AreaId.Crateria : Enum.Parse<AreaId>(page.Key.Split('.')[1]);
-            Rgba32[] before = room ? new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original).RenderFrameOnly()
+            Rgba32[] before = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: original).RenderFrameOnly()
                 : World(guard, original, (int)area).RenderBackgrounds();
-            Rgba32[] after = room ? new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: oneEdit).RenderFrameOnly()
+            Rgba32[] after = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: oneEdit).RenderFrameOnly()
                 : World(guard, oneEdit, (int)area).RenderBackgrounds();
             AssertTrue(!before.SequenceEqual(after), $"independent {page.Key} JSON edit reaches its composed pixels");
         }
@@ -77,14 +77,14 @@ internal static class MapScreensVerification
         var worldBefore = World(guard, original, (int)AreaId.Maridia);
         var worldAfter = World(guard, edited, (int)AreaId.Maridia);
         AssertTrue(!worldBefore.RenderBackgrounds().SequenceEqual(worldAfter.RenderBackgrounds()), "JSON world layer edits change composed pixels");
-        var roomBefore = new FileSelectRoomMapGraphics(guard, system, AreaId.Maridia, mapPresentation: original);
-        var roomAfter = new FileSelectRoomMapGraphics(guard, system, AreaId.Maridia, mapPresentation: edited);
+        var roomBefore = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: original);
+        var roomAfter = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: edited);
         AssertTrue(!roomBefore.RenderFrameOnly().SequenceEqual(roomAfter.RenderFrameOnly()), "JSON room frame edits change transition pixels");
         using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, worldAfter); captured.Position = 0;
         worldAfter = DebuggerObjectGraphSerializer.Deserialize<FileSelectAreaMapGraphics>(captured);
         worldAfter.BindScreens(original.Screens, original.WorldArtwork);
         AssertTrue(worldBefore.RenderBackgrounds().SequenceEqual(worldAfter.RenderBackgrounds()), "restored world replaces stale edited page without changing selected area");
-        Suite(nameof(VerifyScreenMenuRebinding), () => VerifyScreenMenuRebinding(bus, guard, original, edited));
+        Suite(nameof(VerifyScreenMenuRebinding), () => VerifyScreenMenuRebinding(original, edited));
         // Test each PNG independently: a combined edit must not mask a disconnected resource.
         File.WriteAllBytes(jsonPath, File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)));
         foreach (var atlas in new[]
@@ -143,21 +143,21 @@ internal static class MapScreensVerification
         Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons, guarded full menu, independent JSON/PNG edits, restored content and strict failures pass.");
 
         static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog catalog, int area) =>
-            new(addressSpace, area, catalog.Tiles, catalog.Palettes, catalog.Screens,
+            new(area, catalog.Tiles, catalog.Palettes, catalog.Screens,
                 catalog.WorldArtwork, catalog.Sprites);
     }
 
     /// <summary>Runs file-select transition and load phases with edited screens, then restores and rebinds the menu to stock art.</summary>
-    private static void VerifyScreenMenuRebinding(ISnesAddressSpace bus, ISnesAddressSpace guard, AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
+    private static void VerifyScreenMenuRebinding(AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
-        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var data = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
         data.MapStationBytes[(int)AreaId.Maridia] = 1;
         data.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, data);
         var slot = saves.ReadSlot(0);
-        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
-        var changed = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, edited);
+        var control = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
+        var changed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, edited);
         for (int tick = 0; tick < 104; tick++)
         {
             SnesButton input = tick == 48 ? SnesButton.Start : (ushort)0;

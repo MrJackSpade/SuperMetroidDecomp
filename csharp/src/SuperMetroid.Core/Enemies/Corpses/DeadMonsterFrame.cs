@@ -21,8 +21,8 @@ internal sealed class DeadMonsterFrame
     /// <summary>Rot transfers queued by this frame's dead-monster rows.</summary>
     internal List<VramWriteEntry> VramTransfers { get; } = [];
 
-    /// <summary>Last library-two dust sound requested by a completed sidehopper or corpse row.</summary>
-    public ushort? LastSoundEffect { get; internal set; }
+    /// <summary>The dust sound requested by a completed sidehopper or corpse row this frame, or null.</summary>
+    public SoundEffectId? LastSoundEffect { get; internal set; }
 
     /// <summary>Drops this frame's transfers and sound request.</summary>
     internal void Clear()
@@ -33,19 +33,18 @@ internal sealed class DeadMonsterFrame
 
     /// <summary>Reads a word from the bank-$A9 corpse work area using a word index.</summary>
     internal ushort ReadWorkWord(int wordOffset) =>
-        _room.Scratch.CorpseTiles.ReadWord(wordOffset * 2);
+        _room.Staging.CorpseTiles.ReadWord(wordOffset * 2);
 
     /// <summary>Writes a word into the corpse work area using the same word indexing as native rot tables.</summary>
     internal void WriteWorkWord(int wordOffset, ushort value) =>
-        _room.Scratch.CorpseTiles.WriteWord(wordOffset * 2, value);
+        _room.Staging.CorpseTiles.WriteWord(wordOffset * 2, value);
 
-    /// <summary>Appends the source, size, and destination of each rot DMA record in a compiled transfer table.</summary>
-    internal void AppendVramTransfers(ushort vramTablePointer)
+    /// <summary>Appends the source, size, and destination of each rot DMA record of a corpse's upload list.</summary>
+    internal void AppendVramTransfers(DeadMonsterRottingDefinitions.TransferRows transfers)
     {
-        foreach (DeadMonsterVramTransferDefinition record in
-                 DeadMonsterRottingDefinitions.ForTransferTable(vramTablePointer))
+        foreach (DeadMonsterVramTransferDefinition record in transfers)
             VramTransfers.Add(new VramWriteEntry(
-                record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
+                record.SizeInBytes, record.SourceAddress, record.Destination));
     }
 
     /// <summary>
@@ -67,6 +66,7 @@ internal sealed class DeadMonsterFrame
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 3);
+        if (LastSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 3);
     }
 }

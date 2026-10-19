@@ -34,7 +34,7 @@ internal static class IntroCinematicSpriteCompiler
                 (part.FlipY ? SnesTileFlipFlags.Vertical : 0);
             compiled[index] = new CompiledSpritePart(
                 SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
-                unchecked((byte)(sbyte)part.OffsetY),
+                new SnesSpritemapYByte(unchecked((byte)part.OffsetY)),
                 SnesObjAttributeWord.Create(
                     part.TileRow * TileColumns + part.TileColumn,
                     part.Palette ?? 0, part.Priority, flips),

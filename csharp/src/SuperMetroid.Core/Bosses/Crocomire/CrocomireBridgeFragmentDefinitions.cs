@@ -22,16 +22,11 @@ internal static class CrocomireBridgeFragmentDefinitions
 
     /// <summary>$A4:9156-$916B cover eleven floor columns beginning at X$0710 with16-pixel spacing.</summary>
     private const int FirstColumnX = 0x0710;
-    /// <summary>Returns the authored X position selected by an even native byte cursor.</summary>
-    internal static ushort XPosition(ushort byteOffset)
-    {
-        if ((byteOffset & 1) != 0 || byteOffset >= AuthoredCrumbleColumnOrder.Length * 2)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(byteOffset), byteOffset,
-                "Crocomire bridge-fragment offset must be even and zero through twenty.");
-        }
 
-        return (ushort)(FirstColumnX + 16 * (AuthoredCrumbleColumnOrder[byteOffset >> 1] - 1));
-    }
+    /// <summary>The number of bridge fragments the collapse launches, one per authored column.</summary>
+    internal const int FragmentCount = 11;
+
+    /// <summary>Returns the authored X position of the <paramref name="fragment"/>th fragment the collapse launches.</summary>
+    internal static ushort XPosition(int fragment) =>
+        (ushort)(FirstColumnX + 16 * (AuthoredCrumbleColumnOrder[Ensure.BetweenInclusive(0, FragmentCount - 1, fragment)] - 1));
 }

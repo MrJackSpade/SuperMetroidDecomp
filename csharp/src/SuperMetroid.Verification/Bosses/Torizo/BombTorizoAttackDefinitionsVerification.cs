@@ -19,7 +19,6 @@ internal static class BombTorizoAttackDefinitionsVerification
         const int swipeYAddress = 0x86a74e;
         const int explosionXAddress = 0x86a859;
         const int explosionYAddress = 0x86a865;
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort index = 0; index < 11; index++)
         {
@@ -64,7 +63,7 @@ internal static class BombTorizoAttackDefinitionsVerification
             Offset16<RoomPixels> expected =
                 BombTorizoAttackDefinitions.Swipe(parameter);
             (RoomEnemySystem enemies, RoomEnemySlot torizo) =
-                CreateBombTorizoAttackFixture(guarded, facingRight);
+                CreateBombTorizoAttackFixture(facingRight);
             enemies.BombTorizoBehavior.SpawnBombTorizoExplosiveSwipe(torizo, parameter);
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
 
@@ -85,7 +84,7 @@ internal static class BombTorizoAttackDefinitionsVerification
                 Offset16<RoomPixels> expected =
                     BombTorizoAttackDefinitions.LowHealthExplosion(parameter, facingRight);
                 (RoomEnemySystem enemies, RoomEnemySlot torizo) =
-                    CreateBombTorizoAttackFixture(guarded, facingRight);
+                    CreateBombTorizoAttackFixture(facingRight);
                 enemies.BombTorizoBehavior.SpawnBombTorizoLowHealthExplosion(torizo, parameter);
                 RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
 
@@ -115,11 +114,10 @@ internal static class BombTorizoAttackDefinitionsVerification
 
     /// <summary>Creates a Torizo at a fixed room position with the requested facing bit.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Torizo)
-        CreateBombTorizoAttackFixture(ISnesAddressSpace bus, bool facingRight)
+        CreateBombTorizoAttackFixture(bool facingRight)
     {
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;

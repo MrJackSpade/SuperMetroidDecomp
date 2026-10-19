@@ -32,15 +32,15 @@ public static class SamusGroundedMovement
     /// word and platform art; this method translates the complete Samus-side consumer.
     /// </remarks>
     public static BlockMoveResult? StepFacingForward(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         bool elevatorIsMoving = false,
         RoomPlmSystem? plms = null,
         bool publishDoorSideEffects = true)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
@@ -56,13 +56,13 @@ public static class SamusGroundedMovement
             // downward mover with `$12.$14 = 0001.0000`. That entry deliberately skips
             // solid-enemy collision but retains ordinary room-block/BTS scanning and the
             // alternating left/right order selected from accepted-NMI parity.
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = (nmiFrameCounter & 1) == 0, IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
+            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = (nmiFrameCounter & 1) == 0, IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
         }
 
         // `$90:A3A8` is the only write in the ordinary no-elevator path. In particular,
         // stale base/extra X speed is retained; MakeSamusFaceForward clears those words at
         // setup time, not every frame in this movement dispatcher.
-        samus.SolidVerticalCollisionResult = 0;
+        samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
         return vertical;
     }
 
@@ -71,14 +71,14 @@ public static class SamusGroundedMovement
     /// <c>$90:A383</c> for the right-facing $01/$03/$05/$07 family.
     /// </summary>
     public static GroundedMovementResult StepStandingRight(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerInput,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose))
@@ -95,12 +95,12 @@ public static class SamusGroundedMovement
         // total-X speed before collision; do not skip it merely because a freshly spawned
         // standing Samus normally has zero base/extra speed.
         var requestedHorizontal = SamusHorizontalDisplacement.Right(samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -109,7 +109,7 @@ public static class SamusGroundedMovement
         // $90:A3A7-$90:A3D7 cancels speed boost and clears extra speed, base speed, and
         // acceleration mode after both movement calls. Speed-booster bookkeeping itself is
         // outside this no-equipment slice, but these five WRAM words are exact and live.
-        speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+        speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -118,14 +118,14 @@ public static class SamusGroundedMovement
     /// $02/$04/$06/$08 family.
     /// </summary>
     public static GroundedMovementResult StepStandingLeft(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerInput,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose))
@@ -142,19 +142,19 @@ public static class SamusGroundedMovement
         // base argument is zero. That distinction matters if a future translated source
         // contributes extra displacement; keep it correct now instead of aliasing right.
         var requestedHorizontal = SamusHorizontalDisplacement.Left(samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
             plms);
 
         // Standing's post-movement cleanup is direction-independent.
-        speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+        speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -171,14 +171,14 @@ public static class SamusGroundedMovement
     /// $09/$0D/$0F/$11 right-moving family in dry air, including ordinary Dash.
     /// </summary>
     public static GroundedMovementResult StepRunningRight(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerInput = SnesButton.None,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose))
@@ -208,19 +208,19 @@ public static class SamusGroundedMovement
         // modes zero and two obey the pose's direction byte, while every other nonzero
         // value reverses it. Mode one is therefore not an invalid running state; it is the
         // one-frame-old momentum that can survive a pose transition into this body.
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Running);
+        uint baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Running);
         bool movesLeft = speed.AccelerationMode is not (0 or 2);
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(movesLeft, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
 
         // $90:93B1 invokes Samus_ClearXSpeedIfColl immediately after block collision. Total
         // speed deliberately remains published: the following grounding routine reads it
         // even if base speed was just cleared by a wall.
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -232,14 +232,14 @@ public static class SamusGroundedMovement
     /// Ports <c>Samus_Movement_01_Running</c> for the $0A/$0E/$10/$12 left-moving family.
     /// </summary>
     public static GroundedMovementResult StepRunningLeft(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerInput = SnesButton.None,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose))
@@ -261,15 +261,15 @@ public static class SamusGroundedMovement
         // Do not special-case mode one here. `$90:8EA9` reverses the literal pose direction
         // for every nonzero mode except two, even if another input-side transition has
         // already changed the visible running pose.
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Running);
+        uint baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Running);
         bool movesLeft = speed.AccelerationMode is 0 or 2;
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(movesLeft, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -284,13 +284,13 @@ public static class SamusGroundedMovement
     /// zero, so native runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>
     public static GroundedMovementResult StepTurningOnGround(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         bool turnsLeft = SamusPoseMetadata.IsRightToLeftGroundTurnPose(samus.Pose) ||
@@ -303,7 +303,7 @@ public static class SamusGroundedMovement
                 $"Grounded-turn movement requires a verified standing, crouched, or moonwalk turn pose, not ${(int)samus.Pose:X2}.");
         }
 
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
         if (movementType is not (SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping))
             throw new InvalidOperationException(
                 $"Grounded turn pose ${(int)samus.Pose:X2} has movement type ${(byte)movementType:X2}.");
@@ -333,18 +333,18 @@ public static class SamusGroundedMovement
         // The pose's literal `$0E` or `$17` twelve-byte speed-table record supplies the
         // deceleration. If subtraction crosses below zero,
         // $90:9B0A clears both speed halves AND mode before $90:8EA9 chooses direction.
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
+        uint baseSpeed = speed.CalculateBaseSpeed(movementType);
 
         // `$90:8EA9` reads the pose definition rather than the English-facing name. Keeping
         // the literal direction byte also preserves the cartridge's behavior for unexpected
         // nonzero acceleration-mode values instead of manufacturing another unsupported arm.
-        var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -354,7 +354,7 @@ public static class SamusGroundedMovement
         // without the Speed Booster item: `$91:F8D3` folded the numeric extra component but
         // deliberately left `$0B3C` set until this movement handler. Then `$90:A689-$A68C`
         // perform the separately observable zero writes to the two extra-speed words.
-        speed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+        speed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         return new GroundedMovementResult(horizontal, vertical);
@@ -365,17 +365,17 @@ public static class SamusGroundedMovement
     /// `$49/$4A/$75-$78`, including the complete shared extra-run-speed prepass.
     /// </summary>
     public static GroundedMovementResult StepMoonwalking(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) ||
-            samus.PoseMetadata.ReadMovementType(bus) != SamusMovementType.Moonwalking)
+            samus.PoseMetadata.ReadMovementType() != SamusMovementType.Moonwalking)
         {
             throw new InvalidOperationException(
                 $"Moonwalking movement requires pose $49/$4A/$75-$78, not ${(int)samus.Pose:X2}.");
@@ -398,16 +398,16 @@ public static class SamusGroundedMovement
         // Type `$10` has its own twelve-byte speed record. Its pose-X bytes intentionally
         // produce travel opposite the visible facing; mode one reverses that byte just as it
         // does for every other family. Do not derive either direction from the pose's name.
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Moonwalking);
-        var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        uint baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Moonwalking);
+        var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         // `$90:A69A` is the same no-speed-calculation grounding probe used by running.
         // It deliberately scales the downward probe by the total horizontal magnitude.
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -420,17 +420,17 @@ public static class SamusGroundedMovement
     /// `$89/$8A/$CF-$D2` in the block-only dry-room slice.
     /// </summary>
     public static GroundedMovementResult StepRanIntoWall(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SamusPoseMetadata.IsRanIntoWallPose(samus.Pose) ||
-            samus.PoseMetadata.ReadMovementType(bus) != SamusMovementType.RanIntoWall)
+            samus.PoseMetadata.ReadMovementType() != SamusMovementType.RanIntoWall)
         {
             throw new InvalidOperationException(
                 $"Ran-into-wall movement requires pose $89/$8A/$CF-$D2, not ${(int)samus.Pose:X2}.");
@@ -442,16 +442,16 @@ public static class SamusGroundedMovement
         // comes from the literal pose definition: `$89/$CF/$D1` store eight (right), while
         // `$8A/$D0/$D2` store four (left). Extra speed is included in the requested move
         // before the handler's unconditional cleanup, matching the native call order.
-        var requestedHorizontal = SamusHorizontalDisplacement.Toward(samus.PoseMetadata.IsFacingLeft(bus), samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        var requestedHorizontal = SamusHorizontalDisplacement.Toward(samus.PoseMetadata.IsFacingLeft(), samus, baseSpeed: 0);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         // The one-or-more-pixel downward grounding probe runs before all X words are
         // cleared. This preserves the same ledge behavior as `$90:A762` even though the
         // ordinary wall-stop state normally begins with zero speed.
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -460,7 +460,7 @@ public static class SamusGroundedMovement
         // `$90:A766-$A77F` cancels speed boost and clears both run/base components plus
         // acceleration mode on every frame. The speed-booster counters themselves remain
         // outside this slice; the five movement words are exact and debugger-visible.
-        speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+        speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -472,13 +472,13 @@ public static class SamusGroundedMovement
     /// command `$F8` returns to pose `$01/$02`.
     /// </summary>
     public static GroundedMovementResult StepLanding(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         // Do not duplicate the pose list here. The predicates are the single audited definition
@@ -493,19 +493,19 @@ public static class SamusGroundedMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
             plms);
-        speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+        speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         // Landing art still uses native standing movement: it does not reset Y words.
         // Collision command five owns landing cleanup; a later hurt expiry may write
         // direction two while this pose remains active, and that value must survive.
@@ -520,23 +520,23 @@ public static class SamusGroundedMovement
     /// invent another knockback arc or silently reinterpret the hurt body as standing.
     /// </summary>
     public static BlockMoveResult StepKnockbackOrCrystalFlashEnding(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        if (samus.PoseMetadata.ReadMovementType(bus) != SamusMovementType.Knockback)
+        if (samus.PoseMetadata.ReadMovementType() != SamusMovementType.Knockback)
         {
             throw new InvalidOperationException(
                 $"Knockback-ending movement requires type $0A, not pose ${(int)samus.Pose:X2}.");
         }
 
         return RunNoSpeedCalculationGroundingProbe(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -548,10 +548,10 @@ public static class SamusGroundedMovement
     /// replacement path and its asymmetric positive one-pixel bias.
     /// </summary>
     internal static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
@@ -561,7 +561,7 @@ public static class SamusGroundedMovement
         // $94:9763 alternates its left-to-right and right-to-left horizontal scan order on
         // the low bit of the accepted-NMI word. That parity can affect which simultaneous
         // collision side effect wins, so it remains an explicit input even in this slice.
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
     }
 
 }

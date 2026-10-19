@@ -41,7 +41,7 @@ internal sealed class QuicksandPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = blockIndex;

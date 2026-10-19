@@ -45,7 +45,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual((ushort)0xff73, windows[100], "right beam lower apex accumulates before writing");
         AssertEqual((ushort)0xff9e, windows[143], "first indirect run last row");
         AssertEqual((ushort)0xffa3, windows[144], "second right run preserves native EC table offset");
-        AssertTrue(windows[..32].All(word => word == MotherBrainBeamRomData.EmptyWindow),
+        AssertTrue(windows.Take(32).All(word => word == MotherBrainBeamRomData.EmptyWindow),
             "rainbow window excludes HUD");
         Step();
         AssertEqual((ushort)31, beam.Color, "first cycling frame reads entry zero");

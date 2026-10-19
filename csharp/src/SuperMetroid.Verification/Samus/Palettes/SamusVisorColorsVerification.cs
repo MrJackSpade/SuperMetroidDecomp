@@ -20,6 +20,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Checks installed Samus visor RGB5 colors through room and X-ray palette cycles.</summary>
 internal static class SamusVisorColorsVerification
@@ -88,10 +89,10 @@ internal static class SamusVisorColorsVerification
         var guarded = NewForbiddenVisorColorBus(rom);
         for (int frame = 0; frame < 32; frame++)
         {
-            byte sourceOffset = native.PaletteByteOffset;
-            native.Update(rom, nativeCgram, 0,
+            int sourceOffset = native.PaletteByteOffset;
+            native.Update(nativeCgram, 0,
                 LayerBlendingConfiguration.VisorBackdrop28);
-            installed.Update(guarded, installedCgram, 0,
+            installed.Update(installedCgram, 0,
                 LayerBlendingConfiguration.VisorBackdrop28);
             // `$91:D864` reloads the expired countdown to the frame delay only on the call
             // that writes a color; countdown calls leave it below that delay.
@@ -101,7 +102,7 @@ internal static class SamusVisorColorsVerification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusVisorColorFormat.SourceAddress + sourceOffset), installedCgram.Colors[196],
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
-            AssertEqual(native.PackedTimerIndex, installed.PackedTimerIndex,
+            AssertEqual((native.Timer, native.PaletteByteOffset), (installed.Timer, installed.PaletteByteOffset),
                 $"room visor frame {frame} timer and index");
             AssertEqual(nativeCgram.Colors[196], installedCgram.Colors[196],
                 $"room visor frame {frame} CGRAM");
@@ -114,9 +115,9 @@ internal static class SamusVisorColorsVerification
     private static void VerifyInstalledXrayVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
     {
-        var native = CreateXraySamus(rom);
+        var native = CreateXraySamus();
         native.Xray.PresentationColors = ReadOriginalVisorColors(rom);
-        var installed = CreateXraySamus(rom);
+        var installed = CreateXraySamus();
         installed.Xray.PresentationColors = catalog;
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
@@ -127,9 +128,9 @@ internal static class SamusVisorColorsVerification
         {
             // This fixture enters the full-beam stage immediately before call 11;
             // native $91:DCEA restarts that stage at color byte offset six.
-            ushort sourceOffset = call == 11 ? (ushort)6 : native.Xray.SpecialPaletteFrame;
-            bool expected = native.Xray.UpdatePalette(rom, nativeCgram, native.EquippedItems);
-            bool actual = installed.Xray.UpdatePalette(guarded, installedCgram, installed.EquippedItems);
+            ushort sourceOffset = call == 11 ? (ushort)6 : checked((ushort)native.Xray.SpecialPaletteFrame);
+            bool expected = native.Xray.UpdatePalette(nativeCgram, native.EquippedItems);
+            bool actual = installed.Xray.UpdatePalette(installedCgram, installed.EquippedItems);
             if (expected)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusVisorColorFormat.SourceAddress + sourceOffset), installedCgram.Colors[196],
                     $"X-ray visor call {call} matches native color word");
@@ -143,8 +144,8 @@ internal static class SamusVisorColorsVerification
         for (int call = 0; call < 11; call++) Compare(call); // Widening colors 0, 2, 4.
         for (int stage = 0; stage < 36; stage++)
         {
-            native.Xray.StepBeam(rom, native, SnesButton.B);
-            installed.Xray.StepBeam(rom, installed, SnesButton.B);
+            native.Xray.StepBeam(native, SnesButton.B);
+            installed.Xray.StepBeam(installed, SnesButton.B);
         }
         AssertEqual(XrayBeamPhase.Full, native.Xray.BeamPhase,
             "X-ray reaches full-beam palette cycle after native setup and widening");
@@ -152,16 +153,16 @@ internal static class SamusVisorColorsVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed X-ray cycle does not read visor ROM table");
     }
     /// <summary>Initializes a standing Samus actor and enters the stock X-ray beam sequence.</summary>
-    private static SamusState CreateXraySamus(ISnesAddressSpace rom)
+    private static SamusState CreateXraySamus()
     {
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
         };
-        samus.PoseMetadata.RefreshCollisionRadii(rom);
-        samus.Presentation.InitializeAnimation(rom);
-        AssertTrue(samus.Xray.TryBegin(rom, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "stock X-ray setup is accepted");
         return samus;
     }
@@ -185,13 +186,11 @@ internal static class SamusVisorColorsVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
-        {
-            Artwork = { MapPresentation = edited },
-        };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         SamusState runtimeSamus = runtime.Player.Samus ??
@@ -202,15 +201,15 @@ internal static class SamusVisorColorsVerification
         var visor = new SamusVisorPaletteState { PresentationColors = edited.SamusVisorColors };
         var cgram = new SnesCgram();
         var guarded = NewForbiddenVisorColorBus(new TestAddressSpace());
-        _ = visor.Update(guarded, cgram, 0, LayerBlendingConfiguration.VisorBackdrop28);
+        _ = visor.Update(cgram, 0, LayerBlendingConfiguration.VisorBackdrop28);
         AssertEqual(edited.SamusVisorColors.Resolve(3), cgram.Colors[196],
             "edited visor color reaches room-cycle CGRAM");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "edited visor color avoids native table");
-        SamusState xraySamus = CreateXraySamus(rom);
+        SamusState xraySamus = CreateXraySamus();
         xraySamus.Xray.PresentationColors = edited.SamusVisorColors;
         var xrayCgram = new SnesCgram();
         var guardedXray = NewForbiddenVisorColorBus(rom);
-        AssertTrue(xraySamus.Xray.UpdatePalette(guardedXray, xrayCgram, xraySamus.EquippedItems),
+        AssertTrue(xraySamus.Xray.UpdatePalette(xrayCgram, xraySamus.EquippedItems),
             "edited X-ray widening cycle writes CGRAM");
         AssertEqual(edited.SamusVisorColors.Resolve(0), xrayCgram.Colors[196],
             "edited visor color reaches X-ray CGRAM");

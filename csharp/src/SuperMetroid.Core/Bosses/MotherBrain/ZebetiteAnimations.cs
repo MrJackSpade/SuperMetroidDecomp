@@ -19,7 +19,7 @@ internal static class ZebetiteAnimations
     /// The program for a barrier's form and health: large or split, then one tier for each 200 health below 1000,
     /// the last covering everything under 200.
     /// </summary>
-    internal static ZebetiteProgram HealthProgram(bool linkedPair, ushort health)
+    internal static ZebetiteProgram HealthProgram(bool linkedPair, int health)
     {
         int tier = health < 200 ? 4 :
             health < 400 ? 3 :

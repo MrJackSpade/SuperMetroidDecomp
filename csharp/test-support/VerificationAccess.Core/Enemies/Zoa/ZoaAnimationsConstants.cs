@@ -13,5 +13,5 @@ internal static class ZoaAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params ZoaProgram[] programs) =>
         programs.SelectMany(program => ZoaAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => ZoaFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => ZoaFrameToolingDefinitions.Spritemap(step.Frame));
 }

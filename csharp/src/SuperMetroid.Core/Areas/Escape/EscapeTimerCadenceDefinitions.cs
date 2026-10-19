@@ -25,7 +25,7 @@ internal static class EscapeTimerCadenceDefinitions
     /// floor, split each quarter with its odd unit first, then difference a fractional
     /// accumulator at consecutive frames. No sampled per-frame corrections are stored.
     /// </summary>
-    internal static byte Centiseconds(ushort nmiFrameCounter)
+    internal static byte Centiseconds(int nmiFrameCounter)
     {
         int frame = nmiFrameCounter & (PeriodFrames - 1);
         int quarterFrames = PeriodFrames / QuarterCount;

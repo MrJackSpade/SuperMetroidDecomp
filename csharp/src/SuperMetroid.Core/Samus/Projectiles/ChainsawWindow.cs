@@ -66,8 +66,10 @@ internal sealed class ChainsawWindow
                 SamusProjectileRomData.Instructions.AnimationRecordByteCount));
         ChainsawWindowRegisters.StoreProjectileIndexedWord(slot.NativeByteIndex, inheritedY);
 
-        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.Variable, sharedProjectiles.PowerBombExplosion.Flag);
-        slot.Variable = fuse.Timer;
+        // The misaligned callback runs the Power Bomb fuse over the shot's multipurpose
+        // variable word, so the fuse countdown is read from and written back to that word.
+        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(NativeCountdown.FromRaw(checked((ushort)slot.Variable)), sharedProjectiles.PowerBombExplosion.IsArmed);
+        slot.Variable = fuse.Timer.RawValue;
         if (fuse.FastAnimation)
             slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
 
@@ -89,6 +91,6 @@ internal sealed class ChainsawWindow
             reactions,
             roomPlms,
             samus.LiquidPhysics.AreaIndex,
-            slot.Type);
+            slot.PackedType.Raw);
     }
 }

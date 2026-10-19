@@ -18,14 +18,17 @@ public sealed class MaridiaElevatubeRoomMainState
     /// <summary>Whether the selected room state names main routine $8F:E2B6.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Native RoomMainASMVar2: whole-pixel half of the tube's tracked position.</summary>
-    public ushort Position { get; private set; }
+    /// <summary>
+    /// The tube's tracked room position at X zero: its whole Y pixels, whose subpixels the shared room-main scratch
+    /// carries, wrapping at 16 bits as the cartridge's word does.
+    /// </summary>
+    public Position16<RoomPixels> TrackedPosition { get; private set; }
 
-    /// <summary>Native RoomMainASMVar3: signed 8.8 vertical velocity.</summary>
-    public ushort Velocity { get; private set; }
+    /// <summary>The tube's signed 8.8 vertical velocity in room pixels per update.</summary>
+    public SnesSignedEightEight Velocity { get; private set; }
 
-    /// <summary>Native RoomMainASMVar4: signed 8.8 acceleration.</summary>
-    public ushort Acceleration { get; private set; }
+    /// <summary>The tube's signed 8.8 vertical acceleration in room pixels per update per update.</summary>
+    public SnesSignedEightEight Acceleration { get; private set; }
 
     /// <summary>
     /// Selects whether $E2B6 owns this room. Room loading leaves the room-main words as they
@@ -39,9 +42,9 @@ public sealed class MaridiaElevatubeRoomMainState
         EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromSouth);
         Ensure.NotNull(samus);
         // $8F:E272 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
-        Position = MaridiaElevatubeRomData.SouthStartingPosition;
-        Velocity = MaridiaElevatubeRomData.SouthStartingVelocity;
-        Acceleration = MaridiaElevatubeRomData.SouthAcceleration;
+        TrackedPosition = new(0, MaridiaElevatubeRomData.SouthStartingPosition);
+        Velocity = new(MaridiaElevatubeRomData.SouthStartingVelocity);
+        Acceleration = new(MaridiaElevatubeRomData.SouthAcceleration);
         samus.ScriptLocks.SetStationaryScriptControlLock(true);
     }
 
@@ -51,9 +54,9 @@ public sealed class MaridiaElevatubeRoomMainState
         EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromNorth);
         Ensure.NotNull(samus);
         // $8F:E297 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
-        Position = MaridiaElevatubeRomData.NorthStartingPosition;
-        Velocity = MaridiaElevatubeRomData.NorthStartingVelocity;
-        Acceleration = MaridiaElevatubeRomData.NorthAcceleration;
+        TrackedPosition = new(0, MaridiaElevatubeRomData.NorthStartingPosition);
+        Velocity = new(MaridiaElevatubeRomData.NorthStartingVelocity);
+        Acceleration = new(MaridiaElevatubeRomData.NorthAcceleration);
         samus.ScriptLocks.SetStationaryScriptControlLock(true);
     }
 
@@ -74,16 +77,16 @@ public sealed class MaridiaElevatubeRoomMainState
     /// vertical collision dispatcher, then apply the cartridge's bounded acceleration.
     /// </summary>
     public BlockMoveResult? Step(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState? samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem plms,
         RoomMainScratchState scratch)
     {
         if (!IsActive)
             return null;
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(scratch);
         Ensure.NotNull(level);
         Ensure.NotNull(plms);
@@ -93,19 +96,19 @@ public sealed class MaridiaElevatubeRoomMainState
         // Native stores the whole and fractional X words separately every frame.
         activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new SnesFixedPosition(MaridiaElevatubeRomData.SamusCenterX, 0));
 
-        int displacement = SnesSixteenSixteen.FromEightEight((short)Velocity);
-        uint trackedPosition = SnesSixteenSixteen.Compose(Position, scratch.Var1);
+        int displacement = SnesSixteenSixteen.FromEightEight(Velocity.SignedRawValue);
+        uint trackedPosition = SnesSixteenSixteen.Compose(TrackedPosition.Y, scratch.Var1);
         trackedPosition = unchecked(trackedPosition + (uint)displacement);
-        Position = SnesFixedPosition.WholeOf(unchecked((int)trackedPosition));
+        TrackedPosition = new(0, SnesFixedPosition.WholeOf(unchecked((int)trackedPosition)));
         scratch.Var1 = unchecked((ushort)trackedPosition);
 
-        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, activeSamus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, IncludeSolidEnemies = false });
+        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, activeSamus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, IncludeSolidEnemies = false });
 
         // The assembly performs an unsigned range test after biasing by $0E20. This is
         // precisely the inclusive signed range -$0E20..+$0E20; a candidate outside it is
         // rejected rather than clamped, leaving the preceding velocity intact.
-        ushort candidate = unchecked((ushort)(Velocity + Acceleration));
-        ushort biased = unchecked((ushort)(candidate + MaridiaElevatubeRomData.MaximumSpeed));
+        SnesSignedEightEight candidate = new(unchecked((ushort)(Velocity.RawValue + Acceleration.RawValue)));
+        ushort biased = unchecked((ushort)(candidate.RawValue + MaridiaElevatubeRomData.MaximumSpeed));
         if (biased < MaridiaElevatubeRomData.SpeedRangeExclusiveEnd)
             Velocity = candidate;
 

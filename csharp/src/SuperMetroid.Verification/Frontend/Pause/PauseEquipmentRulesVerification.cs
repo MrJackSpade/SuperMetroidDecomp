@@ -38,7 +38,7 @@ internal static class PauseEquipmentRulesVerification
         for (int item = 0; item < count; item++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + item * 2);
-            AssertEqual(expected, PauseEquipmentRules.Mask(category, item), "original native upgrade flag case");
+            AssertEqual(expected, PauseEquipmentRules.Mask(category, item).ToNativeWord(), "original native upgrade flag case");
         }
         foreach (int item in new[] { int.MinValue, -1, count, 256, int.MaxValue }) CheckRejected(category, item, "item");
         foreach (PauseEquipmentCategory invalid in new[] { PauseEquipmentCategory.Reserves, (PauseEquipmentCategory)4, (PauseEquipmentCategory)byte.MaxValue })
@@ -73,7 +73,7 @@ internal static class PauseEquipmentRulesVerification
         {
             int expected = Array.IndexOf(original, (ushort)(word & nativeMask));
             AssertTrue(expected >= 0, "native masked input has a table match");
-            AssertEqual(expected, PauseEquipmentRules.WireframeIndex((ushort)word), "complete native wireframe selection domain");
+            AssertEqual(expected, PauseEquipmentRules.WireframeIndex((SamusEquipmentFlags)((ushort)word)), "complete native wireframe selection domain");
         }
     }
 
@@ -88,45 +88,46 @@ internal static class PauseEquipmentRulesVerification
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         {
             var definition = PauseEquipmentCategories.Get(category);
-            ushort[] masks = Enumerable.Range(0, definition.ItemCount)
+            PauseEquipmentBit[] masks = Enumerable.Range(0, definition.ItemCount)
                 .Select(item => PauseEquipmentRules.Mask(category, item)).ToArray();
             for (int item = 0; item < masks.Length; item++)
             {
-                var samus = Inventory(category, masks[item]);
+                var samus = Inventory(masks[item]);
                 var pause = Create(samus);
                 EnterPauseEquipment(pause);
                 AssertEqual((category, item), (pause.SelectedCategory, pause.SelectedItem), "single owned upgrade selects its actual native menu entry");
                 pause.Step(0, SnesButton.A);
-                AssertEqual((ushort)0, category == PauseEquipmentCategory.Beams ? samus.EquippedBeams : samus.EquippedItems, "A toggles exactly the compiled upgrade bit off");
+                AssertEqual(default(PauseEquipmentBit), new PauseEquipmentBit(samus.EquippedBeams, samus.EquippedItems), "A toggles exactly the compiled upgrade bit off");
                 pause.Step(0, 0); pause.Step(0, SnesButton.A);
-                AssertEqual(masks[item], category == PauseEquipmentCategory.Beams ? samus.EquippedBeams : samus.EquippedItems, "A toggles exactly the compiled upgrade bit on");
-                AssertEqual(masks[item], category == PauseEquipmentCategory.Beams ? samus.CollectedBeams : samus.CollectedItems, "menu toggle cannot change collection");
+                AssertEqual(masks[item], new PauseEquipmentBit(samus.EquippedBeams, samus.EquippedItems), "A toggles exactly the compiled upgrade bit on");
+                AssertEqual(masks[item], new PauseEquipmentBit(samus.CollectedBeams, samus.CollectedItems), "menu toggle cannot change collection");
             }
             for (int subset = 0; subset < 1 << masks.Length; subset++)
             {
-                ushort owned = 0;
-                for (int item = 0; item < masks.Length; item++) if ((subset & (1 << item)) != 0) owned |= masks[item];
-                var pause = Create(Inventory(category, owned));
-                int expected = Array.FindIndex(masks, mask => (mask & owned) != 0);
+                PauseEquipmentBit owned = default;
+                for (int item = 0; item < masks.Length; item++)
+                    if ((subset & (1 << item)) != 0) owned = new(owned.Beam | masks[item].Beam, owned.Item | masks[item].Item);
+                var pause = Create(Inventory(owned));
+                int expected = Array.FindIndex(masks, mask => mask.IsSetIn(owned.Beam, owned.Item));
                 AssertEqual(expected < 0 ? (PauseEquipmentCategory.Reserves, 0) : (category, expected), (pause.SelectedCategory, pause.SelectedItem), "all category subsets retain first-owned selection");
             }
         }
         // `$82:9142` runs EquipmentScreenMain before the Start handler, so an A press in the
         // frame that unpauses still toggles the item. The 13% movie unequips the Speed Booster
         // with Start+A this way.
-        ushort speedBooster = PauseEquipmentRules.Mask(PauseEquipmentCategory.Boots, 2);
-        var unpausing = Inventory(PauseEquipmentCategory.Boots, speedBooster);
+        PauseEquipmentBit speedBooster = PauseEquipmentRules.Mask(PauseEquipmentCategory.Boots, 2);
+        var unpausing = Inventory(speedBooster);
         var startAndA = Create(unpausing);
         EnterPauseEquipment(startAndA);
         AssertEqual((PauseEquipmentCategory.Boots, 2), (startAndA.SelectedCategory, startAndA.SelectedItem), "the Speed Booster is selected");
         AssertTrue(startAndA.Step(SnesButton.Start, SnesButton.A), "Start unpauses");
-        AssertEqual((ushort)0, unpausing.EquippedItems, "the same frame's A still unequips the Speed Booster");
+        AssertEqual(SamusEquipmentFlags.None, unpausing.EquippedItems, "the same frame's A still unequips the Speed Booster");
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             PauseMenuRomData.EquipmentSetTable + index * 2)).ToArray();
         Suite(nameof(VerifyPauseWireframeSelection), () => VerifyPauseWireframeSelection(bus));
-        foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | (ushort)SamusEquipmentFlags.GravitySuit) }))
+        foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | SamusEquipmentFlags.GravitySuit.ToNativeWord()) }))
         {
-            var pause = Create(new SamusState { EquippedItems = items, CollectedItems = items }); EnterPauseEquipment(pause);
+            var pause = Create(new SamusState { EquippedItems = (SamusEquipmentFlags)items, CollectedItems = (SamusEquipmentFlags)items }); EnterPauseEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.EquipmentTilemapPatchPointerTable + variant * 2);
             var memory = pause.CaptureRenderSnapshot().Memory;
@@ -141,7 +142,7 @@ internal static class PauseEquipmentRulesVerification
         foreach (var scenario in new[] { (Health: 20, Reserve: 10), (Health: 98, Reserve: 10), (Health: 99, Reserve: 1) })
         {
             var samus = new SamusState { Health = (ushort)scenario.Health, MaxHealth = 99, ReserveEnergy = (ushort)scenario.Reserve,
-                MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = (ushort)SamusBeamFlags.Charge };
+                MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
             var pause = Create(samus); EnterPauseEquipment(pause);
             pause.Step(0, SnesButton.Up); pause.Step(0, SnesButton.Down);
             AssertEqual((PauseEquipmentCategory.Reserves, 1), (pause.SelectedCategory, pause.SelectedItem), "manual transfer fixture reaches reserve dispatcher");
@@ -157,11 +158,10 @@ internal static class PauseEquipmentRulesVerification
         }
         Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");
         // Create a pause menu backed by guarded ROM reads and the supplied Samus inventory.
-        PauseMenuState Create(SamusState samus) => new(guard, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog });
+        PauseMenuState Create(SamusState samus) => new(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog });
         // Equip exactly the collected bits in the beam or item field for a category fixture.
-        static SamusState Inventory(PauseEquipmentCategory category, ushort owned) => category == PauseEquipmentCategory.Beams
-            ? new SamusState { CollectedBeams = owned, EquippedBeams = owned }
-            : new SamusState { CollectedItems = owned, EquippedItems = owned };
+        static SamusState Inventory(PauseEquipmentBit owned) =>
+            new() { CollectedBeams = owned.Beam, EquippedBeams = owned.Beam, CollectedItems = owned.Item, EquippedItems = owned.Item };
     }
 
     /// <summary>Forbids production reads of migrated equipment masks, wireframe masks, and reserve-transfer rate.</summary>

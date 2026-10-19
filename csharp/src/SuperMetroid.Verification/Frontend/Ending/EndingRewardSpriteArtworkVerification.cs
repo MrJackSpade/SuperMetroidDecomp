@@ -70,7 +70,7 @@ internal static class EndingRewardSpriteArtworkVerification
                 EndingRewardSpritePresentation.Write(output, document);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             var audio = new CartridgeAudioState();
-            var scene = CreateRetailEndingFixture(guard, audio, 2, 0);
+            var scene = CreateRetailEndingFixture(audio, 2, 0);
             scene.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
                 CreditsPresentationExtractor.Extract(
                     SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")))));

@@ -50,13 +50,11 @@ internal static class LookupElevatubeVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             bool owned = raw == 0xb8f2 || controls.Contains((ushort)raw);
-            AssertEqual(owned, MaridiaElevatubePlmDefinitions.TryReadMechanicsWord((ushort)raw, out ushort value), "Elevatube complete word domain");
+            AssertEqual(owned, MaridiaElevatubePlmDefinitionsConstants.TryReadMechanicsWord((ushort)raw, out ushort value), "Elevatube complete word domain");
             if (!owned) AssertEqual((ushort)0, value, "Elevatube missing word zero");
             else if (draw == (raw == 0xb8f2))
             {
                 AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | raw), value, "Elevatube native program field");
-                AssertTrue(RoomPlmProgramDefinitions.TryReadWord((ushort)raw, out ushort shared), "Elevatube shared reader ownership");
-                AssertEqual(value, shared, "Elevatube shared reader value");
             }
         }
     }
@@ -66,7 +64,7 @@ internal static class LookupElevatubeVerification
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            AssertEqual(raw == 0xb8f6, MaridiaElevatubePlmDefinitions.TryReadMechanicsByte((ushort)raw, out byte value), "Elevatube sole sound byte domain");
+            AssertEqual(raw == 0xb8f6, MaridiaElevatubePlmDefinitionsConstants.TryReadMechanicsByte((ushort)raw, out byte value), "Elevatube sole sound byte domain");
             AssertEqual(raw == 0xb8f6 ? ElevatubeProgramSoundRomByte(rom, 0x84b8f6) : (byte)0, value, "Elevatube native sound or missing zero");
         }
     }

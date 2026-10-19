@@ -43,7 +43,7 @@ internal static class ManagedAudioVerification
     {
         var dsp = new ManagedSnesDsp(new byte[0x10000]);
         dsp.SetSampleBank(new ManagedPcmSampleBank("live-source", 0,
-            new Dictionary<byte, ManagedPcmSample>
+            new Dictionary<int, ManagedPcmSample>
             {
                 [0] = new("positive", 32_000, Enumerable.Repeat((short)8000, 16).ToArray(), 0),
                 [1] = new("negative", 32_000, Enumerable.Repeat((short)-8000, 16).ToArray(), 0),
@@ -65,14 +65,14 @@ internal static class ManagedAudioVerification
     internal static void VerifyManagedDspUsesIndependentLoopEntry()
     {
         var dsp = new ManagedSnesDsp(new byte[65536]);
-        var sources = new Dictionary<byte, ManagedPcmSample>
+        var sources = new Dictionary<int, ManagedPcmSample>
         {
             [0] = new("initial", 32000, Enumerable.Repeat((short)8000, 16).ToArray(), 0),
             [1] = new("key-on-positive", 32000, Enumerable.Repeat((short)8000, 256).ToArray(), null),
             [2] = new("loop-entry-negative", 32000, Enumerable.Repeat((short)-8000, 256).ToArray(), null),
         };
         dsp.SetSampleBank(new ManagedPcmSampleBank("independent-loop-entry", 0, sources,
-            new Dictionary<byte, byte> { [1] = 2 }));
+            new Dictionary<int, int> { [1] = 2 }));
         ConfigureAudibleVoiceZero(dsp);
         for (int tick = 0; tick < 32; tick++) dsp.Cycle();
         dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 1);
@@ -84,13 +84,13 @@ internal static class ManagedAudioVerification
 
         var keyOn = new ManagedSnesDsp(new byte[65536]);
         keyOn.SetSampleBank(new ManagedPcmSampleBank("independent-key-on", 0, sources,
-            new Dictionary<byte, byte> { [1] = 2 }));
+            new Dictionary<int, int> { [1] = 2 }));
         ConfigureAudibleVoiceZero(keyOn, sourceNumber: 1);
         for (int tick = 0; tick < 32; tick++) keyOn.Cycle();
         AssertTrue(unchecked((sbyte)keyOn.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput)) > 0,
             "key-on uses directory start rather than its independent loop destination");
         AssertThrows<InvalidDataException>(() => new ManagedPcmSampleBank("invalid-loop", 0, sources,
-            new Dictionary<byte, byte> { [1] = 3 }), "loop aliases require a mapped destination");
+            new Dictionary<int, int> { [1] = 3 }), "loop aliases require a mapped destination");
     }
 
     /// <summary>Checks channel-local seams and within-buffer deltas without stereo separation overflow.</summary>
@@ -232,7 +232,7 @@ internal static class ManagedAudioVerification
         dsp.SetSampleBank(new ManagedPcmSampleBank(
             "constructed",
             AudioBank.SpcEngine,
-            new Dictionary<byte, ManagedPcmSample>
+            new Dictionary<int, ManagedPcmSample>
             {
                 [0] = new ManagedPcmSample("constructed-loop", 32_000, waveform, 0),
             }));
@@ -294,7 +294,7 @@ internal static class ManagedAudioVerification
         dsp.SetSampleBank(new ManagedPcmSampleBank(
             "hd-replacement",
             AudioBank.TitleSequence,
-            new Dictionary<byte, ManagedPcmSample>
+            new Dictionary<int, ManagedPcmSample>
             {
                 [0] = new ManagedPcmSample("sample-00-00", 48_000, waveform, 24),
             }));
@@ -347,7 +347,7 @@ internal static class ManagedAudioVerification
         dsp.SetSampleBank(new ManagedPcmSampleBank(
             "missing-source",
             AudioBank.SpcEngine,
-            new Dictionary<byte, ManagedPcmSample>()));
+            new Dictionary<int, ManagedPcmSample>()));
         AssertThrows<InvalidDataException>(
             () => dsp.WriteRegister(0x4c, 1),
             "managed DSP rejects an unmapped source at key-on");

@@ -13,6 +13,17 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks canonical hashes for shared gameplay palettes, sprite pixels, and X-ray visuals.</summary>
 internal static class GameplayContentIdentityVerification
 {
+    /// <summary>The fixture's first room overlay.</summary>
+    private static readonly XrayRoomOverlayDefinition FirstFixtureOverlay = new("fixture overlay one");
+
+    /// <summary>The fixture's second room overlay.</summary>
+    private static readonly XrayRoomOverlayDefinition SecondFixtureOverlay = new("fixture overlay two");
+
+    /// <summary>JSON options: Unindented output.</summary>
+    private static readonly JsonSerializerOptions CompactJson = new() { WriteIndented = false };
+    /// <summary>JSON options: Indented output.</summary>
+    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+
     /// <summary>Known shared-presentation domains only; no ROM or gameplay path discovery.</summary>
     internal static void VerifyGameplayContentIdentity()
     {
@@ -73,7 +84,7 @@ internal static class GameplayContentIdentityVerification
             Colors(GameplayBasePaletteFormat.SpriteColorCount, edit == "common"));
         GameplayBasePaletteCatalog palettes = GameplayBasePaletteCatalog.Load(new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(paletteDocument,
-                new JsonSerializerOptions { WriteIndented = edit == "json-indent" })));
+                (edit == "json-indent" ? IndentedJson : CompactJson))));
         using var png = new MemoryStream();
         var pixels = new byte[64];
         if (edit == "sprite-pixel") pixels[^1] = 1;
@@ -108,13 +119,13 @@ internal static class GameplayContentIdentityVerification
         if (edit == "xray-item") items[^1] = 1;
         XrayRoomOverlayVisual[] tiles =
         [
-            new(new(1, 2), 3),
+            new(new(1, 2), new RoomLevelWord(3)),
             new(new((byte)(edit == "overlay-x" ? 5 : 4), (byte)(edit == "overlay-y" ? 6 : 5)),
-                (ushort)(edit == "overlay-word" ? 7 : 6)),
+                new RoomLevelWord((ushort)(edit == "overlay-word" ? 7 : 6))),
         ];
         if (edit == "overlay-order") Array.Reverse(tiles);
-        (ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)[] rooms =
-            [(0x8000, tiles), (0x8002, new XrayRoomOverlayVisual[] { new(new(8, 9), 10) })];
+        (XrayRoomOverlayDefinition Overlay, IReadOnlyList<XrayRoomOverlayVisual> Tiles)[] rooms =
+            [(FirstFixtureOverlay, tiles), (SecondFixtureOverlay, new XrayRoomOverlayVisual[] { new(new(8, 9), new RoomLevelWord(10)) })];
         var overlays = XrayOverlayVisualCatalog.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
         var xray = new XrayRevealVisualCatalog(reverse ? entries.AsEnumerable().Reverse() : entries, overlays);
         return GameplayPresentationIdentity.Create(palettes, sprites, xray);

@@ -12,6 +12,6 @@ internal static class RoomScrollGridAccess
         /// loader at <c>$82:E878-$82:E889</c> copies 25 words unconditionally, so edge reads can
         /// observe data following a shorter ROM table rather than an invented zero padding.
         /// </summary>
-        internal ReadOnlySpan<byte> Storage => self._cells;
+        internal ReadOnlySpan<byte> Storage => self._storage._bytes;
     }
 }

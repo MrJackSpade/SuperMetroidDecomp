@@ -39,7 +39,7 @@ public readonly record struct NativeCountdown
         new((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, frames));
 
     /// <summary>Preserves a native countdown word exactly, for codecs, slot-word views and native projections.</summary>
-    public static NativeCountdown FromRaw(ushort rawValue) => new(rawValue);
+    public static NativeCountdown FromRaw(int rawValue) => new((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, rawValue));
 
     /// <summary>
     /// Executes one wrapping 16-bit <c>DEC</c>. Store <see cref="NativeWordCounterStep.Remaining"/> and keep

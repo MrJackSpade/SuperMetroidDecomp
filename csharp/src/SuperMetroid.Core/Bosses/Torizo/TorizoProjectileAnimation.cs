@@ -14,6 +14,6 @@ internal sealed class TorizoProjectileAnimation(TorizoProjectileProgram program)
         TorizoProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(TorizoProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(TorizoProjectileVisualDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(TorizoProjectileFrame frame) =>
+        TorizoProjectileVisualDefinitions.ShownProjectileFrames[frame];
 }

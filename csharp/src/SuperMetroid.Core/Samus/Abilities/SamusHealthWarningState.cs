@@ -10,10 +10,10 @@ public sealed class SamusHealthWarningState
     /// Executes one admitted native check. The caller owns handler admission and ordering;
     /// frozen gameplay alone is not a reason to omit the automatic-reserve external call.
     /// </summary>
-    public void Update(ushort health, CartridgeAudioState audio, bool soundSuppressed = false)
+    public void Update(int health, CartridgeAudioState audio, bool soundSuppressed = false)
     {
         Ensure.NotNull(audio);
-        bool critical = unchecked((short)(health - SamusHealthWarningRomData.HealthyThreshold)) < 0;
+        bool critical = health < SamusHealthWarningRomData.HealthyThreshold;
         if (critical == IsActive) return;
 
         // Native mutates the latch regardless of queue admission. In particular a

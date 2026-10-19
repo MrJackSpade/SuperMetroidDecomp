@@ -60,7 +60,7 @@ internal static class AudioMusicProgramsVerification
                 bank => bank.SnesAddress == AudioUploadAddresses.TitleSequence);
             int titleTrackIndex = AudioRomDataMusicTracks.Title;
             AudioMusicTrackMetadata titleTrack = title.MusicTracks[titleTrackIndex];
-            HashSet<ushort> titlePhraseAddresses = titleTrack.Instructions
+            HashSet<int> titlePhraseAddresses = titleTrack.Instructions
                 .Where(instruction => instruction.Operation == AudioMusicInstructionOperations.PlayPhrase)
                 .Select(instruction => instruction.Value)
                 .ToHashSet();

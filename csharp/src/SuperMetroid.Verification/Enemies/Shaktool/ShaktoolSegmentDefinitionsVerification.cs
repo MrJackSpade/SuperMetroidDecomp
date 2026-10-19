@@ -24,7 +24,6 @@ internal static class ShaktoolSegmentDefinitionsVerification
         Suite(nameof(VerifyShaktoolLayerSelection), () => VerifyShaktoolLayerSelection(rom));
         Suite(nameof(VerifyShaktoolCallbackSelection), () => VerifyShaktoolCallbackSelection(rom));
         Suite(nameof(VerifyShaktoolInitialAngleAlgorithm), () => VerifyShaktoolInitialAngleAlgorithm(rom));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var definitions = new ShaktoolSegmentDefinition[7];
         for (int index = 0; index < definitions.Length; index++)
         {
@@ -35,28 +34,28 @@ internal static class ShaktoolSegmentDefinitionsVerification
         }
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewShaktoolSegmentReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < definitions.Length; index++)
         {
             ShaktoolSegmentDefinition definition = definitions[index];
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
+            slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
             slot.Parameter2 = unchecked((ushort)(index * 2));
-            slot.Properties = 0x0010;
+            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x0010));
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(slot);
 
             ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
-            AssertEqual(unchecked((ushort)(0x0010 | definition.PropertyMask)),
-                slot.Properties, $"Shaktool production properties {index}");
-            AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).OwnerNativeIndex,
+            AssertEqual((ushort)(0x0010 | (ushort)definition.PropertyMask),
+                slot.Properties.ToNativeWord(), $"Shaktool production properties {index}");
+            AssertEqual(0, (state ?? throw new InvalidOperationException("Verification requires state.")).OwnerSlotIndex,
                 $"Shaktool production owner {index}");
             AssertEqual(definition.PreInstruction, state.PreInstruction,
                 $"Shaktool production callback {index}");
-            AssertEqual(definition.AngularVelocity, state.AngularVelocity,
+            AssertEqual((int)definition.AngularVelocity, state.AngularVelocity,
                 $"Shaktool production angular velocity {index}");
-            AssertEqual(definition.InitialOrbitAngle, state.OrbitAngle,
+            AssertEqual(definition.InitialOrbitAngle, state.OrbitAngle.RawValue,
                 $"Shaktool production orbit angle {index}");
             AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(definition.InitialProgram), state.Program,
                 $"Shaktool production initial list {index}");
@@ -92,7 +91,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Matches each segment's added property bits with the native lookup table.</summary>
     private static void VerifyShaktoolPropertySelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
-            definition => definition.PropertyMask, "property selection"));
+            definition => (ushort)definition.PropertyMask, "property selection"));
 
     /// <summary>Checks the initial orbit angle selected for all seven body segments.</summary>
     internal static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>
@@ -136,8 +135,4 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool {label} rejects {invalid}");
     }
 
-    /// <summary>Blocks access to the migrated native segment tables during production initialization.</summary>
-    private static CartridgeReadGuard NewShaktoolSegmentReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xaade95 and < 0xaadf05,
-            address => $"Shaktool attempted migrated segment-definition read ${address:X6}.");
 }

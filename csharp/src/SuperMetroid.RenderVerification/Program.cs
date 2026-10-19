@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
@@ -124,10 +125,10 @@ internal static class Program
                     long sequence = 0;
                     MinimapBlinkAudit.Run("Super Metroid.smc", runtime =>
                     {
-                        var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.Nmi.NmiFrameCounter),
+                        var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.Clock.Counter),
                             GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                         var pixels = renderer.RenderForReadback(packet);
-                        PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()), pixels,
+                        PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()), pixels,
                             $"{kind}: minimap blink frame {sequence}");
                         return pixels;
                     });
@@ -142,8 +143,8 @@ internal static class Program
                 {
                     using var device = new D3D11RenderDevice(kind);
                     using var renderer = new D3D11FrameRenderer(device);
-                    if (args[0] == "--reference-startup") StartupReferenceTests.Run(device, renderer, rom);
-                    else StartupReferenceTests.RunPan(device, renderer, rom);
+                    if (args[0] == "--reference-startup") StartupReferenceTests.Run(device, renderer);
+                    else StartupReferenceTests.RunPan(device, renderer);
                 }
                 return;
             }

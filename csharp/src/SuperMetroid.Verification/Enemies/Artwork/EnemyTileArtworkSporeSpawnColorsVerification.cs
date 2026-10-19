@@ -19,6 +19,9 @@ using SuperMetroid.Core.Fx;
 /// <summary>Checks installed Spore Spawn spore, health, and death colors against ROM and live current and target palettes.</summary>
 internal static class EnemyTileArtworkSporeSpawnColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares 432 native RGB5 words, edits one color per palette family, and checks production CGRAM and fade targets without source reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Spore Spawn colors")]
@@ -45,7 +48,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         byte[] stockJson = File.ReadAllBytes(file);
         SporeSpawnColorDocument visual =
             JsonSerializer.Deserialize<SporeSpawnColorDocument>(stockJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Spore Spawn color JSON is null.");
         visual.Spores[5] = ChangeRed(visual.Spores[5]);
         foreach (PaletteRgb5[] frame in visual.Health)
@@ -92,14 +95,13 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.VerificationServices().IsAreaMiniBossDefeated = (Func<bool>)(() => false);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
-        body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 };
+        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+        body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa5 });
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);

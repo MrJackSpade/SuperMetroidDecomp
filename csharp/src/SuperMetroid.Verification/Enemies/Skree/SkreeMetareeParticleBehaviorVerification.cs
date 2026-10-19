@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Skree;
 
@@ -21,8 +22,8 @@ internal static class SkreeMetareeParticleBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, SkreeMetareeParticleNativeListAddresses.Extent, "Skree/Metaree particle");
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
-        var source = new RoomEnemySlot(0)
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             VramTilesIndex = 512,

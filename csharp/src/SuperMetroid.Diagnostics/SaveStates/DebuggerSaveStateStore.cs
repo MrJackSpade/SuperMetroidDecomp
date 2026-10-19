@@ -98,10 +98,10 @@ internal sealed class DebuggerSaveStateStore
         string temporary = Path.Combine(directory, $".{Path.GetFileName(destination)}.{Guid.NewGuid():N}.tmp");
         var metadata = new DebuggerSaveStateMetadata(
             DateTimeOffset.UtcNow,
-            game.FrameNumber,
+            checked((ushort)game.FrameNumber),
             game.GameState,
-            game.GameplayActiveRoomPointer,
-            game.GameplayActiveRoomStatePointer,
+            game.GameplayActiveRoom?.Name,
+            game.GameplayActiveRoomState?.Name,
             destination);
 
         try
@@ -124,8 +124,8 @@ internal sealed class DebuggerSaveStateStore
                 writer.Write(metadata.SavedUtc.UtcTicks);
                 writer.Write(metadata.FrameNumber);
                 writer.Write((ushort)metadata.GameState);
-                WriteNullableWord(writer, metadata.RoomPointer);
-                WriteNullableWord(writer, metadata.RoomStatePointer);
+                WriteNullableString(writer, metadata.Room);
+                WriteNullableString(writer, metadata.RoomState);
                 writer.Flush();
 
                 using (var compressed = new GZipStream(stream, CompressionLevel.SmallestSize, leaveOpen: true))
@@ -192,8 +192,8 @@ internal sealed class DebuggerSaveStateStore
         DateTimeOffset savedUtc = new(reader.ReadInt64(), TimeSpan.Zero);
         ushort frame = reader.ReadUInt16();
         SuperMetroidGameState gameState = (SuperMetroidGameState)reader.ReadUInt16();
-        ushort? room = ReadNullableWord(reader);
-        ushort? roomState = ReadNullableWord(reader);
+        string? room = ReadNullableString(reader);
+        string? roomState = ReadNullableString(reader);
         using var compressed = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: true);
         DebuggerSaveStateRoot root;
         try
@@ -210,8 +210,8 @@ internal sealed class DebuggerSaveStateStore
         }
         EnsureRomMatches(root.AddressSpace);
         if (root.Game.FrameNumber != frame || root.Game.GameState != gameState ||
-            root.Game.GameplayActiveRoomPointer != room ||
-            root.Game.GameplayActiveRoomStatePointer != roomState)
+            root.Game.GameplayActiveRoom?.Name != room ||
+            root.Game.GameplayActiveRoomState?.Name != roomState)
         {
             throw new InvalidDataException(
                 "Debugger state payload does not agree with its frame/room metadata header.");
@@ -319,17 +319,17 @@ internal sealed class DebuggerSaveStateStore
         return bytes;
     }
 
-    /// <summary>Writes a room or room-state pointer as a presence byte followed by its native word.</summary>
-    private static void WriteNullableWord(BinaryWriter writer, ushort? value)
+    /// <summary>Writes a room name as a presence byte followed by the string.</summary>
+    private static void WriteNullableString(BinaryWriter writer, string? value)
     {
-        writer.Write(value.HasValue);
-        if (value.HasValue)
-            writer.Write(value.Value);
+        writer.Write(value is not null);
+        if (value is not null)
+            writer.Write(value);
     }
 
-    /// <summary>Restores an optional room pointer using the state format's presence byte.</summary>
-    private static ushort? ReadNullableWord(BinaryReader reader) =>
-        reader.ReadBoolean() ? reader.ReadUInt16() : null;
+    /// <summary>Restores an optional room or room-state name using the state format's presence byte.</summary>
+    private static string? ReadNullableString(BinaryReader reader) =>
+        reader.ReadBoolean() ? reader.ReadString() : null;
 
     /// <summary>Allows ten manual slots and one dedicated automatic slot.</summary>
     private static void ValidateSlot(int slot)

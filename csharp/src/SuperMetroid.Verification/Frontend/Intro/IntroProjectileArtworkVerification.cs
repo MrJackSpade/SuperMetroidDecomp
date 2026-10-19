@@ -23,13 +23,12 @@ internal static class IntroProjectileArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyIntroProjectileArtwork(ISnesAddressSpace bus, ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
     {
-        var intro = CreateRetailIntroFixture(bus);
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var intro = CreateRetailIntroFixture();
         intro.SetupFirstIllustratedPage();
         intro.SetupMotherBrainFlashback();
         var projectiles = intro.flashbackProjectiles;
-        var game = CreateRetailGameFixture(bus);
-        game.intro = intro;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
+        game.Session.intro = intro;
         game.GameState = SuperMetroidGameState.IntroCinematic;
         byte[] Draw(IntroCinematicState scene) => scene.PrepareMotherBrainOam().FinalizedAsOam().LowTable.ToArray();
         foreach (ushort family in new ushort[] { 0x10, 0x700 })
@@ -95,7 +94,7 @@ internal static class IntroProjectileArtworkVerification
         AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Intro snapshot excludes host appearance catalogs");
         with.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(with);
-        var restoredIntro = restored.intro;
+        var restoredIntro = restored.Session.intro;
         AssertTrue((restoredIntro ?? throw new InvalidOperationException("Verification requires restoredIntro.")).TrailArtwork is null && restoredIntro.ProjectileCompositions is null, "Restored intro requires host content rebind");
         BindRestoredIntroDrawFixture(restoredIntro);
         restored.BindArtwork(restored.Artwork with
@@ -127,7 +126,6 @@ internal static class IntroProjectileArtworkVerification
     private static void VerifyIntroTrailPng(ISnesAddressSpace bus, IntroCinematicState intro,
         SuperMetroidGame game, byte[] json, Func<IntroCinematicState, byte[]> draw, ushort sprite)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var vram = intro.vram;
         byte[] native = vram.Bytes.ToArray();
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
@@ -150,7 +148,7 @@ internal static class IntroProjectileArtworkVerification
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, game);
         saved.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(saved);
-        var restoredIntro = restored.intro;
+        var restoredIntro = restored.Session.intro;
         BindRestoredIntroDrawFixture((restoredIntro ?? throw new InvalidOperationException("Verification requires restoredIntro.")));
         foreach (var pair in new[] { (game, intro), (restored, restoredIntro) })
         {

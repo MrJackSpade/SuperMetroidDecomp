@@ -49,7 +49,7 @@ internal static class SharedSlopeHeightsVerification
                 int column = (raw & 64) != 0 ? 15 - x : x;
                 byte height = (byte)(native[(raw & 31) * 16 + column] & 31);
                 foreach (ushort origin in new ushort[] { 0, 0x1230, 0xfff0 })
-                    AssertEqual(height, SamusSlopePhysics.ReadAlignmentHeight(forbidden, bts, (ushort)(origin + x)), "Samus real mirrored sample independent of world high bits");
+                    AssertEqual(height, SamusSlopePhysics.ReadAlignmentHeight(bts, (ushort)(origin + x)), "Samus real mirrored sample independent of world high bits");
                 if ((raw & 31) < 5) continue; // Square slopes have a separate table.
                 for (ushort y = 0; y < 16; y++)
                 {

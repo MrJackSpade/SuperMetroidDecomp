@@ -22,17 +22,10 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public sealed class FileSelectMenuState
 {
-    /// <summary>Reusable OBJ layer cleared for each render; it is never part of saved menu state.</summary>
-    [NonSerialized] private Rgba32[]? objectLayerScratch;
-    /// <summary>Reusable final frame; a returned image remains valid until this scene renders again.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
-
-    /// <summary>Supplies native pose and menu data to the cartridge-backed presentation.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Receives menu sound requests when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Reads and mutates the cartridge's checksummed three-slot SRAM layout.</summary>
-    private readonly SuperMetroidSaveRam saveRam;
+    private readonly SaveSlotStore saves;
     /// <summary>Owns the menu's VRAM, CGRAM, and installed presentation assets.</summary>
     internal readonly MenuPpuState ppu;
     /// <summary>Collects border, cursor, helmets, and copy-arrow sprites for the current frame.</summary>
@@ -61,22 +54,21 @@ public sealed class FileSelectMenuState
     private string currentPresentationPage = FileSelectPresentationDefinitions.MainEmptyPage;
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
-    public FileSelectMenuState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+    public FileSelectMenuState(SaveSlotStore saves, CartridgeAudioState? audio = null,
         AreaMapPresentationCatalog? mapPresentation = null)
     {
-        this.bus = Ensure.NotNull(bus);
         this.audio = audio;
         this.mapPresentation = mapPresentation;
-        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes,
+        ppu = new MenuPpuState(mapPresentation?.Tiles, mapPresentation?.Palettes,
             mapPresentation?.WorldArtwork, mapPresentation?.Sprites,
             loadInitialBackground: mapPresentation is null);
         if (mapPresentation is not null)
             mapPresentation.FileSelect.LoadBackground(ppu.Vram);
 
-        saveRam = new SuperMetroidSaveRam(bus, mapPresentation);
+        this.saves = Ensure.NotNull(saves);
         for (int slot = 0; slot < saveSlots.Length; slot++)
-            saveSlots[slot] = saveRam.ReadSlot(slot);
-        SelectedItem = saveRam.ReadSelectedSlot();
+            saveSlots[slot] = saves.ReadSlot(slot);
+        SelectedItem = saves.ReadSelectedSlot();
 
         BuildSaveTilemap();
         new MenuVram(ppu.Vram).Bg1Tilemap.Write(bg1Tilemap);
@@ -108,9 +100,6 @@ public sealed class FileSelectMenuState
 
     /// <summary>True only on the frame in which Copy or Clear mutated cartridge SRAM.</summary>
     public bool SaveRamChangedThisFrame { get; private set; }
-
-    /// <summary>Current INIDISP brightness nibble.</summary>
-    public byte Brightness => ScreenFade.Displayed(brightness);
 
     /// <summary>
     /// True when the next update resumes a native dispatch after its internal NMI wait
@@ -208,27 +197,11 @@ public sealed class FileSelectMenuState
         }
     }
 
-    /// <summary>Composes the menu's BG2, BG1, and OBJ main-screen layers.</summary>
-    [PpuLayoutBoundary("backend: file-select software PPU composition")]
-    public Rgba32[] Render()
-    {
-        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
-        SnesBgTilemapRenderer.Composite4BppViewport(background, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
-        SnesBgTilemapRenderer.Composite4BppViewport(background, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
-
-        PrepareRenderOam();
-        Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam), ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
-        SnesLayerCompositor.Composite(background, objects);
-        ApplyBrightness(background);
-        return background;
-    }
-
     /// <summary>Captures file-menu display state after simulation-owned OAM preparation.</summary>
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         PrepareRenderOam();
-        return MenuRenderSnapshotCapture.Capture(ppu, oam, 0, Brightness);
+        return MenuRenderSnapshotCapture.Capture(ppu, oam, 0, ScreenFade.Displayed(brightness));
     }
 
     /// <summary>Builds the current border, missile, helmet, and optional copy-arrow OBJ list from menu phase.</summary>
@@ -431,26 +404,6 @@ public sealed class FileSelectMenuState
         missileAnimationTimer = mapPresentation?.FileSelect.CursorFrameDuration ?? MenuMissileAnimationDefinitions.FrameDuration;
     }
 
-    /// <summary>Applies the current INIDISP brightness fraction to RGB while preserving alpha.</summary>
-    private void ApplyBrightness(Span<Rgba32> pixels)
-    {
-        int displayed = Brightness;
-        for (int pixel = 0; pixel < pixels.Length; pixel++)
-        {
-            Rgba32 color = pixels[pixel];
-            pixels[pixel] = displayed switch
-            {
-                >= 15 => color,
-                <= 0 => new Rgba32(0, 0, 0, color.A),
-                _ => new Rgba32(
-                    (byte)(color.R * displayed / 15),
-                    (byte)(color.G * displayed / 15),
-                    (byte)(color.B * displayed / 15),
-                    color.A),
-            };
-        }
-    }
-
     /// <summary>Copy or Clear mode selected on the main page before its fade finishes.</summary>
     private FileSelectDataMode pendingDataMode;
     /// <summary>Submenu phase entered once the newly built page reaches full brightness.</summary>
@@ -622,7 +575,7 @@ public sealed class FileSelectMenuState
                 if (pressed != SnesButton.None)
                 {
                     QueueCursorSound();
-                    SelectedItem = saveRam.ReadSelectedSlot();
+                    SelectedItem = saves.ReadSelectedSlot();
                     Phase = FileSelectPhase.FadeOutToMain;
                 }
                 break;
@@ -740,15 +693,15 @@ public sealed class FileSelectMenuState
 
         if (copy)
         {
-            saveRam.CopySlot(operationSourceSlot, operationDestinationSlot);
-            saveSlots[operationDestinationSlot] = saveRam.ReadSlot(operationDestinationSlot)
+            saves.CopySlot(operationSourceSlot, operationDestinationSlot);
+            saveSlots[operationDestinationSlot] = saves.ReadSlot(operationDestinationSlot)
                 ?? throw new InvalidDataException("Copied SRAM slot failed its copied checksums.");
             BuildCopyCompletedTilemap();
             Phase = FileSelectPhase.CopyCompleted;
         }
         else
         {
-            saveRam.ClearSlot(operationSourceSlot);
+            saves.ClearSlot(operationSourceSlot);
             saveSlots[operationSourceSlot] = null;
             BuildClearCompletedTilemap();
             Phase = FileSelectPhase.ClearCompleted;
@@ -981,7 +934,6 @@ public sealed class FileSelectMenuState
         if (catalog is null)
             throw new InvalidOperationException("File-select requires installed map presentation assets.");
         mapPresentation = catalog;
-        saveRam.BindMapPresentation(catalog);
         ppu.BindWorldArtwork(catalog.WorldArtwork);
         ppu.BindMapTiles(catalog.Tiles);
         ppu.BindMapSprites(catalog.Sprites);

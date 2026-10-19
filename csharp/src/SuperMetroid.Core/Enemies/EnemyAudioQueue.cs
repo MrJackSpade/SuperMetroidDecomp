@@ -64,7 +64,7 @@ internal sealed class EnemyAudioQueue
     /// Records an already-decoded cartridge queue call without assigning host-side meaning
     /// to its numeric sound ID. The bank-$80 queue remains the sole owner of arbitration.
     /// </summary>
-    internal void QueueEnemySound(SoundEffectId soundEffect, byte maximumQueued)
+    internal void QueueEnemySound(SoundEffectId soundEffect, int maximumQueued)
     {
         if (maximumQueued == 0)
             throw new ArgumentOutOfRangeException(nameof(maximumQueued), maximumQueued, "Queue capacity must be nonzero.");
@@ -73,14 +73,11 @@ internal sealed class EnemyAudioQueue
             SoundSuppressed: PowerBomb?.IsActive == true));
     }
 
-    /// <summary>Converts an optional legacy sound ID into a typed enemy queue call when one is present.</summary>
-    internal void QueueLegacySound(
-        ushort? soundId,
-        SoundEffectLibrary library,
-        byte maximumQueued)
+    /// <summary>Queues <paramref name="soundEffect"/> when an actor produced one this update.</summary>
+    internal void QueueEnemySoundIfAny(SoundEffectId? soundEffect, int maximumQueued)
     {
-        if (soundId is ushort value)
-            QueueEnemySound(SoundEffectId.FromCartridge(library, value), maximumQueued);
+        if (soundEffect is SoundEffectId value)
+            QueueEnemySound(value, maximumQueued);
     }
 
     /// <summary>Retains a legacy music request only when both command and native delay are present.</summary>

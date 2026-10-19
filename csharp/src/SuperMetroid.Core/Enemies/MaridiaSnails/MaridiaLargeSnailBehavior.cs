@@ -5,12 +5,19 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>The Maridia large snail species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
+internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MaridiaLargeSnailEntity(this, slot, common);
+
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Runs common damaging touch behavior for selected shell hitboxes.</summary>
@@ -23,6 +30,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         _collision = collision;
     }
 
+    /// <summary>The animation selector's left-facing choice: the right-facing program's selector plus one.</summary>
+    private const int MaridiaLargeSnailFacingSelector = 1;
+    /// <summary>Added to an idle selector to choose the same facing's forward roll.</summary>
+    private const int MaridiaLargeSnailRollingSelector = 2;
+    /// <summary>Selects the same facing's attack from idle, and toggles a roll between forwards and backwards.</summary>
+    private const int MaridiaLargeSnailAttackSelector = 4;
+
     /// <summary>Strict horizontal range in which Oum can push or carry Samus.</summary>
     private const ushort MaridiaLargeSnailPushingXDistance = 24;
     /// <summary>Strict vertical range required for Samus to be in Oum's pushing band.</summary>
@@ -34,33 +48,32 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
     /// <summary>Number of impacts in Oum's landing or ledge-fall settling sequence.</summary>
     private const ushort MaridiaLargeSnailInitialBounceCount = 3;
     /// <summary>Per-frame 8.8 index change in the quadratic vertical speed table.</summary>
-    private const ushort MaridiaLargeSnailBounceAcceleration = 384;
+    private const int MaridiaLargeSnailBounceAcceleration = 384;
     /// <summary>Maximum falling speed-table index before the next impact.</summary>
-    private const ushort MaridiaLargeSnailMaximumFallIndex = 16384;
+    private const int MaridiaLargeSnailMaximumFallIndex = 16384;
     /// <summary>Speed-table index removed at each floor impact.</summary>
-    private const ushort MaridiaLargeSnailImpactIndexLoss = 4096;
+    private const int MaridiaLargeSnailImpactIndexLoss = 4096;
 
-    /// <summary>Oum state indexed by physical enemy slot during the current room load.</summary>
-    internal readonly MaridiaLargeSnailEnemyState?[] _maridiaLargeSnailStates =
-        new MaridiaLargeSnailEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Library-two sound queued by Oum's attack splash.</summary>
+    private static readonly SoundEffectId MaridiaLargeSnailSplashSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound);
+    /// <summary>Library-two sound queued after a shot hits Oum.</summary>
+    private static readonly SoundEffectId MaridiaLargeSnailShotSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound);
 
-    /// <summary>
-    /// Most recent library-two sound requested by Oum this frame. The outer audio mixer is
-    /// still a frontend seam, so the enemy publishes the exact native sound identifier.
-    /// </summary>
-    public ushort? LastMaridiaLargeSnailSoundEffect { get; private set; }
+    /// <summary>Most recent library-two sound requested by Oum this frame.</summary>
+    public SoundEffectId? LastMaridiaLargeSnailSoundEffect { get; private set; }
 
     /// <summary>Clears physical-slot extensions and the frame's pending Oum sound.</summary>
     internal void ResetMaridiaLargeSnailRoomState()
     {
-        Array.Clear(_maridiaLargeSnailStates);
         LastMaridiaLargeSnailSoundEffect = null;
     }
 
     /// <summary>Ports <c>InitAI_Oum</c> at $A2:CCD4.</summary>
-    internal void InitializeMaridiaLargeSnail(RoomEnemySlot slot)
+    internal static void InitializeMaridiaLargeSnail(RoomEnemySlot slot)
     {
-        var state = new MaridiaLargeSnailEnemyState(slot)
+        var state = new MaridiaLargeSnailEnemyState
         {
             RequestedInstructionListIndex = 0,
             InstalledInstructionListIndex = 0,
@@ -69,7 +82,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
             SamusInPushingRange = false,
             SamusIsLeft = false,
             PreviousPosition = Position16<RoomPixels>.Zero,
-            UnusedExtra0A = 0,
             StopMovementNextFrame = false,
             Function = MaridiaLargeSnailEnemyFunction.Idle,
             YSpeedTableIndex = 0,
@@ -78,7 +90,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
             RemainingBounces = NativeCountdown.Start(MaridiaLargeSnailInitialBounceCount),
             BounceFunction = MaridiaLargeSnailBounceFunction.Falling,
         };
-        _maridiaLargeSnailStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The initial left-facing animation intentionally disagrees with installed selector zero,
         // whose table entry is right-facing idle. Because SetOumInstList suppresses equal
@@ -118,7 +130,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Maridia Large Snail function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Maridia Large Snail function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
         CarrySamusWithMaridiaLargeSnail(slot, state, samus);
@@ -154,8 +166,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
             return;
         }
 
-        state.RequestedInstructionListIndex = unchecked((ushort)(
-            state.RequestedInstructionListIndex | 2));
+        state.RequestedInstructionListIndex |= MaridiaLargeSnailRollingSelector;
         InstallMaridiaLargeSnailInstructionList(slot, state);
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
@@ -207,8 +218,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
                 }
 
                 state.AttackCooldown = NativeCountdown.Start(MaridiaLargeSnailInitialAttackCooldown);
-                state.RequestedInstructionListIndex = unchecked((ushort)(
-                    (state.RequestedInstructionListIndex & 1) | 4));
+                state.RequestedInstructionListIndex =
+                    (state.RequestedInstructionListIndex & MaridiaLargeSnailFacingSelector) | MaridiaLargeSnailAttackSelector;
                 InstallMaridiaLargeSnailInstructionList(slot, state);
                 state.Function = MaridiaLargeSnailEnemyFunction.Attacking;
                 return;
@@ -227,8 +238,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
             return;
 
         state.AttackAnimationFinished = false;
-        state.RequestedInstructionListIndex = unchecked((ushort)(
-            state.RequestedInstructionListIndex - 2));
+        state.RequestedInstructionListIndex -= MaridiaLargeSnailRollingSelector;
         InstallMaridiaLargeSnailInstructionList(slot, state);
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
@@ -242,36 +252,33 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         switch (state.BounceFunction)
         {
             case MaridiaLargeSnailBounceFunction.Falling:
-                state.YSpeedTableIndex = unchecked((ushort)(
-                    state.YSpeedTableIndex + MaridiaLargeSnailBounceAcceleration));
-                if (unchecked((short)(
-                        state.YSpeedTableIndex - MaridiaLargeSnailMaximumFallIndex)) >= 0)
-                {
-                    state.YSpeedTableIndex = MaridiaLargeSnailMaximumFallIndex;
-                }
+                // The record stays within -3712 through 16384, so the cartridge's signed word comparisons are
+                // ordinary comparisons.
+                state.YSpeedTableIndex = Math.Min(
+                    state.YSpeedTableIndex + MaridiaLargeSnailBounceAcceleration,
+                    MaridiaLargeSnailMaximumFallIndex);
 
                 if (!_terrain.MoveEnemyVertically(
                         level,
                         slot,
                         EnemyMath.ReadQuadraticEnemySpeed(
-                            unchecked((ushort)(SnesEightEight.WholeOf(state.YSpeedTableIndex))),
+                            checked((ushort)SnesEightEight.WholeOf(state.YSpeedTableIndex)),
                             negative: false)))
                 {
                     return;
                 }
 
                 state.RemainingBounces = state.RemainingBounces.Decrement().Remaining;
-                state.YSpeedTableIndex = unchecked((ushort)(
-                    state.YSpeedTableIndex - MaridiaLargeSnailImpactIndexLoss));
-                if (unchecked((short)state.YSpeedTableIndex) < 0)
+                // An impact that leaves the record below zero ends the bounces; the negative record is kept.
+                state.YSpeedTableIndex -= MaridiaLargeSnailImpactIndexLoss;
+                if (state.YSpeedTableIndex < 0)
                     state.RemainingBounces = NativeCountdown.Start(0);
                 state.BounceFunction = MaridiaLargeSnailBounceFunction.Rising;
                 return;
 
             case MaridiaLargeSnailBounceFunction.Rising:
-                state.YSpeedTableIndex = unchecked((ushort)(
-                    state.YSpeedTableIndex - MaridiaLargeSnailBounceAcceleration));
-                if (unchecked((short)state.YSpeedTableIndex) < 0)
+                state.YSpeedTableIndex -= MaridiaLargeSnailBounceAcceleration;
+                if (state.YSpeedTableIndex < 0)
                 {
                     state.YSpeedTableIndex = 0;
                     state.BounceFunction = MaridiaLargeSnailBounceFunction.Falling;
@@ -281,8 +288,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
                 // The rising half reads the negative member of the same quadratic row. The
                 // native AND $7F00 is retained even though valid bounce indexes stay below
                 // $4000; it documents the exact table-index formation seen in a debugger.
-                ushort tableIndex = unchecked((ushort)(
-                    SnesEightEight.WholeOf(state.YSpeedTableIndex & MaridiaLargeSnailMasks.SpeedIndexWholeBits)));
+                ushort tableIndex = checked((ushort)
+                    SnesEightEight.WholeOf(state.YSpeedTableIndex & MaridiaLargeSnailMasks.SpeedIndexWholeBits));
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,
@@ -292,7 +299,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
             default:
                 throw new InvalidDataException(
                     $"Maridia Large Snail bounce function " +
-                    $"$A2:{(ushort)state.BounceFunction:X4} is not translated.");
+                    $"{state.BounceFunction?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -330,8 +337,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
             return;
 
         state.MovingLeft = !state.MovingLeft;
-        state.RequestedInstructionListIndex = unchecked((ushort)(
-            state.RequestedInstructionListIndex ^ 4));
+        state.RequestedInstructionListIndex ^= MaridiaLargeSnailAttackSelector;
         InstallMaridiaLargeSnailInstructionList(slot, state);
     }
 
@@ -452,7 +458,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         switch (cue.Kind)
         {
             case MaridiaLargeSnailCueKind.PlaySplash:
-                LastMaridiaLargeSnailSoundEffect = EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound;
+                LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailSplashSound;
                 break;
             case MaridiaLargeSnailCueKind.FinishAttack:
                 state.AttackAnimationFinished = true;
@@ -512,15 +518,15 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
     /// AI for damaging, freezing, and zero-damage vulnerability results alike.
     /// </summary>
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
-        LastMaridiaLargeSnailSoundEffect = EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound;
+        LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailShotSound;
 
     /// <summary>Requires an initialized Oum extension for the physical enemy slot.</summary>
-    private MaridiaLargeSnailEnemyState RequireMaridiaLargeSnailState(RoomEnemySlot slot) =>
-        _maridiaLargeSnailStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static MaridiaLargeSnailEnemyState RequireMaridiaLargeSnailState(RoomEnemySlot slot) =>
+        slot.SpeciesState<MaridiaLargeSnailEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Maridia Large Snail state.");
 
     /// <summary>Publishes Oum's native shot sound after common bomb damage.</summary>
-    internal void RegisterMaridiaLargeSnailBombReactions(EnemyAiTable table)
+    internal void RegisterMaridiaLargeSnailBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.MaridiaLargeSnailShot)
@@ -529,47 +535,37 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Routes the Oum definition through its bounce-state initialization.</summary>
-    internal void RegisterMaridiaLargeSnailInitializationAi(EnemyAiTable table)
+    /// <summary>Ports MaridiaLargeSnail's initialization AI.</summary>
+    internal static void RunMaridiaLargeSnailInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Oum, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMaridiaLargeSnail(slot);
-        });
+        InitializeMaridiaLargeSnail(slot);
     }
 
-    /// <summary>Dispatches Oum's bounce, roll, and attack phases once per enemy frame.</summary>
-    internal void RegisterMaridiaLargeSnailMainAi(EnemyAiTable table)
+    /// <summary>Ports MaridiaLargeSnail's main AI.</summary>
+    internal void RunMaridiaLargeSnailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Oum, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMaridiaLargeSnailMain(
-                slot,
-                RequireMaridiaLargeSnailState(slot),
-                frame.Samus,
-                frame.Level,
-                frame.ControllerInput);
-        });
+        RunMaridiaLargeSnailMain(
+            slot,
+            RequireMaridiaLargeSnailState(slot),
+            frame.Samus,
+            frame.Level,
+            frame.ControllerInput);
     }
 
-    /// <summary>Runs Oum's idle, attack and rolling animations as typed programs (#641).</summary>
-    internal void RegisterMaridiaLargeSnailTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireMaridiaLargeSnailState(slot);
-            AnimationProgramCursor<MaridiaLargeSnailProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, MaridiaLargeSnailAnimations.Programs, ref cursor, MaridiaLargeSnailFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyMaridiaLargeSnailCue(state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances MaridiaLargeSnail's typed animation.</summary>
+    internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireMaridiaLargeSnailState(slot);
+        AnimationProgramCursor<MaridiaLargeSnailProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, MaridiaLargeSnailAnimations.Programs, ref cursor, MaridiaLargeSnailFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyMaridiaLargeSnailCue(state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Preserves protected-shell no-op hits and runs common damage only for vulnerable hitboxes.</summary>
-    internal void RegisterMaridiaLargeSnailShotReactions(EnemyAiTable table)
+    internal void RegisterMaridiaLargeSnailShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MaridiaLargeSnailShot)
@@ -590,7 +586,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
                 {
                     throw new InvalidDataException(
                         $"Maridia Large Snail hitbox shot AI " +
-                        $"$A2:{c.HitboxShotAiPointer:X4} is not translated.");
+                        $"{c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 return false;
             },
@@ -599,7 +595,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
     }
 
     /// <summary>Dispatches damaging and non-damaging Oum hitboxes with their distinct Samus pushes.</summary>
-    internal void RegisterMaridiaLargeSnailTouch(EnemyAiTable table)
+    internal void RegisterMaridiaLargeSnailTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MaridiaLargeSnailNonDamagingTouch,
@@ -613,7 +609,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
                 {
                     throw new InvalidDataException(
                         $"Maridia Large Snail hitbox touch AI " +
-                        $"$A2:{context.HitboxTouchAiPointer:X4} is not translated.");
+                        $"{context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
 
                 // $D388 enters common touch damage and falls directly through $D38C's
@@ -640,6 +636,35 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastMaridiaLargeSnailSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastMaridiaLargeSnailSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
+    }
+
+    /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
+    internal static bool? FindHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    {
+        callback = null;
+        if (!(enemy.Definition.Bank == MaridiaLargeSnailCollisionDefinitions.Bank &&
+            (MaridiaLargeSnailCollisionDefinitions.Frames.Contains(enemy.Frame) ||
+             probe.ArtworkInstalled)))
+            return null;
+
+        // Oum's 30 native frames each have one (0,0) component, but the
+        // ordered regions change with roll and attack direction. Keep
+        // those rectangles and callback identities independent of OAM.
+        foreach (MaridiaLargeSnailCollisionHitbox hitbox in
+                 MaridiaLargeSnailCollisionDefinitions.Frames.Of(enemy.Frame))
+        {
+            ushort left = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Left));
+            ushort top = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Top));
+            ushort right = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Right));
+            ushort bottom = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Bottom));
+            if (!probe.Overlaps(left, top, right, bottom))
+                continue;
+            callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+            return true;
+        }
+        return false;
+    
     }
 }

@@ -14,7 +14,7 @@ internal static class PlatformAnimationsVerification
     internal static void VerifyPlatformAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, PlatformAnimations.Programs,
-            PlatformFrameDefinitions.Spritemap,
+            PlatformFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

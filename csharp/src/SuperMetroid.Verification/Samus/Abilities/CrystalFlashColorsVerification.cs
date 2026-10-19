@@ -73,10 +73,10 @@ internal static class CrystalFlashColorsVerification
         int calls = CrystalFlashColorFormat.BodyFrameCount * duration;
         for (int call = 0; call < calls; call++)
         {
-            AssertTrue(samus.CrystalFlash.UpdatePalette(guard, cgram, samus,
+            AssertTrue(samus.CrystalFlash.UpdatePalette(cgram, samus,
                     palettes: null, colors: edited.CrystalFlashColors),
                 $"Crystal Flash call {call} retains palette ownership");
-            AssertTrue(nativeSamus.CrystalFlash.UpdatePalette(rom, nativeCgram, nativeSamus,
+            AssertTrue(nativeSamus.CrystalFlash.UpdatePalette(nativeCgram, nativeSamus,
                     colors: native),
                 $"native Crystal Flash call {call} retains palette ownership");
             AssertEqual(nativeSamus.CrystalFlash.CrystalPaletteTimer.RawValue,
@@ -85,8 +85,8 @@ internal static class CrystalFlashColorsVerification
             AssertEqual(nativeSamus.CrystalFlash.SpecialPaletteTimer.RawValue,
                 samus.CrystalFlash.SpecialPaletteTimer.RawValue,
                 $"color edit preserves bubble timer on call {call}");
-            AssertEqual(nativeSamus.CrystalFlash.CommonPaletteTimer,
-                samus.CrystalFlash.CommonPaletteTimer,
+            AssertEqual(nativeSamus.CrystalFlash.BodyPaletteRecordOffset,
+                samus.CrystalFlash.BodyPaletteRecordOffset,
                 $"color edit preserves body cursor on call {call}");
             AssertEqual(nativeSamus.CrystalFlash.SpecialPaletteFrame,
                 samus.CrystalFlash.SpecialPaletteFrame,
@@ -154,9 +154,9 @@ internal static class CrystalFlashColorsVerification
                 SuperMissiles = 10,
                 PowerBombs = 10,
             };
-            started.PoseMetadata.RefreshCollisionRadii(rom);
+            started.PoseMetadata.RefreshCollisionRadii();
             started.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(0);
-            AssertTrue(started.CrystalFlash.TryBegin(rom, started, controllerInput: 0,
+            AssertTrue(started.CrystalFlash.TryBegin(started, controllerInput: 0,
                 skipInputCheck: true), "start real Crystal Flash palette owner");
             return started;
         }

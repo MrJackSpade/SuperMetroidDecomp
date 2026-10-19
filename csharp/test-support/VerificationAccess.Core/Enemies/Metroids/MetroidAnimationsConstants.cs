@@ -13,5 +13,5 @@ internal static class MetroidAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params MetroidProgram[] programs) =>
         programs.SelectMany(program => MetroidAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => MetroidFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => MetroidFrameToolingDefinitions.Spritemap(step.Frame));
 }

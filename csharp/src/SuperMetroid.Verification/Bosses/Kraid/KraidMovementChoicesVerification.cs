@@ -80,12 +80,11 @@ internal static class KraidMovementChoicesVerification
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         var body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
+        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         var foot = enemies.SlotTable.Slots[5];
         var part = new KraidPartState();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.KraidBehavior.Kraid = state;
-        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         ushort rng = 0;
         int reads = 0;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return rng; });
@@ -98,14 +97,14 @@ internal static class KraidMovementChoicesVerification
             {
                 rng = (ushort)(choice * 4);
                 reads = 0;
-                part.NextWord = 1;
+                part.ThinkTimer = NativeCountdown.Start(1);
                 foot.InstructionTimer = NativeCountdown.Start(99);
                 var expected = Expected(body.Position.X.Whole, rng);
                 think(body, foot, part);
                 bool right = unchecked((short)(expected.TargetX - raw)) >= 0;
-                AssertEqual(expected.TargetX, state.TargetX, "Actual target includes fallback row");
-                AssertEqual(expected.ThinkTimer, part.NextWord, "Actual thinking delay includes weighted final choice");
-                AssertEqual((ushort)(right ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft), foot.VariableA, "Native signed walking direction");
+                AssertEqual(expected.TargetX, state.WalkTarget.X, "Actual target includes fallback row");
+                AssertEqual(expected.ThinkTimer, part.ThinkTimer.RawValue, "Actual thinking delay includes weighted final choice");
+                AssertEqual((right ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft), state.Parts[5].Function, "Native signed walking direction");
                 AssertEqual(
                     AnimationProgramCursor<KraidPartProgram>.Start(right ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward),
                     state.Parts[foot.SlotIndex].Cursor,
@@ -113,12 +112,12 @@ internal static class KraidMovementChoicesVerification
                 AssertEqual((ushort)1, foot.InstructionTimer.RawValue, "Choice restarts animation timer");
                 AssertEqual(1, reads, "Choice reads current RNG once");
             }
-            part.NextWord = (ushort)raw;
+            part.ThinkTimer = NativeCountdown.FromRaw((ushort)raw);
             reads = 0;
             think(body, foot, part);
             if (raw != 1)
             {
-                AssertEqual(unchecked((ushort)(raw - 1)), part.NextWord, "Only zero after decrement triggers choice");
+                AssertEqual(unchecked((ushort)(raw - 1)), part.ThinkTimer.RawValue, "Only zero after decrement triggers choice");
                 AssertEqual(0, reads, "Unexpired thinking does not read RNG");
             }
         }

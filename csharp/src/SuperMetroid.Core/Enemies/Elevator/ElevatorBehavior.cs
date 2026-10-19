@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -7,24 +8,31 @@ using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>The Elevator species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ElevatorBehavior : IEnemySpecies
+internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IElevatorJourney
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Elevator];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ElevatorEntity(this, slot, common);
+
     /// <summary>Provides the active room bus used when departure sets up Samus's elevator pose.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues the separate library-one and library-three departure sounds.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Shares the room's Mother Brain HDMA cleanup state with elevator frame reset.</summary>
-    private readonly MotherBrainEncounter _motherBrainEncounter;
+    /// <summary>The enemy pass's results, which the elevator writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
 
     /// <summary>Binds elevator movement to the room, audio queue, and encounter state.</summary>
-    internal ElevatorBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, MotherBrainEncounter motherBrainEncounter)
+    internal ElevatorBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyFrameResultBuilder frameResults)
     {
-        _motherBrainEncounter = motherBrainEncounter;
+        _frameResults = frameResults;
         _room = room;
         _audio = audio;
     }
@@ -32,36 +40,29 @@ internal sealed class ElevatorBehavior : IEnemySpecies
     /// <summary>Native elevator travel advances one and a half pixels per enemy update.</summary>
     private const int ElevatorSpeedFixed = 98304;
 
-    /// <summary>Per-slot resting height and direction retained while a room's elevator runs.</summary>
-    internal readonly ElevatorEnemyState?[] _elevatorStates =
-        new ElevatorEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
-    /// <summary>WRAM $0E16. Collision with an elevator pseudo-door publishes value one.</summary>
-    public ushort ElevatorFlags { get; private set; }
+    /// <summary>What has armed the elevator's pseudo-door: nothing, a collision with it, or an elevator door load.</summary>
+    public ElevatorJourneyFlag ElevatorFlags { get; internal set; }
 
     /// <summary>WRAM $0E18, shared across the departure and destination room actors.</summary>
-    public ElevatorActorStatus ElevatorStatus { get; private set; }
+    public ElevatorActorStatus ElevatorStatus { get; internal set; }
 
-    /// <summary>WRAM $0799. Bit 15 means the active elevator is travelling upward.</summary>
-    public ushort ElevatorDirection { get; private set; }
+    /// <summary>Whether the active elevator is travelling upward; otherwise it travels downward.</summary>
+    public bool ElevatorTravelsUpward { get; private set; }
 
     /// <summary>
     /// Command seven installs the moving Samus beta handler on departure. At $82:E6A2,
     /// downward arrivals reinstall it, but upward arrivals retain command zero's no-op.
-    /// The signed test reads the native upward-direction bit in $0799.
+    /// The test reads the upward travel direction.
     /// </summary>
     public bool ElevatorRunsSamusMovement =>
         ElevatorStatus == ElevatorActorStatus.Departing ||
-        (ElevatorStatus != ElevatorActorStatus.Inactive && (short)ElevatorDirection >= 0);
+        (ElevatorStatus != ElevatorActorStatus.Inactive && !ElevatorTravelsUpward);
 
     /// <summary>
     /// WRAM $0795. Door-transition code owns this gate; nonzero suppresses actor movement
     /// while room loading/fading is already manipulating the same global coordinates.
     /// </summary>
     public bool ElevatorDoorTransitionActive { get; set; }
-
-    /// <summary>Most recent lifecycle event published by elevator AI during this enemy update; reset to <see cref="ElevatorFrameEvent.None"/> before actors run, not retained across updates.</summary>
-    public ElevatorFrameEvent LastElevatorEvent { get; private set; }
 
     /// <summary>Arrival slot whose initializer placed Samus; consumed by the door loader this update.</summary>
     [NonSerialized]
@@ -77,53 +78,36 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         _arrivalPlacementSlot = null;
         return slot;
     }
-    /// <summary>Library-one sound selector queued by elevator AI this update: <c>$32</c> on departure, otherwise null; a debugger witness, not an additional playback request.</summary>
-    public ushort? LastElevatorSoundEffectLibrary1 { get; private set; }
-    /// <summary>Latest library-three sound selector queued by elevator AI this update: <c>$0B</c> on departure or <c>$25</c> when arrival completes, otherwise null; reset before each enemy update.</summary>
-    public ushort? LastElevatorSoundEffectLibrary3 { get; private set; }
-
-    /// <summary>
-    /// True when <c>ResetProjectileData</c> was called by $A3:9548 this frame. The enemy
-    /// system clears the ordinary projectile owner directly; the runtime consumes this
-    /// event to clear the separate bomb/power-bomb owner at the same boundary.
-    /// </summary>
-    public bool ElevatorClearedProjectileData { get; private set; }
 
     /// <summary>
     /// Publishes bank-$94's type-$9 pseudo-door collision before the next EnemyMain pass.
     /// Repeated collision scans may set the same word again; the waiting AI clears it when
     /// the direction button is not newly pressed, exactly like <c>Elevator_Func_1</c>.
     /// </summary>
-    public void PublishElevatorDoorContact() => ElevatorFlags = 1;
+    public void PublishElevatorDoorContact() => ElevatorFlags = ElevatorJourneyFlag.DoorContact;
 
     /// <summary>
     /// <c>ResumeGameplay</c> ($80:A149) reloads the tiles through <c>$82:E78C</c>, whose first
     /// write clears $0E16. Unpausing mid-ride therefore leaves the elevator's pseudo-door
     /// unarmed: reaching it starts the door at once, without the 48-frame down-elevator wait.
     /// </summary>
-    public void ClearElevatorFlagsOnGameplayResume() => ElevatorFlags = 0;
+    public void ClearElevatorFlagsOnGameplayResume() => ElevatorFlags = ElevatorJourneyFlag.None;
 
     /// <summary>
     /// Establishes the globals carried through an elevator door load. The destination
     /// actor's initializer recognizes status two and starts at its parameter-2 Y position.
     /// </summary>
-    public void PrepareElevatorArrival(ushort doorFlags = ElevatorFlagDefinitions.DoorLoad)
+    public void PrepareElevatorArrival(ElevatorJourneyFlag doorFlags = ElevatorJourneyFlag.DoorLoad)
     {
         ElevatorFlags = doorFlags;
         ElevatorStatus = ElevatorActorStatus.BeginArrivalReturn;
     }
 
-    /// <summary>
-    /// Debugger/test seam for the already-public runtime WRAM word. Production changes are
-    /// still made by collision, actor AI, and room loading rather than arbitrary callers.
-    /// </summary>
-    internal void SetElevatorStatusForDebugging(ushort status)
+    /// <inheritdoc/>
+    public void ResetStatus()
     {
-        if (status > (ushort)ElevatorActorStatus.ReturningToRest)
-            throw new ArgumentOutOfRangeException(nameof(status));
-        ElevatorStatus = (ElevatorActorStatus)status;
-        if (ElevatorStatus == ElevatorActorStatus.Inactive)
-            ElevatorFlags = 0;
+        ElevatorStatus = ElevatorActorStatus.Inactive;
+        ElevatorFlags = ElevatorJourneyFlag.None;
     }
 
     /// <summary>Clears room-local actors while preserving travel globals across the source and destination rooms.</summary>
@@ -132,53 +116,41 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         // Do not clear flags/status/direction here. Unlike actor-private state, these words
         // intentionally survive destruction of the source room and initialization of the
         // destination room. Elevator_Init itself clears stale values unless status is two.
-        Array.Clear(_elevatorStates);
         _arrivalPlacementSlot = null;
         ElevatorDoorTransitionActive = false;
-        BeginElevatorFrame();
-    }
-
-    /// <summary>Clears per-update events and sound witnesses before enemy actors run.</summary>
-    internal void BeginElevatorFrame()
-    {
-        LastElevatorEvent = ElevatorFrameEvent.None;
-        LastElevatorSoundEffectLibrary1 = null;
-        LastElevatorSoundEffectLibrary3 = null;
-        ElevatorClearedProjectileData = false;
-        _motherBrainEncounter.MotherBrainDeletedHdmaObjects = false;
     }
 
     /// <summary>Requires the elevator slot to have been initialized before main AI dispatch.</summary>
-    private ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>
-        _elevatorStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>
+        slot.SpeciesState<ElevatorEnemyState>() ?? throw new InvalidOperationException(
             $"Elevator slot {slot.SlotIndex} was not initialized.");
 
     /// <summary>Ports <c>Elevator_Init</c> at $A3:94E6.</summary>
     internal void InitializeElevator(RoomEnemySlot slot, SamusState? samus)
     {
-        var state = new ElevatorEnemyState(slot);
-        _elevatorStates[slot.SlotIndex] = state;
+        var state = new ElevatorEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop);
-        slot.Parameter1 = unchecked((ushort)(slot.Parameter1 * 2));
-        state.RestingYPosition = slot.Position.Y.Whole;
+        state.DirectionTableByteOffset = unchecked((ushort)(slot.Parameter1 * 2));
+        state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
         if (ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)
         {
-            ElevatorFlags = 0;
+            ElevatorFlags = ElevatorJourneyFlag.None;
             ElevatorStatus = ElevatorActorStatus.Inactive;
         }
 
         // The native 32-bit OR test is true for status two even if a malformed caller lost
         // the door flag. Preserve that behavior and reject only the impossible missing Samus.
-        if (ElevatorStatus != ElevatorActorStatus.Inactive || ElevatorFlags != 0)
+        if (ElevatorStatus != ElevatorActorStatus.Inactive || ElevatorFlags != ElevatorJourneyFlag.None)
         {
             if (samus is null)
                 throw new InvalidOperationException("Arriving elevator initialization requires Samus state.");
-            slot.Position = slot.Position.WithWholeY(slot.Parameter2);
+            slot.Position = slot.Position.WithWholeY(checked((ushort)slot.Parameter2));
             PinSamusToElevator(slot, samus);
             _arrivalPlacementSlot = slot.SlotIndex;
         }
@@ -193,7 +165,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         SamusProjectileSystem? samusProjectiles)
     {
         if (ElevatorDoorTransitionActive ||
-            (ElevatorStatus == ElevatorActorStatus.Inactive && ElevatorFlags == 0))
+            (ElevatorStatus == ElevatorActorStatus.Inactive && ElevatorFlags == ElevatorJourneyFlag.None))
         {
             return;
         }
@@ -217,7 +189,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
 
             case ElevatorActorStatus.BeginArrivalReturn:
                 ElevatorStatus = ElevatorActorStatus.ReturningToRest;
-                LastElevatorEvent = ElevatorFrameEvent.ArrivalReturnStarted;
+                _frameResults.Elevator = ElevatorFrameEvent.ArrivalReturnStarted;
                 MoveElevatorBackToRest(slot, state, samus);
                 return;
 
@@ -243,22 +215,20 @@ internal sealed class ElevatorBehavior : IEnemySpecies
             ElevatorActorDefinitions.RequiredDirectionInput(state.DirectionTableByteOffset);
         if ((newlyPressedControllerInput & requiredInput) == 0)
         {
-            ElevatorFlags = 0;
+            ElevatorFlags = ElevatorJourneyFlag.None;
             return;
         }
 
-        LastElevatorSoundEffectLibrary3 = EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary3;
-        LastElevatorSoundEffectLibrary1 = EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary1;
         // $A3:9548 issues both calls in this order before changing Samus's pose. Keeping
         // them as two requests matters because each library owns an independent SPC port.
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary3), maximumQueued: 6);
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary1), maximumQueued: 6);
-        samus.PoseMetadata.SetupForElevator(_room.LoadedBus);
+        samus.PoseMetadata.SetupForElevator();
         samusProjectiles?.Reset();
-        ElevatorClearedProjectileData = true;
+        _frameResults.ElevatorClearedProjectileData = true;
         PinSamusToElevator(slot, samus);
         ElevatorStatus = ElevatorActorStatus.Departing;
-        LastElevatorEvent = ElevatorFrameEvent.DepartureStarted;
+        _frameResults.Elevator = ElevatorFrameEvent.DepartureStarted;
     }
 
     /// <summary>Ports <c>Elevator_Func_2</c> at $A3:9579.</summary>
@@ -269,12 +239,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies
     {
         if (state.DirectionTableByteOffset != 0)
         {
-            ElevatorDirection = 32768;
+            ElevatorTravelsUpward = true;
             AddElevatorYVelocity(slot, -ElevatorSpeedFixed);
         }
         else
         {
-            ElevatorDirection = 0;
+            ElevatorTravelsUpward = false;
             AddElevatorYVelocity(slot, ElevatorSpeedFixed);
         }
         PinSamusToElevator(slot, samus);
@@ -290,12 +260,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         if (state.DirectionTableByteOffset != 0)
         {
             AddElevatorYVelocity(slot, ElevatorSpeedFixed);
-            stillReturning = slot.Position.Y.Whole < state.RestingYPosition;
+            stillReturning = slot.Position.Y.Whole < state.RestingHeight.Y;
         }
         else
         {
             AddElevatorYVelocity(slot, -ElevatorSpeedFixed);
-            stillReturning = slot.Position.Y.Whole >= state.RestingYPosition;
+            stillReturning = slot.Position.Y.Whole >= state.RestingHeight.Y;
         }
 
         if (stillReturning)
@@ -305,13 +275,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         }
 
         ElevatorStatus = ElevatorActorStatus.Inactive;
-        ElevatorFlags = 0;
-        LastElevatorSoundEffectLibrary3 = EnemySoundEffectDefinitions.ElevatorArrivalSoundLibrary3;
+        ElevatorFlags = ElevatorJourneyFlag.None;
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EnemySoundEffectDefinitions.ElevatorArrivalSoundLibrary3), maximumQueued: 6);
-        slot.Position = slot.Position.WithWholeY(state.RestingYPosition);
+        slot.Position = slot.Position.WithWholeY(state.RestingHeight.Y);
         samus.InputLocked = false;
         PinSamusToElevator(slot, samus);
-        LastElevatorEvent = ElevatorFrameEvent.ArrivalCompleted;
+        _frameResults.Elevator = ElevatorFrameEvent.ArrivalCompleted;
     }
 
     /// <summary>Ports the direct 16.16 <c>AddToHiLo</c> used by both travel directions.</summary>
@@ -332,52 +301,37 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         samus.Kinematics.YSubspeed = 0;
     }
 
-    /// <summary>Runs the elevator's two-frame loop as a typed program (#641).</summary>
-    internal void RegisterElevatorTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireElevatorState(slot);
-            AnimationProgramCursor<ElevatorProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, ElevatorAnimations.Programs, ref cursor, ElevatorFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Connects the elevator definition to its native room-load initializer.</summary>
-    internal void RegisterElevatorInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Elevator's typed animation.</summary>
+    internal static void AdvanceElevatorTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Elevator, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeElevator(slot, samus);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireElevatorState(slot);
+        AnimationProgramCursor<ElevatorProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, ElevatorAnimations.Programs, ref cursor, ElevatorFrameDefinitions.ShownFrames.Of);
+        state.Program = cursor;
     }
 
-    /// <summary>Advances the active elevator through input wait, departure, and return-to-rest states.</summary>
-    internal void RegisterElevatorMainAi(EnemyAiTable table)
+    /// <summary>Ports Elevator's initialization AI.</summary>
+    internal void RunElevatorInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
     {
+        InitializeElevator(slot, samus);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_GrappleAI_FrozenAI_Elevator, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunElevatorMain(
-                slot,
-                RequireElevatorState(slot),
-                frame.Samus,
-                frame.NewlyPressedControllerInput,
-                frame.SamusProjectiles);
-        });
+    /// <summary>Ports Elevator's main AI.</summary>
+    internal void RunElevatorMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunElevatorMain(
+            slot,
+            RequireElevatorState(slot),
+            frame.Samus,
+            frame.NewlyPressedControllerInput,
+            frame.SamusProjectiles);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         ResetElevatorRoomActors();
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        BeginElevatorFrame();
     }
 }

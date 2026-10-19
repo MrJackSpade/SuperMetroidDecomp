@@ -16,6 +16,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Botwoon palette art, live health transitions, and override validation.</summary>
 internal static class EnemyTileArtworkBotwoonColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares 128 stock colors with the ROM and checks edited colors flow through live health-band updates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon health palettes and thresholds")]
@@ -35,7 +38,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         string file = Path.Combine(stockDirectory, BotwoonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         BotwoonColorDocument visual = JsonSerializer.Deserialize<BotwoonColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Botwoon color JSON is null.");
         foreach (PaletteRgb5[] band in visual.Health)
             band[5] = ChangeRed(band[5]);
@@ -61,26 +64,23 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         var guard = NewBotwoonColorReadGuard(rom);
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        var state = new BotwoonEnemyState(head)
+        var state = new BotwoonEnemyState()
         {
-            PaletteDestinationByteOffset =
-                BotwoonHealthPaletteDefinitions.DestinationColor * sizeof(ushort),
+            PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor,
         };
         cgram.SetColor(BotwoonHealthPaletteDefinitions.DestinationColor - 1, Bgr555.FromWord(0x1234));
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
         {
-            ushort phase = (ushort)(band * sizeof(ushort));
             ushort threshold = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase);
-            state.PalettePhaseByteOffset = phase;
-            head.Health = unchecked((ushort)(threshold - 1));
+                BotwoonHealthPaletteDefinitions.NativeThresholdAddress + band * sizeof(ushort));
+            state.PalettePhase = band;
+            head.Health = threshold - 1;
             update(head, state);
-            AssertEqual((ushort)(phase + 2), state.PalettePhaseByteOffset,
+            AssertEqual(band + 1, state.PalettePhase,
                 $"Botwoon health band {band} preserves native threshold progression");
             for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
                 AssertEqual(colors.HealthColor(band, color),
@@ -92,8 +92,8 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Botwoon health palette avoids migrated RGB5 ROM reads");
-        state.PalettePhaseByteOffset = 0;
-        state.PaletteDestinationByteOffset = 0x01c0;
+        state.PalettePhase = 0;
+        state.PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor - BotwoonHealthPaletteDefinitions.ColorsPerPalette;
         head.Health = 0;
         AssertThrows<InvalidDataException>(() => update(head, state),
             "installed Botwoon rejects a non-retail palette destination");

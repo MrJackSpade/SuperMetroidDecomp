@@ -13,6 +13,6 @@ internal sealed class KagoBugProjectileAnimation(KagoBugProjectileProgram progra
     private protected override AnimationProgramSet<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Programs => KagoBugProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(KagoBugProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(KagoBugProjectileFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(KagoBugProjectileFrame frame) =>
+        KagoBugProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

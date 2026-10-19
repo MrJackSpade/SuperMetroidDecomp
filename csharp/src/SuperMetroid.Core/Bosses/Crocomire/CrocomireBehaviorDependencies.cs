@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <summary>The collaborators a <see cref="CrocomireBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record CrocomireBehaviorDependencies
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    public required EnemyFrameResultBuilder FrameResults { get; init; }
+
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }
 

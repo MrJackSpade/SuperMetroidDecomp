@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// #1284: Kraid's typed foot, arm, lint, fingernail and rock programs against the retail cartridge. The typed part
@@ -67,7 +68,7 @@ internal static class KraidAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, steps[index].Kind, $"{at}: frame");
                     AssertEqual((int)word, steps[index].Duration, $"{at}: duration");
-                    AssertEqual(operand, steps[index].Frame.Spritemap, $"{at}: spritemap");
+                    AssertEqual(operand, KraidPartFrameDefinitions.Spritemap(steps[index].Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
                     continue;
@@ -108,9 +109,9 @@ internal static class KraidAnimationsVerification
         var state = new KraidEnemyState { InitialHealth = 104 };
         enemies.KraidBehavior.Kraid = state;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
+        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         RoomEnemySlot arm = enemies.SlotTable.Slots[1];
-        arm.EnemyDefinitionPointer = EnemyDefinitionId.KraidArm;
+        arm.Bind(EnemyDefinitionId.KraidArm, arm.Definition);
         return (enemies, state, body, arm);
     }
 
@@ -124,32 +125,32 @@ internal static class KraidAnimationsVerification
         body.Health = 104;
         state.Parts[1].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
         arm.InstructionTimer = NativeCountdown.Start(1);
-        Pass(enemies, arm);
-        Pass(enemies, arm, forceExpiry: true);
+        Pass(arm);
+        Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartProgram.ArmNormal, state.Parts[1].Cursor.Program, "a healthy arm loops its normal swing");
 
         body.Health = 51;
         state.Parts[1].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
         arm.InstructionTimer = NativeCountdown.Start(1);
-        Pass(enemies, arm);
-        Pass(enemies, arm, forceExpiry: true);
+        Pass(arm);
+        Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartProgram.ArmSlow, state.Parts[1].Cursor.Program, "below half health the pause starts the slow swing");
-        AssertEqual(new KraidPartFrame(KraidPartFrameKind.Arm, 0).Spritemap, arm.SpritemapPointer, "the slow swing's first frame shows at once");
+        AssertEqual(KraidPartFrameDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Arm, 0)), arm.SpritemapPointer, "the slow swing's first frame shows at once");
         AssertEqual((ushort)8, arm.InstructionTimer.RawValue, "the slow swing's first frame lasts eight updates");
 
         state.Parts[1].Cursor = new(KraidPartProgram.ArmSlow, KraidAnimations.Programs.Steps(KraidPartProgram.ArmSlow).Count - 3);
         arm.InstructionTimer = NativeCountdown.Start(1);
-        Pass(enemies, arm);
-        Pass(enemies, arm, forceExpiry: true);
+        Pass(arm);
+        Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartProgram.ArmSlow, state.Parts[1].Cursor.Program, "a slow arm's callback keeps the slow swing");
     }
 
     /// <summary>Runs one arm update, optionally expiring the current frame first.</summary>
-    private static void Pass(RoomEnemySystem enemies, RoomEnemySlot part, bool forceExpiry = false)
+    private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
     {
         if (forceExpiry)
             part.InstructionTimer = NativeCountdown.Start(1);
-        enemies.Instructions.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyInstructionInterpreter.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>
@@ -180,7 +181,7 @@ internal static class KraidAnimationsVerification
                 AssertEqual(native.Timer, rock.InstructionTimer.RawValue, $"{at}: timer");
                 AssertEqual(native.Operand, rock.PresentationOperandAddress, $"{at}: frame");
                 if (native.PreInstruction is { } preInstruction)
-                    AssertEqual(preInstruction, rock.PreInstruction, $"{at}: pre-instruction");
+                    AssertEqual(preInstruction, rock.PreInstructionWord, $"{at}: pre-instruction");
             }
             AssertEqual(program == KraidRockProgram.SpitRockShot, native.Deleted, $"Kraid rock {program}: only the burst deletes its rock");
         }
@@ -190,7 +191,7 @@ internal static class KraidAnimationsVerification
     }
 
     /// <summary>A Kraid body position and art for the real rock producers.</summary>
-    private static RoomEnemySlot NewRockSource() => new(0)
+    private static RoomEnemySlot NewRockSource() => new(0, EnemySlotFixtures.Registry)
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224)),
         VramTilesIndex = 512,

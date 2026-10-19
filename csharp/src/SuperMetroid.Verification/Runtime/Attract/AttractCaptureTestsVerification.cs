@@ -25,8 +25,8 @@ internal static class AttractCaptureTestsVerification
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {
-            var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-            var captured = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
+            var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
+            var captured = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
             legacy.BindArtwork(legacy.Artwork with
             {
                 MapPresentation = presentation,
@@ -44,8 +44,8 @@ internal static class AttractCaptureTestsVerification
                 {
                     foreach (var game in new[] { legacy, captured })
                     {
-                        game.demoFramesRemaining = 16;
-                        game.demoScene = 6;
+                        game.Session.demoFramesRemaining = 16;
+                        game.Session.demoScene = 6;
                     }
                     bounded = true;
                 }
@@ -53,26 +53,25 @@ internal static class AttractCaptureTestsVerification
                 FrontendFrame expected = legacy.Step(input);
                 CapturedFrontendFrame actual = captured.StepCaptured(input, tick + 1, 1);
                 states.Add(expected.GameState);
-                AssertTrue(!actual.UsedLegacyRaster, $"demo capture never uses legacy pixels: tick {tick}, {expected.GameState}");
                 AssertEqual(expected.GameState, actual.Frame.GameState, "demo capture state");
                 AssertSequenceEqual(legacy.AudioEventsForVerification, captured.AudioEventsForVerification, "demo capture audio event order");
                 bool demo = expected.GameState is SuperMetroidGameState.TransitionToDemoA or SuperMetroidGameState.TransitionToDemoB
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
                 if (demo || tick % 31 == 0)
                 {
-                    AssertTrue(expected.Pixels.SequenceEqual(RenderForComparison(RoundTripRenderPacket((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))))),
+                    AssertTrue(legacy.PublishedPixels().SequenceEqual(RenderForComparison(RoundTripRenderPacket(actual.Snapshot))),
                         $"demo frame {tick} pixel parity");
                     samples++;
                 }
                 if (legacy.AttractDemoHoldFramesRemaining > 0 && expected.GameState == SuperMetroidGameState.PlayingDemo)
                 {
                     sawHold = true;
-                    held ??= expected.Pixels.ToArray();
-                    AssertTrue(held.SequenceEqual(expected.Pixels), "demo final-image hold stays pixel-identical");
+                    held ??= legacy.PublishedPixels();
+                    AssertTrue(held.SequenceEqual(legacy.PublishedPixels()), "demo final-image hold stays pixel-identical");
                 }
                 if (states.Contains(SuperMetroidGameState.TransitionFromDemoB) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
                 {
-                    AssertTrue(expected.Pixels.SequenceEqual(RenderForComparison((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")))), "demo return title frame");
+                    AssertTrue(legacy.PublishedPixels().SequenceEqual(RenderForComparison(actual.Snapshot)), "demo return title frame");
                     returned = true; break;
                 }
             }

@@ -83,10 +83,10 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
         // Statue operands name overlapping windows of the shared strip.
         foreach (TourianStatueAnimatedTileProgramDefinition definition in
                  TourianStatueAnimatedTileMechanicsDefinitions.All)
-        foreach (ushort operand in definition.SourceOperandPointers)
+        foreach (TourianStatueTilePicture picture in definition.Pictures)
         {
             if (TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition,
-                    operand) != sourceAddress)
+                    picture) != sourceAddress)
                 continue;
             if (byteCount != definition.TransferByteCount)
                 throw new InvalidDataException(

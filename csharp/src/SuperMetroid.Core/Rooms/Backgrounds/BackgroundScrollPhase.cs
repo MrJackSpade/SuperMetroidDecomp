@@ -42,11 +42,9 @@ internal sealed class BackgroundScrollPhase
         // exception.
         if (_room.ActiveDoor?.UsesCeresElevatorMode7 == true)
         {
-            _room.LastBackgroundUpdateCount = 0;
             return Array.Empty<BackgroundUpdateRequest>();
         }
 
-        _room.LastBackgroundUpdateCount = requests.Count;
         return requests;
     }
 
@@ -70,11 +68,9 @@ internal sealed class BackgroundScrollPhase
         // preserve that gate for both gameplay and door-transition callers.
         if (_room.ActiveDoor?.UsesCeresElevatorMode7 == true)
         {
-            _room.LastBackgroundUpdateCount = 0;
             return;
         }
 
-        _room.LastBackgroundUpdateCount = requests.Count;
         foreach (BackgroundUpdateRequest request in requests)
         {
             TilemapStreamUpdate update = _room.BackgroundStreamer.Build(request)

@@ -17,6 +17,6 @@ internal sealed class MotherBrainGlassAnimation(MotherBrainGlassProgram program)
         MotherBrainGlassAnimations.Timeline(Program);
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(MotherBrainGlassFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(MotherBrainGlassVisualDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(MotherBrainGlassFrame frame) =>
+        MotherBrainGlassVisualDefinitions.ShownProjectileFrames[frame];
 }

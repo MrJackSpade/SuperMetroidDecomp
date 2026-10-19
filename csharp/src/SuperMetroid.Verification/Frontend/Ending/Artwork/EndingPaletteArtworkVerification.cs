@@ -232,8 +232,8 @@ internal static class EndingPaletteArtworkVerification
             maps.RoomPaletteFx, () => rejectAllCartridgeReads);
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var nativeState = CreateRetailEndingFixture(nativeBus, nativeAudio, 2, 59);
-        var installedState = CreateRetailEndingFixture(guardedBus, installedAudio, 2, 59);
+        var nativeState = CreateRetailEndingFixture(nativeAudio, 2, 59);
+        var installedState = CreateRetailEndingFixture(installedAudio, 2, 59);
         installedState.BindPaletteArtwork(stock);
         installedState.BindPaletteFxColors(maps.RoomPaletteFx);
         installedState.BindEndingText(maps.EndingText);
@@ -328,11 +328,11 @@ internal static class EndingPaletteArtworkVerification
             if (id == EndingPaletteId.Escape)
             {
                 var editedAudio = new CartridgeAudioState();
-                var editedState = CreateRetailEndingFixture(guardedBus, editedAudio, 2, 59);
+                var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
                 editedState.BindPaletteArtwork(edited);
                 editedState.BindPaletteFxColors(maps.RoomPaletteFx);
                 var stockAudio = new CartridgeAudioState();
-                var stockState = CreateRetailEndingFixture(nativeBus, stockAudio, 2, 59);
+                var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
                 // The ending's setup dispatch loads the escape palette only after its own NMI
                 // waits; step through them so both images show the installed palette.
                 do
@@ -351,8 +351,8 @@ internal static class EndingPaletteArtworkVerification
             {
                 var stockCgram = new SnesCgram();
                 var editedCgram = new SnesCgram();
-                var stockLogo = new EndingLogo(guardedBus, stockCgram, () => { }, stock);
-                var editedLogo = new EndingLogo(guardedBus, editedCgram, () => { }, edited);
+                var stockLogo = new EndingLogo(stockCgram, () => { }, stock);
+                var editedLogo = new EndingLogo(editedCgram, () => { }, edited);
                 if (id == EndingPaletteId.LogoCrossfade)
                 {
                     for (int frame = 0; frame < 300 && stockLogo.PaletteStep == 0; frame++)
@@ -369,9 +369,9 @@ internal static class EndingPaletteArtworkVerification
             }
             File.Delete(overridePath);
         }
-        Suite(nameof(VerifyVisibleCreditsPaletteOverride), () => VerifyVisibleCreditsPaletteOverride(installation, guardedBus, nativeBus));
-        Suite(nameof(VerifyVisibleLogoPaletteOverride), () => VerifyVisibleLogoPaletteOverride(installation, guardedBus, nativeBus));
-        Suite(nameof(VerifyVisibleEndingPaletteFxOverride), () => VerifyVisibleEndingPaletteFxOverride(installation, guardedBus, nativeBus));
+        Suite(nameof(VerifyVisibleCreditsPaletteOverride), () => VerifyVisibleCreditsPaletteOverride(installation));
+        Suite(nameof(VerifyVisibleLogoPaletteOverride), () => VerifyVisibleLogoPaletteOverride(installation));
+        Suite(nameof(VerifyVisibleEndingPaletteFxOverride), () => VerifyVisibleEndingPaletteFxOverride(installation));
 
         string invalidPath = Path.Combine(installation.EndingPaletteOverrideDirectory,
             EndingPaletteDefinitions.FileName(EndingPaletteId.Escape));
@@ -410,8 +410,7 @@ internal static class EndingPaletteArtworkVerification
     }
 
     /// <summary>Edits explosion palette-FX colors and checks that the ending scene visibly consumes them.</summary>
-    private static void VerifyVisibleEndingPaletteFxOverride(GameInstallation installation,
-        ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
+    private static void VerifyVisibleEndingPaletteFxOverride(GameInstallation installation)
     {
         byte[] stockFile = File.ReadAllBytes(Path.Combine(installation.MapDirectory,
             RoomPaletteFxPresentationFormat.FileName));
@@ -429,8 +428,8 @@ internal static class EndingPaletteArtworkVerification
 
         var editedAudio = new CartridgeAudioState();
         var stockAudio = new CartridgeAudioState();
-        var editedScene = CreateRetailEndingFixture(guardedBus, editedAudio, 2, 59);
-        var stockScene = CreateRetailEndingFixture(nativeBus, stockAudio, 2, 59);
+        var editedScene = CreateRetailEndingFixture(editedAudio, 2, 59);
+        var stockScene = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedScene.BindPaletteArtwork(installation.LoadEndingPalettes());
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         editedScene.BindPaletteFxColors(maps.RoomPaletteFx);
@@ -482,8 +481,8 @@ internal static class EndingPaletteArtworkVerification
     {
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
-        var nativeLogo = new EndingLogo(nativeBus, nativeCgram, () => { }, stock);
-        var installedLogo = new EndingLogo(guardedBus, installedCgram, () => { }, stock);
+        var nativeLogo = new EndingLogo(nativeCgram, () => { }, stock);
+        var installedLogo = new EndingLogo(installedCgram, () => { }, stock);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed initial logo palette matches cartridge CGRAM");
         for (int frame = 0; frame < 300 && !nativeLogo.Completed; frame++)
@@ -514,8 +513,7 @@ internal static class EndingPaletteArtworkVerification
     }
 
     /// <summary>Edits credits palette colors and checks rendered ending pixels change without VRAM edits.</summary>
-    private static void VerifyVisibleCreditsPaletteOverride(GameInstallation installation,
-        ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
+    private static void VerifyVisibleCreditsPaletteOverride(GameInstallation installation)
     {
         string name = EndingPaletteDefinitions.FileName(EndingPaletteId.Credits);
         string overridePath = Path.Combine(installation.EndingPaletteOverrideDirectory, name);
@@ -530,8 +528,8 @@ internal static class EndingPaletteArtworkVerification
         EndingPaletteCatalog edited = installation.LoadEndingPalettes();
         var editedAudio = new CartridgeAudioState();
         var stockAudio = new CartridgeAudioState();
-        var editedState = CreateRetailEndingFixture(guardedBus, editedAudio, 2, 59);
-        var stockState = CreateRetailEndingFixture(nativeBus, stockAudio, 2, 59);
+        var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
+        var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedState.BindPaletteArtwork(edited);
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         editedState.BindPaletteFxColors(maps.RoomPaletteFx);
@@ -565,8 +563,7 @@ internal static class EndingPaletteArtworkVerification
     }
 
     /// <summary>Edits logo crossfade colors and checks visible output while retaining tile data.</summary>
-    private static void VerifyVisibleLogoPaletteOverride(GameInstallation installation,
-        ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
+    private static void VerifyVisibleLogoPaletteOverride(GameInstallation installation)
     {
         string name = EndingPaletteDefinitions.FileName(EndingPaletteId.LogoCrossfade);
         string overridePath = Path.Combine(installation.EndingPaletteOverrideDirectory, name);
@@ -581,8 +578,8 @@ internal static class EndingPaletteArtworkVerification
         EndingPaletteCatalog edited = installation.LoadEndingPalettes();
         var editedAudio = new CartridgeAudioState();
         var stockAudio = new CartridgeAudioState();
-        var editedState = CreateRetailEndingFixture(guardedBus, editedAudio, 2, 59);
-        var stockState = CreateRetailEndingFixture(nativeBus, stockAudio, 2, 59);
+        var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
+        var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedState.BindPaletteArtwork(edited);
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         editedState.BindPaletteFxColors(maps.RoomPaletteFx);

@@ -16,14 +16,14 @@ internal static class StatueSplashVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xa66a);
-        var assets = LoadFixtureRoomAssets(bus, room);
+        var assets = LoadFixtureRoomAssets(room);
         int splashes = 0;
         for (ushort random = 0; random < 64; random++)
         {
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
-            enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => random)));
+            enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => random)));
             foreach (var actor in enemies.Projectiles.EnemyProjectiles) actor.Kind = 0;
-            enemies.TourianUnlockBehavior.TourianStatueWaterY = 216;
+            enemies.TourianUnlockBehavior.TourianStatueWaterSurface = new(0, 216);
             enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(0, false);
             var eye = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             RoomEnemyProjectileSlot? particle = null;
@@ -68,7 +68,7 @@ internal static class StatueSplashVerification
                         var expectedOam = new OamBuffer();
                         expectedOam.BeginFrame();
                         DrawImportedEnemyProjectileSpritemap(bus, expectedOam, NativeEnemyProjectileSpritemap(bus, splash),
-                            new(unchecked((ushort)(splashX - 32)), 164), splash.GraphicsIndex, true);
+                            new(unchecked((ushort)(splashX - 32)), 164), checked((ushort)splash.GraphicsIndex), true);
                         expectedOam.FinalizeFrame();
                         var actualOam = new OamBuffer();
                         actualOam.BeginFrame();

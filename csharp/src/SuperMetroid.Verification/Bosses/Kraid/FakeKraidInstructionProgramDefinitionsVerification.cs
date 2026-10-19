@@ -19,6 +19,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Mini-Kraid's typed programs and their cues through its real initializer, walks and spits.</summary>
 internal static class FakeKraidInstructionProgramDefinitionsVerification
 {
+    /// <summary>Enough walk decisions that the spit decision cannot expire during a sixty-update run.</summary>
+    private const int UnexpiredSpitDecisions = 256;
+
     /// <summary>Loads the retail cartridge oracle for Fake Kraid instruction verification.</summary>
     internal static void VerifyFakeKraidInstructionProgramDefinitions()
     {
@@ -68,8 +71,24 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         ExerciseSpit(
             FakeKraidProgram.FireSpitFacingRight,
             movingRight: true);
+        ExerciseWalkTimerExpiry(
+            FakeKraidProgram.StepForwardsFacingLeft,
+            movingRight: false,
+            walkDelta: -4);
+        ExerciseWalkTimerExpiry(
+            FakeKraidProgram.StepBackwardsFacingRight,
+            movingRight: true,
+            walkDelta: -4);
+        ExerciseWalkTimerWrap(
+            FakeKraidProgram.StepForwardsFacingLeft,
+            movingRight: false,
+            walkDelta: -4);
+        ExerciseWalkTimerWrap(
+            FakeKraidProgram.StepBackwardsFacingRight,
+            movingRight: true,
+            walkDelta: -4);
 
-        Console.WriteLine("Fake Kraid: both initial facings, four walk and two spit programs with their cues pass.");
+        Console.WriteLine("Fake Kraid: both initial facings, four walk and two spit programs with their cues, and the walk timer's expiry at zero and wrap from zero pass.");
 
         void VerifyInitializer(bool movingRight)
         {
@@ -97,12 +116,12 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             slot.InstructionTimer = NativeCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
-            state.WalkStepTimer = 0x0100;
+            state.WalkStepTimer = NativeCountdown.Start(0x0100);
             state.SpitDecisionTimer = NativeCountdown.Start(0x0100);
 
             RunFrames(enemies, slot, samus, level, 60);
 
-            AssertEqual((ushort)0x00ff, state.WalkStepTimer,
+            AssertEqual((ushort)0x00ff, state.WalkStepTimer.RawValue,
                 $"Fake Kraid {program} executes its walk callback");
             AssertEqual((ushort)0x00ff, state.SpitDecisionTimer.RawValue,
                 $"Fake Kraid {program} executes its action callback");
@@ -117,15 +136,68 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out FakeKraidEnemyState state);
             state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
-            state.WalkStepTimer = 0x0100;
+            state.WalkStepTimer = NativeCountdown.Start(0x0100);
             state.SpitDecisionTimer = NativeCountdown.Start(0x0100);
 
             RunFrames(enemies, slot, samus, level, 60);
 
             AssertEqual(2, state.SpawnedSpitCount,
                 $"Fake Kraid {program} spawns its projectile pair");
-            AssertEqual((ushort?)0x0016, enemies.FakeKraidBehavior.LastFakeKraidSoundEffect,
+            AssertEqual((SoundEffectId?)KraidSoundDefinitions.MiniKraidCry, enemies.FakeKraidBehavior.LastFakeKraidSoundEffect,
                 $"Fake Kraid {program} publishes its cry");
+        }
+
+        void ExerciseWalkTimerExpiry(FakeKraidProgram program, bool movingRight, short walkDelta)
+        {
+            // A timer at one reaches zero on the walk callback: the actor reverses without stepping and reloads
+            // seven through ten (seven for the fixture's zero random word).
+            RoomEnemySystem enemies = CreateSystem(
+                movingRight,
+                out RoomEnemySlot slot,
+                out SamusState samus,
+                out FakeKraidEnemyState state);
+            state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            state.WalkDelta = walkDelta;
+            state.FacingDelta = movingRight ? (short)4 : (short)-4;
+            state.WalkStepTimer = NativeCountdown.Start(1);
+            state.SpitDecisionTimer = NativeCountdown.Start(UnexpiredSpitDecisions);
+            ushort startX = slot.Position.X.Whole;
+
+            RunFrames(enemies, slot, samus, level, 60);
+
+            AssertEqual((short)-walkDelta, state.WalkDelta,
+                $"Fake Kraid {program} reverses when its walk timer reaches zero");
+            AssertEqual(startX, slot.Position.X.Whole,
+                $"Fake Kraid {program} does not step on the reversing callback");
+            AssertEqual((ushort)7, state.WalkStepTimer.RawValue,
+                $"Fake Kraid {program} reloads its walk timer from the random word");
+        }
+
+        void ExerciseWalkTimerWrap(FakeKraidProgram program, bool movingRight, short walkDelta)
+        {
+            // A cleared timer does not expire: the decrement wraps to the full word and the actor still steps.
+            RoomEnemySystem enemies = CreateSystem(
+                movingRight,
+                out RoomEnemySlot slot,
+                out SamusState samus,
+                out FakeKraidEnemyState state);
+            state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            state.WalkDelta = walkDelta;
+            state.FacingDelta = movingRight ? (short)4 : (short)-4;
+            state.WalkStepTimer = NativeCountdown.Start(0);
+            state.SpitDecisionTimer = NativeCountdown.Start(UnexpiredSpitDecisions);
+            ushort startX = slot.Position.X.Whole;
+
+            RunFrames(enemies, slot, samus, level, 60);
+
+            AssertEqual(ushort.MaxValue, state.WalkStepTimer.RawValue,
+                $"Fake Kraid {program} wraps a cleared walk timer");
+            AssertEqual(walkDelta, state.WalkDelta,
+                $"Fake Kraid {program} keeps its walk direction when the cleared timer wraps");
+            AssertEqual(unchecked((ushort)(startX + walkDelta)), slot.Position.X.Whole,
+                $"Fake Kraid {program} still steps when the cleared timer wraps");
         }
 
         RoomEnemySystem CreateSystem(
@@ -135,13 +207,15 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             out FakeKraidEnemyState state)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
             Action<RoomEnemySlot, SamusState?> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
 
             slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.MiniKraid;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
+            slot.Bind(EnemyDefinitionId.MiniKraid, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa6 });
+            // The header's collision half-extents: the terrain movers scan the rows the body spans.
+            slot.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.MiniKraid).Radius;
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             samus = new SamusState
             {
@@ -162,7 +236,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             object?[] arguments =
                 [slot, samus, level, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
         }
     }
 

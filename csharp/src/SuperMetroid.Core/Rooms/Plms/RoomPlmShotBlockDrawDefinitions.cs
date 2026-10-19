@@ -22,8 +22,6 @@ internal static class RoomPlmShotBlockDrawDefinitions
     private const ushort VerticalRunBit = 0x8000;
     /// <summary>The direction/count word's block count.</summary>
     private const ushort RunCountBits = 0x7fff;
-    /// <summary>The most blocks a native run writes.</summary>
-    internal const int MaximumRunCount = 0xff;
 
     /// <summary>Whether a run's direction/count word writes down a column.</summary>
     internal static bool IsVerticalRun(ushort directionAndCount) => (directionAndCount & VerticalRunBit) != 0;

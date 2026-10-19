@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -181,7 +182,6 @@ internal static class CrocomireMeltingDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting graphics production")]
     private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var artwork = InstalledFixtures.EnemyTiles;
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {
@@ -189,7 +189,7 @@ internal static class CrocomireMeltingDefinitionsVerification
             var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
             var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
             var vram = new SnesVram();
-            enemies.BindFixtureBus(NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._vram = vram;
             enemies.CrocomireBehavior.CrocomireDeath = death;
             Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.InitializeCrocomireMeltingGraphics;
@@ -211,7 +211,7 @@ internal static class CrocomireMeltingDefinitionsVerification
                 for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
                 {
                     expectedGraphics[destination + index] = rom.ReadCartridgeByte(
-                        ((int)new SnesAddress(pass.SourceBank, unchecked((ushort)(copy.SourceWord + index)))));
+                        ((int)new SnesAddress(checked((byte)pass.SourceBank), checked((ushort)(copy.SourceWord + index)))));
                 }
             }
             AssertTrue(death.MeltingGraphics.SequenceEqual(expectedGraphics),
@@ -247,16 +247,15 @@ internal static class CrocomireMeltingDefinitionsVerification
     internal static void VerifyCrocomireMeltingProductionSequence(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var death = new CrocomireDeathState
         {
             MeltingTableOffset = CrocomireMeltingTransferDefinitions.Passes[0].TransferStartOffset,
             PixelsToErasePerColumn = 48,
-            TargetHeightOrSkeletonTileIndex = 48,
+            MeltTargetHeight = 48,
         };
         death.MutableMeltingGraphics.Fill(0xff);
-        enemies.BindFixtureBus(NewCrocomireMeltingDefinitionReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = new SnesVram();
         enemies.CrocomireBehavior.CrocomireDeath = death;
         Func<bool> erase = enemies.CrocomireBehavior.EraseNextCrocomireMeltingColumn;
@@ -298,15 +297,13 @@ internal static class CrocomireMeltingDefinitionsVerification
 
     /// <summary>Runs one installed artwork melt pass and returns its scratch graphics after verifying VRAM uploads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    internal static byte[] VerifyInstalledCrocomireMeltingPass(SuperMetroidAddressSpace rom,
-        EnemyTileArtworkCatalog artwork, CrocomireMeltingPass pass)
+    internal static byte[] VerifyInstalledCrocomireMeltingPass(EnemyTileArtworkCatalog artwork, CrocomireMeltingPass pass)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
         var vram = new SnesVram();
-        enemies.BindFixtureBus(NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         enemies.CrocomireBehavior.CrocomireDeath = death;
         Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.InitializeCrocomireMeltingGraphics;
@@ -341,12 +338,11 @@ internal static class CrocomireMeltingDefinitionsVerification
         CrocomireMeltingTilemapAddress source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
     {
         int sourceAddress = (int)source;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState();
         var vram = new SnesVram();
-        enemies.BindFixtureBus(NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         enemies.CrocomireBehavior.CrocomireDeath = death;
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
@@ -364,7 +360,7 @@ internal static class CrocomireMeltingDefinitionsVerification
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
         AssertEqual((ushort)48, death.PixelsToErasePerColumn,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} erase count");
-        AssertEqual((ushort)48, death.TargetHeightOrSkeletonTileIndex,
+        AssertEqual(48, death.MeltTargetHeight,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} target height");
         var result = death.Bg2WorkingTilemap.Slice(32,
             CrocomireMeltingArtworkFormat.TilemapCellCount).ToArray();
@@ -384,38 +380,6 @@ internal static class CrocomireMeltingDefinitionsVerification
         return result;
     }
 
-    /// <summary>Forbids migrated definition reads and optionally installed graphics reads during production checks.</summary>
-    private static CartridgeReadGuard NewCrocomireMeltingDefinitionReadGuard(
-        ISnesAddressSpace source, bool blockGraphics = false)
-    {
-        var guard = new CartridgeReadGuard(source)
-            .Forbid(address => address is
-                    >= 0xa49697 and < 0xa496c8 or
-                    >= 0xa49bbd and < 0xa49bc5 or
-                    >= CrocomireMeltingTransferDefinitionsConstants.NativeSourceAddress and
-                        < CrocomireMeltingTransferDefinitionsConstants.NativeSourceAddress +
-                            CrocomireMeltingTransferDefinitionsConstants.NativeByteCount,
-                address => $"Crocomire melting attempted migrated definition read ${address:X6}.");
-        if (!blockGraphics)
-            return guard;
-        return guard
-            .Forbid(address => address is >= (int)CrocomireMeltingTilemapAddress.FirstTilemap and
-                    < ((int)CrocomireMeltingTilemapAddress.SecondTilemap +
-                        (CrocomireMeltingArtworkFormat.TilemapCellCount + 1) * 2),
-                address => $"Crocomire melting attempted installed tilemap read ${address:X6}.")
-            .Forbid(address =>
-                {
-                    foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
-                    foreach (CrocomireMeltingCopy copy in pass.Copies)
-                    {
-                        int start = ((int)new SnesAddress(pass.SourceBank, copy.SourceWord));
-                        if (address >= start && address < start + (pass.WordsToCopy + 1) * 2)
-                            return true;
-                    }
-                    return false;
-                },
-                address => $"Crocomire melting attempted installed artwork read ${address:X6}.");
-    }
 
     /// <summary>Runs the complete Crocomire melting definition check using the repository cartridge.</summary>
     [VerificationCommand("--crocomire-melting-definitions")]

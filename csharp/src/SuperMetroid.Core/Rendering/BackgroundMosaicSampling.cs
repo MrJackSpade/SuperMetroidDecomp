@@ -6,14 +6,10 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public readonly struct BackgroundMosaicSampling
 {
-    /// <summary>Size-minus-one encoding makes the default zero represent one-pixel sampling.</summary>
-    private readonly byte _encodedSize;
-    /// <summary>The PPU encodes widths one through sixteen as zero through fifteen.</summary>
-    public int Size => _encodedSize + 1;
-
-    /// <summary>MOSAIC ($2106): BG2 enable is bit one; the high nibble encodes size minus one.</summary>
-    public static BackgroundMosaicSampling ForBg2(byte register) =>
-        (register & 2) == 0 ? default : new((register >> 4) + 1);
+    /// <summary>The block width beyond one pixel, 0 through 15, so the default descriptor samples one-pixel blocks.</summary>
+    private readonly int _sizeBeyondOnePixel;
+    /// <summary>The square block width in screen pixels, 1 through 16.</summary>
+    public int Size => _sizeBeyondOnePixel + 1;
 
     /// <summary>Creates frame-start mosaic sampling with an actual square block width, rather than the MOSAIC register's size-minus-one nibble; default construction is equivalent to size one and disables quantization.</summary>
     /// <param name="size">Block width and height in screen pixels, 1..16; scrolling is applied after block-origin selection using each output scanline's registers.</param>
@@ -21,7 +17,7 @@ public readonly struct BackgroundMosaicSampling
     public BackgroundMosaicSampling(int size)
     {
         if (size is < 1 or > 16) throw new ArgumentOutOfRangeException(nameof(size));
-        _encodedSize = (byte)(size - 1);
+        _sizeBeyondOnePixel = size - 1;
     }
 
     /// <summary>Output X is zero based; tilemap wrapping follows scroll addition in the BG sampler.</summary>

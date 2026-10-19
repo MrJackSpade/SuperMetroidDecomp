@@ -7,8 +7,15 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Gate PLMs: the shot-switched vertical gates and the downward gate with its sounds and projectile requests.</summary>
-internal sealed class GatePlms
+internal sealed class GatePlms : IPlmFamilySource
 {
+    /// <summary>Registers the DownwardGate family, which has no step of its own: its slots take the shared path.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.DownwardGate, static (_, _) => PlmStepOutcome.Shared);
+    }
+
     /// <summary>Current room and Samus state used by gate-column proximity checks.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Fixed PLM pool used for temporary shot triggers and resident gates.</summary>
@@ -43,7 +50,7 @@ internal sealed class GatePlms
     /// <summary>Marks the gate's five vertical BTS cells and requests its initial closed projectile.</summary>
     internal void SetupDownwardGateSlot(RoomLevelData level, PlmSlot slot)
     {
-        slot.Gate = new DownwardGatePlmState();
+        slot.Family = new DownwardGatePlmState();
         slot.StartAnimation(new DownwardGatePlmAnimation(DownwardGateProgram.Closed));
 
         // Setup $C784 writes BTS $10 to the five vertically adjacent gate cells without
@@ -58,7 +65,7 @@ internal sealed class GatePlms
 
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
             DownwardGateProjectileOperation.Spawn,
-            (ushort)RoomEnemyProjectileKind.DownwardGateClosed,
+            RoomEnemyProjectileKind.DownwardGateClosed,
             slot.BlockIndex));
     }
 
@@ -106,7 +113,7 @@ internal sealed class GatePlms
             if (_slotTable._slots[index].Active)
                 continue;
             temporary = _slotTable._slots[index];
-            PlmPopulationLoader.ClearSlot(temporary);
+            temporary.Clear();
             temporary.Active = true;
             temporary.HeaderPointer = HeaderForGateTrigger(trigger);
             temporary.BlockIndex = blockIndex;
@@ -128,7 +135,7 @@ internal sealed class GatePlms
                         DownwardGatePlmRomData.RejectedShotSound),
                     MaximumQueued: 6));
             }
-            PlmPopulationLoader.ClearSlot(temporary);
+            temporary.Clear();
             return true;
         }
 
@@ -137,7 +144,7 @@ internal sealed class GatePlms
         for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
         {
             PlmSlot candidate = _slotTable._slots[index];
-            if (candidate.Active && candidate.Gate is not null &&
+            if (candidate.Active && candidate.Family is DownwardGatePlmState &&
                 candidate.BlockIndex == gateBlockIndex)
             {
                 gate = candidate;
@@ -146,7 +153,7 @@ internal sealed class GatePlms
         }
         if (gate is null)
         {
-            PlmPopulationLoader.ClearSlot(temporary);
+            temporary.Clear();
             throw new InvalidDataException(
                 $"Downward gate trigger block {blockIndex} has no adjacent resident gate at {gateBlockIndex}.");
         }
@@ -155,21 +162,21 @@ internal sealed class GatePlms
         // resident pre-instruction runs do not accumulate extra close cycles.
         if (gate.LoopTimer == 0)
             gate.LoopTimer = 1;
-        PlmPopulationLoader.ClearSlot(temporary);
+        temporary.Clear();
         return true;
     }
 
     /// <summary><c>$84:BBE1</c>: requests the moving gate projectile that slides the gate down from the slot's block.</summary>
     internal void SpawnMovingGateProjectile(PlmSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-            DownwardGateProjectileOperation.Spawn, (ushort)RoomEnemyProjectileKind.DownwardGateMoving, slot.BlockIndex));
+            DownwardGateProjectileOperation.Spawn, RoomEnemyProjectileKind.DownwardGateMoving, slot.BlockIndex));
 
     /// <summary>
     /// <c>$84:BBF0</c>: wakes the gate projectile whose variable E holds this PLM's block, so it slides back up.
     /// </summary>
     internal void WakeGateProjectile(PlmSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-            DownwardGateProjectileOperation.Wake, DefinitionPointer: 0, slot.BlockIndex));
+            DownwardGateProjectileOperation.Wake, Kind: null, slot.BlockIndex));
 
     /// <summary>Moves buffered rejected-shot sounds into the room sound queue in emission order.</summary>
     internal void PublishPendingDownwardGateSounds()
@@ -179,16 +186,10 @@ internal sealed class GatePlms
     }
 
     /// <summary>Wakes a resident gate when shot or when Samus occupies the column for the appropriate pre-instruction.</summary>
-    internal void RunDownwardGatePreInstruction(PlmSlot slot)
+    internal void RunDownwardGatePreInstruction(PlmSlot slot, DownwardGatePreInstruction preInstruction)
     {
-        if (slot.Gate is null)
-            return;
-
-        DownwardGatePreInstruction preInstruction = ClosedNativeWords.Decode<DownwardGatePreInstruction>(
-            slot.PreInstruction, "downward gate pre-instruction");
         bool wake = preInstruction switch
         {
-            DownwardGatePreInstruction.None or DownwardGatePreInstruction.Inert => false,
             DownwardGatePreInstruction.WakeIfTriggered => slot.LoopTimer != 0,
             DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow =>
                 slot.LoopTimer != 0 || IsSamusInsideDownwardGateColumn(slot),
@@ -199,7 +200,7 @@ internal sealed class GatePlms
             return;
 
         slot.WakePastSleep();
-        slot.PreInstruction = (ushort)DownwardGatePreInstruction.Inert;
+        slot.PreInstruction = DownwardGatePreInstructions.Inert;
     }
 
     /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>
@@ -258,5 +259,9 @@ internal sealed class GatePlms
     }
 
     /// <summary>Marker attached to the resident PLM slot so adjacent shot triggers can find its gate.</summary>
-    internal sealed class DownwardGatePlmState;
+    internal sealed class DownwardGatePlmState : PlmFamilyState
+    {
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.DownwardGate;
+    }
 }

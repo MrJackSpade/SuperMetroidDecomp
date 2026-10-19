@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Hardware;
 /// <param name="G">Green channel intensity, 0..255.</param>
 /// <param name="B">Blue channel intensity, 0..255.</param>
 /// <param name="A">Alpha channel, with 0 transparent and 255 opaque; omitted alpha defaults to full opacity.</param>
-public readonly record struct Rgba32(byte R, byte G, byte B, byte A = 255);
+public readonly record struct Rgba32(byte R, byte G, byte B, byte A = 255); // cartridge-encoding: allow(HostPixelFormat) - host RGBA8888 pixel: four one-byte channels whose 4-byte layout pixel buffers are reinterpreted as and read back from GPU textures

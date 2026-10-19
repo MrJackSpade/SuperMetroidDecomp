@@ -21,24 +21,23 @@ internal static class ChozoGrabAnimationVerification
     /// <summary>Checks frozen ball animation during capture, movement and release, and blast state when armed.</summary>
     internal static void VerifyChozoGrabAnimation(bool powerBomb = false)
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
-        runtime.LoadCartridgeRoomForDebug(0xc98e);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BowlingAlley);
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
-        samus.CollectedItems = samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
-        samus.CommitPoseHistory(bus);
+        samus.CollectedItems = samus.EquippedItems = SamusEquipmentFlags.MorphBall;
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        samus.CommitPoseHistory();
         samus.AnimationFrame = 2;
         samus.AnimationFrameTimer = NativeCountdown.Start((ushort)3);
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
@@ -73,7 +72,7 @@ internal static class ChozoGrabAnimationVerification
             runtime.StepFrame(SnesButton.Right);
             if (powerBomb)
             {
-                if (expectedExplosion.StepFrame(bus)) expectedExplosion.ReleaseFlag();
+                if (expectedExplosion.StepFrame()) expectedExplosion.ReleaseFlag();
                 var actual = runtime.BombProjectiles.PowerBombExplosion;
                 AssertEqual(expectedExplosion.Phase, actual.Phase, $"carried Power Bomb phase at frame {frames}");
                 AssertEqual(expectedExplosion.PreExplosionRadius, actual.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");
@@ -95,7 +94,7 @@ internal static class ChozoGrabAnimationVerification
             frames++;
         }
         if (powerBomb)
-            AssertTrue(!runtime.BombProjectiles.PowerBombExplosion.IsActive && runtime.BombProjectiles.PowerBombExplosion.Flag == 0,
+            AssertTrue(!runtime.BombProjectiles.PowerBombExplosion.IsActive && !runtime.BombProjectiles.PowerBombExplosion.IsArmed,
                 "Power Bomb completes and releases its armed flag during the statue ride");
         AssertTrue(carried, "statue still moves Samus while animation is locked");
         AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked && !samus.InputLocked && runtime.Player.GroundedSamusMovementEnabled,
@@ -106,7 +105,7 @@ internal static class ChozoGrabAnimationVerification
             runtime.StepFrame(SnesButton.Right);
             if (powerBomb)
             {
-                if (expectedExplosion.StepFrame(bus)) expectedExplosion.ReleaseFlag();
+                if (expectedExplosion.StepFrame()) expectedExplosion.ReleaseFlag();
                 var actual = runtime.BombProjectiles.PowerBombExplosion;
                 AssertEqual(expectedExplosion.Phase, actual.Phase, $"carried Power Bomb phase at frame {frames}");
                 AssertEqual(expectedExplosion.PreExplosionRadius, actual.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
@@ -14,19 +15,32 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 internal static class LibraryBackgroundProgramImporter
 {
     /// <summary>Decodes one bounded bank $8F list into typed transfer, decompression, and clear commands.</summary>
-    public static LibraryBackgroundProgram Read(ISnesAddressSpace source, ushort pointer)
+    public static LibraryBackgroundProgram Read(ISnesAddressSpace source, ushort pointer) => Decode(source, pointer, out _);
+
+    /// <summary>The native encoded length of the list at <paramref name="pointer"/>, its two-byte terminator included.</summary>
+    public static int ByteSpan(ISnesAddressSpace source, ushort pointer)
+    {
+        Decode(source, pointer, out int byteSpan);
+        return byteSpan;
+    }
+
+    /// <summary>Decodes one list and measures its encoded length.</summary>
+    private static LibraryBackgroundProgram Decode(ISnesAddressSpace source, ushort pointer, out int byteSpan)
     {
         Ensure.NotNull(source);
         if ((short)pointer >= 0) throw new ArgumentOutOfRangeException(nameof(pointer));
         ushort cursor = pointer;
         var instructions = new List<LibraryBackgroundInstruction>();
-        for (int guard = 0; guard < RoomAssetRomData.LibraryBackground.MaximumCommandsPerList; guard++)
+        for (int guard = 0; guard < RoomAssetRomDataLibraryBackgroundConstants.MaximumCommandsPerList; guard++)
         {
             ushort commandPointer = cursor;
             LibraryBackgroundCommand command = (LibraryBackgroundCommand)Word(cursor);
             cursor = (ushort)(cursor + 2);
             if (command == LibraryBackgroundCommand.End)
-                return new LibraryBackgroundProgram(pointer, instructions.ToArray(), (ushort)(cursor - pointer));
+            {
+                byteSpan = (ushort)(cursor - pointer);
+                return new LibraryBackgroundProgram($"$8F:{pointer:X4}", instructions.ToArray());
+            }
             ushort door = 0;
             if (command == LibraryBackgroundCommand.TransferForDoor)
             {
@@ -38,17 +52,17 @@ internal static class LibraryBackgroundProgramImporter
                 case LibraryBackgroundCommand.TransferToVramForKraid:
                 case LibraryBackgroundCommand.TransferForDoor:
                     instructions.Add(new(command, Long(cursor), Word((ushort)(cursor + 3)),
-                        Word((ushort)(cursor + 5)), door));
+                        Word((ushort)(cursor + 5)), door == 0 ? null : DoorHeaderSources.Door(door)));
                     cursor = (ushort)(cursor + 7);
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
-                    instructions.Add(new(command, Long(cursor), Word((ushort)(cursor + 3)), 0, 0));
+                    instructions.Add(new(command, Long(cursor), Word((ushort)(cursor + 3)), 0, null));
                     cursor = (ushort)(cursor + 5);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
                 case LibraryBackgroundCommand.ClearBg2:
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
-                    instructions.Add(new(command, 0, 0, 0, 0));
+                    instructions.Add(new(command, 0, 0, 0, null));
                     break;
                 default:
                     throw new InvalidDataException($"Unknown import background command ${(ushort)command:X4} at $8F:{commandPointer:X4}.");
@@ -70,12 +84,12 @@ internal static class LibraryBackgroundProgramImporter
         SnesVram vram, ushort pointer, ushort activeDoorPointer)
     {
         LibraryBackgroundProgram program = Read(source, pointer);
-        ushort? characterBase = null;
+        bool selectsKraidHudCharacters = false;
         foreach (LibraryBackgroundInstruction instruction in program.Instructions)
         {
             switch (instruction.Command)
             {
-                case LibraryBackgroundCommand.TransferForDoor when instruction.DoorPointer != activeDoorPointer:
+                case LibraryBackgroundCommand.TransferForDoor when instruction.Door is not { } door || DoorHeaderSourcesConstants.PointerOf(door) != activeDoorPointer:
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
                 case LibraryBackgroundCommand.TransferToVram:
@@ -84,9 +98,9 @@ internal static class LibraryBackgroundProgramImporter
                     var bytes = new byte[instruction.ByteCount];
                     SnesAddress start = SnesAddress.FromBusAddress(instruction.SourceAddress);
                     for (int i = 0; i < bytes.Length; i++) bytes[i] = ReadImportByte(source, (int)start.AddWithinBank(i));
-                    vram.ExecuteQueuedAssetWrite(bytes, instruction.Destination);
+                    vram.ExecuteQueuedAssetWrite(bytes, checked((ushort)instruction.Destination));
                     if (instruction.Command == LibraryBackgroundCommand.TransferToVramForKraid)
-                        characterBase = RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
+                        selectsKraidHudCharacters = true;
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
                     byte[] expanded = RomDataReader.Decompress(CartridgeImportSource.Require(source), instruction.SourceAddress);
@@ -107,7 +121,7 @@ internal static class LibraryBackgroundProgramImporter
                     throw new InvalidDataException($"Unsupported imported background command {instruction.Command}.");
             }
         }
-        return new(characterBase);
+        return new(selectsKraidHudCharacters);
 
         void ClearAndTransfer(RoomAssetRomData.TilemapTransfer transfer, bool includeKraidPage)
         {
@@ -130,7 +144,6 @@ internal static class LibraryBackgroundProgramImporter
         {
             SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(source).ReadCartridgeByte(address),
             SnesDmaSourceKind.WorkRam => (source as ISnesMutableMemory ?? throw new InvalidOperationException("Import list requires WRAM.")).ReadWorkRamByte(address),
-            SnesDmaSourceKind.SaveRam => (source as ISnesMutableMemory ?? throw new InvalidOperationException("Import list requires SRAM.")).ReadSaveRamByte(address),
             _ => throw new InvalidDataException($"Import background byte ${address:X6} is unmapped."),
         };
 }

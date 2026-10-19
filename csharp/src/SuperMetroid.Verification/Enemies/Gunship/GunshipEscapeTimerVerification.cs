@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 /// <summary>Checks escape-timer suspension and OAM removal as Samus boards the Landing Site gunship.</summary>
 internal static class GunshipEscapeTimerVerification
 {
@@ -20,29 +21,28 @@ internal static class GunshipEscapeTimerVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     internal static int VerifyGunshipEscapeTimer()
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var maps = InstalledFixtures.Maps;
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
-        runtime.LoadCartridgeRoomForDebug(0x91f8);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
         var samus = runtime.Player.IntroducedSamus;
         var top = runtime.Enemies.SlotTable.Slots.First(slot => slot.Definition.InitializationAiPointer == 0xa644);
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
-        samus.Presentation.InitializeAnimation(bus);
-        samus.Presentation.PrimeGraphics(bus);
-        runtime.EscapeTimer.RawStatus = (ushort)0x8006;
+        samus.Presentation.InitializeAnimation();
+        samus.Presentation.PrimeGraphics();
+        runtime.EscapeTimer.SelectStatus(EscapeTimerState.RunningInPlace, active: true);
         runtime.EscapeTimer.SetTime(PackedBcd.FromDecimal(2), PackedBcd.FromDecimal(59), PackedBcd.FromDecimal(50));
         runtime.QueueEscapeTimerSpriteTiles();
         runtime.StepFrame(0);
@@ -51,10 +51,10 @@ internal static class GunshipEscapeTimerVerification
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeY(0x0440);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         var timeBeforeBoarding = Time();
         runtime.StepFrame(SnesButton.Down);
-        AssertEqual(GunshipFrameEvent.EntryStarted, runtime.Enemies.GunshipBehavior.LastGunshipEvent, "Down starts actual Landing Site boarding");
+        AssertEqual(GunshipFrameEvent.EntryStarted, runtime.Enemies.LastEnemyFrame.Gunship, "Down starts actual Landing Site boarding");
         AssertEqual(timeBeforeBoarding, Time(), "Boarding handler stops the timer on its installation frame");
         AssertTrue(!TimerSpritesPresent(), "Boarding removes the timer draws immediately");
         bool sawDustUpload = false;
@@ -64,7 +64,7 @@ internal static class GunshipEscapeTimerVerification
             AssertTrue(runtime.EscapeTimer.IsActive, "Gunship preserves native active timer status");
             AssertEqual(timeBeforeBoarding, Time(), "Gunship handler omits timer countdown");
             AssertTrue(!TimerSpritesPresent(), "No timer sprites reference repurposed dust tiles");
-            if (top.VariableF == 0xac1b)
+            if (GunshipPartState.Of(top).Function == GunshipFunction.FireUpEngines)
             {
                 sawDustUpload = true;
                 break;

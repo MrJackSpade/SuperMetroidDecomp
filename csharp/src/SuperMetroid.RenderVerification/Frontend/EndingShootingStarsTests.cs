@@ -54,7 +54,7 @@ internal static class EndingShootingStarsTests
             }
         }
         Require(stars.Stars[1].Position.Whole == new Position16<ScreenPixels>(128, 128) && stars.Stars[1].Velocity.X.RawValue == 0 &&
-            stars.Stars[1].IndexAndFrame == 1 && stars.Stars[1].Timer.RawValue == 32, "Offscreen reset restarts animation without its initial delay");
+            !stars.Stars[1].Delayed && stars.Stars[1].AnimationFrame == 0 && stars.Stars[1].Timer.RawValue == 32, "Offscreen reset restarts animation without its initial delay");
         using (var saved = new MemoryStream())
         {
             DebuggerObjectGraphSerializer.Serialize(saved, stars);
@@ -65,10 +65,9 @@ internal static class EndingShootingStarsTests
                 Require(stars.Stars[index].Equals(restored.Stars[index]), "Debugger restore preserves star motion and animation");
         }
 
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         var installed = RepositoryInstallation.Installation;
         var maps = installed.LoadMaps();
-        var scene = new EndingCreditsState(installed.OpenRuntimeAddressSpace(), new CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
+        var scene = new EndingCreditsState(new CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
         scene.BindObjectArtwork(installed.LoadEndingObjectArt());
         scene.BindPaletteArtwork(installed.LoadEndingPalettes());
         scene.BindPaletteFxColors(maps.RoomPaletteFx);
@@ -100,7 +99,7 @@ internal static class EndingShootingStarsTests
         // A later logo owner must append stars after its own actors, including after
         // the icon's actor program completes and the final text remains on screen.
         var cgram = scene.cgram;
-        var logo = new EndingLogo(installed.OpenRuntimeAddressSpace(), cgram, () => { }, installed.LoadEndingPalettes());
+        var logo = new EndingLogo(cgram, () => { }, installed.LoadEndingPalettes());
         scene.endingLogo = logo;
         scene.Phase = EndingCreditsPhase.PostCreditsLogo;
         logo.PaletteStep = 16;

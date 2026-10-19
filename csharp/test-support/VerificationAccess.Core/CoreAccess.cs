@@ -39,28 +39,35 @@ namespace SuperMetroid.Core;
 /// </summary>
 internal static class CoreAccess
 {
+    /// <summary>Kraid's mouth hitbox test: the production collision-scratch load followed by its mouth overlap.</summary>
+    internal static bool KraidMouthHitboxOverlapsShot(RoomEnemySlot body, ushort hitboxPointer, SamusProjectileSlot shot)
+    {
+        KraidBehavior.KraidCollisionScratch scratch = KraidBehaviorConstants.LoadKraidCollisionScratch(body, hitboxPointer);
+        return scratch.OverlapsMouth(new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.PackedType.Raw, shot.Damage));
+    }
+
     /// <summary>Exposes frontend-owned gameplay runtime, attract timing, audio, and Samus observations for verification.</summary>
     extension(SuperMetroidGame game)
     {
         /// <summary>Reads the gameplay runtime currently owned by the frontend state machine.</summary>
-        internal SuperMetroidRuntime? RuntimeForVerification => game.runtime;
+        internal SuperMetroidRuntime? RuntimeForVerification => game.Session.runtime;
         /// <summary>The gameplay runtime a test requires: the frontend must be in a loaded game.</summary>
-        internal SuperMetroidRuntime GameplayRuntimeForVerification => game.GameplayRuntime;
+        internal SuperMetroidRuntime GameplayRuntimeForVerification => game.Session.GameplayRuntime;
         /// <summary>Remaining authored hold frames before the attract demo advances.</summary>
-        internal int AttractDemoHoldFramesRemaining => game.demoHoldFramesRemaining;
+        internal int AttractDemoHoldFramesRemaining => game.Session.demoHoldFramesRemaining;
         /// <summary>Whether the current runtime permits ordinary grounded Samus movement.</summary>
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
         /// <summary>Reads the frontend audio queue owner across gameplay and menus.</summary>
-        internal CartridgeAudioState AudioForVerification => game.audio;
+        internal CartridgeAudioState AudioForVerification => game.Session.audio;
         /// <summary>The acknowledgements the session's SPC port model published for the next update.</summary>
-        internal CartridgeAudioAcknowledgements AudioAcknowledgementsForVerification => game.audioSession.Acknowledgements;
+        internal CartridgeAudioAcknowledgements AudioAcknowledgementsForVerification => game.Session.audioSession.Acknowledgements;
         /// <summary>The most recent update's ordered semantic audio events.</summary>
-        internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.lastAudioEvents;
-        /// <summary>Reads the menu NMI frame counter used by frontend animation timing.</summary>
-        internal ushort MenuNmiFrameCounterForVerification => game.menuNmi.FrameCounter;
+        internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.Session.lastAudioEvents;
+        /// <summary>Reads the session frame clock's 16-bit counter, which the frontend advances while no runtime exists.</summary>
+        internal int MenuNmiFrameCounterForVerification => game.Session.frameClock.Counter;
         /// <summary>Reads the active Ceres destruction cinematic, if that phase owns the frontend.</summary>
         internal CeresDestructionCinematicState? CeresDestructionForVerification =>
-            game.ceresDestruction;
+            game.Session.ceresDestruction;
 
         /// <summary>
         /// Applies the controller read of a native NMI accepted during the door music-wait APU
@@ -87,26 +94,26 @@ internal static class CoreAccess
     extension(IntroCinematicState intro)
     {
         /// <summary>Native projectile counter for the intro flashback's private shot system.</summary>
-        internal ushort ActiveFlashbackProjectileCount =>
+        internal int ActiveFlashbackProjectileCount =>
             intro.flashbackProjectiles.SlotTable.ProjectileCounter;
         /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
         internal ushort FlashbackSamusX => intro.flashbackSamus?.Position.X.Whole ?? 0;
         /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
         internal ushort FlashbackSamusY => intro.flashbackSamus?.Position.Y.Whole ?? 0;
         /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
-        internal ushort MotherBrainHitCount =>
+        internal int MotherBrainHitCount =>
             intro.flashbackMotherBrain?.HitCount ?? 0;
     }
 
     /// <summary>Observes credits brightness, cinematic frame, and vertical crawl position.</summary>
     extension(EndingCreditsState ending)
     {
-        /// <summary>Current credits fade brightness from the private cinematic state.</summary>
-        internal byte Brightness => ending.brightness;
-        /// <summary>Native frame counter for the ending cinematic.</summary>
-        internal ushort CinematicFrame => ending.cinematicFrame;
-        /// <summary>Current credits scroll position, or zero before credits exist.</summary>
-        internal ushort CreditsVerticalScroll => ending.credits?.VerticalScroll ?? 0;
+        /// <summary>Current credits fade brightness, 0 (black) through 15 (full), from the private cinematic state.</summary>
+        internal int Brightness => ending.brightness;
+        /// <summary>Cinematic calls the ending has made so far.</summary>
+        internal int CinematicFrame => ending.cinematicFrame;
+        /// <summary>Whole-pixel vertical credits scroll position, or zero before credits exist.</summary>
+        internal int CreditsVerticalScroll => ending.credits?.ScrollPosition.Y ?? 0;
     }
 
     /// <summary>Exposes pause indicator placement, page transition, and displayed map tile state.</summary>
@@ -143,20 +150,6 @@ internal static class CoreAccess
         /// <summary>Total source-sample mappings across installed audio banks.</summary>
         internal int SourceMappingCount => catalog.sampleBanks
             .Values.Sum(bank => bank.Samples.Count);
-    }
-
-    /// <summary>Copies frontend pixels so later renders cannot mutate a recorded frame.</summary>
-    extension(FrontendFrame frame)
-    {
-        /// <summary>Copies the pixel array so later rendering cannot mutate an observed frame.</summary>
-        internal FrontendFrame WithCopiedPixels() => frame with { Pixels = frame.Pixels.ToArray() };
-    }
-
-    /// <summary>Identifies captured frontend frames that still use the legacy raster path.</summary>
-    extension(CapturedFrontendFrame frame)
-    {
-        /// <summary>Identifies frames captured before the snapshot renderer supplied a scene record.</summary>
-        internal bool UsedLegacyRaster => frame.Snapshot is null;
     }
 
     /// <summary>Reads the installed initial gameplay palette for exact color comparisons.</summary>
@@ -226,8 +219,6 @@ internal static class CoreAccess
     {
         /// <summary>Mutable emulated WRAM for focused verifier setup.</summary>
         internal Span<byte> WorkRam => bus._workRam;
-        /// <summary>Mutable emulated SRAM for focused verifier setup.</summary>
-        internal Span<byte> SaveRam => bus._saveRam;
     }
 
     /// <summary>Reads queued VRAM writes before the display upload consumes them.</summary>
@@ -241,44 +232,38 @@ internal static class CoreAccess
     extension(SamusGrappleMovement)
     {
         /// <summary>Accepted grapple firing with its connection pose applied immediately, as ordinary firing does.</summary>
-        internal static GrappleMovementResult ConnectAcceptedFiring(ISnesAddressSpace bus, SamusState samus,
+        internal static GrappleMovementResult ConnectAcceptedFiring(SamusState samus,
             SamusGrappleState grapple, Position16<RoomPixels> previousPosition,
             bool validateAnchorBlock = true, bool validateAnchorEnemy = false) =>
-            SamusGrappleMovement.ConnectAcceptedFiringCore(bus, samus, grapple, previousPosition, validateAnchorBlock, validateAnchorEnemy, false);
+            SamusGrappleMovement.ConnectAcceptedFiringCore(samus, grapple, previousPosition, validateAnchorBlock, validateAnchorEnemy, false);
     }
 
     /// <summary>Observes per-priority enemy draw queues before OAM construction.</summary>
     extension(EnemyDrawList drawing)
     {
         /// <summary>The per-layer native draw queues the last enemy pass built, in layer order.</summary>
-        internal IReadOnlyList<List<ushort>> QueuesForVerification => drawing._drawQueues;
+        internal IReadOnlyList<List<int>> QueuesForVerification => drawing._drawQueues;
     }
 
     /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>
     extension(RoomEnemySystem enemies)
     {
         /// <summary>
-        /// Binds a fixture's address space without loading a population, so a focused check can run one enemy
-        /// routine against constructed memory.
+        /// Binds an enemy definition source without loading a population, so a focused check can run one enemy
+        /// routine against constructed records.
         /// </summary>
-        internal void BindFixtureBus(ISnesAddressSpace bus) => enemies.Room.Bus = Ensure.NotNull(bus);
-
-        /// <summary>Kraid's mouth hitbox test: the production collision-scratch load followed by its mouth overlap.</summary>
-        internal bool KraidMouthHitboxOverlapsShot(RoomEnemySlot body, ushort hitboxPointer, SamusProjectileSlot shot)
-        {
-            KraidBehavior.KraidCollisionScratch scratch = enemies.KraidBehavior.LoadKraidCollisionScratch(body, hitboxPointer);
-            return scratch.OverlapsMouth(new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage));
-        }
+        internal void BindFixtureDefinitions(IRoomEnemyDefinitionSource definitions) =>
+            enemies.Room.Definitions = Ensure.NotNull(definitions);
 
         /// <summary>Room PLM requests emitted by Chozo statue AI in their publication order.</summary>
         internal IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>
             enemies.ChozoStatueBehavior._chozoStatuePlmRequests;
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
-            enemies.ChozoStatueBehavior._chozoStatueStates;
+            [.. enemies.SlotTable.Slots.Select(slot => slot.SpeciesState<ChozoStatueState>())];
         /// <summary>Per-slot ninja pirate states for native slot-index verification.</summary>
         internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
-            enemies.NinjaSpacePirateBehavior._ninjaSpacePirateStates;
+            [.. enemies.SlotTable.Slots.Select(slot => slot.EntityState<NinjaSpacePirateEntity, NinjaSpacePirateEnemyState>())];
     }
 
     /// <summary>Reads Ceres pad and concealer positions and their projectile-slot activity.</summary>
@@ -330,8 +315,8 @@ internal static class CoreAccess
                     .Select((slot, index) => (slot, index))
                     .Where(entry => entry.slot.Active)
                     .OrderByDescending(entry => entry.index)
-                    .SelectMany(entry => entry.slot.Station is { } station
-                        ? [new StationPlmSnapshot(entry.index, entry.slot.BlockIndex, entry.slot.RoomArgument,
+                    .SelectMany(entry => entry.slot.Family is StationPlms.StationPlmState station
+                        ? [new StationPlmSnapshot(entry.index, entry.slot.BlockIndex, checked((ushort)entry.slot.RoomArgument),
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
                         : Array.Empty<StationPlmSnapshot>())
                     .ToArray();
@@ -345,9 +330,7 @@ internal static class CoreAccess
     /// <summary>Every room-FX record the compiled catalog defines, in pointer order.</summary>
     internal static IEnumerable<RoomFxRecordDefinition> AllRoomFxRecords()
     {
-        for (int pointer = 0x8000; pointer <= ushort.MaxValue; pointer++)
-            if (RoomFxRecordDefinitions.SelectRecord((ushort)pointer) is RoomFxRecordDefinition record)
-                yield return record;
+        return RoomFxDefinitions.AllRecords;
     }
 
     /// <summary>Keeps per-game projectile observations without extending frontend lifetime.</summary>
@@ -382,7 +365,7 @@ internal static class CoreAccess
         /// <summary>Projectile owner observed in the preceding frame.</summary>
         private SamusProjectileSystem? _projectiles;
         /// <summary>Frontend frame number associated with the preceding slot snapshot.</summary>
-        private ushort _frameNumber;
+        private int _frameNumber;
         /// <summary>Prior occupancy and projectile-family snapshot.</summary>
         private SamusProjectileSlotObservation? _slots;
         /// <summary>Allocation attributed to the most recently observed frame.</summary>
@@ -412,7 +395,7 @@ internal static class CoreAccess
                         "ordinary projectiles; no prior frame exists to attribute their allocation.");
                 _firedSlot = null;
             }
-            else if (game.FrameNumber != unchecked((ushort)(_frameNumber + 1)))
+            else if (game.FrameNumber != NativeWordCounter.IncrementWord(_frameNumber))
             {
                 throw new InvalidOperationException(
                     $"Projectile observation skipped from frame {_frameNumber} to {game.FrameNumber}; " +
@@ -443,7 +426,7 @@ internal static class CoreAccess
         {
             ScrollPlms.ScrollPlmState[] owners = [.. plms.SlotTable._slots
                 .Where(slot => slot.Active && slot.BlockIndex == blockIndex)
-                .Select(slot => slot.Scroll)
+                .Select(slot => slot.Family as ScrollPlms.ScrollPlmState)
                 .OfType<ScrollPlms.ScrollPlmState>()];
             if (owners.Length != 1)
                 throw new InvalidOperationException(
@@ -478,7 +461,7 @@ internal static class CoreAccess
             self._secondReleasedCrashEcho.Angle;
 
         /// <summary>Departing radius (projectile X velocity) of crash-echo projectile slot three.</summary>
-        internal ushort FirstReleasedCrashEchoRadius =>
+        internal int FirstReleasedCrashEchoRadius =>
             self._firstReleasedCrashEcho.Radius;
     }
 
@@ -543,7 +526,7 @@ internal static class CoreAccess
 
     /// <summary>Extracts live collectible state from the active PLM slots.</summary>
     private static IEnumerable<CollectiblePlms.CollectiblePlmState> Group4CollectibleItems(RoomPlmSystem plms) =>
-        Group4ActivePlmSlots(plms).Select(slot => slot.Item).OfType<CollectiblePlms.CollectiblePlmState>();
+        Group4ActivePlmSlots(plms).Select(slot => slot.Family).OfType<CollectiblePlms.CollectiblePlmState>();
 
     /// <summary>Reads the mailbox generation used to reject stale frame publications.</summary>
     extension(LatestRenderFrameMailbox mailbox)

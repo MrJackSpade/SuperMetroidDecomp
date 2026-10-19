@@ -81,11 +81,10 @@ internal static class IntroCinematicRomDataVerification
             .Select(field => field.RequiredConstant<ushort>())
             .Concat(new[]
             {
-                typeof(CinematicSpriteInstruction), typeof(CinematicBackgroundInstruction),
-                typeof(IntroRinkaPreInstruction), typeof(ConfusedBabyPreInstruction),
-                typeof(CinematicSpritePreInstruction), typeof(TitleSequenceInstruction),
+                typeof(CinematicSpriteInstruction), typeof(TitleSequenceInstruction),
                 typeof(CinematicIndirectInstructionFunction),
             }.SelectMany(domain => Enum.GetValues(domain).Cast<object>().Select(Convert.ToUInt16)))
+            .Concat(CinematicSpritePreInstruction.NativeAddresses)
             // The owner instructions the typed cinematic sprite programs (#641) turn into cues.
             .Concat(CinematicSpriteNativeListAddresses.OwnerInstructions.Keys)
             .Where(pointer => pointer != 0)
@@ -139,9 +138,9 @@ internal static class IntroCinematicRomDataVerification
         AssertTrue(!spans.IsEmpty, $"intro {context} palette span list is nonempty");
         foreach (IntroPaletteSpan span in spans)
         {
-            AssertEqual(0, span.ByteOffset & 1, $"intro {context} byte offset is word aligned");
-            AssertTrue(span.ByteCount > 0, $"intro {context} span is nonempty");
-            AssertTrue(span.ByteOffset / 2 + span.ByteCount <= SnesCgram.ColorCount,
+            AssertTrue(span.FirstColor >= 0, $"intro {context} span starts inside CGRAM");
+            AssertTrue(span.ColorCount > 0, $"intro {context} span is nonempty");
+            AssertTrue(span.FirstColor + span.ColorCount <= SnesCgram.ColorCount,
                 $"intro {context} span fits CGRAM");
         }
     }

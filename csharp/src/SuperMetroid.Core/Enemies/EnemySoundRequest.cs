@@ -10,5 +10,5 @@
 /// <param name="SoundSuppressed">Native queue guard captured at the request, not deferred publication.</param>
 public readonly record struct EnemySoundRequest(
     SoundEffectId SoundEffect,
-    byte MaximumQueued,
+    int MaximumQueued,
     bool SoundSuppressed = false);

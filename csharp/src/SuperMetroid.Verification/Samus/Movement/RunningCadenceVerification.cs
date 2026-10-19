@@ -15,6 +15,11 @@ internal static class RunningCadenceVerification
     internal static void VerifyRunningCadence(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var bus = new RunningCadenceReadGuard(rom);
+        // Stage five's delay list aliases the Mode 7 queue residue; it mirrors the guard's mutable delay byte.
+        var residue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
+        int stageFiveOffset = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(
+            SamusRunningCadenceDefinitions.MaximumSoundQueueSelection) - SnesAddressMath.OffsetInBank(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueLayout.QueueStart);
+        residue._bytes[stageFiveOffset] = bus.MutableDelay;
         Suite(nameof(VerifyOrdinaryRunningPointer), () => VerifyOrdinaryRunningPointer(rom));
         Suite(nameof(VerifyOrdinaryRunningStream), () => VerifyOrdinaryRunningStream(rom));
         Suite(nameof(VerifyBoostRunningPointers), () => VerifyBoostRunningPointers(rom));
@@ -24,18 +29,18 @@ internal static class RunningCadenceVerification
         Suite(nameof(VerifyBoostRunningStream3), () => VerifyBoostRunningStream3(rom));
         Suite(nameof(VerifyBoostRunningStream4), () => VerifyBoostRunningStream4(rom));
         Suite(nameof(VerifyBoostRunningResets), () => VerifyBoostRunningResets(rom));
-        var ordinary = new Func<ISnesAddressSpace, ushort, byte>(SamusPresentation.ReadDefaultRunningAnimationByte);
+        var ordinary = new Func<SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue?, int, byte>(SamusPresentation.ReadDefaultRunningAnimationByte);
         var speed = new SamusHorizontalSpeedState();
 
         // Every authored frame and loop command remains byte-exact. Reads may cross into
         // another member of this bounded catalog or wrap to the genuine mutable alias,
         // but unrelated high-bank code is not accepted as animation cadence.
         for (ushort index = 0; index <= 10; index++)
-            AssertEqual(rom.ReadCartridgeByte(0x91b5d3 + index), ordinary(bus, index), "Ordinary authored cadence");
-        AssertEqual(rom.ReadCartridgeByte(0x91b5de), ordinary(bus, 11), "Ordinary restored index can reach the next compiled definition");
-        AssertEqual(bus.MutableDelay, ordinary(bus, 0x4d30), "Ordinary restored index retains low-bank wrapping");
+            AssertEqual(rom.ReadCartridgeByte(0x91b5d3 + index), ordinary(residue, index), "Ordinary authored cadence");
+        AssertEqual(rom.ReadCartridgeByte(0x91b5de), ordinary(residue, 11), "Ordinary restored index can reach the next compiled definition");
+        AssertEqual(bus.MutableDelay, ordinary(residue, 0x4d30), "Ordinary restored index retains low-bank wrapping");
         AssertThrows<InvalidDataException>(
-            () => ordinary(bus, 0x0100),
+            () => ordinary(residue, 0x0100),
             "Ordinary restored index cannot parse unrelated high-bank ROM");
 
         for (byte stage = 0; stage <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; stage++)
@@ -48,12 +53,12 @@ internal static class RunningCadenceVerification
                 byte expected = (SnesAddressMath.OffsetInBank(address)) < 0x8000
                     ? bus.ReadUncompiledByte(address)
                     : rom.ReadCartridgeByte(address);
-                AssertEqual(expected, speed.ReadSpeedBoosterAnimationByte(bus, index), "Native Max6 cadence byte selection");
+                AssertEqual(expected, speed.ReadSpeedBoosterAnimationByte(residue, index), "Native Max6 cadence byte selection");
             }
         }
         speed.SpeedBoostCounter = 0x0600;
         AssertThrows<InvalidDataException>(
-            () => speed.ReadSpeedBoosterAnimationByte(bus, 0),
+            () => speed.ReadSpeedBoosterAnimationByte(residue, 0),
             "Restored non-native stage cannot reinterpret adjacent code as a pointer");
 
         if (definitionsOnly) return;
@@ -82,7 +87,7 @@ internal static class RunningCadenceVerification
             speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = (ushort)raw;
             speed.EchoSoundRequested = false; speed.ContactDamageIndex = SamusContactDamageIndex.None;
             ushort frame = 7;
-            bool actual = speed.TryAdvanceSpeedBoosterAnimationStage(bus,
+            bool actual = speed.TryAdvanceSpeedBoosterAnimationStage(residue,
                 running ? SamusMovementType.Running : SamusMovementType.Standing,
                 dash ? SnesButton.B : (ushort)0, (ushort)raw, ref frame, out ushort timer,
                 () => { calls++; return 0x0500; });
@@ -103,9 +108,10 @@ internal static class RunningCadenceVerification
         {
             int accumulator = SnesLittleEndian.Word(unchecked((byte)low), unchecked((byte)stage));
             bus.MutableDelay = (byte)accumulator;
+            residue._bytes[stageFiveOffset] = bus.MutableDelay;
             speed.HasRunningMomentum = true; speed.SpeedBoostCounter = 0x0301;
             ushort frame = 9;
-            speed.TryAdvanceSpeedBoosterAnimationStage(bus, SamusMovementType.Running, SnesButton.B,
+            speed.TryAdvanceSpeedBoosterAnimationStage(residue, SamusMovementType.Running, SnesButton.B,
                 (ushort)accumulator, ref frame, out ushort timer, () => (ushort)accumulator);
             AssertEqual(0x0400 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + stage * 2)), speed.SpeedBoostCounter, "All returned queue words retain native reset selection");
             byte expectedDelay = stage == 5
@@ -120,7 +126,7 @@ internal static class RunningCadenceVerification
         ushort invalidFrame = 9;
         AssertThrows<InvalidDataException>(
             () => speed.TryAdvanceSpeedBoosterAnimationStage(
-                bus,
+                residue,
                 SamusMovementType.Running,
                 SnesButton.B,
                 0,
@@ -203,7 +209,7 @@ internal static class RunningCadenceVerification
     /// <summary>Forbids compiled cadence ROM reads while exposing the live WRAM delay alias and fallback address signature.</summary>
     [CpuBusBoundary("exact bus test: live WRAM delay alias at $91:0303 plus a constructed unimplemented-hardware byte signature that witnesses running-cadence operand routing")]
     internal sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        ISnesWritableAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         /// <summary>Mutable delay byte observed when the native stage-five pointer wraps into low-bank memory.</summary>
         public byte MutableDelay = 0x35;
@@ -221,9 +227,7 @@ internal static class RunningCadenceVerification
         public byte ReadUncompiledByte(int address) => address == 0x910303 ? MutableDelay :
             address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ SnesLittleEndian.HighByte(unchecked((ushort)address)))) : ReadSourceByte(address);
         /// <summary>Exposes the mutable delay alias and otherwise forwards WRAM reads.</summary>
-        public byte ReadWorkRamByte(int address) => address == 0x910303 ? MutableDelay : SourceMemory.ReadWorkRamByte(address);
-        /// <summary>Forwards SRAM reads to the underlying mutable address space.</summary>
-        public byte ReadSaveRamByte(int address) => SourceMemory.ReadSaveRamByte(address);
+        public byte ReadWorkRamByte(int address) => address == 0x7e0303 ? MutableDelay : SourceMemory.ReadWorkRamByte(address);
         /// <summary>Forwards writes without changing the constructed read behavior.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
@@ -235,7 +239,6 @@ internal static class RunningCadenceVerification
         private byte ReadSourceByte(int address) => SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {
             SnesDmaSourceKind.WorkRam => SourceMemory.ReadWorkRamByte(address),
-            SnesDmaSourceKind.SaveRam => SourceMemory.ReadSaveRamByte(address),
             SnesDmaSourceKind.Cartridge => source.ReadCartridgeByte(address),
             _ => throw new InvalidOperationException(
                 $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),

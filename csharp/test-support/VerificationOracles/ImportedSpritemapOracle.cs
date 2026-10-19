@@ -36,22 +36,23 @@ internal static class ImportedSpritemapOracle
             byte y = Byte(offset + 2);
             var attributes = new SnesObjAttributeWord(Word(offset + 3)).WithPaletteBits(paletteBits);
             if (originIsOnScreen)
-                oam.AddOnScreenSpritePart(x, y, attributes, origin);
+                oam.AddOnScreenSpritePart(x, new SnesSpritemapYByte(y), attributes, origin);
             else
-                oam.AddOffScreenSpritePart(x, y, attributes, origin);
+                oam.AddOffScreenSpritePart(x, new SnesSpritemapYByte(y), attributes, origin);
         }
     }
 
     /// <summary>Decodes only the reference artwork; production accepts typed visual parts.</summary>
-    public static void DrawEnemy(IImportCartridgeSource source, OamBuffer oam, EnemySpritemapDraw draw) =>
+    public static void DrawEnemy(IImportCartridgeSource source, OamBuffer oam, NativeEnemySpritemapDraw draw) =>
         oam.AddEnemySpritemap(ReadEnemyParts(source, draw.Bank, draw.Pointer), draw.Origin,
-            draw.PaletteBits, draw.BaseTileIndex, draw.ClipVerticalWrap, draw.OriginYIsOnScreen);
+            checked((ushort)draw.PaletteBits), checked((ushort)draw.BaseTileIndex), draw.ClipVerticalWrap,
+            draw.OriginYIsOnScreen);
 
     /// <summary>Uses bank $8D enemy-projectile graphics bits for palette and base tile selection.</summary>
     public static void DrawEnemyProjectile(IImportCartridgeSource source, OamBuffer oam,
         ushort bank8dSpritemapPointer, Position16<OamPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
-        DrawEnemy(source, oam, new EnemySpritemapDraw { Bank = 0x8d, Pointer = bank8dSpritemapPointer, Origin = origin, PaletteBits = new SnesObjAttributeWord(graphicsIndex).PaletteBits, BaseTileIndex = unchecked((byte)graphicsIndex), ClipVerticalWrap = true, OriginYIsOnScreen = originYIsOnScreen });
+        DrawEnemy(source, oam, new NativeEnemySpritemapDraw { Bank = 0x8d, Pointer = bank8dSpritemapPointer, Origin = origin, PaletteBits = new SnesObjAttributeWord(graphicsIndex).PaletteBits, BaseTileIndex = unchecked((byte)graphicsIndex), ClipVerticalWrap = true, OriginYIsOnScreen = originYIsOnScreen });
 
     /// <summary>Reads a packed enemy spritemap's part count and five-byte records from its data bank.</summary>
     private static EnemySpritemapPart[] ReadEnemyParts(IImportCartridgeSource source,
@@ -65,7 +66,7 @@ internal static class ImportedSpritemapOracle
         for (int part = 0; part < parts.Length; part++)
         {
             int offset = 2 + part * 5;
-            parts[part] = new(new SnesSpritemapXWord(Word(offset)), Byte(offset + 2),
+            parts[part] = new(new SnesSpritemapXWord(Word(offset)), new SnesSpritemapYByte(Byte(offset + 2)),
                 new SnesObjAttributeWord(Word(offset + 3)));
         }
         return parts;

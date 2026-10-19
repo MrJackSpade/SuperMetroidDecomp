@@ -16,20 +16,20 @@ internal static class ZebetiteDefinitions
 
     /// <summary>Embedded primary spawn record at <c>$A6:FCE1-$A6:FCF0</c>.</summary>
     private static readonly RoomEnemyPopulationRecord PrimarySpawn =
-        new(EnemyDefinitionId.Zebetite, new(0, 0), 0, 0x2000, 0, 0, 0);
+        new(EnemyDefinitionId.Zebetite, new(0, 0), 0, new EnemyPropertyWord(EnemyProperties.ProcessInstructions), new EnemyExtraPropertyWord(EnemyExtraProperties.None), 0, 0);
 
     /// <summary>Embedded linked-half spawn record at <c>$A6:FCF9-$A6:FD08</c>.</summary>
     private static readonly RoomEnemyPopulationRecord LinkedSpawn =
-        new(EnemyDefinitionId.Zebetite, new(0, 0), 0, 0x2000, 0, 2, 0);
+        new(EnemyDefinitionId.Zebetite, new(0, 0), 0, new EnemyPropertyWord(EnemyProperties.ProcessInstructions), new EnemyExtraPropertyWord(EnemyExtraProperties.None), 2, 0);
 
     /// <summary>
     /// $A6:FC03-FC32: four alternating large/split barriers, spaced twelve tiles
     /// leftward from X=824. Large barriers have half-height24 at Y=111; split
     /// halves have half-height8 at equal forty-pixel offsets from that center.
     /// </summary>
-    internal static ZebetiteGenerationDefinition Generation(ushort generation)
+    internal static ZebetiteGenerationDefinition Generation(int generation)
     {
-        if (generation >= 4)
+        if ((uint)generation >= 4)
         {
             throw new InvalidDataException(
                 $"Zebetite generation {generation} exceeds its four active records.");

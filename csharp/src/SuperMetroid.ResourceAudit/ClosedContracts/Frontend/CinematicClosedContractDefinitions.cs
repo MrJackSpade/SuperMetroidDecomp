@@ -18,6 +18,8 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardStep.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSprite.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCards.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceRomData.cs")]),
         new("SuperMetroid.Core.Frontend.Intro.Artwork.IntroEyeTilemapPresentation", "intro-complete-eye-rectangles", ["FrameWords"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEyeTilemapPresentation.cs")]),
@@ -49,6 +51,8 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerGlyphDefinitions.cs")]),
         new("SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapCatalog", "ceres-overlay-complete-owned-membership-query", ["TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapDefinition.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/CeresEscapeVramTransferDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPaletteRomData.cs")]),
     ];

@@ -159,11 +159,11 @@ internal static class Program
     }
 
     /// <summary>Advances one captured Android frame and hashes its rendered pixels and PCM samples for exact save-state continuation comparisons.</summary>
-    private static (uint Pixels, uint Pcm, ushort Frame) Advance(AndroidSessionData data, long sequence)
+    private static (uint Pixels, uint Pcm, int Frame) Advance(AndroidSessionData data, long sequence)
     {
         data.Record(0);
         var frame = data.Game.StepCaptured(0, sequence, data.Generation);
-        var pixels = frame.Snapshot is { } snapshot ? SoftwareFrameSnapshotRenderer.Render(snapshot) : frame.Frame.Pixels;
+        var pixels = SoftwareFrameSnapshotRenderer.Render(frame.Snapshot);
         var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         data.Game.CopyAudioFrame(samples);
         uint pixelHash = 2166136261, pcmHash = 2166136261;

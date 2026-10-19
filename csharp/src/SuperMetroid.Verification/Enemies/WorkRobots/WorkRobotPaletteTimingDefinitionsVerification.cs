@@ -17,6 +17,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks the Work Robot's palette record timing and installed colors against bank A3.</summary>
 internal static class WorkRobotPaletteTimingDefinitionsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares six native timing records and colors, then follows a full edited-color cycle through CGRAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot palette timing definitions")]
@@ -36,22 +39,22 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                 WorkRobotPaletteTimingDefinitions.DurationForByteOffset(byteOffset),
                 $"Work Robot palette duration {record}");
             AssertEqual(byteOffset,
-                WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(byteOffset),
+                WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(byteOffset),
                 $"Work Robot palette offset {record} remains selected");
         }
         AssertEqual((ushort)0xffff,
             CartridgeImportSource.Require(rom).ReadCartridgeWord(WorkRobotPaletteTimingDefinitions.NativeTerminatorAddress),
             "Work Robot palette native terminator");
         AssertEqual((ushort)0,
-            WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(
+            WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(
                 WorkRobotPaletteTimingDefinitions.RecordCount *
                     WorkRobotPaletteTimingDefinitions.RecordByteCount),
             "Work Robot palette terminator wraps to record zero");
         AssertThrows<InvalidDataException>(
-            () => WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(1),
+            () => WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(1),
             "Work Robot palette rejects unaligned restored offsets");
         AssertThrows<InvalidDataException>(
-            () => WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(70),
+            () => WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(70),
             "Work Robot palette rejects offsets beyond the native terminator");
         foreach (ushort invalid in new ushort[] { 1, 9, 51, 59, 60, 70, ushort.MaxValue })
         {
@@ -74,7 +77,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         }
         WorkRobotPaletteCycleDocument visual =
             JsonSerializer.Deserialize<WorkRobotPaletteCycleDocument>(extracted,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Work Robot color extraction is null.");
         PaletteRgb5 prior = visual.Frames[1][0];
         visual.Frames[1][0] = prior with
@@ -84,7 +87,6 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         WorkRobotPaletteCycle edited = WorkRobotPaletteCycle.Load(
             new MemoryStream(WorkRobotPaletteCycle.Write(visual), writable: false));
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem
@@ -92,11 +94,11 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = edited }),
         };
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.WorkRobotBehavior._workRobotPaletteAnimationTimer = NativeCountdown.Start((ushort)1);
-        enemies.WorkRobotBehavior._workRobotPaletteAnimationTableOffset = (ushort)0;
-        enemies.WorkRobotBehavior._workRobotPaletteAnimationPaletteIndex = (ushort)0;
+        enemies.WorkRobotBehavior._workRobotPaletteAnimationRecord = 0;
+        enemies.WorkRobotBehavior._workRobotPaletteAnimationPaletteRow = 0;
         var step = new Action(enemies.WorkRobotBehavior.StepWorkRobotPaletteAnimation);
 
         int[] loadCalls = [0, 64, 80, 96, 160, 176, 192];
@@ -110,10 +112,8 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             int record = nextLoad == WorkRobotPaletteTimingDefinitions.RecordCount
                 ? 0
                 : nextLoad;
-            ushort expectedOffset = unchecked((ushort)(
-                (record + 1) * WorkRobotPaletteTimingDefinitions.RecordByteCount));
-            AssertEqual(expectedOffset,
-                (ushort)enemies.WorkRobotBehavior._workRobotPaletteAnimationTableOffset,
+            AssertEqual(record + 1,
+                enemies.WorkRobotBehavior._workRobotPaletteAnimationRecord,
                 $"production Work Robot palette load {nextLoad} advances record");
             AssertEqual(
                 WorkRobotPaletteTimingDefinitions.DurationForByteOffset(

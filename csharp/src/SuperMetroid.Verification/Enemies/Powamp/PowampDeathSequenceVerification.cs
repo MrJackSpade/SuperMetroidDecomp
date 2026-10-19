@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Powamp;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces the 13% movie's final Powamp death-countdown frame.</summary>
 internal static class PowampDeathSequenceVerification
@@ -20,15 +21,14 @@ internal static class PowampDeathSequenceVerification
     internal static void VerifyPowampDeathSequence()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xd0b9);
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MtEverest);
         RoomEnemySlot body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
-            !((PowampEnemyState)runtime.Enemies.PowampBehavior.RequirePowampState(slot)).IsBalloon);
-        var state = (PowampEnemyState)runtime.Enemies.PowampBehavior.RequirePowampState(body);
+            !((PowampEnemyState)PowampBehavior.RequirePowampState(slot)).IsBalloon);
+        var state = (PowampEnemyState)PowampBehavior.RequirePowampState(body);
 
         body.Health = 0;
         state.Function = PowampEnemyFunction.DeathSequence;

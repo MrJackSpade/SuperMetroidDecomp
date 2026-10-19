@@ -44,7 +44,7 @@ internal static class MotherBrainFallingTubePopulationDefinitions
         ushort y = (ushort)(BottomBaseline - compositionBottom);
         EnemyProperties properties = EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions;
         if (main) properties |= EnemyProperties.ProcessOffScreen;
-        return new(EnemyDefinitionId.MotherBrainTubes, new(x, y), 0, (ushort)properties, (ushort)EnemyExtraProperties.None,
+        return new(EnemyDefinitionId.MotherBrainTubes, new(x, y), 0, new EnemyPropertyWord(properties), new EnemyExtraPropertyWord(EnemyExtraProperties.None),
             (ushort)(index * sizeof(ushort)), main ? MainFallDelay : (ushort)0);
     }
 }

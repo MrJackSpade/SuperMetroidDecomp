@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks the compiled room roster and header fields against the pinned retail cartridge.</summary>
 internal static class RoomHeaderDefinitionsVerification
@@ -44,11 +45,11 @@ internal static class RoomHeaderDefinitionsVerification
         {
             ushort pointer = (ushort)value;
             bool expected = known.Contains(pointer);
-            AssertEqual(expected, RoomHeaderDefinitionsTooling.Contains(pointer), $"Room membership {pointer:X4}");
+            AssertEqual(expected, RoomHeaderDefinitions.Contains(pointer), $"Room membership {pointer:X4}");
             if (expected)
             {
                 AssertEqual(pointer, RoomHeaderDefinitions.Get(pointer).Pointer, "Header preserves selected identity");
-                AssertEqual(pointer, CartridgeRoomHeader.LoadUsingCompiledSelection(pointer).Pointer,
+                AssertEqual(pointer, CartridgeRoomHeader.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(pointer)).Pointer,
                     "Production header construction preserves identity without a cartridge capability");
             }
             else
@@ -76,7 +77,7 @@ internal static class RoomHeaderDefinitionsVerification
     /// <summary>Checks the CRE selection bits at header byte eight.</summary>
     private static void VerifyRoomHeaderCreBitset(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 8, header => (int)header.CreBitset);
     /// <summary>Checks the two-byte door-list pointer at the end of each header.</summary>
-    private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => (int)header.DoorListPointer);
+    private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => RoomDoorListDefinitions.ListPointerOf(header));
 
     /// <summary>Compares one selected header field in direct and enumerated views with its cartridge bytes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room header field")]
@@ -93,7 +94,7 @@ internal static class RoomHeaderDefinitionsVerification
             AssertEqual(expected, field(RoomHeaderDefinitions.Get(pointer)), $"Room {pointer:X4} native field {offset}");
             AssertEqual(expected, field(enumerated[index]), $"Room {pointer:X4} enumerated field {offset}");
             if (offset == 1)
-                AssertEqual(expected, (int)CartridgeRoomHeader.ReadAreaIndex(pointer), "Production area view");
+                AssertEqual(expected, (int)CartridgeRoomHeader.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(pointer)).AreaIndex, "Production area view");
         }
     }
 

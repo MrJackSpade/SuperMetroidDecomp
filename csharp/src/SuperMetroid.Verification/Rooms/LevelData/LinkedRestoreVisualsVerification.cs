@@ -185,10 +185,10 @@ internal static class LinkedRestoreVisualsVerification
         var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
         bool sawImmediate = false;
         // A PLM redraw identifies its block by the BG1 ring destination it targets.
-        ushort blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
+        int blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         for (int frame = 0; frame < (bomb ? 420 : 100); frame++)
         {
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             sawImmediate |= plms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == blockDestination &&
                 update.TopRow[0] == editedWord);
@@ -198,7 +198,7 @@ internal static class LinkedRestoreVisualsVerification
         AssertTrue(sawImmediate,
             $"{editedId} reaches an immediate tilemap update");
         AssertEqual(bomb ? (ushort)0xf058 : (ushort)0xb0bc,
-            level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"{editedId} preserves its native physical parent word");
         AssertEqual(editedWord,
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(

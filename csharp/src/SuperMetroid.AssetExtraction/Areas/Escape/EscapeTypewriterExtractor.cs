@@ -49,17 +49,25 @@ public static class EscapeTypewriterExtractor
         var lines = new List<EscapeTypewriterLineDocument>();
         for (int lineIndex = 0; lineIndex < 16; lineIndex++)
         {
-            ushort command = CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor);
-            if (command == EscapeTypewriterRomData.End) return lines.ToArray();
-            if (command != EscapeTypewriterRomData.Destination)
+            var command = (EscapeTypewriterCommand)CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor);
+            if (!Enum.IsDefined(command))
                 throw new InvalidDataException($"Escape typewriter program {id} expected a destination at ${cursor:X6}.");
+            switch (command)
+            {
+                case EscapeTypewriterCommand.End:
+                    return lines.ToArray();
+                case EscapeTypewriterCommand.Destination:
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(EscapeTypewriterCommand)} {command}.");
+            }
             int destination = CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 2));
             cursor += 4;
             var characters = new List<char>();
             while (true)
             {
-                command = CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor);
-                if (command is EscapeTypewriterRomData.End or EscapeTypewriterRomData.Destination) break;
+                // Either control word ends the line's characters.
+                if (Enum.IsDefined((EscapeTypewriterCommand)CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor))) break;
                 char character = (char)bus.ReadCartridgeByte(cursor++);
                 if (character is not (' ' or '!' or >= 'A' and <= 'Z'))
                     throw new InvalidDataException(

@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Exercises semantic native-word views while checking that unnamed cartridge bits survive typed operations.</summary>
 internal static class TypedWordsVerification
@@ -25,34 +26,54 @@ internal static void VerifyTypedNativeWords()
 {
     // Equipment helpers must mutate only the requested independent bits. Bit $0080 is not
     // named by the enum and deliberately survives both operations unchanged.
-    ushort equipment = 0x0080;
-    equipment = equipment.With(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs);
+    SamusEquipmentFlags equipment = (SamusEquipmentFlags)0x0080;
+    equipment |= SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs;
     AssertTrue(equipment.HasAll(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs),
         "typed equipment flags set independently");
-    equipment = equipment.Without(SamusEquipmentFlags.GravitySuit);
-    AssertEqual(0x1080, equipment, "equipment helper preserves unnamed bits");
+    equipment &= ~SamusEquipmentFlags.GravitySuit;
+    AssertEqual(0x1080, equipment.ToNativeWord(), "equipment flags preserve unnamed bits");
+
+    // The snapshot boundary decodes $0A76 and $0DC0 into typed state and rejects undefined words.
+    AssertEqual(true, SamusSnapshotWords.DecodeHyperBeam(SamusSnapshotWords.HyperBeamEnabledWord), "hyper beam $8000 imports as enabled");
+    AssertEqual(false, SamusSnapshotWords.DecodeHyperBeam(0), "hyper beam zero imports as disabled");
+    AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeHyperBeam(1), "undefined hyper beam word is rejected");
+    AssertEqual(SamusSnapshotWords.HyperBeamEnabledWord, SamusSnapshotWords.EncodeHyperBeam(true), "enabled hyper beam encodes as $8000");
+    AssertEqual(ResumeChargingBeamSoundLatch.Clear, SamusSnapshotWords.DecodeResumeChargingBeamSound(0), "resume latch zero is clear");
+    AssertEqual(ResumeChargingBeamSoundLatch.ResumeNextPass, SamusSnapshotWords.DecodeResumeChargingBeamSound(1), "resume latch one resumes next pass");
+    AssertEqual(ResumeChargingBeamSoundLatch.SignedLatch, SamusSnapshotWords.DecodeResumeChargingBeamSound(ushort.MaxValue), "resume latch $FFFF is the signed latch");
+    AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeResumeChargingBeamSound(2), "undefined resume latch word is rejected");
+
+    // Samus counts are signed words: the cartridge's Crystal Flash drain takes an ammunition count below zero.
+    AssertEqual(SamusQuantity.MaximumValue, SamusQuantity.Decode(0x7fff), "the largest count word decodes");
+    AssertEqual(-1, SamusQuantity.Decode(0xffff), "a drained-past-zero word decodes as -1");
+    AssertEqual(SamusQuantity.MinimumValue, SamusQuantity.Decode(0x8000), "the smallest count word decodes");
+    AssertEqual((ushort)0x7fff, SamusQuantity.Encode(SamusQuantity.MaximumValue), "the largest count encodes");
+    AssertEqual((ushort)0xffff, SamusQuantity.Encode(-1), "-1 encodes as the word the cartridge stores");
+    AssertThrows<InvalidOperationException>(() => SamusQuantity.Encode(SamusQuantity.MinimumValue - 1), "an undersized count cannot be stored");
+    AssertThrows<InvalidOperationException>(() => SamusQuantity.Encode(SamusQuantity.MaximumValue + 1), "an oversized count cannot be stored");
+    AssertEqual(-1, SamusQuantity.DecrementWord(0), "the unchecked decrement takes zero to -1");
+    AssertEqual(SamusQuantity.MaximumValue, SamusQuantity.DecrementWord(SamusQuantity.MinimumValue), "the unchecked decrement wraps the smallest count");
 
     // Suit palette tables use byte offsets rather than enum ordinals. Verify all three
     // branches plus the native Gravity-over-Varia priority that motivated centralization.
-    AssertEqual(0, ((ushort)0).GetSuitPaletteTableOffset(),
+    AssertEqual(0, SamusEquipmentFlags.None.GetSuitPaletteTableOffset(),
         "Power Suit palette table offset");
-    AssertEqual(2, SamusEquipmentFlags.VariaSuit.ToNativeWord().GetSuitPaletteTableOffset(),
+    AssertEqual(2, SamusEquipmentFlags.VariaSuit.GetSuitPaletteTableOffset(),
         "Varia Suit palette table offset");
-    AssertEqual(4, SamusEquipmentFlags.GravitySuit.ToNativeWord().GetSuitPaletteTableOffset(),
+    AssertEqual(4, SamusEquipmentFlags.GravitySuit.GetSuitPaletteTableOffset(),
         "Gravity Suit palette table offset");
     AssertEqual(4,
         (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
-            .ToNativeWord()
             .GetSuitPaletteTableOffset(),
         "Gravity Suit palette table priority");
 
     // Facing is an ordinary discriminator, not a flag set. The typed view must recognize
     // verified values four/eight while retaining an unknown byte for debugger inspection.
     var poseBus = new TestAddressSpace();
-    AssertTrue(SamusPoseMetadata.IsFacingLeft(poseBus, SamusPoseId.FacingLeftNormalPose), "typed left-facing pose query");
-    AssertEqual(SamusFacingDirection.Right, SamusPoseMetadata.ReadFacingDirection(poseBus, SamusPoseId.FacingRightNormalPose),
+    AssertTrue(SamusPoseMetadata.IsFacingLeft(SamusPoseId.FacingLeftNormalPose), "typed left-facing pose query");
+    AssertEqual(SamusFacingDirection.Right, SamusPoseMetadata.ReadFacingDirection(SamusPoseId.FacingRightNormalPose),
         "typed right-facing pose query");
-    AssertEqual(41, (byte)SamusPoseMetadata.ReadFacingDirection(poseBus, (SamusPoseId)0xfe),
+    AssertEqual(41, (byte)SamusPoseMetadata.ReadFacingDirection((SamusPoseId)0xfe),
         "typed facing query preserves compiled unnamed adjacent-code byte");
 
     // Fixed-bank pointer arithmetic must wrap only the low word. A host addition would
@@ -280,57 +301,37 @@ internal static void VerifyTypedNativeWords()
     AssertEqual((ushort)0x3c12, (ushort)new MapTileWord(0x2812).WithLocationBlink(),
         "HUD location blink applies native palette bits");
 
-    // The low byte belongs to individual enemy families; the shared helpers must leave it
-    // untouched while making every independently composable high-byte property explicit.
-    ushort enemyProperties = 0x005a;
-    enemyProperties = enemyProperties.With(
-        EnemyProperties.Invisible |
-        EnemyProperties.IgnoreSamusCollision |
-        EnemyProperties.BlocksPlasmaBeam |
-        EnemyProperties.SolidToSamus);
-    AssertTrue(enemyProperties.HasAll(
-            EnemyProperties.Invisible |
-            EnemyProperties.IgnoreSamusCollision |
-            EnemyProperties.BlocksPlasmaBeam |
-            EnemyProperties.SolidToSamus),
+    // The low byte belongs to individual enemy families; the typed word keeps it untouched while making every
+    // independently composable high-byte property explicit.
+    var enemyProperties = new EnemyPropertyWord(EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision |
+        EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus, familyData: 90);
+    AssertTrue(enemyProperties.HasAll(EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision |
+            EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus),
         "enemy visibility, collision, plasma, and platform flags round trip");
-    enemyProperties = enemyProperties.With(
-        EnemyProperties.Deleted |
-        EnemyProperties.ProcessOffScreen |
+    enemyProperties = enemyProperties.With(EnemyProperties.Deleted | EnemyProperties.ProcessOffScreen |
         EnemyProperties.ProcessInstructions);
-    AssertTrue(enemyProperties.HasAll(
-            EnemyProperties.Deleted |
-            EnemyProperties.ProcessOffScreen |
+    AssertTrue(enemyProperties.HasAll(EnemyProperties.Deleted | EnemyProperties.ProcessOffScreen |
             EnemyProperties.ProcessInstructions),
         "enemy deletion and processing flags round trip");
-    enemyProperties = enemyProperties.Without(
-        EnemyProperties.Invisible |
-        EnemyProperties.Deleted |
-        EnemyProperties.ProcessOffScreen |
-        EnemyProperties.ProcessInstructions);
-    AssertEqual(0x945a, enemyProperties,
-        "enemy flag helpers preserve the family-specific low byte");
-    AssertEqual(
-        EnemyProperties.IgnoreSamusCollision |
-        EnemyProperties.BlocksPlasmaBeam |
-        EnemyProperties.SolidToSamus,
-        enemyProperties.ReadFlagsChecked(),
-        "enemy property word exposes only its typed high-byte flags");
+    enemyProperties = enemyProperties.Without(EnemyProperties.Invisible | EnemyProperties.Deleted |
+        EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions);
+    AssertEqual(0x945a, enemyProperties.ToNativeWord(), "enemy flag operations preserve the family-specific low byte");
+    AssertEqual(enemyProperties, EnemyPropertyWord.FromNativeWord(0x945a), "enemy property word round trips its native word");
+    AssertEqual(EnemyProperties.IgnoreSamusCollision | EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus,
+        enemyProperties.Flags, "enemy property word exposes only its typed high-byte flags");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => ((ushort)0).With((EnemyProperties)0x0001),
-        "enemy property helper rejects family data disguised as a shared flag");
+        () => enemyProperties.With((EnemyProperties)0x0001),
+        "enemy property word rejects family data disguised as a shared flag");
 
-    ushort enemyExtraProperties = ((ushort)0).With(
-        EnemyExtraProperties.UsesExtendedSpritemap);
-    enemyExtraProperties = enemyExtraProperties.WithUntranslatedExtraBits(
-        EnemyExtraPropertyRawBits.CrocomireInitializerBit0400,
-        "typed-word verification");
-    AssertEqual(0x0404, enemyExtraProperties,
+    EnemyExtraPropertyWord enemyExtraProperties = new EnemyExtraPropertyWord(EnemyExtraProperties.UsesExtendedSpritemap)
+        .WithUntranslatedBits(EnemyExtraPropertyRawBits.CrocomireInitializerBit0400, "typed-word verification");
+    AssertEqual(0x0404, enemyExtraProperties.ToNativeWord(),
         "enemy extra-property escape hatch preserves explicitly owned untranslated data");
+    AssertEqual(enemyExtraProperties, EnemyExtraPropertyWord.FromNativeWord(0x0404),
+        "enemy extra-property word splits its native word into flags and untranslated bits");
     AssertThrows<ArgumentException>(
-        () => ((ushort)0).WithUntranslatedExtraBits(
-            (ushort)EnemyExtraProperties.UsesExtendedSpritemap,
-            "typed-word verification"),
+        () => default(EnemyExtraPropertyWord).WithUntranslatedBits(
+            (ushort)EnemyExtraProperties.UsesExtendedSpritemap, "typed-word verification"),
         "enemy extra-property escape hatch rejects known flags");
 
     // $E selects the verified grapple collision handler, $C supplies both parent flips,
@@ -542,7 +543,7 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(!new SamusProjectileDirectionWord(0x0017).IsValidInitialDirection,
         "projectile low-byte lifecycle state rejects initial movement");
 
-    var beams = new SamusBeamLoadoutWord(0x9009);
+    var beams = new SamusBeamLoadoutWord((SamusBeamFlags)0x9009);
     AssertTrue(beams.HasAny(SamusBeamFlags.Charge | SamusBeamFlags.Plasma),
         "beam loadout exposes verified flags");
     AssertEqual(0x9002, beams.WithCombinationIndex(2),
@@ -596,6 +597,14 @@ internal static void VerifyTypedNativeWords()
         "same room byte in unrelated area does not match landing policy");
 
     Console.WriteLine("  Native words: enums, flags, angles, packed fields, and unknown-bit preservation agree.");
+}
+
+/// <summary>Runs the semantic native-word checks on their own.</summary>
+[VerificationCommand("--typed-native-words")]
+internal static int TypedNativeWordsCommand()
+{
+    VerifyTypedNativeWords();
+    return 0;
 }
 
 }

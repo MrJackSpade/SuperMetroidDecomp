@@ -53,7 +53,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
@@ -103,7 +103,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
@@ -154,7 +154,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = blockIndex;
@@ -163,7 +163,7 @@ internal sealed class BossRoomMutationPlms
 
             // PlmSetup_DeactivatePlm clears level-word bits 12..14, not all four collision
             // bits. Bit 15 is the independent tile priority flag and survives setup.
-            ushort authored = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+            ushort authored = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
             level.SetForegroundEntry(blockIndex, new RoomLevelWord(authored).WithPlmDeactivation().Raw);
             return true;
         }
@@ -206,7 +206,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
@@ -249,13 +249,13 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = level.GetBlockIndex(block);
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
-            slot.PreInstruction = 0;
+            slot.PreInstruction = PlmPreInstructions.Inert;
             slot.RoomArgument = 0;
             PlmProgramStart.Delete.StartOn(slot);
             slot.InstructionTimer = NativeCountdown.Start(1);
@@ -266,7 +266,7 @@ internal sealed class BossRoomMutationPlms
             for (int rowOffset = 0; rowOffset < 10; rowOffset++)
             {
                 int blockIndex = level.GetBlockIndex(block + new Offset16<RoomBlocks>(0, checked((short)rowOffset)));
-                ushort current = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+                ushort current = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
                 ushort replacement = new RoomLevelWord(current).WithCollisionType(header == PlmHeaderId.CreateBabyMetroidInvisibleWall
                     ? RoomCollisionType.SolidBlock
                     : RoomCollisionType.Air).Raw;
@@ -327,7 +327,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = level.GetBlockIndex(block);
             slot.RestoreLevelWord = 0;

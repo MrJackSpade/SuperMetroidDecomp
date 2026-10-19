@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and Ceres haze color overrides.</summary>
 internal static class RoomFxPaletteBlendsVerification
@@ -59,8 +60,7 @@ internal static class RoomFxPaletteBlendsVerification
                     $"room-FX blend {(int)id:X2} installed load color {index}");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {(int)id:X2} load does not read bank-$89");
 
-            ushort reloadRecord = SelectCompiledBlendRecord((byte)id).Pointer;
-            _ = state.ApplyEntry(cgram, reloadRecord);
+            _ = state.ApplyEntry(cgram, SelectCompiledBlendRecord((byte)id));
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {(int)id:X2} installed FX-entry color {index}");
@@ -121,7 +121,7 @@ internal static class RoomFxPaletteBlendsVerification
             "cosmetic override does not mutate stock presentation");
         Rgba32[] pixels = Enumerable.Repeat(new Rgba32(0, 0, 0, 255),
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height).ToArray();
-        SnesGameplayFrameRenderer.ApplyCeresHaze(pixels, false, colors: edited);
+        SnesGameplayFrameRendererConstants.ApplyCeresHaze(pixels, false, colors: edited);
         AssertEqual(editedLine.Green, pixels[120 * SnesGameplayFrameRenderer.Width].G,
             "software renderer consumes the same edited Ceres tint as captured PPU rendering");
         AssertEqual((byte)0, pixels[120 * SnesGameplayFrameRenderer.Width].B,
@@ -211,13 +211,13 @@ internal static class RoomFxPaletteBlendsVerification
             PaletteBlendColors = catalog,
             Layer3Tilemaps = tilemaps,
         };
-        state.Load(bus, new SnesVram(), cgram, record.Pointer, doorPointer: 0, randomNumber: 0);
+        state.LoadDefinition(new SnesVram(), cgram, record, randomNumber: 0);
         return (state, bus, cgram);
     }
 
     /// <summary>Finds the compiled default FX record whose palette selector matches the requested blend.</summary>
     private static RoomFxRecordDefinition SelectCompiledBlendRecord(byte selection) =>
-        RoomFxRecordDefinitions.All.FirstOrDefault(candidate =>
+        RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.PaletteBlend == selection)
         ?? throw new InvalidDataException($"No compiled default room-FX record selects blend ${selection:X2}.");
 

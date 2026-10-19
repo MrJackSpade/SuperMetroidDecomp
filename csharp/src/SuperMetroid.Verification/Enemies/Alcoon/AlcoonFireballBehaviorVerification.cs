@@ -24,15 +24,14 @@ internal static class AlcoonFireballBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, AlcoonFireballNativeListAddresses.Extent, "Alcoon-fireball");
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
-        var source = new RoomEnemySlot(0)
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            VramTilesIndex = 512,
-            PaletteIndex = 3072,
-        };
-        var state = new AlcoonEnemyState(source, new ushort[32], new ushort[32], new ushort[32], new ushort[32], new ushort[32]);
-        enemies.AlcoonBehavior._alcoonStates[0] = state;
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
+        source.Bind(EnemyDefinitionId.Alcoon, source.Definition);
+        source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
+        source.VramTilesIndex = 512;
+        source.PaletteIndex = 3072;
+        var state = new AlcoonEnemyState();
+        source.SetSpeciesState(state);
         foreach (short direction in new short[] { -2, 2 })
         {
             state.Velocity = state.Velocity.WithWholeX(direction);
@@ -54,9 +53,9 @@ internal static class AlcoonFireballBehaviorVerification
         for (int pose = 0; pose < AlcoonFireballFrameDefinitions.PoseCount; pose++)
         {
             AlcoonFireballFrame frame = new(pose);
-            ushort key = AlcoonFireballFrameDefinitions.PresentationKey(frame);
+            ushort key = EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, key, out ushort selected), $"pose {pose} has a calculated selector");
-            AssertEqual(AlcoonFireballFrameDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
+            AssertEqual(AlcoonFireballFrameToolingDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the fireball's native list bytes");
         Console.WriteLine("  Alcoon fireball behavior: six fireballs loop as their native list does and every calculated selector matches.");

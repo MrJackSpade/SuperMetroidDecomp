@@ -80,8 +80,8 @@ internal static class ChargeFlareCompositionsVerification
         var edited = Load(document);
         var before = new OamBuffer(); var after = new OamBuffer();
         stock.Draw(0, before, new(100, 100)); edited.Draw(0, after, new(100, 100));
-        AssertEqual((before.GetEntry(0).X + 7) & 511, after.GetEntry(0).X, "Composition edit changes emitted flare position");
-        AssertEqual(before.GetEntry(0).Y, after.GetEntry(0).Y, "X-only composition edit preserves Y");
+        AssertEqual((before.GetEntry(0).Position.X + 7) & 511, after.GetEntry(0).Position.X, "Composition edit changes emitted flare position");
+        AssertEqual(before.GetEntry(0).Position.Y, after.GetEntry(0).Position.Y, "X-only composition edit preserves Y");
         document.Required("frames").AsObject().Remove(first);
         AssertThrows<InvalidDataException>(() => Load(document), "Missing charge-flare composition rejected");
         document = JsonNode.Parse(json); (document ?? throw new InvalidOperationException("Verification requires document."))["damage"] = 1;

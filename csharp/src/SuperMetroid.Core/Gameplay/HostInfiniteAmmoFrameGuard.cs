@@ -49,17 +49,17 @@ internal sealed class HostInfiniteAmmoFrameGuard
         bool missilesBuffered = PrepareCounter(
             samus.Missiles,
             samus.MaxMissiles,
-            out ushort preparedMissiles);
+            out int preparedMissiles);
         samus.Missiles = preparedMissiles;
         bool superMissilesBuffered = PrepareCounter(
             samus.SuperMissiles,
             samus.MaxSuperMissiles,
-            out ushort preparedSuperMissiles);
+            out int preparedSuperMissiles);
         samus.SuperMissiles = preparedSuperMissiles;
         bool powerBombsBuffered = PrepareCounter(
             samus.PowerBombs,
             samus.MaxPowerBombs,
-            out ushort preparedPowerBombs);
+            out int preparedPowerBombs);
         samus.PowerBombs = preparedPowerBombs;
         return new HostInfiniteAmmoFrameGuard(
             samus,
@@ -101,9 +101,9 @@ internal sealed class HostInfiniteAmmoFrameGuard
 
     /// <summary>Raises unlocked zero to one or lends a unit to an unlocked count of one.</summary>
     private static bool PrepareCounter(
-        ushort current,
-        ushort maximum,
-        out ushort prepared)
+        int current,
+        int maximum,
+        out int prepared)
     {
         prepared = current;
         if (maximum == 0)
@@ -121,15 +121,15 @@ internal sealed class HostInfiniteAmmoFrameGuard
     }
 
     /// <summary>Returns a borrowed unit while preserving an unlocked floor of one.</summary>
-    private static ushort CompleteCounter(ushort current, ushort maximum, bool buffered)
+    private static int CompleteCounter(int current, int maximum, bool buffered)
     {
         if (maximum == 0)
             return current;
         if (!buffered)
-            return current == 0 ? (ushort)1 : current;
+            return current == 0 ? 1 : current;
 
         // Removing the loan from a count of one would recreate the forbidden zero. This is
         // the final-shot case: the cartridge consumed the borrowed unit during this frame.
-        return current <= 1 ? (ushort)1 : unchecked((ushort)(current - 1));
+        return current <= 1 ? 1 : current - 1;
     }
 }

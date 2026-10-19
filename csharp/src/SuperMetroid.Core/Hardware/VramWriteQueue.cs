@@ -50,7 +50,7 @@ public sealed class VramWriteQueue
         if ((uint)sourceAddress > SnesBusLayout.MaximumAddress)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "Source must be a 24-bit SNES CPU address.");
 
-        Append(new VramWriteEntry(sizeInBytes, sourceAddress, destination.Encoded));
+        Append(new VramWriteEntry(sizeInBytes, sourceAddress, destination));
     }
 
     /// <summary>Queues a typed installed resource without copying artwork into emulated/debugger state.</summary>
@@ -58,7 +58,40 @@ public sealed class VramWriteQueue
     {
         if (asset == VramAssetId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-        Append(new VramWriteEntry(sizeInBytes, 0, destination.Encoded) { AssetId = asset });
+        Append(new VramWriteEntry(sizeInBytes, 0, destination) { AssetId = asset });
+    }
+
+    /// <summary>
+    /// Queues a transfer from an owned staging buffer that stands for the WRAM at <paramref name="nativeSourceAddress"/>.
+    /// The buffer is read when the queue drains; the native address stays on the record for debugger comparison.
+    /// </summary>
+    public void EnqueueStaging(int sizeInBytes, int nativeSourceAddress, VramStagingBuffer staging, int offset,
+        VramDmaDestination destination)
+    {
+        Ensure.NotNull(staging);
+        if (sizeInBytes is <= 0 or > VramWriteEntry.MaximumSizeInBytes) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        if (offset < 0 || offset + sizeInBytes > staging.Length)
+            throw new ArgumentOutOfRangeException(nameof(offset), offset, $"Transfer {offset}+{sizeInBytes} exceeds the {staging.Length}-byte staging buffer.");
+        Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination) { Staging = staging, StagingOffset = offset });
+    }
+
+    /// <summary>
+    /// Queues a transfer of the first <paramref name="sizeInBytes"/> bytes of an owned word table that stands for the WRAM
+    /// at <paramref name="nativeSourceAddress"/>. The table is read when the queue drains, low byte first.
+    /// </summary>
+    public void EnqueueWords(ushort sizeInBytes, int nativeSourceAddress, ushort[] words, VramDmaDestination destination)
+    {
+        Ensure.NotNull(words);
+        if (sizeInBytes == 0 || (sizeInBytes & 1) != 0 || sizeInBytes > words.Length * sizeof(ushort))
+            throw new ArgumentOutOfRangeException(nameof(sizeInBytes), sizeInBytes, $"Transfer must be a nonzero whole number of the table's {words.Length} words.");
+        Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination) { StagingWords = words });
+    }
+
+    /// <summary>Queues a transfer of <paramref name="sizeInBytes"/> zero bytes, for a source the port does not model.</summary>
+    public void EnqueueZeroFill(ushort sizeInBytes, VramDmaDestination destination)
+    {
+        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        Append(new VramWriteEntry(sizeInBytes, 0, destination) { ZeroFill = true });
     }
 
     /// <summary>Adds one packed-size record only when the two-byte NMI terminator still fits.</summary>
@@ -88,41 +121,36 @@ public sealed class VramWriteQueue
 
     /// <summary>
     /// Executes every queued transfer in insertion order, then clears the table just as
-    /// the NMI consumer does at <c>$80:8CC9</c>.
+    /// the NMI consumer does at <c>$80:8CC9</c>. Every native-source record names cartridge artwork, which the
+    /// installed artwork must resolve; a record it does not resolve fails rather than reading memory.
     /// </summary>
     /// <param name="vram">VRAM receiving the transfers.</param>
-    /// <param name="memory">Game memory that bus-sourced transfers read.</param>
     /// <param name="assets">Resolves installed artwork transfers.</param>
     /// <param name="objects">Records what each transfer that reaches the OBJ character table shows, when gameplay draws from it.</param>
-    public void DrainTo(SnesVram vram, ISnesMutableMemory memory, IVramAssetProvider? assets = null,
-        ObjCharacterUploads? objects = null)
+    public void DrainTo(SnesVram vram, IVramAssetProvider? assets = null, ObjCharacterUploads? objects = null)
     {
         Ensure.NotNull(vram);
-        Ensure.NotNull(memory);
 
         // Use an index rather than foreach to make append-during-drain behavior explicit:
         // this object is single-threaded like the original main-loop/NMI handshake.
         for (int index = 0; index < _entries.Count; index++)
         {
             VramWriteEntry entry = _entries[index];
-            if (entry.AssetId == VramAssetId.None)
+            if (entry.Staging is { } staging)
+                vram.ExecuteQueuedAssetWrite(staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes), entry.Destination.Encoded);
+            else if (entry.StagingWords is { } words)
+                vram.ExecuteQueuedAssetWrite(LittleEndianBytes(words, entry.SizeInBytes), entry.Destination.Encoded);
+            else if (entry.ZeroFill)
+                vram.ExecuteQueuedAssetWrite(new byte[entry.SizeInBytes], entry.Destination.Encoded);
+            else if (entry.AssetId == VramAssetId.None)
             {
-                if (assets is IInstalledArtworkTransferSource artwork &&
-                    artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes,
-                        out ReadOnlyMemory<byte> selected))
-                {
-                    vram.ExecuteQueuedAssetWrite(selected.Span, entry.EncodedVramDestination);
-                    objects?.RecordQueuedUpload(entry.EncodedVramDestination, entry.SizeInBytes,
-                        ObjCharacterSource.FromTransfer(entry.SourceAddress, entry.SizeInBytes));
-                }
-                else
-                {
-                    vram.ExecuteQueuedMemoryWrite(memory, entry.SourceAddress, entry.SizeInBytes,
-                        entry.EncodedVramDestination);
-                    // No installed artwork names game-memory bytes; the binding keeps the bytes the upload wrote.
-                    objects?.RecordQueuedUpload(entry.EncodedVramDestination, entry.SizeInBytes,
-                        ObjCharacterSource.FromMemory(vram.ReadUploaded(entry.EncodedVramDestination, entry.SizeInBytes)));
-                }
+                if (assets is not IInstalledArtworkTransferSource artwork ||
+                    !artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes, out ReadOnlyMemory<byte> selected))
+                    throw new InvalidOperationException(
+                        $"Queued VRAM transfer of {entry.SizeInBytes} bytes from ${entry.SourceAddress:X6} has no installed artwork.");
+                vram.ExecuteQueuedAssetWrite(selected.Span, entry.Destination.Encoded);
+                objects?.RecordUpload(entry.Destination, entry.SizeInBytes,
+                    ObjCharacterSource.FromTransfer(entry.SourceAddress, entry.SizeInBytes));
             }
             else
             {
@@ -130,9 +158,8 @@ public sealed class VramWriteQueue
                 ReadOnlyMemory<byte> data = assets.Resolve(entry.AssetId);
                 if (data.Length != entry.SizeInBytes)
                     throw new InvalidDataException($"VRAM asset {entry.AssetId} has {data.Length} bytes; queued transfer requires {entry.SizeInBytes}.");
-                vram.ExecuteQueuedAssetWrite(data.Span, entry.EncodedVramDestination);
-                objects?.RecordQueuedUpload(entry.EncodedVramDestination, entry.SizeInBytes,
-                    ObjCharacterSource.FromAsset(entry.AssetId));
+                vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
+                objects?.RecordUpload(entry.Destination, entry.SizeInBytes, ObjCharacterSource.FromAsset(entry.AssetId));
             }
         }
 
@@ -140,5 +167,17 @@ public sealed class VramWriteQueue
         // typed records at the same point prevents stale transfers on the next frame.
         _entries.Clear();
         TailInBytes = 0;
+    }
+
+    /// <summary>The first <paramref name="byteCount"/> bytes of <paramref name="words"/>, low byte first.</summary>
+    private static byte[] LittleEndianBytes(ushort[] words, int byteCount)
+    {
+        var bytes = new byte[byteCount];
+        for (int index = 0; index < byteCount; index += sizeof(ushort))
+        {
+            bytes[index] = SnesLittleEndian.LowByte(words[index / sizeof(ushort)]);
+            bytes[index + 1] = SnesLittleEndian.HighByte(words[index / sizeof(ushort)]);
+        }
+        return bytes;
     }
 }

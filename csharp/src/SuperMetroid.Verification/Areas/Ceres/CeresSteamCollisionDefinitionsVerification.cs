@@ -19,7 +19,6 @@ internal static class CeresSteamCollisionDefinitionsVerification
     internal static void VerifyInstalledCeresSteamInstructionFrames(
         EnemyTileArtworkCatalog stock)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         int selected = 0;
         foreach (CeresSteamVariant variant in new[]
                  {
@@ -29,19 +28,19 @@ internal static class CeresSteamCollisionDefinitionsVerification
         {
             var denied = NewCeresSteamCollisionNoReadBus();
             var enemies = new RoomEnemySystem { TileArtwork = stock };
-            enemies.BindFixtureBus(denied);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Steam;
-            slot.Definition = default(RoomEnemyDefinition) with
-            { Bank = CeresSteamCollisionDefinitions.Bank };
+            slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+            { Bank = CeresSteamCollisionDefinitions.Bank });
             slot.Parameter1 = (ushort)variant;
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < 90; frame++)
             {
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
                 if ((slot.SpritemapPointer & 0x8000) == 0)
                     continue;
                 AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
@@ -66,15 +65,13 @@ internal static class CeresSteamCollisionDefinitionsVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewCeresSteamCollisionNoReadBus();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var compiled = new RoomEnemySystem();
-        compiled.BindFixtureBus(denied);
-        var nativeSlot = new RoomEnemySlot(0);
+        compiled.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        compiledSlot.Definition =
-            default(RoomEnemyDefinition) with { Bank = CeresSteamCollisionDefinitions.Bank };
+        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CeresSteamCollisionDefinitions.Bank });
 
-        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Steam;
+        compiledSlot.Bind(EnemyDefinitionId.Steam, compiledSlot.Definition);
         AssertEqual(28, CeresSteamCollisionDefinitions.FramePointers.Length,
             "all Ceres steam extended frames have compiled collision");
         AssertEqual(21, CeresSteamCollisionDefinitions.HitboxPointers.Count(),
@@ -84,7 +81,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
         int probes = 0;
         foreach (ushort frame in CeresSteamCollisionDefinitions.FramePointers)
         {
-            CeresSteamCollisionDefinitions.ComponentSequence components =
+            CeresSteamCollisionComponent[] components =
                 CeresSteamCollisionDefinitions.ComponentsAt(frame);
             AssertEqual(1, components.Length,
                 $"Ceres steam $A6:{frame:X4} has one physical component");
@@ -150,8 +147,8 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top, "steam top");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), box.Right, "steam right");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom, "steam bottom");
-                AssertEqual(rom.ReadCartridgeWord((record + 8)), box.TouchAi, "steam touch callback");
-                AssertEqual(rom.ReadCartridgeWord((record + 10)), box.ShotAi, "steam shot callback");
+                AssertEqual(rom.ReadCartridgeWord((record + 8)), CeresSteamHitboxCallbackCodec.TouchCallbackWord, "steam touch callback");
+                AssertEqual(rom.ReadCartridgeWord((record + 10)), CeresSteamHitboxCallbackCodec.ShotCallbackWord, "steam shot callback");
             }
         }
         AssertThrows<InvalidDataException>(

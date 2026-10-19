@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms.Doors.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class EyeDoorProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EyeDoorProjectileAnimations.Programs, EyeDoorProjectileFrameDefinitions.PresentationKey, EyeDoorProjectileCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EyeDoorProjectileAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(EyeDoorProjectileFrameDefinitions.ShownProjectileFrames[frame])), EyeDoorProjectileCueRules.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyEyeDoorProjectileAnimations(SuperMetroidAddressSpace rom)

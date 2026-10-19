@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Bull.Artwork;
 
 /// <summary>
@@ -7,12 +9,11 @@ namespace SuperMetroid.Core.Enemies.Bull.Artwork;
 internal static class BullFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(BullFrame frame) => frame.Pose switch
+    /// <summary>The installed frame each <see cref="BullFrame"/> shows.</summary>
+    internal static EnemyFrameTable<BullFrame> ShownFrames { get; } = new()
     {
-        0 => 0xdb76,
-        1 => 0xdb8c,
-        2 => 0xdba2,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Bull pose."),
+        { new(Pose: 0), EnemyFrameId.BullIdle0 },
+        { new(Pose: 1), EnemyFrameId.BullIdle1 },
+        { new(Pose: 2), EnemyFrameId.BullIdle2 },
     };
 }

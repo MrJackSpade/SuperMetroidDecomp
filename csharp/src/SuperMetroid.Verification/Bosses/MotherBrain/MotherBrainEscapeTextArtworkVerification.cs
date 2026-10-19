@@ -31,9 +31,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         AssertTrue(artwork.Transfer.Span.SequenceEqual(native),
             "installed Mother Brain escape-text PNG preserves native characters");
 
-        SnesVram installedVram = TransferMotherBrainEscapeTextPages(stock,
-            NewMotherBrainEscapeTextReadGuard(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
+        SnesVram installedVram = TransferMotherBrainEscapeTextPages(stock);
         // The oracle owns cartridge bytes; production has no uninstalled-ROM fallback.
         var cartridgeVram = new SnesVram();
         for (int page = 0; page < 5; page++)
@@ -73,9 +71,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-        SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited,
-            NewMotherBrainEscapeTextReadGuard(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
+        SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited);
         int firstDestination = MotherBrainEscapeTextArtworkDefinitions.PageDestination(0) * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
             editedVram.ReadByte(firstDestination),
@@ -100,12 +96,11 @@ internal static class MotherBrainEscapeTextArtworkVerification
 
     /// <summary>Applies all five escape-text transfer requests through the production Mother Brain path.</summary>
     private static SnesVram TransferMotherBrainEscapeTextPages(
-        EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus)
+        EnemyTileArtworkCatalog artwork)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageCount; page++)
         {
@@ -119,9 +114,4 @@ internal static class MotherBrainEscapeTextArtworkVerification
         return vram;
     }
 
-    /// <summary>Rejects live reads of the extracted escape-text character range.</summary>
-    private static CartridgeReadGuard NewMotherBrainEscapeTextReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).ForbidRange(MotherBrainEscapeTextArtworkDefinitions.SourceAddress,
-            MotherBrainEscapeTextArtworkDefinitions.ByteCount,
-            address => $"Mother Brain escape text attempted a visual ROM read at ${address:X6}.");
 }

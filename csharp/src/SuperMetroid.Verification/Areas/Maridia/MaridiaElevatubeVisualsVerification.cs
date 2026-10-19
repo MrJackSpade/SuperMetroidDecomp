@@ -65,12 +65,12 @@ internal static class MaridiaElevatubeVisualsVerification
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             int blockIndex = level.GetBlockIndex(
                 new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
-            plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual((ushort)0x8180,
-                level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+                level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 "edited elevatube tile retains native physical block");
             // A PLM redraw identifies its block by the BG1 ring destination of that block.
-            ushort blockDestination = level.CreateBackgroundStreamer()
+            int blockDestination = level.CreateBackgroundStreamer()
                 .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
             AssertTrue(plms.TilemapUpdates.Any(update =>
                     update.TopRowDestination == blockDestination && update.TopRow[0] == 0x0058),
@@ -82,11 +82,11 @@ internal static class MaridiaElevatubeVisualsVerification
             int heardAtFrame = -1;
             for (int frame = 1; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)
             {
-                plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 if (plms.Sounds.SoundRequests.Any(request =>
                         request.SoundEffect == SoundEffectId.FromCartridge(
                             SoundEffectLibrary.Library2,
-                            MaridiaElevatubePlmDefinitions.SoundId)))
+                            MaridiaElevatubePlmDefinitionsConstants.SoundId)))
                     heardAtFrame = frame;
             }
             AssertEqual(16, heardAtFrame,

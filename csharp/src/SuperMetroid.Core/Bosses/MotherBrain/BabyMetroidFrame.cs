@@ -6,6 +6,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Index">The pose's position in the catalog: closed, half open, wide open.</param>
 public readonly record struct BabyMetroidFrame(int Index)
 {
-    /// <summary>The installed spritemap the pose shows.</summary>
-    internal ushort Spritemap => BabyMetroidVisualDefinitions.Spritemap(Index);
 }

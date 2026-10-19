@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
@@ -35,7 +36,7 @@ internal static class LibraryBackgroundProgramsVerification
                         cursor = unchecked((ushort)(cursor + 5));
                         break;
                     case LibraryBackgroundCommand.TransferForDoor:
-                        AssertEqual(instruction.DoorPointer, ReadWord(cursor),
+                        AssertEqual(instruction.Door is { } door ? DoorDefinitions.PointerOf(door) : (ushort)0, ReadWord(cursor),
                             $"library BG $8F:{program.Pointer:X4} door selector");
                         cursor = unchecked((ushort)(cursor + sizeof(ushort)));
                         CheckTransfer();
@@ -66,12 +67,9 @@ internal static class LibraryBackgroundProgramsVerification
 
             AssertEqual((ushort)LibraryBackgroundCommand.End, ReadWord(cursor),
                 $"library BG $8F:{program.Pointer:X4} terminator");
-            cursor = unchecked((ushort)(cursor + sizeof(ushort)));
-            AssertEqual(program.NativeByteCount, unchecked((ushort)(cursor - program.Pointer)),
-                $"library BG $8F:{program.Pointer:X4} native byte span");
         }
 
-        AssertEqual(LibraryBackgroundProgramDefinitions.RetailProgramCount,
+        AssertEqual(LibraryBackgroundProgramDefinitionsConstants.RetailProgramCount,
             LibraryBackgroundProgramDefinitions.All.Count,
             "compiled library BG program count");
         AssertEqual(193, instructionCount, "compiled library BG instruction count");

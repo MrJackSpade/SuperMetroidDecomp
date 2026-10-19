@@ -12,5 +12,5 @@ internal static class FlyAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params FlyProgram[] programs) =>
         programs.SelectMany(program => FlyAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => FlyFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => FlyFrameToolingDefinitions.Spritemap(step.Frame));
 }

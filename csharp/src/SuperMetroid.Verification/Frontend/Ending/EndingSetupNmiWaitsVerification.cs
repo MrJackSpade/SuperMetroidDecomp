@@ -19,20 +19,19 @@ internal static class EndingSetupNmiWaitsVerification
     /// </summary>
     internal static void VerifyEndingSetupNmiWaits()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.CreateGameplayRuntime(false);
-        var runtime = game.runtime;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        game.Session.CreateGameplayRuntime(false);
+        var runtime = game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        game.BeginZebesEscapeFade();
+        game.Session.BeginZebesEscapeFade();
         while (game.GameState == SuperMetroidGameState.SamusEscapesFromZebes)
             game.Step(0);
         AssertEqual(SuperMetroidGameState.EndingAndCredits, game.GameState, "the fade hands off to state $27");
 
-        var ending = game.endingCredits;
+        var ending = game.Session.endingCredits;
         var expected = new Bank80SystemState();
         expected.SetRandomNumber(game.DispatcherRandomNumber);
         for (int call = 1; call <= 11; call++)

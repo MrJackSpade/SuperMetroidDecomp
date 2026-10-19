@@ -14,9 +14,9 @@ internal static class RoomShakeDefinitions
     /// Validate before division/modulo; types 36+ remain caller-owned non-rendered effects.
     /// Timer-controlled sign alternation, freezing and lifetime updates remain in callers.
     /// </remarks>
-    internal static RoomShakeDefinition ForType(ushort earthquakeType)
+    internal static RoomShakeDefinition ForType(int earthquakeType)
     {
-        if (earthquakeType >= 36)
+        if (earthquakeType is < 0 or >= 36)
             throw new InvalidDataException(
                 $"Earthquake type ${earthquakeType:X4} exceeds the 36 rendered definitions.");
         int group = earthquakeType / 9;

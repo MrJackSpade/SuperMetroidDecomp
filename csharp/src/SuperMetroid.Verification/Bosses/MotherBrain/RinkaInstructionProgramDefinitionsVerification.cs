@@ -32,7 +32,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        (RoomEnemySystem ordinarySystem, RoomEnemySlot ordinary) = RunRinkaProgram(rom, RinkaProgram.Ordinary, special: false);
+        (RoomEnemySystem ordinarySystem, RoomEnemySlot ordinary) = RunRinkaProgram(RinkaProgram.Ordinary, special: false);
         AssertEqual(RinkaEnemyFunction.AimDelay, (ordinarySystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires ordinarySystem.RinkaStates[0].")).Function,
             "ordinary Rinka fire callback selects aim-delay AI");
         AssertTrue(!ordinary.Properties.HasAny(EnemyProperties.Invisible),
@@ -40,7 +40,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         AssertTrue(!ordinary.Properties.HasAny(EnemyProperties.ProcessOffScreen),
             "ordinary Rinka program does not enable off-screen processing");
 
-        (RoomEnemySystem specialSystem, RoomEnemySlot special) = RunRinkaProgram(rom, RinkaProgram.Special, special: true);
+        (RoomEnemySystem specialSystem, RoomEnemySlot special) = RunRinkaProgram(RinkaProgram.Special, special: true);
         AssertEqual(RinkaEnemyFunction.AimDelay, (specialSystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires specialSystem.RinkaStates[0].")).Function,
             "special Rinka fire callback selects aim-delay AI");
         AssertTrue(!special.Properties.HasAny(EnemyProperties.Invisible),
@@ -54,33 +54,30 @@ internal static class RinkaInstructionProgramDefinitionsVerification
 
     /// <summary>Runs one native-length Rinka loop and observes visibility, off-screen behavior, and aim-delay selection.</summary>
     private static (RoomEnemySystem System, RoomEnemySlot Rinka) RunRinkaProgram(
-        SuperMetroidAddressSpace bus,
         RinkaProgram program,
         bool special)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         RoomEnemySlot rinka = enemies.SlotTable.Slots[0];
-        rinka.EnemyDefinitionPointer = EnemyDefinitionId.Rinka;
-        rinka.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
+        rinka.Bind(rinka.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         rinka.Parameter1 = special ? (ushort)1 : (ushort)0;
         rinka.InstructionTimer = NativeCountdown.Start(1);
 
-        var state = new RinkaEnemyState(rinka)
+        var state = new RinkaEnemyState()
         {
             Function = RinkaEnemyFunction.WatchForLeavingViewport,
             Program = AnimationProgramCursor<RinkaProgram>.Start(program),
         };
-        var states = (RinkaEnemyState?[])enemies.RinkaBehavior._rinkaStates;
-        states[0] = state;
-        enemies.BindFixtureBus(bus);
+        enemies.SlotTable.Slots[0].SetSpeciesState(state);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
 
         // One complete list is 127 timer frames plus zero-time callback/goto dispatch. The
         // margin proves that the native terminal goto loops rather than merely reaching it.
         for (int frame = 0; frame < 180; frame++)
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
 
         return (enemies, rinka);
     }

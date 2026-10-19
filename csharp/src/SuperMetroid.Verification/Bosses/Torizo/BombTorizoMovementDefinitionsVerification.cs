@@ -66,14 +66,13 @@ internal static class BombTorizoMovementDefinitionsVerification
             () => BombTorizoMovementDefinitions.WalkVelocity(40),
             "Bomb Torizo walk offset outside table");
 
-        BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
 
         for (ushort tableOffset = 0; tableOffset < 32; tableOffset += 2)
         foreach (bool subtract in new[] { false, true })
         {
             Offset16<RoomPixels> expected =
                 BombTorizoMovementDefinitions.Posture(tableOffset);
-            var slot = new RoomEnemySlot(0)
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
@@ -88,13 +87,12 @@ internal static class BombTorizoMovementDefinitionsVerification
 
         var guarded = NewBombTorizoMovementReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new ushort[4096], new byte[4096], new ushort[4096]), new byte[8]);
 
         for (ushort tableOffset = 0; tableOffset < 40; tableOffset += 2)
         {
-            var slot = new RoomEnemySlot(0)
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
                 Radius = new(8, 8),

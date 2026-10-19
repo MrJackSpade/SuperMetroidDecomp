@@ -3,20 +3,16 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>
-/// Debugger-visible projection of Pipe Bug's native variables. Words A-F remain backed by
-/// the physical 64-byte enemy record. The remaining named properties model the extended
-/// $7E:7800 enemy words used by this family; several meanings intentionally overlap because
-/// the three ROM initializers reuse the same storage for unrelated state machines.
+/// Typed state of the three Pipe Bug families. The function and the Brinstar flight direction are values the cartridge
+/// keeps in the enemy's common record, emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>); the
+/// rest is per-family state the cartridge kept in its extended $7E:7800 words. Each property belongs to the family its
+/// summary names; the others never read it.
 /// </summary>
 public sealed class PipeBugEnemyState
 {
-    /// <summary>Physical enemy record whose A-F words are shared by the three Pipe Bug variants.</summary>
-    private readonly RoomEnemySlot _slot;
-
     /// <summary>Captures the original enemy identity before generic death can clear its live definition word.</summary>
     internal PipeBugEnemyState(RoomEnemySlot slot)
     {
-        _slot = slot;
         DefinitionAtInitialization = slot.EnemyDefinitionPointer;
     }
 
@@ -31,81 +27,84 @@ public sealed class PipeBugEnemyState
     /// </summary>
     public EnemyDefinitionId DefinitionAtInitialization { get; }
 
-    /// <summary>Native variable A for Norfair/yellow bugs, or direction for Brinstar bugs.</summary>
-    public ushort VariableA
-    {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
+    /// <summary>
+    /// Whether a Brinstar Pipe Bug flies left, set from Samus's side of the bug every update it waits with Samus in its
+    /// vertical band. The cartridge keeps it as the sign bit of the record word the other two species use for their
+    /// function.
+    /// </summary>
+    public bool BrinstarFliesLeft { get; internal set; }
 
-    /// <summary>Native variable F for Brinstar bugs; variable A for the other two species.</summary>
-    public PipeBugEnemyFunction Function
-    {
-        get => (PipeBugEnemyFunction)(IsBrinstar ? _slot.VariableF : _slot.VariableA);
-        internal set
-        {
-            if (IsBrinstar)
-                _slot.VariableF = (ushort)value;
-            else
-                _slot.VariableA = (ushort)value;
-        }
-    }
+    /// <summary>The current bank-$B3 AI function; none once a kill has emptied the record.</summary>
+    public PipeBugEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Gets whether the initialized owner is either Brinstar Pipe Bug variant.</summary>
-    public bool IsBrinstar =>
-        DefinitionAtInitialization is
-            EnemyDefinitionId.Zeb or
-            EnemyDefinitionId.Zebbo;
-
-    // The names below follow their role in the currently selected species. They are kept
-    // together because the cartridge overlays all of them in one Enemy_PipeBug structure.
     /// <summary>Gets the whole-pixel spawn position restored after leaving the screen.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
-    /// <summary>Gets the upper Y boundary of a Brinstar Pipe Bug's emergence.</summary>
-    public ushort EmergenceTopY { get; internal set; }
+    /// <summary>
+    /// The highest point of a Brinstar Pipe Bug's emergence, sixteen pixels above its spawn point; only Y is
+    /// meaningful. The bug keeps rising while it is still below this point.
+    /// </summary>
+    public Position16<RoomPixels> EmergenceTop { get; internal set; }
     /// <summary>Gets the requested Brinstar animation selector bits.</summary>
     public PipeBugAnimationSelector AnimationState { get; internal set; }
     /// <summary>Gets the Brinstar animation selector currently installed in the enemy slot.</summary>
     public PipeBugAnimationSelector InstalledAnimationState { get; internal set; }
-    /// <summary>
-    /// Gets the Norfair formation stagger counter, counting up. Brinstar Pipe Bugs keep their respawn
-    /// countdown in the same native word; see <see cref="RespawnDelay"/>.
-    /// </summary>
-    public ushort FormationCounter { get; internal set; }
 
     /// <summary>
-    /// Gets the Brinstar Pipe Bug's respawn countdown: <see cref="FormationCounter"/>'s native word read as a
-    /// wrapping countdown that expires when it reaches zero.
+    /// A Norfair formation member's stagger counter, counting up from zero to <see cref="LargestCount"/> and wrapping
+    /// to zero past it, as the cartridge's word does. It returns to zero only when the member departs, so a member
+    /// reset off screen keeps its count into the next rise; <see cref="HasReachedStaggerTarget"/> compares it with
+    /// the target by the sign of their sixteen-bit difference.
     /// </summary>
-    public NativeCountdown RespawnDelay
-    {
-        get => NativeCountdown.FromRaw(FormationCounter);
-        internal set => FormationCounter = value.RawValue;
-    }
-    /// <summary>Gets the byte offset of this Norfair bug's positive linear-speed record.</summary>
-    public ushort LinearSpeedTableOffset { get; internal set; }
-    /// <summary>Gets the Norfair member's Y position at the end of its initial rise.</summary>
-    public ushort EmergenceY { get; internal set; }
-    /// <summary>Gets the formation counter value at which this Norfair member departs.</summary>
-    public ushort StaggerTarget { get; internal set; }
+    public int FormationCounter { get; internal set; }
+
+    /// <summary>The largest <see cref="FormationCounter"/>; counting one more wraps to zero.</summary>
+    internal const int LargestCount = 65535;
+
+    /// <summary>Counts one formation update, wrapping from <see cref="LargestCount"/> to zero.</summary>
+    internal void CountFormationTick() => FormationCounter = FormationCounter == LargestCount ? 0 : FormationCounter + 1;
+
+    /// <summary>
+    /// Whether a Norfair member's count has reached its <see cref="StaggerTarget"/>, judged as the cartridge does by
+    /// the sign of their difference wrapped to sixteen bits.
+    /// </summary>
+    internal bool HasReachedStaggerTarget => unchecked((short)(FormationCounter - StaggerTarget)) >= 0;
+
+    /// <summary>
+    /// A Brinstar Pipe Bug's respawn countdown, in AI updates: started at 48 when it leaves the screen, and expiring
+    /// when a decrement reaches zero.
+    /// </summary>
+    public NativeCountdown RespawnDelay { get; internal set; }
+    /// <summary>
+    /// Byte offset, 0 through 2040, of this Norfair bug's positive record in the common linear speed table: eight
+    /// bytes per record, with the negative half four bytes later.
+    /// </summary>
+    public int LinearSpeedTableOffset { get; internal set; }
+    /// <summary>The point at which a Norfair member's initial rise ended; only Y is meaningful. Its stagger moves are measured from it.</summary>
+    public Position16<RoomPixels> RiseEnd { get; internal set; }
+    /// <summary>The formation count, 72 through 136, at which this Norfair member departs.</summary>
+    public int StaggerTarget { get; internal set; }
     /// <summary>Gets the function selected for this Norfair member after rising.</summary>
     public PipeBugEnemyFunction NorfairPostRiseFunction { get; internal set; }
-    /// <summary>Gets the integer word of a yellow Pipe Bug's positive 16.16 velocity.</summary>
-    public ushort PositiveVelocityWhole { get; internal set; }
-    /// <summary>Gets the fractional word of a yellow Pipe Bug's positive 16.16 velocity.</summary>
-    public ushort PositiveVelocityFraction { get; internal set; }
-    /// <summary>Gets the integer word of a yellow Pipe Bug's negative 16.16 velocity.</summary>
-    public ushort NegativeVelocityWhole { get; internal set; }
-    /// <summary>Gets the fractional word of a yellow Pipe Bug's negative 16.16 velocity.</summary>
-    public ushort NegativeVelocityFraction { get; internal set; }
+    /// <summary>A yellow Pipe Bug's signed 16.16 rightward flight velocity in room pixels per update.</summary>
+    public SnesSignedSixteenSixteen PositiveVelocity { get; internal set; }
+    /// <summary>A yellow Pipe Bug's leftward flight velocity: the separately authored negative record, not a negation.</summary>
+    public SnesSignedSixteenSixteen NegativeVelocity { get; internal set; }
     /// <summary>Gets the yellow Pipe Bug's countdown before straight flight begins.</summary>
     public NativeCountdown EmergenceDelay { get; internal set; }
-    /// <summary>Gets the quadratic-speed table counter used by a yellow Pipe Bug's arc.</summary>
-    public ushort ArcCounter { get; internal set; }
-    /// <summary>Gets whether the yellow Pipe Bug arc is in its rising or returning phase.</summary>
-    public ushort ArcPhase { get; internal set; }
+    /// <summary>
+    /// The quadratic-speed record a yellow Pipe Bug's arc reads, from 0 through the table's last record. The rising
+    /// phase counts it down from 40 and ends when it would go below zero; the returning phase counts it back up.
+    /// </summary>
+    public int ArcCounter { get; internal set; }
+    /// <summary>Whether a yellow Pipe Bug's arc is in its rising phase rather than its returning one.</summary>
+    public bool ArcRising { get; internal set; }
     /// <summary>Gets whether a yellow Pipe Bug has completed its one authored arc.</summary>
     public bool ArcCompleted { get; internal set; }
-    /// <summary>Gets the horizontal position at which the current yellow arc began.</summary>
-    public ushort ArcStartX { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        BrinstarFliesLeft = false;
+        Function = null;
+    }
 }

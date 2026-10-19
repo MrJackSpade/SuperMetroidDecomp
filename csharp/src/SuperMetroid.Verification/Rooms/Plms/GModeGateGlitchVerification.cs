@@ -67,18 +67,18 @@ internal static class GModeGateGlitchVerification
         int expectedOpenFrame)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
         RoomPlmSystem plms = runtime.Plms;
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         for (int warm = 0; warm < 2; warm++)
-            plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
+            plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         Enum sleepingGateProgram = (gate.Animation ?? throw new InvalidOperationException("The gate runs no typed program.")).RunningProgram;
@@ -88,19 +88,19 @@ internal static class GModeGateGlitchVerification
                     level,
                     gate.BlockIndex,
                     DownwardGatePlmRomData.ClosedGateBts,
-                    SamusProjectileTypeWord.CreateBeam((ushort)SamusBeamFlags.Wave, charged: false),
+                    SamusProjectileTypeWord.CreateBeam(SamusBeamFlags.Wave, charged: false),
                     solidBlock: true),
                 "direct G-Mode fixture fills the native forty-slot PLM pool");
         }
 
         SamusState samus = runtime.Player.IntroducedSamus;
-        EnterDirectGMode(bus, samus);
+        EnterDirectGMode(samus);
         samus.Position = samus.Position.WithWhole(new(140, 360));
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
-        samus.EquippedBeams = (ushort)SamusBeamFlags.Wave;
-        samus.SelectedHudItem = 0;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.EquippedBeams = SamusBeamFlags.Wave;
+        samus.SelectedHudItem = HudItem.Beam;
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
 
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
@@ -110,15 +110,15 @@ internal static class GModeGateGlitchVerification
         {
             if (frame == reactivateFrame)
             {
-                AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
+                AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
                     $"direct G-Mode cancellation is admitted on frame {frame}");
                 AssertTrue(!samus.Xray.IsGMode && !samus.Xray.ArePlmsSuspended,
                     $"frame {frame} X-Ray activation restores native subsystem words");
             }
 
             SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-            bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-            shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, layer1: new(0, 224), sharedProjectiles: bombs);
+            bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+            shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, layer1: new(0, 224), sharedProjectiles: bombs);
 
             SamusProjectileSlot shot = shots.Slots[0];
             if (shot.Type != 0 && shot.Position.X.Whole < 112 && passedGateFrame < 0)
@@ -126,7 +126,7 @@ internal static class GModeGateGlitchVerification
 
             if (!samus.Xray.ArePlmsSuspended)
             {
-                plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
+                plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
             }
 
             RoomPlmSlotSnapshot currentGate = plms.PopulationSlots.Single(slot =>
@@ -145,20 +145,20 @@ internal static class GModeGateGlitchVerification
     private static void VerifyIndirectGModeOmitsGateActor()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
 
         SamusState samus = runtime.Player.IntroducedSamus;
-        EnterDirectGMode(bus, samus);
+        EnterDirectGMode(samus);
         samus.Xray.TransitionDirectGModeToIndirect();
         AssertTrue(!samus.Xray.IsActive && samus.Xray.IsGMode,
             "door teardown removes direct X-Ray object but retains subsystem disables");
         AssertEqual(SamusSpecialPaletteType.None, samus.Xray.SpecialPaletteKind,
             "indirect G-Mode transition removes the stranded X-Ray palette handler");
 
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
         AssertTrue(runtime.Enemies.Projectiles.EnemyProjectiles.All(projectile =>
                 !projectile.IsActive || projectile.Kind is not (
                     RoomEnemyProjectileKind.DownwardGateClosed or
@@ -178,7 +178,7 @@ internal static class GModeGateGlitchVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)),
         };
         samus.Kinematics.Radius = new(5, 8);
-        EnterDirectGMode(bus, samus);
+        EnterDirectGMode(samus);
 
         ushort[] words = Enumerable.Repeat((ushort)0x3000, 16).ToArray();
         byte[] behavior = Enumerable.Repeat((byte)0x80, 16).ToArray();
@@ -223,11 +223,11 @@ internal static class GModeGateGlitchVerification
         AssertTrue(samus.HorizontalSpeed.HasRunningMomentum,
             "overloaded G-Mode sand preserves the running-momentum flag");
 
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
+        AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "using X-Ray again cancels direct G-Mode after sand overload");
         AssertTrue(!samus.Xray.ArePlmsSuspended,
             "G-Mode cancellation restores the cartridge PLM-enable word");
-        plms.Step(bus, level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, plms.SlotTable.ActiveCount,
             "first restored PLM pass executes all forty transient sand delete lists");
     }
@@ -245,7 +245,7 @@ internal static class GModeGateGlitchVerification
             ushort[] words = new ushort[width * height];
             byte[] behavior = new byte[words.Length];
             words[doorIndex] = 0xc123;
-            behavior[doorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.Value;
+            behavior[doorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.ToBtsByte();
             return CreateRoom(new(width, height), words, behavior);
         }
 
@@ -335,7 +335,7 @@ internal static class GModeGateGlitchVerification
             RoomLevelData controlLevel = CreateLevel();
             var controlPlms = new RoomPlmSystem();
             SamusState controlSamus = CreateSamus();
-            BlockMoveResult control = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = controlLevel, Plms = controlPlms }, controlSamus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+            BlockMoveResult control = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = controlLevel, Plms = controlPlms }, controlSamus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertTrue(control.Collided,
                 $"available PLM allocation retains ordinary solid contact for {description}");
 
@@ -344,7 +344,7 @@ internal static class GModeGateGlitchVerification
             FillSuspendedPlmPool(plms);
             SamusState samus = CreateSamus();
 
-            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertEqual(expectedPass, !result.Collided,
                 $"full PLM pool gives cartridge default collision for {description}");
             AssertEqual(collisionType,
@@ -375,7 +375,7 @@ internal static class GModeGateGlitchVerification
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState { Health = 1, MaxHealth = 99 };
         var plms = new RoomPlmSystem();
-        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         int accessBlock = level.GetBlockIndex(new(stationX + 1, stationY));
         AssertTrue(plms.TryNotifyStationTouch(
@@ -392,7 +392,7 @@ internal static class GModeGateGlitchVerification
         // A normal frame in G-Mode omits this call entirely. Executing it once represents
         // cancellation by a second X-Ray use: the pending access list finally begins, but
         // Samus remains locked through its authored insertion/refill/retraction sequence.
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(!plms.StationSnapshots.Single().Triggered,
             "first post-G-Mode PLM pass consumes the pending station setup");
         AssertTrue(samus.InputLocked,
@@ -405,7 +405,7 @@ internal static class GModeGateGlitchVerification
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
         CollectibleFixture fixture = LoadCollectible(bus, header: 0xeed7, roomArgument: 17, precollected: false);
-        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
             "direct G-Mode contact records the visible item's native trigger");
 
@@ -417,7 +417,7 @@ internal static class GModeGateGlitchVerification
 
         // The omitted handler pass above represents G-Mode. Once a second X-Ray use
         // restores PLMs, the resident trigger is consumed without rechecking distance.
-        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(fixture.System.HasCollectedItemBit(17),
             "first post-G-Mode handler remotely acquires the previously touched item");
         AssertEqual(1, fixture.Plms.CollectiblePlms.CollectiblePickupEvents.Count,
@@ -445,12 +445,12 @@ internal static class GModeGateGlitchVerification
             blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0100)) };
-        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
+        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         bool brokenEvent = false;
         var projectiles = new List<NoobTubeProjectileRequest>();
         var plms = new RoomPlmSystem();
-        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => brokenEvent = true }, RoomFx = roomFx, Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => { }, WriteType = _ => { } }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });
-        StepNoobTube(plms, bus, level, streamer);
+        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => brokenEvent = true }, RoomFx = roomFx, Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => { }, WriteType = _ => { } }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });
+        StepNoobTube(plms, level, streamer);
 
         AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(
                 blockIndex,
@@ -460,10 +460,10 @@ internal static class GModeGateGlitchVerification
             "G-Mode-disabled tube retains the marked Power Bomb request");
         AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.InputLocked,
             "without a PLM handler pass the glass tube cannot arm, break, or lock Samus");
-        AssertTrue((roomFx.LiquidOptions & RoomFxRomData.Water.PhysicsDisabledOption) != 0,
+        AssertTrue((roomFx.LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != 0,
             "suspended glass tube leaves its water-physics disable bit intact");
 
-        StepNoobTube(plms, bus, level, streamer);
+        StepNoobTube(plms, level, streamer);
         AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput,
             plms.PopulationSlots.Single().PreInstruction,
             "first post-G-Mode PLM pass consumes the Power Bomb and arms the input callback");
@@ -485,20 +485,20 @@ internal static class GModeGateGlitchVerification
     }
 
     /// <summary>Uses fatal X-Ray damage and reserve recovery to reach direct G-Mode with all subsystem words disabled.</summary>
-    private static void EnterDirectGMode(ISnesAddressSpace bus, SamusState samus)
+    private static void EnterDirectGMode(SamusState samus)
     {
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
-        samus.EquippedItems = samus.EquippedItems.With(SamusEquipmentFlags.XrayScope);
+        samus.EquippedItems |= SamusEquipmentFlags.XrayScope;
         samus.Health = 0;
         samus.MaxHealth = 99;
         samus.ReserveEnergy = 4;
         samus.MaxReserveEnergy = 100;
-        samus.ReserveTankMode = 1;
+        samus.ReserveTankMode = ReserveTankMode.Auto;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "direct G-Mode fixture activates X-Ray");
 
         var recovery = new SamusReserveAutoRecoveryState();

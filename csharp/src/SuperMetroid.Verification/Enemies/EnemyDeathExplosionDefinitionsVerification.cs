@@ -17,7 +17,6 @@ internal static class EnemyDeathExplosionDefinitionsVerification
     /// <summary>Compares cartridge pointers, live explosion placement, and the out-of-range small-explosion clamp.</summary>
     internal static void VerifyEnemyDeathExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewEnemyDeathExplosionReadGuard(rom);
 
         for (ushort animation = 0; animation < 5; animation++)
@@ -28,9 +27,9 @@ internal static class EnemyDeathExplosionDefinitionsVerification
                 $"enemy death explosion program {animation}");
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
-            enemy.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
+            enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
             enemy.Position = enemy.Position.WithWhole(new(unchecked((ushort)(0xfff0 + animation)), unchecked((ushort)(0x0100 + animation))));
 
             enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, animation);
@@ -47,9 +46,9 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         }
 
         var clamped = new RoomEnemySystem();
-        clamped.BindFixtureBus(guarded);
+        clamped.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot clampedEnemy = clamped.SlotTable.Slots[0];
-        clampedEnemy.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
+        clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.Definition);
         clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, 5);
         AssertEqual(EnemyDeathProjectileProgram.SmallExplosion,
             ProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),

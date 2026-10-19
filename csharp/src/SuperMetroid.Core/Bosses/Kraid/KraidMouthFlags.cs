@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's mouth word: shot latches in the low bits and, in the high byte, a count of pending mouth reopens. The
-/// cartridge sets, clears and tests each latch on its own; the count is decremented as a byte.
+/// Kraid's mouth shot latches. The cartridge sets, clears and tests each latch on its own. The pending reopen count
+/// that shares their word in the cartridge is <see cref="KraidEnemyState.PendingMouthReopens"/>.
 /// </summary>
 [Flags]
 public enum KraidMouthFlags : ushort
@@ -15,6 +15,4 @@ public enum KraidMouthFlags : ushort
     ReopenArmed = 0x0002,
     /// <summary>Bit 2: a mouth hit landed while the reopen was armed.</summary>
     ReopenPending = 0x0004,
-    /// <summary>The high-byte reopen count. It is a counter, not a flag.</summary>
-    ReopenCount = 0xff00,
 }

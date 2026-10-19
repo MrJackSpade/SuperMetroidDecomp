@@ -12,7 +12,10 @@ internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingP
         get
         {
             if ((uint)index >= Length) throw new IndexOutOfRangeException();
-            return new(0x160, (ushort)(index * 0x100), CrocomireMeltingTransferDefinitions.ScratchBank, (ushort)(CrocomireMeltingTransferDefinitions.ScratchStart + index * 0x200));
+            return new(CrocomireMeltingTransferDefinitions.UploadByteCount,
+                index * CrocomireMeltingTransferDefinitions.UploadVramWordStride,
+                CrocomireMeltingTransferDefinitions.ScratchBank,
+                CrocomireMeltingTransferDefinitions.ScratchStart + index * CrocomireMeltingTransferDefinitions.ChunkByteStride);
         }
     }
 }

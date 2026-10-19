@@ -7,6 +7,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Compares translated intro snapshots with direct retail-frame rendering on a D3D device.</summary>
 internal static class RetailCinematicTests
@@ -15,8 +16,12 @@ internal static class RetailCinematicTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var legacy = RenderRetailFixture.CreateIntro(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-        var captured = RenderRetailFixture.CreateIntro(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
+        // Each owner keeps its own music queue, which the Ceres flight waits on; the game runs
+        // the queue handler after every dispatch.
+        var legacyAudio = new CartridgeAudioState();
+        var capturedAudio = new CartridgeAudioState();
+        var legacy = RenderRetailFixture.CreateIntro(legacyAudio);
+        var captured = RenderRetailFixture.CreateIntro(capturedAudio);
         var phases = new HashSet<IntroCinematicPhase>();
         int count = 0;
         for (int tick = 0; tick < 20000 && !legacy.CeresFlightFinished; tick++)
@@ -35,7 +40,10 @@ internal static class RetailCinematicTests
                 count++;
             }
             SnesButton input = tick % 47 == 0 ? SnesButton.A : SnesButton.None;
-            legacy.Step(input); captured.Step(input);
+            legacy.Step(input);
+            legacyAudio.AdvanceFrame(default);
+            captured.Step(input);
+            capturedAudio.AdvanceFrame(default);
             if (legacy.Phase != captured.Phase || legacy.MotherBrainHitCount != captured.MotherBrainHitCount ||
                 legacy.FlashbackSamusX != captured.FlashbackSamusX || legacy.FlashbackSamusY != captured.FlashbackSamusY ||
                 legacy.ActiveFlashbackProjectileCount != captured.ActiveFlashbackProjectileCount)

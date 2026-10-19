@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 
 /// <summary>
@@ -14,5 +16,13 @@ internal static class WreckedShipGhostFrameDefinitions
         1 => 0x9e5c,
         2 => 0x9e72,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Wrecked Ship ghost pose."),
+    };
+
+    /// <summary>The installed frame each <see cref="WreckedShipGhostFrame"/> shows.</summary>
+    internal static EnemyFrameTable<WreckedShipGhostFrame> ShownFrames { get; } = new()
+    {
+        { new(Pose: 0), EnemyFrameId.WreckedShipGhost00 },
+        { new(Pose: 1), EnemyFrameId.WreckedShipGhost01 },
+        { new(Pose: 2), EnemyFrameId.WreckedShipGhost02 },
     };
 }

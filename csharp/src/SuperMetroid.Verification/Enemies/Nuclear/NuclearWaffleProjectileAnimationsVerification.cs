@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Nuclear;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Nuclear;
 internal static class NuclearWaffleProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, NuclearWaffleProjectileAnimations.Programs, NuclearWaffleProjectileFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, NuclearWaffleProjectileAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(NuclearWaffleProjectileFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyNuclearWaffleProjectileAnimations(SuperMetroidAddressSpace rom)

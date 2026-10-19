@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Cartridge values of <see cref="DoorDefinitions"/> that only verification reads.</summary>
@@ -12,4 +13,6 @@ internal static class DoorDefinitionsConstants
         /// <inheritdoc cref="DoorDefinitionsConstants.HeaderCount"/>
         internal static int HeaderCount => DoorDefinitionsConstants.HeaderCount;
     }
+    /// <summary>Every retail door, in the cartridge's record order.</summary>
+    public static IReadOnlyList<CartridgeDoorHeader> All => DoorDefinitions.Definitions;
 }

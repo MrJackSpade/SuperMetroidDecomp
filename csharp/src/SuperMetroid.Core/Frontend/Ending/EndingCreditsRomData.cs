@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -87,15 +89,6 @@ public static class EndingCreditsRomData
         public const int PostCreditsTileFragmentB = 0x99dab1;
     }
 
-    /// <summary>Bank-$8C cinematic background-object instruction-list identities for the final text sequences.</summary>
-    public static class Instructions
-    {
-        /// <summary>$8C:DFDB, CinematicBGObjectInstLists_Ending_ItemPercentage: bank-relative instruction-list identity for the item-collection percentage text.</summary>
-        public const ushort ItemPercentageText = 0xdfdb;
-        /// <summary>$8C:E0AF, CinematicBGObjectInstLists_Ending_SeeYouNextMission: bank-relative instruction-list identity for the final message.</summary>
-        public const ushort SeeYouNextMissionText = 0xe0af;
-    }
-
     /// <summary>Ending VRAM transfer extents, byte and word destinations, tilemap geometry, and palette color-index ranges.</summary>
     public static class Rendering
     {
@@ -119,6 +112,8 @@ public static class EndingCreditsRomData
         public const byte CloudObjectSelection = 0xa3;
         /// <summary>$8B:83D3 sets OBSEL=$00; reward sprites use the contiguous sheet at VRAM word zero.</summary>
         public const byte RewardObjectSelection = 0;
+        /// <summary>OBSEL value the reward jump installs when Samus passes above the screen and her falling sheet replaces the reward sheet.</summary>
+        public const byte FallingRewardObjectSelection = 3;
         /// <summary>Font 3 blank tilemap word used to clear credits and post-credits pages before drawing text.</summary>
         public const ushort BlankTile = 0x007f;
         /// <summary>Width of credits and result tilemaps in tile cells.</summary>
@@ -240,7 +235,7 @@ public static class EndingCreditsRomData
         /// <summary>Horizontal velocity decrement per cinematic update in signed 16.16 pixels per update; $0100 equals 1/256 pixel per update squared.</summary>
         public const int AccelerationDelta16Point16 = 0x0000_0100;
         /// <summary>Credits vertical-scroll increment per update in unsigned 16.16 pixels: one-half pixel.</summary>
-        public const uint CreditsScrollDelta16Point16 = 0x0000_8000;
+        public static SnesSignedSixteenSixteen CreditsScrollVelocity => SnesSignedSixteenSixteen.FromParts(0, 0x8000);
         /// <summary>Native table-index angle $E0 approached one angle unit per update during the slow-spinning gunship emergence.</summary>
         public static SnesAngle PlanetSlowTargetAngle => SnesAngle.FromTableIndex(0xe0);
         /// <summary>Native table-index angle $10 approached during the final fly-to-camera turn, separate from the slow-spin target.</summary>
@@ -324,9 +319,9 @@ public static class EndingCreditsRomData
         /// <summary>Packed BG tilemap word for the lower half of the percentage sign, placed one tilemap row below its upper half.</summary>
         public const ushort PercentBottomTile = 0x387a;
         /// <summary>Collected-item bit mask $F32F whose set bits contribute one each to the ending item percentage; ammo and energy pickups are counted separately.</summary>
-        public const ushort CollectibleItemMask = 0xf32f;
+        public const SuperMetroid.Core.Samus.SamusEquipmentFlags CollectibleItemMask = (SamusEquipmentFlags)0xf32f;
         /// <summary>Collected-beam bit mask $100F whose set bits contribute one each to the ending item percentage.</summary>
-        public const ushort CollectibleBeamMask = 0x100f;
+        public const SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags CollectibleBeamMask = (SamusBeamFlags)0x100f;
         /// <summary>$8B:F064 clear-time hours tens-digit origin X=156 screen pixels.</summary>
         public const ushort HoursTensX = 0x009c;
         /// <summary>Clear-time hours units-digit origin X=164 screen pixels.</summary>

@@ -31,7 +31,6 @@ internal static class EyeDoorSweatSpanUnderflowVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0058, 0x0020)),
             Velocity = new(new SnesSignedEightEight(0xffc0), new SnesSignedEightEight(0x0200)),
         };
-        const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
         EyeDoorBehavior.RunEyeDoorSweatPreInstruction(drop, level);
         AssertEqual((ushort)0x0058, drop.Position.X.Whole, "the block-aligned drop keeps its X");
         AssertEqual((ushort)0x0000, drop.Position.X.Fraction, "and loses its X fraction");

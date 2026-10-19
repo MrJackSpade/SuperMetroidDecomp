@@ -7,6 +7,10 @@ internal static class TourianEscapeSharedRedFlashPaletteFxColorToolingDefinition
     [AccessedByReflection]
     public static IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxColorDefinition> All =>
         TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.Definitions;
+    /// <summary><c>PalFxDef_Tourian20</c> at <c>$8D:FFD1</c>.</summary>
+    public const ushort GeneralLevelDefinitionPointer = 0xffd1;
+    /// <summary><c>PalFxDef_Tourian40</c> at <c>$8D:FFD5</c>.</summary>
+    public const ushort ArkanoidDefinitionPointer = 0xffd5;
     /// <summary><c>PalFxInstList_Tourian20</c> at <c>$8D:F941</c>.</summary>
     public const ushort GeneralLevelProgramStart = 0xf941;
     /// <summary><c>PalFxInstList_Tourian40</c> at <c>$8D:F949</c>.</summary>
@@ -28,10 +32,10 @@ internal static class TourianEscapeSharedRedFlashPaletteFxColorToolingDefinition
             {
                 TourianEscapeSharedRedFlashPaletteOwner.GeneralLevel => new(
                     TourianEscapeSharedRedFlashPaletteOwner.GeneralLevel,
-                    TourianEscapeSharedRedFlashPaletteFxColorDefinitions.GeneralLevelDefinitionPointer, GeneralLevelProgramStart, GeneralColorByte, usesGoto: true),
+                    GeneralLevelDefinitionPointer, GeneralLevelProgramStart, GeneralColorByte, usesGoto: true),
                 TourianEscapeSharedRedFlashPaletteOwner.ArkanoidBlocksAndRedOrbs => new(
                     TourianEscapeSharedRedFlashPaletteOwner.ArkanoidBlocksAndRedOrbs,
-                    TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ArkanoidDefinitionPointer, ArkanoidProgramStart, ArkanoidColorByte, usesGoto: false),
+                    ArkanoidDefinitionPointer, ArkanoidProgramStart, ArkanoidColorByte, usesGoto: false),
                 _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };
         /// <summary>Visits both entries in the same order as the owner values.</summary>

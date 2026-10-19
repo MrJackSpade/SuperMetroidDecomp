@@ -23,6 +23,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -76,10 +77,6 @@ internal sealed class EnemyCollision
     internal static EnemyInteractionCallback? PowerBombReaction(RoomEnemySlot slot) =>
         EnemyInteractionCallbacks.TryDecode(slot.Definition.Bank, slot.Definition.PowerBombReactionPointer);
 
-    /// <summary>A raw callback word selected from <paramref name="slot"/>'s bank-local hitbox data, or null.</summary>
-    internal static EnemyInteractionCallback? HitboxCallback(RoomEnemySlot slot, ushort pointer) =>
-        EnemyInteractionCallbacks.TryDecode(slot.Definition.Bank, pointer);
-
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
     /// <param name="samus">Live player state receiving the native touch callback.</param>
     /// <param name="controllerInput">Current held input used by touch handlers.</param>
@@ -89,7 +86,7 @@ internal sealed class EnemyCollision
         SamusState samus,
         SnesButton controllerInput,
         RoomLevelData? level = null,
-        ushort? onlyNativeEnemyIndex = null)
+        int? onlyNativeEnemyIndex = null)
     {
         Ensure.NotNull(samus);
         _room.EnsureLoaded();
@@ -97,7 +94,7 @@ internal sealed class EnemyCollision
         if (contactDamageIndex == SamusContactDamageIndex.None && !samus.InvincibilityTimer.IsZero)
             return false;
 
-        foreach (ushort nativeIndex in _dispatch.InteractiveEnemyIndexes)
+        foreach (int nativeIndex in _dispatch.InteractiveEnemyIndexes)
         {
             if (onlyNativeEnemyIndex.HasValue && nativeIndex != onlyNativeEnemyIndex.Value)
                 continue;
@@ -106,7 +103,7 @@ internal sealed class EnemyCollision
             // invulnerability. Keep this per enemy: an empty interactive list or an actor
             // not yet publishing its map must not erase the timer. The reset still precedes
             // overlap testing, so a distant actor with a map can legitimately clear it.
-            if (slot.SpritemapPointer == 0)
+            if (slot.Frame is null)
                 continue;
             bool usesExtendedHitboxes = UsesExtendedSamusHitboxes(slot);
             // Multibox entry rejects the two shared no-op callback identities before
@@ -124,15 +121,15 @@ internal sealed class EnemyCollision
             // solved tail tip. EnemyMain dispatches its body at this same pre-AI seam;
             // tail processing checks the tip later. Do not flatten either to the header's
             // dummy 8x8 radius here. An actor with no translated touch reaction is skipped.
-            if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
+            if (slot.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
                 slot.Properties.HasAny(EnemyProperties.Deleted) ||
-                _dispatch.Ai.FindTouch(slot) is not { } touch)
+                (slot.Entity as IEnemyTouchReaction)?.FindTouch() is not { } touch)
             {
                 continue;
             }
 
             bool overlapsSamus;
-            ushort hitboxTouchAiPointer = slot.Definition.TouchAiPointer;
+            EnemyInteractionCallback? hitboxTouchAi = TouchAi(slot);
             if (usesExtendedHitboxes)
             {
                 overlapsSamus = TryFindExtendedHitboxCallback(
@@ -140,7 +137,7 @@ internal sealed class EnemyCollision
                     samus.Position.Whole,
                     samus.Kinematics.Radius,
                     selectShotCallback: false,
-                    out hitboxTouchAiPointer);
+                    out hitboxTouchAi);
             }
             else
             {
@@ -168,8 +165,7 @@ internal sealed class EnemyCollision
                 controllerInput,
                 level,
                 usesExtendedHitboxes,
-                HitboxCallback(slot, hitboxTouchAiPointer),
-                hitboxTouchAiPointer,
+                hitboxTouchAi,
                 contactDamageIndex));
             return true;
         }
@@ -180,25 +176,22 @@ internal sealed class EnemyCollision
     /// Runs common normal-enemy shot AI for ordinary radius-based translated actors. One
     /// projectile may resolve per enemy per pass, matching the native collision-handler exit.
     /// </summary>
-    /// <param name="bus">Address space used by native-compatible projectile collision, reflection, and impact side effects.</param>
     /// <param name="projectiles">Live Samus beam and missile slots whose enemy collisions may consume, reflect, or transition their projectiles.</param>
     /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
     /// <param name="samus">Live player state for enemy-specific shot reactions; may be null only for paths that do not require it, while player-dependent reactions such as Yard beam launch reject its absence.</param>
     /// <param name="onlyNativeEnemyIndex">Current EnemyMain slot, or null for a standalone whole-population audit.</param>
     public int ResolveOrdinaryProjectileHits(
-        ISnesAddressSpace bus,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles,
         SamusState? samus = null,
-        ushort? onlyNativeEnemyIndex = null)
+        int? onlyNativeEnemyIndex = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
         _room.EnsureLoaded();
 
         int hitCount = 0;
-        foreach (ushort nativeIndex in _dispatch.InteractiveEnemyIndexes)
+        foreach (int nativeIndex in _dispatch.InteractiveEnemyIndexes)
         {
             if (onlyNativeEnemyIndex.HasValue && nativeIndex != onlyNativeEnemyIndex.Value)
                 continue;
@@ -208,25 +201,17 @@ internal sealed class EnemyCollision
             // engine's explicit empty spritemap sentinel $804D and property $0400. Keeping
             // these meanings separate mirrors the bank-$A0 list/collision machinery. An actor
             // with no translated shot reaction is skipped.
-            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres ||
-                CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(enemy.SpritemapPointer) ||
+            if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
+                CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(EnemyFrames.Spritemap(enemy.Frame)) ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(
                     EnemyProperties.Deleted |
                     EnemyProperties.IgnoreSamusCollision) ||
-                _dispatch.Ai.FindShot(enemy) is not { } reaction)
+                (enemy.Entity as IEnemyShotReaction)?.FindShot() is not { } reaction)
             {
                 continue;
             }
 
-            // Powered definition $E8FF explicitly returns before common shot AI while
-            // Phantoon's area-boss bit is clear. The projectile therefore does not begin an
-            // impact, and the deactivated-looking body does not enter its recoil sequence.
-            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Robot &&
-                !_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
-            {
-                continue;
-            }
 
             if (reaction.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
@@ -238,9 +223,9 @@ internal sealed class EnemyCollision
                 // rewrites that slot to explosion family `$0700`, so retain the incoming
                 // word instead of accidentally asking the vulnerability table about the
                 // newly-created visual effect.
-                ushort projectileType = projectile.Type;
-                ushort projectileDamage = projectile.Damage;
-                ushort projectileDirection = projectile.Direction;
+                ushort projectileType = projectile.PackedType.Raw;
+                ushort projectileDamage = checked((ushort)projectile.Damage);
+                ushort projectileDirection = projectile.PackedDirection.Raw;
                 SamusProjectileFamily family = projectile.PackedType.Family;
                 if (!projectile.HasEnemyCollisionPayload)
                     continue;
@@ -262,10 +247,10 @@ internal sealed class EnemyCollision
                 // the empty extended frame. Its point hitbox remains live for Samus and
                 // bombs, whose extended passes have no such check.
                 if (usesExtendedHitboxes &&
-                    CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(enemy.SpritemapPointer))
+                    CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(EnemyFrames.Spritemap(enemy.Frame)))
                     continue;
                 if (usesExtendedHitboxes &&
-                    IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer))
+                    IsCanonicalMultiboxNoOpAi(ShotAi(enemy)))
                 {
                     // `EprojCollHandler_Multibox` compares the header callback before
                     // reading the extended map. Canonical RTS/RTL means no overlap, no
@@ -275,7 +260,7 @@ internal sealed class EnemyCollision
                 }
 
                 bool overlapsProjectile;
-                ushort hitboxShotAiPointer = enemy.Definition.ShotAiPointer;
+                EnemyInteractionCallback? hitboxShotAi = ShotAi(enemy);
                 if (usesExtendedHitboxes)
                 {
                     overlapsProjectile = TryFindExtendedHitboxCallback(
@@ -283,7 +268,7 @@ internal sealed class EnemyCollision
                         projectile.Position.Whole,
                         projectile.Radius,
                         selectShotCallback: true,
-                        out hitboxShotAiPointer);
+                        out hitboxShotAi);
                 }
                 else
                 {
@@ -297,22 +282,18 @@ internal sealed class EnemyCollision
                 if (!overlapsProjectile)
                     continue;
 
-                bool selectedLiteralNoOpShotAi = IsLiteralNoOpEnemyAi(
-                    enemy.Definition.Bank,
-                    hitboxShotAiPointer);
+                bool selectedLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition.Bank, hitboxShotAi);
                 var shot = new EnemyShotContext(
                     enemy,
                     projectile,
                     projectiles,
-                    bus,
                     samus,
                     projectileType,
                     projectileDamage,
-                    projectileDirection,
+                    new SamusProjectileDirectionWord(projectileDirection),
                     family,
                     usesExtendedHitboxes,
-                    HitboxCallback(enemy, hitboxShotAiPointer),
-                    hitboxShotAiPointer);
+                    hitboxShotAi);
 
                 if (RunShotStage(reaction.BeforeSuperMissileQuake, shot))
                 {
@@ -363,7 +344,7 @@ internal sealed class EnemyCollision
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             !projectile.PackedType.BeamCombination.HasPlasma);
                 }
-                else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex,
+                else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile.SlotIndex,
                     enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam)))
                     continue;
 
@@ -396,9 +377,8 @@ internal sealed class EnemyCollision
                 }
                 if (damage != 0)
                 {
-                    ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
-                    enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-                    enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+                    enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
+                    enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     // Common shot AI queues the header cry before subtracting health,
                     // including lethal hits. Frozen targets suppress this cry; death
                     // explosion instructions retain their separate, later sound owner.
@@ -415,7 +395,7 @@ internal sealed class EnemyCollision
                     bool lethal = damage >= enemy.Health;
                     bool freezeInsteadOfKilling = lethal &&
                         new SamusProjectileTypeWord(projectileType).BeamCombination.HasIce &&
-                        !EnemyVulnerabilityDefinitions.PreventsLethalFreeze(shotVulnerability.RawBeamEntry) &&
+                        !shotVulnerability.PreventsLethalFreeze &&
                         enemy.FrozenTimer.IsZero;
                     if (freezeInsteadOfKilling)
                     {
@@ -427,8 +407,8 @@ internal sealed class EnemyCollision
                     else
                     {
                         enemy.Health = lethal
-                            ? (ushort)0
-                            : unchecked((ushort)(enemy.Health - damage));
+                            ? 0
+                            : enemy.Health - damage;
                     }
                     if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
                     {
@@ -474,7 +454,7 @@ internal sealed class EnemyCollision
         SamusBombProjectileSystem bombs,
         SamusProjectileSystem ordinaryProjectiles,
         SamusState? samus = null,
-        ushort? onlyNativeEnemyIndex = null)
+        int? onlyNativeEnemyIndex = null)
     {
         Ensure.NotNull(bombs);
         Ensure.NotNull(ordinaryProjectiles);
@@ -483,26 +463,20 @@ internal sealed class EnemyCollision
         int hitCount = 0;
         for (int ordinal = 0; ordinal < (onlyNativeEnemyIndex.HasValue ? 1 : _dispatch.InteractiveEnemyIndexes.Count); ordinal++)
         {
-            ushort nativeIndex = onlyNativeEnemyIndex ?? _dispatch.InteractiveEnemyIndexes[ordinal];
+            int nativeIndex = onlyNativeEnemyIndex ?? _dispatch.InteractiveEnemyIndexes[ordinal];
             RoomEnemySlot enemy = _slotTable.SlotFromNativeIndex(nativeIndex);
-            bool isMetroid = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
-                ShotAi(enemy) == EnemyInteractionCallback.MetroidShot;
             bool usesCommonShotAi = ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot;
-            bool usesLiteralNoOpShotAi = IsLiteralNoOpEnemyAi(
-                enemy.Definition.Bank,
-                enemy.Definition.ShotAiPointer);
-            bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(
-                enemy,
-                enemy.Definition.ShotAiPointer);
+            bool usesLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition.Bank, ShotAi(enemy));
+            bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(enemy, ShotAi(enemy));
             bool usesExtendedHitboxes =
                 enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool headerSuppressesMultiboxShotCollision = usesExtendedHitboxes &&
-                IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer);
-            bool isCrocomire = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
-                enemy.Definition.ShotAiPointer == 0 && usesExtendedHitboxes;
-            if ((!isMetroid && !usesCommonShotAi && !usesLiteralNoOpShotAi &&
-                    !usesTranslatedPrivateShotAi && !isCrocomire) ||
-                enemy.SpritemapPointer == 0 ||
+                IsCanonicalMultiboxNoOpAi(ShotAi(enemy));
+            bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
+                admission.AdmitsNormalBombs(usesExtendedHitboxes);
+            if ((!usesCommonShotAi && !usesLiteralNoOpShotAi &&
+                    !usesTranslatedPrivateShotAi && !admittedByOccupant) ||
+                enemy.Frame is null ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted) ||
                 headerSuppressesMultiboxShotCollision ||
@@ -531,20 +505,19 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                ushort selectedShotAiPointer = enemy.Definition.ShotAiPointer;
+                EnemyInteractionCallback? selectedShotAi = ShotAi(enemy);
                 bool overlaps = usesExtendedHitboxes
                     ? TryFindExtendedHitboxCallback(
                         enemy,
                         bomb.Position.Whole,
                         bomb.Radius,
                         selectShotCallback: true,
-                        out selectedShotAiPointer)
+                        out selectedShotAi)
                     : RadiusBoxesOverlap(
                         enemy.Position.Whole,
                         enemy.Radius,
                         bomb.Position.Whole,
                         bomb.Radius);
-                EnemyInteractionCallback? selectedShotAi = HitboxCallback(enemy, selectedShotAiPointer);
                 if (!overlaps)
                 {
                     continue;
@@ -553,14 +526,9 @@ internal sealed class EnemyCollision
                 // Multibox actors dispatch the callback stored in the selected hitbox,
                 // not necessarily the definition header. Do not turn a protected/private
                 // component into common damage merely because the header uses `$802D`.
-                bool selectedLiteralNoOp = IsLiteralNoOpEnemyAi(
-                    enemy.Definition.Bank,
-                    selectedShotAiPointer);
-                bool selectedTranslatedPrivate = IsTranslatedPrivateNormalBombShotAi(
-                    enemy,
-                    selectedShotAiPointer);
-                if (!isMetroid &&
-                    selectedShotAi != EnemyInteractionCallback.NormalEnemyShot &&
+                bool selectedLiteralNoOp = IsLiteralNoOpShotAi(enemy.Definition.Bank, selectedShotAi);
+                bool selectedTranslatedPrivate = IsTranslatedPrivateNormalBombShotAi(enemy, selectedShotAi);
+                if (selectedShotAi != EnemyInteractionCallback.NormalEnemyShot &&
                     !selectedLiteralNoOp &&
                     !selectedTranslatedPrivate)
                     continue;
@@ -575,15 +543,15 @@ internal sealed class EnemyCollision
                     ordinaryProjectiles,
                     samus,
                     selectedShotAi,
-                    selectedShotAiPointer,
                     usesExtendedHitboxes);
-                if (_dispatch.Ai.FindBombSpecial(bombContext) is { } special)
+                var bombReactions = enemy.Entity as IEnemyBombReaction;
+                if (bombReactions?.FindBombSpecial(bombContext) is { } special)
                 {
                     special(bombContext);
                 }
                 else if (!selectedLiteralNoOp)
                 {
-                    if (_dispatch.Ai.FindBombSpecialAfterNoOp(bombContext) is { } afterNoOp)
+                    if (bombReactions?.FindBombSpecialAfterNoOp(bombContext) is { } afterNoOp)
                     {
                         afterNoOp(bombContext);
                     }
@@ -591,7 +559,7 @@ internal sealed class EnemyCollision
                     {
                         // A private callback that rejects the bomb returns before common damage; bank $A0 has
                         // already marked the bomb, so rejection belongs here rather than in collision admission.
-                        EnemyBombReaction? reaction = _dispatch.Ai.FindBombCommon(bombContext);
+                        EnemyBombReaction? reaction = bombReactions?.FindBombCommon(bombContext);
                         if (reaction?.Rejects?.Invoke(bombContext) != true)
                         {
                             bombContext = bombContext with { HealthBefore = enemy.Health };
@@ -611,8 +579,9 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>Checks whether a bank-local enemy callback is a compiled literal no-op.</summary>
-    internal static bool IsLiteralNoOpEnemyAi(byte bank, ushort pointer) =>
-        EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, pointer);
+    internal static bool IsLiteralNoOpShotAi(byte bank, EnemyInteractionCallback? callback) =>
+        callback is EnemyInteractionCallback.CeresDoorNoOpShot or EnemyInteractionCallback.KraidNoOpShot or EnemyInteractionCallback.ChozoNoOpShot ||
+        callback == EnemyInteractionCallback.NoOp && EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, EnemyAiCodePointers.BankA0.NoOp);
 
     /// <summary>
     /// Tests the two engine-owned no-op callback addresses checked directly by
@@ -621,8 +590,8 @@ internal sealed class EnemyCollision
     /// same RTS/RTL opcode is deliberately not equivalent: Kraid's `$A7:94B5` proves that
     /// such a header still scans components and may select `$A7:94B6` from an arm hitbox.
     /// </summary>
-    internal static bool IsCanonicalMultiboxNoOpAi(ushort pointer) =>
-        Enum.IsDefined((EnemyNoOpRoutine)pointer);
+    internal static bool IsCanonicalMultiboxNoOpAi(EnemyInteractionCallback? callback) =>
+        callback is EnemyInteractionCallback.NoOp or EnemyInteractionCallback.NoOpShortReturn;
 
     /// <summary>
     /// Reports the bank-$A2/$A3 private shot callbacks whose family-$0500 path is translated.
@@ -632,78 +601,9 @@ internal sealed class EnemyCollision
     /// </summary>
     private static bool IsTranslatedPrivateNormalBombShotAi(
         RoomEnemySlot enemy,
-        ushort callbackPointer)
-    {
-        EnemyInteractionCallback? callback = HitboxCallback(enemy, callbackPointer);
-        return enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle && callback == EnemyInteractionCallback.BabyTurtleShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch && callback == EnemyInteractionCallback.OwtchShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka && callback == EnemyInteractionCallback.RinkaShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
-            callback == EnemyInteractionCallback.MaridiaLargeSnailShot ||
-        enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
-            callback == EnemyInteractionCallback.GRipperRipper2Shot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon && callback == EnemyInteractionCallback.DragonShot ||
-        enemy.EnemyDefinitionPointer is
-                EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
-            callback == EnemyInteractionCallback.ShootableVerticalShutterShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
-            callback == EnemyInteractionCallback.DestroyableVerticalShutterShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree && callback == EnemyInteractionCallback.MetareeShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea && callback == EnemyInteractionCallback.FirefleaShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper && callback == EnemyInteractionCallback.TripperShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid && callback == EnemyInteractionCallback.MochtroidShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree && callback == EnemyInteractionCallback.SkreeShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Yard && callback == EnemyInteractionCallback.YardShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir && callback == EnemyInteractionCallback.EvirShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw && callback == EnemyInteractionCallback.YappingMawShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago && callback == EnemyInteractionCallback.KagoShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite && callback == EnemyInteractionCallback.MagdolliteShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Beetom && callback == EnemyInteractionCallback.BeetomShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Powamp && callback == EnemyInteractionCallback.PowampShot ||
-        WorkRobotBehavior.IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
-            callback is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull && callback == EnemyInteractionCallback.BullShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark && callback == EnemyInteractionCallback.SparkShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
-            callback == EnemyInteractionCallback.BlueBrinstarFaceBlockShot ||
-        KiHunterBehavior.IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) && callback == EnemyInteractionCallback.KiHunterShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid && callback == EnemyInteractionCallback.FakeKraidShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite && callback == EnemyInteractionCallback.ZebetiteShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo &&
-            callback == EnemyInteractionCallback.DeadTorizoTouchAndShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
-            callback == EnemyInteractionCallback.DeadSidehopperShot ||
-        DeadTourianBehavior.HasDeadTourianCorpseShotCallback(enemy) &&
-            callbackPointer == enemy.Definition.ShotAiPointer ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
-            callback is EnemyInteractionCallback.DraygonShot or EnemyInteractionCallback.DudShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
-            callback is EnemyInteractionCallback.SporeSpawnShot or EnemyInteractionCallback.DudShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
-            callback == EnemyInteractionCallback.PhantoonShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
-            callback == EnemyInteractionCallback.MotherBrainBodyShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
-            callback == EnemyInteractionCallback.MotherBrainHeadShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo &&
-            callback is EnemyInteractionCallback.BombTorizoShot or EnemyInteractionCallback.TorizoStandUpSitDownShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo &&
-            callback is EnemyInteractionCallback.GoldenTorizoShot or EnemyInteractionCallback.BombTorizoShot or
-                EnemyInteractionCallback.TorizoStandUpSitDownShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool && callback == EnemyInteractionCallback.ShaktoolShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
-            callback == EnemyInteractionCallback.KraidArmShot ||
-        enemy.EnemyDefinitionPointer is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley &&
-            callback == EnemyInteractionCallback.RidleyShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid && callback == EnemyInteractionCallback.ShitroidShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon && callback == EnemyInteractionCallback.BotwoonShot ||
-        enemy.EnemyDefinitionPointer is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue &&
-            Enum.IsDefined((CrocomireHitboxShotCallback)callbackPointer) ||
-        WallSpacePirateBehavior.IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
-            callback is EnemyInteractionCallback.SpacePirateShot or
-                EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot or
-                EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot;
-    }
+        EnemyInteractionCallback? callback) =>
+        enemy.Entity is IEnemyPrivateShotCallback owner &&
+        owner.OwnsPrivateShotCallback(callback);
 
     /// <summary>
     /// Executes the family-$0500 branch of <c>NormalEnemyShotAiSkipDeathAnim</c> at
@@ -727,12 +627,11 @@ internal sealed class EnemyCollision
         if (damage == 0)
             return;
 
-        ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
-        enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+        enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
+        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         enemy.Health = damage >= enemy.Health
-            ? (ushort)0
-            : unchecked((ushort)(enemy.Health - damage));
+            ? 0
+            : enemy.Health - damage;
         if (enemy.Health != 0 || !runGenericDeath)
             return;
 
@@ -747,12 +646,10 @@ internal sealed class EnemyCollision
     /// uses it as the horizontal radius and derives a three-quarter-height vertical ellipse.
     /// </summary>
     public int ResolveOrdinaryPowerBombHits(
-        ISnesAddressSpace bus,
         Position16<RoomPixels> explosionCenter,
         byte explosionRadius,
         SamusState? samus = null)
     {
-        Ensure.NotNull(bus);
         _room.EnsureLoaded();
         if (explosionRadius == 0)
             return 0;
@@ -799,7 +696,7 @@ internal sealed class EnemyCollision
                 continue;
 
             ushort reactionPointerWord = enemy.Definition.PowerBombReactionPointer;
-            EnemyPowerBombReaction? reaction = _dispatch.Ai.FindPowerBomb(enemy);
+            EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.FindPowerBomb();
             if (reaction?.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
             if (reactionPointerWord != 0 && reaction is null)
@@ -828,12 +725,11 @@ internal sealed class EnemyCollision
                 if (damage != 0)
                 {
                     enemy.InvincibilityTimer = NativeCountdown.Start(48);
-                    ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
-                    enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-                    enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+                    enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
+                    enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     enemy.Health = damage >= enemy.Health
-                        ? (ushort)0
-                        : unchecked((ushort)(enemy.Health - damage));
+                        ? 0
+                        : enemy.Health - damage;
                     if (enemy.Health == 0 && reaction?.ExemptFromGenericDeath != true)
                     {
                         reaction?.BeforeGenericDeath?.Invoke(enemy, samus);
@@ -883,7 +779,7 @@ internal sealed class EnemyCollision
             return new NormalShotVulnerability(
                 Multiplier: EnemyVulnerabilityDefinitions.Multiplier(familyEntry),
                 FreezeImmediately: false,
-                RawBeamEntry: 0);
+                PreventsLethalFreeze: false);
         }
 
         byte beamEntry = EnemyVulnerabilityDefinitions.Read(
@@ -893,7 +789,7 @@ internal sealed class EnemyCollision
             return new NormalShotVulnerability(
                 Multiplier: 0,
                 FreezeImmediately: true,
-                RawBeamEntry: beamEntry);
+                PreventsLethalFreeze: EnemyVulnerabilityDefinitions.PreventsLethalFreeze(beamEntry));
         }
 
         int multiplier = EnemyVulnerabilityDefinitions.Multiplier(beamEntry);
@@ -910,7 +806,7 @@ internal sealed class EnemyCollision
         return new NormalShotVulnerability(
             multiplier,
             FreezeImmediately: false,
-            RawBeamEntry: beamEntry);
+            PreventsLethalFreeze: EnemyVulnerabilityDefinitions.PreventsLethalFreeze(beamEntry));
     }
 
     /// <summary>
@@ -928,7 +824,7 @@ internal sealed class EnemyCollision
         enemy.FrozenTimer = NativeCountdown.FromRaw(samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
             ? (ushort)300
             : (ushort)400);
-        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+        enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;
         enemy.InvincibilityTimer = NativeCountdown.Start(10);
     }
 
@@ -954,11 +850,15 @@ internal sealed class EnemyCollision
         return EnemyVulnerabilityDefinitions.Read(pointer, byteOffset);
     }
 
-    /// <summary>Damage multiplier and freezing behavior selected from an ordinary shot's vulnerability byte.</summary>
+    /// <summary>
+    /// Damage multiplier and freezing behavior selected from an ordinary shot's vulnerability byte. A lethal Ice-bearing
+    /// beam freezes the enemy instead of killing it unless <see cref="PreventsLethalFreeze"/>, which the beam entry
+    /// decides; non-beam families never prevent it.
+    /// </summary>
     internal readonly record struct NormalShotVulnerability(
         int Multiplier,
         bool FreezeImmediately,
-        byte RawBeamEntry);
+        bool PreventsLethalFreeze);
 
     /// <summary>
     /// Walks `$A0:9A5A/$A0:9B7F`'s bank-local extended-spritemap structure and returns the
@@ -971,407 +871,46 @@ internal sealed class EnemyCollision
         Position16<RoomPixels> targetPosition,
         Extent16<RoomPixels> targetRadius,
         bool selectShotCallback,
-        out ushort callback)
+        out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
 
         // Native multibox collision only accepts negative 16-bit spritemap pointers.
         // The common visually empty map `$804F` still owns a point hitbox, so it
         // must enter the same collision walker as other extended frames.
-        if (!EnemyExtendedSpritemapPointers.IsExtended(enemy.SpritemapPointer))
+        if (!EnemyExtendedSpritemapPointers.IsExtended(EnemyFrames.Spritemap(enemy.Frame)))
             return false;
 
-        var target = new ExtendedHitboxTarget(
-            Left: unchecked((ushort)(targetPosition.X - targetRadius.X)),
-            Right: unchecked((ushort)(targetPosition.X + targetRadius.X)),
-            Top: unchecked((ushort)(targetPosition.Y - targetRadius.Y)),
-            Bottom: unchecked((ushort)(targetPosition.Y + targetRadius.Y)),
-            SelectShotCallback: selectShotCallback);
+        var target = new EnemyHitboxProbe(
+            TopLeft: new(
+                unchecked((ushort)(targetPosition.X - targetRadius.X)),
+                unchecked((ushort)(targetPosition.Y - targetRadius.Y))),
+            BottomRight: new(
+                unchecked((ushort)(targetPosition.X + targetRadius.X)),
+                unchecked((ushort)(targetPosition.Y + targetRadius.Y))),
+            SelectShotCallback: selectShotCallback,
+            ArtworkInstalled: _room.Artwork is not null);
 
         if (CommonEnemyEmptyExtendedFrameDefinitions.HasFrame(
-                enemy.Definition.Bank, enemy.SpritemapPointer))
+                enemy.Definition.Bank, EnemyFrames.Spritemap(enemy.Frame)))
         {
             // The shared empty frame has a single zero-radius point at the
             // enemy origin. Run the same asymmetric native overlap test before
             // selecting its common touch/shot callback.
-            if (!OverlapsExtendedHitbox(target, enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))
+            if (!target.Overlaps(enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))
                 return false;
-            callback = CommonEnemyEmptyExtendedFrameDefinitions.Callback(selectShotCallback);
+            callback = selectShotCallback ? EnemyInteractionCallback.NormalEnemyShot : EnemyInteractionCallback.NormalEnemyTouch;
             return true;
         }
 
-        if (WalkingSpacePirateBehavior.IsWalkingSpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
-            WallSpacePirateBehavior.IsWallSpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
-            NinjaSpacePirateBehavior.IsNinjaSpacePirateDefinition(enemy.EnemyDefinitionPointer))
-        {
-            // All three ordinary Pirate families have engine-owned collision.
-            // Editable component offsets in the installed visual asset cannot move
-            // these rectangles or replace their native touch/shot callbacks.
-            foreach (SpacePirateCollisionComponent component in
-                     SpacePirateCollisionDefinitions.ComponentsAt(
-                         enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                foreach (SpacePirateCollisionHitbox hitbox in
-                         SpacePirateCollisionDefinitions.HitboxesAt(
-                             component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (DraygonBehavior.IsDraygonDefinition(enemy.EnemyDefinitionPointer) &&
-            enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank)
-        {
-            // Both OAM and BG2 art are replaceable presentation. Their native
-            // component offsets and hitbox pointers remain fixed gameplay data.
-            foreach (DraygonCollisionComponent component in
-                     DraygonCollisionDefinitions.ComponentsAt(
-                         enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                foreach (DraygonCollisionHitbox hitbox in
-                         DraygonCollisionDefinitions.HitboxesAt(
-                             component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
-            enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
-            SporeSpawnCollisionDefinitions.IsFrame(enemy.SpritemapPointer))
-        {
-            // These twelve OAM frames are selected by Spore Spawn. Old visual
-            // overrides may carry Draygon-prefixed keys, but every rectangle
-            // and callback comes from the compiled gameplay catalog.
-            foreach (SporeSpawnCollisionComponent component in
-                     SporeSpawnCollisionDefinitions.ComponentsAt(
-                         enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                ushort componentX = componentOrigin.X;
-                ushort componentY = componentOrigin.Y;
-                foreach (SporeSpawnCollisionHitbox hitbox in
-                         SporeSpawnCollisionDefinitions.HitboxesAt(
-                             component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (PhantoonBehavior.IsPhantoonPartDefinition(enemy.EnemyDefinitionPointer))
-        {
-            // Phantoon's extended frame roots include hitbox-list pointers,
-            // but its editable BG2 tilemap writes must never become collision
-            // data. Preserve the native component and rectangle order from
-            // the compiled bank-$A7 definitions, including point no-ops.
-            foreach (PhantoonCollisionComponent component in
-                     PhantoonCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                foreach (PhantoonCollisionHitbox hitbox in
-                         PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (RidleyBehavior.IsRidleyDefinition(enemy.EnemyDefinitionPointer) &&
-            enemy.Definition.Bank == RidleyCollisionDefinitions.Bank &&
-            (RidleyCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
-             _room.Artwork is not null))
-        {
-            // The OAM component offsets in an installed composition are editable.
-            // Contact and shot collision instead use the eleven fixed cartridge
-            // body frames and their engine-owned hitbox lists.
-            foreach (RidleyCollisionComponent component in
-                     RidleyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                ushort componentX = componentOrigin.X;
-                ushort componentY = componentOrigin.Y;
-                foreach (RidleyCollisionHitbox hitbox in
-                         RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
-            enemy.Definition.Bank == CeresSteamCollisionDefinitions.Bank &&
-            (CeresSteamCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
-             _room.Artwork is not null))
-        {
-            // The high byte of each steam frame's $1001 header is drawing
-            // metadata, not an extra component. Both damaging rectangles and
-            // callbacks remain fixed even if its installed OAM is edited.
-            foreach (CeresSteamCollisionComponent component in
-                     CeresSteamCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                foreach (CeresSteamCollisionHitbox hitbox in
-                         CeresSteamCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
-            enemy.Definition.Bank == MaridiaLargeSnailCollisionDefinitions.Bank &&
-            (MaridiaLargeSnailCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
-             _room.Artwork is not null))
-        {
-            // Oum's 30 native frames each have one (0,0) component, but the
-            // ordered regions change with roll and attack direction. Keep
-            // those rectangles and callback identities independent of OAM.
-            ushort list = MaridiaLargeSnailCollisionDefinitions.HitboxListAt(
-                enemy.SpritemapPointer);
-            foreach (MaridiaLargeSnailCollisionHitbox hitbox in
-                     MaridiaLargeSnailCollisionDefinitions.HitboxesAt(list))
-            {
-                ushort left = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Left));
-                ushort top = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Top));
-                ushort right = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Right));
-                ushort bottom = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Bottom));
-                if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                    continue;
-                callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                return true;
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
-            enemy.Definition.Bank == CrocomireBodyCollisionDefinitions.Bank &&
-            CrocomireBodyCollisionDefinitions.HasFrame(enemy.SpritemapPointer))
-        {
-            // Physical body components and their callback lists are compiled
-            // independently of Crocomire's replaceable OAM/BG2 presentation.
-            // Preserve native component/hitbox order: the first overlap wins.
-            foreach (CrocomireBodyCollisionComponent component in
-                     CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                foreach (CrocomireBodyCollisionHitbox hitbox in
-                         CrocomireBodyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
-            enemy.Definition.Bank == CrocomireTongueCollisionDefinitions.Bank &&
-            (CrocomireTongueCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
-             _room.Artwork is not null))
-        {
-            // These nine selected frames have one component each, but both
-            // referenced native hitbox lists are empty. Validate the exact
-            // engine-owned frame identity and return no touch/shot callback.
-            CrocomireTongueCollisionComponent component =
-                CrocomireTongueCollisionDefinitions.ComponentAt(enemy.SpritemapPointer);
-            _ = CrocomireTongueCollisionDefinitions.HitboxCountAt(
-                component.HitboxPointer);
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
-            enemy.Definition.Bank == TorizoCollisionDefinitions.Bank)
-        {
-            foreach (GoldenTorizoCollisionComponent component in
-                     TorizoCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                ushort componentX = componentOrigin.X;
-                ushort componentY = componentOrigin.Y;
-                foreach (GoldenTorizoCollisionHitbox hitbox in
-                         TorizoCollisionDefinitions.HitboxesAt(component.HitboxList))
-                {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
-            enemy.Definition.Bank == KraidFootCollisionDefinitions.Bank &&
-            KraidFootCollisionDefinitions.TryGetComponents(
-                enemy.SpritemapPointer, out var footComponents))
-        {
-            // Kraid's foot art is replaceable, but each native extended frame
-            // still places two physical components against one shared hitbox list.
-            foreach (KraidFootCollisionComponent component in footComponents)
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                foreach (KraidFootCollisionHitbox hitbox in
-                         KraidFootCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
-            enemy.Definition.Bank == KraidArmCollisionDefinitions.Bank &&
-            KraidArmCollisionDefinitions.TryGetComponents(
-                enemy.SpritemapPointer, out var kraidComponents))
-        {
-            // Kraid's arm art is editable, but the native extended spritemap
-            // also carries a separate, ordered physical component stream.
-            // Read that stream from the immutable cartridge definition catalog.
-            foreach (KraidArmCollisionComponent component in kraidComponents)
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                ushort componentX = componentOrigin.X;
-                ushort componentY = componentOrigin.Y;
-                foreach (KraidArmCollisionHitbox hitbox in
-                         KraidArmCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead &&
-            enemy.Definition.Bank == MotherBrainCollisionDefinitions.Bank)
-        {
-            // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
-            foreach (MotherBrainCollisionComponent component in
-                     MotherBrainCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                ushort componentX = componentOrigin.X;
-                ushort componentY = componentOrigin.Y;
-                foreach (MotherBrainCollisionHitbox hitbox in
-                         MotherBrainCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
+        // A species with engine-owned geometry answers for its own frames; null means none covers this frame.
+        if (enemy.Entity is IEnemyExtendedHitboxes owner && owner.FindHitboxCallback(target, out callback) is { } owned)
+            return owned;
 
         throw new InvalidDataException(
             $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} extended collision frame " +
-            $"${enemy.Definition.Bank:X2}:{enemy.SpritemapPointer:X4} has no compiled geometry.");
+            $"${enemy.Definition.Bank:X2}:{enemy.Frame} has no compiled geometry.");
     }
-
-    /// <summary>
-    /// Shared literal `$A0:9A5A/$9B7F` rectangle tests. The shot and touch
-    /// walkers have different strict/inclusive boundaries in the cartridge.
-    /// </summary>
-    private static bool OverlapsExtendedHitbox(
-        ExtendedHitboxTarget target, ushort left, ushort top, ushort right, ushort bottom) =>
-        target.SelectShotCallback
-            ? !EnemyMath.IsNegative16(target.Right - left) &&
-              EnemyMath.IsNegative16(target.Left - right) &&
-              !EnemyMath.IsNegative16(target.Bottom - top) &&
-              EnemyMath.IsNegative16(target.Top - bottom)
-            : EnemyMath.IsNegative16(left - target.Right) &&
-              !EnemyMath.IsNegative16(right - target.Left) &&
-              EnemyMath.IsNegative16(top - target.Bottom) &&
-              !EnemyMath.IsNegative16(bottom - target.Top);
-
-    /// <summary>
-    /// The colliding projectile's or Samus's edges as <c>$A0:9A5A/$9B7F</c> compare them, and
-    /// whether the walker selects the shot (strict) or touch (inclusive) callback (#633).
-    /// </summary>
-    private readonly record struct ExtendedHitboxTarget(
-        ushort Left, ushort Right, ushort Top, ushort Bottom, bool SelectShotCallback);
 
     /// <summary>
     /// Identifies actors whose ordinary Samus-contact collision actually enters
@@ -1381,19 +920,7 @@ internal sealed class EnemyCollision
     /// </summary>
     internal static bool UsesExtendedSamusHitboxes(RoomEnemySlot enemy) =>
         enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
-        (WallSpacePirateBehavior.IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
-         enemy.EnemyDefinitionPointer is
-            EnemyDefinitionId.Oum or
-            EnemyDefinitionId.BombTorizo or
-            EnemyDefinitionId.GoldenTorizo or
-            EnemyDefinitionId.Crocomire or
-            EnemyDefinitionId.CrocomireTongue or
-            EnemyDefinitionId.SporeSpawn or
-            EnemyDefinitionId.Steam or
-            EnemyDefinitionId.KraidArm or
-            EnemyDefinitionId.KraidFoot or
-            EnemyDefinitionId.PhantoonBody or
-            EnemyDefinitionId.DraygonBody);
+        (Capabilities(enemy) & EnemyCapabilities.ExtendedSamusHitboxes) != 0;
 
     /// <summary>
     /// Identifies actors whose ordinary projectile collision actually enters
@@ -1406,115 +933,11 @@ internal sealed class EnemyCollision
     /// </summary>
     internal static bool UsesExtendedProjectileHitboxes(RoomEnemySlot enemy) =>
         enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
-        (WallSpacePirateBehavior.IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
-         enemy.EnemyDefinitionPointer is
-            EnemyDefinitionId.Oum or
-            EnemyDefinitionId.BombTorizo or
-            EnemyDefinitionId.GoldenTorizo or
-            EnemyDefinitionId.Crocomire or
-            EnemyDefinitionId.CrocomireTongue or
-            EnemyDefinitionId.SporeSpawn or
-            EnemyDefinitionId.Steam or
-            EnemyDefinitionId.Kraid or
-            EnemyDefinitionId.KraidArm or
-            EnemyDefinitionId.KraidFoot or
-            EnemyDefinitionId.Ridley or
-            EnemyDefinitionId.DraygonBody or
-            EnemyDefinitionId.MotherBrainBody or
-            EnemyDefinitionId.MotherBrainHead);
+        (Capabilities(enemy) & EnemyCapabilities.ExtendedProjectileHitboxes) != 0;
 
-    /// <summary>
-    /// Dispatches the common and Pirate-specific shot callbacks in hitbox records. Only the
-    /// gold Ninja gives `$87C8/$883E` special meaning; every other Pirate deliberately falls
-    /// through to normal shot AI even when it displays one of the shared Ninja maps.
-    /// </summary>
-    internal static PirateHitboxShotAction SelectPirateHitboxShotAction(
-        RoomEnemySlot enemy,
-        SamusProjectileSlot projectile,
-        ushort hitboxShotAiPointer)
-    {
-        EnemyInteractionCallback? hitboxShotAi = HitboxCallback(enemy, hitboxShotAiPointer);
-        // The empty extended map still has a real point hitbox. Its common callback
-        // bypasses the Ninja-specific armor tests; it must not be rejected as unknown.
-        if (hitboxShotAi is EnemyInteractionCallback.SpacePirateShot or EnemyInteractionCallback.NormalEnemyShot)
-            return PirateHitboxShotAction.Normal;
-        if (hitboxShotAi is not (
-                EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot or EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot))
-        {
-            throw new InvalidDataException(
-                $"Space Pirate hitbox shot AI $B2:{hitboxShotAiPointer:X4} is not translated.");
-        }
-        if (enemy.EnemyDefinitionPointer != EnemyDefinitionId.PirateGoldNinja)
-            return PirateHitboxShotAction.Normal;
-
-        SamusProjectileFamily family = projectile.PackedType.Family;
-        if (hitboxShotAi == EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot)
-        {
-            if (family == SamusProjectileFamily.SuperMissile && projectile.Variable == 0)
-                return PirateHitboxShotAction.Ignore;
-            return (ushort)family < (ushort)SamusProjectileFamily.PowerBomb
-                ? PirateHitboxShotAction.Reflect
-                : PirateHitboxShotAction.Ignore;
-        }
-
-        if ((ushort)family >= (ushort)SamusProjectileFamily.PowerBomb)
-            return PirateHitboxShotAction.Ignore;
-
-        ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
-            ? enemy.Definition.VulnerabilityPointer
-            : EnemyVulnerabilityDefinitions.DefaultPointer;
-        int vulnerabilityOffset = family switch
-        {
-            SamusProjectileFamily.Beam => projectile.PackedType.BeamCombination.TableIndex,
-            SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
-            SamusProjectileFamily.SuperMissile =>
-                EnemyVulnerabilityDefinitions.SuperMissileOffset,
-            _ => throw new InvalidDataException(
-                $"Gold Ninja projectile family ${(ushort)family:X3} has no vulnerability field."),
-        };
-        int multiplier = EnemyVulnerabilityDefinitions.LowNibbleMultiplier(EnemyVulnerabilityDefinitions.Read(
-            vulnerabilityPointer, vulnerabilityOffset));
-        return multiplier is not (0 or 15)
-            ? PirateHitboxShotAction.Normal
-            : PirateHitboxShotAction.Reflect;
-    }
-
-    /// <summary>
-    /// Dispatches a family-$0500 normal bomb through the same three bank-$B2 component
-    /// callbacks as the ordinary projectile path. Non-gold Pirates always jump to normal
-    /// Pirate shot handling. Gold Ninjas return from both `$87C8` and `$883E` because a
-    /// normal bomb sorts after Power Bomb family `$0300`; consequently bombs neither damage
-    /// nor reflect from either authored body region.
-    /// </summary>
-    internal static PirateHitboxShotAction SelectPirateNormalBombHitboxShotAction(
-        RoomEnemySlot enemy,
-        ushort hitboxShotAiPointer)
-    {
-        EnemyInteractionCallback? hitboxShotAi = HitboxCallback(enemy, hitboxShotAiPointer);
-        if (hitboxShotAi is not (
-                EnemyInteractionCallback.SpacePirateShot or
-                EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot or
-                EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot))
-        {
-            throw new InvalidDataException(
-                $"Space Pirate normal-bomb hitbox AI $B2:{hitboxShotAiPointer:X4} is not translated.");
-        }
-
-        return enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja
-            ? PirateHitboxShotAction.Ignore
-            : PirateHitboxShotAction.Normal;
-    }
-
-    /// <summary>Outcome chosen from a Pirate component's shot callback before ordinary damage processing.</summary>
-    internal enum PirateHitboxShotAction : byte
-    {
-        /// <summary>Continue through the Pirate's normal shot reaction.</summary>
-        Normal,
-        /// <summary>Consume the hit without damage or projectile reflection.</summary>
-        Ignore,
-        /// <summary>Reflect the projectile from the authored hitbox region.</summary>
-        Reflect,
-    }
+    /// <summary>The bound occupant's collision capabilities; an empty slot has none.</summary>
+    private static EnemyCapabilities Capabilities(RoomEnemySlot enemy) =>
+        enemy.Entity?.Capabilities ?? EnemyCapabilities.None;
 
     /// <summary>
     /// Ports $A0:A477-$A531 for one already-overlapping ordinary actor. A zero contact index
@@ -1575,13 +998,13 @@ internal sealed class EnemyCollision
         // Touch damage uses the raw hurt-AI duration (default four), unlike projectile and
         // power-bomb paths which add their own visible-flash tail. Samus's timers are also
         // explicitly cleared because this branch represents Samus attacking the enemy.
-        enemy.FlashTimer = NativeCountdown.FromRaw(enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime);
-        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+        enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames);
+        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         samus.InvincibilityTimer = NativeCountdown.Start(0);
         samus.KnockbackTimer = NativeCountdown.Start(0);
         enemy.Health = damage >= enemy.Health
-            ? (ushort)0
-            : unchecked((ushort)(enemy.Health - damage));
+            ? 0
+            : enemy.Health - damage;
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.EnemyContactDamaged, maximumQueued: 1);
         if (enemy.Health != 0)
             return;
@@ -1614,10 +1037,10 @@ internal sealed class EnemyCollision
         // it for Varia before normal touch publishes the invincibility/hurt request.
         ushort damage = SamusSuitDamage.Reduce(damageBeforeSuit, samus.EquippedItems);
         samus.Health = samus.Health <= damage
-            ? (ushort)0
-            : unchecked((ushort)(samus.Health - damage));
+            ? 0
+            : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.Start(96);
-        ushort direction = samus.Position.X.Whole >= damageSourceX ? (ushort)1 : (ushort)0;
+        KnockbackHorizontalDirection direction = samus.Position.X.Whole >= damageSourceX ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
         // $A0:A4A1 publishes a hit request; $90:DDE9 admits it only when no
         // knockback direction is installed. Damage can recur after invincibility
         // expires even if the old movement handler remains active (e.g. a boss grab).

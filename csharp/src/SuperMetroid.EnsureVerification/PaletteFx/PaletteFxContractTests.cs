@@ -13,8 +13,6 @@ namespace SuperMetroid.EnsureVerification.PaletteFx;
 /// <summary>Checks that palette FX execution requires a supplied color source at compile and runtime.</summary>
 internal static class PaletteFxContractTests
 {
-    /// <summary><c>PalFxDef_CutsceneGunshipEngine</c> at <c>$8D:E1A8</c>.</summary>
-    private const ushort GunshipEngineDefinitionPointer = 0xe1a8;
     /// <summary>The gunship engine writes CGRAM word index <c>$00BE</c>.</summary>
     private const ushort GunshipEngineColorIndex = 0x00be;
 
@@ -24,16 +22,16 @@ internal static class PaletteFxContractTests
     /// </summary>
     internal static void VerifyPaletteFxDependencyContract()
     {
-        VerifyPaletteCall("explicit provider", "fx.Step(bus, cgram, colors, frame);");
-        VerifyPaletteCall("old positional call", "fx.Step(bus, cgram, frame);", "CS7036");
+        VerifyPaletteCall("explicit provider", "fx.Step(cgram, colors, frame);");
+        VerifyPaletteCall("old positional call", "fx.Step(cgram, frame);", "CS7036");
         VerifyPaletteCall("omitted named provider",
-            "fx.Step(bus, cgram, conditions: frame);",
+            "fx.Step(cgram, conditions: frame);",
             "CS7036");
         VerifyPaletteCall("explicit named provider",
-            "fx.Step(bus, cgram, colors: colors, conditions: frame);");
-        VerifyPaletteCall("wrong provider type", "fx.Step(bus, cgram, new object(), frame);", "CS1503");
-        VerifyPaletteCall("null literal", "fx.Step(bus, cgram, null, frame);", "CS8625");
-        VerifyPaletteCall("nullable provider", "fx.Step(bus, cgram, optionalColors, frame);", "CS8604");
+            "fx.Step(cgram, colors: colors, conditions: frame);");
+        VerifyPaletteCall("wrong provider type", "fx.Step(cgram, new object(), frame);", "CS1503");
+        VerifyPaletteCall("null literal", "fx.Step(cgram, null, frame);", "CS8625");
+        VerifyPaletteCall("nullable provider", "fx.Step(cgram, optionalColors, frame);", "CS8604");
         VerifyPaletteCall("removed optional binding", "fx.BindPresentationColors(colors);", "CS1061");
 
         // Guard against adding a compatibility overload or hidden serialized provider
@@ -48,12 +46,11 @@ internal static class PaletteFxContractTests
 
         // The colors dependency is non-null by contract and the null-forgiving operator is banned (#623), so the
         // compiler rejects a null caller; the first step paints with the supplied colors.
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var cgram = new SnesCgram();
         var fx = new RoomPaletteFxSystem();
-        fx.SpawnDefinition(bus, GunshipEngineDefinitionPointer, 0);
+        fx.SpawnDefinition(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
         int colorIndex = GunshipEngineColorIndex / sizeof(ushort);
-        fx.Step(bus, cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        fx.Step(cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0) || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first palette step did not paint the supplied colors.");
         Console.WriteLine("#1152: eight compiler dependency contracts and the supplied-colors step pass; no gameplay search.");
@@ -69,7 +66,7 @@ internal static class PaletteFxContractTests
             using SuperMetroid.Core.Hardware;
             class PaletteCaller
             {
-                void Run(RoomPaletteFxSystem fx, ISnesAddressSpace bus, SnesCgram cgram,
+                void Run(RoomPaletteFxSystem fx, SnesCgram cgram,
                     IPaletteFxColorSource colors, IPaletteFxColorSource? optionalColors, PaletteFxConditions frame)
                 {
                     {{statement}}
@@ -91,11 +88,11 @@ internal static class PaletteFxContractTests
     /// <summary>Supplies constructed red for the first gunship-engine frame after null rejection.</summary>
     internal sealed class ContractPaletteColors : IPaletteFxColorSource
     {
-        /// <summary>Accepts only the first native engine color pointer to expose timer advancement.</summary>
-        public bool TryReadColor(ushort pointer, out Bgr555 color)
+        /// <summary>Accepts only the first engine color to expose timer advancement.</summary>
+        public bool TryReadColor(PaletteFxColorKey key, out Bgr555 color)
         {
             color = new Bgr555(31, 0, 0); // Constructed red confirms the first native frame executes after the rejection.
-            return pointer == CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineColorPointer(0, 0);
+            return key == CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineRows.Color(0, 0);
         }
     }
 }

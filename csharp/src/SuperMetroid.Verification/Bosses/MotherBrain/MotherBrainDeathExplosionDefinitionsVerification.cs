@@ -26,13 +26,13 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
-            var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
             enemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body);
             var request = new MotherBrainDeathExplosionRequest(
                 Offset: new(-7, 9),
                 ProjectileParameter: parameter,
-                SoundEffect: 0);
+                SoundEffect: MotherBrainSoundDefinitions.Explosion);
             enemies.MotherBrainBehavior.SpawnMotherBrainDeathExplosion(request);
 
             RoomEnemyProjectileSlot projectile =

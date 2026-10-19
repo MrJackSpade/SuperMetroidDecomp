@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -32,10 +33,13 @@ public sealed class RoomPaletteFxSystem
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
     /// <summary>Momentary music publications cleared at the start of each handler pass.</summary>
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
-    /// <summary>Heat palette selector published by the Norfair object for the next descending-slot pass.</summary>
-    internal ushort samusInHeatPaletteIndex;
-    /// <summary>Last heat palette selector applied to Samus; prevents redundant program restarts.</summary>
-    internal ushort previousSamusInHeatPaletteIndex;
+    /// <summary>
+    /// Heat palette phase published by the Norfair object for the next descending-slot pass. Only compared for
+    /// equality and used to select a heat program, so it is held as a plain phase number.
+    /// </summary>
+    internal int samusInHeatPaletteIndex;
+    /// <summary>Last heat palette phase applied to Samus; prevents redundant program restarts.</summary>
+    internal int previousSamusInHeatPaletteIndex;
 
     /// <summary>
     /// Bit 15 of <c>PaletteFXObject_Enable</c> ($1E79), checked first by the handler. Game
@@ -53,8 +57,8 @@ public sealed class RoomPaletteFxSystem
     public IReadOnlyList<PaletteFxMusicRequest> MusicRequests => musicRequests;
 
     /// <summary>Whether a particular cartridge definition currently owns a native slot.</summary>
-    public bool IsDefinitionActive(ushort definition) =>
-        slots.Any(slot => slot.Id == definition);
+    public bool IsDefinitionActive(PaletteFxObject definition) =>
+        slots.Any(slot => slot.Object == definition);
 
     /// <summary>
     /// Spawns a non-room palette object through the same native allocator/interpreter used
@@ -62,17 +66,15 @@ public sealed class RoomPaletteFxSystem
     /// be reimplemented as a host-side tint.
     /// </summary>
     public void SpawnDefinition(
-        ISnesAddressSpace bus,
-        ushort definition,
-        ushort equippedItems,
+        PaletteFxObject definition,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated = false)
     {
-        Ensure.NotNull(bus);
         Spawn(definition, equippedItems, areaMiniBossDefeated);
         if (!IsDefinitionActive(definition))
         {
             throw new InvalidOperationException(
-                $"Palette-FX definition $8D:{definition:X4} could not acquire a native slot.");
+                $"Palette-FX object {definition} could not acquire a native slot.");
         }
     }
 
@@ -81,35 +83,32 @@ public sealed class RoomPaletteFxSystem
     /// sixteen-byte bank-$83 FX record.
     /// </summary>
     public void LoadRoom(
-        ISnesAddressSpace bus,
-        ushort fxPointer,
-        ushort doorPointer,
+        RoomFxDefinition? fx,
+        CartridgeDoorHeader? door,
         AreaId area,
-        ushort equippedItems,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated) =>
-        LoadRoomCore(bus, fxPointer, doorPointer, area, equippedItems, areaMiniBossDefeated, null);
+        LoadRoomCore(fx, door, area, equippedItems, areaMiniBossDefeated, null);
 
     /// <summary>Clears the old room's slots and spawns the selected FX record's area-specific palette bits.</summary>
-    internal void LoadRoomCore(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer,
-        AreaId area, ushort equippedItems, bool areaMiniBossDefeated,
+    internal void LoadRoomCore(RoomFxDefinition? fx, CartridgeDoorHeader? door,
+        AreaId area, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
-        Ensure.NotNull(bus);
         foreach (PaletteFxSlot slot in slots)
             slot.Clear();
         soundRequests.Clear();
         musicRequests.Clear();
 
-        if (fxPointer == 0)
+        if (suppliedDefinition is null && fx is null)
             return;
         int areaIndex = AreaIds.ToIndex(area);
 
-        ushort record = suppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
-        if (record == 0)
+        if ((suppliedDefinition ?? fx?.Select(door)) is not { } record)
             return;
 
         // Palette FX and animated tiles have separate owners and bitsets.
-        byte paletteFxBits = (suppliedDefinition ?? RoomFxRecordDefinitions.Get(record)).PaletteFxBitset;
+        byte paletteFxBits = record.PaletteFxBitset;
         if (paletteFxBits == 0)
             return;
 
@@ -118,7 +117,7 @@ public sealed class RoomPaletteFxSystem
             if ((paletteFxBits & (1 << bit)) == 0)
                 continue;
 
-            ushort definition = RoomPaletteFxDefinitions.GetAreaDefinition(areaIndex, bit);
+            PaletteFxObject definition = RoomPaletteFxDefinitions.GetAreaDefinition(areaIndex, bit);
             Spawn(definition, equippedItems, areaMiniBossDefeated);
         }
     }
@@ -130,10 +129,9 @@ public sealed class RoomPaletteFxSystem
     /// presentation on every step. Construction creates only serializable program
     /// state; it cannot hide an unbound color source until a later instruction.
     /// </remarks>
-    public void Step(ISnesAddressSpace bus, SnesCgram cgram, IPaletteFxColorSource colors, PaletteFxConditions conditions,
+    public void Step(SnesCgram cgram, IPaletteFxColorSource colors, PaletteFxConditions conditions,
         SamusPowerBombExplosionState? powerBomb = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         Ensure.NotNull(colors);
         audioPowerBomb = powerBomb;
@@ -146,11 +144,11 @@ public sealed class RoomPaletteFxSystem
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             PaletteFxSlot slot = slots[slotIndex];
-            if (slot.Id == 0)
+            if (slot.Object is null)
                 continue;
 
             RunPreInstruction(slot, slotIndex, conditions);
-            if (slot.Id == 0)
+            if (slot.Object is null)
                 continue;
 
             // `$8D:C552` decrements before comparing with one. Unsigned underflow is
@@ -165,8 +163,8 @@ public sealed class RoomPaletteFxSystem
 
     /// <summary>Allocates the highest free native slot and applies definition-specific setup for Intro, Norfair, or Brinstar.</summary>
     private void Spawn(
-        ushort definition,
-        ushort equippedItems,
+        PaletteFxObject definition,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated)
     {
         // Spawn_PaletteFXObject searches byte offsets 14,12,...,0, which is slot order
@@ -175,7 +173,7 @@ public sealed class RoomPaletteFxSystem
         PaletteFxSlot? slot = null;
         for (int index = SlotCount - 1; index >= 0; index--)
         {
-            if (slots[index].Id == 0)
+            if (slots[index].Object is null)
             {
                 slot = slots[index];
                 break;
@@ -185,9 +183,9 @@ public sealed class RoomPaletteFxSystem
             return;
 
         RoomPaletteFxDefinition compiled = RoomPaletteFxDefinitions.Get(definition);
-        slot.Id = definition;
-        slot.ColorByteIndex = 0;
-        slot.PreInstruction = (ushort)PaletteFxPreInstruction.Null;
+        slot.Object = definition;
+        slot.ColorIndex = 0;
+        slot.PreInstruction = PaletteFxPreInstruction.Null;
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(compiled.InitialProgram);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -199,7 +197,7 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxSetup.Intro:
-                slot.PreInstruction = (ushort)PaletteFxPreInstruction.Intro;
+                slot.PreInstruction = PaletteFxPreInstruction.Intro;
                 return;
 
             case PaletteFxSetup.Norfair:
@@ -216,19 +214,18 @@ public sealed class RoomPaletteFxSystem
 
             default:
                 throw new InvalidOperationException(
-                    $"Palette-FX object $8D:{definition:X4} has undefined setup {setup}.");
+                    $"Palette-FX object {definition} has undefined setup {setup}.");
         }
     }
 
     /// <summary>Runs the slot's condition handler before timer and bytecode execution, including room heat and cutscene gates.</summary>
     private void RunPreInstruction(PaletteFxSlot slot, int slotIndex, PaletteFxConditions conditions)
     {
-        var preInstruction = (PaletteFxPreInstruction)slot.PreInstruction;
-        if (!Enum.IsDefined(preInstruction))
+        if (slot.PreInstruction is not { } preInstruction || !Enum.IsDefined(preInstruction))
         {
             throw new NotSupportedException(
-                $"Room palette-FX pre-instruction $8D:{slot.PreInstruction:X4} is not translated " +
-                $"for object $8D:{slot.Id:X4} (Samus Y=${conditions.SamusY:X4}, items=${conditions.EquippedItems:X4}).");
+                $"Room palette-FX pre-instruction {slot.PreInstruction} is not translated " +
+                $"for object {slot.Object} (Samus Y=${conditions.SamusY:X4}, items=${conditions.EquippedItems.ToNativeWord():X4}).");
         }
         switch (preInstruction)
         {
@@ -273,13 +270,13 @@ public sealed class RoomPaletteFxSystem
                 // X is the native byte offset, not a count of objects spawned. F621
                 // deliberately indexes from Enable rather than IDs. Use the live owner
                 // arrays so deletions earlier in this descending pass are visible.
-                ushort adjacentWord = slotIndex switch
+                bool adjacentWordSet = slotIndex switch
                 {
-                    0 => PaletteFxMemoryLayout.HandlerEnabled,
-                    PaletteFxMemoryLayout.CurrentIndexWordOffset => (ushort)(slotIndex * sizeof(ushort)),
-                    _ => slots[slotIndex - PaletteFxMemoryLayout.IdArrayWordOffset].Id,
+                    0 => PaletteFxMemoryLayout.HandlerEnabled != 0,
+                    PaletteFxMemoryLayout.CurrentIndexWordOffset => slotIndex * sizeof(ushort) != 0,
+                    _ => slots[slotIndex - PaletteFxMemoryLayout.IdArrayWordOffset].Object is not null,
                 };
-                if (adjacentWord != 0) slot.Clear();
+                if (adjacentWordSet) slot.Clear();
                 return;
 
             default:
@@ -295,9 +292,9 @@ public sealed class RoomPaletteFxSystem
     /// </summary>
     private void RunHeatPreInstruction(
         PaletteFxSlot slot,
-        ushort equippedItems,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusState? samus,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
         bool protectedFromHeat = equippedItems.HasAny(
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
@@ -365,20 +362,21 @@ public sealed class RoomPaletteFxSystem
         switch (cue.Kind)
         {
             case PaletteFxCueKind.SetColorIndex:
-                slot.ColorByteIndex = cue.ColorByteIndex;
+                slot.ColorIndex = cue.ColorIndex;
                 return;
             case PaletteFxCueKind.SetPreInstruction:
-                slot.PreInstruction = (ushort)cue.PreInstruction;
+                slot.PreInstruction = cue.PreInstruction;
                 return;
             case PaletteFxCueKind.ClearPreInstruction:
-                slot.PreInstruction = (ushort)PaletteFxPreInstruction.Cleared;
+                slot.PreInstruction = PaletteFxPreInstruction.Cleared;
                 return;
             case PaletteFxCueKind.SetHeatPaletteIndex:
-                samusInHeatPaletteIndex = cue.HeatPaletteIndex;
+                samusInHeatPaletteIndex = cue.HeatPhase;
                 return;
             case PaletteFxCueKind.QueueSoundLibrary2:
                 soundRequests.Add(new PaletteFxSoundRequest(
-                    SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, cue.Sound),
+                    cue.Sound ?? throw new InvalidDataException(
+                        $"Palette-FX object {slot.Object} queued a library-2 sound cue without a sound."),
                     PaletteFxAudioQueueLimits.SoundEffects,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
                 return;
@@ -395,30 +393,28 @@ public sealed class RoomPaletteFxSystem
         PaletteFxSlot slot,
         PaletteFxFrame frame)
     {
-        ushort colorByteIndex = slot.ColorByteIndex;
-        // The record's colour words follow its timer word; each skip command occupies one word too.
-        ushort colorWord = unchecked((ushort)(PaletteFxRecordDefinitions.Address(frame) + sizeof(ushort)));
+        int colorIndex = slot.ColorIndex;
+        int written = 0;
         foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(frame))
         {
             if (part.Skip)
             {
-                colorByteIndex = unchecked((ushort)(colorByteIndex + part.Count * sizeof(ushort)));
-                colorWord = unchecked((ushort)(colorWord + sizeof(ushort)));
+                colorIndex += part.Count;
                 continue;
             }
             for (int index = 0; index < part.Count; index++)
             {
-                if (!colors.TryReadColor(colorWord, out Bgr555 color))
-                    throw new InvalidDataException($"Palette-FX colour $8D:{colorWord:X4} of object $8D:{slot.Id:X4} has no installed definition.");
-                if ((colorByteIndex & 1) != 0 || colorByteIndex >= CgramPalettes.ByteCount)
+                if (!colors.TryReadColor(new PaletteFxColorKey(frame, written), out Bgr555 color))
+                    throw new InvalidDataException($"Palette-FX colour {written} of record {frame.Record} of object {slot.Object} has no installed definition.");
+                if (colorIndex >= CgramPalettes.ColorCount)
                 {
                     throw new InvalidDataException(
-                        $"Palette-FX object $8D:{slot.Id:X4} selected invalid CGRAM byte index ${colorByteIndex:X4}.");
+                        $"Palette-FX object {slot.Object} selected invalid CGRAM colour {colorIndex}.");
                 }
                 // The colour index is palette-FX instruction data ($8D:xxxx SetColorIndex).
-                new CgramPalettes(cgram).All.Write(colorByteIndex / 2, color);
-                colorByteIndex = unchecked((ushort)(colorByteIndex + sizeof(ushort)));
-                colorWord = unchecked((ushort)(colorWord + sizeof(ushort)));
+                new CgramPalettes(cgram).All.Write(colorIndex, color);
+                colorIndex++;
+                written++;
             }
         }
     }
@@ -426,12 +422,15 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Serializable native object state retained between palette-FX handler passes.</summary>
     internal sealed class PaletteFxSlot
     {
-        /// <summary>Definition pointer; zero marks an available object slot.</summary>
-        public ushort Id { get; set; }
-        /// <summary>Byte offset into CGRAM selected by the most recent SetColorIndex command.</summary>
-        public ushort ColorByteIndex { get; set; }
-        /// <summary>Pre-instruction pointer evaluated before this slot's program timer.</summary>
-        public ushort PreInstruction { get; set; }
+        /// <summary>The palette-FX object the slot runs; null marks an available slot.</summary>
+        public PaletteFxObject? Object { get; set; }
+        /// <summary>CGRAM colour selected by the most recent SetColorIndex command (native byte offset twice this).</summary>
+        public int ColorIndex { get; set; }
+        /// <summary>
+        /// Pre-instruction evaluated before this slot's program timer; none while the slot is free, which never runs
+        /// because the slot is skipped while free.
+        /// </summary>
+        public PaletteFxPreInstruction? PreInstruction { get; set; }
         /// <summary>Where this object's typed program resumes.</summary>
         public AnimationProgramCursor<PaletteFxProgram> Cursor { get; set; }
         /// <summary>Frames remaining before this object's next bytecode step.</summary>
@@ -442,9 +441,9 @@ public sealed class RoomPaletteFxSystem
         /// <summary>Releases the object and clears every native interpreter word for reuse.</summary>
         public void Clear()
         {
-            Id = 0;
-            ColorByteIndex = 0;
-            PreInstruction = 0;
+            Object = null;
+            ColorIndex = 0;
+            PreInstruction = null;
             Cursor = default;
             InstructionTimer = NativeCountdown.Start(0);
             Timer = NativeCountdown.Start(0);

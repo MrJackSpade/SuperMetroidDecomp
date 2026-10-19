@@ -99,8 +99,8 @@ internal static class PauseMenuVerification
         var presentation = CreateConstructedPausePresentation(bus);
         var samus = new SamusState
         {
-            CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-            EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             MaxReserveEnergy = 100,
             ReserveEnergy = 47,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0300)),
@@ -108,7 +108,7 @@ internal static class PauseMenuVerification
         var system = new Bank80SystemState();
         system.SetAreaMapAcquired(0);
         system.MarkExploredMapTile(0, new(30, 5));
-        var pause = new PauseMenuState(bus, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram, MapPresentation = presentation });
+        var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram, MapPresentation = presentation });
 
         AssertEqual(0, pause.ScreenMode, "pause begins on map page");
         AssertEqual(0x0804, pause.ReadReserveSupplyDigit(0).Raw,
@@ -127,7 +127,7 @@ internal static class PauseMenuVerification
         AssertEqual(unchecked((ushort)-24), pause.MapScroll.Y,
             "downloaded pause map vertical centering");
         AssertEqual(new Position16<OamPixels>(116, 64), pause.LastIndicatorOrigin, "pause map marker origin");
-        AssertEqual(0x5f, pause.LastIndicatorSpritemapId, "pause map marker initial frame");
+        AssertEqual(SuperMetroid.Core.Frontend.Map.MapSpriteId.IndicatorFrame0, pause.LastMapIndicatorSprite, "pause map marker initial frame");
         // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
         AssertEqual(23, pause.LastRenderedSpriteCount, "pause marker plus downloaded destination labels OAM count");
         AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
@@ -143,7 +143,7 @@ internal static class PauseMenuVerification
         AssertEqual(PauseEquipmentCategory.Suits, pause.SelectedCategory, "pause Right moves to suits/misc category");
         AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");
         pause.Render();
-        AssertEqual((int)PauseSelectorDefinitions.NativeSpriteId(PauseEquipmentCategory.Suits), pause.LastIndicatorSpritemapId, "pause selector category base ID");
+        AssertEqual(PauseEquipmentCategory.Suits, pause.LastSelectorCategory, "pause selector drawn for the suits category");
         AssertEqual(new Position16<OamPixels>(0x90, 0x70), pause.LastIndicatorOrigin, "pause Morph selector origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
@@ -183,18 +183,18 @@ internal static class PauseMenuVerification
         // Re-enter the equipment page with only Wave collected so the pause code itself
         // performs the mutation under test. The runtime handoff then consumes that same
         // Samus word and the accepted NMI must expose Wave art immediately.
-        samus.CollectedBeams = (ushort)SamusBeamFlags.Wave;
+        samus.CollectedBeams = SamusBeamFlags.Wave;
         samus.EquippedBeams = 0;
-        var beamPause = new PauseMenuState(bus, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram, MapPresentation = presentation });
+        var beamPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram, MapPresentation = presentation });
         EnterPauseEquipment(beamPause);
         AssertEqual(PauseEquipmentCategory.Reserves, beamPause.SelectedCategory,
             "Wave-only pause entry selects the reserve mode control while capacity exists");
         SelectPauseBeams(beamPause);
         beamPause.Step(0, SnesButton.A);
-        AssertEqual((ushort)SamusBeamFlags.Wave, samus.EquippedBeams,
+        AssertEqual(SamusBeamFlags.Wave, samus.EquippedBeams,
             "pause toggle immediately mutates live Wave equipment word");
 
-        var resumeRuntime = CreateRetailRuntimeFixture(bus);
+        var resumeRuntime = CreateRetailRuntimeFixture();
         // Keep the fixture's distinctive Wave sheet and palette through the real
         // installed transfer queue; no synthetic native DMA fallback is involved.
         var beamFiles = SuperMetroid.AssetExtraction.Samus.BeamTileExtractor.Extract(
@@ -209,8 +209,8 @@ internal static class PauseMenuVerification
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
         var beamPalettes = new BeamPaletteCatalog(ToColors(colors));
         resumeRuntime.Artwork.BeamArtwork = BeamTileCatalog.Load(beamFiles, beamPalettes);
-        resumeRuntime.SamusPhases.LoadGameplayBeamPalette(samus.EquippedBeams);
-        resumeRuntime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        resumeRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
+        resumeRuntime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
         // The newly equipped Wave characters are bound on the projectile page (#1342), not uploaded.
         ReadOnlySpan<byte> wavePage = (resumeRuntime.Artwork.ProjectileObjects
             ?? throw new InvalidOperationException("The runtime has no projectile page.")).For(samus.EquippedBeams).Characters
@@ -226,7 +226,7 @@ internal static class PauseMenuVerification
         // the sampled point. BG2 is also transparent there. The pixel must therefore be
         // backdrop black, proving that `$80:A211`'s $184E fill prevented visible BG3
         // character zero from leaking below the four-row HUD.
-        var blankMapPause = new PauseMenuState(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram, MapPresentation = presentation });
+        var blankMapPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram, MapPresentation = presentation });
         Rgba32[] blankMapFrame = blankMapPause.Render();
         AssertEqual(new Rgba32(0, 0, 0, 255), blankMapFrame[40 * 256],
             "pause clears unused BG3 rows instead of tiling character zero over empty map space");
@@ -239,7 +239,7 @@ internal static class PauseMenuVerification
         revealSystem.MarkExploredMapTile(
             AreaId.Crateria,
             new(exploredSecretMapX, revealTestMapY));
-        PauseMenuState CreateRevealPause(MapRevealMode mode) => new(bus, new PauseMenuEntry { Samus = samus, System = revealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayVram = gameplayVram, MapRevealMode = mode, MapPresentation = presentation });
+        PauseMenuState CreateRevealPause(MapRevealMode mode) => new(new PauseMenuEntry { Samus = samus, System = revealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayVram = gameplayVram, MapRevealMode = mode, MapPresentation = presentation });
 
         PauseMenuState nonePause = CreateRevealPause(MapRevealMode.None);
         AssertEqual(MapTileWords.PauseBlank, nonePause.ReadDisplayedMapTile(new(publicMapX, revealTestMapY)),
@@ -267,13 +267,13 @@ internal static class PauseMenuVerification
             "Secret pause map keeps entered secret cell visually distinct");
 
         SuperMetroidSaveSnapshot revealSnapshot = SuperMetroidSaveSnapshot.Capture(samus, revealSystem, new SaveSnapshotContext { Area = 0, SaveStation = 0 });
-        var revealSaveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var revealSaveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         revealSaveRam.SaveSlot(0, revealSnapshot);
         SuperMetroidSaveSlot restoredRevealSlot = revealSaveRam.ReadSlot(0) ??
             throw new InvalidOperationException("Map-reveal SRAM fixture did not round trip.");
         var restoredRevealSystem = new Bank80SystemState();
         restoredRevealSlot.ApplyTo(new SamusState(), restoredRevealSystem);
-        var restoredNonePause = new PauseMenuState(bus, new PauseMenuEntry { Samus = samus, System = restoredRevealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayVram = gameplayVram, MapRevealMode = MapRevealMode.None, MapPresentation = presentation });
+        var restoredNonePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = restoredRevealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayVram = gameplayVram, MapRevealMode = MapRevealMode.None, MapPresentation = presentation });
         AssertTrue(!restoredRevealSystem.HasAreaMap(AreaId.Crateria),
             "map reveal mode does not persist a map-station flag through SRAM snapshot");
         AssertEqual(MapTileWords.PauseBlank,

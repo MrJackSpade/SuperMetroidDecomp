@@ -16,6 +16,7 @@ using SuperMetroid.Rendering.Direct3D11.Telemetry;
 namespace SuperMetroid.DesktopVerification.Soak;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Measures bounded desktop timer and GPU telemetry in gameplay and paused scenes.</summary>
 internal static class DesktopTimerSoakTests
@@ -62,7 +63,7 @@ internal static class DesktopTimerSoakTests
                 var output = control.audioDevice ?? throw new InvalidOperationException("Host has no audio device.");
                 counter.EmulatedFrameMeasured += Measure;
                 counter.LateFramesRecorded += RecordDiscard;
-                ushort startFrame = game.FrameNumber;
+                int startFrame = game.FrameNumber;
                 control.SetPlaying(true);
                 var clock = Stopwatch.StartNew();
                 memory.Add(SoakMemorySample.Capture(process, 0));
@@ -131,15 +132,15 @@ internal static class DesktopTimerSoakTests
         SuperMetroidGameOptions options, bool paused)
     {
         var bus = installation.OpenRuntimeAddressSpace();
-        var game = InstalledFixtures.CreateGame(bus, options);
+        var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         game.BindAudio(DesktopAccess.LoadAudioClips());
         long sequence = 0;
         void Step(SnesButton input) => game.StepCaptured(input, ++sequence, 1);
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
         Check(game.GameState == SuperMetroidGameState.MainGameplay, "desktop soak seed startup failed");
-        game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
-        game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0, true);
+        game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(paused ? RoomHeaderDefinitions.GlassTunnel : RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         Step(0);
         if (paused) Step(SnesButton.Start);
         for (int warmup = 0; warmup < 120; warmup++) Step(0);

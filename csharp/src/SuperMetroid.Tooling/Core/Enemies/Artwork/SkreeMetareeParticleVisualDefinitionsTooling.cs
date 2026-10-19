@@ -20,5 +20,13 @@ internal static class SkreeMetareeParticleVisualDefinitionsTooling
             composition = SkreeMetareeParticleVisualDefinitions.Resolve((SkreeMetareeParticleOperand)operandAddress);
             return true;
         }
+
+        /// <summary>Maps the typed Skree or Metaree selector to its bank-$8D composition pointer.</summary>
+        internal static ushort Resolve(SkreeMetareeParticleOperand operand) => operand switch
+        {
+            SkreeMetareeParticleOperand.Skree => SkreeMetareeParticleVisualDefinitions.SkreeComposition,
+            SkreeMetareeParticleOperand.Metaree => SkreeMetareeParticleVisualDefinitions.MetareeComposition,
+            _ => throw new InvalidOperationException($"Undefined Skree/Metaree visual operand {operand}."),
+        };
     }
 }

@@ -13,6 +13,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks typed PLM population ownership and execution on a RAM-only bus.</summary>
 internal static class PlmPopulationInputBoundaryVerification
 {
+    /// <summary>Native slots the typed population occupies after extension deletion frees the highest slot.</summary>
+    private static readonly int[] ReusedPopulationSlots =
+        [39, 38];
+
     /// <summary>Verifies the identified typed-input conversion, without importing a ROM or driving gameplay.</summary>
     internal static void VerifyPlmPopulationInputBoundary()
     {
@@ -23,7 +27,7 @@ internal static class PlmPopulationInputBoundaryVerification
             new(4, 3), 0x8000);
         var second = trigger with { Block = new(5, trigger.Block.Y), ScrollProgram = new byte[] { 0x80 } };
         RoomPlmPlacement[] records = [trigger, extension, second];
-        var population = new RoomPlmPopulationDefinition(0xfffa, records);
+        var population = new RoomPlmPopulationDefinition($"$8F:{0xfffa:X4}", records);
         pairs[0] = 49;
         pairs[1] = 0;
         records[0] = second;
@@ -36,33 +40,33 @@ internal static class PlmPopulationInputBoundaryVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new ushort[64], new byte[64], new ushort[64]), new byte[8]);
         var plms = new RoomPlmSystem();
         var streamer = level.CreateBackgroundStreamer();
-        AssertEqual(3, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(memory, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(3, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "typed population runs the real sequential allocator using a RAM-only bus");
-        AssertTrue(plms.PopulationSlots.Select(slot => slot.NativeSlotIndex).SequenceEqual(new[] { 39, 38 }),
+        AssertTrue(plms.PopulationSlots.Select(slot => slot.NativeSlotIndex).SequenceEqual(ReusedPopulationSlots),
             "extension deletion permits immediate highest-slot reuse in authored order");
-        AssertEqual(RoomBlockBehaviorValues.ScrollTrigger.Value, level.GetCollisionBlock(new(3, 3)).Behavior,
+        AssertEqual(RoomBlockBehaviorValues.ScrollTrigger.Value, level.GetCollisionBlock(new(3, 3)).Bts.Value,
             "typed trigger setup publishes its native collision behavior");
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");
-        var scrolls = RoomScrollGrid.CreateImplicit(memory, new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
+        var scrolls = RoomScrollGrid.CreateImplicit(new RoomScrollStorage(), new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
         AssertTrue(plms.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
-        plms.Step(memory, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
         AssertTrue(!plms.ScrollPlmTriggered(plms.Scrolls.Snapshots[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
 
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
             [trigger with { ScrollProgram = new byte[] { 0, 2 } }]), "unterminated decoded pairs are rejected before allocation");
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
             [trigger with { ScrollProgram = new byte[] { 0, 3, 0x80 } }]), "invalid decoded scroll states are rejected");
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
             Enumerable.Repeat(second, RoomPlmPopulationFormat.MaximumParserIterations)),
             "typed records cannot evade the native bounded terminator limit");
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
             [extension with { ScrollProgram = new byte[] { 0x80 } }]), "an extension cannot own a resident scroll program");
 
         int count = 0;
         foreach (ushort pointer in RoomPlmPopulationDefinitions.Pointers)
-            count += RoomPlmPopulationDefinition.FromCompiled(pointer).Placements.Length;
+            count += RoomPlmPopulationDefinitions.Get(pointer).Placements.Length;
         AssertEqual(RoomPlmPopulationDefinitions.RetailRecordCount, count,
             "every compiled population converts to the typed contract before gameplay");
         Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable pairs, native slot reuse, RAM-only scroll execution, and bounded validation pass.");

@@ -26,8 +26,6 @@ internal sealed class GameplayHudSetup
     private readonly SnesVram _vram;
     /// <summary>Preserves native DMA ordering for HUD, OBJ, trail, and enemy graphics.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Provides native HUD setup data when installed presentation is absent.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Binds the runtime owners needed for initial BG3, OBJ, and HUD transfers.</summary>
     internal GameplayHudSetup(GameplayHudSetupDependencies dependencies)
@@ -39,12 +37,27 @@ internal sealed class GameplayHudSetup
         _player = dependencies.Player;
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
-        _addressSpace = dependencies.AddressSpace;
     }
 
     /// <summary>Selects the ordinary BG3 character base (BG34NBA=$04), as gameplay PPU initialization does.</summary>
     [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
     internal void SelectGameplayHudCharacterBase() => _display.GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
+
+    /// <summary>
+    /// $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at VRAM $6000: the installed sheet
+    /// when one is bound, otherwise the cartridge source. The dynamic Samus DMA refreshes its four reserved regions each
+    /// NMI; fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
+    /// </summary>
+    internal void QueueStandardObjectTiles()
+    {
+        if (_artwork.StandardObjectArt is null)
+            _vramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
+                sourceAddress: StandardObjectArtworkAddresses.Source,
+                destination: GameplayVram.ObjectCharactersDma());
+        else
+            _vramWrites.EnqueueAsset(VramAssetId.StandardObjectTiles, StandardObjectArtworkFormat.TransferByteCount,
+                GameplayVram.ObjectCharactersDma());
+    }
 
     /// <summary>
     /// Loads standard 2-bpp BG3 graphics and initializes the HUD tilemap using the exact
@@ -70,16 +83,7 @@ internal sealed class GameplayHudSetup
         else
             _vramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, GameplayVram.HudCharacterUploadDma);
 
-        // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
-        // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
-        // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
-        if (_artwork.StandardObjectArt is null)
-            _vramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
-                sourceAddress: StandardObjectArtworkAddresses.Source,
-                destination: GameplayVram.ObjectCharactersDma());
-        else
-            _vramWrites.EnqueueAsset(VramAssetId.StandardObjectTiles, StandardObjectArtworkFormat.TransferByteCount,
-                GameplayVram.ObjectCharactersDma());
+        QueueStandardObjectTiles();
 
         // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The
         // room enemy loader has already populated the modeled VRAM for immediate watches;
@@ -96,7 +100,7 @@ internal sealed class GameplayHudSetup
             _vramWrites.EnqueueAsset(VramAssetId.HudTopRowTilemap, GameplayHudDefinitions.TopRowByteCount,
                 GameplayVram.HudTilemapDma());
 
-        _hud.Initialize(_addressSpace, snapshot);
-        _hud.QueueUpload(_addressSpace, _vramWrites);
+        _hud.Initialize(snapshot);
+        _hud.QueueUpload(_vramWrites);
     }
 }

@@ -3,66 +3,54 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>
-/// Typed projection of the common C-F enemy words and the family's two extra-RAM words used
-/// by $A2:BE99-$C02B. Common values remain in the physical slot; only the two words which
-/// genuinely live in family-extra WRAM receive host fields.
+/// The state of one Squeept part, the jumping parent or its cosmetic follower. The velocity, spawn, function and
+/// follower selection are values the cartridge keeps in the enemy's common record, so they are emptied with that
+/// record when the part is killed (<see cref="ClearWithRecord"/>); the animation handshake and installed animation
+/// outlive the kill.
 /// </summary>
 public sealed class NorfairLavaJumpingEnemyState
 {
-    /// <summary>Physical parent or follower slot carrying the family's common enemy variables.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects a Squeept part's common variables from its occupied enemy slot.</summary>
-    internal NorfairLavaJumpingEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>
     /// Native family-extra variable $00. Instruction $BE8E sets this handshake after the
     /// jump animation reaches the frame where main AI may begin the final falling phase.
-    /// It is deliberately host-backed: this word lives outside the six common A-F words.
     /// </summary>
     public bool AnimationFinished { get; internal set; }
 
     /// <summary>
     /// Native family-extra variable $01. Function six remembers the last started animation so it does not restart one
-    /// which is already running; none since initialization. Like variable $00, this is separate from the ordinary A-F
-    /// words and therefore has explicit host storage.
+    /// which is already running; none since initialization.
     /// </summary>
     internal NorfairLavaJumperProgram? InstalledProgram { get; set; }
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<NorfairLavaJumperProgram> Program { get; set; }
 
-    /// <summary>Signed 8.8 vertical velocity, stored in native enemy variable C.</summary>
-    public ushort YVelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
     /// <summary>
-    /// Parent variant's immutable population position (Y at the lava surface), stored in native
-    /// enemy variables D (X) and E (Y).
+    /// Signed 8.8 vertical velocity. Gravity adds to its word, which the jump compares unsigned with the animation
+    /// switch velocity (<see cref="ApplyGravity"/>), and the follower shows only while it is negative.
     /// </summary>
-    public Position16<RoomPixels> SpawnPosition
-    {
-        get => new(_slot.VariableD, _slot.VariableE);
-        internal set
-        {
-            _slot.VariableD = value.X;
-            _slot.VariableE = value.Y;
-        }
-    }
+    public SnesSignedEightEight YVelocity { get; internal set; }
 
-    /// <summary>Same-bank dispatch word in common variable F: parent slots traverse the four jump phases, while parameter-one bit 15 selects the persistent follower function; every main call advances RNG before dispatch.</summary>
-    public NorfairLavaJumpingEnemyFunction Function
-    {
-        get => (NorfairLavaJumpingEnemyFunction)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
-    }
+    /// <summary>Parent variant's immutable population position (Y at the lava surface).</summary>
+    public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
-    /// <summary>
-    /// Population parameter-one bit 15 selects the visual follower half. It is not a
-    /// freely combinable runtime flag, so expose it as a predicate rather than an enum.
-    /// </summary>
-    public bool IsFollower => (_slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0;
+    /// <summary>Parent parts traverse the four jump phases, while followers keep the follow function; none once a kill has emptied the record.</summary>
+    public NorfairLavaJumpingEnemyFunction? Function { get; internal set; }
+
+    /// <summary>Whether population parameter-one bit 15 selects the visual follower half rather than the jumping parent.</summary>
+    public bool IsFollower { get; internal set; }
+
+    /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity's word, wrapping as the cartridge's addition does.</summary>
+    /// <param name="gravity">The 8.8 gravity step.</param>
+    internal void ApplyGravity(ushort gravity) =>
+        YVelocity = new SnesSignedEightEight(unchecked((ushort)(YVelocity.RawValue + gravity)));
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
+    internal void ClearWithRecord()
+    {
+        YVelocity = default;
+        SpawnPosition = Position16<RoomPixels>.Zero;
+        Function = null;
+        IsFollower = false;
+    }
 }

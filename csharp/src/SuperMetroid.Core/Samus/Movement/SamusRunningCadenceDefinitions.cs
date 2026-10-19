@@ -67,20 +67,20 @@ internal static class SamusRunningCadenceDefinitions
 
     /// <summary>Reads a cadence byte from a typed list pointer plus its native wrapped index.</summary>
     internal static byte ReadAnimationByte(
-        ISnesAddressSpace bus,
+        SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue,
         ushort listPointer,
-        ushort byteIndex)
+        int byteIndex)
     {
-        Ensure.NotNull(bus);
         int address = 0x910000 | unchecked((ushort)(listPointer + byteIndex));
         if (TryReadCompiledByte(address, out byte value))
             return value;
 
         // Stage five points at `$91:0303`. This is a genuine cartridge bug: the selected
-        // delay comes from the mutable low half of bank $91, not immutable cadence data.
+        // delay comes from the Mode 7 transfer queue's residue (#1338), not cadence data.
         SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
         if (sourceAddress.Bank == 0x91 && !sourceAddress.IsUpperLoRomWindow)
-            return new SamusOverreadMemory(bus).AnimationListByte(sourceAddress.Offset);
+            return (mode7Residue ?? throw new InvalidOperationException(
+                "Running-cadence stage five reads the Mode 7 queue residue; bind the session's to this Samus.")).ReadNative(sourceAddress.Offset);
 
         throw new InvalidDataException(
             $"Samus running-cadence byte {sourceAddress} is not compiled cadence data " +

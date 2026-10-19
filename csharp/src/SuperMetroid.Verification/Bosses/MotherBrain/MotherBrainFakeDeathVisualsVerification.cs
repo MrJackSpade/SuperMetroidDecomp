@@ -121,13 +121,13 @@ internal static class MotherBrainFakeDeathVisualsVerification
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain visual header ${(int)header:X4} allocates");
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
-        plms.Step(guard, level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(cameraX, 0), Bg1XOffset = 0 });
+        plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(cameraX, 0), Bg1XOffset = 0 });
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physicalWord,
-            level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Mother Brain visual header ${(int)header:X4} retains physical block");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        ushort blockDestination = level.CreateBackgroundStreamer()
+        int blockDestination = level.CreateBackgroundStreamer()
             .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == blockDestination &&

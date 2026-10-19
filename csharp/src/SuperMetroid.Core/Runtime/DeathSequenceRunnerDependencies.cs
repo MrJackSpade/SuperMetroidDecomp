@@ -21,7 +21,7 @@ internal sealed record DeathSequenceRunnerDependencies
     public required GameplayDisplayState Display { get; init; }
 
     /// <summary>Nmi handler.</summary>
-    public required NmiHandler NmiHandler { get; init; }
+    public required AcceptedFrameBoundary FrameBoundary { get; init; }
 
     /// <summary>Sprite frame the runner begins, draws into and finalizes.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }
@@ -34,7 +34,4 @@ internal sealed record DeathSequenceRunnerDependencies
 
     /// <summary>Vram writes.</summary>
     public required VramWriteQueue VramWrites { get; init; }
-
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
 }

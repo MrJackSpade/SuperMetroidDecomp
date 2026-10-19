@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -40,10 +41,10 @@ internal sealed class ProjectileTriggerPlms
             // These translated actors mirror native PLM_Timers with explicit pending
             // state so their semantic pre-instructions cannot mistake stale timer data
             // for a fresh collision on a later frame.
-            if (slot.DraygonCannon is not null)
-                slot.DraygonCannon.HasPendingHit = true;
-            if (slot.EyeDoor?.Component == EyeDoorComponent.Eye)
-                slot.EyeDoor.HasPendingHit = true;
+            if (slot.Family is DraygonCannonPlms.DraygonCannonPlmState cannon)
+                cannon.HasPendingHit = true;
+            if (slot.Family is EyeDoorPlms.EyeDoorPlmState { Component: EyeDoorComponent.Eye } eye)
+                eye.HasPendingHit = true;
 
             return true;
         }

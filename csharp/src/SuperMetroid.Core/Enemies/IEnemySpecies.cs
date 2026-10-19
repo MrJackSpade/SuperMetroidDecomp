@@ -7,8 +7,12 @@
 internal interface IEnemySpecies
 {
     /// <summary>Discards the previous room's species state while a new population loads.</summary>
-    void ResetForRoomLoad(IRoomEnemyLoad request);
+    void ResetForRoomLoad(IRoomEnemyLoad request)
+    {
+    }
 
     /// <summary>Clears the species' per-frame publications at the start of an enemy frame.</summary>
-    void BeginEnemyFrame(RoomEnemyFrame frame);
+    void BeginEnemyFrame(RoomEnemyFrame frame)
+    {
+    }
 }

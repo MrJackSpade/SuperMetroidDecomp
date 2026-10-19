@@ -24,9 +24,9 @@ public static class PauseAudioSmokeTest
     public static PauseAudioSmokeTestResult Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        SeedCrateriaSave(bus);
+        SaveSlotStore saves = SeedCrateriaSave(bus);
         var game = new SuperMetroidGame(
-            bus,
+            saves,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         // A bare game draws the title and file screens from installed artwork, as the hosts bind it.
         InstalledGameBindings.Create(RepositoryInstallation.Installation)(game);
@@ -156,7 +156,7 @@ public static class PauseAudioSmokeTest
     }
 
     /// <summary>Writes a Crateria station save with Morph Ball and Bombs so the frontend follows the saved-game route.</summary>
-    private static void SeedCrateriaSave(SuperMetroidAddressSpace bus)
+    private static SaveSlotStore SeedCrateriaSave(SuperMetroidAddressSpace bus)
     {
         var system = new Bank80SystemState();
         system.SetBossBits(0, BossBits.AreaTorizo);
@@ -165,11 +165,13 @@ public static class PauseAudioSmokeTest
         {
             Health = 99,
             MaxHealth = 99,
-            EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-            CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         };
-        new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(
+        var saves = new SaveSlotStore(SaveMapPresentationFixture.Create(bus));
+        saves.SaveSlot(
             0,
             SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = 0, SaveStation = 0 }));
+        return saves;
     }
 }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
@@ -13,4 +15,6 @@ internal static class SamusPaletteRomDataBanksConstants
         /// <inheritdoc cref="SamusPaletteRomDataBanksConstants.Movement"/>
         internal static int Movement => SamusPaletteRomDataBanksConstants.Movement;
     }
+        /// <summary>Bank <c>$8D</c>, which owns generic palette-FX programs.</summary>
+        public const int PaletteFx = 0x8d0000;
 }

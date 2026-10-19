@@ -35,8 +35,8 @@ internal sealed class EnemyDeathsAndDrops
         _dispatch = dispatch;
     }
     /// <summary>Bank-$86 callback that checks pickup lifetime, Grapple, and Samus contact.</summary>
-    private const ushort EnemyPickupPreInstruction =
-        (ushort)EnemyProjectilePreInstruction.Pickup;
+    private const EnemyProjectilePreInstruction EnemyPickupPreInstruction =
+        EnemyProjectilePreInstruction.Pickup;
     /// <summary>Frames a newly spawned enemy pickup remains collectible.</summary>
     private const ushort EnemyPickupLifetime = 400;
     /// <summary>Initial pickup frames during which a Grapple endpoint cannot collect it.</summary>
@@ -51,24 +51,27 @@ internal sealed class EnemyDeathsAndDrops
     internal SamusState? _samusForEnemyDrops;
 
     /// <summary>Last library-two sound requested by a collected enemy pickup this frame.</summary>
-    public ushort? LastEnemyPickupSoundEffect { get; internal set; }
-
-    /// <summary>Last pickup kind applied to Samus this frame, useful while stepping AI.</summary>
-    public EnemyPickupKind? LastCollectedEnemyPickup { get; internal set; }
+    public SoundEffectId? LastEnemyPickupSoundEffect { get; internal set; }
 
     /// <summary>
-    /// Last library-two request made by the shared death/pickup instruction lists this
-    /// frame. Values nine, $24, and $0B are authored directly in bank $86.
+    /// Last library-two sound requested by the shared death/pickup instruction lists this
+    /// frame: the enemy-killed cry, the small explosion or the contact-killed sound, each
+    /// authored directly in bank $86.
     /// </summary>
-    public ushort? LastEnemyDeathSoundEffectLibrary2 { get; internal set; }
+    public SoundEffectId? LastEnemyDeathSoundEffectLibrary2 { get; internal set; }
+
+    /// <summary>The library-two enemy-killed cry that <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) queues.</summary>
+    internal static readonly SoundEffectId EnemyKilledSound = new(SoundEffectLibrary.Library2, 9);
 
     /// <summary>
     /// Scratch word `$12` as last written by <c>EnemyDeath</c> ($A0:A3E6) or
-    /// <c>RinkaDeath</c> ($A0:A437): the dying actor's respawn property bit. The
+    /// <c>RinkaDeath</c> ($A0:A437): the dying actor's respawn property bit as its word,
+    /// zero or 16384 (<see cref="RespawnScratchWord"/> is the only producer). The
     /// power-bomb walker at $A0:A306 keeps its horizontal radius in that same word, so a
-    /// kill inside its loop resizes the explosion for every lower slot that frame.
+    /// kill inside its loop resizes the explosion for every lower slot that frame; the
+    /// walker reads it back as an ordinary radius, so no wider value can reach it.
     /// </summary>
-    internal ushort? _enemyDeathRespawnScratch;
+    internal int? _enemyDeathRespawnScratch;
 
     /// <summary>
     /// Ports <c>EnemyDeathAnimation</c> at $A0:A3AF. The enemy is cleared immediately,
@@ -77,12 +80,12 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     internal void StartGenericEnemyDeath(
         RoomEnemySlot enemy,
-        ushort deathAnimation)
+        int deathAnimation)
     {
         _enemyDeathRespawnScratch = RespawnScratchWord(enemy);
         // $A0:A3AF installs the dropped-grapple function before clearing the enemy.
         // Equality is deliberate: this is not a general test for any set grapple bit.
-        if (enemy.AiHandlerBits == EnemyAiHandlerMasks.Grappled)
+        if (enemy.AiStates == EnemyAiStates.Grappled)
         {
             if (_samusForEnemyDrops is null)
                 throw new InvalidOperationException("Grapple enemy death requires the live Samus owner.");
@@ -116,35 +119,36 @@ internal sealed class EnemyDeathsAndDrops
             // projectile's $EF10 instruction reconstructs it from the population record.
             InstallRespawnPlaceholder(enemy);
         }
-        _roomStatus.EnemiesKilled = unchecked((ushort)(_roomStatus.EnemiesKilled + 1));
+        _roomStatus.RecordKill();
     }
 
-    /// <summary>Publishes the dying enemy's respawn property bit into the shared scratch word.</summary>
-    internal static ushort RespawnScratchWord(RoomEnemySlot enemy) =>
+    /// <summary>
+    /// Publishes the dying enemy's respawn property bit, as the word the cartridge stores, into the shared scratch
+    /// word: 16384 for a respawning enemy, otherwise zero.
+    /// </summary>
+    internal static int RespawnScratchWord(RoomEnemySlot enemy) =>
         enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled)
-            ? (ushort)EnemyProperties.RespawnIfKilled
-            : (ushort)0;
+            ? EnemyProperties.RespawnIfKilled.ToNativeWord()
+            : 0;
 
     /// <summary>Keeps a killed respawning slot occupied by replacing its header with the respawn placeholder.</summary>
     internal void InstallRespawnPlaceholder(RoomEnemySlot enemy)
     {
         // The cartridge reads the header through the new pointer on every dispatch.
         // Our cached definition must follow that pointer even during the death frame.
-        enemy.EnemyDefinitionPointer = EnemyDefinitionId.Respawn;
-        enemy.Definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, enemy.EnemyDefinitionPointer);
-        enemy.AiBank = enemy.Definition.Bank;
+        enemy.Bind(EnemyDefinitionId.Respawn, _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.Respawn));
     }
 
     /// <summary>Chooses header death art, upgrading a small explosion for Super Missile kills.</summary>
     internal static ushort SelectNormalShotDeathAnimation(
         RoomEnemySlot enemy,
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         bool forcePirateBigExplosion = false)
     {
         if (forcePirateBigExplosion)
             return 4;
 
-        ushort causeOfDeath = (ushort)SamusProjectileFamilies.IndexOf(projectileType);
+        ushort causeOfDeath = (ushort)SamusProjectileFamilies.IndexOf(projectileType.Raw);
         if (causeOfDeath != 2)
             return enemy.Definition.DeathAnimation;
 
@@ -170,7 +174,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         for (int drop = 0; drop < count; drop++)
         {
-            ushort random = _room.Random.Generate();
+            int random = _room.Random.Generate();
             ushort x = unchecked((ushort)((random & xMask) + xBase));
             ushort y = unchecked((ushort)(SnesLittleEndian.HighByte(unchecked((ushort)(random & yMask))) + yBase));
             SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
@@ -185,7 +189,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         for (int drop = 0; drop < count; drop++)
         {
-            ushort random = _room.Random.Generate();
+            int random = _room.Random.Generate();
             ushort x = unchecked((ushort)(origin.X + (random & EnemyDropMasks.ScatterBits) - 16));
             ushort y = unchecked((ushort)(origin.Y + ((SnesLittleEndian.HighByte(random) & EnemyDropMasks.ScatterBits)) - 16));
             SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
@@ -236,7 +240,7 @@ internal sealed class EnemyDeathsAndDrops
             RoomEnemyProjectileKind.EnemyDeathPickup,
             graphicsIndex: 0);
         pickup.Position = pickup.Position.WithWhole(position);
-        pickup.ItemDropChancesPointerOverride = itemDropChancesPointer;
+        pickup.DropChancesOverride = itemDropChancesPointer == 0 ? null : EnemyDropChanceDefinitions.At(itemDropChancesPointer);
         pickup.KilledEnemyNativeIndex = KilledEnemyIndexMasks.None;
         InitializeDirectEnemyPickup(pickup);
         return pickup;
@@ -292,7 +296,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         // The blank map lasts 64 frames before $EF10 handles a retained respawning enemy
         // and $8154 deletes the actor. Collection and natural expiry use this same tail.
-        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86EFDF;
+        projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86EFDF;
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
@@ -309,12 +313,11 @@ internal sealed class EnemyDeathsAndDrops
     {
         SamusState samus = _samusForEnemyDrops ?? throw new InvalidOperationException(
             "Enemy drop selection requires the active Samus state.");
-        ushort chancesPointer = ResolveEnemyDropChancesPointer(projectile);
-        if (chancesPointer == 0)
+        if (ResolveEnemyDropChances(projectile) is not { } table)
             return EnemyPickupKind.NoDrop;
 
-        Span<byte> chances = stackalloc byte[6];
-        EnemyDropChanceDefinitions.Copy(chancesPointer, chances);
+        Span<byte> chances = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
+        table.CopyTo(chances);
 
         byte random;
         do
@@ -412,14 +415,18 @@ internal sealed class EnemyDeathsAndDrops
         return EnemyPickupKind.NoDrop;
     }
 
-    /// <summary>Uses an explicit boss chance table, a saved enemy header, or the cleared-header overread table.</summary>
-    private ushort ResolveEnemyDropChancesPointer(RoomEnemyProjectileSlot projectile)
+    /// <summary>
+    /// Uses an explicit boss chance table, a saved enemy header's, or none: the cleared-header overread pointer and a
+    /// zero header pointer both mean no drop.
+    /// </summary>
+    private EnemyDropChances? ResolveEnemyDropChances(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.ItemDropChancesPointerOverride != 0)
-            return projectile.ItemDropChancesPointerOverride;
-        if (projectile.EnemyHeaderPointer == 0)
-            return new EnemyOverreadMemory(_room.MemoryBus).ClearedHeaderDropChances;
-        return EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
+        if (projectile.DropChancesOverride is { } table)
+            return table;
+        ushort pointer = projectile.EnemyHeaderPointer == 0
+            ? EnemyDropChanceDefinitions.ClearedHeaderPointer
+            : _room.LoadedDefinitions.ReadEnemyDefinition(projectile.EnemyHeaderPointer).ItemDropChancesPointer;
+        return pointer == 0 ? null : EnemyDropChanceDefinitions.At(pointer);
     }
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
@@ -427,8 +434,10 @@ internal sealed class EnemyDeathsAndDrops
         RoomEnemyProjectileSlot projectile,
         SamusState? samus)
     {
-        projectile.Variable1 = unchecked((ushort)(projectile.Variable1 - 1));
-        if (projectile.Variable1 == 0)
+        // The lifetime is decremented first; the pickup expires on the update it reaches zero.
+        NativeWordCounterStep lifetime = NativeCountdown.FromRaw(checked((ushort)projectile.Variable1)).Decrement();
+        projectile.Variable1 = lifetime.Value;
+        if (lifetime.IsZero)
         {
             MakeEnemyPickupDormant(projectile);
             return;
@@ -472,65 +481,60 @@ internal sealed class EnemyDeathsAndDrops
         {
             case EnemyPickupKind.SmallEnergy:
                 RestoreEnemyDropEnergy(samus, 5);
-                LastEnemyPickupSoundEffect = 1;
+                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.SmallEnergyPickup;
                 break;
             case EnemyPickupKind.BigEnergy:
                 RestoreEnemyDropEnergy(samus, 20);
-                LastEnemyPickupSoundEffect = 2;
+                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.BigEnergyPickup;
                 break;
             case EnemyPickupKind.PowerBomb:
                 RestoreEnemyDropPowerBombs(samus, 1);
-                LastEnemyPickupSoundEffect = 5;
+                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.PowerBombPickup;
                 break;
             case EnemyPickupKind.Missile:
                 RestoreEnemyDropMissiles(samus, 2);
-                LastEnemyPickupSoundEffect = 3;
+                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.MissilePickup;
                 break;
             case EnemyPickupKind.SuperMissile:
                 RestoreEnemyDropSuperMissiles(samus, 1);
-                LastEnemyPickupSoundEffect = 4;
+                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.SuperMissilePickup;
                 break;
             default:
                 throw new InvalidDataException(
                     $"Enemy pickup slot {projectile.SlotIndex} contains invalid type ${projectile.Variable0:X4}.");
         }
 
-        LastCollectedEnemyPickup = kind;
         MakeEnemyPickupDormant(projectile);
     }
 
     /// <summary>Fills health first, spilling excess into capped reserves and enabling reserve auto mode.</summary>
     private static void RestoreEnemyDropEnergy(SamusState samus, ushort amount)
     {
-        ushort restored = unchecked((ushort)(samus.Health + amount));
+        int restored = samus.Health + amount;
         samus.Health = restored;
-        if (unchecked((short)(restored - samus.MaxHealth)) < 0)
+        if (restored < samus.MaxHealth)
             return;
 
-        ushort reserve = unchecked((ushort)(
-            samus.ReserveEnergy + restored - samus.MaxHealth));
-        if (unchecked((short)(reserve - samus.MaxReserveEnergy)) >= 0)
+        int reserve = samus.ReserveEnergy + restored - samus.MaxHealth;
+        if (reserve >= samus.MaxReserveEnergy)
             reserve = samus.MaxReserveEnergy;
         samus.ReserveEnergy = reserve;
-        if (reserve != 0 && samus.ReserveTankMode == 0)
-            samus.ReserveTankMode = 1;
+        if (reserve != 0 && samus.ReserveTankMode == ReserveTankMode.None)
+            samus.ReserveTankMode = ReserveTankMode.Auto;
         samus.Health = samus.MaxHealth;
     }
 
     /// <summary>Fills missiles first, spilling excess into reserves capped by inventory and 99.</summary>
     private static void RestoreEnemyDropMissiles(SamusState samus, ushort amount)
     {
-        ushort restored = unchecked((ushort)(samus.Missiles + amount));
+        int restored = samus.Missiles + amount;
         samus.Missiles = restored;
-        if (unchecked((short)(restored - samus.MaxMissiles)) < 0)
+        if (restored < samus.MaxMissiles)
             return;
 
-        samus.ReserveMissiles = unchecked((ushort)(
-            samus.ReserveMissiles + restored - samus.MaxMissiles));
-        ushort reserveCap = unchecked((short)(samus.MaxMissiles - 99)) < 0
-            ? samus.MaxMissiles
-            : (ushort)99;
-        if (unchecked((short)(samus.ReserveMissiles - reserveCap)) >= 0)
+        samus.ReserveMissiles += restored - samus.MaxMissiles;
+        int reserveCap = Math.Min(samus.MaxMissiles, 99);
+        if (samus.ReserveMissiles >= reserveCap)
             samus.ReserveMissiles = reserveCap;
         samus.Missiles = samus.MaxMissiles;
     }
@@ -538,10 +542,9 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Adds a Super Missile and clamps it to the owned maximum.</summary>
     private static void RestoreEnemyDropSuperMissiles(SamusState samus, ushort amount)
     {
-        ushort restored = unchecked((ushort)(samus.SuperMissiles + amount));
+        int restored = samus.SuperMissiles + amount;
         samus.SuperMissiles = restored;
-        if (restored != samus.MaxSuperMissiles &&
-            unchecked((short)(restored - samus.MaxSuperMissiles)) >= 0)
+        if (restored > samus.MaxSuperMissiles)
         {
             samus.SuperMissiles = samus.MaxSuperMissiles;
         }
@@ -550,10 +553,9 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Adds a Power Bomb and clamps it to the owned maximum.</summary>
     private static void RestoreEnemyDropPowerBombs(SamusState samus, ushort amount)
     {
-        ushort restored = unchecked((ushort)(samus.PowerBombs + amount));
+        int restored = samus.PowerBombs + amount;
         samus.PowerBombs = restored;
-        if (restored != samus.MaxPowerBombs &&
-            unchecked((short)(restored - samus.MaxPowerBombs)) >= 0)
+        if (restored > samus.MaxPowerBombs)
         {
             samus.PowerBombs = samus.MaxPowerBombs;
         }
@@ -566,8 +568,10 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastEnemyPickupSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 1);
-        audio.QueueLegacySound(LastEnemyDeathSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 1);
+        if (LastEnemyPickupSoundEffect is { } pickupSound)
+            audio.QueueEnemySound(pickupSound, maximumQueued: 1);
+        if (LastEnemyDeathSoundEffectLibrary2 is { } deathSound)
+            audio.QueueEnemySound(deathSound, maximumQueued: 1);
     }
 
     /// <summary>
@@ -585,9 +589,7 @@ internal sealed class EnemyDeathsAndDrops
                 $"Enemy slot ${nativeIndex:X4} has no surviving population snapshot to respawn.");
         }
 
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(
-            _room.LoadedBus,
-            spawn.Population.DefinitionPointer);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionPointer);
         // Unlike Initialise_Enemies ($A0:8B93) and Spawn_Enemy ($A0:93D9), Respawn_Enemy
         // ($86:F264) never writes the spritemap: the actor keeps EnemyDeath's cleared word,
         // or what its init AI wrote, until its first instruction. A zero spritemap is also
@@ -607,11 +609,11 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Queues the library-two enemy-killed sound 9, as <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) does.</summary>
-    internal void QueueEnemyKilledSound() => LastEnemyDeathSoundEffectLibrary2 = 9;
+    internal void QueueEnemyKilledSound() => LastEnemyDeathSoundEffectLibrary2 = EnemyKilledSound;
 
     /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
     internal void RegisterDeathExplosionInstructions(EnemyProjectileHandlerTable table) =>
-        table.RegisterBranchingCue<EnemyDeathProjectileProgram, EnemyDeathProjectileCue>(ApplyEnemyDeathProjectileCue);
+        table.RegisterBranchingCue<EnemyDeathProjectileProgram, EnemyDeathProjectileCue>((context, cue) => ApplyEnemyDeathProjectileCue(context.Projectile, context.Samus, cue));
 
     /// <summary>
     /// Carries out one cue of the death and drop programs, returning the program a converted explosion continues at, or
@@ -635,10 +637,12 @@ internal sealed class EnemyDeathsAndDrops
                 QueueEnemyKilledSound();
                 return null;
             case EnemyDeathProjectileCueKind.PlaySmallExplosionSound:
-                LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathSmallExplosionSound;
+                LastEnemyDeathSoundEffectLibrary2 = SoundEffectId.FromCartridge(
+                    SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DeathSmallExplosionSound);
                 return null;
             case EnemyDeathProjectileCueKind.PlayContactKilledSound:
-                LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathContactKilledSound;
+                LastEnemyDeathSoundEffectLibrary2 = SoundEffectId.FromCartridge(
+                    SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DeathContactKilledSound);
                 return null;
             case EnemyDeathProjectileCueKind.BecomePickup:
                 if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)

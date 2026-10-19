@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Ridley's typed fireball and afterburn programs (#641), in place of their bank-$86 lists.</summary>
 internal static class RidleyFireballAnimations
 {
-    /// <summary>Poses in the launch run.</summary>
-    internal const int LaunchPoseCount = 2;
     /// <summary>Poses in the flight loop.</summary>
     internal const int FlightPoseCount = 4;
     /// <summary>Poses in each afterburn run.</summary>

@@ -37,8 +37,8 @@ internal static class PaletteJsonContractsVisibleVerification
         var editedFx = new RoomPaletteFxSystem();
         foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
-            stockFx.SpawnDefinition(stockBus, definition.DefinitionPointer, 0);
-            editedFx.SpawnDefinition(editedBus, definition.DefinitionPointer, 0);
+            stockFx.SpawnDefinition(definition.DefinitionPointer, 0);
+            editedFx.SpawnDefinition(definition.DefinitionPointer, 0);
         }
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
@@ -47,8 +47,8 @@ internal static class PaletteJsonContractsVisibleVerification
         // ticking concurrently. Compare all native instruction timers, not endpoints.
         for (int tick = 0; tick < 160; tick++)
         {
-            stockFx.Step(stockBus, stockCgram, original, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            editedFx.Step(editedBus, editedCgram, replacement, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            stockFx.Step(stockCgram, original, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            editedFx.Step(editedCgram, replacement, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertPaletteContractFxState(stockFx, editedFx);
             AssertSameBytes(stockBus.WorkRam, editedBus.WorkRam, "color replacement preserves all live WRAM");
             foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
@@ -63,8 +63,8 @@ internal static class PaletteJsonContractsVisibleVerification
         JsonObject cycle = documents["map cycle"];
         var editedCycle = (JsonObject)cycle.DeepClone();
         InvertPaletteContractColors(editedCycle);
-        var stockMap = new MapPaletteAnimation(stockBus);
-        var editedMap = new MapPaletteAnimation(editedBus);
+        var stockMap = new MapPaletteAnimation();
+        var editedMap = new MapPaletteAnimation();
         stockMap.Bind(ReadPaletteContract(cycle, MapPaletteCycle.Load));
         editedMap.Bind(ReadPaletteContract(editedCycle, MapPaletteCycle.Load));
         for (int tick = 0; tick < 90; tick++)
@@ -132,7 +132,7 @@ internal static class PaletteJsonContractsVisibleVerification
         {
             var oam = new OamBuffer();
             oam.BeginFrame();
-            oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), 0,
+            oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0),
                 SnesObjAttributeWord.Create(0, (color - SnesCgram.ColorCount / 2) / 16, 0), new Position16<OamPixels>(0, 0));
             oam.FinalizeFrame();
             stockPixels = SnesObjRenderer.Render(oam, vram, stock, obsel: 0, size: new Extent16<ScreenPixels>(8, 8));

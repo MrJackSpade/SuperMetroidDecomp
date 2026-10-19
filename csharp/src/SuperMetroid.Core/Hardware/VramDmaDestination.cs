@@ -5,6 +5,11 @@ namespace SuperMetroid.Core.Hardware;
 /// queue stores both in one word, bit 15 selecting the 32-word column increment; that encoding
 /// stays inside this type, the queue and the PPU backend.
 /// </summary>
+/// <remarks>
+/// This type is the codec of that word: <see cref="At(PpuLayoutCell, int, VramIncrement)"/> encodes it, and
+/// <see cref="Word"/> and <see cref="WordIncrement"/> are the only decoders, so the word it stores is the encoding.
+/// </remarks>
+[SnesEncodingOwner]
 [PpuLayoutBoundary("codec: queued VRAM DMA destination word")]
 public readonly record struct VramDmaDestination
 {

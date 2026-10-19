@@ -16,7 +16,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Areas.Tourian;
@@ -30,9 +29,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Runtime.Attract;
@@ -100,7 +97,6 @@ internal static class SuperMetroidRuntimeAccess
                     // Square slopes are translated too, but selecting one as a spawn surface
                     // would require choosing the occupied quadrant rather than one scalar Y.
                     height = SamusSlopePhysics.ReadAlignmentHeight(
-                        self._addressSpace,
                         floor.Bts,
                         xPosition);
                 }
@@ -155,9 +151,9 @@ internal static class SuperMetroidRuntimeAccess
             };
             self.Artwork.BindSamusPalettePresentation();
 
-            SamusPresentation.LoadPowerSuitPalette(self._addressSpace, self.Cgram, self.Artwork.MapPresentation?.SamusSuitColors);
-            self.Player.Samus.PoseMetadata.RefreshCollisionRadii(self._addressSpace);
-            self.Player.Samus.Presentation.InitializeAnimation(self._addressSpace);
+            SamusPresentation.LoadPowerSuitPalette(self.Cgram, self.Artwork.MapPresentation?.SamusSuitColors);
+            self.Player.Samus.PoseMetadata.RefreshCollisionRadii();
+            self.Player.Samus.Presentation.InitializeAnimation();
             if (self.Room.LandingSiteEntry is not null)
             {
                 // FootstepGraphics dispatches on the literal area and room-index bytes. Keep
@@ -165,11 +161,11 @@ internal static class SuperMetroidRuntimeAccess
                 // “Landing Site” behavior into the generic atmospheric renderer.
                 self.Player.Samus.LiquidPhysics.RoomIdentity = self.Room.LandingSiteEntry.RoomIdentity;
             }
-            self.Player.PreviousMovementTypeForXray = self.Player.Samus.PoseMetadata.ReadMovementType(self._addressSpace);
+            self.Player.PreviousMovementTypeForXray = self.Player.Samus.PoseMetadata.ReadMovementType();
 
             // StepFrame begins with NMI, so prime the definitions now. Otherwise frame one's
             // OAM would name Samus tiles before any corresponding graphics reached VRAM.
-            self.Player.Samus.Presentation.PrimeGraphics(self._addressSpace);
+            self.Player.Samus.Presentation.PrimeGraphics();
         }
 
         /// <summary>
@@ -192,7 +188,5 @@ internal static class SuperMetroidRuntimeAccess
             else
                 self.Artwork.MapPresentation.EscapeTimerTiles.QueueTo(self.VramWrites);
         }
-        /// <summary>Live WRAM/SRAM for NMI DMA and the typed domain memory views.</summary>
-        internal ISnesMemoryBus MemoryBus => RuntimeMemory.RequireBus(self._addressSpace);
     }
 }

@@ -16,8 +16,8 @@ public static class PlmHeaderGenerationProcessPolicy {
     }
     $repoRoot = [IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
     $romFile = [IO.Path]::GetFullPath((Join-Path $repoRoot $RomPath))
-    $stateFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs'
-    $outputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmPopulationDefinitions.Generated.cs'
+    $populationFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmPopulationSourceDefinitions.cs'
+    $outputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmPopulationDefinitions.cs'
     $headerOutputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmHeaderDefinitions.Generated.cs'
     $scrollOutputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmScrollProgramDefinitions.Generated.cs'
     $expectedHash = '12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72'
@@ -26,14 +26,11 @@ public static class PlmHeaderGenerationProcessPolicy {
         throw "PLM-population generation requires unheadered Japan/USA NTSC v1.0 ($expectedHash), got $actualHash."
     }
 
-    $pointers = [Collections.Generic.HashSet[int]]::new()
-    foreach ($line in [IO.File]::ReadLines($stateFile)) {
-        if ($line -notmatch '^\s*new\(') { continue }
-        $words = [regex]::Matches($line, '0x([0-9A-F]+)')
-        if ($words.Count -ne 16) { continue }
-        [void] $pointers.Add([Convert]::ToInt32($words[13].Groups[1].Value, 16))
+    $populationNames = @{}
+    foreach ($match in [regex]::Matches([IO.File]::ReadAllText($populationFile), '\[0x([0-9a-f]{4})\] = RoomPlmPopulationDefinitions\.(\w+),')) {
+        $populationNames[[Convert]::ToInt32($match.Groups[1].Value, 16)] = $match.Groups[2].Value
     }
-    $ordered = @($pointers | Sort-Object)
+    $ordered = @($populationNames.Keys | Sort-Object)
     if ($ordered.Count -ne 284) {
         throw "Expected 284 distinct retail PLM populations, found $($ordered.Count)."
     }
@@ -51,19 +48,22 @@ public static class PlmHeaderGenerationProcessPolicy {
     $lines.Add('#nullable enable')
     $lines.Add('namespace SuperMetroid.Core.Rooms.Plms;')
     $lines.Add('')
-    $lines.Add('/// <summary>Ordered named room setup cases; regenerate with tools/generate-room-plm-population-definitions.ps1.</summary>')
-    $lines.Add('internal static partial class RoomPlmPopulationDefinitions')
+    $lines.Add('/// <summary>')
+    $lines.Add('/// The retail room PLM populations, each named by the pinned disassembly''s label for it. Each holds its placements')
+    $lines.Add('/// in native order: PLM header, block X and Y, and room argument; regenerate with')
+    $lines.Add('/// tools/generate-room-plm-population-definitions.ps1.')
+    $lines.Add('/// </summary>')
+    $lines.Add('internal static class RoomPlmPopulationDefinitions')
     $lines.Add('{')
-    $lines.Add('    internal static bool TryPlace(ushort pointer, Action<PlmHeaderId, byte, byte, ushort>? place)')
-    $lines.Add('    {')
-    $lines.Add('        switch (pointer)')
-    $lines.Add('        {')
     $recordTotal = 0
     $headers = [Collections.Generic.HashSet[int]]::new()
     $scrollProgramPointers = [Collections.Generic.HashSet[int]]::new()
     foreach ($pointer in $ordered) {
         $offset = 0x78000 + ($pointer - 0x8000)
-        $lines.Add(('            case 0x{0:X4}:' -f $pointer))
+        $name = $populationNames[$pointer]
+        $lines.Add(('    /// <summary>The {0} room PLM population.</summary>' -f $name))
+        $lines.Add(('    public static RoomPlmPopulationDefinition {0} {{ get; }} = RoomPlmPopulationDefinition.FromRecords(nameof({0}),' -f $name))
+        $lines.Add('    [')
         $count = 0
         while ($true) {
             if ($offset -ge $rom.Length - 1) {
@@ -83,18 +83,17 @@ public static class PlmHeaderGenerationProcessPolicy {
             }
             if (-not $headerNames.ContainsKey($header)) { throw ('Retail header {0:X4} lacks a domain name.' -f $header) }
             $argument = [int]$rom[$offset + 4] -bor ([int]$rom[$offset + 5] -shl 8)
-            $lines.Add(('                place?.Invoke(PlmHeaderId.{0}, {1}, {2}, 0x{3:X4});' -f $headerNames[$header], $rom[$offset + 2], $rom[$offset + 3], $argument))
+            $lines.Add(('        (PlmHeaderId.{0}, {1}, {2}, 0x{3:X4}),' -f $headerNames[$header], $rom[$offset + 2], $rom[$offset + 3], $argument))
             $offset += 6
         }
         $recordTotal += $count
-        $lines.Add('                return true;')
+        $lines.Add('    ]);')
+        $lines.Add('')
     }
     if ($recordTotal -ne 941) {
         throw "Expected 941 retail PLM records, found $recordTotal."
     }
-    $lines.Add('            default: return false;')
-    $lines.Add('        }')
-    $lines.Add('    }')
+    $lines.RemoveAt($lines.Count - 1)
     $lines.Add('}')
     if (-not $HeadersOnly) { [IO.File]::WriteAllLines($outputFile, $lines, [Text.UTF8Encoding]::new($false)) }
 

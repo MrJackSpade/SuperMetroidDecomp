@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Room-wide enemy publications read by the runtime: kill count, boss identity, Japanese text, Fireflea
-/// darkness, the enemy door-transition flag and the per-frame Ceres-escape and Draygon-release events.
+/// darkness, the enemy door-transition flag.
 /// </summary>
 internal sealed class EnemyRoomStatus
 {
@@ -12,33 +12,33 @@ internal sealed class EnemyRoomStatus
     /// This is distinct from the elevator/Zebetite gate at $0795.
     /// </summary>
     public bool EnemyDoorTransitionActive { get; set; }
-    /// <summary>Wrapping native room kill counter, reset at load and incremented by death paths; counts their publications rather than enumerating remaining or uniquely defeated slots.</summary>
-    public ushort EnemiesKilled { get; internal set; }
-    /// <summary>Native BossID ($179C) for the loaded encounter, reset to zero on room load and published by nonzero definition IDs or boss initialization; not an area boss-defeated flag.</summary>
-    public ushort BossId { get; internal set; }
-    /// <summary>Native $177E darkness progression, reset on room load and advanced by two per Fireflea death; the cartridge permits values through 12 and rejects the next step to 14.</summary>
-    public ushort FirefleaDarknessLevel { get; internal set; }
-
     /// <summary>
-    /// One-frame publication of $A6:C117. The runtime consumes this after EnemyMain to
-    /// start the global escape timer and set Ceres's boss bit in their native owners.
+    /// The room's kill count, 0 through 65535: reset at load and incremented by death paths through
+    /// <see cref="RecordKill"/>; it counts their publications rather than enumerating remaining or uniquely defeated
+    /// slots. The count returns to zero after 65535, as the cartridge's does.
     /// </summary>
-    public bool CeresEscapeStartedThisFrame { get; internal set; }
+    public int EnemiesKilled { get; internal set => field = Ensure.BetweenInclusive(0, KillCountPeriod - 1, value); }
 
+    /// <summary>How many kills the count records before it returns to zero.</summary>
+    private const int KillCountPeriod = 65536;
     /// <summary>
-    /// One-frame publication of Draygon grabbing Samus (<c>SetSamusIntoTheGrabbedByDraygonPose</c>,
-    /// $90:E23B) or releasing her (<c>ReleaseSamusFromDraygon</c>, $90:E2DE) during EnemyMain. Both
-    /// write $FFFF to all three prospective-pose slots, which the runtime owns and clears after EnemyMain.
+    /// Native BossID ($179C) for the loaded encounter, 0 through 65535: reset to zero on room load and published by
+    /// nonzero definition IDs or boss initialization; only compared for equality. Not an area boss-defeated flag.
     /// </summary>
-    public bool DraygonDiscardedSamusPoseRequestsThisFrame { get; internal set; }
+    public int BossId { get; internal set; }
+    /// <summary>
+    /// Fireflea darkness progression, 0 through <see cref="MaximumFirefleaDarknessLevel"/>: reset on room load and
+    /// advanced by two per Fireflea death, where the advance rejects the step to 14. No producer wraps it, so the
+    /// setter rejects any value outside that range.
+    /// </summary>
+    public int FirefleaDarknessLevel { get; internal set => field = Ensure.BetweenInclusive(0, MaximumFirefleaDarknessLevel, value); }
+
+    /// <summary>The darkest level a Fireflea death can reach; the next step to 14 is rejected.</summary>
+    public const int MaximumFirefleaDarknessLevel = 12;
+
+    /// <summary>Counts one more enemy death in the room's kill count, which wraps from 65535 to zero.</summary>
+    internal void RecordKill() => EnemiesKilled = (EnemiesKilled + 1) % KillCountPeriod;
 
     /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText { get; set; }
-
-    /// <summary>Clears the one-frame events at the start of an enemy pass.</summary>
-    internal void BeginFrame()
-    {
-        CeresEscapeStartedThisFrame = false;
-        DraygonDiscardedSamusPoseRequestsThisFrame = false;
-    }
 }

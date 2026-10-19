@@ -59,8 +59,10 @@ public static class EnemyTileArtworkFiles
         Directory.CreateDirectory(directory);
 
         var entries = new Dictionary<ushort, EnemyTileFileEntry>();
-        foreach (ushort graphicsSetPointer in RoomStateDefinitions.All
-                     .Select(state => state.EnemyTilesetPointer).Distinct().Order())
+        foreach (ushort graphicsSetPointer in RoomStateSources.Pointers
+                     .Select(pointer => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                         RoomStateSourceDefinitions.Bank | (pointer + RoomStateSourceDefinitions.EnemySetOffset)))
+                     .Distinct().Order())
         {
             int cursor = RoomEnemyRomLayout.TilesetBank | graphicsSetPointer;
             for (int slot = 0; slot <= 4; slot++, cursor += 4)
@@ -286,9 +288,7 @@ public static class EnemyTileArtworkFiles
             upperKraid);
         File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.LowerFileName),
             lowerKraid);
-        ushort[] headPointers = KraidHeadInstructionDefinitions.All
-            .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
-            .Select(frame => frame.Tilemap).Distinct().Order().ToArray();
+        ushort[] headPointers = KraidHeadFrameDefinitions.PresentationKeys.Order().ToArray();
         var kraidHeadHashes = new Dictionary<ushort, string>();
         foreach (ushort pointer in headPointers)
         {
@@ -474,9 +474,7 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.TourianStatueColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
-        ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All
-            .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
-            .Select(frame => frame.Tilemap).Distinct().Order().ToArray();
+        ushort[] expectedHeadPointers = KraidHeadFrameDefinitions.PresentationKeys.Order().ToArray();
         if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(expectedHeadPointers))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
         if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)
@@ -1187,7 +1185,7 @@ public static class EnemyTileArtworkFiles
             for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
             {
                 planar[destination + index] = bus.ReadCartridgeByte(
-                    ((int)new SnesAddress(pass.SourceBank, unchecked((ushort)(copy.SourceWord + index)))));
+                    ((int)new SnesAddress(checked((byte)pass.SourceBank), checked((ushort)(copy.SourceWord + index)))));
             }
         }
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(encodedByteCount);

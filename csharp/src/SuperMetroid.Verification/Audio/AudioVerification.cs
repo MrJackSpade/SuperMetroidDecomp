@@ -24,6 +24,8 @@ internal static class AudioVerification
         Suite(nameof(VerifyAudioUploadCatalog), () => VerifyAudioUploadCatalog(retail));
         Suite(nameof(SpcCommandPortsVerification.VerifySpcCommandPortsMatchEmulatedDriver),
             () => SpcCommandPortsVerification.VerifySpcCommandPortsMatchEmulatedDriver());
+        Suite(nameof(TickAccumulatorVerification.VerifyTickAccumulator),
+            () => TickAccumulatorVerification.VerifyTickAccumulator());
         var invalidMusicData = new CartridgeAudioState();
         invalidMusicData.AdvanceFrame(default);
         invalidMusicData.QueueMusicDelayed8(MusicCommand.LoadData(0x01));
@@ -126,7 +128,7 @@ internal static class AudioVerification
         // hold/silence, and restoration of the room track that was live at acquisition.
         audio.QueueMusicDelayed8(MusicCommand.SelectTrack(7));
         audio.QueuePermanentItemFanfare();
-        var permanentItemPortWrites = new List<byte>();
+        var permanentItemPortWrites = new List<int>();
         for (int frame = 0; frame < 384; frame++)
         {
             foreach (CartridgeAudioCommand command in audio.AdvanceFrame(default))
@@ -136,7 +138,7 @@ internal static class AudioVerification
             }
         }
         AssertSequenceEqual(
-            new byte[] { 2, 0, 5 },
+            new[] { 2, 0, 5 },
             permanentItemPortWrites,
             "permanent-item fanfare and room-track restoration");
 

@@ -5,7 +5,6 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
@@ -91,8 +90,8 @@ public sealed class PlayableGameControl : UserControl
     private DebuggerSaveStateStore stateStore;
     /// <summary>Next controller word to read from an active replay.</summary>
     private int replayFrameIndex;
-    /// <summary>Room pointer last shown in the status label.</summary>
-    private ushort? displayedRoomPointer;
+    /// <summary>Room last shown in the window caption.</summary>
+    private RoomHeaderDefinition? displayedRoom;
     /// <summary>Most recent frame timing sample used by the toolbar.</summary>
     private FrameTimingSnapshot? latestFrameTiming;
     /// <summary>Latest error text retained while simulation recovers.</summary>
@@ -271,11 +270,8 @@ public sealed class PlayableGameControl : UserControl
         audioAssets = selectedAudioAssets;
         if (gameOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
-        if (replay is null)
-            LoadSaveRamFromDisk();
-        else
-            LoadReplaySaveRam();
-        game = new SuperMetroidGame(addressSpace, gameOptions);
+        SaveSlotStore saves = replay is null ? LoadSavesFromDisk() : LoadReplaySaves();
+        game = new SuperMetroidGame(saves, gameOptions);
         // The session binds clips in every configuration so a debugger state always carries
         // its playback state; whether samples reach a device is the host's choice alone.
         game.BindAudio(selectedAudioAssets);
@@ -327,7 +323,7 @@ public sealed class PlayableGameControl : UserControl
             slot, addressSpace, game);
         statusLabel.Text =
             $"saved state {slot} | frame {metadata.FrameNumber} | " +
-            FormatStateRoom(metadata.RoomPointer, metadata.RoomStatePointer);
+            FormatStateRoom(metadata.Room, metadata.RoomState);
         Console.WriteLine($"Saved debugger state slot {slot}: {metadata.Path}");
     }
 
@@ -382,7 +378,7 @@ public sealed class PlayableGameControl : UserControl
             "Restored desktop session has no installed audio."));
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
-        displayedRoomPointer = null;
+        displayedRoom = null;
         pendingPlaybackFrames = 0;
 
         if (gameOptions.AudioEnabled)
@@ -399,25 +395,25 @@ public sealed class PlayableGameControl : UserControl
         PublishGpuDisplay();
         // The retained packet already owns the display. Reading CurrentFrame here
         // would rasterize it solely to populate status labels, even in GPU mode.
-        RefreshFrame(pendingDisplay is not null ? game.CurrentFrameMetadata : game.CurrentFrame);
+        RefreshFrame(pendingDisplay is not null ? game.CurrentFrame : game.CurrentFrame);
         statusLabel.Text =
             (loaded.Warnings.Count != 0 ? "WARNING: state compatibility differs | " : "") +
             $"loaded state {DebuggerSaveStateStore.SlotName(slot)} | frame {loaded.Metadata.FrameNumber} | " +
-            FormatStateRoom(loaded.Metadata.RoomPointer, loaded.Metadata.RoomStatePointer);
+            FormatStateRoom(loaded.Metadata.Room, loaded.Metadata.RoomState);
         SetPlaying(resumePlayback);
     }
 
     /// <summary>Formats a room/state identity or a frontend-only state for toolbar text.</summary>
-    private static string FormatStateRoom(ushort? room, ushort? state) =>
-        room is ushort roomPointer && state is ushort statePointer
-            ? $"room $8F:{roomPointer:X4}/state $8F:{statePointer:X4}"
+    private static string FormatStateRoom(string? room, string? state) =>
+        room is not null && state is not null
+            ? $"room {room}/state {state}"
             : "frontend/no active room";
 
     /// <summary>
-    /// Seeds replay from its cartridge-compatible SRAM image and rejects a different ROM
-    /// revision before the first input can produce a misleading divergence.
+    /// Decodes the replay's cartridge-compatible SRAM image into the session's saves and rejects a
+    /// different ROM revision before the first input can produce a misleading divergence.
     /// </summary>
-    private void LoadReplaySaveRam()
+    private SaveSlotStore LoadReplaySaves()
     {
         if (replay is null)
             throw new InvalidOperationException("Replay SRAM requested without a replay.");
@@ -428,7 +424,8 @@ public sealed class PlayableGameControl : UserControl
             throw new InvalidDataException(
                 "The replay was recorded from a different ROM image (SHA-256 mismatch).");
         }
-        SaveRamImage.Load(addressSpace, replay.InitialSaveRam);
+        return SaveRamCodec.Decode(replay.InitialSaveRam,
+            mapPresentation ?? throw new InvalidOperationException("Replay saves require installed maps."));
     }
 
     /// <summary>Creates a debugger-state store keyed to options and installed content identity.</summary>
@@ -441,12 +438,13 @@ public sealed class PlayableGameControl : UserControl
                 "Installed desktop session has no content identity."));
     }
 
-    /// <summary>Begins a replay recording seeded from the current battery-backed SRAM image.</summary>
+    /// <summary>Begins a replay recording seeded from the SRAM image of the session's current saves.</summary>
     private ControllerInputRecorder StartInputRecorder()
     {
         return ControllerInputRecorder.StartInstalled(
             playerDataDirectory,
-            SaveRamImage.Capture(addressSpace),
+            SaveRamCodec.Encode(game.Saves,
+                mapPresentation ?? throw new InvalidOperationException("Recording saves requires installed maps.")),
             gameOptions,
             installedContentIdentity ?? throw new InvalidOperationException(
                 "Installed desktop session has no content identity."));
@@ -468,14 +466,13 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>
-    /// Restores the same 8 KiB battery-backed image an emulator associates with the ROM.
-    /// A malformed file is rejected explicitly; silently padding/truncating it could turn
-    /// corruption into an apparently valid checksum pair.
+    /// Loads the JSON saves, or imports the 8 KiB battery-backed image an emulator associates
+    /// with the ROM. A malformed file is rejected explicitly; silently padding/truncating it
+    /// could turn corruption into an apparently valid checksum pair.
     /// </summary>
-    private void LoadSaveRamFromDisk()
+    private SaveSlotStore LoadSavesFromDisk()
     {
         GameSaveLoadResult result = GameSaveFileStore.LoadOrMigrate(
-            addressSpace,
             saveFilePath,
             legacySaveRamPath,
             mapPresentation ?? throw new InvalidOperationException("Save loading requires installed maps."));
@@ -485,16 +482,15 @@ public sealed class PlayableGameControl : UserControl
                 $"Migrated legacy save RAM '{legacySaveRamPath}' to human-readable " +
                 $"JSON '{result.JsonPath}'. The original .srm was retained unchanged.");
         }
+        return result.Saves;
     }
 
     /// <summary>
-    /// Flushes translated SRAM mutations synchronously. The cartridge call is infrequent,
-    /// and completing the write before the next frame preserves the save even if the host is
-    /// stopped at a breakpoint or closed immediately after the Ceres checkpoint.
+    /// Flushes changed saves synchronously. The cartridge call is infrequent, and completing
+    /// the write before the next frame preserves the save even if the host is stopped at a
+    /// breakpoint or closed immediately after the Ceres checkpoint.
     /// </summary>
-    private void PersistSaveRamToDisk() =>
-        GameSaveFileStore.WriteAtomic(addressSpace, saveFilePath,
-            mapPresentation ?? throw new InvalidOperationException("Save persistence requires installed maps."));
+    private void PersistSaveRamToDisk() => GameSaveFileStore.WriteAtomic(game.Saves, saveFilePath);
 
     /// <summary>Defers simulation while the enabled audio output cannot accept another frame.</summary>
     private RecoveringAudioOutput CreateAudioDevice() => new(() => new WaveOutAudioDevice(
@@ -558,13 +554,13 @@ public sealed class PlayableGameControl : UserControl
                 {
                     lastRecoverableError = errorReporter?.Report(exception, new GitHubErrorContext(
                         Boundary: "audio submission after completed gameplay frame",
-                        FrameNumber: game.FrameNumber,
+                        FrameNumber: checked((ushort)game.FrameNumber),
                         GameState: $"${(ushort)game.GameState:X2} {game.GameState}",
                         Phase: game.CurrentFrame.Phase,
                         ControllerInput: input,
-                        RoomPointer: game.GameplayActiveRoomPointer,
-                        RoomStatePointer: game.GameplayActiveRoomStatePointer,
-                        DoorPointer: game.GameplayActiveDoorPointer,
+                        Room: game.GameplayActiveRoom?.Name,
+                        RoomState: game.GameplayActiveRoomState?.Name,
+                        Door: game.GameplayActiveDoor?.Name,
                         InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
                 });
             }
@@ -628,13 +624,13 @@ public sealed class PlayableGameControl : UserControl
                 frameException,
                 new GitHubErrorContext(
                     Boundary: "playable emulated-frame boundary",
-                    FrameNumber: game.FrameNumber,
+                    FrameNumber: checked((ushort)game.FrameNumber),
                     GameState: $"${(ushort)game.GameState:X2} {game.GameState}",
                     Phase: game.CurrentFrame.Phase,
                     ControllerInput: input,
-                    RoomPointer: game.GameplayActiveRoomPointer,
-                    RoomStatePointer: game.GameplayActiveRoomStatePointer,
-                    DoorPointer: game.GameplayActiveDoorPointer,
+                    Room: game.GameplayActiveRoom?.Name,
+                    RoomState: game.GameplayActiveRoomState?.Name,
+                    Door: game.GameplayActiveDoor?.Name,
                     InputRecordingPath: inputRecorder?.Path,
                     FrameDiagnostics: frameDiagnostics));
             return game.CurrentFrame;
@@ -688,7 +684,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Refreshes presentation, room caption, frame timing, and recovery status.</summary>
     private void RefreshFrame(FrontendFrame frame)
     {
-        RefreshDisplay(frame);
+        RefreshDisplay();
         RefreshRoomIdentity();
         if (frameTimings.TryTakeSnapshot(Stopwatch.GetTimestamp(), out FrameTimingSnapshot timing))
         {
@@ -731,67 +727,29 @@ public sealed class PlayableGameControl : UserControl
         frameTimings.Reset(Stopwatch.GetTimestamp());
     }
 
-    /// <summary>
-    /// Publishes both a human label and the cartridge's exact room/state addresses in the
-    /// window caption. The pointer is the durable identifier: labels are debugger sugar and
-    /// deliberately fall back to "Room" instead of pretending every bank-$8F record has
-    /// already been named by the translation.
-    /// </summary>
+    /// <summary>Publishes the active room's name, logical identity and selected state in the window caption.</summary>
     private void RefreshRoomIdentity()
     {
-        ushort? roomPointer = game.GameplayActiveRoomPointer;
-        if (roomPointer == displayedRoomPointer)
+        RoomHeaderDefinition? room = game.GameplayActiveRoom;
+        if (room == displayedRoom)
             return;
-        displayedRoomPointer = roomPointer;
+        displayedRoom = room;
 
         Form? host = FindForm();
         if (host is null)
             return;
-        if (roomPointer is not ushort pointer)
+        if (room is null)
         {
             host.Text = "Super Metroid C#";
             return;
         }
 
-        string name = GetKnownRoomName(pointer);
-        ushort state = game.GameplayActiveRoomStatePointer
-            ?? throw new InvalidOperationException(
-                $"Room $8F:{pointer:X4} has no selected room-state pointer.");
+        CartridgeRoomState state = game.GameplayActiveRoomState
+            ?? throw new InvalidOperationException($"Room {room.Name} has no selected room state.");
         RoomIdentity identity = game.GameplayActiveRoomIdentity
-            ?? throw new InvalidOperationException(
-                $"Room $8F:{pointer:X4} has no logical room identity.");
-        host.Text =
-            $"Super Metroid C# — RoomId: {identity} — {name} " +
-            $"[$8F:{pointer:X4}, state $8F:{state:X4}]";
+            ?? throw new InvalidOperationException($"Room {room.Name} has no logical room identity.");
+        host.Text = $"Super Metroid C# — RoomId: {identity} — {room.Name} [state {state.Name}]";
     }
-
-    /// <summary>
-    /// Caption names for the practical Ceres-to-Bombs playthrough slice. This is a partial
-    /// label table over all 262 room headers: unnamed rooms remain fully reportable by
-    /// address in the caption, so extending the table never gates gameplay.
-    /// </summary>
-    private static readonly FrozenDictionary<ushort, string> KnownRoomNames = new Dictionary<ushort, string>
-    {
-        [RoomHeaderPointers.LandingSite] = "Landing Site",
-        [RoomHeaderPointers.ParlorAndAlcatraz] = "Parlor and Alcatraz",
-        [RoomHeaderPointers.Climb] = "Climb",
-        [RoomHeaderPointers.PitRoom] = "Pit Room",
-        [RoomHeaderPointers.BombTorizoRoom] = "Bomb Torizo Room",
-        [RoomHeaderPointers.Flyway] = "Flyway",
-        [RoomHeaderPointers.MorphBallRoom] = "Morph Ball Room",
-        [RoomHeaderPointers.ConstructionZone] = "Construction Zone",
-        [RoomHeaderPointers.BlueBrinstarEnergyTankRoom] = "Blue Brinstar Energy Tank Room",
-        [RoomHeaderPointers.CeresElevatorShaft] = "Ceres Elevator Shaft",
-        [RoomHeaderPointers.CeresFallingTileRoom] = "Ceres Falling Tile Room",
-        [RoomHeaderPointers.CeresMagnetStairs] = "Ceres Magnet Stairs",
-        [RoomHeaderPointers.CeresDeadScientistRoom] = "Ceres Dead Scientist Room",
-        [RoomHeaderPointers.CeresFinalHallway] = "Ceres Final Hallway",
-        [RoomHeaderPointers.CeresRidleyRoom] = "Ceres Ridley Room",
-    }.ToFrozenDictionary();
-
-    /// <summary>Uses a known playthrough label when available and a generic room label otherwise.</summary>
-    private static string GetKnownRoomName(ushort roomPointer) =>
-        KnownRoomNames.TryGetValue(roomPointer, out string? name) ? name : "Room";
 
     /// <summary>Merges keyboard and gamepad into one filtered cartridge-format input word.</summary>
     private SnesButton BuildControllerWord()
@@ -1077,14 +1035,13 @@ public sealed class PlayableGameControl : UserControl
         worker.Publish(packet);
     }
 
-    /// <summary>Renders a retained scene or copies frontend pixels into the software canvas.</summary>
-    private void RefreshDisplay(FrontendFrame frame)
+    /// <summary>Renders the retained scene into the software canvas.</summary>
+    private void RefreshDisplay()
     {
         if (gpuWorker is not null) return;
-        var pixels = pendingDisplay is { } packet
-            ? SoftwareFrameSnapshotRenderer.Render(packet)
-            : frame.Pixels;
-        canvas.ReplaceFrame(new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), pixels);
+        RenderFrameSnapshot packet = pendingDisplay
+            ?? throw new InvalidOperationException("The software canvas requires a captured scene.");
+        canvas.ReplaceFrame(new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), SoftwareFrameSnapshotRenderer.Render(packet));
     }
 
     /// <summary>Await before destroying the form/child HWND; never synchronously wait on the UI thread.</summary>

@@ -18,7 +18,6 @@ internal static class BabyMetroidDeathCryVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Baby Metroid death-cry palette frames")]
     internal static int VerifyBabyMetroidDeathCry()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         var installation = RepositoryInstallation.Installation;
@@ -33,12 +32,12 @@ internal static class BabyMetroidDeathCryVerification
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         var samus = new SamusState();
         Action<MotherBrainEnemyState, BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
-        apply(state, baby.Step(bus, samus, sequence, HeadOf(sequence)));
+        apply(state, baby.Step(samus, sequence, HeadOf(sequence)));
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "The live final charge does not emit a death cry early");
         for (int index = 0; index < 256; index++)
             AssertEqual((ushort)(index + 1), cgram.Colors[index], "Live final charge preserves room colors");
         baby.ApplyMotherBrainOnionRingHit(80);
-        var fatal = baby.Step(bus, samus, sequence, HeadOf(sequence));
+        var fatal = baby.Step(samus, sequence, HeadOf(sequence));
         AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, fatal.PhaseAfter, "Fatal hit enters native shake phase");
         apply(state, fatal);
         for (int index = 0; index < 256; index++)
@@ -52,13 +51,13 @@ internal static class BabyMetroidDeathCryVerification
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.BeginEnemySoundRequestFrame();
-            apply(state, baby.Step(bus, samus, sequence, HeadOf(sequence)));
+            apply(state, baby.Step(samus, sequence, HeadOf(sequence)));
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "Fatal shake does not replay the death cry");
         }
         baby.Phase = BabyMetroidCutscenePhase.FinalCutscene;
         for (int frame = 0; frame < 7; frame++)
         {
-            var recovery = baby.Step(bus, samus, sequence, HeadOf(sequence));
+            var recovery = baby.Step(samus, sequence, HeadOf(sequence));
             AssertEqual((ushort)frame, (recovery.BackgroundPaletteTransfer ?? throw new InvalidOperationException("Verification requires recovery.BackgroundPaletteTransfer.")).PaletteIndex, "Recovery publishes each native light row");
             apply(state, recovery);
             for (int index = 0; index < 256; index++)

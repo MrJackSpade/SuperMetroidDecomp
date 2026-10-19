@@ -12,5 +12,5 @@ internal static class SbugAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params SbugProgram[] programs) =>
         programs.SelectMany(program => SbugAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => SbugFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => SbugFrameToolingDefinitions.Spritemap(step.Frame));
 }

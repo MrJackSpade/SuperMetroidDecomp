@@ -22,19 +22,19 @@ internal static class SpcFixedPoint
     private const int NineBitSign = 0x100;
 
     /// <summary>The whole byte of an 8.8 word: a volume, pan position, note number or tempo.</summary>
-    public static byte Whole(ushort value) => unchecked((byte)(SnesLittleEndian.HighByte(value)));
+    public static byte Whole(int value) => unchecked((byte)(value >> FractionBits));
 
     /// <summary>The fraction byte of an 8.8 word.</summary>
-    public static byte Fraction(ushort value) => unchecked((byte)value);
+    public static byte Fraction(int value) => unchecked((byte)value);
 
     /// <summary>The 8.8 word with whole part <paramref name="whole"/> and no fraction.</summary>
     public static ushort FromWhole(int whole) => unchecked((ushort)(SnesEightEight.FromWhole(whole)));
 
     /// <summary>The 8.8 word with whole part <paramref name="whole"/> and fraction <paramref name="fraction"/>.</summary>
-    public static ushort Compose(int whole, byte fraction) => unchecked((ushort)((SnesEightEight.FromWhole(whole)) | fraction));
+    public static ushort Compose(int whole, int fraction) => unchecked((ushort)((SnesEightEight.FromWhole(whole)) | fraction));
 
     /// <summary>Replaces only the whole byte, as the driver's single-byte stores to a word's high half do.</summary>
-    public static ushort WithWhole(ushort value, byte whole) => Compose(whole, Fraction(value));
+    public static ushort WithWhole(int value, int whole) => Compose(whole, Fraction(value));
 
     /// <summary>
     /// <paramref name="value"/> scaled by <paramref name="fraction"/>/256: the whole part of their product, as
@@ -47,7 +47,7 @@ internal static class SpcFixedPoint
     /// the magnitude's quotient becomes the whole byte and the remainder's fraction the low byte. A zero tick count
     /// saturates both bytes, as the native divide does.
     /// </summary>
-    public static ushort DivideSigned(int distance, byte ticks)
+    public static ushort DivideSigned(int distance, int ticks)
     {
         bool negative = (distance & NineBitSign) != 0;
         int magnitude = negative ? -distance : distance;

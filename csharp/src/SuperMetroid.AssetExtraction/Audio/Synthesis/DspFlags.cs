@@ -9,6 +9,9 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 [DspRegisterBoundary("typed controls: FLG control bits and noise rate share one register")]
 internal readonly record struct DspFlags(byte Value)
 {
+    /// <summary>The FLG byte the driver's flag copy holds; a value outside a byte is a managed-player defect.</summary>
+    public static DspFlags FromDriverByte(int value) => new(checked((byte)value));
+
     /// <summary>The noise rate an instrument's flag byte selects (its low five bits).</summary>
-    public static int NoiseRateOf(byte instrumentFlags) => instrumentFlags & SnesDspRegisterLayout.Fields.NoiseRateMask;
+    public static int NoiseRateOf(int instrumentFlags) => instrumentFlags & SnesDspRegisterLayout.Fields.NoiseRateMask;
 }

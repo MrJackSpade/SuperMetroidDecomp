@@ -38,7 +38,7 @@ internal static void VerifyRandomNumberGeneratorExhaustively()
     {
         var state = new Bank80SystemState((ushort)seed);
         ushort expected = ReferenceNextRandom((ushort)seed);
-        ushort actual = state.NextRandom();
+        int actual = state.NextRandom();
         AssertEqual(expected, actual, $"RNG seed ${seed:X4}");
         AssertEqual(actual, state.RandomNumber, $"RNG stored state for seed ${seed:X4}");
     }
@@ -53,13 +53,13 @@ internal static void VerifyRandomNumberGeneratorExhaustively()
 /// </summary>
 internal static void VerifyKnownRandomSequence()
 {
-    ushort[] expected = [
+    int[] expected = [
         0x02f6, 0x0fdf, 0x506c, 0x932d,
         0xe0f2, 0x65cb, 0xfe08, 0xf739,
     ];
 
     var state = new Bank80SystemState();
-    ushort[] actual = Enumerable.Range(0, expected.Length)
+    int[] actual = Enumerable.Range(0, expected.Length)
         .Select(_ => state.NextRandom())
         .ToArray();
     AssertSequenceEqual(expected, actual, "known RNG sequence");
@@ -173,7 +173,7 @@ internal static void VerifyBossBitfield()
         () => state.SetBossBits(0, (BossBits)0x80),
         "unnamed boss bit rejected by typed API");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => BossBitMasks.FromCartridge(0x80, "constructed selector"),
+        () => BossBitMasksConstants.FromCartridge(0x80, "constructed selector"),
         "unnamed cartridge boss mask rejected");
     Console.WriteLine("  Boss state: all eight area bytes preserve independent masks.");
 }
@@ -200,34 +200,25 @@ internal static void VerifyMultiplicationExhaustively()
 }
 
 /// <summary>
-/// Verifies both VMAIN modes used by the queue, packed-tail accounting, source-bank wrap,
-/// ordered overwrite behavior, and the NMI consumer's unconditional queue reset.
+/// Verifies both VMAIN modes used by the queue, packed-tail accounting, ordered overwrite behavior, the drain's
+/// refusal of a native-source record no installed artwork resolves, and the NMI consumer's unconditional queue reset.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-[CpuBusBoundary("exact bus test: VRAM queue and channel DMA A-bus source reads that wrap within WRAM bank $7E")]
+[CpuBusBoundary("exact bus test: a full DAS-zero channel DMA's A-bus source reads that wrap within WRAM bank $7E")]
 internal static void VerifyVramWriteQueue()
 {
-    var bus = new TestAddressSpace();
     var vram = new SnesVram();
     var queue = new VramWriteQueue();
 
-    bus.WriteBytes(0x7e1000, [0x10, 0x11, 0x12, 0x13]);
-    queue.Enqueue(sizeInBytes: 4, sourceAddress: 0x7e1000, destination: VramDmaDestination.FromNative(0x0001));
+    queue.EnqueueWords(sizeInBytes: 4, nativeSourceAddress: 0x7e1000, [0x1110, 0x1312], VramDmaDestination.FromNative(0x0001));
     AssertEqual(VramWriteQueue.EntryByteCount, queue.TailInBytes, "one packed VRAM queue tail");
 
     // Setting destination bit 15 selects VMAIN=$81. The physical start remains word one,
-    // but the next source pair lands 32 words later at word $0021.
-    bus.WriteBytes(0x7e2000, [0x20, 0x21, 0x22, 0x23]);
-    queue.Enqueue(sizeInBytes: 4, sourceAddress: 0x7e2000, destination: VramDmaDestination.FromNative(0x8001));
+    // but the next word lands 32 words later at word $0021.
+    queue.EnqueueWords(sizeInBytes: 4, nativeSourceAddress: 0x7e2000, [0x2120, 0x2322], VramDmaDestination.FromNative(0x8001));
     AssertEqual(VramWriteQueue.EntryByteCount * 2, queue.TailInBytes, "two packed VRAM queue tails");
 
-    // This transfer crosses $7E:FFFF. DMA keeps bank $7E fixed, so its second byte
-    // comes from $7E:0000 rather than the linear address $7F:0000.
-    bus.WriteByte(0x7effff, 0xa0);
-    bus.WriteByte(0x7e0000, 0xa1);
-    queue.Enqueue(sizeInBytes: 2, sourceAddress: 0x7effff, destination: VramDmaDestination.FromNative(0x0100));
-
-    queue.DrainTo(vram, ReferenceMutableMemory.From(bus));
+    queue.DrainTo(vram);
 
     // The later column transfer intentionally overwrites the first pair at word one. This
     // proves insertion order is preserved, while word two retains the ordinary transfer.
@@ -237,18 +228,28 @@ internal static void VerifyVramWriteQueue()
     AssertEqual(0x13, vram.ReadByte(0x0002 * 2 + 1), "linear transfer high byte");
     AssertEqual(0x22, vram.ReadByte(0x0021 * 2), "column transfer increments 32 words");
     AssertEqual(0x23, vram.ReadByte(0x0021 * 2 + 1), "column transfer second high byte");
-    AssertEqual(0xa0, vram.ReadByte(0x0100 * 2), "bank-wrap transfer first byte");
-    AssertEqual(0xa1, vram.ReadByte(0x0100 * 2 + 1), "bank-wrap transfer wrapped byte");
+
+    // A native-source record names cartridge artwork; without installed artwork that resolves it, the drain fails
+    // rather than reading memory.
+    var unresolved = new VramWriteQueue();
+    unresolved.Enqueue(sizeInBytes: 2, sourceAddress: 0x7e1000, destination: VramDmaDestination.FromNative(0x0100));
+    AssertThrows<InvalidOperationException>(() => unresolved.DrainTo(vram), "an unresolved native-source record fails at the drain");
 
     AssertEqual(0, queue.TailInBytes, "drain clears packed tail");
     AssertEqual(0, queue.Entries.Count, "drain clears typed records");
     AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(0, 0x808000, VramDmaDestination.FromNative(0)), "zero-size VRAM entry rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(1, 0x1000000, VramDmaDestination.FromNative(0)), "25-bit VRAM source rejected");
+    AssertEqual(VramWriteEntry.MaximumSizeInBytes, new VramWriteEntry(VramWriteEntry.MaximumSizeInBytes, 0, VramDmaDestination.FromNative(0)).SizeInBytes,
+        "the largest sixteen-bit DMA byte count is a queued size");
+    AssertThrows<ArgumentOutOfRangeException>(() => new VramWriteEntry(VramWriteEntry.MaximumSizeInBytes + 1, 0, VramDmaDestination.FromNative(0)),
+        "a queued size beyond the sixteen-bit DMA byte count is rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => new VramWriteEntry(-1, 0, VramDmaDestination.FromNative(0)), "a negative queued size is rejected");
 
     // A direct channel DAS of zero is not the queue's zero-word terminator. Hardware
     // decrements the sixteen-bit counter through all $10000 values, while A1T and VMADD
     // wrap independently inside their fixed banks/address widths. Start at xx:FFFE so the
     // first four bytes prove the A-bus wrap, then mark the final source pair as well.
+    var bus = new TestAddressSpace();
     var fullDmaVram = new SnesVram();
     var dirtyVram = new byte[SnesVram.ByteCount];
     Array.Fill(dirtyVram, (byte)0x7e);
@@ -367,7 +368,7 @@ internal static void VerifyEscapeTimerStateMachine()
     motherBrain.RequestMotherBrainStart();
     motherBrain.Process(0);
     AssertEqual(0x03, motherBrain.Minutes.Raw, "Mother Brain starts at three minutes");
-    AssertEqual(0x8003, motherBrain.RawStatus, "active timer retains status high flag");
+    AssertTrue(motherBrain.IsActive && motherBrain.State == EscapeTimerState.InitialDelay, "a started timer runs from its initial delay");
 
     Console.WriteLine("  Timer: initialization, animation, BCD borrow, and expiration agree.");
 }
@@ -494,7 +495,7 @@ internal static void VerifyFrameRuntime()
 
     // Consume the lent missile exactly as the cartridge firing routine does. Completion
     // must keep it at one instead of allowing the native zero-ammo auto-cancel branch.
-    infiniteAmmoSamus.Missiles = NativeWordCounter.Decrement(infiniteAmmoSamus.Missiles).Value;
+    infiniteAmmoSamus.Missiles--;
     ammoGuard.Complete(infiniteAmmoSamus);
     AssertEqual((ushort)1, infiniteAmmoSamus.Missiles,
         "infinite ammo preserves selection after the final missile");
@@ -516,18 +517,17 @@ internal static void VerifyFrameRuntime()
         "idempotent loan reconciliation preserves ammunition collected during the frame");
 
     var bus = new TestAddressSpace();
-    SeedRuntimeNmiDmaSource(bus);
-    var runtime = CreateRetailRuntimeFixture(bus);
-    runtime.VramWrites.Enqueue(2, 0x7e1234, VramDmaDestination.FromNative(0x0020));
+    var runtime = CreateRetailRuntimeFixture();
+    runtime.VramWrites.EnqueueWords(2, 0x7e1234, [0xfeca], VramDmaDestination.FromNative(0x0020));
     runtime.EscapeTimer.RequestCeresStart();
 
     // `$89:ACC3` writes Mode 7 shadow registers during room main. They must become visible
     // only when an accepted NMI reaches `$80:95A7`, at the same boundary as displayed OAM.
-    var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, 0xfff0, new Position16<RoomPixels>(0x0080, 0x03f0));
+    var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, -0x0010, new Position16<RoomPixels>(0x0080, 0x03f0));
     runtime.Display.ActiveSamusMode7Transform = firstMode7;
 
     runtime.StepFrame(SnesButton.Start);
-    AssertEqual(1, runtime.Nmi.NmiFrameCounter, "first accepted runtime frame");
+    AssertEqual(1, runtime.Clock.Counter, "first accepted runtime frame");
     AssertEqual(SnesButton.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
     AssertEqual(EscapeTimerState.InitialDelay, runtime.EscapeTimer.State, "runtime dispatches timer after NMI");
     AssertEqual(0xca, runtime.Vram.ReadByte(0x40), "runtime NMI drains VRAM low byte");
@@ -536,43 +536,31 @@ internal static void VerifyFrameRuntime()
     AssertEqual(firstMode7, runtime.Display.DisplayedSamusMode7Transform,
         "accepted NMI publishes Mode 7 shadow registers");
 
-    var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, 0xffe0, new Position16<RoomPixels>(0x0080, 0x03f0));
+    var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, -0x0020, new Position16<RoomPixels>(0x0080, 0x03f0));
     runtime.Display.ActiveSamusMode7Transform = secondMode7;
     runtime.StepFrame(SnesButton.Start);
     AssertEqual(SnesButton.None, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");
-    AssertEqual(2, runtime.Nmi.NmiFrameCounter, "accepted NMI counter advances twice");
-    AssertEqual((ulong)2, runtime.NmiHandler.CompletedGameplayAudioPublication,
+    AssertEqual(2, runtime.Clock.Counter, "accepted NMI counter advances twice");
+    AssertEqual((ulong)2, runtime.FrameBoundary.CompletedGameplayAudioPublication,
         "complete gameplay passes publish distinct audio generations");
     AssertEqual(secondMode7, runtime.Display.DisplayedSamusMode7Transform,
         "following accepted NMI publishes the changed Mode 7 matrix");
-
-    // A lag NMI must not sample the changed input or advance accepted-frame state.
-    var laggedMode7 = new SamusMode7Transform(0x00d0, 0x0030, 0xffd0, new Position16<RoomPixels>(0x0080, 0x03f0));
-    runtime.Display.ActiveSamusMode7Transform = laggedMode7;
-    runtime.NmiHandler.RunNmi(SnesButton.A, mainLoopRequestedNmi: false);
-    AssertEqual(SnesButton.Start, runtime.Controller1.Current, "lag NMI skips controller read");
-    AssertEqual(2, runtime.Nmi.NmiFrameCounter, "lag NMI skips accepted frame counter");
-    AssertEqual(1, runtime.Nmi.NmiLagCounter, "lag NMI increments consecutive lag");
-    AssertEqual(1, runtime.Nmi.MaximumNmiLag, "lag NMI records maximum lag");
-    AssertEqual(3, runtime.Nmi.NmiCounterIncludingLag, "all-NMI counter includes lag");
-    AssertEqual(secondMode7, runtime.Display.DisplayedSamusMode7Transform,
-        "lag NMI leaves displayed Mode 7 registers untouched");
 
     // Door/pause frontend coroutines accept NMIs without running the gameplay owner list.
     // They must not make the frontend consume the preceding enemy/PLM audio publication
     // again, or a door waiting for unread SFX entries can refill its own queue forever.
     runtime.RunBlankGameplayFrame(controllerInput: 0);
-    AssertEqual((ulong)2, runtime.NmiHandler.CompletedGameplayAudioPublication,
+    AssertEqual((ulong)2, runtime.FrameBoundary.CompletedGameplayAudioPublication,
         "NMI-only frontend frame does not republish gameplay audio");
 
     Console.WriteLine("  Runtime: frame seam, NMI order, and lag accounting agree.");
 }
 
 /// <summary>
-/// Checks FastROM/slow-bank LoROM mirrors, high-bank offsets, WRAM mirrors, SRAM mirrors,
+/// Checks FastROM/slow-bank LoROM mirrors, high-bank offsets, WRAM mirrors, unmapped SRAM windows,
 /// and deliberate failures for unimplemented hardware and ROM writes.
 /// </summary>
-[CpuBusBoundary("exact bus test: LoROM, WRAM and SRAM mapping, mirror and rejection behaviour of the address-space implementation")]
+[CpuBusBoundary("exact bus test: LoROM and WRAM mapping, unmapped SRAM, mirror and rejection behaviour of the address-space implementation")]
 internal static void VerifySuperMetroidAddressSpace()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -619,17 +607,10 @@ internal static void VerifySuperMetroidAddressSpace()
         () => mutable.ReadWorkRamByte(0x002000),
         "typed WRAM read rejects hardware registers outside the mirror");
 
-    bus.WriteByte(0x700123, 0x77);
-    AssertEqual(0x77, bus.ReadSaveRamByte(0x702123), "8 KiB SRAM offset mirror");
-    AssertEqual(0x77, bus.ReadSaveRamByte(0xf00123), "8 KiB SRAM bank mirror");
-    AssertEqual(0x77, mutable.ReadSaveRamByte(0x702123),
-        "typed SRAM read retains the physical 8 KiB mirror");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => mutable.ReadSaveRamByte(0x7e1234),
-        "typed SRAM read rejects WRAM");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => mutable.ReadSaveRamByte(0x708000),
-        "typed SRAM read rejects the bank's cartridge upper window");
+    // Saves are SaveSlotStore state: the SRAM windows are outside the runtime address map.
+    AssertThrows<InvalidOperationException>(() => bus.WriteByte(0x700123, 0x77), "SRAM window writes are unmapped");
+    AssertEqual(SnesDmaSourceKind.Unmapped, SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(0x700123)),
+        "DMA cannot read an SRAM window");
 
     var noCartridge = SuperMetroidAddressSpace.CreateWithoutCartridge();
     noCartridge.WriteByte(0x7e1234, 0x98);
@@ -645,11 +626,10 @@ internal static void VerifySuperMetroidAddressSpace()
     AssertEqual(SnesDmaSourceKind.Unmapped, SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(0x004000)),
         "unimplemented register/expansion window is outside the runtime address map");
     AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadWorkRamByte(0x004000), "unimplemented register/expansion read rejected as WRAM");
-    AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadSaveRamByte(0x004000), "unimplemented register/expansion read rejected as SRAM");
     AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadCartridgeByte(0x004000), "unimplemented register/expansion read rejected as ROM");
     AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(0x800000), "lower LoROM offset rejected");
 
-    Console.WriteLine("  Bus: LoROM, WRAM, SRAM mirrors and protection agree.");
+    Console.WriteLine("  Bus: LoROM, WRAM mirrors, unmapped SRAM and protection agree.");
 }
 
 /// <summary>
@@ -670,21 +650,21 @@ internal static void VerifyOamSpritemapPacking()
     DrawImportedSpritemap(bus, oam, 0x808000, origin: new(0x00fe, 0x0001), paletteBits: 0x0a00);
 
     OamEntry first = oam.GetEntry(0);
-    AssertEqual(0x103, first.X, "OAM first 9-bit X");
-    AssertEqual(0xff, first.Y, "OAM negative Y wraps above screen");
+    AssertEqual(0x103, first.Position.X, "OAM first 9-bit X");
+    AssertEqual(0xff, first.Position.Y, "OAM negative Y wraps above screen");
     AssertTrue(first.IsLarge, "OAM size bit extracted from encoded X word");
     AssertEqual(5, first.Palette, "OAM caller palette replaces source palette");
     AssertEqual(0x0aa, first.TileNumber, "OAM tile number retained");
 
     OamEntry second = oam.GetEntry(1);
-    AssertEqual(0x0ee, second.X, "OAM signed 9-bit negative X offset");
-    AssertEqual(0x21, second.Y, "OAM positive Y offset");
+    AssertEqual(0x0ee, second.Position.X, "OAM signed 9-bit negative X offset");
+    AssertEqual(0x21, second.Position.Y, "OAM positive Y offset");
     AssertTrue(!second.IsLarge, "OAM second size bit clear");
     AssertEqual(0x03, oam.HighTable[0], "OAM four-sprite shared high byte");
 
     oam.FinalizeFrame();
     AssertEqual(2, oam.LastFinalizedSpriteCount, "OAM finalized used count");
-    AssertEqual(0xf0, oam.GetEntry(2).Y, "OAM first unused sprite parked offscreen");
+    AssertEqual(0xf0, oam.GetEntry(2).Position.Y, "OAM first unused sprite parked offscreen");
     AssertEqual(0, oam.NextByteOffset, "OAM finalization resets stack pointer");
     AssertEqual(OamBuffer.UploadByteCount, oam.CreateUploadPayload().Length, "OAM DMA payload size");
 
@@ -699,8 +679,8 @@ internal static void VerifyOamSpritemapPacking()
     oam.BeginFrame();
     DrawImportedSpritemap(bus, oam, 0x808100, origin: new(0, 0x00c0), paletteBits: 0);
     OamEntry clipped = oam.GetEntry(0);
-    AssertEqual(0x180, clipped.X, "vertically clipped OAM X park position");
-    AssertEqual(0xe0, clipped.Y, "vertically clipped OAM Y park position");
+    AssertEqual(0x180, clipped.Position.X, "vertically clipped OAM X park position");
+    AssertEqual(0xe0, clipped.Position.Y, "vertically clipped OAM Y park position");
 
     // Enemy projectiles use the distinct bank-$8D loader at `$81:8C0A/$81:8C7F`.
     // The first entry is large/+5 X/-2 Y; the second is small/-16 X/+2 Y. Source
@@ -715,15 +695,15 @@ internal static void VerifyOamSpritemapPacking()
         graphicsIndex: 0x0a04,
         originYIsOnScreen: true);
     OamEntry enemyFirst = oam.GetEntry(0);
-    AssertEqual(0x103, enemyFirst.X, "enemy-projectile complete encoded X addition");
-    AssertEqual(0xf0, enemyFirst.Y, "on-screen origin hides uncrossed negative Y");
+    AssertEqual(0x103, enemyFirst.Position.X, "enemy-projectile complete encoded X addition");
+    AssertEqual(0xf0, enemyFirst.Position.Y, "on-screen origin hides uncrossed negative Y");
     AssertTrue(enemyFirst.IsLarge, "enemy-projectile size comes from encoded X bit fifteen");
     AssertEqual(0x013, enemyFirst.TileNumber, "enemy-projectile base tile uses addition");
     AssertEqual(5, enemyFirst.Palette, "enemy-projectile graphics palette OR");
     AssertEqual(2, enemyFirst.Priority, "enemy-projectile source priority survives palette OR");
     OamEntry enemySecond = oam.GetEntry(1);
-    AssertEqual(0x0ee, enemySecond.X, "enemy-projectile signed nine-bit negative X");
-    AssertEqual(0x03, enemySecond.Y, "on-screen origin retains uncrossed positive Y");
+    AssertEqual(0x0ee, enemySecond.Position.X, "enemy-projectile signed nine-bit negative X");
+    AssertEqual(0x03, enemySecond.Position.Y, "on-screen origin retains uncrossed positive Y");
     AssertTrue(!enemySecond.IsLarge, "enemy-projectile small size bit");
     AssertEqual(0x002, enemySecond.TileNumber, "enemy-projectile ADC tile carry");
 
@@ -736,9 +716,9 @@ internal static void VerifyOamSpritemapPacking()
         origin: new(0, 0xffff),
         graphicsIndex: 0,
         originYIsOnScreen: false);
-    AssertEqual(0xf0, oam.GetEntry(0).Y,
+    AssertEqual(0xf0, oam.GetEntry(0).Position.Y,
         "off-screen origin hides negative piece that remains above screen");
-    AssertEqual(0x01, oam.GetEntry(1).Y,
+    AssertEqual(0x01, oam.GetEntry(1).Position.Y,
         "off-screen origin admits positive piece crossing into screen");
 
     // Ordinary enemies use a third, deliberately separate common writer at $81:8AB8.
@@ -748,17 +728,17 @@ internal static void VerifyOamSpritemapPacking()
     // carry into priority is observable rather than masked away by this fixture.
     SeedTwoEntryRoomEnemySpritemap(bus);
     oam.BeginFrame();
-    DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0x00fe, 0x0001), PaletteBits = 0x0e00, BaseTileIndex = 4 });
+    DrawImportedEnemySpritemap(bus, oam, new NativeEnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0x00fe, 0x0001), PaletteBits = 0x0e00, BaseTileIndex = 4 });
     OamEntry roomEnemyFirst = oam.GetEntry(0);
-    AssertEqual(0x103, roomEnemyFirst.X, "room-enemy complete encoded X addition");
-    AssertEqual(0xff, roomEnemyFirst.Y, "room-enemy negative Y wraps without parking");
+    AssertEqual(0x103, roomEnemyFirst.Position.X, "room-enemy complete encoded X addition");
+    AssertEqual(0xff, roomEnemyFirst.Position.Y, "room-enemy negative Y wraps without parking");
     AssertTrue(roomEnemyFirst.IsLarge, "room-enemy size comes from encoded X bit fifteen");
     AssertEqual(0x014, roomEnemyFirst.TileNumber, "room-enemy graphics-set tile-base addition");
     AssertEqual(7, roomEnemyFirst.Palette, "room-enemy selected OBJ palette OR");
     AssertEqual(2, roomEnemyFirst.Priority, "room-enemy source priority survives palette OR");
     OamEntry roomEnemySecond = oam.GetEntry(1);
-    AssertEqual(0x0ee, roomEnemySecond.X, "room-enemy signed nine-bit negative X");
-    AssertEqual(0x03, roomEnemySecond.Y, "room-enemy positive Y offset");
+    AssertEqual(0x0ee, roomEnemySecond.Position.X, "room-enemy signed nine-bit negative X");
+    AssertEqual(0x03, roomEnemySecond.Position.Y, "room-enemy positive Y offset");
     AssertEqual(0x002, roomEnemySecond.TileNumber, "room-enemy tile overflow wraps at nine bits");
     AssertEqual(2, roomEnemySecond.Priority,
         "room-enemy tile-base ADC carry reaches the attribute high byte");
@@ -768,17 +748,17 @@ internal static void VerifyOamSpritemapPacking()
     // boundary rules: an on-screen origin parks a negative piece that failed to carry,
     // while an off-screen origin admits only the positive piece that did carry to Y=$01.
     oam.BeginFrame();
-    DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0, 0x0001), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
-    AssertEqual(0xf0, oam.GetEntry(0).Y,
+    DrawImportedEnemySpritemap(bus, oam, new NativeEnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0, 0x0001), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+    AssertEqual(0xf0, oam.GetEntry(0).Position.Y,
         "extended enemy on-screen origin parks uncrossed negative piece");
-    AssertEqual(0x03, oam.GetEntry(1).Y,
+    AssertEqual(0x03, oam.GetEntry(1).Position.Y,
         "extended enemy on-screen origin retains positive piece");
 
     oam.BeginFrame();
-    DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0, 0xffff), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = false });
-    AssertEqual(0xf0, oam.GetEntry(0).Y,
+    DrawImportedEnemySpritemap(bus, oam, new NativeEnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0, 0xffff), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = false });
+    AssertEqual(0xf0, oam.GetEntry(0).Position.Y,
         "extended enemy off-screen origin parks negative piece that remains above screen");
-    AssertEqual(0x01, oam.GetEntry(1).Y,
+    AssertEqual(0x01, oam.GetEntry(1).Position.Y,
         "extended enemy off-screen origin admits positive piece crossing onto screen");
 
     Console.WriteLine(
@@ -787,13 +767,6 @@ internal static void VerifyOamSpritemapPacking()
 
 // Fixes the first Samus slice to the retail pose-$01 pointer chain and independently
 // checks palette placement, split tile DMA, position math, and native OAM attributes.
-
-/// <summary>Places the two bytes the runtime's queued NMI VRAM DMA reads from the $7E:1234 A-bus source.</summary>
-[CpuBusBoundary("exact bus test: WRAM A-bus source bytes for the runtime NMI VRAM DMA drain")]
-static void SeedRuntimeNmiDmaSource(TestAddressSpace bus)
-{
-    bus.WriteBytes(0x7e1234, [0xca, 0xfe]);
-}
 
 /// <summary>Seeds a two-part bank-$80 spritemap with distinct OAM positions and attributes.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry common spritemap at $80:8000")]
@@ -870,4 +843,12 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
         Suite(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording());
         return 0;
     }
+
+/// <summary>Runs the frame runtime's NMI, controller, Mode 7 and VRAM-drain checks.</summary>
+[VerificationCommand("--frame-runtime")]
+internal static int FrameRuntimeCommand()
+{
+    Suite(nameof(VerifyFrameRuntime), () => VerifyFrameRuntime());
+    return 0;
+}
 }

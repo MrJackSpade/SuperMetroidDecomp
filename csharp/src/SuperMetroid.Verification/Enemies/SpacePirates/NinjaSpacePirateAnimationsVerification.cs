@@ -23,7 +23,13 @@ internal static class NinjaSpacePirateAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => cue.Value,
+                    'V' => cue.Kind switch
+                    {
+                        NinjaSpacePirateCueKind.PlaySound => (cue.Sound ?? throw new InvalidOperationException($"{at}: a sound cue carries no sound.")).Value,
+                        NinjaSpacePirateCueKind.SetPalette => (cue.Palette ?? throw new InvalidOperationException($"{at}: a palette cue carries no palette.")).PaletteBits,
+                        NinjaSpacePirateCueKind.ThrowClaw => cue.ThrowsRight ? (ushort)1 : (ushort)0,
+                        _ => throw new InvalidOperationException($"{at}: {cue.Kind} has no word operand."),
+                    },
                     'S' => unchecked((ushort)cue.Offset),
                     'Y' => unchecked((ushort)cue.OffsetY),
                     'E' => (ushort)cue.Function,

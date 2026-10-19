@@ -56,11 +56,4 @@ public sealed class ObjCharacterUploads
                 $"A VRAM upload to word ${destination.Word:X4} reaches the OBJ characters with increment {destination.WordIncrement}; only linear uploads record characters.");
         Record(shownStart, shownEnd - shownStart, source, shownStart - uploadStart);
     }
-
-    /// <summary>Records the part of one queued native upload that lands in the OBJ character table.</summary>
-    /// <param name="encodedDestination">The upload's native VMADD/VMAIN destination.</param>
-    /// <param name="byteCount">Bytes uploaded.</param>
-    /// <param name="source">The owned artwork or memory bytes uploaded.</param>
-    internal void RecordQueuedUpload(ushort encodedDestination, int byteCount, ObjCharacterSource source) =>
-        RecordUpload(VramDmaDestination.FromNative(encodedDestination), byteCount, source);
 }

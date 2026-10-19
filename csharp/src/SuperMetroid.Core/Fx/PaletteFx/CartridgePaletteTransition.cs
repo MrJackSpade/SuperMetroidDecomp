@@ -39,7 +39,7 @@ internal sealed class CartridgePaletteTransition
         int transitionNumber = numerator.Numerator;
         if (transitionNumber > denominator + 1)
         {
-            numerator.Numerator = 0;
+            numerator.Reset();
             return true;
         }
 
@@ -58,7 +58,7 @@ internal sealed class CartridgePaletteTransition
                     palette.Write(index, CalculateColor(transitionNumber, current, goal));
             }
         }
-        numerator.Numerator = unchecked((ushort)(transitionNumber + 1));
+        numerator.Advance();
         return false;
     }
 

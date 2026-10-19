@@ -23,10 +23,9 @@ internal static class SamusStateAccess
         /// existing focused tests readable while all input-table exits share one native handler.
         /// </summary>
         internal bool TryApplySpinToNormalJumpFireTransition(
-            ISnesAddressSpace bus,
             RoomLevelData level,
             SamusPoseId targetPose,
-            ushort nmiFrameCounter,
+            int nmiFrameCounter,
             SnesButton controllerNewInput,
             RoomPlmSystem? plms = null)
         {
@@ -36,7 +35,7 @@ internal static class SamusStateAccess
                     $"Spin-fire compatibility route requires pose $13/$14, not ${(int)targetPose:X2}.");
             }
             return self.PoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(
-                bus,
+
                 level,
                 targetPose,
                 nmiFrameCounter,
@@ -48,7 +47,7 @@ internal static class SamusStateAccess
         /// Convenience debugger/test entry that performs both native phases: publishing the
         /// bank-$A0 timer-eight overlap direction, then consuming it through $90:DF99 and
         /// special command three $91:EE80. Live runtime code calls those phases on either
-        /// side of movement through <see cref="SamusPoseMetadata.PublishBombJumpDirection"/> and
+        /// side of movement through <see cref="SamusPoseMetadata.PublishBombJumpDirection(byte)"/> and
         /// <see cref="SamusPoseMetadata.TrySetupPublishedBombJump"/>.
         /// </summary>
         internal void RequestMorphedBombJump(byte direction)

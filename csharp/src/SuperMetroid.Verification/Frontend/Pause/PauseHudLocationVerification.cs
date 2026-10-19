@@ -22,7 +22,7 @@ internal static class PauseHudLocationVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -35,22 +35,22 @@ internal static class PauseHudLocationVerification
 
         foreach (byte phase in new byte[] { 0, 8 })
         {
-            runtime.Hud.UpdateMinimap(bus, runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(28, 1), RoomSize = new(0x90, 0x50), Samus = samus.Position.Whole, NmiFrameCounter = phase, PresentationMap = maps.Get(AreaId.Crateria) });
+            runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(28, 1), RoomSize = new(0x90, 0x50), Samus = samus.Position.Whole, NmiFrameCounter = phase, PresentationMap = maps.Get(AreaId.Crateria) });
             ushort center = runtime.Hud.Tiles[60];
             AssertEqual(phase == 0 ? 0xbc26 : 0xa826, center, "independent native minimap capture");
             AssertEqual(phase == 0 ? 7 : 2, (center >> 10) & 7,
                 "native $90:AB4A blink selects palette seven only in its on phase");
-            runtime.Hud.QueueUpload(bus, runtime.VramWrites);
-            runtime.NmiHandler.RunNmi(0, true);
-            var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = runtime.Vram });
+            runtime.Hud.QueueUpload(runtime.VramWrites);
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = runtime.Vram });
             var nativeVram = new SnesVram();
             nativeVram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(cart, 0x9ab200, 0x2000));
             nativeVram.LoadBytes(0xb000, runtime.Vram.Bytes.Slice(0xb000, 0x100));
             var native = SnesBgTilemapRenderer.Render2Bpp(nativeVram, expectedColors,
                 0x5800, 0x4000, 4, true, true);
-            var game = new SuperMetroidGame(bus);
-            game.runtime = runtime;
-            game.pauseMenu = pause;
+            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+            game.Session.runtime = runtime;
+            game.Session.pauseMenu = pause;
             game.GameState = SuperMetroidGameState.PausedB;
             for (int frame = 0; frame < 24; frame++)
             {

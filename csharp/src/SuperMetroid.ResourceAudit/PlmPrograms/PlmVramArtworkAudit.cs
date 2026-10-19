@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.ResourceAudit.Reports;
 
 namespace SuperMetroid.ResourceAudit.PlmPrograms;
 
@@ -21,15 +20,4 @@ internal static class PlmVramArtworkAudit
          CeresEscapeTileArtworkDefinitions.Contains(source, count) ||
          CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(source, count));
 
-    /// <summary>Reports missing provider, importer, or NMI source files so a
-    /// named ROM range alone cannot prove installed artwork ownership.</summary>
-    internal static void VerifySource(string root, PlmProgramAuditReport report)
-    {
-        // Includes the importer: a range merely named in Core must not count as
-        // installed if extraction, manifest admission or PNG loading was removed.
-        foreach (ReviewedSource source in PlmVramArtworkSourceContract.Sources)
-            if (!File.Exists(Path.Combine(root, source.Path)))
-                report.Findings.Add(new("unresolved-artwork-source", source.Path, 0,
-                    "PLM DMA provider/import/NMI routing source is missing."));
-    }
 }

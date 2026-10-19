@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.IntegrationVerification.Gameplay;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.Android;
@@ -40,8 +41,8 @@ internal static class ProjectileHostBindingVerification
             CheckFlareCompositions((ChargeFlareSpriteCatalog)(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions.")), installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
-            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions, installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple((GrappleTileAtlas)(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork.")), installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions.")), installation.LoadProjectiles().FlareCompositions);
             if (!ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions)) throw new InvalidDataException("State load lost current host projectile content.");
             CheckBeams((BeamTileCatalog)(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork.")), installation.LoadProjectiles().BeamTiles);
             CheckTrails((ProjectileTrailCatalog)(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork.")), installation.LoadProjectiles().Trails);
@@ -99,8 +100,8 @@ internal static class ProjectileHostBindingVerification
             CheckGrapple((GrappleTileAtlas)(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork.")), installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions((ChargeFlareSpriteCatalog)(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions.")), installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
-            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions, installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple((GrappleTileAtlas)(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork.")), installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions.")), installation.LoadProjectiles().FlareCompositions);
             if (content is null || !ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions))
                 throw new InvalidDataException("Restarted host did not retain newly selected content across an old state load.");
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);

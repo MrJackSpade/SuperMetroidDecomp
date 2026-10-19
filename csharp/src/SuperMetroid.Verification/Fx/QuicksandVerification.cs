@@ -24,7 +24,7 @@ internal static class QuicksandVerification
         for (int suit = 0; suit < 2; suit++)
         foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
         {
-            var samus = new SamusState { EquippedItems = suit == 0 ? (ushort)0 : (ushort)SamusEquipmentFlags.GravitySuit };
+            var samus = new SamusState { EquippedItems = suit == 0 ? (ushort)0 : SamusEquipmentFlags.GravitySuit };
             var body = samus.Kinematics;
             body.Position = body.Position.WithWhole(new(24, 24));
             body.Radius = body.Radius.WithY(8);
@@ -41,11 +41,11 @@ internal static class QuicksandVerification
             AssertEqual((ushort)0x7fff, samus.HorizontalSpeed.BaseSubspeed, "quicksand retains low fractional X");
             AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, "quicksand clears whole base X");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "quicksand cancels running momentum");
-            var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, body, new VerticalBlockMove { Displacement = 0x28000, ScanLeftToRight = true });
+            var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, new VerticalBlockMove { Displacement = 0x28000, ScanLeftToRight = true });
             AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement, "surface probe accepts native sinking distance");
             AssertEqual(direction != SamusVerticalDirection.Up, move.Collided, "surface publishes grounded contact separately from carry");
             body.Position = body.Position.WithWholeY(24);
-            var poseProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, body, new VerticalBlockMove { Displacement = 0x28000, ScanLeftToRight = true, PublishQuicksandGrounding = false });
+            var poseProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, new VerticalBlockMove { Displacement = 0x28000, ScanLeftToRight = true, PublishQuicksandGrounding = false });
             AssertEqual(false, poseProbe.Collided, "pose clearance does not treat sand contact as solid carry");
         }
         for (int kind = 0; kind < 3; kind++)
@@ -59,7 +59,7 @@ internal static class QuicksandVerification
             SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
             AssertEqual(kind == 0 ? 0x12000 : kind == 1 ? 0x14000 : 0x1c000,
                 samus.Kinematics.ExtraDisplacement.Y.RawValue, "submerging and sandfall forces");
-            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = sand }, samus.Kinematics, new HorizontalBlockMove { Displacement = 1 << 16 });
+            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = sand }, samus.Kinematics, new HorizontalBlockMove { Displacement = 1 << 16 });
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)4, samus.Kinematics.YSpeed, "submerging horizontal collision speed side effect");
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)0x1c00, samus.Kinematics.YSubacceleration, "submerging horizontal collision gravity side effect");
         }
@@ -89,7 +89,7 @@ internal static class QuicksandVerification
             {
                 EquippedItems = suit == 0
                     ? (ushort)0
-                    : (ushort)SamusEquipmentFlags.GravitySuit,
+                    : SamusEquipmentFlags.GravitySuit,
             };
             SamusKinematicsState body = samus.Kinematics;
             body.Position = body.Position.WithWhole(new(24, 24));
@@ -102,11 +102,19 @@ internal static class QuicksandVerification
                 QuicksandDefinitions.SurfacePhysics(suit != 0);
             AssertEqual(
                 direction == SamusVerticalDirection.None
-                    ? SnesEightEight.FromWhole(physics.StationaryDisplacement)
-                    : SnesEightEight.FromWhole(physics.MovingDisplacement),
-                body.ExtraDisplacement.Y.RawValue,
+                    ? physics.StationaryDisplacement
+                    : physics.MovingDisplacement,
+                body.ExtraDisplacement.Y,
                 $"production quicksand suit {suit} direction {(int)direction} displacement");
+            if (direction == SamusVerticalDirection.Up)
+            {
+                // A whole upward speed of five pixels exceeds both caps, so the speed becomes the limit exactly.
+                AssertEqual(physics.UpwardSpeedLimit,
+                    SnesSignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed), body.YSubspeed),
+                    $"production quicksand suit {suit} clamps upward speed to its limit");
+            }
         }
+        VerifyQuicksandUpwardLimitComparesMiddleWords(level);
 
         for (byte index = 0; index < 16; index++)
         {
@@ -120,7 +128,7 @@ internal static class QuicksandVerification
             int displacement = 0x28000;
             bool collided = SamusInsideBlockReactions.ReactCollision(
                 body,
-                new RoomCollisionBlock(0, 0x3000, unchecked((byte)(0x80 + index))),
+                new RoomCollisionBlock(0, 0x3000, new RoomBlockBehavior(0x80 + index)),
                 vertical: true,
                 ref displacement,
                 out bool surfaceContact);
@@ -186,14 +194,38 @@ internal static class QuicksandVerification
     private static void VerifyQuicksandUpwardLimit(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b493, physics => physics.UpwardSpeedLimit));
 
-    /// <summary>Compares a selected surface-physics field for both Gravity and ordinary suits.</summary>
+    /// <summary>
+    /// Compares a selected surface-physics field for both Gravity and ordinary suits. The cartridge stores each as
+    /// an unsigned 8.8 word; the oracle widens it to 16.16 exactly as the surface reaction consumes it.
+    /// </summary>
     private static void VerifyQuicksandPhysicsField(SuperMetroidAddressSpace rom, int address,
-        Func<QuicksandSurfacePhysics, ushort> field)
+        Func<QuicksandSurfacePhysics, SnesSignedSixteenSixteen> field)
     {
         for (int suit = 0; suit < 2; suit++)
-            AssertEqual(ReadRomWord(rom, address + suit * 2),
+            AssertEqual(SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight((int)ReadRomWord(rom, address + suit * 2))),
                 field(QuicksandDefinitions.SurfacePhysics(suit != 0)),
                 $"quicksand physics {address:X6} suit {suit}");
+    }
+
+    /// <summary>
+    /// The upward cap compares only the middle words of the 16.16 speed and limit: a speed above the 2.5-pixel
+    /// limit by less than one 256th of a pixel shares the limit's middle word and is left unclamped.
+    /// </summary>
+    private static void VerifyQuicksandUpwardLimitComparesMiddleWords(RoomLevelData level)
+    {
+        var samus = new SamusState();
+        SamusKinematicsState body = samus.Kinematics;
+        body.Position = body.Position.WithWhole(new(24, 24));
+        body.Radius = body.Radius.WithY(8);
+        body.YDirection = SamusVerticalDirection.Up;
+        SnesSignedSixteenSixteen limit = QuicksandDefinitions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit;
+        // 255/65536 of a pixel above the limit: below the resolution of the middle-word comparison.
+        SnesSignedSixteenSixteen justAbove = limit + SnesSignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
+        body.YSpeed = justAbove.WholeWord;
+        body.YSubspeed = justAbove.Fraction;
+        SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
+        AssertEqual(justAbove, SnesSignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed), body.YSubspeed),
+            "quicksand upward cap ignores the speed's lowest fraction byte");
     }
 
     /// <summary>Checks the special-air inside-reaction header for each area and BTS index.</summary>
@@ -214,7 +246,7 @@ internal static class QuicksandVerification
 
     /// <summary>Follows native area tables while checking valid reactions and out-of-range selector behavior.</summary>
     private static void VerifySpecialAirField(SuperMetroidAddressSpace rom,
-        Func<AreaId, byte, SpecialAirReactionDefinition> resolve, int nativePointers, bool setup)
+        Func<AreaId, int, SpecialAirReactionDefinition> resolve, int nativePointers, bool setup)
     {
         for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
         for (int index = 0; index <= byte.MaxValue; index++)

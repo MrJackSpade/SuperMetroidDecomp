@@ -11,6 +11,7 @@ namespace SuperMetroid.RenderVerification.Saves;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Compares captured death and reserve-recovery frames with the legacy raster and audio path.</summary>
 internal static class RetailDeathCaptureTests
@@ -28,8 +29,8 @@ internal static class RetailDeathCaptureTests
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
-        var legacy = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
-        var captured = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
+        var legacy = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         var audioAssets = DesktopAccess.LoadAudioClips();
         legacy.BindAudio(audioAssets);
         captured.BindAudio(audioAssets);
@@ -40,7 +41,7 @@ internal static class RetailDeathCaptureTests
         {
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, ++sequence, 1);
-            if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||
+            if (expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
                 throw new InvalidOperationException($"Death capture cadence/commands diverged at {sequence}.");
@@ -48,16 +49,16 @@ internal static class RetailDeathCaptureTests
             captured.CopyAudioFrame(capturedAudio);
             if (!legacyAudio.SequenceEqual(capturedAudio))
                 throw new InvalidOperationException($"Death PCM diverged at {sequence}.");
-            if (comparePixels) PixelComparison.Verify((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")), expected.Pixels,
-                renderer.RenderForReadback((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))), $"{device.Kind}: death frame {sequence}, {expected.GameState}");
+            if (comparePixels) PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(),
+                renderer.RenderForReadback(actual.Snapshot), $"{device.Kind}: death frame {sequence}, {expected.GameState}");
         }
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None, false);
         if (legacy.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Death fixture startup failed.");
         foreach (var game in new[] { legacy, captured })
         {
-            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(SlowConsumerFixture.AlphaPowerBombRoom, new Position16<RoomPixels>(0, 0));
-            game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0, true);
+            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+            game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.Health = 0;
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.MaxReserveEnergy = ReserveCaptureFixtureDefinitions.Capacity;
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.ReserveEnergy = reserveRecovery ? ReserveCaptureFixtureDefinitions.Capacity : (ushort)0;
@@ -69,12 +70,20 @@ internal static class RetailDeathCaptureTests
         {
             Step(0, true);
             states.Add(legacy.GameState);
-            var expectedSamus = legacy.GameplayRuntimeForVerification.Player.IntroducedSamus;
-            var actualSamus = captured.GameplayRuntimeForVerification.Player.IntroducedSamus;
-            if (expectedSamus.Health != actualSamus.Health || expectedSamus.ReserveEnergy != actualSamus.ReserveEnergy ||
-                expectedSamus.InputLocked != actualSamus.InputLocked ||
-                legacy.GameplayRuntimeForVerification.Freeze.GameplayTimeFrozen != captured.GameplayRuntimeForVerification.Freeze.GameplayTimeFrozen)
-                throw new InvalidOperationException("Death/recovery state diverged between captured and legacy owners.");
+            // The dispatch that enters the game-over menu releases the runtime; both owners must release it together.
+            var expectedRuntime = legacy.RuntimeForVerification;
+            var actualRuntime = captured.RuntimeForVerification;
+            if ((expectedRuntime is null) != (actualRuntime is null))
+                throw new InvalidOperationException("Death/recovery runtime release diverged between captured and legacy owners.");
+            if (expectedRuntime is not null && actualRuntime is not null)
+            {
+                var expectedSamus = expectedRuntime.Player.IntroducedSamus;
+                var actualSamus = actualRuntime.Player.IntroducedSamus;
+                if (expectedSamus.Health != actualSamus.Health || expectedSamus.ReserveEnergy != actualSamus.ReserveEnergy ||
+                    expectedSamus.InputLocked != actualSamus.InputLocked ||
+                    expectedRuntime.Freeze.GameplayTimeFrozen != actualRuntime.Freeze.GameplayTimeFrozen)
+                    throw new InvalidOperationException("Death/recovery state diverged between captured and legacy owners.");
+            }
             if (reserveRecovery && states.Contains(SuperMetroidGameState.ReserveTanksAuto) &&
                 legacy.GameState == SuperMetroidGameState.MainGameplay) break;
             if (legacy.GameState == SuperMetroidGameState.GameOverMenu) break;

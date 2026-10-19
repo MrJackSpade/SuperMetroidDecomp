@@ -5,14 +5,13 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// <summary>Shared $82:A92B palette animation used by pause and file-select maps.</summary>
 public sealed class MapPaletteAnimation
 {
-    /// <summary>Creates the map palette clock at frame zero with a one-update initial delay; installed cycle data must be supplied through <see cref="Bind"/> before the first palette update.</summary>
-    /// <param name="bus">Legacy compatibility argument, checked for null but neither retained nor used for cartridge reads.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is <see langword="null"/>.</exception>
-    public MapPaletteAnimation(ISnesAddressSpace bus) => Ensure.NotNull(bus);
-    /// <summary>Updates remaining before the next palette frame is applied; starts with one update.</summary>
-    internal byte timer = 1;
-    /// <summary>Index of the most recently applied map palette frame.</summary>
-    internal byte frame;
+    /// <summary>
+    /// Updates remaining before the next palette frame is applied; starts with one update. Zero holds the animation:
+    /// a step decrements only a positive count, so the value stays within zero through the longest authored hold.
+    /// </summary>
+    internal int timer = 1;
+    /// <summary>Index of the most recently applied map palette frame, below the installed cycle's frame count once stepped.</summary>
+    internal int frame;
     /// <summary>Installed host color cycle, excluded from serialized gameplay state.</summary>
     [NonSerialized] private MapPaletteCycle? content;
 
@@ -26,16 +25,15 @@ public sealed class MapPaletteAnimation
     public bool Step(SnesCgram cgram)
     {
         if (timer == 0) return false;
-        NativeLowByteCounterStep step = NativeWordCounter.DecrementLowByte(timer);
-        timer = step.Low;
-        if (!step.IsZero) return false;
+        timer--;
+        if (timer != 0) return false;
         MapPaletteCycle cycle = content ?? throw new InvalidOperationException(
             "Map palette animation requires installed palette-cycle assets.");
         // Preserve native increment-before-read and loop sound ownership. A
         // shorter replacement cycle wraps at the next frame boundary, not bind.
         int next = frame + 1;
         bool wrapped = next >= cycle.FrameCount;
-        frame = (byte)(wrapped ? 0 : next);
+        frame = wrapped ? 0 : next;
         timer = cycle.Duration(frame);
         cycle.Apply(cgram, frame, MapAnimationRomData.PaletteDestination);
         return wrapped;

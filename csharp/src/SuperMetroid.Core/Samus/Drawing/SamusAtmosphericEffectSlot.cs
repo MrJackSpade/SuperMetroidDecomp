@@ -3,14 +3,18 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <summary>One debugger-visible packed atmospheric slot.</summary>
 public sealed class SamusAtmosphericEffectSlot
 {
-    /// <summary>Low byte animation frame, high byte graphics type.</summary>
-    public ushort FrameAndType { get; internal set; }
+    /// <summary>Low byte animation frame, high byte graphics type; 0 through 65535.</summary>
+    public int FrameAndType
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>Low byte of the $0AEC array's packed word: the zero-based frame within the current graphics type.</summary>
-    public byte AnimationFrame => unchecked((byte)FrameAndType);
+    /// <summary>The zero-based frame within the current graphics type, held in the packed word's low byte.</summary>
+    public int AnimationFrame => unchecked((byte)FrameAndType);
 
-    /// <summary>High byte of the packed word: 1/2 footstep splashes, 3 diving splash, 4 lava spray, 5 bubbles, or 6/7 dust; zero is reserved for inactive state.</summary>
-    public byte Type => SnesLittleEndian.HighByte(FrameAndType);
+    /// <summary>The slot's graphics type, held in the packed word's high byte; <see cref="SamusAtmosphericEffectType.Inactive"/> when cleared.</summary>
+    public SamusAtmosphericEffectType Type => (SamusAtmosphericEffectType)SnesLittleEndian.HighByte(checked((ushort)FrameAndType));
 
     /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>
     public NativeCountdown AnimationTimer { get; internal set; }

@@ -5,8 +5,8 @@ public readonly record struct RoomLayer3FxRenderSnapshot(
     RoomFxType Type,
     LayerBlendingConfiguration LayerBlendConfiguration,
     Position16<Bg3Pixels> Scroll,
-    ushort CurrentYPosition = ushort.MaxValue,
-    ushort LiquidOptions = 0,
+    Position16<RoomPixels> Surface,
+    RoomLiquidOptions LiquidOptions = RoomLiquidOptions.None,
     int WaterBg3WavePhase = 0,
     int WaterBg2WavePhase = 0,
     short WaterSurfaceScreenY = short.MaxValue)

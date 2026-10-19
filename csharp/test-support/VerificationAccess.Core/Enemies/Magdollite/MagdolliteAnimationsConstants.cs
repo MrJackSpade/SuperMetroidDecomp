@@ -13,5 +13,5 @@ internal static class MagdolliteAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params MagdolliteProgram[] programs) =>
         programs.SelectMany(program => MagdolliteAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => MagdolliteFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => MagdolliteFrameToolingDefinitions.Spritemap(step.Frame));
 }

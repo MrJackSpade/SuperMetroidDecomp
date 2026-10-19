@@ -48,7 +48,7 @@ internal static class SamusEaterPlmDefinitionsVerification
             AssertEqual(1, slot.InstructionTimer, "Samus Eater starts on timer one");
             AssertEqual(
                 0x8123,
-                level.GetCollisionBlock(new(1, 1)).LevelWord,
+                level.GetCollisionBlock(new(1, 1)).PackedWord.Raw,
                 "Samus Eater deactivates its trigger");
         }
 

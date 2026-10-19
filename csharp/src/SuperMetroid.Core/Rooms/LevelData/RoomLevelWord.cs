@@ -1,7 +1,8 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// A lossless view over one 16-bit native <c>level_data</c> entry.
+/// The codec of one room level-data entry: the type that reads and writes a block's visual block index, parent flips
+/// and collision type as the fields of the stored entry, and the only place their bit layout is defined.
 /// </summary>
 /// <remarks>
 /// This wrapper does not normalize or rebuild the word. The raw value remains available,
@@ -9,6 +10,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// bank-$94 collision dispatcher. That makes the type useful at debugger boundaries while
 /// preserving unknown collision-nibble values exactly.
 /// </remarks>
+[SnesEncodingOwner]
 public readonly record struct RoomLevelWord(ushort Raw)
 {
     /// <summary>Low ten bits selecting a room metatile definition.</summary>
@@ -35,7 +37,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
     public ushort VisualWord => (ushort)(Raw & VisualBitsMask);
 
     /// <summary>Whether a standalone visual reference contains only the twelve presentation bits.</summary>
-    public static bool IsValidVisualWord(ushort visualWord) =>
+    public static bool IsValidVisualWord(int visualWord) =>
         (visualWord & ~VisualBitsMask) == 0;
 
     /// <summary>
@@ -67,7 +69,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
         ValidateCollisionType(collisionType);
         return new RoomLevelWord(unchecked((ushort)(
             visualBlockIndex |
-            (ushort)visualFlipFlags |
+            visualFlipFlags.ToNativeWord() |
             ((ushort)collisionType << CollisionTypeShift))));
     }
 

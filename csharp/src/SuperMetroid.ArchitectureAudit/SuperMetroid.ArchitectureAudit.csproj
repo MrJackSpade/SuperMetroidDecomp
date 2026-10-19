@@ -10,7 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- The partial-type analyzer and this audit share one generated-code test. -->
-    <Compile Include="../SuperMetroid.EnsureAnalyzer/SourceLayout/PartialTypeAnalyzer.cs" Link="Shared/PartialTypeAnalyzer.cs" />
+    <Compile Include="../SuperMetroid.EnsureAnalyzer/SourceLayout/GeneratedSource.cs" Link="Shared/GeneratedSource.cs" />
     <!-- The module inventory reads the same module map the #626 analyzers enforce. -->
     <Compile Include="../SuperMetroid.EnsureAnalyzer/Modules/ModuleMap.cs" Link="Shared/ModuleMap.cs" />
     <Compile Include="../SuperMetroid.ReachabilityAudit/SolutionLoading/**/*.cs" LinkBase="SolutionLoading" />

@@ -22,6 +22,9 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// </summary>
 internal static class InstalledPowerBombIsolationTests
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Runs five installed palette edits through Power Bomb and Crystal Flash, comparing mechanics, color windows, cleanup, and software/D3D pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(string installationRoot)
@@ -29,7 +32,7 @@ internal static class InstalledPowerBombIsolationTests
         string stockDirectory = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
         string path = Path.Combine(stockDirectory, PowerBombFixedColorFormat.FileName);
         byte[] original = File.ReadAllBytes(path);
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var options = CamelCaseJson;
         var document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(original, options)
             ?? throw new InvalidDataException($"Null color document: {path}");
         AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(stockDirectory, null);
@@ -68,7 +71,7 @@ internal static class InstalledPowerBombIsolationTests
                     {
                         frames++;
                         Require(frames < 300, "The bounded stock explosion failed to clean up.");
-                        bool expected = baseline.StepFrame(memory), actual = replacement.StepFrame(memory);
+                        bool expected = baseline.StepFrame(), actual = replacement.StepFrame();
                         string context = $"{edit}, {(crystalFlash ? "Crystal Flash" : "Power Bomb")}, frame {frames}";
                         RequireSameMechanics(baseline, replacement, context);
                         Require(expected == actual, context + ": cleanup result differs");
@@ -90,7 +93,7 @@ internal static class InstalledPowerBombIsolationTests
                             ColorAddWindow center = second.Windows[112];
                             if (center.Left <= 128 && center.Right >= 128)
                                 Require(SoftwareFrameSnapshotRenderer.Render(packet)[112 * packet.Size.X + 128] ==
-                                    new Rgba32(center.Red, center.Green, center.Blue), context + ": edited RGB did not reach pixels");
+                                    new Rgba32(checked((byte)center.Red), checked((byte)center.Green), checked((byte)center.Blue)), context + ": edited RGB did not reach pixels");
                         }
                         comparisons++;
                     } while (baseline.IsActive);
@@ -175,7 +178,7 @@ internal static class InstalledPowerBombIsolationTests
     }
 
     /// <summary>Captures the three live fixed-color outputs without including simulation state.</summary>
-    internal static (byte Red, byte Green, byte Blue) Colors(SamusPowerBombExplosionState state) =>
+    internal static (int Red, int Green, int Blue) Colors(SamusPowerBombExplosionState state) =>
         (state.FixedColorRed, state.FixedColorGreen, state.FixedColorBlue);
 
     /// <summary>Fails the focused isolation check with its current edit/frame context.</summary>
@@ -230,7 +233,7 @@ internal static class InstalledPowerBombIsolationTests
                 RequireSameMechanics(state, legacy, "Legacy stock graph restore");
                 CompareRemainder(state, legacy, colors, "Legacy stock graph resume");
                 legacyRestores++;
-                _ = state.StepFrame(memory);
+                _ = state.StepFrame();
             } while (state.IsActive);
         }
         Console.WriteLine($"Explosion state compatibility: {currentRestores} current and {legacyRestores} old-layout " +
@@ -258,7 +261,7 @@ internal static class InstalledPowerBombIsolationTests
         int remaining = Math.Max(color.Red, Math.Max(color.Green, color.Blue)) + 1;
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         for (int frame = 1; frame <= remaining; frame++)
-            Require(historical.StepFrame(memory) == (frame == remaining),
+            Require(historical.StepFrame() == (frame == remaining),
                 context + ": modded legacy capture did not preserve its historical cleanup frame");
         Require(!historical.IsActive, context + ": modded legacy capture did not release HDMA");
     }
@@ -274,7 +277,7 @@ internal static class InstalledPowerBombIsolationTests
         do
         {
             Require(++frames < 300, context + ": cleanup did not occur");
-            Require(baseline.StepFrame(memory) == restored.StepFrame(memory), context + ": cleanup frame differs");
+            Require(baseline.StepFrame() == restored.StepFrame(), context + ": cleanup frame differs");
             RequireSameMechanics(baseline, restored, context);
             Require(Colors(baseline) == Colors(restored), context + ": restored display fade differs");
         } while (baseline.IsActive);

@@ -7,9 +7,15 @@ namespace SuperMetroid.Core.Rooms;
 public sealed record LandingSiteEntryState(
     RoomIdentity RoomIdentity,
     Position16<MapTiles> RoomMapPosition,
-    byte UpScroller,
-    byte DownScroller)
+    int UpScroller,
+    int DownScroller)
 {
+    /// <summary>The room's up-scroller distance in pixels, 0 through 255.</summary>
+    public int UpScroller { get; } = Ensure.BetweenInclusive(0, byte.MaxValue, UpScroller);
+
+    /// <summary>The room's down-scroller distance in pixels, 0 through 255.</summary>
+    public int DownScroller { get; } = Ensure.BetweenInclusive(0, byte.MaxValue, DownScroller);
+
     /// <summary>Validated area projected from the logical room identity.</summary>
     public AreaId AreaIndex => RoomIdentity.Area;
 }

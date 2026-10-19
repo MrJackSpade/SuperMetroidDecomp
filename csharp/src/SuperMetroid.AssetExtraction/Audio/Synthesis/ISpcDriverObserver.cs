@@ -15,5 +15,5 @@ internal interface ISpcDriverObserver
     void PhraseStarting();
 
     /// <summary>Called as the tick publishes its pending key-off and key-on voice masks to the DSP.</summary>
-    void KeysPublished(byte keyOn, byte keyOff);
+    void KeysPublished(int keyOn, int keyOff);
 }

@@ -14,7 +14,7 @@ internal static class AtomicAnimationsVerification
     internal static void VerifyAtomicAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, AtomicAnimations.Programs,
-            AtomicFrameDefinitions.Spritemap,
+            AtomicFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  Atomic programs: {Entries.Length} programs ({steps} steps) match bank $A8.");

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.IntegrationVerification.Gameplay;
 
 /// <summary>Compares the displayed tube tilemap words with the authored room allocation.</summary>
@@ -13,14 +14,14 @@ internal static class MaridiaPipeTerrainAudit
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void Observe(SuperMetroidRuntime runtime, RenderFrameSnapshot snapshot, int frame, bool requireAuthoredTerrain = false)
     {
-        if (runtime.Room.ActiveRoom?.Pointer != MaridiaPipeFixtureDefinitions.TubeRoom || snapshot.Layers is not { } layers) return;
+        if (runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.Toilet || snapshot.Layers is not { } layers) return;
         var gameplay = layers.LayersOf<OrdinaryGameplayRenderLayer>().Single();
         var r = gameplay.Registers;
         var scroll = runtime.BackgroundScroll;
         var level = runtime.Room.LoadedLevelData;
         foreach (bool background in new[] { false, true })
         {
-            if (background && ((scroll.Layer2Scroll.Horizontal | scroll.Layer2Scroll.Vertical) & 1) != 0) continue;
+            if (background && !(scroll.Layer2Scroll.Horizontal.Streams && scroll.Layer2Scroll.Vertical.Streams)) continue;
             // The audit compares wrapped register words, so take each offset as its native word.
             int offsetX = unchecked((ushort)(background ? scroll.Bg2Offset.X : scroll.Bg1Offset.X));
             int offsetY = unchecked((ushort)(background ? scroll.Bg2Offset.Y : scroll.Bg1Offset.Y));

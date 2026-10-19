@@ -19,7 +19,7 @@ internal static class NativeSnapshotImportPauseVerification
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
-        ISnesAddressSpace bus, Func<int, ushort> W, byte[] memory)
+        Func<int, ushort> W, byte[] memory)
     {
         AssertEqual((ushort)SuperMetroidGameState.PausedB, W(NativeSnapshotMemory.GameState),
             "pause import covers the stable pause menu");
@@ -28,7 +28,7 @@ internal static class NativeSnapshotImportPauseVerification
         runtime.Cgram.LoadBytes(memory.AsSpan(PauseMemory.GameplayPaletteBackup, CgramPalettes.ByteCount));
 
         CartridgeRoomHeader room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
-        var menu = new PauseMenuState(bus, new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = game.audio, GameplayVram = runtime.Vram, MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = game.Artwork.MapPresentation ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
+        var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayVram = runtime.Vram, MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = game.Artwork.MapPresentation ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
         menu.mapScrollPosition = new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll));
         var palette = menu.paletteAnimation;
         palette.timer = memory[PauseMemory.PaletteAnimationTimer];
@@ -36,9 +36,9 @@ internal static class NativeSnapshotImportPauseVerification
         // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
         menu.mapIndicatorAnimationFrame = W(PauseMemory.IndicatorAnimationFrame) / 2;
         menu.mapIndicatorAnimationTimer = (int)W(PauseMemory.IndicatorAnimationTimer);
-        game.pauseMenu = menu;
-        game.screenFade.Delay = W(PauseMemory.ScreenFadeDelay);
-        game.screenFade.Counter = W(PauseMemory.ScreenFadeCounter);
+        game.Session.pauseMenu = menu;
+        game.Session.screenFade.Delay = W(PauseMemory.ScreenFadeDelay);
+        game.Session.screenFade.Counter = W(PauseMemory.ScreenFadeCounter);
 
         runtime.System.TimedHeldInputTimer = NativeCountdown.FromRaw(W(PauseMemory.TimedHeldTimer));
         runtime.System.TimedHeldInputTimerReset = W(PauseMemory.TimedHeldReset);

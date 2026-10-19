@@ -6,4 +6,8 @@ internal readonly record struct DeadMonsterVramTransferDefinition(
 {
     /// <summary>Combines the live bank-$7E source word with its bank byte for DMA addressing.</summary>
     internal int SourceAddress => ((SourceBankWord & 0xff00) << 8) | SourceOffset;
+
+    /// <summary>The queued-DMA destination the descriptor's native destination word encodes.</summary>
+    [PpuLayoutBoundary("codec: corpse rot DMA descriptor destination word")]
+    internal VramDmaDestination Destination => VramDmaDestination.FromNative(EncodedVramDestination);
 }

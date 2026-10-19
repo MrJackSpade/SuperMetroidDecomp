@@ -66,11 +66,11 @@ internal static class MochtroidBotwoonClipVerification
     private static void VerifyMochtroidClipRecord(MochtroidClipNativeRecord expected)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BotwoonHallway);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BotwoonHallway);
 
         RoomLevelData level = runtime.Room.LevelData ??
             throw new InvalidDataException("Botwoon Hallway level data was not loaded.");
@@ -89,15 +89,15 @@ internal static class MochtroidBotwoonClipVerification
         samus.HorizontalSpeed.HasRunningMomentum = false;
         samus.HorizontalSpeed.AccelerationMode = 0;
         samus.Pose = SamusPoseId.CrouchingAimUpRightPose;
-        samus.EquippedItems = samus.CollectedItems = (ushort)(
+        samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags)((ushort)(
             SamusEquipmentFlags.MorphBall |
-            SamusEquipmentFlags.HiJumpBoots);
-        samus.EquippedBeams = samus.CollectedBeams = (ushort)SamusBeamFlags.Ice;
+            SamusEquipmentFlags.HiJumpBoots));
+        samus.EquippedBeams = samus.CollectedBeams = SamusBeamFlags.Ice;
         samus.Health = samus.MaxHealth = 1499;
         samus.InvincibilityTimer = NativeCountdown.Start(120);
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
-        samus.CommitPoseHistory(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        samus.CommitPoseHistory();
 
         RoomEnemySlot mochtroid = runtime.Enemies.SlotTable.Slots.Single(
             slot => slot.NativeIndex == expected.EnemyNativeIndex);
@@ -110,7 +110,7 @@ internal static class MochtroidBotwoonClipVerification
         }
         mochtroid.Position = FixedPosition<RoomPixels>.FromWhole(expected.Enemy);
         mochtroid.FrozenTimer = NativeCountdown.Start(1000);
-        mochtroid.AiHandlerBits = 4;
+        mochtroid.AiStates = EnemyAiStates.Frozen;
 
         ushort minimumY = samus.Position.Y.Whole;
         for (int frame = 0; frame < 120; frame++)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -17,14 +18,22 @@ internal static class SoundEffectRendering
     /// <param name="ActiveFrames">Frames from the start to the library's logical end.</param>
     /// <param name="Voices">Every voice the effect keyed.</param>
     /// <param name="KeyOnFrames">Frames at which the effect keyed a note on.</param>
-    internal sealed record OneShot(short[] Clip, long ActiveFrames, byte Voices, IReadOnlyList<long> KeyOnFrames);
+    internal sealed record OneShot(short[] Clip, long ActiveFrames, int Voices, IReadOnlyList<long> KeyOnFrames)
+    {
+        /// <summary>Every voice the effect keyed, one bit per voice; 0 through 255.</summary>
+        public int Voices { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Voices);
+    }
 
     /// <summary>One channel of a never-ending effect: its clip through its second state repeat and its loop.</summary>
     /// <param name="Clip">Interleaved stereo PCM of the channel's voice from the start to its E2.</param>
     /// <param name="LoopStart">The channel's E1: the clip repeats [E1, E2).</param>
     /// <param name="Voice">The channel's hardware voice.</param>
     /// <param name="KeyOnFrames">Frames before E2 at which the channel keyed a note on.</param>
-    internal sealed record LoopingLayer(short[] Clip, long LoopStart, byte Voice, IReadOnlyList<long> KeyOnFrames);
+    internal sealed record LoopingLayer(short[] Clip, long LoopStart, int Voice, IReadOnlyList<long> KeyOnFrames)
+    {
+        /// <summary>The channel's hardware voice bit; 0 through 255.</summary>
+        public int Voice { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Voice);
+    }
 
     /// <summary>
     /// Creates a renderer, attached to <paramref name="observer"/>, that has uploaded the common and
@@ -36,7 +45,7 @@ internal static class SoundEffectRendering
         ExtractedAudioAssetCatalog catalog,
         AudioBank? context,
         SoundEffectLibrary library,
-        byte command,
+        int command,
         SoundEffectObserver observer,
         bool synthesize)
     {
@@ -74,7 +83,7 @@ internal static class SoundEffectRendering
 
     /// <summary>Renders a one-shot effect through its logical end and the silent frame after its release.</summary>
     /// <exception cref="InvalidDataException">The effect never ends, or never starts.</exception>
-    internal static OneShot RenderOneShot(ExtractedAudioAssetCatalog catalog, AudioBank? context, SoundEffectLibrary library, byte command)
+    internal static OneShot RenderOneShot(ExtractedAudioAssetCatalog catalog, AudioBank? context, SoundEffectLibrary library, int command)
     {
         var observer = new SoundEffectObserver(SoundEffectLibraries.ToQueueIndex(library), command);
         SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true);
@@ -93,7 +102,7 @@ internal static class SoundEffectRendering
         int frames = pcm.Count / 2;
         while (frames > 0 && pcm[frames * 2 - 1] == 0 && pcm[frames * 2 - 2] == 0)
             frames--;
-        byte voices = 0;
+        int voices = 0;
         foreach ((long _, byte keyed) in observer.KeyOns)
             voices |= keyed;
         return new OneShot([.. pcm.GetRange(0, frames * 2)], end - start, voices, [.. observer.KeyOns.Select(keyOn => keyOn.Sample)]);
@@ -108,7 +117,7 @@ internal static class SoundEffectRendering
         ExtractedAudioAssetCatalog catalog,
         AudioBank? context,
         SoundEffectLibrary library,
-        byte command,
+        int command,
         int allocatedChannels)
     {
         int libraryIndex = SoundEffectLibraries.ToQueueIndex(library);
@@ -120,7 +129,7 @@ internal static class SoundEffectRendering
                 throw new InvalidDataException($"Never-ending {library} ${command:X2} reached its logical end.");
             sequencer.AdvanceSequencerFrame();
         }
-        IReadOnlyList<(long First, long Second, byte Voice)> loops = finder.ChannelLoops;
+        IReadOnlyList<(long First, long Second, int Voice)> loops = finder.ChannelLoops;
         if (loops.Count != allocatedChannels)
         {
             throw new InvalidDataException(
@@ -128,7 +137,7 @@ internal static class SoundEffectRendering
         }
 
         var layers = new List<LoopingLayer>(loops.Count);
-        foreach ((long first, long second, byte voice) in loops)
+        foreach ((long first, long second, int voice) in loops)
         {
             var observer = new SoundEffectObserver(libraryIndex, command);
             SpcAudioClipRenderer renderer = Start(catalog, context, library, command, observer, synthesize: true);

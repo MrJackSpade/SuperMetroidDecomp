@@ -1,13 +1,18 @@
-# SPC700 memory boundary (#632)
+# SPC700 memory boundary
 
-The sound-driver port (`ManagedSpcPlayer`) never indexes APU RAM or uses raw port numbers in its
-music, sound-effect, instrument, echo or upload logic. APU RAM addresses, byte order and 16-bit
-wrapping live in the typed driver-memory views in `ManagedSpcPlayer.Memory.cs`; the CPU/APU ports
-are the `ApuPort` enum end to end.
+The SPC700 driver exists only in the export pipeline: `ManagedSpcPlayer` and its views live in
+`SuperMetroid.AssetExtraction/Audio/Synthesis` and render clips at export. The export pipeline may know the
+hardware; the simulation does not.
 
-Since #1305 the driver port is the offline clip renderer: `ManagedSpcPlayer` and its views live in
-`SuperMetroid.AssetExtraction/Audio/Synthesis`. The runtime keeps only the port model,
-`SpcCommandPorts`, which shares the `[SpcMemoryAccess]`/`[SpcMemoryBoundary]` markers in Core.
+What the runtime keeps is a **stub**: the acknowledgement timing the driver imposed on gameplay (which update a
+sound is accepted on, when a command port reads back as free) is gameplay-observable, so the session advances a
+port model, `SpcCommandPorts`, every update and surfaces its outcomes as semantic `AudioEvent`s. The stub's job
+is the timing, not the hardware; it carries the `[SpcMemoryAccess]`/`[SpcMemoryBoundary]` markers because it
+still models ports by number, and that is the part of it still to be expressed in domain terms.
+
+Within the renderer, the driver port never indexes APU RAM or uses raw port numbers in its music, sound-effect,
+instrument, echo or upload logic. APU RAM addresses, byte order and 16-bit wrapping live in the typed
+driver-memory views in `ManagedSpcPlayer.Memory.cs`; the CPU/APU ports are the `ApuPort` enum end to end.
 
 ## Boundary and enforcement
 

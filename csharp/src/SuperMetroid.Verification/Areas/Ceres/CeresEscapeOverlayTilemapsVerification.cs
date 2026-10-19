@@ -19,6 +19,9 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 /// <summary>Checks installed Ceres emergency title and Japanese subtitle tilemaps against cartridge VRAM.</summary>
 internal static class CeresEscapeOverlayTilemapsVerification
 {
+    /// <summary>JSON options: Web defaults: camel-case names, case-insensitive matching, quoted numbers.</summary>
+    private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
+
     /// <summary>Compares five native overlays, then checks live override, reload, and missing-resource behavior.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape overlay tilemaps")]
@@ -40,17 +43,16 @@ internal static class CeresEscapeOverlayTilemapsVerification
                     $"Ceres overlay {page.Name} native byte {offset:X2}");
         }
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installed = new RoomEnemySystem { TileArtwork = stock };
-        installed.BindFixtureBus(guarded);
+        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedQueue = new VramWriteQueue();
         installed.CeresRidleyBehavior.QueueCeresEmergencyText(installedQueue);
         installed.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay, installedQueue);
         AssertEqual(5, installedQueue.Entries.Count,
             "Ceres production queues English title and four Japanese subtitle rows");
         var installedVram = new SnesVram();
-        installedQueue.DrainTo(installedVram, ReferenceMutableMemory.From(guarded),
+        installedQueue.DrainTo(installedVram,
             new CeresEscapeOverlayProvider(stock));
 
         var nativeQueue = new VramWriteQueue();
@@ -82,7 +84,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         CeresEscapeOverlayTilemapDocument document =
             JsonSerializer.Deserialize<CeresEscapeOverlayTilemapDocument>(
                 File.ReadAllBytes(Path.Combine(stockDirectory, fileName)),
-                new JsonSerializerOptions(JsonSerializerDefaults.Web))
+                WebJson)
             ?? throw new InvalidDataException("Stock Ceres overlay JSON is null.");
         document.Pages[title.Name][0] ^= 1;
         File.WriteAllBytes(Path.Combine(overrideDirectory, fileName),
@@ -100,11 +102,11 @@ internal static class CeresEscapeOverlayTilemapsVerification
         AssertTrue(stockWords.Span[1..].SequenceEqual(editedWords.Span[1..]),
             "edited Ceres title leaves other tilemap bytes unchanged");
         var editedEnemies = new RoomEnemySystem { TileArtwork = edited };
-        editedEnemies.BindFixtureBus(guarded);
+        editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var editedQueue = new VramWriteQueue();
         editedEnemies.CeresRidleyBehavior.QueueCeresEmergencyText(editedQueue);
         var editedVram = new SnesVram();
-        editedQueue.DrainTo(editedVram, ReferenceMutableMemory.From(guarded),
+        editedQueue.DrainTo(editedVram,
             new CeresEscapeOverlayProvider(edited));
         AssertEqual((ushort)(nativeVram.ReadWord(
                 CeresEscapeOverlayTilemapDefinitions.EmergencyDestination) ^ 1),
@@ -126,7 +128,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
         };
-        missing.BindFixtureBus(guarded);
+        missing.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         ExpectMissing(() => missing.CeresRidleyBehavior.QueueCeresEmergencyText(new VramWriteQueue()),
             "missing installed English title");
         ExpectMissing(() => missing.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -20,16 +21,16 @@ internal static class RetailRidleyEscapeTests
         foreach (bool hitThreshold in new[] { false, true })
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+            var runtime = RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true);
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
             runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
             bool triggered = false, finished = false;
             int samples = 0, mixedFrames = 0;
-            var matrices = new HashSet<(ushort, ushort, ushort, ushort)>();
+            var matrices = new HashSet<(SnesSignedEightEight, SnesSignedEightEight, SnesSignedEightEight, SnesSignedEightEight)>();
             var phases = new HashSet<RidleyAiFunction>();
             for (int tick = 0; tick < 6000; tick++)
             {
@@ -46,14 +47,14 @@ internal static class RetailRidleyEscapeTests
                     mixedFrames++;
                     matrices.Add((ridley.Mode7MatrixA, ridley.Mode7MatrixB, ridley.Mode7MatrixC, ridley.Mode7MatrixD));
                 }
-                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == 2 && ridley.Mode7Finished &&
+                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted && ridley.Mode7Finished &&
                     !ridley.Mode7Active && !samus.CeresRidleyEjection.IsActive;
                 // Capture every mixed-mode frame, every AI boundary and periodic startup
                 // frames. Completion is captured before leaving the room-local fixture.
                 if (tick % 8 == 0 || newPhase || ridley.Mode7Active || finished)
                 {
                     GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
-                    var expected = SuperMetroidRuntimeFrameRenderer.Render(frame);
+                    var expected = FrontendScenePixelsAccess.Pixels(frame);
                     var scene = GameplayDisplayCapture.Capture(frame)
                         ?? throw new InvalidOperationException("Ridley escape omitted capture.");
                     // The Mode 7 shadows reach the screen at the NMI after the main loop that wrote them (#1307),

@@ -18,8 +18,8 @@ public static class WindowsGamepadCodes
     /// <param name="productId">Product identifier reported in WinMM's <c>JOYCAPS.wPid</c>.</param>
     /// <returns>The printed-label layout for the recognized <c>0079:0011</c> adapter, otherwise the positional south/east/west/north layout; no device query or gameplay binding change occurs.</returns>
     public static GenericGamepadFaceButtonLayout ResolveFaceButtonLayout(
-        ushort manufacturerId,
-        ushort productId) =>
+        int manufacturerId,
+        int productId) =>
         new UsbGamepadIdentifier(manufacturerId, productId) == SnesUsbAdapter0079_0011
             ? GenericGamepadFaceButtonLayout.SnesUsbAdapter0079_0011
             : GenericGamepadFaceButtonLayout.Positional;

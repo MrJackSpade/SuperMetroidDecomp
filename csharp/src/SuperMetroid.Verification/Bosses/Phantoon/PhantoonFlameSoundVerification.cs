@@ -12,7 +12,7 @@ internal static class PhantoonFlameSoundVerification
     /// <summary>Confirms each actual flame spawn queues library-three sound $1D with Max6 without replacing materialization audio.</summary>
     internal static void VerifyPhantoonFlameSound()
     {
-        var enemies = CreatePhantoonSystem(NewSlopeHeightNoReadBus());
+        var enemies = CreatePhantoonSystem();
         Action<RoomEnemySlot, PhantoonPartCue> callback = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
         var collect = new Action(enemies.CollectLegacyEnemyAudioRequests);

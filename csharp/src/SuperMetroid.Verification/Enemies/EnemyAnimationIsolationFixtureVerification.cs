@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Programs;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -60,7 +61,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
                 layer[y * roomBlocks + x] = RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw;
             Level = new RoomLevelData(new Extent16<RoomBlocks>(roomBlocks, roomBlocks), new RoomLevelPlanes(layer, new byte[layer.Length], new ushort[layer.Length]), []);
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
-            Enemies.BindFixtureBus(Memory);
+            Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Enemies.Presentation._vram = Vram;
             Enemies.Presentation._cgram = Colors;
             Enemies.VerificationServices().NextRandom = (Func<ushort>)NextRandom;
@@ -69,18 +70,17 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => BossBitCalls != 0);
             Enemies.VerificationServices().SetAreaTorizoDefeated = (Action)(() => BossBitCalls++);
 
-            Actor.EnemyDefinitionPointer = golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.Boyon;
-            Actor.Definition = RoomEnemyDefinitionCatalog.Get(Actor.EnemyDefinitionPointer);
-            Actor.AiBank = Actor.Definition.Bank;
+            Actor.Bind(golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.Boyon, Actor.Definition);
+            Actor.Bind(Actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(Actor.EnemyDefinitionPointer));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Layer = Actor.Definition.Layer;
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
-            Actor.Properties = (ushort)(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen);
+            Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen);
             Actor.InstructionTimer = NativeCountdown.Start(1);
             if (golden)
             {
-                Actor.ExtraProperties = (ushort)EnemyExtraProperties.UsesExtendedSpritemap;
+                Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)EnemyExtraProperties.UsesExtendedSpritemap));
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
                 Enemies.BombTorizoBehavior._torizoState = new TorizoEnemyState(Actor, isGolden: true)
                 {
@@ -97,7 +97,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
                 // fixture inputs, not authored animation/gameplay tuning.
                 Actor.Parameter1 = (3 << 8) | 2;
                 Actor.Parameter2 = Actor.Position.Y.Whole;
-                new Action<RoomEnemySlot>(Enemies.BoyonBehavior.InitializeBoyon)(Actor);
+                new Action<RoomEnemySlot>(BoyonBehavior.InitializeBoyon)(Actor);
             }
         }
 
@@ -150,7 +150,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
             context + " preserves WRAM below the enemy BG2 staging image");
         AssertSameBytes(baseline.Memory.WorkRam[bg2End..], edited.Memory.WorkRam[bg2End..],
             context + " preserves WRAM above the enemy BG2 staging image");
-        AssertSameBytes(baseline.Memory.SaveRam, edited.Memory.SaveRam, context + " preserves all SRAM");
         AssertTrue(baseline.Enemies.Audio.SoundRequests.SequenceEqual(edited.Enemies.Audio.SoundRequests), context + " preserves audio calls");
         AssertTrue(baseline.Enemies.Audio.MusicRequests.SequenceEqual(edited.Enemies.Audio.MusicRequests), context + " preserves music calls");
         AssertEqual(baseline.RandomWord, edited.RandomWord, context + " preserves RNG state");

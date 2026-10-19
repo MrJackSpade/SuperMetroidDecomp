@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 using SuperMetroid.Verification.Enemies.PipeBugs;
@@ -142,8 +143,8 @@ internal static class LookupStream2Verification
                 Check(Load());
                 visual[index] = original;
                 // Gameplay geometry must not follow an independently edited display anchor.
-                AssertEqual(ChozoCarryMotionDefinitions.Read(10).Velocity, (short)-0x300, "Chozo edited art does not move carry mechanics");
-                AssertEqual(ChozoCarryMotionDefinitions.Read(12).Velocity, (short)-0xe00, "Chozo edited art does not alter late support displacement");
+                AssertEqual(ChozoCarryMotionDefinitions.Read(5).Velocity, (short)-0x300, "Chozo edited art does not move carry mechanics");
+                AssertEqual(ChozoCarryMotionDefinitions.Read(6).Velocity, (short)-0xe00, "Chozo edited art does not alter late support displacement");
             }
         }
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
@@ -157,13 +158,12 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for ghost palette")]
     internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var cgram = new SnesCgram();
         enemies.Presentation._cgram = cgram;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0;
-        var state = new WreckedShipGhostEnemyState(slot) { PhaseTimer = NativeCountdown.Start(2) };
+        var state = new WreckedShipGhostEnemyState { PhaseTimer = NativeCountdown.Start(2) };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = enemies.WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = enemies.WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
         var native = new ushort[16];
@@ -243,14 +243,14 @@ internal static class LookupStream2Verification
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actual = new RoomPaletteFxSystem();
-            actual.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            actual.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);
             int frameIndex = 0, elapsed = 0;
             for (int tick = 0; tick <= cycle; tick++)
             {
                 if (elapsed == nativeDurations[frameIndex]) { frameIndex = (frameIndex + 1) % 15; elapsed = 0; }
-                actual.Step(guarded, cgram, colors, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                actual.Step(cgram, colors, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),
                         cgram.Colors[definition.ColorByteIndex / 2 + color], "Actual CGRAM follows each exact native hold and loop boundary");
@@ -297,7 +297,6 @@ internal static class LookupStream2Verification
         AssertTrue(expected.SequenceEqual(ProjectileSpriteDefinitions.NativePointers), "Projectile identity enumeration preserves native order");
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
         var selected = ProjectileSpriteCatalog.Load(new MemoryStream(json));
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var frames = (System.Collections.IDictionary)selected.frames;
         int calculatedCompositions = 0;
         foreach (SpriteComposition composition in frames.Values)
@@ -506,7 +505,6 @@ internal static class LookupStream2Verification
         byte[] json = PauseBackdropExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseBackdropDocument>(json, ArtworkJson.Options);
         var stock = PauseBackdropPresentation.Load(new MemoryStream(json));
-        const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
         var areaResiduals = stock.areas;
         var buttonResiduals = stock.buttons;
         foreach (AreaId area in Enum.GetValues<AreaId>())
@@ -937,7 +935,6 @@ internal static class LookupStream2Verification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
     {
-        WorkRamByteTable corpseTiles = new EnemyScratchMemory(rom).CorpseTiles;
         var expected = new byte[0x1000];
         for (int row = 0; row < 12; row++)
         {
@@ -1000,7 +997,7 @@ internal static class LookupStream2Verification
         // stock tile coverage. Native staging must still copy the same artwork rows.
         var displayParts = new Dictionary<int, EnemySpritemapParts>
         {
-            [0xa9d6e2] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), 33,
+            [0xa9d6e2] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), new SnesSpritemapYByte(33),
                 SnesObjAttributeWord.Create(0, 7, 3, SnesTileFlipFlags.Horizontal))]),
         };
         var displayBindings = new Dictionary<int, int> { [0xa9d6e2] = 0xa9d6e2 };
@@ -1021,13 +1018,13 @@ internal static class LookupStream2Verification
                     }))),
             }, Spritemaps = display, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = DeadTorizoArtworkDefinitions.SourceAddress } });
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        StagingByteView corpseTiles = enemies.Room.Staging.CorpseTiles;
         corpseTiles.Fill(0);
         new Action(enemies.DeadTorizoBehavior.InitializeDeadTorizoGraphics)();
         Compare(expected, "Actual Dead Torizo installed-art crop");
 
-        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0xe226, FinishFunction = 0, EntryCount = 96, YLimit = 95, LateMoveEntryIndex = 94, WrapOffset = 0x134 });
+        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { YLimit = 95, LateMoveEntryIndex = 94, WrapOffset = 0x134 });
         Action<DeadTorizoEnemyState,ushort,bool> moveRow = enemies.DeadTorizoBehavior.CopyOrMoveDeadTorizoPixelRow;
         foreach (bool move in new[] { false, true })
         for (ushort y = 0; y < 96; y++)
@@ -1076,11 +1073,10 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for crawler ramps")]
     internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
-        Action<RoomEnemySlot> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
-        Action<RoomEnemySlot, YardEnemyState, ushort> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
+        Func<RoomEnemySlot, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
+        Action<RoomEnemySlot, YardEnemyState, int> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
-        var yard = new YardEnemyState(slot);
+        var yard = new YardEnemyState();
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
@@ -1089,11 +1085,11 @@ internal static class LookupStream2Verification
             slot.Parameter1 = parameter;
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = (ushort)(0xa000 | property);
-                reset(slot);
-                AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, slot.VariableA,
+                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)(0xa000 | property)));
+                EightEightVector<RoomPixels> velocity = reset(slot, default);
+                AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue,
                     "Actual crawler reset X magnitude");
-                AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, slot.VariableB,
+                AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue,
                     "Actual crawler reset Y magnitude");
             }
             for (ushort direction = 0; direction < 8; direction++)
@@ -1112,7 +1108,7 @@ internal static class LookupStream2Verification
     /// <summary>Checks lava-jumper control and visual selectors, parent/follower programs, and handshake.</summary>
     internal static void VerifyLookupStream2LavaJumperLayout(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(NorfairLavaJumperBehaviorVerification.VerifyNorfairLavaJumperBehavior), () => NorfairLavaJumperBehaviorVerification.VerifyNorfairLavaJumperBehavior(rom));
+        Suite(nameof(NorfairLavaJumperBehaviorVerification.VerifyNorfairLavaJumperBehavior), () => NorfairLavaJumperBehaviorVerification.VerifyNorfairLavaJumperBehavior());
         Suite(nameof(NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations), () => NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations(rom));
     }
 
@@ -1127,13 +1123,13 @@ internal static class LookupStream2Verification
     {
         var storage = new byte[RoomScrollGrid.StorageByteCount];
         Array.Fill(storage, (byte)1);
-        var grid = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), storage, new Extent16<RoomScreens>(3, 2));
+        var grid = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), storage, new Extent16<RoomScreens>(3, 2));
         foreach (CameraDistanceMode mode in Enum.GetValues<CameraDistanceMode>())
         foreach (byte facing in new byte[] { 4, 8 })
         for (int reversal = 0; reversal < 4; reversal++)
         {
             var context = new HorizontalCameraContext(
-                reversal == 1 ? (ushort)1 : (ushort)0,
+                reversal == 1,
                 reversal == 2 ? SamusMovementType.Moonwalking : 0,
                 reversal == 3 ? (ushort)1 : (ushort)0, facing, mode);
             bool right = reversal == 0 ? facing != 4 : facing == 4;
@@ -1149,7 +1145,7 @@ internal static class LookupStream2Verification
         var invalidCamera = new ScrollBoundaryCamera(grid);
         AssertThrows<ArgumentOutOfRangeException>(() => invalidCamera.TrackMovedSamusHorizontally(
             FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0), FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0),
-            new(0, 0, 0, 8, (CameraDistanceMode)1)), "Native mode domain remains validated before tracking");
+            new(false, 0, (ushort)0, 8, (CameraDistanceMode)1)), "Native mode domain remains validated before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
 
@@ -1223,30 +1219,31 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid Lint initialization")]
     internal static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
+        // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
+        enemies.KraidBehavior.Kraid = state;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 1);
         Action<RoomEnemySlot, KraidEnemyState> finish = enemies.KraidBehavior.FinishKraidGrowth;
         Action<RoomEnemySlot, KraidPartState> align = enemies.KraidBehavior.AlignKraidPart;
         var body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(200, 300));
-        for (int slot = 2; slot <= 4; slot++) enemies.SlotTable.Slots[slot].VariableB = 17;
+        for (int slot = 2; slot <= 4; slot++) state.Parts[slot].LintTravel = 17;
         finish(body, state);
         for (int slot = 2; slot <= 4; slot++)
         {
             var lint = enemies.SlotTable.Slots[slot];
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + (slot - 2) * 2));
             AssertEqual(expected, KraidLintInitializationDefinitions.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
-            AssertEqual(expected, lint.VariableF, "Actual post-growth timer write");
-            AssertEqual((ushort)0, lint.VariableB, "Actual lint growth resets extension");
+            AssertEqual(expected, state.Parts[lint.SlotIndex].FunctionTimer, "Actual post-growth timer write");
+            AssertEqual((ushort)0, state.Parts[lint.SlotIndex].LintTravel, "Actual lint growth resets extension");
             AssertEqual(KraidAiFunction.LintProduce, state.Parts[slot].NextFunction, "Actual lint continuation");
             for (int remaining = expected - 1; remaining >= 0; remaining--)
             {
                 align(lint, state.Parts[slot]);
-                AssertEqual((ushort)remaining, lint.VariableF, "Actual per-part countdown");
-                AssertEqual((ushort)(remaining == 0 ? KraidAiFunction.LintProduce : KraidAiFunction.AlignPartToKraid),
-                    lint.VariableA, "Actual lint transition occurs on its own final tick");
+                AssertEqual((ushort)remaining, state.Parts[lint.SlotIndex].FunctionTimer, "Actual per-part countdown");
+                AssertEqual((remaining == 0 ? KraidAiFunction.LintProduce : KraidAiFunction.AlignPartToKraid),
+                    state.Parts[lint.SlotIndex].Function, "Actual lint transition occurs on its own final tick");
                 AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");
             }
         }
@@ -1272,7 +1269,7 @@ internal static class LookupStream2Verification
             samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 5;
             var fixture = CreateEnemyDropFixture(samus, [randomValues[column]]);
             var projectile = fixture.System.Projectiles.EnemyProjectiles[0];
-            projectile.ItemDropChancesPointerOverride = NativeDropChancePointer;
+            projectile.DropChancesOverride = EnemyDropChanceDefinitions.At(NativeDropChancePointer);
             AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
                 "Actual cumulative selection preserves each semantic column");
         }
@@ -1286,7 +1283,7 @@ internal static class LookupStream2Verification
     /// <summary>Checks Brinstar, Norfair, and yellow Pipe Bug visual program geometry.</summary>
     internal static void VerifyLookupStream2PipeBugVisualGeometry(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior(rom));
+        Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior());
         Suite(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(rom));
         ushort[] poses = PipeBugAnimationsConstants.Spritemaps(Enum.GetValues<PipeBugProgram>()).Distinct().ToArray();
         foreach (ushort pose in poses)
@@ -1298,7 +1295,6 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Pipe Bug formation")]
     internal static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int member = 0; member < 5; member++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugDefinitions.NorfairStaggerTarget(member),
@@ -1312,9 +1308,9 @@ internal static class LookupStream2Verification
             for (int member = 0; member < 5; member++)
             {
                 var slot = enemies.SlotTable.Slots[member];
-                slot.EnemyDefinitionPointer = EnemyDefinitionId.Gamet;
+                slot.Bind(EnemyDefinitionId.Gamet, slot.Definition);
                 slot.Position = slot.Position.WithWhole(new(128, 128)); slot.Parameter2 = 64;
-                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
+                PipeBugsBehavior.InitializeNorfairPipeBug(slot);
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)(member + 4));
                 slot.Timer = NativeCountdown.FromRaw((ushort)(member + 8));
             }
@@ -1400,7 +1396,7 @@ internal static class LookupStream2Verification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var nativeSystem = new SamusProjectileSystem(); var authoredSystem = new SamusProjectileSystem();
+            var nativeSystem = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads }; var authoredSystem = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads };
             foreach (var system in new[] { nativeSystem, authoredSystem })
             {
                 var pair = system.TrailSlots[0];
@@ -1415,7 +1411,7 @@ internal static class LookupStream2Verification
                 StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Right, nativeOam, frozenFrame);
                 OamBuffer authoredOam = SpriteFrameBuffer.DrawnOam(frame =>
                 {
-                    authoredSystem.AdvanceTrails(NewProjectileCompositionForbiddenBus(), frozenFrame, catalog);
+                    authoredSystem.AdvanceTrails(frozenFrame, catalog);
                     authoredSystem.DrawTrails(frame, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
                 });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
@@ -1433,18 +1429,17 @@ internal static class LookupStream2Verification
         {
             if (ProjectileTrailProgramDefinitions.TryRead(address, out _))
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailProgramDefinitions.Read(bus, address), "Compiled trail program preserves every authored mechanics word");
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailProgramDefinitions.Read(address), "Compiled trail program preserves every authored mechanics word");
                 programWords++;
             }
             else
             {
                 int rejectedAddress = address;
-                AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
+                AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
             }
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, 0x91b4c9), "Trail program rejects a wrong-bank alias");
-        Suite(nameof(VerifyTrailMutableAlias), () => VerifyTrailMutableAlias());
+        AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[-1], "Calculated trail frame lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[42], "Calculated trail frame upper bound");
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
@@ -1453,7 +1448,7 @@ internal static class LookupStream2Verification
             if (side.InstructionTimer.IsZero) return;
             if (!frozen && (side.InstructionTimer = side.InstructionTimer.Decrement().Remaining).IsZero)
             {
-                ushort cursor = side.InstructionPointer;
+                ushort cursor = checked((ushort)side.InstructionPointer);
                 while (true)
                 {
                     ushort word = ReadVerificationWord(bus, 0x900000 | cursor);
@@ -1483,21 +1478,24 @@ internal static class LookupStream2Verification
         int start = SamusProjectileRomData.Trails.LeftInstructionPointers;
         int end = SamusProjectileRomData.Trails.RightInstructionPointers + 64 * sizeof(ushort);
         for (int address = start; address < end; address += sizeof(ushort))
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailDefinitions.ReadSelector(address), "Trail selectors retain every reachable aligned native word");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1), "Trail selector rejects unaligned reads");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the following word");
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailDefinitions.ReadSelector(address, InstalledFixtures.SamusOverreads), "Trail selectors retain every reachable aligned native word");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2, InstalledFixtures.SamusOverreads), "Trail selector rejects the preceding word");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1, InstalledFixtures.SamusOverreads), "Trail selector rejects unaligned reads");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end, InstalledFixtures.SamusOverreads), "Trail selector rejects the following word");
         for (int selection = 0; selection < 64; selection++)
         {
-            var projectiles = new SamusProjectileSystem();
+            var projectiles = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads };
             var projectile = new SamusProjectileSlot(0)
             {
                 Type = (ushort)selection,
                 Cursor = SamusProjectileProgramAddresses.CursorAt(0x86e3),
                 Position = new(new(100, 0), new(200, 0)),
             };
-            projectiles.Trails.SpawnTrail(NewTrailSelectorGuard(start, end), projectile);
+            projectiles.Trails.SpawnTrail(projectile);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
+            // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
+            if (trail.Left.InstructionTimer.IsZero)
+                continue;
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Trails.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");
             AssertEqual(1, trail.Left.InstructionTimer.RawValue, "Selector extraction leaves allocation timer unchanged");
@@ -1523,7 +1521,6 @@ internal static class LookupStream2Verification
             ChozoAndTubeColorCatalog.Load(new MemoryStream(ChozoAndTubeColorCatalog.Write(document), writable: false));
         var stock = Load(original);
         Check(stock, original);
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertEqual(8, (stock.tubeColorSeeds).Length,
             "tube stores only its eight authored seed colors");
         foreach (var (statue, edits) in new[] { ("wreckedShipEdits", stock.wreckedShipEdits), ("lowerNorfairEdits", stock.lowerNorfairEdits) })
@@ -1611,11 +1608,11 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
+        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
         Action<DeadTorizoEnemyState> build = enemies.DeadTorizoBehavior.BuildDeadTorizoVramTransfers;
         for (ushort phase = 0; phase < 2; phase++)
         {
-            var rows = DeadTorizoVramTransferDefinitions.ForPhase(phase);
+            var rows = DeadTorizoVramTransferDefinitions.ForHalf(odd: phase == 1);
             ushort table = phase == 0 ? DeadTorizoVramTransferDefinitions.EvenTable : DeadTorizoVramTransferDefinitions.OddTable;
             AssertEqual(7, rows.Length, "Dead Torizo six body rows plus sand strip");
             int count = 0;
@@ -1630,16 +1627,17 @@ internal static class LookupStream2Verification
             }
             AssertEqual(7, count, "Dead Torizo enumeration count");
             AssertEqual((ushort)0, ReadVerificationWord(rom, 0xa90000 | table + count * 8), "Dead Torizo native terminator");
-            state.VramTransferPhase = unchecked((ushort)(phase - 1));
+            // The cartridge's phase word before this call is phase - 1: 65535 for phase 0, whose odd low bit
+            // gives way to the even half across the word's wrap, then 0 for phase 1.
+            state.UploadsOddTransferHalf = phase == 0;
             build(state);
-            AssertEqual(phase, state.VramTransferPhase, "Dead Torizo phase advancement");
+            AssertEqual(phase == 1, state.UploadsOddTransferHalf, "Dead Torizo phase advancement, including across the phase word's wrap");
             for (int index = 0; index < rows.Length; index++)
             {
                 var actual = enemies.LastDeadTorizoVramTransfers[phase * 7 + index];
                 AssertEqual(rows[index].SizeInBytes, actual.SizeInBytes, "Dead Torizo queued size");
                 AssertEqual(rows[index].SourceAddress, actual.SourceAddress, "Dead Torizo queued live WRAM source");
-                AssertEqual(rows[index].EncodedVramDestination, actual.EncodedVramDestination, "Dead Torizo queued VRAM destination");
-                AssertEqual(rows[index], DeadTorizoVramTransferDefinitions.ForPhase((ushort)(phase + 2))[index], "Dead Torizo phase parity");
+                AssertEqual(rows[index].EncodedVramDestination, actual.Destination.Encoded, "Dead Torizo queued VRAM destination");
             }
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "Dead Torizo negative row");
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[7]; }, "Dead Torizo past last row");
@@ -1653,6 +1651,8 @@ internal static class LookupStream2Verification
         AssertEqual(5, transfers.Count, "Gunship calculated transfer count");
         var enemies = new RoomEnemySystem();
         var slot = enemies.SlotTable.Slots[0];
+        var part = new GunshipPartState();
+        slot.SetSpeciesState(part, part.ClearWithRecord);
         var queue = new VramWriteQueue();
         var append = new Action<RoomEnemySlot, VramWriteQueue>(enemies.GunshipBehavior.QueueGunshipTakeoffTiles);
         int enumerated = 0;
@@ -1665,13 +1665,13 @@ internal static class LookupStream2Verification
             AssertEqual(VramAssetId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
             append(slot, queue);
-            AssertEqual(destination, queue.Entries[enumerated].EncodedVramDestination, "Gunship actual queued destination");
+            AssertEqual(destination, queue.Entries[enumerated].Destination.Encoded, "Gunship actual queued destination");
             AssertEqual(source, queue.Entries[enumerated].SourceAddress, "Gunship actual queued source");
             enumerated++;
         }
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");
-        AssertEqual((ushort)0, slot.VariableB, "Gunship completes transfer phase");
-        AssertEqual((ushort)GunshipFunction.FireUpEngines, slot.VariableF, "Gunship starts engines after fifth transfer");
+        AssertEqual(0, part.LiftoffTransferIndex, "Gunship completes transfer phase");
+        AssertEqual(GunshipFunction.FireUpEngines, part.Function, "Gunship starts engines after fifth transfer");
         AssertThrows<IndexOutOfRangeException>(() => _ = transfers[-1], "Gunship lower transfer bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");
@@ -1747,7 +1747,6 @@ internal static class LookupStream2Verification
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertTrue(stock.digits is null, "Stock digits discard stored lookup");
         AssertTrue(stock.arrowOffsets is null, "Stock arrow discards stored offsets");
         Check(stock, document);
@@ -1800,11 +1799,10 @@ internal static class LookupStream2Verification
     /// <summary>Checks ghost appearance timing/visibility and four Norfair palette-FX cycles.</summary>
     internal static void VerifyLookupStream2GhostAndNorfair(ISnesAddressSpace rom)
     {
-        const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
         Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
-        var state = new WreckedShipGhostEnemyState(slot);
+        var state = new WreckedShipGhostEnemyState();
         for (int index = 0; index < 9; index++)
         {
             short originalX = unchecked((short)ReadVerificationWord(rom, 0xa89aa8 + 4 * index));
@@ -1812,8 +1810,8 @@ internal static class LookupStream2Verification
             var calculated = WreckedShipGhostAppearanceDefinitions.SpawnOffset(index);
             AssertEqual(originalX, calculated.X, "Ghost original horizontal spawn offset");
             AssertEqual(originalY, calculated.Y, "Ghost original vertical spawn offset");
-            state.SpawnColumnOffset = (ushort)(4 * (index % 3));
-            state.SpawnRowOffset = (ushort)(12 * (index / 3));
+            state.SpawnColumn = index % 3;
+            state.SpawnRow = index / 3;
             spawn(slot, state, new(32, 65520));
             AssertEqual(unchecked((ushort)(32 + originalX)), slot.Position.X.Whole, "Ghost actual wrapped spawn X");
             AssertEqual(unchecked((ushort)(65520 + originalY)), slot.Position.Y.Whole, "Ghost actual wrapped spawn Y");
@@ -1825,31 +1823,31 @@ internal static class LookupStream2Verification
         {
             short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
             AssertEqual(original, WreckedShipGhostAppearanceDefinitions.FlickerDuration(offset / 2), "Ghost original flicker interval");
-            slot.Properties = (ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
+            slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
             state.PhaseTimer = NativeCountdown.Start(1);
-            state.FlickerTableOffset = (ushort)offset;
+            state.FlickerTableOffset = offset;
             flicker(slot, state);
             AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer.RawValue, "Ghost actual next interval");
-            AssertEqual(original < 0 ? (ushort)0 : (ushort)(offset + 2), state.FlickerTableOffset, "Ghost actual next offset including odd folding");
+            AssertEqual(original < 0 ? 0 : offset + 2, state.FlickerTableOffset, "Ghost actual next offset including odd folding");
             bool remainsInvisible = original < 0 || (offset & 2) != 0;
-            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties, "Ghost actual visibility preserves unrelated flags");
+            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties.ToNativeWord(), "Ghost actual visibility preserves unrelated flags");
         }
         state.PhaseTimer = NativeCountdown.Start(2);
         state.FlickerTableOffset = 2;
-        slot.Properties = (ushort)EnemyProperties.Invisible;
+        slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible);
         flicker(slot, state);
         AssertEqual((ushort)1, state.PhaseTimer.RawValue, "Ghost interval countdown");
-        AssertEqual((ushort)2, state.FlickerTableOffset, "Ghost no early interval advance");
-        AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties, "Ghost no early visibility change");
+        AssertEqual(2, state.FlickerTableOffset, "Ghost no early interval advance");
+        AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties.ToNativeWord(), "Ghost no early visibility change");
         state.PhaseTimer = NativeCountdown.Start(0);
         flicker(slot, state);
-        AssertEqual((ushort)0, slot.Properties, "Ghost terminal next call clears invisibility");
+        AssertEqual((ushort)0, slot.Properties.ToNativeWord(), "Ghost terminal next call clears invisibility");
         state.PhaseTimer = NativeCountdown.Start(1);
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");
-        state.SpawnColumnOffset = 1;
-        state.SpawnRowOffset = 0;
-        AssertThrows<InvalidDataException>(() => spawn(slot, state, Position16<RoomPixels>.Zero), "Ghost unaligned spawn class remains rejected");
+        state.SpawnColumn = 3;
+        state.SpawnRow = 0;
+        AssertThrows<InvalidDataException>(() => spawn(slot, state, Position16<RoomPixels>.Zero), "Ghost out-of-range spawn class remains rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(-1), "Ghost spawn lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(9), "Ghost spawn upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(-1), "Ghost flicker lower bound");
@@ -1975,7 +1973,6 @@ internal static class LookupStream2Verification
             DeathArm = ReadSource(KraidPaletteSource.DeathArm),
         };
         var stock = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(document)));
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         object health = stock.health;
         object secondary = stock.secondary;
         AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
@@ -2050,7 +2047,6 @@ internal static class LookupStream2Verification
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(json));
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var remaining = (System.Collections.IDictionary)stock.sprites;
         AssertEqual(0, remaining.Count, "All805 stock selector operands calculate; independent selection policies remain required");
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)

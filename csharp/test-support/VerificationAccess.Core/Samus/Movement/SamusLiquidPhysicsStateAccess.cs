@@ -15,7 +15,7 @@ internal static class SamusLiquidPhysicsStateAccess
         internal void InitializeRememberedMedium(SamusState samus)
         {
             Ensure.NotNull(samus);
-            ushort bottom = samus.Kinematics.BottomBoundary;
+            int bottom = samus.Kinematics.BottomBoundary;
             self.LiquidPhysicsType = self.FxType switch
             {
                 RoomFxType.Lava or RoomFxType.Acid

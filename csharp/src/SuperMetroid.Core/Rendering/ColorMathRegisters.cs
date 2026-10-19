@@ -11,12 +11,12 @@ public readonly record struct ColorMathRegisters
     /// <summary>Whether arithmetic uses the winning subscreen pixel instead of fixed color.</summary>
     public required bool AddSubscreen { get; init; }
 
-    /// <summary>Five-bit fixed-color red component.</summary>
-    public required byte FixedRed { get; init; }
+    /// <summary>Fixed-color red intensity, 0 through <see cref="Bgr555.MaxChannel"/>.</summary>
+    public required int FixedRed { get; init; }
 
-    /// <summary>Five-bit fixed-color green component.</summary>
-    public required byte FixedGreen { get; init; }
+    /// <summary>Fixed-color green intensity, 0 through <see cref="Bgr555.MaxChannel"/>.</summary>
+    public required int FixedGreen { get; init; }
 
-    /// <summary>Five-bit fixed-color blue component.</summary>
-    public required byte FixedBlue { get; init; }
+    /// <summary>Fixed-color blue intensity, 0 through <see cref="Bgr555.MaxChannel"/>.</summary>
+    public required int FixedBlue { get; init; }
 }

@@ -18,31 +18,12 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class NintendoLogoFadePaletteFxColorDefinitions
 {
 
-    /// <summary>The shared first timed record at <c>$8D:C7B0</c>.</summary>
-    public const ushort FirstFramePointer = 0xc7b0;
-
     /// <summary>The shared one-shot fade contains eight timed records.</summary>
     public const int FrameCount = 8;
 
     /// <summary>Each record writes two live BGR555 colors.</summary>
     public const int ColorsPerFrame = 2;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 8;
-    /// <summary>Returns one shared timed-record pointer.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
-
-    /// <summary>Returns one presentation-owned word in the shared fade body.</summary>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(8, FrameCount, ColorsPerFrame);
 }

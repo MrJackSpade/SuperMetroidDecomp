@@ -14,7 +14,7 @@ internal static class ElevatorAnimationsVerification
     internal static void VerifyElevatorAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, ElevatorAnimations.Programs,
-            ElevatorFrameDefinitions.Spritemap,
+            ElevatorFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  elevator programs: {Entries.Length} programs ({steps} steps) match bank $A3.");

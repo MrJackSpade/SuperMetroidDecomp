@@ -1,14 +1,23 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Flies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>The Flies species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class FliesBehavior : IEnemySpecies
+internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.Menu];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FliesEntity(this, slot, common);
+
     /// <summary>Provides the shared room RNG whose advance is part of each fly AI update.</summary>
     private readonly EnemyRoomBinding _room;
 
@@ -20,20 +29,18 @@ internal sealed class FliesBehavior : IEnemySpecies
 
     /// <summary>Maximum horizontal Samus distance, in pixels, that triggers an attack from circular flight.</summary>
     private const int FlyAttackHorizontalRange = 112;
-    /// <summary>Per-slot motion state for active Mellow, Mella, and Menu enemies.</summary>
-    internal readonly FlyEnemyState?[] _flyStates = new FlyEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Starts a newly loaded fly at angle zero with its flight instruction and clockwise motion.</summary>
-    internal void InitializeFly(RoomEnemySlot slot)
+    internal static void InitializeFly(RoomEnemySlot slot)
     {
-        var state = new FlyEnemyState(slot)
+        var state = new FlyEnemyState
         {
-            Angle = 0,
+            Angle = SnesAngle.Zero,
             Function = FlyEnemyFunction.ClockwiseCircle,
         };
-        _flyStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -69,7 +76,7 @@ internal sealed class FliesBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Fly function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Fly function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -92,8 +99,8 @@ internal sealed class FliesBehavior : IEnemySpecies
         }
 
         MoveFlyAccordingToAngle(slot, state);
-        state.Angle = unchecked((ushort)((state.Angle + (clockwise ? 32 : -32)) & FliesDefinitions.AngleBits));
-        if (state.Angle == 0)
+        state.AdvanceCircle(clockwise);
+        if (state.Angle == SnesAngle.Zero)
         {
             state.Function = clockwise
                 ? FlyEnemyFunction.AntiClockwiseCircle
@@ -112,7 +119,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         state.Velocity = new(
             unchecked((short)(ReadSignedSineCosine(angle + 64) * 2)),
             unchecked((short)(ReadSignedSineCosine(angle) * 4)));
-        state.TargetYPosition = samus.Position.Y.Whole;
+        state.TargetHeight = new Position16<RoomPixels>(0, samus.Position.Y.Whole);
         state.Function = FlyEnemyFunction.AttackSamus;
     }
 
@@ -123,8 +130,8 @@ internal sealed class FliesBehavior : IEnemySpecies
         state.RetreatTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.RetreatTimer.RawValue + 1)));
 
         bool crossedTarget = state.Velocity.Y.SignedRawValue < 0
-            ? slot.Position.Y.Whole < state.TargetYPosition
-            : slot.Position.Y.Whole >= state.TargetYPosition;
+            ? slot.Position.Y.Whole < state.TargetHeight.Y
+            : slot.Position.Y.Whole >= state.TargetHeight.Y;
         if (!crossedTarget)
             return;
 
@@ -135,7 +142,7 @@ internal sealed class FliesBehavior : IEnemySpecies
     /// <summary>Applies the sine and phase-offset cosine table deltas for circular flight.</summary>
     private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
-        int tableIndex = state.Angle >> 1;
+        int tableIndex = state.Angle.TableIndex;
         slot.Position = slot.Position.AdvanceX(new SnesSignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex + 64))).ToSixteenSixteenDelta());
         slot.Position = slot.Position.AdvanceY(new SnesSignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex))).ToSixteenSixteenDelta());
     }
@@ -155,51 +162,30 @@ internal sealed class FliesBehavior : IEnemySpecies
     }
 
     /// <summary>Requires the motion state installed for a live fly slot before its AI runs.</summary>
-    private FlyEnemyState RequireFlyState(RoomEnemySlot slot) =>
-        _flyStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static FlyEnemyState RequireFlyState(RoomEnemySlot slot) =>
+        slot.SpeciesState<FlyEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized fly state.");
 
-    /// <summary>Runs the shared flight loop as a typed program (#641).</summary>
-    internal void RegisterFliesTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or EnemyDefinitionId.Menu,
-            (slot, _) =>
-            {
-                if (!EnemyProgramAnimation.Expire(slot))
-                    return;
-                FlyEnemyState state = RequireFlyState(slot);
-                AnimationProgramCursor<FlyProgram> cursor = state.Program;
-                EnemyProgramAnimation.Run(slot, FlyAnimations.Programs, ref cursor, FlyFrameDefinitions.Spritemap);
-                state.Program = cursor;
-            });
-
-    /// <summary>Registers shared initialization for Mellow, Mella, and Menu definitions.</summary>
-    internal void RegisterFliesInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Flies's typed animation.</summary>
+    internal static void AdvanceFliesTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Mellow_Mella_Menu, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or EnemyDefinitionId.Menu, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeFly(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        FlyEnemyState state = RequireFlyState(slot);
+        AnimationProgramCursor<FlyProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, FlyAnimations.Programs, ref cursor, FlyFrameDefinitions.ShownFrames.Of);
+        state.Program = cursor;
     }
 
-    /// <summary>Registers their shared per-frame movement and attack dispatcher.</summary>
-    internal void RegisterFliesMainAi(EnemyAiTable table)
+    /// <summary>Ports Flies's initialization AI.</summary>
+    internal static void RunFliesInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Mellow_Mella_Menu, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or EnemyDefinitionId.Menu, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunFlyMain(slot, frame.Samus);
-        });
+        InitializeFly(slot);
     }
 
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    /// <summary>Ports Flies's main AI.</summary>
+    internal void RunFliesMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        Array.Clear(_flyStates);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
+        RunFlyMain(slot, frame.Samus);
     }
 }

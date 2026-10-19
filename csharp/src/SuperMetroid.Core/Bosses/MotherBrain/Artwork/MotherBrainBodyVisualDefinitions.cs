@@ -79,4 +79,26 @@ internal static class MotherBrainBodyVisualDefinitions
         int offset = pointer - start;
         return offset >= 0 && offset < count * stride && offset % stride == 0;
     }
+
+    /// <summary>The installed frame each <see cref="MotherBrainBodyFrame"/> shows.</summary>
+    internal static EnemyFrameTable<MotherBrainBodyFrame> ShownFrames { get; } = new()
+    {
+        { new(Index: 0), EnemyFrameId.MotherBrainBodyOamStanding },
+        { new(Index: 1), EnemyFrameId.MotherBrainBodyOamWalking0 },
+        { new(Index: 10), EnemyFrameId.MotherBrainBodyOamUncrouching },
+        { new(Index: 11), EnemyFrameId.MotherBrainBodyOamLeaningDown },
+        { new(Index: 12), EnemyFrameId.MotherBrainBodyOamInitialDummy },
+        { new(Index: 13), EnemyFrameId.MotherBrainBodyOamDeathBeam0 },
+        { new(Index: 14), EnemyFrameId.MotherBrainBodyOamDeathBeam1 },
+        { new(Index: 15), EnemyFrameId.MotherBrainBodyOamDeathBeam2 },
+        { new(Index: 16), EnemyFrameId.MotherBrainBodyOamDeathBeam3 },
+        { new(Index: 2), EnemyFrameId.MotherBrainBodyOamWalking1 },
+        { new(Index: 3), EnemyFrameId.MotherBrainBodyOamWalking2 },
+        { new(Index: 4), EnemyFrameId.MotherBrainBodyOamWalking3 },
+        { new(Index: 5), EnemyFrameId.MotherBrainBodyOamWalking4 },
+        { new(Index: 6), EnemyFrameId.MotherBrainBodyOamWalking5 },
+        { new(Index: 7), EnemyFrameId.MotherBrainBodyOamWalking6 },
+        { new(Index: 8), EnemyFrameId.MotherBrainBodyOamWalking7 },
+        { new(Index: 9), EnemyFrameId.MotherBrainBodyOamCrouched },
+    };
 }

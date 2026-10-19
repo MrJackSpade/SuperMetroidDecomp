@@ -21,7 +21,7 @@ internal sealed class DeathSequenceRunner
     /// <summary>Supplies the active Samus Mode-7 transform during death drawing.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Processes one accepted NMI before each isolated death-state frame.</summary>
-    private readonly NmiHandler _nmiHandler;
+    private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Frame-local OBJ buffer shared by Samus pose and explosion drawing.</summary>
@@ -32,8 +32,6 @@ internal sealed class DeathSequenceRunner
     private readonly ActiveRoomState _room;
     /// <summary>Queues death-pose graphics transfers consumed by the ordinary NMI pipeline.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Runtime address space used by bank-$9B death logic and pose drawing.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Binds the death-state renderer and runtime services supplied by the gameplay host.</summary>
     internal DeathSequenceRunner(DeathSequenceRunnerDependencies dependencies)
@@ -42,13 +40,12 @@ internal sealed class DeathSequenceRunner
         _artwork = dependencies.Artwork;
         _cgram = dependencies.Cgram;
         _display = dependencies.Display;
-        _nmiHandler = dependencies.NmiHandler;
+        _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
         _oam = _sprites.Oam;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _vramWrites = dependencies.VramWrites;
-        _addressSpace = dependencies.AddressSpace;
     }
 
     /// <summary>
@@ -65,14 +62,13 @@ internal sealed class DeathSequenceRunner
         }
 
         SamusDeathSequenceStartResult result = _player.Samus.DeathSequence.Begin(
-            _addressSpace,
             _player.Samus,
             _room.Camera.PixelPosition);
 
         // The next accepted NMI must see pose `$D7/$D8` definitions. Native game state 15
         // draws once before setup and state 16 draws the new pose on its following call;
         // priming here preserves that same first-visible-frame contract in this thin host.
-        _player.Samus.Presentation.PrimeGraphics(_addressSpace);
+        _player.Samus.Presentation.PrimeGraphics();
         return result;
     }
 
@@ -86,10 +82,9 @@ internal sealed class DeathSequenceRunner
         if (_player.Samus is null || _room.Camera is null)
             throw new InvalidOperationException("Fatal Samus drawing requires an active room.");
 
-        _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();
-        _actorDrawing.LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
-            _addressSpace,
+        _player.Samus.Presentation.Draw(
             _sprites,
             _room.Camera.PixelPosition,
             mode7Transform: _display.ActiveSamusMode7Transform);
@@ -106,25 +101,22 @@ internal sealed class DeathSequenceRunner
         if (_player.Samus is null || _room.Camera is null || !_player.Samus.DeathSequence.IsActive)
             throw new InvalidOperationException("The bank-$9B death sequence is not active.");
 
-        _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();
-        _actorDrawing.LastSamusBodyDrawn = false;
         _player.LastDeathSequenceStep = _player.Samus.DeathSequence.Step(
-            _addressSpace,
             _player.Samus,
             _cgram,
             _artwork.SamusBodyArt?.DeathPalettes);
         if (_player.LastDeathSequenceStep.Value.DrawPose)
         {
-            _actorDrawing.LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
-                _addressSpace,
+            _player.Samus.Presentation.Draw(
                 _sprites,
                 _room.Camera.PixelPosition,
                 mode7Transform: _display.ActiveSamusMode7Transform);
         }
         else if (_player.LastDeathSequenceStep.Value.DrawExplosion)
         {
-            _player.Samus.DeathSequence.DrawExplosion(_addressSpace, _sprites, _artwork.SamusBodyArt?.Spritemaps, _artwork.SamusBodyArt?.DeathTiles);
+            _player.Samus.DeathSequence.DrawExplosion(_sprites, _artwork.SamusBodyArt?.Spritemaps, _artwork.SamusBodyArt?.DeathTiles);
         }
         _sprites.FinalizeFrame();
         return _player.LastDeathSequenceStep.Value;

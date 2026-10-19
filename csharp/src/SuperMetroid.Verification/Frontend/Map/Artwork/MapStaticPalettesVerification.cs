@@ -32,9 +32,9 @@ internal static class MapStaticPalettesVerification
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.Pause), "all static pause colors match cartridge");
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, FileSelectMapRomData.EntryPalette);
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.FileSelect), "all static file-select colors match cartridge");
-        var nativeWorld = new FileSelectAreaMapGraphics(bus, 0, original.Tiles,
+        var nativeWorld = new FileSelectAreaMapGraphics(0, original.Tiles,
             original.Palettes, original.Screens, original.WorldArtwork, original.Sprites);
-        var world = new FileSelectAreaMapGraphics(guard, 0, original.Tiles,
+        var world = new FileSelectAreaMapGraphics(0, original.Tiles,
             original.Palettes, original.Screens, original.WorldArtwork, original.Sprites);
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
@@ -59,8 +59,8 @@ internal static class MapStaticPalettesVerification
 
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-        var room = new FileSelectRoomMapGraphics(guard, system, AreaId.Crateria, mapPresentation: original);
-        var pause = new PauseMenuState(guard, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var room = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original);
+        var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         var roomBefore = room.RenderBackgrounds(new(0, 0)).ToArray(); var pauseBefore = pause.Render();
         room.BindMapPresentation(edited); pause.BindMapPresentation(edited);
         AssertTrue(!roomBefore.SequenceEqual(room.RenderBackgrounds(new(0, 0))), "static palette edit reaches room-map pixels");

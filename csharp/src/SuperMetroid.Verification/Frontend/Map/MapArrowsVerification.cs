@@ -23,8 +23,8 @@ internal static class MapArrowsVerification
     internal static void VerifyMapArrows(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewMapArrowGuard(bus);
-        var native = new FileSelectMapAnimations(bus, original.Arrows);
-        var installed = new FileSelectMapAnimations(guard, original.Arrows);
+        var native = new FileSelectMapAnimations(original.Arrows);
+        var installed = new FileSelectMapAnimations(original.Arrows);
         for (int tick = 0; tick < 600; tick++)
         {
             bool Available(MapScrollDirection direction) => (tick / 17 + (int)direction) % 5 != 0;
@@ -32,7 +32,7 @@ internal static class MapArrowsVerification
             AssertTrue(Draw(native).SequenceEqual(Draw(installed)), "all four extracted arrow sprites match native OAM");
             AssertTrue(Counters(native).SequenceEqual(Counters(installed)), "arrow phase/timer and visibility match native including hidden pauses");
         }
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<MapArrowDocument>(File.ReadAllBytes(Path.Combine(stock, MapArrowFormat.FileName)), options);
         var entries = new Dictionary<string, MapArrowEntry>(document.Arrows);
@@ -43,12 +43,12 @@ internal static class MapArrowsVerification
         byte[] bytes = File.ReadAllBytes(path);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "arrow override affects selected content identity");
-        var changed = new FileSelectMapAnimations(guard, edited.Arrows);
-        var control = new FileSelectMapAnimations(bus, original.Arrows);
+        var changed = new FileSelectMapAnimations(edited.Arrows);
+        var control = new FileSelectMapAnimations(original.Arrows);
         changed.StepArrows(_ => true); control.StepArrows(_ => true);
         AssertTrue(!Draw(changed).SequenceEqual(Draw(control)), "edited anchor moves actual emitted arrow sprite coordinates");
-        var graphics = new FileSelectRoomMapGraphics(guard, new Bank80SystemState(), AreaId.Maridia, mapPresentation: original);
-        var marker = new FileSelectStationMarker(guard, AreaId.Maridia, 0, original.SaveMarkers);
+        var graphics = new FileSelectRoomMapGraphics(new Bank80SystemState(), AreaId.Maridia, mapPresentation: original);
+        var marker = new FileSelectStationMarker(AreaId.Maridia, 0, original.SaveMarkers);
         AssertTrue(!graphics.Render(new(0, 0), marker, changed).ToArray().SequenceEqual(graphics.Render(new(0, 0), marker, control)),
             "edited arrow anchor changes actual composed room-map pixels");
         AssertEqual(11, Counters(changed)[0], "first native decrement advances to authored phase one duration");
@@ -67,7 +67,7 @@ internal static class MapArrowsVerification
         AssertEqual(before[1] % 2, Counters(installed)[1], "shorter replacement normalizes phase");
         installed.StepArrows(_ => true);
         // Active gameplay no longer has a cartridge fallback for unbinding.
-        var rebound = new FileSelectMapAnimations(bus, edited.Arrows);
+        var rebound = new FileSelectMapAnimations(edited.Arrows);
         AssertThrows<InvalidOperationException>(() => rebound.BindPresentation(null),
             "unbinding arrows without installed presentation fails loudly");
         foreach (int duration in new[] { 0, 255, -1 })

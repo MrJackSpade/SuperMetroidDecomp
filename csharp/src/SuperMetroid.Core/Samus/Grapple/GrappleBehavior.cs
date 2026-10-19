@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>The Grapple species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class GrappleBehavior
+internal sealed class GrappleBehavior : IGrappleTargets
 {
     /// <summary>Provides interactive enemy order and wrapped main-AI dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
@@ -35,7 +35,7 @@ internal sealed class GrappleBehavior
     public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
         _room.EnsureLoaded();
-        foreach (ushort nativeIndex in _dispatch.InteractiveEnemyIndexes)
+        foreach (int nativeIndex in _dispatch.InteractiveEnemyIndexes)
         {
             RoomEnemySlot enemy = _slotTable.SlotFromNativeIndex(nativeIndex);
             if (!enemy.InvincibilityTimer.IsZero)
@@ -48,7 +48,7 @@ internal sealed class GrappleBehavior
 
             // The collision routine stores exactly one, rather than ORing it into an old
             // hurt/frozen handler. The next EnemyMain pass therefore dispatches grapple AI.
-            enemy.AiHandlerBits = EnemyAiHandlerMasks.Grappled;
+            enemy.AiStates = EnemyAiStates.Grappled;
             GrappleEnemyReaction reaction = enemy.Definition.GrappleAiPointer switch
             {
                 GrappleAiRoutine.NoInteraction => GrappleEnemyReaction.None,
@@ -77,15 +77,15 @@ internal sealed class GrappleBehavior
     /// Executes the common grapple AI selected by handler bit zero. Returning true tells the
     /// ordinary scheduler that this call replaced main AI for the current enemy frame.
     /// </summary>
-    internal bool RunCommonGrappleAi(RoomEnemySlot enemy, IEnemyAiFrame frame, byte nmiFrameCounter8)
+    internal bool RunCommonGrappleAi(RoomEnemySlot enemy, IEnemyAiFrame frame)
     {
-        if ((enemy.AiHandlerBits & EnemyAiHandlerMasks.Grappled) == 0)
+        if ((enemy.AiStates & EnemyAiStates.Grappled) == 0)
             return false;
 
         switch (enemy.Definition.GrappleAiPointer)
         {
             case GrappleAiRoutine.NoInteraction:
-                enemy.AiHandlerBits = 0;
+                enemy.AiStates = EnemyAiStates.None;
                 enemy.InvincibilityTimer = NativeCountdown.Start(0);
                 enemy.FrozenTimer = NativeCountdown.Start(0);
                 enemy.ShakeTimer = NativeCountdown.Start(0);
@@ -94,12 +94,12 @@ internal sealed class GrappleBehavior
             case GrappleAiRoutine.Attach:
                 if (!enemy.FrozenTimer.IsZero)
                 {
-                    enemy.AiHandlerBits = EnemyAiHandlerMasks.Frozen;
+                    enemy.AiStates = EnemyAiStates.Frozen;
                 }
                 else
                 {
-                    enemy.FlashTimer = NativeCountdown.FromRaw(enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime);
-                    enemy.AiHandlerBits = 0;
+                    enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames);
+                    enemy.AiStates = EnemyAiStates.None;
                 }
                 return true;
 
@@ -108,32 +108,33 @@ internal sealed class GrappleBehavior
                 // routine preserves the actor's position/drop identity and any respawn
                 // marker; directly deleting the enemy loses the complete visual tail.
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 0);
-                enemy.AiHandlerBits = 0;
+                enemy.AiStates = EnemyAiStates.None;
                 return true;
 
             case GrappleAiRoutine.Cancel:
             case GrappleAiRoutine.HurtSamus:
-                enemy.AiHandlerBits = EnemyAiHandlerMasks.Frozen;
+                enemy.AiStates = EnemyAiStates.Frozen;
                 return true;
 
             case GrappleAiRoutine.AttachWithoutInvincibility:
                 if (!enemy.FrozenTimer.IsZero)
                 {
-                    enemy.AiHandlerBits = EnemyAiHandlerMasks.Frozen;
+                    enemy.AiStates = EnemyAiStates.Frozen;
                     return true;
                 }
 
                 // This common wrapper is Powamp's crucial distinction: it invokes the
                 // enemy's normal main function while bit zero remains observable, then
                 // clears that bit after the actor has moved its grapple anchor.
-                _dispatch.RunMainAi(enemy, new GrappleWrappedAiFrame(frame), nmiFrameCounter8);
-                enemy.AiHandlerBits = 0;
+                _dispatch.RunMainAi(enemy, new GrappleWrappedAiFrame(frame));
+                enemy.AiStates = EnemyAiStates.None;
                 return true;
 
             case GrappleAiRoutine.AttachAndParalyze:
-                enemy.FlashTimer = NativeCountdown.FromRaw(enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime);
-                enemy.AiHandlerBits = 0;
-                enemy.ExtraProperties = unchecked((ushort)(enemy.ExtraProperties | 1));
+                enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames);
+                enemy.AiStates = EnemyAiStates.None;
+                enemy.ExtraProperties = enemy.ExtraProperties.WithUntranslatedBits(
+                    EnemyExtraPropertyRawBits.GrappleParalyzeBit0001, "grapple attach-and-paralyze");
                 return true;
 
             case GrappleAiRoutine.None:
@@ -170,5 +171,8 @@ internal sealed class GrappleBehavior
         public SamusBombProjectileSystem? SharedProjectiles => null;
         /// <summary>Unavailable VRAM queue in the common grapple wrapper.</summary>
         public VramWriteQueue? VramWriteQueue => null;
+
+        /// <inheritdoc/>
+        public FrameCounters Clock => frame.Clock;
     }
 }

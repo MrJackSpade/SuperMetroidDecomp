@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <param name="TopRow">Upper-left and upper-right packed BG character words in horizontal transfer order.</param>
 /// <param name="BottomRow">Lower-left and lower-right packed BG character words in horizontal transfer order.</param>
 public sealed record PlmTilemapUpdate(
-    ushort TopRowDestination,
+    int TopRowDestination,
     ushort[] TopRow,
     ushort[] BottomRow)
 {
@@ -17,7 +17,7 @@ public sealed record PlmTilemapUpdate(
     public void ExecuteTo(SnesVram vram)
     {
         Ensure.NotNull(vram);
-        vram.ExecuteWordTransfer(TopRow, TopRowDestination, 1);
+        vram.ExecuteWordTransfer(TopRow, checked((ushort)TopRowDestination), 1);
         vram.ExecuteWordTransfer(
             BottomRow,
             unchecked((ushort)(TopRowDestination + TilemapRowWords)),

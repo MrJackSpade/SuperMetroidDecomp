@@ -21,7 +21,7 @@ internal static class NativeCaptureSeeds
         foreach (bool left in new[] { false, true })
         for (int timingCase = 0; timingCase < BombSpreadTransitionScenario.TimingCaseCount(wallRoute); timingCase++)
         {
-            var scenario = new BombSpreadTransitionScenario(RepositoryInstallation.CreateRuntime(bus), bus, left, timingCase, wallRoute);
+            var scenario = new BombSpreadTransitionScenario(RepositoryInstallation.CreateRuntime(), left, timingCase, wallRoute);
             for (int frame = 0; frame < scenario.FrameCount; frame++, frames++)
             {
                 SnesButton input = scenario.Input(frame);
@@ -44,7 +44,7 @@ internal static class NativeCaptureSeeds
     internal static int ExportShallowWaterJumpSeed()
     {
         var bus = RepositoryRom.Load();
-        var scenario = new ShallowWaterJumpScenario(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus);
+        var scenario = new ShallowWaterJumpScenario(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
         var level = scenario.Runtime.Room.LoadedLevelData;
         string output = Path.GetFullPath("csharp/test-temp/issue-1258-water-jump");
         Directory.CreateDirectory(output);

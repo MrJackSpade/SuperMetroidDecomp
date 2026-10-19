@@ -1,8 +1,14 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.Verification.Rooms;
 
@@ -100,9 +106,9 @@ internal static class LookupRoomStateSettingsVerification
     /// <summary>Checks effect-header pointer selection for every state.</summary>
     private static void VerifyRoomStateFxPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.FxPointer, "FxPointer");
     /// <summary>Checks which native enemy population each state installs.</summary>
-    private static void VerifyRoomStateEnemyPopulationPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.EnemyPopulationPointer, "EnemyPopulationPointer");
+    private static void VerifyRoomStateEnemyPopulationPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation), "EnemyPopulationPointer");
     /// <summary>Checks the enemy graphics-set pointer paired with each population.</summary>
-    private static void VerifyRoomStateEnemyTilesetPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.EnemyTilesetPointer, "EnemyTilesetPointer");
+    private static void VerifyRoomStateEnemyTilesetPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => RoomEnemyGraphicsSetDefinitions.PointerOf(state.EnemyGraphicsSet), "EnemyTilesetPointer");
     /// <summary>Checks horizontal layer-two scroll configuration in every room state.</summary>
     private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2Scroll.Horizontal, "Layer2ScrollX");
     /// <summary>Checks vertical layer-two scroll configuration in every room state.</summary>
@@ -115,30 +121,30 @@ internal static class LookupRoomStateSettingsVerification
         Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.XrayPointer, "XrayPointer"));
         ushort[] original = OriginalRoomStatePointers.Select(pointer => CartridgeRoomStateImporter.Load(rom, pointer).XrayPointer)
             .Where(pointer => pointer != 0).Distinct().Order().ToArray();
-        AssertTrue(XrayRoomOverlaySourceDefinitions.All.SequenceEqual(original),
+        AssertTrue(XrayRoomOverlaySources.Pointers.SequenceEqual(original),
             "Required X-ray source view matches distinct original nonzero pointers in order");
-        AssertTrue(XrayRoomOverlaySourceDefinitions.All.SequenceEqual(original),
+        AssertTrue(XrayRoomOverlaySources.Pointers.SequenceEqual(original),
             "X-ray source view is repeatable after complete enumeration");
     }
     /// <summary>Checks the per-frame room callback pointer in each state.</summary>
-    private static void VerifyRoomStateMainCodePointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MainCodePointer, "MainCodePointer");
+    private static void VerifyRoomStateMainCodePointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => RoomCallbackDefinitions.PointerOf(state.MainCallback), "MainCodePointer");
     /// <summary>Checks the room's PLM population pointer in each state.</summary>
     private static void VerifyRoomStatePlmPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.PlmPointer, "PlmPointer");
     /// <summary>Checks the scripted background-data pointer in each state.</summary>
     private static void VerifyRoomStateBackgroundDataPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundDataPointer, "BackgroundDataPointer");
     /// <summary>Checks the one-time room setup callback pointer in each state.</summary>
-    private static void VerifyRoomStateSetupCodePointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.SetupCodePointer, "SetupCodePointer");
+    private static void VerifyRoomStateSetupCodePointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => RoomCallbackDefinitions.PointerOf(state.SetupCallback), "SetupCodePointer");
 
     /// <summary>Compares a selected field both through lookup and sorted enumeration for all native identities.</summary>
-    private static void VerifyRoomStateField(SuperMetroidAddressSpace rom,
-        Func<CartridgeRoomState, int> field, string name)
+    private static void VerifyRoomStateField<T>(SuperMetroidAddressSpace rom,
+        Func<CartridgeRoomState, T> field, string name)
     {
         CartridgeRoomState[] enumerated = RoomStateDefinitions.All.ToArray();
         for (int index = 0; index < OriginalRoomStatePointers.Length; index++)
         {
             ushort pointer = OriginalRoomStatePointers[index];
             CartridgeRoomState original = CartridgeRoomStateImporter.Load(rom, pointer);
-            int expected = field(original);
+            T expected = field(original);
             AssertEqual(expected, field(RoomStateDefinitions.Get(pointer)), $"State {pointer:X4} {name}");
             AssertEqual(expected, field(enumerated[index]), $"Enumerated state {pointer:X4} {name}");
         }

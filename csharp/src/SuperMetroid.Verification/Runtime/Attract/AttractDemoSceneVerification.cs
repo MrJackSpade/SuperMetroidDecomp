@@ -14,6 +14,10 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.Verification.Runtime.Attract;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks attract-scene setup records and compiled input scripts against native data and playback.</summary>
 internal static class AttractDemoSceneVerification
@@ -26,15 +30,16 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, AttractDemoRomData.RoomSetPointers, 0x9000);
         WriteRomWord(rom, AttractDemoRomData.EquipmentSetPointers, 0xa000);
         WriteRomWord(rom, AttractDemoRomData.SamusSetupSetPointers, 0xb000);
-        ushort[] room = [0x91f8, 0x8000, 1, 0x100, 0x200, 0x40, 0xffd2, 0x151, 0x8924];
-        ushort[] equipment = [0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000];
+        ushort[] room = [0x91f8, 0x896a, 1, 0x100, 0x200, 0x40, 0xffd2, 0x151, 0x8924];
+        ushort inputObject = DemoInputObjectDefinitions.NativeHeaderOf(DemoInputObjectDefinitions.AttractLandingSite);
+        ushort[] equipment = [0x3105, 10, 5, 2, 399, 0x100f, 0x100b, inputObject];
         for (int word = 0; word < room.Length; word++) WriteRomWord(rom, 0x829000 + word * 2, room[word]);
         for (int word = 0; word < equipment.Length; word++) WriteRomWord(rom, 0x91a000 + word * 2, equipment[word]);
         WriteRomWord(rom, 0x91b000, 0x8a53);
         WriteRomWord(rom, 0x829012, AttractDemoRomData.EndOfSet);
-        WriteRomWord(rom, 0x919000, DemoInputRomData.Routines.NoOp);
-        WriteRomWord(rom, 0x919002, (ushort)AttractDemoPreInstruction.CheckLeave);
-        WriteRomWord(rom, 0x919004, 0xc000);
+        WriteRomWord(rom, DemoInputRomData.BankBase | inputObject, DemoInputRomData.Routines.NoOp);
+        WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 2, (ushort)NativeDemoPreInstruction.AttractCheckLeave);
+        WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 4, 0xc000);
         WriteRomWord(rom, 0x91c000, 5);
         WriteRomWord(rom, 0x91c002, (ushort)SnesButton.Left);
         WriteRomWord(rom, 0x91c004, 0);
@@ -44,8 +49,8 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation)) + 2,
             (ushort)SnesButton.Right);
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        var expected = new AttractDemoScene(0x91f8, 0x8000, new(0x100, 0x200), new(-46, 0x40),
-            0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, 0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000);
+        var expected = new AttractDemoScene(RoomHeaderDefinitions.LandingSite, DoorDefinitions.Parlor1, new(0x100, 0x200), new(-46, 0x40),
+            0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, (SamusEquipmentFlags)0x3105, 10, 5, 2, 399, (SamusBeamFlags)0x100f, (SamusBeamFlags)0x100b, DemoInputObjectDefinitions.AttractLandingSite);
         if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index.");
         if (expected.SamusPosition != new Position16<RoomPixels>(338, 576))
@@ -60,28 +65,28 @@ internal static class AttractDemoSceneVerification
         if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
             throw new InvalidDataException("Title demo departure did not delete input in the same handler call.");
         input = new ReferenceAttractInput(bus, expected);
-        input.Script.Redirect((ushort)AttractDemoPreInstruction.Shinespark, 0xc000);
+        input.Script.Redirect((ushort)NativeDemoPreInstruction.AttractShinespark, 0xc000);
         input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.DraygonHeld);
         if (input.Script.Held != (ushort)SnesButton.Left)
             throw new InvalidDataException("Native type-$1A branch should leave the current script intact.");
         input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
         if (input.Script.Held != (ushort)SnesButton.Right || input.Script.InstructionTimer.RawValue != 7 ||
-            input.Script.PreInstructionPointer != (ushort)AttractDemoPreInstruction.CheckLeave)
+            input.Script.PreInstructionPointer != (ushort)NativeDemoPreInstruction.AttractCheckLeave)
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
         // $80:8261 fixes NumberOfDemoSets once at boot, so each eligibility case boots a session.
-        if (new SuperMetroidGame(bus).AvailableDemoSetCount() != 3)
+        var saveRam = new SaveSlotStore(RetailPresentationFixture());
+        if (new SuperMetroidGame(saveRam).Session.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
-        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         saveRam.SetGameCompleted(true);
-        if (new SuperMetroidGame(bus).AvailableDemoSetCount() != 3)
+        if (new SuperMetroidGame(saveRam).Session.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked set four.");
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot());
         saveRam.SetGameCompleted(true);
-        if (new SuperMetroidGame(bus).AvailableDemoSetCount() != 4)
+        if (new SuperMetroidGame(saveRam).Session.AvailableDemoSetCount() != 4)
             throw new InvalidDataException("Valid completed-game save did not unlock the fourth demo set.");
         saveRam.SetGameCompleted(false);
-        if (new SuperMetroidGame(bus).AvailableDemoSetCount() != 3)
+        if (new SuperMetroidGame(saveRam).Session.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked set four.");
     }
 
@@ -147,7 +152,7 @@ internal static class AttractDemoSceneVerification
                 reference.Step(gameState, movement);
                 compiled.StepStock(gameState, movement);
                 AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script),
-                    $"compiled attract ${scene.InputObject:X4}, leave {leaveFrame}, frame {frame}");
+                    $"compiled attract {scene.InputObject.Program}, leave {leaveFrame}, frame {frame}");
             }
         }
     }

@@ -23,6 +23,4 @@ public readonly record struct MotherBrainBodyFrame(int Index)
     /// <summary>Hand-beam pose <paramref name="step"/> of four.</summary>
     internal static MotherBrainBodyFrame HandBeam(int step) => new(13 + Ensure.BetweenInclusive(0, 3, step));
 
-    /// <summary>The installed extended spritemap the pose shows.</summary>
-    internal ushort Spritemap => MotherBrainBodyVisualDefinitions.Frame(Index).Pointer;
 }

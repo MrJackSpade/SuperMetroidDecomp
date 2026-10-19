@@ -12,10 +12,9 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 internal static class CrystalFlashVisualsVerification
 {
     /// <summary>Checks authored body and bubble palette rows, then isolates visible body and color-window pixels.</summary>
-    internal static (bool Body, bool Window) VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, int elapsed)
+    internal static (bool Body, bool Window) VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, SuperMetroid.Core.Hardware.ISnesAddressSpace bus, int elapsed)
     {
         var samus = runtime.Player.IntroducedSamus;
-        var bus = runtime.AddressSpace;
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         if (samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash)
         {

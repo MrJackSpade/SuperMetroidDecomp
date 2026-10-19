@@ -22,7 +22,8 @@ public static class FileSelectMapLoadAnchors
     {
         _ = MapSaveMarkerDefinitions.Id(area, stationIndex);
         LoadStationEntry station = LoadStationDefinitions.Get(area, (byte)stationIndex);
-        RoomHeaderDefinition room = RoomHeaderDefinitions.Get(station.RoomPointer);
+        RoomHeaderDefinition room = station.Room ??
+            throw new InvalidOperationException($"{area} station {stationIndex} has no room.");
         Position16<RoomPixels> samus = station.SamusPosition;
         return new((ushort)((room.MapPosition.X + (SnesLittleEndian.HighByte(samus.X))) << 3),
             (ushort)((room.MapPosition.Y + (SnesLittleEndian.HighByte(samus.Y)) + 1) << 3));

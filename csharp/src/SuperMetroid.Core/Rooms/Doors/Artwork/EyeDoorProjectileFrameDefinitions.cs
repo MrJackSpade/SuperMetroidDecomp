@@ -1,28 +1,28 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Rooms.Doors.Artwork;
 
 /// <summary>
-/// The presentation boundary of the eye door's projectile programs (#641): the installed artwork key of each
-/// <see cref="EyeDoorProjectileFrame"/> pose, which is the bank-$86 address of the native frame's spritemap operand.
+/// The presentation boundary of the eye door's projectile programs (#641): the projectile frame each
+/// <see cref="EyeDoorProjectileFrame"/> pose shows.
 /// </summary>
 internal static class EyeDoorProjectileFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 11;
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
-    internal static ushort PresentationKey(EyeDoorProjectileFrame frame) => frame.Pose switch
-    {
-        0 => 0xb5db,
-        1 => 0xb5df,
-        2 => 0xb5e3,
-        3 => 0xb5ed,
-        4 => 0xb5f7,
-        5 => 0xb5fb,
-        6 => 0xb5ff,
-        7 => 0xb605,
-        8 => 0xb609,
-        9 => 0xb60d,
-        10 => 0xb611,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined eye door projectile pose."),
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<EyeDoorProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<EyeDoorProjectileFrame, EnemyProjectileFrameId>
+        {
+            [new(0)] = EnemyProjectileFrameId.EyeDoorFrame00,
+            [new(1)] = EnemyProjectileFrameId.EyeDoorFrame01,
+            [new(2)] = EnemyProjectileFrameId.EyeDoorFrame02,
+            [new(3)] = EnemyProjectileFrameId.EyeDoorFrame03,
+            [new(4)] = EnemyProjectileFrameId.EyeDoorFrame04,
+            [new(5)] = EnemyProjectileFrameId.EyeDoorFrame05,
+            [new(6)] = EnemyProjectileFrameId.EyeDoorFrame06,
+            [new(7)] = EnemyProjectileFrameId.EyeDoorFrame07,
+            [new(8)] = EnemyProjectileFrameId.EyeDoorFrame08,
+            [new(9)] = EnemyProjectileFrameId.EyeDoorFrame09,
+            [new(10)] = EnemyProjectileFrameId.EyeDoorFrame10,
+        };
 }

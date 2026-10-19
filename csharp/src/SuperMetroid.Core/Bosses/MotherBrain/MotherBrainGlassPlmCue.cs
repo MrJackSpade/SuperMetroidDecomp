@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Shard4">A burst's fourth shard.</param>
 internal readonly record struct MotherBrainGlassPlmCue(
     MotherBrainGlassPlmCueKind Kind,
-    ushort Hits = 0,
+    int Hits = 0,
     MotherBrainGlassShard Shard1 = default,
     MotherBrainGlassShard Shard2 = default,
     MotherBrainGlassShard Shard3 = default,
@@ -19,7 +19,7 @@ internal readonly record struct MotherBrainGlassPlmCue(
     internal static MotherBrainGlassPlmCue Of(MotherBrainGlassPlmCueKind kind) => new(kind);
 
     /// <summary>Repeats the stage until the glass has taken <paramref name="hits"/> hits.</summary>
-    internal static MotherBrainGlassPlmCue RepeatUntil(ushort hits) => new(MotherBrainGlassPlmCueKind.RepeatUntilHits, Hits: hits);
+    internal static MotherBrainGlassPlmCue RepeatUntil(int hits) => new(MotherBrainGlassPlmCueKind.RepeatUntilHits, Hits: hits);
 
     /// <summary>A burst of four shards.</summary>
     internal static MotherBrainGlassPlmCue Burst(MotherBrainGlassShard a, MotherBrainGlassShard b, MotherBrainGlassShard c, MotherBrainGlassShard d) =>

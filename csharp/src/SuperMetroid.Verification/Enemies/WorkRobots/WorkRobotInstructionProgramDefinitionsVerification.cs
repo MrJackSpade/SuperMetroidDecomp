@@ -28,7 +28,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyWorkRobotInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        RoomEnemySystem enemies = CreateWorkRobotInstructionSystem(rom, out RoomEnemySlot robot);
+        RoomEnemySystem enemies = CreateWorkRobotInstructionSystem(out RoomEnemySlot robot);
         RoomLevelData level = CreateWorkRobotInstructionRoom();
         WorkRobotEnemyState state = enemies.WorkRobotStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WorkRobotStates[0].");
 
@@ -40,7 +40,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
                 robot.InstructionTimer = NativeCountdown.Start(1);
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
                 state.LaserCooldown = NativeCountdown.Start(ushort.MaxValue);
-                enemies.Instructions.ProcessInstructions(robot, null, level, new Position16<RoomPixels>((ushort)384, (ushort)192), (ushort)0);
+                EnemyInstructionInterpreter.ProcessInstructions(robot, null, level, new Position16<RoomPixels>((ushort)384, (ushort)192), (ushort)0);
             }
         }
 
@@ -50,20 +50,18 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
 
     /// <summary>Installs a powered bank A8 robot with deterministic random input for list execution.</summary>
     internal static RoomEnemySystem CreateWorkRobotInstructionSystem(
-        ISnesAddressSpace bus,
         out RoomEnemySlot robot)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
 
         robot = enemies.SlotTable.Slots[0];
-        robot.EnemyDefinitionPointer = EnemyDefinitionId.Robot;
-        robot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+        robot.Bind(EnemyDefinitionId.Robot, robot.Definition);
+        robot.Bind(robot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
         robot.Radius = new(8, 16);
-        var state = new WorkRobotEnemyState(robot) { Powered = true, Program = AnimationProgramCursor<WorkRobotProgram>.Start(WorkRobotProgram.Initial) };
-        var states = (WorkRobotEnemyState?[])enemies.WorkRobotBehavior._workRobotStates;
-        states[0] = state;
+        var state = new WorkRobotEnemyState() { Powered = true, Program = AnimationProgramCursor<WorkRobotProgram>.Start(WorkRobotProgram.Initial) };
+        robot.SetSpeciesState(state);
         return enemies;
     }
 

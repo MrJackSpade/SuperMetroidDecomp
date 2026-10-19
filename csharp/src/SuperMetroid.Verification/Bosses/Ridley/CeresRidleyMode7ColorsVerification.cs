@@ -63,7 +63,8 @@ internal static class CeresRidleyMode7ColorsVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Mode-7 color edit changes installed identity");
-        var runtime = new SuperMetroidRuntime(rom, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = edited } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        runtime.Artwork.MapPresentation = edited;
         AssertTrue(ReferenceEquals(edited.CeresRidleyMode7Colors,
             runtime.Enemies.Presentation.CeresRidleyMode7Colors),
             "installed runtime binds Ceres Mode-7 colors to enemy owner");
@@ -75,21 +76,20 @@ internal static class CeresRidleyMode7ColorsVerification
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         var enemies = new RoomEnemySystem { Presentation = { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors } };
         var cgram = new SnesCgram();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         Action<ushort> select = enemies.CeresRidleyBehavior.UpdateCeresRidleyMode7Palette;
         var visited = new HashSet<int>();
-        for (ushort byteIndex = 0; byteIndex < 224; byteIndex += 2)
+        for (int index = 0; index < 112; index++)
         {
-            CeresRidleyGetawayFrame frame = CeresRidleyGetawayDefinitions.FromByteIndex(byteIndex);
+            CeresRidleyGetawayFrame frame = CeresRidleyGetawayDefinitions.FromIndex(index);
             int row = SnesLittleEndian.HighByte(frame.Zoom);
             visited.Add(row);
-            select(frame.Zoom);
+            select(checked((ushort)frame.Zoom));
             for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
                 AssertEqual(edited.CeresRidleyMode7Colors.Resolve(row, color),
                     cgram.Colors[CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color],
-                    $"Ceres Mode-7 frame {byteIndex / 2}, row {row}, color {color}");
+                    $"Ceres Mode-7 frame {index}, row {row}, color {color}");
         }
         AssertEqual(CeresRidleyPaletteRomData.Mode7ZoomRowCount, visited.Count,
             "native getaway selects every extracted zoom row");

@@ -63,10 +63,10 @@ internal static class CeresFlightArtworkVerification
         using var referencePalette = new MemoryStream(referenceFiles[CeresFlightPaletteFormat.FileName]);
         using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
-        var native = new IntroCeresFlightState(bus, new CartridgeAudioState(), CeresFlightArtworkCatalog.Load(
+        var native = new IntroCeresFlightState(new CartridgeAudioState(), CeresFlightArtworkCatalog.Load(
             referenceCharacters, referenceMaps, referenceObjects, referencePalette,
             referenceSprites, referenceActors));
-        var installed = new IntroCeresFlightState(guard, new CartridgeAudioState(), stock);
+        var installed = new IntroCeresFlightState(new CartridgeAudioState(), stock);
         var phases = new HashSet<IntroCeresFlightPhase>();
         for (int tick = 0; tick < 4000 && !native.Finished; tick++)
         {
@@ -94,8 +94,8 @@ internal static class CeresFlightArtworkVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed flight never reads its cartridge art, palette, or spritemap sources");
 
-        Suite(nameof(VerifyCeresFlightSpriteArtwork), () => VerifyCeresFlightSpriteArtwork(installation, bus, stock, guard));
-        Suite(nameof(VerifyCeresFlightActorLayout), () => VerifyCeresFlightActorLayout(installation, bus, stock, guard));
+        Suite(nameof(VerifyCeresFlightSpriteArtwork), () => VerifyCeresFlightSpriteArtwork(installation, bus, stock));
+        Suite(nameof(VerifyCeresFlightActorLayout), () => VerifyCeresFlightActorLayout(installation, bus, stock));
 
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string[] names =
@@ -134,19 +134,18 @@ internal static class CeresFlightArtworkVerification
 
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
             bool isRearMap = name == CeresFlightArtworkFormat.MapFileName;
-            var fresh = new IntroCeresFlightState(guard, new CartridgeAudioState(), edited);
+            var fresh = new IntroCeresFlightState(new CartridgeAudioState(), edited);
             AssertTrue(fresh.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: false)),
                 $"edited {name} reaches exact front-view VRAM without changing other bytes");
-            var restored = new IntroCeresFlightState(guard, new CartridgeAudioState(), stock);
+            var restored = new IntroCeresFlightState(new CartridgeAudioState(), stock);
             for (int tick = 0; tick < 100 && restored.Phase != IntroCeresFlightPhase.FlyingTowardCeres; tick++)
                 restored.StepFrame();
             AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, restored.Phase,
                 "restored Ceres fixture reaches the rear-view map handoff");
             // The desktop/Android restore path rebinds the parent cinematic, not
             // this nested flight directly. Exercise that real handoff here.
-            var parent = CreateRetailIntroFixture(guard,
-                characterArtwork: IntroCinematicArtworkFiles.Load(
+            var parent = CreateRetailIntroFixture(characterArtwork: IntroCinematicArtworkFiles.Load(
                     installation.IntroCinematicDirectory, null));
             parent.ceresFlight = restored;
             parent.BindCharacterArtwork(installation.LoadIntroCinematicArt());
@@ -160,8 +159,8 @@ internal static class CeresFlightArtworkVerification
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "edited Ceres artwork and debugger rebind never read cartridge art sources");
-        Suite(nameof(VerifyCeresVisibleOverrides), () => VerifyCeresVisibleOverrides(installation, bus));
-        Suite(nameof(VerifyCeresFlightPaletteOverride), () => VerifyCeresFlightPaletteOverride(installation, NewIntroArtworkSourceReadGuard(bus), stock));
+        Suite(nameof(VerifyCeresVisibleOverrides), () => VerifyCeresVisibleOverrides(installation));
+        Suite(nameof(VerifyCeresFlightPaletteOverride), () => VerifyCeresFlightPaletteOverride(installation, stock));
 
         string invalidMap = Path.Combine(installation.IntroCinematicOverrideDirectory,
             CeresFlightArtworkFormat.MapFileName);
@@ -196,8 +195,7 @@ internal static class CeresFlightArtworkVerification
     /// <summary>Checks five native rear-view actor positions and an edited asteroid's live OAM result.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres flight actor spritemap layout")]
     private static void VerifyCeresFlightActorLayout(GameInstallation installation,
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CeresFlightArtworkCatalog stock,
-        ISnesAddressSpace guardedBus)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CeresFlightArtworkCatalog stock)
     {
         string name = CeresFlightActorLayoutFormat.FileName;
         string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
@@ -226,8 +224,8 @@ internal static class CeresFlightArtworkVerification
         using (var output = File.Create(overridePath))
             CeresFlightActorLayout.Write(output, document);
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var original = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), stock);
-        var changed = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), edited);
+        var original = new IntroCeresFlightState(new CartridgeAudioState(), stock);
+        var changed = new IntroCeresFlightState(new CartridgeAudioState(), edited);
         for (int frame = 0; frame < 4000 &&
             original.Phase != IntroCeresFlightPhase.FlyingTowardCeres; frame++)
         {
@@ -273,7 +271,7 @@ internal static class CeresFlightArtworkVerification
 
     /// <summary>Checks an edited palette in approach and destruction scenes, including restoration.</summary>
     private static void VerifyCeresFlightPaletteOverride(GameInstallation installation,
-        ISnesAddressSpace guardedBus, CeresFlightArtworkCatalog stock)
+        CeresFlightArtworkCatalog stock)
     {
         string stockPath = Path.Combine(installation.IntroCinematicDirectory,
             CeresFlightPaletteFormat.FileName);
@@ -290,8 +288,8 @@ internal static class CeresFlightArtworkVerification
             CeresFlightPalette.Write(output, document);
 
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var native = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), stock);
-        var changed = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), edited);
+        var native = new IntroCeresFlightState(new CartridgeAudioState(), stock);
+        var changed = new IntroCeresFlightState(new CartridgeAudioState(), edited);
         for (int tick = 0; tick < CeresFrontApproachTicks; tick++)
         {
             native.StepFrame();
@@ -307,19 +305,17 @@ internal static class CeresFlightArtworkVerification
                 SoftwareLayeredSnapshotRenderer.Render(editedFrame)),
             "Ceres palette edit changes visible approach pixels");
 
-        var restored = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), stock);
+        var restored = new IntroCeresFlightState(new CartridgeAudioState(), stock);
         restored.BindArtwork(edited);
         AssertTrue(restored.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
-                new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), edited).CaptureRenderSnapshot().Memory.Cgram),
+                new IntroCeresFlightState(new CartridgeAudioState(), edited).CaptureRenderSnapshot().Memory.Cgram),
             "restored Ceres flight rebinds current palette without restarting phase");
 
         IntroCinematicArtworkCatalog stockParent = IntroCinematicArtworkFiles.Load(
             installation.IntroCinematicDirectory, null);
         IntroCinematicArtworkCatalog editedParent = installation.LoadIntroCinematicArt();
-        var restoredDestruction = new CeresDestructionCinematicState(guardedBus,
-            artwork: stockParent);
-        var editedDestruction = new CeresDestructionCinematicState(guardedBus,
-            artwork: editedParent);
+        var restoredDestruction = new CeresDestructionCinematicState(artwork: stockParent);
+        var editedDestruction = new CeresDestructionCinematicState(artwork: editedParent);
         // $8B:C11B loads the shared Ceres palette only after its initial NMI waits.
         for (int update = 0; update <= CeresDestructionRomData.InitialNmiWaits; update++)
         {
@@ -342,8 +338,7 @@ internal static class CeresFlightArtworkVerification
     }
 
     /// <summary>Confirms each PNG and both Mode 7 map views can alter rendered flight pixels.</summary>
-    private static void VerifyCeresVisibleOverrides(GameInstallation installation,
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
+    private static void VerifyCeresVisibleOverrides(GameInstallation installation)
     {
         foreach (string name in new[]
             {
@@ -362,9 +357,9 @@ internal static class CeresFlightArtworkVerification
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-            var stockFlight = new IntroCeresFlightState(bus, new CartridgeAudioState(),
+            var stockFlight = new IntroCeresFlightState(new CartridgeAudioState(),
                 IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight);
-            var editedFlight = new IntroCeresFlightState(bus, new CartridgeAudioState(), edited);
+            var editedFlight = new IntroCeresFlightState(new CartridgeAudioState(), edited);
             for (int tick = 0; tick < CeresFrontApproachTicks; tick++)
             {
                 stockFlight.StepFrame();
@@ -392,9 +387,9 @@ internal static class CeresFlightArtworkVerification
         Array.Fill(map.RearTiles, 0);
         using (var output = File.Create(mapOverride))
             CeresFlightArtworkCatalog.WriteMap(output, map);
-        var original = new IntroCeresFlightState(bus, new CartridgeAudioState(),
+        var original = new IntroCeresFlightState(new CartridgeAudioState(),
             IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight);
-        var changed = new IntroCeresFlightState(bus, new CartridgeAudioState(),
+        var changed = new IntroCeresFlightState(new CartridgeAudioState(),
             installation.LoadIntroCinematicArt().CeresFlight);
         for (int tick = 0; tick < CeresFrontApproachTicks; tick++)
         {

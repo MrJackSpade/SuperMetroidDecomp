@@ -98,9 +98,9 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { Drawing = { EyeDoorVisuals = visuals } };
         var guarded = NewEyeDoorDrawGuard(bus, lists);
-        AssertEqual(3, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = _ => { } } }),
+        AssertEqual(3, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = _ => { } } }),
             $"{orientation} eye-door three-component population loads");
-        plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         int[] origins = [4 * width + 7, 6 * width + 7, 8 * width + 7];
         for (int component = 0; component < pointers.Length; component++)
         {
@@ -110,7 +110,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
             int stride = (run.DirectionAndCount & 0x8000) != 0 ? width : 1;
             for (int block = 0; block < run.LevelWords.Length; block++)
                 AssertEqual(run.LevelWords.Span[block],
-                    level.GetCollisionBlockByIndex(origins[component] + block * stride).LevelWord,
+                    level.GetCollisionBlockByIndex(origins[component] + block * stride).PackedWord.Raw,
                     $"{orientation} component {component} draws physical block {block}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -168,14 +168,14 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();
         var guarded = NewEyeDoorDrawGuard(bus, lists);
-        AssertEqual(3, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = requests.Add } }),
+        AssertEqual(3, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = requests.Add } }),
             $"{orientation} retail eye-door program loads all three components");
 
         int eyeBlock = eyeY * width + eyeX;
         for (int frame = 0; frame < 1024 &&
              plms.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye)
                  .PreInstruction != (ushort)EyeDoorPreInstruction.MissileHit; frame++)
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)EyeDoorPreInstruction.MissileHit,
             plms.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye)
                 .PreInstruction,
@@ -183,9 +183,9 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         AssertTrue(plms.TryNotifyColoredDoorHit(eyeBlock,
                 new SamusProjectileTypeWord(0x0200)),
             $"{orientation} retail eye door accepts a Super Missile collision");
-        plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         for (int frame = 0; frame < 1024 && plms.SlotTable.ActiveCount != 0; frame++)
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(system.HasOpenedDoorBit(doorBit),
             $"{orientation} retail eye-door opening persists the door bit");
         AssertEqual(0, plms.SlotTable.ActiveCount,
@@ -196,7 +196,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         AssertEqual(orientation == EyeDoorOrientation.Left
                 ? RoomBlockBehaviorValues.BlueDoorFacingLeft.Value
                 : RoomBlockBehaviorValues.BlueDoorFacingRight.Value,
-            cap.Behavior,
+            cap.Bts.Value,
             $"{orientation} retail eye opening selects the blue-cap orientation");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{orientation} retail eye-door lifecycle avoids instruction and draw ROM reads");
@@ -205,10 +205,10 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         BackgroundTilemapStreamer reopenedStreamer =
             reopenedLevel.CreateBackgroundStreamer();
         var reopened = new RoomPlmSystem();
-        AssertEqual(3, reopened.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = requests.Add } }),
+        AssertEqual(3, reopened.PopulationLoader.LoadRoomPopulation(new PlmRoom(reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = requests.Add } }),
             $"{orientation} opened eye-door room reloads three components");
         for (int frame = 0; frame < 16 && reopened.SlotTable.ActiveCount != 0; frame++)
-            reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            reopened.Step(reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, reopened.SlotTable.ActiveCount,
             $"{orientation} opened eye-door reload converts to blue and removes passive parts");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

@@ -23,6 +23,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Exercises the Glass Tunnel PLM's two-stage trigger, break sequence, and reload state.</summary>
 internal static class NoobTubePlmVerification
@@ -55,7 +56,7 @@ internal static class NoobTubePlmVerification
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState();
         samus.Position = samus.Position.WithWholeY(0x0100);
-        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
+        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var projectiles = new List<NoobTubeProjectileRequest>();
@@ -63,7 +64,7 @@ internal static class NoobTubePlmVerification
         bool brokenEvent = false;
         var plms = new RoomPlmSystem();
 
-        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
+        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
             {
                 AssertEqual(NoobTubePlmRomData.BrokenEvent, eventNumber,
                     "n00b tube writes its cartridge event");
@@ -72,15 +73,15 @@ internal static class NoobTubePlmVerification
 
         AssertEqual(1, parsed, "n00b-tube population record loads");
         AssertEqual(NoobTubePlmRomData.SolidProjectileTriggerLevelWord,
-            level.GetCollisionBlock(new(blockX, blockY)).LevelWord,
+            level.GetCollisionBlock(new(blockX, blockY)).PackedWord.Raw,
             "n00b-tube setup installs the complete type-$8 collision word");
         AssertEqual((int)RoomBlockBehaviorValues.ResidentPlmProjectileTrigger.Value,
-            level.GetCollisionBlock(new(blockX, blockY)).Behavior,
+            level.GetCollisionBlock(new(blockX, blockY)).Bts.Value,
             "n00b-tube setup installs BTS $44");
 
         // First pass follows the event-not-set branch, publishes intact art, and sleeps
         // under the power-bomb detector with its link pointing at the input-wait stage.
-        StepNoobTube(plms, guarded, level, streamer);
+        StepNoobTube(plms, level, streamer);
         RoomPlmSlotSnapshot intact = plms.PopulationSlots.Single();
         AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnPowerBomb,
             intact.PreInstruction, "intact tube waits for a power bomb");
@@ -94,14 +95,14 @@ internal static class NoobTubePlmVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(blockX * 16 + 8, blockY * 16 + 8)),
         };
-        SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
-        var grappleHit = SamusGrappleMovement.StepFiring(bus, level, grappleSamus,
+        SeedStationaryGrappleCollisionProbe(grappleSamus);
+        var grappleHit = SamusGrappleMovement.StepFiring(level, grappleSamus,
             SnesButton.X, plms);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "solid resident trigger cancels the grapple endpoint");
         AssertEqual(0x8000, plms.PopulationSlots.Single().LoopTimer,
             "grapple publishes the native hit bit without a missile/power-bomb family");
-        StepNoobTube(plms, guarded, level, streamer);
+        StepNoobTube(plms, level, streamer);
         AssertEqual(0, plms.PopulationSlots.Single().LoopTimer, "resident consumes grapple notification once");
         AssertTrue(!brokenEvent && projectiles.Count == 0, "grapple must not shatter the power-bomb-only tube");
         AssertTrue(plms.Sounds.SoundRequests.Contains(new PlmSoundRequest(
@@ -112,7 +113,7 @@ internal static class NoobTubePlmVerification
         // only queues the retail ineffective-shot sound and clears the transient hit word.
         AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, 0x0100),
             "n00b-tube collision block locates its resident PLM");
-        StepNoobTube(plms, guarded, level, streamer);
+        StepNoobTube(plms, level, streamer);
         AssertTrue(plms.Sounds.SoundRequests.Contains(new PlmSoundRequest(
                 SoundEffectId.FromCartridge(
                     SoundEffectLibrary.Library2,
@@ -145,14 +146,14 @@ internal static class NoobTubePlmVerification
             "Power Bomb observes the intact tube's BTS-$44 trigger");
         AssertEqual((ushort)0x8300, plms.PopulationSlots.Single().LoopTimer,
             "generic trigger publishes the native marked Power Bomb word");
-        StepNoobTube(plms, guarded, level, streamer);
+        StepNoobTube(plms, level, streamer);
         RoomPlmSlotSnapshot armed = plms.PopulationSlots.Single();
         AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput,
             armed.PreInstruction, "power bomb arms the input wake callback");
         AssertTrue(armed.Animation is NoobTubePlmAnimation { Program: NoobTubeProgram.WaitForInput, Link: NoobTubeProgram.Break },
             "power bomb wakes the input wait, linked to the break");
 
-        StepNoobTube(plms, guarded, level, streamer, SnesButton.Right);
+        StepNoobTube(plms, level, streamer, SnesButton.Right);
         AssertTrue(samus.InputLocked, "break sequence locks Samus");
         AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked, "break sequence installs stationary command-zero animation ownership");
         var fields = MetadataShape.Fields(typeof(SamusState), System.Reflection.BindingFlags.Instance |
@@ -178,7 +179,7 @@ internal static class NoobTubePlmVerification
         // The first broken image lasts $30 frames. Two one-frame images follow, after which
         // the cartridge emits the sound, ten shards, six bubbles, and earthquake together.
         for (int frame = 0; frame < 50; frame++)
-            StepNoobTube(plms, guarded, level, streamer);
+            StepNoobTube(plms, level, streamer);
         AssertEqual(17, projectiles.Count,
             "break burst contains one crack, ten shards, and six bubbles");
         AssertEqual(NoobTubeProjectileDefinition.Shard,
@@ -199,15 +200,15 @@ internal static class NoobTubePlmVerification
         // The final broken frame lasts $60 frames, then event $0B is committed, water
         // physics are enabled, Samus is unlocked, and the one-shot actor deletes itself.
         for (int frame = 0; frame < 96; frame++)
-            StepNoobTube(plms, guarded, level, streamer);
+            StepNoobTube(plms, level, streamer);
         AssertTrue(brokenEvent, "n00b-tube completion sets event $0B");
         AssertTrue(!samus.InputLocked, "n00b-tube completion unlocks Samus");
         AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked, "completion restores normal animation ownership");
-        AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
+        AssertEqual(RoomLiquidOptions.SmallTide,
             roomFx.LiquidOptions,
             "n00b-tube completion clears the disable bit on shared room FX");
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
-        AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
+        AssertEqual(RoomLiquidOptions.SmallTide,
             samus.LiquidPhysics.LiquidOptions,
             "next room-FX publication preserves enabled water physics");
         AssertEqual(SamusLiquidMedium.Water,
@@ -246,7 +247,7 @@ internal static class NoobTubePlmVerification
     {
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem();
-        enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0x4040)) { Level = level, Samus = new SamusState() });
+        enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0x4040)) { Level = level, Samus = new SamusState() });
 
         foreach (NoobTubeProjectileRequest request in requests)
             enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request, level.Size.X);
@@ -312,19 +313,19 @@ internal static class NoobTubePlmVerification
         const ushort populationPointer = 0x9400;
         var projectiles = new List<NoobTubeProjectileRequest>();
         samus.InputLocked = false;
-        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
+        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var plms = new RoomPlmSystem();
-        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
+        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not set its event again.") }, RoomFx = roomFx, Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not start an earthquake."), WriteType = _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not start an earthquake.") }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 
-        StepNoobTube(plms, guarded, level, streamer);
+        StepNoobTube(plms, level, streamer);
         AssertEqual(0, plms.SlotTable.ActiveCount, "event-$0B n00b tube deletes on its first step");
         AssertEqual(0, projectiles.Count, "event-$0B n00b tube spawns no break debris");
-        AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
+        AssertEqual(RoomLiquidOptions.SmallTide,
             roomFx.LiquidOptions,
             "event-$0B room load clears the shared water-disable bit");
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
@@ -346,13 +347,13 @@ internal static class NoobTubePlmVerification
     /// Loads the Glass Tunnel's relevant FX words: water at Y $0010 with the small-tide
     /// option and the bit that suppresses water physics until the tube breaks.
     /// </summary>
-    internal static RoomLayer3FxState CreateNoobTubeWaterFx(TestAddressSpace bus)
+    internal static RoomLayer3FxState CreateNoobTubeWaterFx()
     {
         // FX mechanics now come from compiled records. Use the actual Glass Tunnel
         // record and import its presentation dependencies at this verification boundary.
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var roomFx = CreateRetailFxState(rom);
-        roomFx.Load(bus, new SnesVram(), new SnesCgram(), 0x9c94, doorPointer: 0,
+        roomFx.Load(new SnesVram(), new SnesCgram(), RoomFxDefinitions.Suffix(0x9c94), door: null,
             randomNumber: 0);
         return roomFx;
     }
@@ -360,11 +361,10 @@ internal static class NoobTubePlmVerification
     /// <summary>Advances one PLM tick with the requested new-input edge and a fixed camera.</summary>
     internal static void StepNoobTube(
         RoomPlmSystem plms,
-        ISnesAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         SnesButton controllerNewInput = SnesButton.None) =>
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = controllerNewInput });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = controllerNewInput });
 
     /// <summary>Writes the exact n00b-tube list words plus intentionally tiny draw data.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Noob Tube PLM header, instruction list and crack projectile")]

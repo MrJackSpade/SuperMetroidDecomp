@@ -19,7 +19,6 @@ internal static class CeresSteamDefinitionsVerification
     {
         const int instructionTable = 0xa6eff5;
         const int functionTable = 0xa6f001;
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var guarded = NewCeresSteamDefinitionReadGuard(rom);
         for (int index = 0; index < 6; index++)
@@ -35,17 +34,20 @@ internal static class CeresSteamDefinitionsVerification
                 $"Ceres steam {variant} function");
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x001f);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = (ushort)variant;
+            slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
 
             AssertEqual(AnimationProgramCursor<CeresSteamProgram>.Start(definition.Program), enemies.CeresSteamPrograms[slot.SlotIndex],
                 $"production Ceres steam {variant} program");
-            AssertEqual(definition.Function, (CeresSteamFunction)slot.VariableA,
+            CeresSteamEnemyState steamState = slot.SpeciesState<CeresSteamEnemyState>()
+                ?? throw new InvalidOperationException("The initialized vent has no state.");
+            AssertEqual<CeresSteamFunction?>(definition.Function, steamState.Function,
                 $"production Ceres steam {variant} function");
-            AssertEqual(0x0020, slot.VariableD,
+            AssertEqual(NativeCountdown.Start(0x0020), steamState.ActivationDelay,
                 $"production Ceres steam {variant} activation timer");
         }
 

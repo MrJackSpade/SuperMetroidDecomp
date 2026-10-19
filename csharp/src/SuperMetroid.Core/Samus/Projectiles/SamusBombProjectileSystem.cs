@@ -47,7 +47,11 @@ public sealed class SamusBombProjectileSystem
     public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
 
     /// <summary>WRAM $0CD2, maintained independently from slot scans by the original.</summary>
-    public ushort BombCounter { get; internal set; }
+    public int BombCounter
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>WRAM $0CCC. Its low byte gates another bomb while one is active.</summary>
     public NativeCountdown CooldownTimer { get; private set; }
@@ -85,12 +89,10 @@ public sealed class SamusBombProjectileSystem
     /// Scripted carries suppress alpha but do not stop the outer HDMA object pass.
     /// </summary>
     public void AdvancePowerBombHdma(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton controllerInput,
-        ushort gameState = (ushort)SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
+        SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState = SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         // RunOneFrameOfGame invokes HdmaObjectHandler before GameState_8 reaches Samus's
         // frame handler. A power bomb spawned later by alpha consequently receives
@@ -98,7 +100,7 @@ public sealed class SamusBombProjectileSystem
         bool crystalFlashWindowWasActive = PowerBombExplosion.Phase is
             PowerBombExplosionPhase.CrystalFlashExplosion or
             PowerBombExplosionPhase.CrystalFlashAfterglow;
-        bool powerBombCleanup = PowerBombExplosion.StepFrame(bus);
+        bool powerBombCleanup = PowerBombExplosion.StepFrame();
         if (powerBombCleanup && !crystalFlashWindowWasActive)
         {
             // $88:8B4E offers Crystal Flash only if Samus has remained on the exact bomb
@@ -107,7 +109,6 @@ public sealed class SamusBombProjectileSystem
                 samus.Position.X.Whole == PowerBombExplosion.Position.X &&
                 samus.Position.Y.Whole == PowerBombExplosion.Position.Y &&
                 samus.CrystalFlash.TryBegin(
-                    bus,
                     samus,
                     controllerInput,
                     SnesButton.X,
@@ -118,7 +119,7 @@ public sealed class SamusBombProjectileSystem
         // $88:8B78 runs Samus command $1E at the end of every cleanup, including the
         // Crystal Flash window's own.
         if (powerBombCleanup)
-            ResumeSoundsAfterPowerBombExplosion(bus, samus, gameState);
+            ResumeSoundsAfterPowerBombExplosion(samus, gameState);
 
         SoundSuppressedBeforeProjectileHandling = PowerBombExplosion.IsActive;
     }
@@ -129,12 +130,12 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, SnesButton controllerInput, SnesButton controllerNewInput, bool deferSamusOverlap = false, bool advancePowerBombHdma = true)
     {
-        Ensure.NotNull(terrain.Bus);
+
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
 
         if (advancePowerBombHdma)
-            AdvancePowerBombHdma(terrain.Bus, samus, controllerInput);
+            AdvancePowerBombHdma(samus, controllerInput);
 
         // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
@@ -184,7 +185,7 @@ public sealed class SamusBombProjectileSystem
         for (int slotIndex = SlotCount - 1; !samus.Xray.TimeIsFrozen && slotIndex >= 0; slotIndex--)
         {
             SamusBombProjectileSlot slot = _slots[slotIndex];
-            if (slot.InstructionPointer == 0)
+            if (slot.Cursor is null)
                 continue;
 
             bool wasNormalBomb = slot.PackedType.Family == SamusProjectileFamily.Bomb;
@@ -239,7 +240,7 @@ public sealed class SamusBombProjectileSystem
         // same frame's hit-interruption phase can arm the bomb movement handler.
         // Runtime defers this until the humanoid shot producer has also run: a
         // shot this frame may suppress overlap before the bomb direction is stored.
-        byte publishedDirection = deferSamusOverlap ? (byte)0 : PublishBombJumpOverlap(samus);
+        SamusBombJumpDirection publishedDirection = deferSamusOverlap ? SamusBombJumpDirection.None : PublishBombJumpOverlap(samus);
 
         LastFrameResult = new BombProjectileFrameResult(
             publishedDirection,
@@ -252,8 +253,8 @@ public sealed class SamusBombProjectileSystem
     public void ResolveSamusOverlap(SamusState samus, ushort projectileInvincibilityTimer)
     {
         Ensure.NotNull(samus);
-        byte direction = projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None
-            ? PublishBombJumpOverlap(samus) : (byte)0;
+        SamusBombJumpDirection direction = projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None
+            ? PublishBombJumpOverlap(samus) : SamusBombJumpDirection.None;
         LastFrameResult = LastFrameResult with { PublishedBombJumpDirection = direction };
     }
 
@@ -261,12 +262,10 @@ public sealed class SamusBombProjectileSystem
     /// Draws $93:834D's bomb-slot subset in descending physical-slot order.
     /// </summary>
     public void Draw(
-        ISnesAddressSpace bus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
         ProjectileDrawArtwork artwork)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sprites);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
@@ -276,7 +275,7 @@ public sealed class SamusBombProjectileSystem
             // timed-spritemap interpreter. The large power-bomb flash itself is an HDMA
             // color-math window and is composed separately from OAM.
             SamusProjectileFamily family = slot.PackedType.Family;
-            if (slot.InstructionPointer == 0 ||
+            if (slot.Cursor is null ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
 
@@ -297,7 +296,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
 
             sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex),
-                artwork.Sprites.Frame(slot.SpritemapPointer), artwork.Page,
+                artwork.Sprites.Frame(checked((ushort)slot.SpritemapPointer)), artwork.Page,
                 new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
         }
     }
@@ -318,15 +317,14 @@ public sealed class SamusBombProjectileSystem
     /// sound through command $1C; otherwise a flare of at least $10 resumes the charge loop.
     /// </summary>
     private static void ResumeSoundsAfterPowerBombExplosion(
-        ISnesAddressSpace bus,
         SamusState samus,
-        ushort gameState)
+        SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState)
     {
-        if (gameState != (ushort)SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
+        if (gameState != SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
             return;
-        if (samus.PoseMetadata.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
+        if (samus.PoseMetadata.ReadMovementType() is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
-            if (SamusSpinSoundCommand.Select(bus, samus) is { } spinSound)
+            if (SamusSpinSoundCommand.Select(samus) is { } spinSound)
                 samus.LiquidPhysics.QueueMovementSound(spinSound, maximumQueued: 9);
             return;
         }
@@ -379,7 +377,7 @@ public sealed class SamusBombProjectileSystem
         if ((controllerInput & shoot) == 0)
             return null;
 
-        bool placingPowerBomb = samus.SelectedHudItem == 3;
+        bool placingPowerBomb = samus.SelectedHudItem == HudItem.PowerBomb;
         if (placingPowerBomb && PowerBombExplosion.IsArmed)
             return null;
 
@@ -407,7 +405,7 @@ public sealed class SamusBombProjectileSystem
 
         if (placingPowerBomb)
         {
-            samus.PowerBombs = NativeWordCounter.Decrement(samus.PowerBombs).Value;
+            samus.PowerBombs = SamusQuantity.DecrementWord(samus.PowerBombs);
             PowerBombExplosion.Arm();
         }
 
@@ -427,14 +425,14 @@ public sealed class SamusBombProjectileSystem
         {
             // The auto-cancel flag always wins. Otherwise consuming the last round clears
             // item index three so the next Shoot edge returns to the beam/normal-bomb path.
-            if (samus.AutoCancelHudItemIndex != 0)
+            if (samus.AutoCancelHudItemIndex != HudItem.Beam)
             {
-                samus.SelectedHudItem = 0;
-                samus.AutoCancelHudItemIndex = 0;
+                samus.SelectedHudItem = HudItem.Beam;
+                samus.AutoCancelHudItemIndex = HudItem.Beam;
             }
             else if (samus.PowerBombs == 0)
             {
-                samus.SelectedHudItem = 0;
+                samus.SelectedHudItem = HudItem.Beam;
             }
         }
 
@@ -458,7 +456,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         // Held Shoot with Power Bomb selected bypasses the ordinary spread helper.
-        if (samus.SelectedHudItem == 3)
+        if (samus.SelectedHudItem == HudItem.PowerBomb)
             return BombSpreadAdmission.NotApplicable;
 
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs) ||
@@ -498,12 +496,12 @@ public sealed class SamusBombProjectileSystem
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
             slot.BombTimer = NativeCountdown.FromRaw(launch.FuseTimer);
-            slot.BombSpreadDirectionMagnitude = launch.XVelocity;
-            slot.BombSpreadInitialYSubvelocity = launch.YSubspeed;
-            slot.BombSpreadYSubvelocity = slot.BombSpreadInitialYSubvelocity;
-            ushort wholeYSpeed = unchecked((ushort)(launch.YSpeed + verticalModifier));
-            slot.BombSpreadYVelocity = unchecked((ushort)(0 - wholeYSpeed));
-            slot.BombSpreadBounceYVelocity = slot.BombSpreadYVelocity;
+            slot.BombSpreadHorizontal = BombSpreadHorizontalVelocity.FromLaunchWord(launch.XVelocity);
+            // The held charge adds up to three whole pixels of upward launch speed; the negated whole word
+            // wraps exactly as the cartridge's sixteen-bit subtraction from zero does.
+            slot.BombSpreadLaunchVelocity = SnesSignedSixteenSixteen.FromParts(
+                unchecked((short)-(launch.YSpeed + verticalModifier)), launch.YSubspeed);
+            slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
         }
 
         BombCounter = SlotCount;
@@ -559,7 +557,7 @@ public sealed class SamusBombProjectileSystem
     {
         // $93:80A6 reads the HIGH byte of type, masks its low nibble, and indexes the
         // non-beam pointer table. Type $0500 therefore selects word five -> $8675.
-        int projectileTypeIndex = SamusProjectileFamilies.IndexOf(slot.Type);
+        int projectileTypeIndex = SamusProjectileFamilies.IndexOf(slot.PackedType.Raw);
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             AddWithinBank(SamusProjectileRomData.NonBeam.DataPointers, projectileTypeIndex * 2));
         int dataAddress = SamusProjectileRomData.Banks.Projectile | dataPointer;
@@ -603,8 +601,8 @@ public sealed class SamusBombProjectileSystem
         bool explosionStarted = false;
         if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
-            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.BombTimer.RawValue, PowerBombExplosion.Flag);
-            slot.BombTimer = NativeCountdown.FromRaw(fuse.Timer);
+            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.BombTimer, PowerBombExplosion.IsArmed);
+            slot.BombTimer = fuse.Timer;
             if (fuse.FastAnimation)
                 slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
             if (fuse.DeleteProjectile)
@@ -668,7 +666,7 @@ public sealed class SamusBombProjectileSystem
                     blockReactions,
                     roomPlms,
                     areaIndex,
-                    slot.Type);
+                    slot.PackedType.Raw);
             }
 
         }
@@ -682,73 +680,40 @@ public sealed class SamusBombProjectileSystem
         SamusBombProjectileSlot slot,
         SamusKinematicsState samus)
     {
-        (slot.BombSpreadYVelocity, slot.BombSpreadYSubvelocity) = AddFixedWords(
-            slot.BombSpreadYVelocity,
-            slot.BombSpreadYSubvelocity,
-            samus.YAcceleration,
-            samus.YSubacceleration);
+        // Gravity adds with the fraction carrying into the whole word and the whole word wrapping at sixteen bits,
+        // which is the signed 16.16 value's wrapping addition.
+        slot.BombSpreadVerticalVelocity += SnesSignedSixteenSixteen.FromParts(
+            unchecked((short)samus.YAcceleration), samus.YSubacceleration);
 
         ushort previousY = slot.Position.Y.Whole;
         ushort previousYSub = slot.Position.Y.Fraction;
-        slot.Position = slot.Position.AdvanceY(SnesSignedSixteenSixteen.FromParts(
-            unchecked((short)slot.BombSpreadYVelocity), slot.BombSpreadYSubvelocity));
+        slot.Position = slot.Position.AdvanceY(slot.BombSpreadVerticalVelocity);
         if (BombSpreadCollides(level, slot))
         {
             slot.Position = slot.Position.WithWholeY(previousY).WithFractionY(previousYSub);
-            if (unchecked((short)slot.BombSpreadYVelocity) < 0)
+            if (slot.BombSpreadVerticalVelocity.WholePixels < 0)
             {
-                slot.BombSpreadYVelocity = 0;
+                // A ceiling clears only the whole word; the fraction keeps accumulating gravity.
+                slot.BombSpreadVerticalVelocity = slot.BombSpreadVerticalVelocity.WithWholePixels(0);
                 slot.Radius = slot.Radius.WithY(0);
             }
             else
             {
-                slot.BombSpreadYSubvelocity = slot.BombSpreadInitialYSubvelocity;
-                slot.BombSpreadYVelocity = slot.BombSpreadBounceYVelocity;
+                slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
             }
             return;
         }
 
         ushort previousX = slot.Position.X.Whole;
         ushort previousXSub = slot.Position.X.Fraction;
-        MoveBombSpreadHorizontally(slot);
+        // Rightward travel adds the speed with the fraction carrying into the whole word; leftward travel subtracts it
+        // with the borrow. Both wrap at sixteen whole bits, the signed 16.16 value's wrapping addition.
+        slot.Position = slot.Position.AdvanceX(slot.BombSpreadHorizontal.Displacement);
         if (!BombSpreadCollides(level, slot))
             return;
 
         slot.Position = slot.Position.WithWholeX(previousX).WithFractionX(previousXSub);
-        slot.BombSpreadDirectionMagnitude ^= 1 << 15;
-    }
-
-    /// <summary>Decodes the spread bomb's byte-swapped direction and magnitude, then advances split X coordinates with native carry.</summary>
-    private static void MoveBombSpreadHorizontally(SamusBombProjectileSlot slot)
-    {
-        ushort swapped = SnesLittleEndian.SwapBytes(slot.BombSpreadDirectionMagnitude);
-        ushort subvelocity = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(swapped)));
-        ushort wholeMagnitude = unchecked((ushort)(swapped & 127));
-        bool movingLeft = (swapped & 1 << 7) != 0;
-
-        uint fraction = movingLeft
-            ? unchecked((uint)slot.Position.X.Fraction - subvelocity)
-            : (uint)slot.Position.X.Fraction + subvelocity;
-        slot.Position = slot.Position.WithFractionX(unchecked((ushort)fraction));
-        int carryOrBorrow = movingLeft
-            ? (fraction > ushort.MaxValue ? 1 : 0)
-            : (int)SnesCarry.OutOfWord(fraction);
-        slot.Position = slot.Position.WithWholeX(movingLeft
-            ? unchecked((ushort)(slot.Position.X.Whole - wholeMagnitude - carryOrBorrow))
-            : unchecked((ushort)(slot.Position.X.Whole + wholeMagnitude + carryOrBorrow)));
-    }
-
-    /// <summary>Adds split 16.16 speed words while carrying fractional overflow into the whole part.</summary>
-    private static (ushort Whole, ushort Fraction) AddFixedWords(
-        ushort whole,
-        ushort fraction,
-        ushort addWhole,
-        ushort addFraction)
-    {
-        uint fractionalSum = (uint)fraction + addFraction;
-        fraction = unchecked((ushort)fractionalSum);
-        whole = unchecked((ushort)(whole + addWhole + (SnesCarry.OutOfWord(fractionalSum))));
-        return (whole, fraction);
+        slot.BombSpreadHorizontal = slot.BombSpreadHorizontal.Reversed();
     }
 
     /// <summary>Tests the bomb center against room bounds, extension parents, solid tiles and the cartridge's non-square slope heights.</summary>
@@ -800,13 +765,13 @@ public sealed class SamusBombProjectileSystem
     public static void CollectPowerBombBoundaryReactions(
         RoomLevelData level,
         Position16<RoomPixels> explosion,
-        ushort explosionRadius,
+        PowerBombRadius explosionRadius,
         List<BombBlockReaction> reactions,
         RoomPlmSystem? roomPlms,
         AreaId areaIndex,
         ushort projectileType)
     {
-        int horizontalRadius = SnesLittleEndian.HighByte(explosionRadius);
+        int horizontalRadius = explosionRadius.WholePixels;
         int verticalRadius = (3 * horizontalRadius) >> 2;
 
         int left = Math.Max(0, explosion.X - horizontalRadius) >> 4;
@@ -868,7 +833,7 @@ public sealed class SamusBombProjectileSystem
                 reactions,
                 roomPlms,
                 areaIndex,
-                slot.Type);
+                slot.PackedType.Raw);
         }
     }
 
@@ -900,7 +865,7 @@ public sealed class SamusBombProjectileSystem
         if (block.Bts == RoomBlockBehaviorValues.CollectibleTrigger &&
             block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
         {
-            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index, projectileType);
+            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
             return;
         }
 
@@ -971,7 +936,7 @@ public sealed class SamusBombProjectileSystem
                 // nonnegative bombable BTS within that table; a larger value would make
                 // the 65C816 read unrelated following ROM as a PLM header.
                 throw new InvalidDataException(
-                    $"Bombable block {block.Index} has BTS ${block.Behavior:X2} outside " +
+                    $"Bombable block {block.Index} has BTS ${block.Bts.Value:X2} outside " +
                     "the native $94:A012 reaction table.");
             }
             if (roomPlms is null)
@@ -980,7 +945,7 @@ public sealed class SamusBombProjectileSystem
                 // nonreactive synthetic fixtures, so reaching a producer without it is a
                 // caller-composition error rather than untranslated cartridge behavior.
                 throw new InvalidOperationException(
-                    $"Bombed block reaction type ${(int)block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
+                    $"Bombed block reaction type ${(int)block.CollisionType:X1}/BTS ${block.Bts.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
@@ -1026,7 +991,7 @@ public sealed class SamusBombProjectileSystem
                 !block.Bts.IsShootableCollisionProbe)
             {
                 throw new InvalidDataException(
-                    $"Shootable block {block.Index} has BTS ${block.Behavior:X2} outside " +
+                    $"Shootable block {block.Index} has BTS ${block.Bts.Value:X2} outside " +
                     "the translated native bomb-reaction table range.");
             }
             if (block.Bts.UsesAreaReactionTable &&
@@ -1034,12 +999,12 @@ public sealed class SamusBombProjectileSystem
             {
                 throw new InvalidDataException(
                     $"Area-dependent shootable block {block.Index} has BTS " +
-                    $"${block.Behavior:X2} outside its eight-entry native table.");
+                    $"${block.Bts.Value:X2} outside its eight-entry native table.");
             }
             if (roomPlms is null)
             {
                 throw new InvalidOperationException(
-                    $"Bombed shootable type ${(int)block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
+                    $"Bombed shootable type ${(int)block.CollisionType:X1}/BTS ${block.Bts.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
@@ -1057,7 +1022,7 @@ public sealed class SamusBombProjectileSystem
             if (roomPlms is null)
             {
                 throw new InvalidOperationException(
-                    $"Bombed special block BTS ${block.Behavior:X2} at ({x},{y}) " +
+                    $"Bombed special block BTS ${block.Bts.Value:X2} at ({x},{y}) " +
                     "requires a room PLM owner.");
             }
 
@@ -1075,7 +1040,7 @@ public sealed class SamusBombProjectileSystem
         // the guard for corrupted packed words, but do not label it missing behavior.
         throw new InvalidDataException(
             $"Bombed block reaction reached impossible type ${(int)block.CollisionType:X1}/" +
-            $"BTS ${block.Behavior:X2} at ({x},{y}).");
+            $"BTS ${block.Bts.Value:X2} at ({x},{y}).");
     }
 
     /// <summary>Ticks the bank-$93 bomb instruction list, including timed maps, delete and goto opcodes.</summary>
@@ -1098,16 +1063,16 @@ public sealed class SamusBombProjectileSystem
         if (duration == 0)
             throw new InvalidDataException($"Bomb record $93:{record.Address:X4} has zero duration.");
         slot.InstructionTimer = NativeCountdown.FromRaw((ushort)duration);
-        slot.SpritemapPointer = FrameBindings?.Resolve(record.Address) ?? record.Spritemap;
+        slot.SpritemapPointer = FrameBindings?.Resolve(checked((ushort)record.Address)) ?? record.Spritemap;
         slot.Radius = record.Radius;
         slot.Cursor = cursor;
         return false;
     }
 
     /// <summary>Scans bombs in ascending slot order and publishes the last overlapping bomb's Samus launch direction.</summary>
-    private byte PublishBombJumpOverlap(SamusState samus)
+    private SamusBombJumpDirection PublishBombJumpOverlap(SamusState samus)
     {
-        byte publishedDirection = 0;
+        SamusBombJumpDirection publishedDirection = SamusBombJumpDirection.None;
 
         // $A0:97BF scans ascending projectile indices. Only damage-bearing, unreflected,
         // pre-explosion projectile types below $0700 reach the geometric test.
@@ -1140,10 +1105,10 @@ public sealed class SamusBombProjectileSystem
             // Samus right of the bomb launches right. Later overlapping slots overwrite
             // earlier ones exactly as the ascending assembly loop does.
             publishedDirection = samus.Position.X.Whole == slot.Position.X.Whole
-                ? (byte)2
+                ? SamusBombJumpDirection.Straight
                 : unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
-                    ? (byte)1
-                    : (byte)3;
+                    ? SamusBombJumpDirection.Left
+                    : SamusBombJumpDirection.Right;
             samus.PoseMetadata.PublishBombJumpDirection(publishedDirection);
         }
 

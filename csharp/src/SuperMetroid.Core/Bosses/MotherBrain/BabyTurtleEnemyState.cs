@@ -5,65 +5,50 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Typed view of a Baby Turtle's ordinary variables and required extension words.</summary>
+/// <summary>
+/// The state of a Baby Turtle, with its required extension words. The values the cartridge keeps in the enemy's common
+/// record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// </summary>
 public sealed class BabyTurtleEnemyState
 {
-    /// <summary>Physical child slot whose common words hold parent identity and shell-path state.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Attaches one Baby Turtle's typed view to its native child record.</summary>
-    internal BabyTurtleEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<MamaTurtleProgram> Program { get; set; }
 
-    /// <summary>Gets the current bank-$A2 Baby Turtle AI function pointer.</summary>
-    public BabyTurtleAiFunction Function
-    {
-        get => (BabyTurtleAiFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>
+    /// Gets the current bank-$A2 Baby Turtle AI function pointer; none once a kill has emptied the record.
+    /// </summary>
+    public BabyTurtleAiFunction? Function { get; internal set; }
 
-    /// <summary>Gets the parent Mama Turtle's native enemy-record byte index.</summary>
-    public ushort ParentNativeIndex
+    /// <summary>The parent Mama Turtle's physical slot index.</summary>
+    public int ParentSlotIndex
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
-
-    /// <summary>Gets the horizontal spawn position used by the child's shell path.</summary>
-    public ushort SpawnXPosition
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Gets the upper boundary of the child's spawn hitbox.</summary>
-    public ushort SpawnTopBoundary
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue / RoomEnemySystem.NativeSlotSize, value);
     }
 
     /// <summary>
-    /// Signed whole-pixel velocity per update. The horizontal word is ordinary variable E; the
-    /// vertical word is an extension word.
+    /// The child's spawn point: its spawn X, which the crawl turns around 48 pixels from, and the top of its spawn
+    /// hitbox, which the crawl holds it to.
     /// </summary>
-    public Offset16<RoomPixels> Velocity
-    {
-        get => new(unchecked((short)_slot.VariableE), _verticalVelocity);
-        internal set
-        {
-            _slot.VariableE = unchecked((ushort)value.X);
-            _verticalVelocity = value.Y;
-        }
-    }
+    public Position16<RoomPixels> SpawnTopCenter { get; internal set; }
 
-    /// <summary>Extra-WRAM signed vertical velocity paired with common-slot horizontal speed.</summary>
-    private short _verticalVelocity;
+    /// <summary>
+    /// Signed whole-pixel velocity per update. The cartridge keeps the horizontal speed in the common record, so a kill
+    /// empties it; the vertical speed is an extension word and survives.
+    /// </summary>
+    public Offset16<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Gets the phase-specific Baby Turtle countdown.</summary>
     public NativeCountdown FunctionTimer { get; internal set; }
     /// <summary>Gets the reaction countdown used while the child is not carrying Samus.</summary>
     public NativeCountdown NotCarryingSamusReactionTimer { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        ParentSlotIndex = 0;
+        SpawnTopCenter = Position16<RoomPixels>.Zero;
+        Velocity = new(0, Velocity.Y);
+    }
 }

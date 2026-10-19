@@ -2,19 +2,17 @@ using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
 
 /// <summary>
-/// Finds cartridge encoding in production C# (#641): hexadecimal literals, address-valued pointer
-/// dispatch and opaque word arrays. The build analyzer ratchets the counts per file; the
-/// cartridge-encoding audit tool writes the baseline and the inventory from the same scan.
+/// Finds cartridge encoding in repository C# (#641): hexadecimal literals, address-valued pointer dispatch, opaque
+/// word arrays, raw storage-width operations, hand-written countdowns, [Flags] primitive casts and narrow storage.
+/// The build analyzer reports every occurrence; catalog files and reviewed same-line allowances are classified apart.
 /// </summary>
 internal static class CartridgeEncodingScanner
 {
-    /// <summary>The ratchet baseline's file name, passed to audited projects as an additional file.</summary>
-    internal const string BaselineFileName = "cartridge-encoding-baseline.txt";
-
     /// <summary>
     /// File-name suffixes of named definition catalogs, shared with the production magic-number audit:
     /// raw values there are catalog-owned data, inventoried but not ratcheted as functional literals.
@@ -25,9 +23,6 @@ internal static class CartridgeEncodingScanner
         "InstructionLists.cs", "Layout.cs", "Masks.cs", "Pointers.cs", "RomData.cs", "PlmHeaderId.cs",
         "RoomPlmInstruction.cs", "SamusPoseId.cs", "Tables.cs", "Values.cs", "Words.cs",
     ];
-
-    /// <summary>The ratcheted diagnostic ids, in rule order.</summary>
-    internal static readonly string[] RatchetedRuleIds = ["SME6340", "SME6341", "SME6342", "SME6345", "SME6348", "SME6349"];
 
     /// <summary>
     /// Name fragments that mark a primitive as a countdown for SME6348 when they appear in the name's final
@@ -64,7 +59,7 @@ internal static class CartridgeEncodingScanner
     /// <summary>Masks that keep a byte lane, a word, a bank byte or a 24-bit address.</summary>
     private static readonly long[] StorageWidthMasks = [0xff, 0xff00, 0xffff, 0xff0000, 0xffffff, 0xffff0000];
 
-    /// <summary>The diagnostic id that ratchets <paramref name="rule"/>, or null when the rule is inventory-only.</summary>
+    /// <summary>The diagnostic id that reports <paramref name="rule"/>, or null when the occurrence is classified as allowed.</summary>
     internal static string? RuleId(CartridgeEncodingRule rule) => rule switch
     {
         CartridgeEncodingRule.RawHexLiteral => "SME6340",
@@ -73,8 +68,11 @@ internal static class CartridgeEncodingScanner
         CartridgeEncodingRule.RawWidthOperation => "SME6345",
         CartridgeEncodingRule.CountdownSignTest => "SME6348",
         CartridgeEncodingRule.CountdownSelfDecrement => "SME6349",
+        CartridgeEncodingRule.FlagsPrimitiveCast => "SME6346",
+        CartridgeEncodingRule.NarrowStorageMember => "SME6347",
         CartridgeEncodingRule.CatalogHexLiteral or CartridgeEncodingRule.JustifiedHexLiteral or
-            CartridgeEncodingRule.OwnedWidthOperation or CartridgeEncodingRule.JustifiedWidthOperation => null,
+            CartridgeEncodingRule.OwnedWidthOperation or CartridgeEncodingRule.JustifiedWidthOperation or
+            CartridgeEncodingRule.OwnedFlagsPrimitiveCast or CartridgeEncodingRule.OwnedNarrowStorageMember => null,
         _ => throw new InvalidOperationException($"Undefined {nameof(CartridgeEncodingRule)} {rule}."),
     };
 
@@ -107,17 +105,6 @@ internal static class CartridgeEncodingScanner
             normalized.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>Returns <paramref name="path"/> relative to <paramref name="repositoryRoot"/> with '/' separators, or null outside it.</summary>
-    internal static string? RepositoryRelative(string repositoryRoot, string path)
-    {
-        if (string.IsNullOrEmpty(path))
-            return null;
-        string root = Path.GetFullPath(repositoryRoot).TrimEnd('\\', '/') + Path.DirectorySeparatorChar;
-        string full = Path.GetFullPath(path);
-        if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase))
-            return null;
-        return full.Substring(root.Length).Replace('\\', '/');
-    }
 
     /// <summary>Scans one authored tree.</summary>
     internal static List<CartridgeEncodingOccurrence> Scan(SemanticModel model, CancellationToken cancellationToken)
@@ -203,6 +190,23 @@ internal static class CartridgeEncodingScanner
                     occurrences.Add(new(CartridgeEncodingRule.PointerDispatch, CartridgeEncodingClass.CartridgeAddress,
                         "pattern over an address-valued code constant", pattern.GetLocation()));
                     break;
+                case CastExpressionSyntax cast when FlagsEnumCastSource(cast, model, cancellationToken) is { } flags:
+                {
+                    bool owned = catalog || IsInEncodingOwner(cast, model, cancellationToken) || HasAnyAllowance(text, cast.SpanStart);
+                    occurrences.Add(new(owned ? CartridgeEncodingRule.OwnedFlagsPrimitiveCast : CartridgeEncodingRule.FlagsPrimitiveCast,
+                        CartridgeEncodingClass.ComposableBits, $"'{cast}' casts [Flags] {flags.Name} to {cast.Type}", cast.OpenParenToken.GetLocation()));
+                    break;
+                }
+                case FieldDeclarationSyntax field when IsInstanceMember(field.Modifiers) && IsNarrowType(field.Declaration.Type):
+                    foreach (VariableDeclaratorSyntax variable in field.Declaration.Variables)
+                        occurrences.Add(NarrowMember(variable.Identifier, field.Declaration.Type, field, catalog, text, model, cancellationToken));
+                    break;
+                case PropertyDeclarationSyntax property when IsInstanceMember(property.Modifiers) && IsNarrowType(property.Type):
+                    occurrences.Add(NarrowMember(property.Identifier, property.Type, property, catalog, text, model, cancellationToken));
+                    break;
+                case ParameterSyntax { Parent.Parent: RecordDeclarationSyntax, Type: { } parameterType } parameter when IsNarrowType(parameterType):
+                    occurrences.Add(NarrowMember(parameter.Identifier, parameterType, parameter, catalog, text, model, cancellationToken));
+                    break;
                 case InitializerExpressionSyntax initializer when initializer.IsKind(SyntaxKind.ArrayInitializerExpression):
                     if (IsOpaqueWordArray(initializer.Expressions, InitializerElementType(initializer, model, cancellationToken)))
                     {
@@ -222,6 +226,41 @@ internal static class CartridgeEncodingScanner
             }
         }
         return occurrences;
+    }
+
+    /// <summary>The <c>[Flags]</c> enum a cast converts to an integral primitive, or null when the cast is anything else.</summary>
+    private static INamedTypeSymbol? FlagsEnumCastSource(CastExpressionSyntax cast, SemanticModel model, CancellationToken cancellationToken)
+    {
+        if (!IsIntegralPrimitive(model.GetTypeInfo(cast.Type, cancellationToken).Type))
+            return null;
+        return model.GetTypeInfo(cast.Expression, cancellationToken).Type is INamedTypeSymbol { TypeKind: TypeKind.Enum } source &&
+            source.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == "System.FlagsAttribute")
+            ? source
+            : null;
+    }
+
+    /// <summary>Whether a member's modifiers make it per-instance storage: neither <c>static</c> nor <c>const</c>.</summary>
+    private static bool IsInstanceMember(SyntaxTokenList modifiers) =>
+        !modifiers.Any(SyntaxKind.StaticKeyword) && !modifiers.Any(SyntaxKind.ConstKeyword);
+
+    /// <summary>A <c>byte</c> or <c>ushort</c> type, nullable or not.</summary>
+    private static bool IsNarrowType(TypeSyntax type) => (type is NullableTypeSyntax nullable ? nullable.ElementType : type) is
+        PredefinedTypeSyntax { Keyword.RawKind: (int)SyntaxKind.UShortKeyword or (int)SyntaxKind.ByteKeyword };
+
+    /// <summary>The occurrence for one narrow member, owned when a catalog, encoding owner or same-line allowance covers it.</summary>
+    private static CartridgeEncodingOccurrence NarrowMember(SyntaxToken identifier, TypeSyntax type, SyntaxNode declaration, bool catalog,
+        SourceText text, SemanticModel model, CancellationToken cancellationToken)
+    {
+        bool owned = catalog || IsInEncodingOwner(declaration, model, cancellationToken) || HasAnyAllowance(text, identifier.SpanStart);
+        return new(owned ? CartridgeEncodingRule.OwnedNarrowStorageMember : CartridgeEncodingRule.NarrowStorageMember,
+            CartridgeEncodingClass.NumericQuantity, $"'{identifier.ValueText}' stores {type} instance state", identifier.GetLocation());
+    }
+
+    /// <summary>Whether the line holding <paramref name="position"/> carries a reviewed same-line allowance.</summary>
+    private static bool HasAnyAllowance(SourceText text, int position)
+    {
+        string line = text.Lines.GetLineFromPosition(position).ToString();
+        return AllowanceMarkers.Any(marker => HasAllowance(line, marker));
     }
 
     /// <summary>

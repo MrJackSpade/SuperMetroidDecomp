@@ -50,7 +50,7 @@ internal static class FileSelectRoomMapVerification
             for (int x = 0; x < 64; x++)
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
-            var graphics = new FileSelectRoomMapGraphics(bus, system, area, mapPresentation: RetailPresentationFixture());
+            var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture());
             byte[] pause = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank);
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
@@ -105,14 +105,14 @@ internal static class FileSelectRoomMapVerification
     internal static void VerifyMapCancelPresentation()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.MapStationBytes[4] = 1;
         snapshot.UsedSaveStationBytes[8] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
-        var cancel = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture());
-        var control = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
+        var cancel = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture());
+        var control = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
         foreach (var menu in new[] { cancel, control })
         {
             for (int i = 0; i < 48; i++) menu.Step(0);
@@ -127,9 +127,9 @@ internal static class FileSelectRoomMapVerification
             "room cancel must retain the map/icons drawn before input until next coroutine call");
         var system = new Bank80SystemState();
         system.LoadMapStationBytes(slot.MapStationBytes);
-        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(bus, system, AreaId.Maridia, mapPresentation: RetailPresentationFixture()).RenderFrameOnly();
+        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture()).RenderFrameOnly();
         var maps = RetailPresentationFixture();
-        var areaGraphics = new FileSelectAreaMapGraphics(bus, 4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
+        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
         areaGraphics.BindLabels(maps.Labels);
         Rgba32[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)
@@ -145,7 +145,7 @@ internal static class FileSelectRoomMapVerification
                 setup[y * 256 + x], "return setup temporarily exposes native centered entry window");
         cancel.Step(0);
         AssertTrue(cancel.Render().SequenceEqual(FileSelectMapWindowCompositor.Composite(area, roomFrame,
-                FileSelectMapWindow.CreateReturn(bus, 4, maps.Labels))),
+                FileSelectMapWindow.CreateReturn(4, maps.Labels))),
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
@@ -161,7 +161,7 @@ internal static class FileSelectRoomMapVerification
         using var arrowJson = new MemoryStream();
         MapArrowPresentation.Write(arrowJson, new() { Version = 1, Arrows = arrows });
         arrowJson.Position = 0;
-        var animations = new FileSelectMapAnimations(bus, MapArrowPresentation.Load(arrowJson));
+        var animations = new FileSelectMapAnimations(MapArrowPresentation.Load(arrowJson));
         var paletteFrames = Enumerable.Range(0, 2).Select(frame => new MapPaletteCycleFrame
         {
             DurationTicks = frame == 0 ? 3 : 2,
@@ -306,20 +306,20 @@ internal static class FileSelectRoomMapVerification
     private static void VerifySavedGameMapFrontend(ushort savedArea)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99,
             LoadingGameState = savedArea == 6 ? SaveLoadingGameStates.CeresElevatorArrival : SaveLoadingGameStates.MainGame };
         snapshot.UsedSaveStationBytes[savedArea * 2] = 1;
         if (savedArea < 6)
         {
             var station = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
-            var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
+            var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Station 0 has no room.")).Pointer);
             var cell = room.MapPosition + new Offset16<MapTiles>(checked((short)(SnesLittleEndian.HighByte(station.SamusPosition.X))), checked((short)((SnesLittleEndian.HighByte(station.SamusPosition.Y)) + 1)));
             snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(cell)] |= AreaMapLayout.GetBitMask(cell.X);
         }
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);
-        var game = CreateRetailGameFixture(bus, gameOptions: null, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(saves, gameOptions: null, renderGameplayFrames: false);
         game.BindArtwork(game.Artwork with
         {
             MapPresentation = RetailPresentationFixture(),
@@ -370,8 +370,8 @@ internal static class FileSelectRoomMapVerification
         Until(() => frame.Phase == "Room", 80);
         frame = game.Step(SnesButton.Start);
         Until(() => game.RuntimeForVerification is not null, 100);
-        AssertEqual(SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).RoomPointer,
-            game.GameplayRuntimeForVerification.Room.LoadedRoom.Pointer, "second map confirmation loads selected SRAM station");
+        AssertEqual(SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).Room,
+            game.GameplayRuntimeForVerification.Room.LoadedRoom.Definition, "second map confirmation loads selected SRAM station");
         void Until(Func<bool> predicate, int limit)
         {
             for (int tick = 0; tick < limit && !predicate(); tick++)
@@ -389,7 +389,7 @@ internal static class FileSelectRoomMapVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (SnesButton confirm in new SnesButton[] { SnesButton.Start, SnesButton.A })
         {
-            var navigation = new FileSelectMapNavigation(bus, 4, confirm);
+            var navigation = new FileSelectMapNavigation(4, confirm);
             navigation.BindLabels(RetailPresentationFixture().Labels);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
@@ -413,7 +413,7 @@ internal static class FileSelectRoomMapVerification
             navigation.Step(SnesButton.B);
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
-        var cancel = new FileSelectMapNavigation(bus, 4);
+        var cancel = new FileSelectMapNavigation(4);
         cancel.BindLabels(RetailPresentationFixture().Labels);
         cancel.Step((SnesButton.B | SnesButton.Start | SnesButton.Right | SnesButton.A));
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
@@ -421,7 +421,7 @@ internal static class FileSelectRoomMapVerification
         cancel.Step(0);
         cancel.Step((SnesButton.B | SnesButton.Start | SnesButton.A));
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
-        var back = new FileSelectMapNavigation(bus, 4);
+        var back = new FileSelectMapNavigation(4);
         back.BindLabels(RetailPresentationFixture().Labels);
         back.Step(SnesButton.Start);
         for (int frame = 0; frame < 54; frame++) back.Step(0);
@@ -445,7 +445,7 @@ internal static class FileSelectRoomMapVerification
         SnesButton[] inputs = [SnesButton.Left, SnesButton.Right, SnesButton.Up, SnesButton.Down];
         for (int direction = 1; direction <= 4; direction++)
         {
-            var scroll = new FileSelectMapScroll(bus, map, system, new(240, 128));
+            var scroll = new FileSelectMapScroll(map, system, new(240, 128));
             AssertEqual(124, scroll.Scroll.X, "room map centers native horizontal bounds");
             AssertEqual(32, scroll.Scroll.Y, "room map rounds the 112px center offset down to a tile boundary");
             AssertEqual(24, scroll.Minimum.Y, "room-select upper arrow boundary gets delayed 24px adjustment");
@@ -461,10 +461,10 @@ internal static class FileSelectRoomMapVerification
             }
             AssertEqual(MapScrollDirection.None, scroll.Direction, "released direction completes its accepted step");
         }
-        var precedence = new FileSelectMapScroll(bus, map, system, new(240, 128));
+        var precedence = new FileSelectMapScroll(map, system, new(240, 128));
         precedence.Step((SnesButton.Up | SnesButton.Down | SnesButton.Left | SnesButton.Right));
         AssertEqual(MapScrollDirection.Left, precedence.Direction, "simultaneous map input uses native arrow order");
-        var empty = new FileSelectMapScroll(bus, map, new Bank80SystemState(), new(216, 48));
+        var empty = new FileSelectMapScroll(map, new Bank80SystemState(), new(216, 48));
         AssertEqual(208, empty.Minimum.X, "empty map uses retail left default");
         AssertEqual(224, empty.Maximum.X, "empty map uses retail right default");
         AssertEqual(32, empty.Minimum.Y, "empty map uses top default then file-select adjustment");
@@ -502,7 +502,7 @@ internal static class FileSelectRoomMapVerification
         }
         var sprites = MapSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
-        var marker = new FileSelectStationMarker(bus, AreaId.Crateria, 0, layout);
+        var marker = new FileSelectStationMarker(AreaId.Crateria, 0, layout);
         int[] expectedFrames = [0x60, 0x61, 0x60, 0x5f, 0x60, 0x61, 0x60, 0x5f];
         int[] durations = [4, 8, 4, 8, 4, 8, 4, 8];
         for (int phase = 0; phase < durations.Length; phase++)
@@ -527,9 +527,9 @@ internal static class FileSelectRoomMapVerification
             AssertTrue(first.SequenceEqual(oam.LowTable.ToArray()), "repainting station marker does not advance animation");
         }
         int unused = Enumerable.Range(0, 16).First(index => !MapSaveMarkerDefinitions.IsUsable(AreaId.Crateria, index));
-        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, unused, layout),
+        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(AreaId.Crateria, unused, layout),
             "unused station map entry rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, 16, layout),
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Crateria, 16, layout),
             "station lookup cannot cross the sixteen-slot domain");
     }
 

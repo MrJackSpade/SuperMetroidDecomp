@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Kago.Artwork;
 
 /// <summary>
@@ -7,12 +9,11 @@ namespace SuperMetroid.Core.Enemies.Kago.Artwork;
 internal static class KagoFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(KagoFrame frame) => frame.Pose switch
+    /// <summary>The installed frame each <see cref="KagoFrame"/> shows.</summary>
+    internal static EnemyFrameTable<KagoFrame> ShownFrames { get; } = new()
     {
-        0 => 0xabda,
-        1 => 0xabf0,
-        2 => 0xac06,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Kago pose."),
+        { new(Pose: 0), EnemyFrameId.KagoCycle0 },
+        { new(Pose: 1), EnemyFrameId.KagoCycle1 },
+        { new(Pose: 2), EnemyFrameId.KagoCycle2 },
     };
 }

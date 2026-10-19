@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Programs;
@@ -14,8 +15,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal sealed class IntroBabyDiscoveryState
 {
-    /// <summary>Supplies collision and pose data while the intro demo moves Samus.</summary>
-    private readonly ISnesAddressSpace bus;
+
     /// <summary>Receives egg-hatch and baby-cry sound requests when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Feeds the scripted pose and movement input to Samus.</summary>
@@ -30,10 +30,10 @@ internal sealed class IntroBabyDiscoveryState
     internal readonly IntroDiscoverySprite confusedBaby;
 
     /// <summary>Sets up the native scene's Samus state, partial room collision map, actors, and demo input list.</summary>
-    public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+    public IntroBabyDiscoveryState(CartridgeAudioState? audio = null,
         SamusState? existingSamus = null)
     {
-        this.bus = Ensure.NotNull(bus);
+
         this.audio = audio;
 
         egg = CreateActor(IntroBabyActorDefinitions.Egg);
@@ -44,13 +44,13 @@ internal sealed class IntroBabyDiscoveryState
         Samus = existingSamus ?? new SamusState();
         Samus.Pose = SamusPoseId.FacingLeftNormalPose;
         Samus.Position = Samus.Position.WithWhole(new(376, 147));
-        Samus.SelectedHudItem = 0;
-        Samus.PoseMetadata.RefreshCollisionRadii(bus);
+        Samus.SelectedHudItem = HudItem.Beam;
+        Samus.PoseMetadata.RefreshCollisionRadii();
         // $8B:AF95-$AF99: the flashback leaves Samus in pose two already, so her animation
         // keeps running rather than restarting.
-        Samus.Presentation.SetAnimationFrameIfPoseChanged(bus);
-        Samus.CommitPoseHistory(bus);
-        Samus.Presentation.PrimeGraphics(bus);
+        Samus.Presentation.SetAnimationFrameIfPoseChanged();
+        Samus.CommitPoseHistory();
+        Samus.Presentation.PrimeGraphics();
 
         // $8B:AFDF copies exactly $300 bytes into a room declared 32x16 blocks. The final
         // 128 foreground words and all BTS bytes retain the earlier zero initialization.
@@ -58,7 +58,7 @@ internal sealed class IntroBabyDiscoveryState
 
         demo.Clear();
         demo.Enable();
-        demo.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery, initializationParameter: 0);
+        demo.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery);
     }
 
     /// <summary>Samus' scene state, carried from the earlier intro when supplied.</summary>
@@ -87,18 +87,18 @@ internal sealed class IntroBabyDiscoveryState
     /// the cinematic function, so $8B:AF6C's setup dispatch already plays the demo's first
     /// entry, moves Samus and steps the egg and baby.
     /// </summary>
-    public void Step(ushort nmiFrameCounter, ushort introCrossfadeTimer)
+    public void Step(int nmiFrameCounter, ushort introCrossfadeTimer)
     {
         // $8B:8E0D runs Samus's handlers, ahead of the sprite pass, only while $1A57 is set.
         if (SamusDisplay != IntroSamusDisplay.Hidden && !samusHandlersEnded)
         {
             // $90:E91D: the demo pose-input handler runs DemoInputObjectHandler inside Samus's
             // current-state handler, ahead of her pose input and movement.
-            demo.Step((_, pointer) => RunDemoPreInstruction(pointer, introCrossfadeTimer), HandleDemoCue);
+            demo.Step((_, preInstruction) => RunDemoPreInstruction(preInstruction, introCrossfadeTimer), HandleDemoCue);
             // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
             Samus.PoseTransitions.ClearPoseTransitionShotDirection();
-            SamusProjectileInheritance.ClearMovement(bus);
+            Samus.ProjectileInheritance.ClearMovement();
 
             // An end instruction read above already replaced the new-state handler, so this
             // dispatch skips Samus's movement and animation.
@@ -106,9 +106,9 @@ internal sealed class IntroBabyDiscoveryState
             {
                 // The native intro-demo alpha publishes the current pose's collision radius
                 // before input/movement, rather than requiring pose setters to publish early.
-                Samus.PoseMetadata.RefreshCollisionRadii(bus);
+                Samus.PoseMetadata.RefreshCollisionRadii();
                 IntroSamusDemoMovement.StepGroundedLeft(
-                    bus,
+
                     Level,
                     Samus,
                     demo.Held,
@@ -119,12 +119,12 @@ internal sealed class IntroBabyDiscoveryState
 
         // The egg's $A8E8 pre-instruction tests Samus's post-movement X during the later
         // cinematic-sprite pass. It permanently redirects the list once X is below $A9.
-        if (egg.PreInstructionPointer == IntroBabyActorDefinitions.Egg.PreInstruction &&
+        if (egg.PreInstruction == IntroBabyActorDefinitions.Egg.PreInstruction &&
             unchecked((short)(Samus.Position.X.Whole - 169)) < 0)
         {
             egg.Start(CinematicSpriteProgram.MetroidEggHatching);
-            egg.PreInstructionPointerForDiscovery(
-                CinematicCodePointers.CinematicSpriteObject_PreInstruction_NoOp);
+            egg.InstallPreInstruction(
+                CinematicSpritePreInstruction.NoOp);
             EggHatchingStarted = true;
         }
 
@@ -166,34 +166,35 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Changes the demo from running to waiting or ending at its scripted position and crossfade edges.</summary>
-    private void RunDemoPreInstruction(ushort pointer, ushort introCrossfadeTimer)
+    private void RunDemoPreInstruction(DemoInputPreInstruction preInstruction, ushort introCrossfadeTimer)
     {
-        // The Baby-discovery object references only these four routines. Another
-        // pointer means the object definition/list pairing is corrupt.
-        IntroBabyDiscoveryPreInstruction preInstruction =
-            ClosedNativeWords.Decode<IntroBabyDiscoveryPreInstruction>(pointer, "Baby-discovery demo pre-instruction");
+        // The Baby-discovery object holds only its own two routines or the return-only one.
         switch (preInstruction)
         {
-            case IntroBabyDiscoveryPreInstruction.RunningLeft:
+            case DemoInputPreInstruction.IntroBabyRunningLeft:
                 if (Samus.Position.X.Whole < 178)
                     demo.Redirect(
-                        (ushort)IntroBabyDiscoveryPreInstruction.StopAndLook,
+                        DemoInputPreInstruction.IntroBabyStopAndLook,
                         DemoInputProgram.IntroBabyDiscoveryStopAndLook);
                 return;
 
-            case IntroBabyDiscoveryPreInstruction.StopAndLook:
+            case DemoInputPreInstruction.IntroBabyStopAndLook:
                 if (introCrossfadeTimer == 0)
                     demo.Redirect(
-                        (ushort)IntroBabyDiscoveryPreInstruction.Inert,
+                        DemoInputPreInstruction.ReturnOnly,
                         DemoInputProgram.IntroBabyDiscoveryEnd);
                 return;
 
-            case IntroBabyDiscoveryPreInstruction.Inert:
-            case IntroBabyDiscoveryPreInstruction.InertAlternate:
+            case DemoInputPreInstruction.ReturnOnly:
                 return;
 
+            case DemoInputPreInstruction.None:
+            case DemoInputPreInstruction.AttractCheckLeave:
+            case DemoInputPreInstruction.AttractShinespark:
+                throw new InvalidOperationException($"The Baby-discovery demo object cannot hold the {preInstruction} pre-instruction.");
+
             default:
-                throw new InvalidOperationException($"Undefined IntroBabyDiscoveryPreInstruction {preInstruction}.");
+                throw new InvalidOperationException($"Undefined {nameof(DemoInputPreInstruction)} {preInstruction}.");
         }
     }
 
@@ -239,44 +240,43 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Advances the baby from hatch wait through rise, idle, and crossfade dance phases.</summary>
     private void StepConfusedBaby(ushort introCrossfadeTimer)
     {
-        switch (CinematicInstructionWords.DecodePreInstruction<ConfusedBabyPreInstruction>(
-                    confusedBaby.PreInstructionPointer, confusedBaby.CurrentProgram))
+        switch (confusedBaby.PreInstruction)
         {
-            case ConfusedBabyPreInstruction.WaitingForHatch:
+            case CinematicSpritePreInstruction.ConfusedBabyWaitingForHatch:
                 // $BA5E watches the egg's *next* instruction pointer reach CB79, the first fully-hatched frame list:
                 // the egg's program is then MetroidEggHatchedFrame2 or a later one, so the baby starts moving on that
                 // exact handoff.
                 if (egg.CurrentProgram is CinematicSpriteProgram.MetroidEggHatchedFrame2 or
                     CinematicSpriteProgram.MetroidEggHatched or CinematicSpriteProgram.Delete)
                 {
-                    confusedBaby.PreInstructionPointerForDiscovery(
-                        (ushort)ConfusedBabyPreInstruction.Hatched);
+                    confusedBaby.InstallPreInstruction(
+                        CinematicSpritePreInstruction.ConfusedBabyHatched);
                     BabyVelocity = BabyVelocity.WithY(default);
                 }
                 return;
 
-            case ConfusedBabyPreInstruction.Hatched:
+            case CinematicSpritePreInstruction.ConfusedBabyHatched:
                 StepHatchedBaby();
                 return;
 
-            case ConfusedBabyPreInstruction.Idling:
+            case CinematicSpritePreInstruction.ConfusedBabyIdling:
                 BabyIdleTimer = BabyIdleTimer.Decrement().Remaining;
                 if (unchecked((short)BabyIdleTimer.RawValue) <= 0)
                 {
-                    confusedBaby.PreInstructionPointerForDiscovery(
-                        (ushort)ConfusedBabyPreInstruction.Dancing);
+                    confusedBaby.InstallPreInstruction(
+                        CinematicSpritePreInstruction.ConfusedBabyDancing);
                     BabyIdleTimer = NativeCountdown.Start(0);
                     BabyVelocity = BabyVelocity.WithY(default);
                     confusedBaby.GeneralTimer = 0;
                 }
                 return;
 
-            case ConfusedBabyPreInstruction.Dancing:
+            case CinematicSpritePreInstruction.ConfusedBabyDancing:
                 StepDancingBaby(introCrossfadeTimer);
                 return;
 
             default:
-                throw new InvalidOperationException($"Undefined ConfusedBabyPreInstruction {confusedBaby.PreInstructionPointer}.");
+                throw new InvalidOperationException($"The confused baby does not run {confusedBaby.PreInstruction}.");
         }
     }
 
@@ -319,8 +319,8 @@ internal sealed class IntroBabyDiscoveryState
         if (unchecked((short)BabyVelocity.Y.RawValue) >= 0)
         {
             BabyIdleTimer = NativeCountdown.Start(128);
-            confusedBaby.PreInstructionPointerForDiscovery(
-                (ushort)ConfusedBabyPreInstruction.Idling);
+            confusedBaby.InstallPreInstruction(
+                CinematicSpritePreInstruction.ConfusedBabyIdling);
         }
     }
 
@@ -337,7 +337,7 @@ internal sealed class IntroBabyDiscoveryState
 
         if (confusedBaby.GeneralTimer < 128)
         {
-            confusedBaby.GeneralTimer++;
+            confusedBaby.GeneralTimer = NativeWordCounter.IncrementWord(confusedBaby.GeneralTimer);
             // `$8B:BB24` cries when the post-increment timer reaches $40 and $80.
             if (confusedBaby.GeneralTimer % 64 == 0)
                 audio?.QueueSound(
@@ -401,7 +401,7 @@ internal sealed class IntroBabyDiscoveryState
             definition.Position,
             definition.PaletteBits,
             definition.Program);
-        actor.PreInstructionPointerForDiscovery(definition.PreInstruction);
+        actor.InstallPreInstruction(definition.PreInstruction);
         return actor;
     }
 

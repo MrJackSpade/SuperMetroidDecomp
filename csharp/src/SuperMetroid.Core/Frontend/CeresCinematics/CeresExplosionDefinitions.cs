@@ -40,16 +40,17 @@ internal static class CeresExplosionDefinitions
     internal const ushort RepeatingCountdownSeed = 1;
 
     /// <summary>Native spawner events, with repeating pre-instruction before final-wave instruction.</summary>
-    internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref ushort countdown)
+    internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref NativeCountdown countdown)
     {
         bool repeat = false;
         if (repeatingEnabled && frame >= RepeatingFirstFrame && frame <= SpawnerFinalFrame)
         {
-            countdown = unchecked((ushort)(countdown - 1));
-            if ((short)countdown <= 0)
+            NativeWordCounterStep step = countdown.Decrement();
+            countdown = step.Remaining;
+            if (step.IsZeroOrNegative)
             {
                 repeat = true;
-                countdown = RepeatingPeriodFrames;
+                countdown = NativeCountdown.Start(RepeatingPeriodFrames);
             }
         }
         return new(frame == FrameOf(SpawnerMilestone.InitialWave), repeat,
@@ -75,22 +76,22 @@ internal static class CeresExplosionDefinitions
     /// <summary><c>$8B:CEBB</c>, first delayed small-explosion actor.</summary>
     /// <remarks>Native list $8B:CCDB..CCF4 displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
     public static CeresExplosionActorDefinition InitialActor =>
-        new(0xc582, CinematicSpriteProgram.CeresSmallExplosion);
+        new(CinematicSpritePreInstruction.CeresExplosion, CinematicSpriteProgram.CeresSmallExplosion);
 
     /// <summary><c>$8B:CEC1</c>, cyclic repeating small-explosion actor.</summary>
     /// <remarks>Native list $8B:CCF5..CD1A repeats six duration-3 frames and a duration-16 blank six times, then deletes. It runs as a typed cinematic sprite program.</remarks>
     public static CeresExplosionActorDefinition RepeatingActor =>
-        new(0xc582, CinematicSpriteProgram.CeresRepeatingSmallExplosion);
+        new(CinematicSpritePreInstruction.CeresExplosion, CinematicSpriteProgram.CeresRepeatingSmallExplosion);
 
     /// <summary><c>$8B:CEC7</c>, final delayed large-explosion actor.</summary>
     /// <remarks>Native list $8B:CD1B..CD38 repeats four duration-5 frames and a duration-8 blank seven times, then deletes. It runs as a typed cinematic sprite program.</remarks>
     public static CeresExplosionActorDefinition FinalWaveActor =>
-        new(0xc582, CinematicSpriteProgram.CeresLargeExplosion);
+        new(CinematicSpritePreInstruction.CeresExplosion, CinematicSpriteProgram.CeresLargeExplosion);
 
     /// <summary><c>$8B:CF2D</c>, final station blast actor created by <c>$8B:C345</c>.</summary>
     /// <remarks>Native list $8B:CE1B..CE34 displays six duration-5 station-blast frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
     public static CeresExplosionActorDefinition StationBlastActor =>
-        new(0xc582, CinematicSpriteProgram.CeresStationBlast);
+        new(CinematicSpritePreInstruction.CeresExplosion, CinematicSpriteProgram.CeresStationBlast);
 
     /// <summary>
     /// Returns one of the five timer/X/Y rows at <c>$8B:C46B/$C475/$C47F</c>.
@@ -131,7 +132,7 @@ internal static class CeresExplosionDefinitions
             throw new ArgumentOutOfRangeException(nameof(index));
         int x = index == 4 ? 0 : 16 * (1 - 2 * (index & 1));
         int y = index < 2 ? -x : x;
-        return new(new((short)x, (short)y), (ushort)(index == 0 ? 1 : 16 * index));
+        return new(new((short)x, (short)y), index == 0 ? 1 : 16 * index);
     }
 
     /// <summary>$8B:C4EB-$C50A, the repeating burst's eight chosen screen-space positions.</summary>
@@ -201,6 +202,6 @@ internal static class CeresExplosionDefinitions
         int magnitude = 8 + 4 * (index & 1);
         int x = index < 2 ? magnitude : -magnitude;
         int y = FinalBurstHeights[index];
-        return new(new((short)x, (short)y), (ushort)(index == 0 ? 1 : 1 << (index + 1)));
+        return new(new((short)x, (short)y), index == 0 ? 1 : 1 << (index + 1));
     }
 }

@@ -28,4 +28,6 @@ internal static class OldTourianEscapeAccentPaletteFxColorDefinitionsConstants
 
     /// <summary>One authored flicker pass: neutral hold and optional tint phase held for an extra native tick.</summary>
     internal readonly record struct FlickerPass(ushort NeutralHold, int? ExtendedTintPhase);
+    /// <summary>Bytes from one duration through its terminal wait command.</summary>
+    public const int FrameByteCount = 10;
 }

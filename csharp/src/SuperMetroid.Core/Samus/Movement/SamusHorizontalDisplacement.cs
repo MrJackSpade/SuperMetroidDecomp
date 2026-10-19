@@ -31,9 +31,9 @@ public readonly record struct SamusHorizontalDisplacement(int Displacement, Samu
     /// X direction; any other word value (normally mode one, turning) reverses it. The 65C816
     /// compares rather than validating an enum, so every value is handled this way.
     /// </summary>
-    public static SamusHorizontalDisplacement ForPoseDirection(ISnesAddressSpace bus, SamusState samus, uint baseSpeed)
+    public static SamusHorizontalDisplacement ForPoseDirection(SamusState samus, uint baseSpeed)
     {
-        byte direction = samus.PoseMetadata.ReadPoseXDirection(bus);
+        byte direction = samus.PoseMetadata.ReadPoseXDirection();
         bool reversePoseDirection = samus.HorizontalSpeed.AccelerationMode is not (0 or 2);
         return Toward(reversePoseDirection ? direction == 8 : direction == 4, samus, baseSpeed);
     }

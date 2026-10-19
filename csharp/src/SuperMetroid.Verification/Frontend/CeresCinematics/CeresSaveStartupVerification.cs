@@ -34,22 +34,23 @@ internal static class CeresSaveStartupVerification
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var maps = installation.LoadMaps();
-        var bossBytes = new byte[Bank80SystemState.AreaCount];
-        bossBytes[(int)AreaId.Ceres] = (byte)BossBits.AreaBoss;
+        var bossFlags = new BossBits[Bank80SystemState.AreaCount];
+        bossFlags[(int)AreaId.Ceres] = BossBits.AreaBoss;
         var departure = new SuperMetroidSaveSnapshot
         {
             Area = (ushort)AreaId.Ceres,
             SaveStation = 0,
             LoadingGameState = SaveLoadingGameStates.CeresDestruction,
-            BossBytes = bossBytes,
+            BossFlags = bossFlags,
             Health = 77,
             GameTimeMinutes = 2,
             GameTimeSeconds = 11,
             GameTimeFrames = 44,
         };
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, departure);
-        var game = new SuperMetroidGame(bus);
+        var saves = new SaveSlotStore(RetailPresentationFixture());
+        saves.SaveSlot(0, departure);
+        var game = new SuperMetroidGame(saves);
         Action<SuperMetroidGame, bool> bind = PrepareRomFreeBindings(installation, enemyArtwork);
         bind(game, true);
         game.BindArtwork(game.Artwork with
@@ -57,12 +58,12 @@ internal static class CeresSaveStartupVerification
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
             RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
         });
-        var options = new GameOptionsMenuState(bus, mapPresentation: maps);
+        var options = new GameOptionsMenuState(mapPresentation: maps);
         options.Phase = GameOptionsPhase.StartGame;
-        game.options = options;
-        game.loadingExistingSave = true;
+        game.Session.options = options;
+        game.Session.loadingExistingSave = true;
         SetState(game, SuperMetroidGameState.GameOptionsMenu);
-        byte[] savedBefore = bus.SaveRam.ToArray();
+        byte[] savedBefore = SaveRamCodec.Encode(saves, RetailPresentationFixture());
         game.Step(0);
         AssertEqual(SuperMetroidGameState.CeresGoesBoom, game.GameState,
             "#1153 mode $22 dispatches the destruction cinematic, not the initial shaft/map");
@@ -74,12 +75,12 @@ internal static class CeresSaveStartupVerification
         AssertEqual((ushort)2, runtime.GameTime.Minutes, "#1153 destruction load retains minutes");
         AssertEqual((ushort)11, runtime.GameTime.Seconds, "#1153 destruction load retains seconds");
         AssertEqual((ushort)44, runtime.GameTime.Frames, "#1153 destruction load retains frames");
-        AssertTrue(savedBefore.SequenceEqual(bus.SaveRam),
+        AssertTrue(savedBefore.SequenceEqual(SaveRamCodec.Encode(saves, RetailPresentationFixture())),
             "#1153 normal load does not rewrite the checkpoint");
 
         // A resumed cinematic constructs a fresh gameplay owner, unlike an ongoing
         // escape. Its first Landing Site draw must have the same initialized HUD.
-        var resumedScene = game.ceresDestruction;
+        var resumedScene = game.Session.ceresDestruction;
         (resumedScene ?? throw new InvalidOperationException("Verification requires resumedScene.")).Phase = CeresDestructionPhase.Finished;
         game.Step(0);
         game.Step(0);
@@ -95,7 +96,7 @@ internal static class CeresSaveStartupVerification
         // A new game must write $1F before capturing the initial checkpoint. Reuse
         // immutable installed catalogs, but enter only the one reported room.
         var freshBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var fresh = new SuperMetroidGame(freshBus);
+        var fresh = new SuperMetroidGame(new SaveSlotStore());
         bind(fresh, true);
         fresh.BindArtwork(fresh.Artwork with
         {
@@ -104,7 +105,7 @@ internal static class CeresSaveStartupVerification
         });
         SetState(fresh, SuperMetroidGameState.SetUpNewGame);
         fresh.Step(0);
-        var arrivalSlot = new SuperMetroidSaveRam(freshBus, RetailPresentationFixture()).ReadSlot(0);
+        var arrivalSlot = fresh.Saves.ReadSlot(0);
         AssertEqual(SaveLoadingGameStates.CeresElevatorArrival, (arrivalSlot ?? throw new InvalidOperationException("Verification requires arrivalSlot.")).LoadingGameState,
             "#1153 initial automatic save records native mode $1F");
         AssertEqual((byte)0, arrivalSlot.BossBytes[(int)AreaId.Ceres],
@@ -112,18 +113,18 @@ internal static class CeresSaveStartupVerification
 
         // Reload the captured initial checkpoint through options, not Load State.
         var reloadBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        freshBus.SaveRam.CopyTo(reloadBus.SaveRam);
-        var reload = new SuperMetroidGame(reloadBus);
+        var reloadSaves = SaveRamCodec.Decode(SaveRamCodec.Encode(fresh.Saves, RetailPresentationFixture()), RetailPresentationFixture());
+        var reload = new SuperMetroidGame(reloadSaves);
         bind(reload, true);
         reload.BindArtwork(reload.Artwork with
         {
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
             RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
         });
-        var reloadOptions = new GameOptionsMenuState(reloadBus, mapPresentation: maps);
+        var reloadOptions = new GameOptionsMenuState(mapPresentation: maps);
         reloadOptions.Phase = GameOptionsPhase.StartGame;
-        reload.options = reloadOptions;
-        reload.loadingExistingSave = true;
+        reload.Session.options = reloadOptions;
+        reload.Session.loadingExistingSave = true;
         SetState(reload, SuperMetroidGameState.GameOptionsMenu);
         reload.Step(0);
         AssertEqual(SuperMetroidGameState.SetUpNewGame, reload.GameState,
@@ -134,7 +135,7 @@ internal static class CeresSaveStartupVerification
             loaded.Room.LoadedRoom.State.Pointer, "#1153 initial room state is unchanged by normal reload");
         AssertTrue(!loaded.System.HasAnyBossBits(AreaId.Ceres, BossBits.AreaBoss),
             "#1153 initial reload does not set the defeated-Ridley flag");
-        AssertEqual((ushort)0, loaded.Enemies.RidleyEncounter.CeresStatus,
+        AssertEqual(SuperMetroid.Core.Enemies.CeresEscapeStatus.RidleyNotEscaped, loaded.Enemies.RidleyEncounter.CeresStatus,
             "#1153 initial reload leaves station activation inactive");
         AssertTrue(loaded.Room.CeresElevatorArrival is not null,
             "#1153 initial reload uses the arrival, not ordinary save appearance");
@@ -142,28 +143,28 @@ internal static class CeresSaveStartupVerification
         // #1275: the game-over menu runs no gameplay owner, so its updates keep counting
         // accepted NMIs in the frontend, and Yes on a $1F save reloads Ceres directly
         // ($81:9171) instead of fading into the area map.
-        var gameOverProbe = new SuperMetroidGame(reloadBus);
+        var gameOverProbe = new SuperMetroidGame(reloadSaves);
         bind(gameOverProbe, true);
         gameOverProbe.BindArtwork(gameOverProbe.Artwork with
         {
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
             RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
         });
-        var probeOptions = new GameOptionsMenuState(reloadBus, mapPresentation: maps);
+        var probeOptions = new GameOptionsMenuState(mapPresentation: maps);
         probeOptions.Phase = GameOptionsPhase.StartGame;
-        gameOverProbe.options = probeOptions;
-        gameOverProbe.loadingExistingSave = true;
+        gameOverProbe.Session.options = probeOptions;
+        gameOverProbe.Session.loadingExistingSave = true;
         SetState(gameOverProbe, SuperMetroidGameState.GameOptionsMenu);
         gameOverProbe.Step(0);
         for (int wait = 0; wait < 256 && gameOverProbe.GameState == SuperMetroidGameState.SetUpNewGame; wait++)
             gameOverProbe.Step(0);
-        ushort nmiBeforeDeath = gameOverProbe.GameplayRuntimeForVerification.Nmi.NmiFrameCounter;
+        int nmiBeforeDeath = gameOverProbe.GameplayRuntimeForVerification.Clock.Counter;
         // Layer-one fractions $090F/$0913 are written only by camera movement, so they
         // survive game over into the reloaded room.
         var deathCamera = gameOverProbe.GameplayRuntimeForVerification.Room.LoadedCamera;
         deathCamera.Position = deathCamera.Position.WithFractionX(0xbfff).WithFractionY(0x9c00);
-        gameOverProbe.deathFadeBrightness = 1;
-        gameOverProbe.deathFadeCounter = 0;
+        gameOverProbe.Session.deathFadeBrightness = 1;
+        gameOverProbe.Session.deathFadeCounter = 0;
         SetState(gameOverProbe, SuperMetroidGameState.DeathFinalBlackOut);
         gameOverProbe.Step(0);
         AssertEqual(SuperMetroidGameState.GameOverMenu, gameOverProbe.GameState, "#1275 state $19 reaches the game-over menu");
@@ -171,9 +172,9 @@ internal static class CeresSaveStartupVerification
         for (int update = 0; update < 3; update++)
             gameOverProbe.Step(0);
         AssertEqual(unchecked((ushort)(nmiBeforeDeath + 4)),
-            gameOverProbe.menuNmi.FrameCounter,
+            gameOverProbe.Session.frameClock.Counter,
             "#1275 accepted NMIs keep counting through the game-over menu");
-        var probeMenu = gameOverProbe.gameOver;
+        var probeMenu = gameOverProbe.Session.gameOver;
         (probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.")).Phase = GameOverMenuPhase.Main;
         probeMenu.ResumesAfterNmiWait = false;
         gameOverProbe.Step(0);
@@ -188,8 +189,8 @@ internal static class CeresSaveStartupVerification
         // Exercise the same atomic saver used at the escape blackout. A boss flag
         // must be captured alongside $22, not erased to manufacture a fresh station.
         loaded.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
-        AutomaticCheckpointSaver.SaveCeresDeparture(reloadBus, loaded, 0);
-        var escapeSlot = new SuperMetroidSaveRam(reloadBus, RetailPresentationFixture()).ReadSlot(0);
+        AutomaticCheckpointSaver.SaveCeresDeparture(reloadSaves, loaded, 0);
+        var escapeSlot = reloadSaves.ReadSlot(0);
         AssertEqual(SaveLoadingGameStates.CeresDestruction, (escapeSlot ?? throw new InvalidOperationException("Verification requires escapeSlot.")).LoadingGameState,
             "#1153 escape-blackout saver records native mode $22");
         AssertEqual((byte)BossBits.AreaBoss, escapeSlot.BossBytes[(int)AreaId.Ceres],
@@ -197,10 +198,10 @@ internal static class CeresSaveStartupVerification
 
         // Stub only the already-reported landing event, not an entire flight.
         // The production landing saver must reset $22 to $05 for later saves.
-        loaded.Enemies.GunshipBehavior.LastGunshipEvent = GunshipFrameEvent.LandingCompleted;
-        AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadBus, loaded, 0),
+        loaded.Enemies.FrameResults.Gunship = GunshipFrameEvent.LandingCompleted;
+        AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadSaves, loaded, 0),
             "#1153 landing checkpoint uses the production event saver");
-        var landingSlot = new SuperMetroidSaveRam(reloadBus, RetailPresentationFixture()).ReadSlot(0);
+        var landingSlot = reloadSaves.ReadSlot(0);
         AssertEqual(SaveLoadingGameStates.MainGame, (landingSlot ?? throw new InvalidOperationException("Verification requires landingSlot.")).LoadingGameState,
             "#1153 Zebes landing saver records native mode $05");
         AssertEqual((ushort)AreaId.Crateria, landingSlot.Area,
@@ -208,25 +209,25 @@ internal static class CeresSaveStartupVerification
 
         // Do not infer a cinematic mode from area/boss flags in malformed old saves.
         // Preserve the persisted word and follow its dispatcher branch literally.
-        new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, departure with
+        saves.SaveSlot(0, departure with
         {
             LoadingGameState = SaveLoadingGameStates.MainGame,
         });
-        var unmodified = new SuperMetroidGame(bus);
+        var unmodified = new SuperMetroidGame(saves);
         unmodified.BindArtwork(unmodified.Artwork with
         {
             MapPresentation = maps,
         });
-        var oldOptions = new GameOptionsMenuState(bus, mapPresentation: maps);
+        var oldOptions = new GameOptionsMenuState(mapPresentation: maps);
         oldOptions.Phase = GameOptionsPhase.StartGame;
-        unmodified.options = oldOptions;
-        unmodified.loadingExistingSave = true;
+        unmodified.Session.options = oldOptions;
+        unmodified.Session.loadingExistingSave = true;
         SetState(unmodified, SuperMetroidGameState.GameOptionsMenu);
         unmodified.Step(0);
         AssertEqual(SuperMetroidGameState.FileSelectMap, unmodified.GameState,
             "#1153 mode $05 is not reinterpreted using an inferred compatibility rule");
         AssertEqual(SaveLoadingGameStates.MainGame,
-            (new SuperMetroidSaveRam(bus, RetailPresentationFixture()).ReadSlot(0) ?? throw new InvalidOperationException("Verification requires new SuperMetroidSaveRam(bus, RetailPresentationFixture()).ReadSlot(0).")).LoadingGameState,
+            (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).LoadingGameState,
             "#1153 malformed legacy slot is not silently rewritten");
         Console.WriteLine("#1153: native $1F/$22/$05 checkpoint writes; normal $1F/$22 reload routing, first Landing Site fade with initialized HUD, inactive initial station and preserved progress/SRAM; no inferred legacy recovery pass.");
     }

@@ -26,8 +26,11 @@ internal static class EndingDmaVerification
         Suite(nameof(VerifyEndingExplosionSlotOrder), () => VerifyEndingExplosionSlotOrder());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
-        var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
-        ending.Step();
+        var ending = CreateRetailEndingFixture(audio, 0, 0);
+        // The setup's NMI waits each end a dispatcher call; the call after the last runs the scene setup.
+        for (int call = 0; call <= EndingCreditsRomData.SetupNmiWaits; call++)
+            ending.Step();
+        AssertEqual(EndingCreditsPhase.WaitForEscapeMusic, ending.Phase, "ending setup completes after its NMI waits");
         var projection = ending.Presentation.CaptureRenderSnapshot().LayersOf<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Registers;
         AssertEqual((short)0, projection.Scroll.X, "native atmospheric scroll X");
         AssertEqual((short)0, projection.Scroll.Y, "native atmospheric scroll Y");

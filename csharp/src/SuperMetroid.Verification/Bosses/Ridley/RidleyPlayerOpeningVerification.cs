@@ -11,10 +11,15 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the reported first Ridley-room trajectory against a captured player movie segment.</summary>
 internal static class RidleyPlayerOpeningVerification
 {
+    /// <summary>Native WRAM words compared against the port's Ridley state line, in comparison order.</summary>
+    private static readonly int[] ComparedRidleyStateAddresses =
+        [0xfa8, 0xf7a, 0xf7c, 0xf7e, 0xf80, 0xfaa, 0xfac];
+
     /// <summary>Checks arrival collision edges, then compares boss motion while feeding recorded Samus position and RNG as isolated inputs.</summary>
     internal static void VerifyRidleyPlayerOpening()
     {
@@ -43,10 +48,10 @@ internal static class RidleyPlayerOpeningVerification
         ushort[] Read(int frame) => rows[frame];
         ushort W(ushort[] words, int address) => words[Array.IndexOf(addresses, address)];
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xb32e, camera: new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley, camera: new Position16<RoomPixels>(0, 0));
         var enemies = runtime.Enemies;
         var body = enemies.SlotTable.Slots[0]; var state = enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         var seed = Read(375);
@@ -58,18 +63,17 @@ internal static class RidleyPlayerOpeningVerification
         body.SpritemapPointer = W(seed, 0xf8e);
         body.Position = body.Position.WithFractionX(W(seed, 0xf7c)); body.Position = body.Position.WithFractionY(W(seed, 0xf80));
         ushort random = 0;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => random);
         for (int frame = 376; frame <= 744; frame++)
         {
             var expected = Read(frame);
             samus.Position = samus.Position.WithWhole(new(W(expected, 0xaf6), W(expected, 0xafa)));
-            samus.Pose = (SamusPoseId)W(expected, 0xa1c); samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Pose = (SamusPoseId)W(expected, 0xa1c); samus.PoseMetadata.RefreshCollisionRadii();
             random = W(expected, 0x5e5);
-            enemies.StepFrame(new RoomEnemyFrame { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, Level = runtime.Room.LevelData, ControllerInput = (SnesButton)W(expected, 0x8b) });
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, Level = runtime.Room.LevelData, ControllerInput = (SnesButton)W(expected, 0x8b), SamusProjectiles = runtime.Projectiles, SharedProjectiles = runtime.BombProjectiles });
             string actual = $"{(ushort)(state ?? throw new InvalidOperationException("Verification requires state.")).Function:X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
-            string native = string.Join(",", new[] {0xfa8,0xf7a,0xf7c,0xf7e,0xf80,0xfaa,0xfac}.Select(a => W(expected,a).ToString("X4")));
+            string native = string.Join(",", ComparedRidleyStateAddresses.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)
                 throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={pointers.Body(state):X4}/{body.InstructionTimer.RawValue}; timer={state.FunctionTimer.RawValue} native={W(expected,0xfb2)}");
         }

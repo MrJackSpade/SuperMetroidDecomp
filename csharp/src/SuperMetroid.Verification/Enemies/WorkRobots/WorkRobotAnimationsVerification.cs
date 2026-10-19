@@ -14,7 +14,7 @@ internal static class WorkRobotAnimationsVerification
     internal static void VerifyWorkRobotAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, WorkRobotAnimations.Programs,
-            WorkRobotFrameDefinitions.Spritemap,
+            WorkRobotFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

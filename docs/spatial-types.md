@@ -1,8 +1,14 @@
-# Spatial value types (#628)
+# Spatial value types
 
 Spatial data — positions, displacements, velocities, sizes and radii — is carried as one typed
 value, never as parallel X/Y, width/height or horizontal/vertical scalars. The types live in
 `csharp/src/SuperMetroid.Core/Spatial` and the analyzer rules SME6280-SME6283 (errors) enforce them.
+
+Spatial values keep sixteen-bit wrapping because it is load-bearing: room coordinates, scroll positions and
+collision probes wrap, and the game's behaviour at room edges, during door transitions and in the glitches the
+project reproduces depends on that wrap. This is the documented exception to widening (`manifesto.md`,
+"Load-bearing behaviour versus incidental representation"); it is a statement about the game's geometry, not
+about the processor.
 
 ## Coordinate spaces
 
@@ -54,6 +60,9 @@ value; host-side values (image sizes, grid cells, authored anchors) use the same
 The native per-axis arithmetic lives once in `SnesSignedSixteenSixteen` and `SnesFixedPosition`
 (whole/fraction assembly, carry/borrow, 32-bit wrap, half-word replacement). The two-dimensional
 types delegate to it and never re-derive it.
+
+Native 16-bit storage is a rule for spatial values only. Non-spatial gameplay quantities may be widened under
+`docs/cartridge-encoding.md`'s "Widened gameplay quantities" rule.
 
 Integer arithmetic that builds a coordinate converts explicitly: `checked((ushort)…)` where a
 negative or oversized value is a defect (sizes, image pixels, authored anchors), and
@@ -114,10 +123,11 @@ the wrapped value (collision and PLM grid probes).
   hardware registers, rendering-backend and P/Invoke adapters, and external file formats (the
   JSON document record itself) — through one named codec operation, and those declarations carry
   `[SpatialComponents("reason")]`.
-- Enemy family states that view the common slot's multipurpose variable words (or the native
-  extra-WRAM arrays) expose one typed property whose getter and setter compose and split those
-  native words; the words themselves stay native storage. Per-slot extra-WRAM arrays that hold
-  both axes store the typed value (one array, shared by the enemy system and the family view).
-- Debugger states restore only the current build's layout (#1270): changing a field to a spatial
-  type makes older states unloadable rather than converting them, so never keep primitive pairs in
-  owned logic for state compatibility.
+- An enemy family whose state still lives in the common slot's multipurpose variable words exposes one typed
+  property whose getter and setter compose and split those words. That is scaffolding: the destination is
+  per-family typed state that stores the spatial value directly, and no new family is written against slot
+  words. Per-slot arrays that hold both axes store the typed value (one array, shared by the enemy system and
+  the family).
+- Debugger states restore only the current build's layout: changing a field to a spatial type makes older
+  states unloadable rather than converting them. Save states are not first-class; never keep primitive pairs
+  in owned logic for state compatibility.

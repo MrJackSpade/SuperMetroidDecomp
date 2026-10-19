@@ -14,9 +14,9 @@ public static class SamusProjectileSoundRoutingDefinitions
     /// <summary>$90:C28F ProjectileSFX_Uncharged: first library-one request in the three beam families.</summary>
     private const ushort UnchargedPowerRequest = 0x000b;
     /// <summary>$90:C2C1 non-beam missile firing request, reached by charged selector thirteen.</summary>
-    private const ushort MissileRequest = 0x0003;
+    internal const ushort MissileRequest = 0x0003;
     /// <summary>$90:C2C3 non-beam super-missile firing request, reached by charged selector fourteen.</summary>
-    private const ushort SuperMissileRequest = 0x0004;
+    internal const ushort SuperMissileRequest = 0x0004;
     /// <summary>The cartridge's explicit no-new-sound result.</summary>
     private const ushort NoSound = 0;
 

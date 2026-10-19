@@ -32,7 +32,7 @@ internal static class TourianElevatorDoorsVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ushort listPointer in new ushort[] { 0xdad5, 0xd332 })
         {
-            AssertEqual(4, DoorDefinitionsTooling.GetList(listPointer).DoorPointers.Length,
+            AssertEqual(4, RoomDoorListDefinitions.ForListPointer(listPointer).Count,
                 "native elevator list has four entries");
             for (byte index = 0; index < 4; index++)
             {
@@ -59,15 +59,15 @@ internal static class TourianElevatorDoorsVerification
             int target = horizontal ? 6 : 9;
             blocks[target] = 0x9000;
             behaviors[target] = bts;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(blocks, behaviors, new ushort[16]), [], doorListPointer: list);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(blocks, behaviors, new ushort[16]), [], doors: RoomDoorListDefinitions.ForListPointer(list));
             var state = new SamusKinematicsState
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)), Radius = new(7, 7), CollisionPose = pose,
             };
             var bus = NewDoorNoReadAddressSpace();
             BlockMoveResult result = horizontal
-                ? SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, state, new HorizontalBlockMove { Displacement = 4 << 16 })
-                : SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, state, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+                ? SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, state, new HorizontalBlockMove { Displacement = 4 << 16 })
+                : SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, state, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertEqual(elevator, result.Collided, "native solid elevator / passable physical door");
             AssertEqual(elevator && (int)pose < 9, level.ConsumeElevatorDoorContact(), "native elevator pose gating");
             if (elevator)

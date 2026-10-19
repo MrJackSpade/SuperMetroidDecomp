@@ -7,6 +7,4 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="Index">The frame's position in that run.</param>
 public readonly record struct KraidPartFrame(KraidPartFrameKind Kind, int Index)
 {
-    /// <summary>The installed extended spritemap the frame shows.</summary>
-    internal ushort Spritemap => KraidPartFrameDefinitions.Spritemap(this);
 }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Platforms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -8,8 +9,14 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>The Platforms species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class PlatformsBehavior : IEnemySpecies
+internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer2, EnemyDefinitionId.Tripper];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PlatformsEntity(this, slot, common);
+
     /// <summary>Clips Tripper/Kamer horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
@@ -20,7 +27,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
     }
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
-    private PlatformProgram? ApplyPlatformCue(RoomEnemySlot slot, PlatformCue cue)
+    private static PlatformProgram? ApplyPlatformCue(RoomEnemySlot slot, PlatformCue cue)
     {
         switch (cue.Kind)
         {
@@ -38,23 +45,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         return null;
     }
 
-    /// <summary>Native horizontal and vertical dispatch indices retained for each enemy slot.</summary>
-    internal readonly PlatformMovementFunctions[] _platformMovementFunctions = new PlatformMovementFunctions[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Pre-move whole position used to carry Samus by the platform's accepted displacement.</summary>
-    internal readonly ushort[] _platformPreviousPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Tracks whether a moving vertical animation has been installed for each slot.</summary>
-    internal readonly ushort[] _platformVerticallyMovingFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Tracks whether a stationary vertical animation has been installed for each slot.</summary>
-    internal readonly ushort[] _platformVerticallyStillFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Quadratic-speed table caps selected by the platform variant.</summary>
-    internal readonly ushort[] _platformMaximumYSpeedTableIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Previous vertical dispatcher words used when rise and sink states change.</summary>
-    internal readonly ushort[] _platformPreviousYMovementFunctions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot selector for the suspensor platform animation family.</summary>
-    internal readonly ushort[] _platformSuspensorPlatformFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Typed movement state for Tripper and Kamer slots.</summary>
-    internal readonly PlatformEnemyState?[] _platformStates =
-        new PlatformEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Recognizes the two enemy definitions sharing bank-$A3 platform movement.</summary>
     internal static bool IsPlatformDefinition(EnemyDefinitionId definition) =>
@@ -64,8 +54,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies
     internal void InitializePlatform(RoomEnemySlot slot)
     {
         bool isKamer = slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2;
-        var state = new PlatformEnemyState(slot, new PlatformSharedTables { MovementFunctions = _platformMovementFunctions, PreviousPositions = _platformPreviousPositions, VerticallyMovingFlags = _platformVerticallyMovingFlags, VerticallyStillFlags = _platformVerticallyStillFlags, MaximumYSpeedTableIndexes = _platformMaximumYSpeedTableIndexes, PreviousYMovementFunctions = _platformPreviousYMovementFunctions, SuspensorPlatformFlags = _platformSuspensorPlatformFlags });
-        _platformStates[slot.SlotIndex] = state;
+        var state = new PlatformEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.IsSuspensorPlatform = isKamer;
         // Main AI dispatches the complete word through a two-entry table. Initialization's
@@ -79,18 +69,18 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
         // native byte offset across {right whole/fraction, left whole/fraction}.
         ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter2)) * 8));
-        (state.RightVelocity, state.RightSubvelocity) =
-            EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
-        (state.LeftVelocity, state.LeftSubvelocity) =
-            EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
+        (short rightWhole, ushort rightFraction) = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
+        state.RightSpeed = SnesSignedSixteenSixteen.FromParts(rightWhole, rightFraction);
+        (short leftWhole, ushort leftFraction) = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
+        state.LeftSpeed = SnesSignedSixteenSixteen.FromParts(leftWhole, leftFraction);
 
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.VerticallyMovingArtInstalled = false;
         state.VerticallyStillArtInstalled = false;
-        state.TargetYPosition = unchecked((ushort)(slot.Position.Y.Whole + 1));
+        state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole) + new Offset16<RoomPixels>(0, 1);
         state.YSpeedTableIndex = 0;
-        state.MaximumYSpeedTableIndex = unchecked((ushort)(SnesLittleEndian.HighByte(slot.Parameter2)));
+        state.MaximumYSpeedTableIndex = SnesLittleEndian.HighByte(slot.Parameter2);
     }
 
     /// <summary>Ports <c>MainAI_Tripper_Kamer2</c> at $A3:9D16.</summary>
@@ -112,8 +102,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies
             ? PlatformVerticalMovement.Sinking
             : PlatformVerticalMovement.Rising;
 
+        // The sinking carry measures the horizontal step from the position before it.
+        ushort preHorizontalX = slot.Position.X.Whole;
         MovePlatformHorizontally(slot, state, level);
-        MovePlatformVertically(slot, state, samus, level);
+        MovePlatformVertically(slot, state, samus, level, preHorizontalX);
 
         // Native main AI resets acceleration after running the first frame in a newly
         // selected vertical state. Preserve that slightly surprising ordering: a new phase
@@ -157,7 +149,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         PlatformEnemyState state,
         RoomLevelData level)
     {
-        state.PreviousPosition = slot.Position.X.Whole;
         bool movingLeft = state.XMovement switch
         {
             PlatformHorizontalMovement.Left => true,
@@ -165,7 +156,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
             _ => throw new InvalidDataException(
                 $"Platform X movement index {(ushort)state.XMovement} exceeds its two-entry table."),
         };
-        int displacement = movingLeft ? state.LeftDisplacement : state.RightDisplacement;
+        int displacement = (movingLeft ? state.LeftSpeed : state.RightSpeed).RawValue;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
@@ -179,11 +170,17 @@ internal sealed class PlatformsBehavior : IEnemySpecies
     }
 
     /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
+    /// <param name="slot">The platform's slot.</param>
+    /// <param name="state">The platform's state.</param>
+    /// <param name="samus">Samus, carried while riding.</param>
+    /// <param name="level">The room's collision data.</param>
+    /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void MovePlatformVertically(
         RoomEnemySlot slot,
         PlatformEnemyState state,
         SamusState samus,
-        RoomLevelData level)
+        RoomLevelData level,
+        ushort preHorizontalX)
     {
         switch (state.YMovement)
         {
@@ -191,7 +188,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
                 RaisePlatform(slot, state, level);
                 return;
             case PlatformVerticalMovement.Sinking:
-                SinkPlatform(slot, state, samus, level);
+                SinkPlatform(slot, state, samus, level, preHorizontalX);
                 return;
             default:
                 throw new InvalidDataException(
@@ -207,7 +204,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
     {
         // Signed BMI comparison is intentional. Normal platforms stop once they have risen
         // from their depressed position to one pixel below their original spawn center.
-        if (unchecked((short)(slot.Position.Y.Whole - state.TargetYPosition)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - state.RestingHeight.Y)) < 0)
         {
             state.YSpeedTableIndex = 0;
             SetPlatformVerticallyStillInstruction(slot, state);
@@ -227,23 +224,28 @@ internal sealed class PlatformsBehavior : IEnemySpecies
     }
 
     /// <summary>Accelerates a ridden platform downward and publishes its collision-clipped displacement to Samus.</summary>
+    /// <param name="slot">The platform's slot.</param>
+    /// <param name="state">The platform's state.</param>
+    /// <param name="samus">Samus, carried by the platform's accepted movement.</param>
+    /// <param name="level">The room's collision data.</param>
+    /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void SinkPlatform(
         RoomEnemySlot slot,
         PlatformEnemyState state,
         SamusState samus,
-        RoomLevelData level)
+        RoomLevelData level,
+        ushort preHorizontalX)
     {
         // `$A3:9DE7-$9DED` performs a comparison followed by a JSR to an immediate RTS; it
         // has no branch or side effect. Sinking therefore always continues to acceleration.
         IncrementAndClampPlatformYSpeed(state);
 
-        // Horizontal movement saved the pre-move X position in the aliased word. Add the
-        // wrapped whole-pixel delta to the shared producer word; fractional displacement is
-        // deliberately untouched because this enemy writes only `$0B58`.
-        ushort xDelta = unchecked((ushort)(slot.Position.X.Whole - state.PreviousPosition));
+        // Add the wrapped whole-pixel horizontal step to Samus's extra displacement; fractional
+        // displacement is deliberately untouched because this enemy carries only whole pixels.
+        ushort xDelta = unchecked((ushort)(slot.Position.X.Whole - preHorizontalX));
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(xDelta)), 0);
 
-        state.PreviousPosition = slot.Position.Y.Whole;
+        ushort preVerticalY = slot.Position.Y.Whole;
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
             state.YSpeedTableIndex,
             negative: false);
@@ -255,19 +257,20 @@ internal sealed class PlatformsBehavior : IEnemySpecies
 
         // This delta is measured after collision clipping, so Samus follows the platform's
         // accepted motion rather than the requested quadratic speed.
-        ushort yDelta = unchecked((ushort)(slot.Position.Y.Whole - state.PreviousPosition));
+        ushort yDelta = unchecked((ushort)(slot.Position.Y.Whole - preVerticalY));
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 
-    /// <summary>Steps the quadratic-speed table index without crossing its variant-specific cap.</summary>
-    private static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
+    /// <summary>
+    /// Steps the quadratic-speed table index without crossing its variant-specific cap. The index stays within
+    /// 0 through the cap (at most 255) and one step can only reach 256, so the cartridge's signed word comparison
+    /// is an ordinary one.
+    /// </summary>
+    internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
     {
-        state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex + 1));
-        if (unchecked((short)(
-                state.YSpeedTableIndex - state.MaximumYSpeedTableIndex)) >= 0)
-        {
+        state.YSpeedTableIndex++;
+        if (state.YSpeedTableIndex >= state.MaximumYSpeedTableIndex)
             state.YSpeedTableIndex = state.MaximumYSpeedTableIndex;
-        }
     }
 
     /// <summary>Installs moving art once per phase and always clears the still-art flag at the native merge label.</summary>
@@ -326,7 +329,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
     }
 
     /// <summary>Ports the four equivalent list commands at $A3:9C6B/$9C76/$9C81/$9C8C.</summary>
-    private void SetPlatformHorizontalMovementFromInstruction(
+    private static void SetPlatformHorizontalMovementFromInstruction(
         RoomEnemySlot slot,
         PlatformHorizontalMovement movement)
     {
@@ -334,12 +337,12 @@ internal sealed class PlatformsBehavior : IEnemySpecies
     }
 
     /// <summary>Requires typed platform movement state after the shared initializer has run.</summary>
-    private PlatformEnemyState RequirePlatformState(RoomEnemySlot slot) =>
-        _platformStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static PlatformEnemyState RequirePlatformState(RoomEnemySlot slot) =>
+        slot.SpeciesState<PlatformEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Tripper/Kamer state.");
 
     /// <summary>Replaces a frozen Tripper's map after common Bomb reaction using its movement direction.</summary>
-    internal void RegisterPlatformsBombReactions(EnemyAiTable table)
+    internal static void RegisterPlatformsBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.TripperShot)
@@ -347,51 +350,37 @@ internal sealed class PlatformsBehavior : IEnemySpecies
             AfterCommon = c =>
             {
                 if (!c.Enemy.FrozenTimer.IsZero)
-                    c.Enemy.SpritemapPointer = TripperKamerVisualDefinitions.FrozenFrame(RequirePlatformState(c.Enemy).XMovement);
+                    c.Enemy.Frame = TripperFrozenFrame(RequirePlatformState(c.Enemy).XMovement);
             },
         });
     }
 
-    /// <summary>Routes the shared initializer to Tripper and Kamer's distinct native entry points.</summary>
-    internal void RegisterPlatformsInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Platforms's initialization AI.</summary>
+    internal void RunPlatformsInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        EnemyInitializationAiHandler shared67 = (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializePlatform(slot);
-        };
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Kamer2, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2, shared67);
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Tripper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Tripper, shared67);
+        InitializePlatform(slot);
     }
 
-    /// <summary>Registers the common riding, horizontal patrol and vertical rise/sink dispatcher.</summary>
-    internal void RegisterPlatformsMainAi(EnemyAiTable table)
+    /// <summary>Ports Platforms's main AI.</summary>
+    internal void RunPlatformsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Tripper_Kamer2, slot => IsPlatformDefinition(slot.EnemyDefinitionPointer), (slot, frame, nmiFrameCounter8) =>
-        {
-            RunPlatformMain(slot, RequirePlatformState(slot), frame.Samus, frame.Level);
-        });
+        RunPlatformMain(slot, RequirePlatformState(slot), frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs the Tripper and Kamer platform loops as typed programs (#641).</summary>
-    internal void RegisterPlatformTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsPlatformDefinition(slot.EnemyDefinitionPointer), (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequirePlatformState(slot);
-            AnimationProgramCursor<PlatformProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, PlatformAnimations.Programs, ref cursor, PlatformFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyPlatformCue(slot, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Platforms's typed animation.</summary>
+    internal static void AdvancePlatformsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequirePlatformState(slot);
+        AnimationProgramCursor<PlatformProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, PlatformAnimations.Programs, ref cursor, PlatformFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyPlatformCue(slot, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
-    internal void RegisterPlatformsShotReactions(EnemyAiTable table)
+    internal static void RegisterPlatformsShotReactions(EnemySharedReactions table)
     {
         // Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
         // frame with a direction-specific two-piece frozen map.
@@ -401,13 +390,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies
             AfterCommon = (c, froze) =>
             {
                 if (froze)
-                    c.Enemy.SpritemapPointer = TripperKamerVisualDefinitions.FrozenFrame(RequirePlatformState(c.Enemy).XMovement);
+                    c.Enemy.Frame = TripperFrozenFrame(RequirePlatformState(c.Enemy).XMovement);
             },
         });
     }
 
     /// <summary>Registers native RTL touch behavior so ordinary overlap does not damage Samus.</summary>
-    internal static void RegisterPlatformsTouch(EnemyAiTable table)
+    internal static void RegisterPlatformsTouch(EnemySharedReactions table)
     {
         // `$A3:9F07` is a literal RTL. Platform solidity and the asymmetric rider test live in other handlers;
         // ordinary body overlap must neither injure Samus nor synthesize knockback here.
@@ -417,20 +406,15 @@ internal sealed class PlatformsBehavior : IEnemySpecies
     }
 
     /// <inheritdoc/>
+    /// <remarks>Each platform's initializer creates its state, so a room load has nothing to reset.</remarks>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_platformStates);
-        Array.Clear(_platformMovementFunctions);
-        Array.Clear(_platformPreviousPositions);
-        Array.Clear(_platformVerticallyMovingFlags);
-        Array.Clear(_platformVerticallyStillFlags);
-        Array.Clear(_platformMaximumYSpeedTableIndexes);
-        Array.Clear(_platformPreviousYMovementFunctions);
-        Array.Clear(_platformSuspensorPlatformFlags);
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
+    /// <summary>
+    /// The frozen Tripper's frame. $A3:9F14-9F25 tests the complete X-movement word for zero: every nonzero value shows
+    /// the right-moving frame, including values outside the normal dispatcher domain.
+    /// </summary>
+    private static EnemyFrameId TripperFrozenFrame(PlatformHorizontalMovement direction) =>
+        direction == PlatformHorizontalMovement.Left ? EnemyFrameId.TripperFrozenMovingLeft : EnemyFrameId.TripperFrozenMovingRight;
 }

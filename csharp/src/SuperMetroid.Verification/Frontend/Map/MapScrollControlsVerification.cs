@@ -37,8 +37,8 @@ internal static class MapScrollControlsVerification
             SnesButton held = 0;
             for (int index = 0; index < buttons.Length; index++)
                 if ((combination & (1 << index)) != 0) held |= buttons[index];
-            var native = new FileSelectMapScroll(bus, map, system, new(240, 128));
-            var compiled = new FileSelectMapScroll(guard, map, system, new(240, 128));
+            var native = new FileSelectMapScroll(map, system, new(240, 128));
+            var compiled = new FileSelectMapScroll(map, system, new(240, 128));
             // Sustained direction runs include reaching native boundaries, opposing
             // input precedence, then releasing while an eight-tick step is pending.
             for (int tick = 0; tick < 280; tick++)
@@ -53,11 +53,11 @@ internal static class MapScrollControlsVerification
         {
             SnesButton input = (SnesButton)(1 << bit);
             if (buttons.Contains(input)) continue;
-            var scroll = new FileSelectMapScroll(guard, map, system, new(240, 128));
+            var scroll = new FileSelectMapScroll(map, system, new(240, 128));
             AssertTrue(!scroll.Step(input), "unrelated controller bit does not queue map sound");
             AssertEqual(MapScrollDirection.None, scroll.Direction, "unrelated controller bit cannot start map scrolling");
         }
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, catalog, catalog));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog, catalog));
         Console.WriteLine("Compiled map controls: four native masks/order, 16 direction combinations, trajectories/sound boundaries and guarded full menu parity pass.");
     }
 

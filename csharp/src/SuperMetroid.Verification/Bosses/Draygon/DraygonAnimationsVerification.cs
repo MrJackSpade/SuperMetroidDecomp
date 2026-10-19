@@ -38,9 +38,9 @@ internal static class DraygonAnimationsVerification
         int stepCount = 0;
         foreach ((DraygonProgram program, ushort entry) in Entries)
             stepCount += CompareProgram(cartridge, program, entry, drawn);
-        AssertEqual(DraygonFrameDefinitions.FrameCount, drawn.Count, "the Draygon programs draw every catalog frame");
-        for (int index = 0; index < DraygonFrameDefinitions.FrameCount; index++)
-            AssertTrue(drawn.Contains(new DraygonFrame(index).Spritemap), $"Draygon catalog frame {index} is drawn by a native list");
+        AssertEqual(DraygonFrameToolingDefinitions.FrameCount, drawn.Count, "the Draygon programs draw every catalog frame");
+        for (int index = 0; index < DraygonFrameToolingDefinitions.FrameCount; index++)
+            AssertTrue(drawn.Contains(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(index))), $"Draygon catalog frame {index} is drawn by a native list");
 
         VerifyReset();
         VerifyDying(cartridge);
@@ -72,7 +72,7 @@ internal static class DraygonAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
                     AssertEqual((int)word, step.Duration, $"{at}: duration");
-                    AssertEqual(operand, step.Frame.Spritemap, $"{at}: spritemap");
+                    AssertEqual(operand, DraygonFrameToolingDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
                     drawn.Add(operand);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -127,7 +127,7 @@ internal static class DraygonAnimationsVerification
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody;
+        body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         body.Position = body.Position.WithWhole(new(256, 384));
         var state = new DraygonEnemyState(body)
         {
@@ -135,9 +135,11 @@ internal static class DraygonAnimationsVerification
             Tail = enemies.SlotTable.Slots[2],
             Arms = enemies.SlotTable.Slots[3],
         };
-        state.Eye.EnemyDefinitionPointer = EnemyDefinitionId.DraygonEye;
-        state.Tail.EnemyDefinitionPointer = EnemyDefinitionId.DraygonTail;
-        state.Arms.EnemyDefinitionPointer = EnemyDefinitionId.DraygonArms;
+        state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
+        var eyeState = new DraygonEyeState();
+        state.Eye.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
+        state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
+        state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })
             state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.Sleep));
         enemies.DraygonBehavior.Draygon = state;
@@ -147,8 +149,8 @@ internal static class DraygonAnimationsVerification
     }
 
     /// <summary>Runs one update of <paramref name="part"/> through the production interpreter.</summary>
-    private static void Pass(RoomEnemySystem enemies, RoomEnemySlot part) =>
-        enemies.Instructions.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+    private static void Pass(RoomEnemySlot part) =>
+        EnemyInstructionInterpreter.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
 
     /// <summary>
     /// The body's reset starts all four parts in the same update, gives the eye its tracking function and the
@@ -159,15 +161,15 @@ internal static class DraygonAnimationsVerification
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         state.SetCursor(state.Body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingRightReset));
         state.Body.InstructionTimer = NativeCountdown.Start(1);
-        Pass(enemies, state.Body);
+        Pass(state.Body);
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingRightIdle), state.Cursor(state.Eye), "the reset starts the eye");
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingRightIdle), state.Cursor(state.Tail), "the reset starts the tail");
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingRightIdle), state.Cursor(state.Arms), "the reset starts the arms");
         foreach (RoomEnemySlot part in new[] { state.Eye, state.Tail, state.Arms })
             AssertEqual((ushort)1, part.InstructionTimer.RawValue, "the reset's started parts run on their next update");
         AssertEqual(DraygonProgram.BodyFacingRightReset, state.Cursor(state.Body).Program, "the body's own frame keeps it in the reset");
-        AssertEqual(new DraygonFrame(63).Spritemap, state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
-        AssertEqual((ushort)DraygonEyeFunction.FacingRight, state.Eye.VariableA, "the reset gives the eye its tracking function");
+        AssertEqual(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(63)), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
+        AssertEqual<DraygonEyeFunction?>(DraygonEyeFunction.FacingRight, state.Eye.SpeciesState<DraygonEyeState>()?.Function, "the reset gives the eye its tracking function");
         AssertEqual(RoomLoadingInterruptCommand.BeginHudDraw, state.RoomLoadingIrqCommand, "the reset selects the HUD-draw interrupt");
     }
 
@@ -188,7 +190,7 @@ internal static class DraygonAnimationsVerification
         {
             state.LastSoundLibrary2 = null;
             state.LastSoundLibrary3 = null;
-            Pass(enemies, arms);
+            Pass(arms);
             List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
             string at = $"Draygon dying update {update}";
             AssertEqual(native.Timer, arms.InstructionTimer.RawValue, $"{at}: timer");
@@ -196,9 +198,9 @@ internal static class DraygonAnimationsVerification
             AssertEqual(native.NewFrame, arms.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(native.Counter, arms.Timer.RawValue, $"{at}: loop counter");
             DraygonCue[] cues = [.. callbacks.Select(callback => CueOf(callback.Word, callback.Operands))];
-            AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Library == SoundEffectLibrary.Library2)?.Sound,
+            AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Library2)?.Sound,
                 state.LastSoundLibrary2, $"{at}: library-2 sound");
-            AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Library == SoundEffectLibrary.Library3)?.Sound,
+            AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Library3)?.Sound,
                 state.LastSoundLibrary3, $"{at}: library-3 sound");
             if (cues.Any(cue => cue is DraygonCue.ParalyseTailAndArms))
             {
@@ -232,8 +234,8 @@ internal static class DraygonAnimationsVerification
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
         var samus = new SamusState();
         enemies.Projectiles.ProcessEnemyProjectileInstructions(goop, samus, Position16<RoomPixels>.Zero);
-        AssertEqual((ushort)EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus, goop.PreInstruction, "the goop touch sticks the goop to Samus");
-        AssertEqual(DraygonProjectileVisualDefinitions.PresentationKey(new(DraygonProjectileFrameKind.Goop, 0)), goop.PresentationOperandAddress,
+        AssertEqual(EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus, goop.PreInstruction, "the goop touch sticks the goop to Samus");
+        AssertEqual(EnemyProjectileFrames.ProgramFrameKey(DraygonProjectileVisualDefinitions.ShownProjectileFrames[new(DraygonProjectileFrameKind.Goop, 0)]), goop.PresentationOperandAddress,
             "the goop touch shows the goop's first frame in the same update");
         AssertEqual((ushort)10, goop.InstructionTimer.RawValue, "the goop's first frame lasts ten updates");
         Console.WriteLine("  Draygon projectile programs: goop, burst, touch, bloom and flight match bank $86; the touch sticks the goop at once.");
@@ -260,7 +262,7 @@ internal static class DraygonAnimationsVerification
             {
                 AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
                 AssertEqual((int)word, step.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), DraygonProjectileVisualDefinitions.PresentationKey(step.Frame), $"{at}: frame operand");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(DraygonProjectileVisualDefinitions.ShownProjectileFrames[step.Frame]), $"{at}: frame operand");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }

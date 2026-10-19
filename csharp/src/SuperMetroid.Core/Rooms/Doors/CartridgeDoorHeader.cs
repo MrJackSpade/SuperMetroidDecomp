@@ -8,14 +8,16 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// discarded exactly the Mode-7 switch used by the opening Ceres elevator.
 /// </remarks>
 public sealed record CartridgeDoorHeader(
-    ushort Pointer,
-    ushort DestinationRoomPointer,
+    string Name,
+    RoomHeaderDefinition DestinationRoom,
     CartridgeDoorOrientation Orientation,
     Position16<RoomBlocks> PlmBlock,
     Position16<RoomScreens> DestinationScreen,
-    ushort SamusDistance,
+    int SamusDistance,
     DoorSetupCode SetupCodePointer)
 {
+    /// <summary>The door's Samus-distance word, 0 through 65535.</summary>
+    public int SamusDistance { get; } = Ensure.BetweenInclusive(0, ushort.MaxValue, SamusDistance);
 
     /// <summary>
     /// True only for the verified setup routine that writes BGMODE=7, A=D=$0100,

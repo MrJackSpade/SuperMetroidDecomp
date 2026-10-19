@@ -18,7 +18,7 @@ internal static class StokeBehaviorVerification
     /// Each walking animation sets main AI's direction and function and loops on time; each attack spits a fireball in
     /// its own direction and then walks again in that direction.
     /// </summary>
-    internal static void VerifyStokeBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyStokeBehavior()
     {
         foreach ((StokeDirection direction, StokeProgram walk, StokeProgram loop, StokeProgram attack, StokeAiFunction function, ushort fireball) in new[]
                  {
@@ -26,39 +26,39 @@ internal static class StokeBehaviorVerification
                      (StokeDirection.Right, StokeProgram.MovingRight, StokeProgram.MovingRightLoop, StokeProgram.AttackingRight, StokeAiFunction.MovingRight, (ushort)1),
                  })
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, StokeEnemyState state) = Create(rom, direction == StokeDirection.Left ? StokeDirection.Right : StokeDirection.Left);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, StokeEnemyState state) = Create(direction == StokeDirection.Left ? StokeDirection.Right : StokeDirection.Left);
             state.Program = AnimationProgramCursor<StokeProgram>.Start(walk);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(StokeAnimations.Programs, loop, StokeFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(StokeAnimations.Programs, loop)), $"Stoke {walk} loop");
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(StokeAnimations.Programs, loop, StokeFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(StokeAnimations.Programs, loop)), $"Stoke {walk} loop");
             AssertEqual(direction, state.Direction, $"Stoke {walk} cue sets the direction");
             AssertEqual(function, state.Function, $"Stoke {walk} cue sets the walking function");
 
-            (enemies, slot, state) = Create(rom, direction);
+            (enemies, slot, state) = Create(direction);
             state.Function = StokeAiFunction.IdleDuringAttack;
             state.Program = AnimationProgramCursor<StokeProgram>.Start(attack);
             ushort[] attackFrames = StokeAnimationsConstants.Spritemaps(attack).ToArray();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(attackFrames, [16, 16]),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, 32), $"Stoke {attack} poses");
+                EnemyInstructionRunner.ShownFrames(slot, 32), $"Stoke {attack} poses");
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.Kind == RoomEnemyProjectileKind.StokeProjectile);
             AssertEqual(fireball, projectile.DirectionParameter, $"Stoke {attack} fireball direction");
-            EnemyInstructionRunner.ShownFrames(enemies, slot, 1);
+            EnemyInstructionRunner.ShownFrames(slot, 1);
             AssertEqual(function, state.Function, $"Stoke {attack} walks again");
         }
         Console.WriteLine("  Stoke behavior: both walks set direction and function and loop on time; both attacks spit their fireball and walk again.");
     }
 
     /// <summary>A Stoke initialized facing <paramref name="direction"/>.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, StokeEnemyState State) Create(SuperMetroidAddressSpace rom, StokeDirection direction)
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, StokeEnemyState State) Create(StokeDirection direction)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Stoke;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = StokeFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = StokeFrameToolingDefinitions.Bank });
         slot.Parameter1 = (ushort)direction;
         slot.Position = slot.Position.WithWhole(new(128, 128));
-        enemies.StokeBehavior.InitializeStoke(slot);
+        StokeBehavior.InitializeStoke(slot);
         return (enemies, slot, enemies.StokeStates[0] ?? throw new InvalidOperationException("Stoke has no state."));
     }
 
@@ -67,7 +67,7 @@ internal static class StokeBehaviorVerification
     internal static int StokeBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyStokeBehavior), () => VerifyStokeBehavior(rom));
+        Suite(nameof(VerifyStokeBehavior), () => VerifyStokeBehavior());
         Suite(nameof(StokeAnimationsVerification.VerifyStokeAnimations), () => StokeAnimationsVerification.VerifyStokeAnimations(rom));
         return 0;
     }

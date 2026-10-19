@@ -46,10 +46,14 @@ internal sealed class IntroMotherBrainExplosionSystem
         Ensure.NotNull(installedArt);
         foreach (ExplosionActor actor in actors)
         {
-            if (!actor.IsActive || actor.SpriteMapPointer == 0)
+            if (!actor.IsActive || actor.Pose is not { } pose)
+                continue;
+            // The blank pose's spritemap draws nothing.
+            ushort spritemap = CinematicSpritePoseDefinitions.Spritemap(pose);
+            if (spritemap == 0)
                 continue;
 
-            installedArt.Draw(actor.SpriteMapPointer, oam, actor.Position.ToOam(), IntroCinematicRomData.Objects.ExplosionPalette.Raw);
+            installedArt.Draw(spritemap, oam, actor.Position.ToOam(), IntroCinematicRomData.Objects.ExplosionPalette.Raw);
         }
     }
 
@@ -63,7 +67,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         private ExplosionActor(
             Position16<ScreenPixels> position,
             CinematicSpriteProgram program,
-            ushort startDelay)
+            int startDelay)
         {
             sprite = new IntroDiscoverySprite(position, IntroCinematicRomData.Objects.ExplosionPalette.Raw, program);
             sprite.DelayFirstInstruction(startDelay);
@@ -72,8 +76,8 @@ internal sealed class IntroMotherBrainExplosionSystem
         /// <summary>Fixed cinematic screen origin selected by the small or big placement table.</summary>
         public Position16<ScreenPixels> Position => sprite.WholePosition;
 
-        /// <summary>Current bank-$8C visual frame pointer, zero before the first timed pose or after deletion.</summary>
-        public ushort SpriteMapPointer => sprite.SpriteMapPointer;
+        /// <summary>The pose the explosion's program shows; null before its first frame and after deletion.</summary>
+        public CinematicSpritePose? Pose => sprite.Pose;
 
         /// <summary>Cleared by the program's delete after the later crossfade or list completion.</summary>
         public bool IsActive => sprite.IsActive;
@@ -86,7 +90,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             return new ExplosionActor(
                 IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
                 IntroMotherBrainDefinitions.BigExplosionActor.Program,
-                placement.StartTimer);
+                placement.StartDelayFrames);
         }
 
         /// <summary>Starts a small explosion from its three-entry position and delay table.</summary>
@@ -97,7 +101,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             return new ExplosionActor(
                 IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
                 IntroMotherBrainDefinitions.SmallExplosionActor.Program,
-                placement.StartTimer);
+                placement.StartDelayFrames);
         }
 
         /// <summary>Consumes one cinematic handler call.</summary>

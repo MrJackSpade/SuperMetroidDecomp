@@ -3,34 +3,20 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
-/// Typed view of Kago's ordinary variables plus its bank-$7E:7808 hit counter. The latter
-/// is genuinely outside the common 64-byte enemy record, so it remains actor-owned state
-/// instead of being disguised as an unrelated generic slot word.
+/// The state of the Kago. Its behaviour, animation speed and death latch are values the cartridge keeps in the enemy's
+/// common record, so a kill empties them with that record (<see cref="ClearWithRecord"/>); its hit counter lives
+/// outside the record and outlives the kill.
 /// </summary>
 public sealed class KagoEnemyState
 {
-    /// <summary>Physical enemy slot carrying Kago's common variables.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects Kago's native variables from its occupied enemy slot.</summary>
-    internal KagoEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<KagoProgram> Program { get; set; }
 
-    /// <summary>Common variable A ($7E:0FA8 plus physical slot offset), holding the native bank-$A8 indirect main-AI word; initialized to $AB7B and changed to $AB81 on the first AI update.</summary>
-    public KagoEnemyFunction Function
-    {
-        get => (KagoEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>The current behaviour, installed at initialization and replaced on the first AI update; none once a kill has emptied the record.</summary>
+    public KagoEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Variable B: zero for the ten-frame loop, one for the three-frame loop.</summary>
-    public bool UsesFastAnimation
-    {
-        get => _slot.VariableB != 0;
-        internal set => _slot.VariableB = value ? (ushort)1 : (ushort)0;
-    }
+    /// <summary>Whether the shell runs its three-frame loop rather than its ten-frame one.</summary>
+    public bool UsesFastAnimation { get; internal set; }
 
     /// <summary>
     /// Extra enemy word four. The ROM decrements first and dies only when the signed result
@@ -38,13 +24,17 @@ public sealed class KagoEnemyState
     /// </summary>
     public NativeCountdown HitCounter { get; internal set; }
 
-    /// <summary>Variable F: set after Kago requests death animation variant four.</summary>
-    public bool DeathAnimationStarted
-    {
-        get => _slot.VariableF != 0;
-        internal set => _slot.VariableF = value ? (ushort)1 : (ushort)0;
-    }
+    /// <summary>Set after Kago requests death animation variant four.</summary>
+    public bool DeathAnimationStarted { get; internal set; }
 
     /// <summary>Number of bank-$86 Kago bugs successfully allocated from this shell.</summary>
     public int SpawnedBugCount { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour, the slow loop, no death.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        UsesFastAnimation = false;
+        DeathAnimationStarted = false;
+    }
 }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces Shaktool segment contact during the recorded 100% route.</summary>
 internal static class ShaktoolSamusContactVerification
@@ -19,11 +20,11 @@ internal static class ShaktoolSamusContactVerification
     internal static void VerifyShaktoolSamusContact()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.Shaktool);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Shaktool);
         RoomEnemySlot segment = runtime.Enemies.SlotTable.Slots[0];
         AssertEqual(EnemyDefinitionId.Shaktool, segment.EnemyDefinitionPointer, "slot zero is a Shaktool segment");
         AssertEqual(EnemyInteractionCallback.ShaktoolTouch, EnemyCollision.TouchAi(segment), "Shaktool's header touch callback");
@@ -33,7 +34,7 @@ internal static class ShaktoolSamusContactVerification
         samus.Position = samus.Position.WithWhole(segment.Position.Whole);
         samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = NativeCountdown.Start(0);
-        ushort healthBefore = samus.Health;
+        int healthBefore = samus.Health;
 
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(
             new Position16<RoomPixels>((ushort)0, (ushort)0));

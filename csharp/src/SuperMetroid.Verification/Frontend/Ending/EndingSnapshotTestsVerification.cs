@@ -27,8 +27,8 @@ internal static class EndingSnapshotTestsVerification
             var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             var otherBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             var audio = new CartridgeAudioState(); var otherAudio = new CartridgeAudioState();
-            var legacy = CreateRetailEndingFixture(bus, audio, hours, 59);
-            var captured = CreateRetailEndingFixture(otherBus, otherAudio, hours, 59);
+            var legacy = CreateRetailEndingFixture(audio, hours, 59);
+            var captured = CreateRetailEndingFixture(otherAudio, hours, 59);
             var credits = CreditsPresentation.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus)));
             legacy.BindStaffCredits(credits);
@@ -111,7 +111,7 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var finale = legacy.Presentation.CaptureRenderSnapshot();
                     var backgrounds = finale.LayersOf<Bg4BppRenderLayer>();
-                    AssertTrue(backgrounds.Select(bg => bg.TilemapWord).SequenceEqual(new ushort[] { 0x7800, 0x7400, 0x7800, 0x7400 }),
+                    AssertTrue(backgrounds.Select(bg => bg.TilemapWord).SequenceEqual(new[] { 0x7800, 0x7400, 0x7800, 0x7400 }),
                         "native explosion finale selects both background maps in main-screen priority order");
                     AssertTrue(backgrounds.All(bg => bg.CharacterWord == 0x4000), "explosion finale uses Mode1 character base, not stale Mode7 decoding");
                     AssertTrue(!finale.Layers.Any(layer => layer is ObjRenderLayer or ObjPriorityRenderLayer),
@@ -138,12 +138,15 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Phase == EndingCreditsPhase.PostCreditsJump)
                 {
                     if (firstPhaseFrame)
-                        referenceJump = new EndingRewardJump(bus, legacy.EndingReward, _ => { });
+                        referenceJump = new EndingRewardJump(legacy.EndingReward, _ => { });
                     else
                         (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step();
                     var jumpFrame = legacy.Presentation.CaptureRenderSnapshot();
                     var expectedOam = referenceJump.Draw(rewardArt);
-                    AssertEqual(referenceJump.ObjectSelection, jumpFrame.ObjectSelection,
+                    AssertEqual(referenceJump.FallingSheetSelected
+                            ? EndingCreditsRomData.Rendering.FallingRewardObjectSelection
+                            : EndingCreditsRomData.Rendering.RewardObjectSelection,
+                        jumpFrame.ObjectSelection,
                         "live reward switches OBJ sheet on the same native flight frame");
                     // The live ending also appends the restored shooting stars.
                     // Compare the reference jump actors, including packed X/size bits,

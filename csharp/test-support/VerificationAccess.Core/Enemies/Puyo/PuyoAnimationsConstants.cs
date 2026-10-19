@@ -12,5 +12,5 @@ internal static class PuyoAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params PuyoProgram[] programs) =>
         programs.SelectMany(program => PuyoAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => PuyoFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => PuyoFrameToolingDefinitions.Spritemap(step.Frame));
 }

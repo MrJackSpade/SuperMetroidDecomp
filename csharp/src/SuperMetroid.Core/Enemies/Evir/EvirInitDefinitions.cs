@@ -1,11 +1,19 @@
 namespace SuperMetroid.Core.Enemies.Evir;
 
-/// <summary>Constants of <c>InitAI_Evir</c> ($A8:87E0).</summary>
+/// <summary>Data of an Evir body's initialization.</summary>
 public static class EvirInitDefinitions
 {
     /// <summary>
-    /// <c>LDA.W Enemy.init1+1,Y</c> at $A8:8811: slot zero's init1 high byte, $0FB7, indexed by
-    /// the speed-table byte offset in Y instead of the enemy index.
+    /// The first bobbing half-cycle of a body, by speed record. The cartridge's initialization looks the body's own
+    /// direction-change period up with the speed-table offset in place of the body's own position, so the value it
+    /// halves belongs to another enemy, fixed by the speed record alone. Every Evir in the game uses speed record 8
+    /// or 12: record 8 lands on the second enemy's second population parameter, and record 12 on the third enemy's
+    /// palette. The read happens while the room's population is loading, so an enemy later in the list than the body
+    /// still holds the empty record the room load left.
     /// </summary>
-    public const int AliasedTimerAddress = 0x0fb7;
+    public static IReadOnlyList<EvirFirstHalfCycleSource> FirstHalfCycleSources { get; } =
+    [
+        new(SpeedRecord: 8, SlotIndex: 1, EvirHalfCycleSourceField.PopulationParameter2),
+        new(SpeedRecord: 12, SlotIndex: 2, EvirHalfCycleSourceField.Palette),
+    ];
 }

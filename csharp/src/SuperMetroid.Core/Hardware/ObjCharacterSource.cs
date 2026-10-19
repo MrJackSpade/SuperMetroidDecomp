@@ -39,11 +39,6 @@ public sealed record ObjCharacterSource
     public static ObjCharacterSource FromCrocomireSkeletonChunk(int entry) =>
         new(ObjCharacterSourceKind.CrocomireSkeletonChunk, VramAssetId.None, entry, 0, null);
 
-    /// <summary>Bytes from game memory, copied because no installed artwork names them.</summary>
-    /// <param name="bytes">The bytes uploaded.</param>
-    public static ObjCharacterSource FromMemory(ReadOnlySpan<byte> bytes) =>
-        new(ObjCharacterSourceKind.Memory, VramAssetId.None, 0, bytes.Length, bytes.ToArray());
-
     /// <summary>The source's current bytes.</summary>
     /// <param name="resolver">Resolves installed artwork identities.</param>
     public ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver)

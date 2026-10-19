@@ -37,7 +37,7 @@ internal static class MapSpritesVerification
         for (int offset = 0; offset < 256; offset++)
         {
             installed.BeginFrame();
-            installed.AddOnScreenSpritePart(SnesSpritemapXWord.Create(-1, true), (byte)offset,
+            installed.AddOnScreenSpritePart(SnesSpritemapXWord.Create(-1, true), new SnesSpritemapYByte((byte)offset),
                 SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(0, (ushort)origin));
             int sum = origin + offset;
             int signedY = origin + unchecked((sbyte)offset);
@@ -49,7 +49,7 @@ internal static class MapSpritesVerification
         var vram = new SnesVram(); original.Sprites.LoadArtworkTo(new VramStore(vram).All.Slice(MapSpriteFormat.FileSelectDestination / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(MapSpriteFormat.FileSelectDestination, MapSpriteFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, NewMapSpriteGuard(bus), original, original));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original));
 
         Directory.CreateDirectory(overrides);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -110,10 +110,10 @@ internal static class MapSpritesVerification
             var guard = NewMapSpriteGuard(bus);
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(AreaId.WreckedShip);
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-            var marker = new FileSelectStationMarker(bus, AreaId.WreckedShip, 0,
+            var marker = new FileSelectStationMarker(AreaId.WreckedShip, 0,
                 original.SaveMarkers);
-            var room = new FileSelectRoomMapGraphics(guard, system, AreaId.WreckedShip, mapPresentation: original);
-            var nativeRoom = new FileSelectRoomMapGraphics(bus, system,
+            var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, mapPresentation: original);
+            var nativeRoom = new FileSelectRoomMapGraphics(system,
                 AreaId.WreckedShip, mapPresentation: original);
             var before = nativeRoom.Render(new(0, 0), marker);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
@@ -123,8 +123,8 @@ internal static class MapSpritesVerification
             room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
             room.BindMapPresentation(original);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "restored sprite resources bind current content");
-            var pauseNative = new PauseMenuState(bus, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original });
-            var pause = new PauseMenuState(guard, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original });
+            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original });
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause map sprite pixels match with source reads blocked");
             pause.BindMapPresentation(replacement);

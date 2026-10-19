@@ -22,20 +22,20 @@ internal static class DragonFireballBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DragonFireballNativeListAddresses.Extent, "Dragon-fireball");
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
-        body.Definition = default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank };
+        body.Bind(EnemyDefinitionId.Dragon, body.Definition);
+        body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank });
         body.Position = body.Position.WithWhole(new(384, 160));
         body.VramTilesIndex = 512;
         body.PaletteIndex = 2560;
         enemies.DragonBehavior.InitializeDragon(body);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires the Dragon's state.");
 
-        state.DirectionWord = EnemyWordMasks.SignBit;
+        state.FacingLeft = true;
         enemies.DragonBehavior.SpawnDragonFireball(body, state);
-        state.DirectionWord = 0;
+        state.FacingLeft = false;
         enemies.DragonBehavior.SpawnDragonFireball(body, state);
         RoomEnemyProjectileSlot left = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.SignedRawValue < 0);

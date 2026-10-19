@@ -23,8 +23,11 @@ internal static class PauseMenuStateAccess
         /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
         internal int LastRenderedSpriteCount => self.oam.LastFinalizedSpriteCount;
 
-        /// <summary>Last bank-$82 menu spritemap ID selected by a pause draw routine.</summary>
-        internal ushort LastIndicatorSpritemapId => self.lastIndicatorSpritemapId;
+        /// <summary>Pose of the Samus map marker when it was the last indicator a pause render drew.</summary>
+        internal SuperMetroid.Core.Frontend.Map.MapSpriteId? LastMapIndicatorSprite => self.lastMapIndicatorSprite;
+
+        /// <summary>Category of the equipment selector when it was the last indicator a pause render drew.</summary>
+        internal PauseEquipmentCategory? LastSelectorCategory => self.lastSelectorCategory;
 
         /// <summary>
         /// Reads one native $7E:3000-relative button-label word after its queued-equivalent

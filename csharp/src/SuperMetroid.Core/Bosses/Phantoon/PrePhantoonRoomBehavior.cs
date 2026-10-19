@@ -51,8 +51,9 @@ internal sealed class PrePhantoonRoomBehavior
             BackgroundScrollState scroll = RequireEnemyProjectileBackgroundScroll();
             scroll.Bg2Offset = scroll.Bg2Offset.WithY(0);
         }, EnemyProjectilePreInstruction.PrePhantoonRoom);
-        table.RegisterCue<PrePhantoonRoomCue>((projectile, samus, cue) =>
+        table.RegisterCue<PrePhantoonRoomCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case PrePhantoonRoomCue.Delete:

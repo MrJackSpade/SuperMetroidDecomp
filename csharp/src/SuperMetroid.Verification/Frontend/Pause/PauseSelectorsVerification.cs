@@ -79,8 +79,8 @@ internal static class PauseSelectorsVerification
         using (var output = File.Create(path)) PauseSelectorPresentation.Write(output, custom);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "selector-only edit changes catalog identity");
-        var customSamus = new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge, EquippedBeams = (ushort)SamusBeamFlags.Charge };
-        var customMenu = new PauseMenuState(guard, new PauseMenuEntry { Samus = customSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited });
+        var customSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
+        var customMenu = new PauseMenuState(new PauseMenuEntry { Samus = customSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited });
         customMenu.Step(SnesButton.R, SnesButton.R);
         while (customMenu.ScreenMode == 0) customMenu.Step(0, 0);
         AssertEqual((0, 4), customMenu.ItemSelectorAnimationState, "custom initial duration applies exactly at page setup");
@@ -116,8 +116,8 @@ internal static class PauseSelectorsVerification
         customMenu.Render(); AssertEqual((ushort)47, customMenu.LastIndicatorOrigin.X, "restored stock anchor replaces edited anchor");
         customMenu.BindMapPresentation(edited); AssertTrue(before.SequenceEqual(customMenu.Render()), "restored edit returns exact pixels without advancing animation");
         customMenu.Step(0, SnesButton.A);
-        AssertEqual((ushort)0, customSamus.EquippedBeams, "custom hidden/visible selector cannot prevent actual equipment toggle");
-        AssertEqual((ushort)SamusBeamFlags.Charge, customSamus.CollectedBeams, "selector edit cannot change collection");
+        AssertEqual(SamusBeamFlags.None, customSamus.EquippedBeams, "custom hidden/visible selector cannot prevent actual equipment toggle");
+        AssertEqual(SamusBeamFlags.Charge, customSamus.CollectedBeams, "selector edit cannot change collection");
         var shortened = Create(guard, catalog, PauseEquipmentCategory.Beams, 0);
         for (int tick = 0; shortened.ItemSelectorAnimationState.Frame != 12 && tick < 100; tick++) shortened.Step(0, 0);
         var oldTiming = shortened.ItemSelectorAnimationState;
@@ -127,7 +127,7 @@ internal static class PauseSelectorsVerification
         AssertEqual(0, shortened.CaptureRenderSnapshot().Memory.ModeledSpriteCount, "short cycle safely projects saved phase modulo its new length");
         for (int tick = 0; tick < oldTiming.Timer; tick++) shortened.Step(0, 0);
         AssertEqual((1, 3), shortened.ItemSelectorAnimationState, "next expiry advances into the authored short cycle");
-        var empty = new PauseMenuState(guard, new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited });
+        var empty = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited });
         EnterPauseEquipment(empty);
         var emptyTiming = empty.ItemSelectorAnimationState;
         for (int tick = 0; tick < 40; tick++) empty.Step(0, 0);
@@ -152,10 +152,14 @@ internal static class PauseSelectorsVerification
         static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog content, PauseEquipmentCategory category, int item)
         {
             var samus = new SamusState();
-            if (category == PauseEquipmentCategory.Reserves) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = 2; }
-            else if (category == PauseEquipmentCategory.Beams) samus.CollectedBeams = samus.EquippedBeams = PauseEquipmentRules.Mask(category, item);
-            else samus.CollectedItems = samus.EquippedItems = PauseEquipmentRules.Mask(category, item);
-            var pause = new PauseMenuState(addressSpace, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content });
+            if (category == PauseEquipmentCategory.Reserves) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = ReserveTankMode.Manual; }
+            else
+            {
+                PauseEquipmentBit bit = PauseEquipmentRules.Mask(category, item);
+                samus.CollectedBeams = samus.EquippedBeams = bit.Beam;
+                samus.CollectedItems = samus.EquippedItems = bit.Item;
+            }
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content });
             EnterPauseEquipment(pause);
             if (category == 0 && item == 1) pause.Step(0, SnesButton.Down);
             return pause;

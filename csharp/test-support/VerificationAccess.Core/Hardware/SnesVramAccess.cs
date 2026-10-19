@@ -31,7 +31,56 @@ internal static class SnesVramAccess
                 throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
 
             int effectiveSize = dmaSize == 0 ? 0x10000 : dmaSize;
-            self.ExecuteDmaWrite((ISnesMutableMemory)(memory), (SnesAddress)(SnesAddress.FromBusAddress(sourceAddress)), (int)(effectiveSize), (ushort)(encodedDestination));
+            self.ExecuteDmaWrite(memory, SnesAddress.FromBusAddress(sourceAddress), effectiveSize, encodedDestination);
+        }
+
+        /// <summary>
+        /// Executes one queued-table record whose A-bus source is live WRAM, as the NMI drain's DMA channel 1 would.
+        /// Production queues only installed artwork; verification uses this to stage native WRAM images in VRAM.
+        /// </summary>
+        /// <param name="memory">Live WRAM from which the channel reads.</param>
+        /// <param name="sourceAddress">Fixed source bank plus initial 16-bit offset.</param>
+        /// <param name="sizeInBytes">Number of source bytes copied, 1 through 65535.</param>
+        /// <param name="encodedDestination">Initial VMADD word plus this model's VMAIN-column marker in bit 15.</param>
+        [CpuBusBoundary("exact bus test: a queued DMA channel 1 transfer from live WRAM")]
+        internal void ExecuteQueuedMemoryWrite(ISnesMutableMemory memory, int sourceAddress, int sizeInBytes, ushort encodedDestination)
+        {
+            Ensure.NotNull(memory);
+            if ((uint)sourceAddress > SnesBusLayout.MaximumAddress)
+                throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
+            if (sizeInBytes is <= 0 or > ushort.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(sizeInBytes), sizeInBytes, "A queued DMA moves 1 through 65535 bytes.");
+            self.ExecuteDmaWrite(memory, SnesAddress.FromBusAddress(sourceAddress), sizeInBytes, encodedDestination);
+        }
+
+        /// <summary>
+        /// The mode-$01 DMA loop into VRAM: alternate low and high port bytes, increment the word address after each
+        /// high byte by the destination's step, and read each source byte from WRAM. A cartridge source needs installed
+        /// artwork, and an unmapped one is rejected.
+        /// </summary>
+        [CpuBusBoundary("exact bus test: a DMA channel's A-bus source reads, classified per byte")]
+        internal void ExecuteDmaWrite(ISnesMutableMemory memory, SnesAddress sourceAddress, int sizeInBytes, ushort encodedDestination)
+        {
+            if (sizeInBytes is <= 0 or > SnesBusLayout.BankBytes)
+                throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+            VramDmaDestination destination = VramDmaDestination.FromNative(encodedDestination);
+            int destinationWord = destination.Word;
+            for (int byteIndex = 0; byteIndex < sizeInBytes; byteIndex++)
+            {
+                bool writesHighByte = (byteIndex & 1) != 0;
+                SnesAddress currentSource = sourceAddress.AddWithinBank(byteIndex);
+                byte value = SnesDmaSourceMap.Classify(currentSource) switch
+                {
+                    SnesDmaSourceKind.WorkRam => memory.ReadWorkRamByte((int)currentSource),
+                    SnesDmaSourceKind.Cartridge => throw new InvalidOperationException(
+                        $"VRAM DMA source {currentSource} requires installed artwork bytes."),
+                    _ => throw new InvalidOperationException(
+                        $"VRAM DMA source ${currentSource.Bank:X2}:{currentSource.Offset:X4} is unmapped."),
+                };
+                self.LoadBytes(destinationWord * 2 + (writesHighByte ? 1 : 0), [value]);
+                if (writesHighByte)
+                    destinationWord = (destinationWord + destination.WordIncrement) & (SnesVram.WordCount - 1);
+            }
         }
     }
 }

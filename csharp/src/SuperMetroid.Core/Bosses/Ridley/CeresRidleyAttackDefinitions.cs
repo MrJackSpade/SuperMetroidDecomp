@@ -21,5 +21,5 @@ internal static class CeresRidleyAttackDefinitions
     ];
 
     /// <summary>The attack the table selects for a random word; only its low nibble indexes the table.</summary>
-    internal static RidleyAiFunction SelectAttack(ushort random) => AttackByRandomNibble[random & 0x0f];
+    internal static RidleyAiFunction SelectAttack(int random) => AttackByRandomNibble[random & 0x0f];
 }

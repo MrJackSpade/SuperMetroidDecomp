@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks post-credits reward actors, graphics uploads, gesture timing, and jump handoffs against bank-$8B source data.</summary>
 internal static class EndingRewardGestureVerification
@@ -28,8 +29,7 @@ internal static class EndingRewardGestureVerification
         Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));
         Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
         var uploadBus = NewEndingRewardUploadDefinitionReadGuard(bus);
-        var graphicsUpload = new EndingRewardGraphicsUpload(uploadBus,
-            RepositoryInstallation.Installation.LoadEndingMode7Art().RewardIcon);
+        var graphicsUpload = new EndingRewardGraphicsUpload(RepositoryInstallation.Installation.LoadEndingMode7Art().RewardIcon);
         var graphicsVram = new SnesVram();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,
@@ -64,7 +64,7 @@ internal static class EndingRewardGestureVerification
         EndingRewardSpritePresentation rewardSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites;
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
-            var gesture = new EndingRewardGesture(rewardBus, reward);
+            var gesture = new EndingRewardGesture(reward);
             var maps = new HashSet<string>();
             int calls = 0;
             while (!gesture.JumpRequested && calls < 1000)
@@ -80,7 +80,7 @@ internal static class EndingRewardGestureVerification
                 "native ED2D/EDD3 gesture durations before jump spawn");
             Console.WriteLine($"  {reward}: {calls} gesture frames, {maps.Count} OAM poses, native jump handoff.");
             var uploads = new List<int>();
-            var jump = new EndingRewardJump(rewardBus, reward, uploads.Add);
+            var jump = new EndingRewardJump(reward, uploads.Add);
             bool switched = false, firstMotion = false;
             int minimumY = jump.BodyY;
             int jumpCalls = 0;
@@ -95,7 +95,7 @@ internal static class EndingRewardGestureVerification
                     firstMotion = true;
                 }
                 minimumY = Math.Min(minimumY, jump.BodyY);
-                if (!switched && jump.ObjectSelection == 3)
+                if (!switched && jump.FallingSheetSelected)
                 {
                     AssertTrue(jump.BodyY < -80, "native reward sheet switches only beyond the upper screen edge");
                     switched = true;
@@ -150,7 +150,7 @@ internal static class EndingRewardGestureVerification
             int address = 0x8b0000 | pointer;
             ushort initializer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual(initializer, (ushort)actual.Initialization, $"reward actor ${pointer:X4} initialization callback");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.PreInstruction, $"reward actor ${pointer:X4} pre-instruction callback");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.PreInstruction.NativeAddress, $"reward actor ${pointer:X4} pre-instruction callback");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program), $"reward actor ${pointer:X4} instruction list");
             if (!initializers.Add(initializer)) continue;
             int code = 0x8b0000 | initializer;

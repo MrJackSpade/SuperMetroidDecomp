@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.LevelData;
-
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
@@ -13,10 +10,6 @@ internal static class RidleyCollisionDefinitions
 {
     /// <summary>$A6, shared native bank for both Ceres and Lower Norfair Ridley body maps.</summary>
     internal const byte Bank = 0xa6;
-    /// <summary>Bank-$A6 extended-body touch callback shared by every Ridley collision rectangle.</summary>
-    private const ushort Touch = EnemyAiCodePointers.BankA6.RidleyExtendedTouch;
-    /// <summary>Bank-$A6 shot callback shared by every Ridley collision rectangle.</summary>
-    private const ushort Shot = EnemyAiCodePointers.BankA6.RidleyShot;
 
     /// <summary>The 32-pixel margin $A6:DE7A adds on each axis before the camera-relative test.</summary>
     private static readonly Offset16<RoomPixels> InteractionWindowMargin = new(32, 32);
@@ -62,20 +55,50 @@ internal static class RidleyCollisionDefinitions
     }
     /// <summary>$A6:E983..EAD6: each side-facing frame has a two-byte count and four eight-byte component records.</summary>
     internal const int SideFrameBytes = 2 + 4 * 8;
-    /// <summary>$A6:EB2F, Hitbox_Ridley_FacingLeft_LegsNotExtended; the two extended variants follow as one-rectangle lists.</summary>
-    private const ushort LeftLegs = 0xeb2f;
-    /// <summary>$A6:EB59, Hitbox_Ridley_FacingLeft_Hand.</summary>
-    private const ushort LeftHand = 0xeb59;
-    /// <summary>$A6:EB67, Hitbox_Ridley_FacingLeft_Torso.</summary>
-    private const ushort LeftBody = 0xeb67;
-    /// <summary>$A6:EAE1, Hitbox_Ridley_FacingLeft_MouthClosed; the two mouth variants follow as two-rectangle lists.</summary>
-    private const ushort LeftHead = 0xeae1;
-    /// <summary>$A6:EB91, Hitbox_Ridley_FacingForward.</summary>
-    private const ushort ForwardHitbox = 0xeb91;
-    /// <summary>$A6:EBAB..EC3E right-facing lists repeat the left-facing identities at $CA-byte displacement.</summary>
-    private const int RightHitboxDisplacement = 0xebab - LeftHead;
     /// <summary>$A6:EADB, the forward frame's single component Y offset, authored for its drawing.</summary>
     private const short ForwardYOffset = -6;
+
+    /// <summary>Hitbox_Ridley_FacingLeft_MouthClosed: the closed-mouth head of left-facing Ridley.</summary>
+    private static readonly RidleyCollisionHitbox[] LeftHeadMouthClosed =
+        [new(-12, -26, 11, 13), new(-24, 3, -13, 21)];
+    /// <summary>The half-open-mouth head of left-facing Ridley.</summary>
+    private static readonly RidleyCollisionHitbox[] LeftHeadMouthHalfOpen =
+        [new(-41, -19, -21, -9), new(-20, -29, 11, 5)];
+    /// <summary>The open-mouth head of left-facing Ridley.</summary>
+    private static readonly RidleyCollisionHitbox[] LeftHeadMouthOpen =
+        [new(-37, -40, -14, -31), new(-25, -31, 9, 6)];
+    /// <summary>Hitbox_Ridley_FacingLeft_LegsNotExtended: left-facing standing legs.</summary>
+    private static readonly RidleyCollisionHitbox[] LeftLegsNotExtended = [new(-15, -10, 7, 2)];
+    /// <summary>Left-facing legs half extended.</summary>
+    private static readonly RidleyCollisionHitbox[] LeftLegsHalfExtended = [new(-17, -9, 6, 15)];
+    /// <summary>Left-facing legs extended.</summary>
+    private static readonly RidleyCollisionHitbox[] LeftLegsExtended = [new(-14, -1, 10, 23)];
+    /// <summary>Hitbox_Ridley_FacingLeft_Hand.</summary>
+    private static readonly RidleyCollisionHitbox[] LeftHand = [new(-15, -2, -1, 8)];
+    /// <summary>Hitbox_Ridley_FacingLeft_Torso.</summary>
+    private static readonly RidleyCollisionHitbox[] LeftTorso = [new(-16, -20, 12, 21)];
+    /// <summary>Hitbox_Ridley_FacingForward: the whole body of the front-facing turn pose.</summary>
+    private static readonly RidleyCollisionHitbox[] Forward =
+        [new(-16, -32, 16, 34), new(-8, -45, 8, -33)];
+    /// <summary>The closed-mouth head of right-facing Ridley, fitted to the right-facing drawing rather than mirrored.</summary>
+    private static readonly RidleyCollisionHitbox[] RightHeadMouthClosed =
+        [new(-12, -25, 11, 13), new(12, 5, 24, 20)];
+    /// <summary>The half-open-mouth head of right-facing Ridley.</summary>
+    private static readonly RidleyCollisionHitbox[] RightHeadMouthHalfOpen =
+        [new(-13, -29, 20, 5), new(21, -18, 39, -8)];
+    /// <summary>The open-mouth head of right-facing Ridley.</summary>
+    private static readonly RidleyCollisionHitbox[] RightHeadMouthOpen =
+        [new(-10, -31, 25, 8), new(13, -42, 35, -32)];
+    /// <summary>Right-facing standing legs.</summary>
+    private static readonly RidleyCollisionHitbox[] RightLegsNotExtended = [new(-10, -10, 17, 2)];
+    /// <summary>Right-facing legs half extended.</summary>
+    private static readonly RidleyCollisionHitbox[] RightLegsHalfExtended = [new(-9, -8, 17, 15)];
+    /// <summary>Right-facing legs extended.</summary>
+    private static readonly RidleyCollisionHitbox[] RightLegsExtended = [new(-11, -8, 14, 23)];
+    /// <summary>Right-facing hand.</summary>
+    private static readonly RidleyCollisionHitbox[] RightHand = [new(1, -2, 14, 9)];
+    /// <summary>Right-facing torso.</summary>
+    private static readonly RidleyCollisionHitbox[] RightTorso = [new(-13, -22, 14, 21)];
 
     /// <summary>Authored origins for left-facing legs, hand, torso, and head; right-facing frames negate X.</summary>
     private static readonly Offset16<RoomPixels>[] LeftBase =
@@ -86,7 +109,7 @@ internal static class RidleyCollisionDefinitions
     {
         /// <summary>Forward Ridley has one body component; side-facing poses have four.</summary>
         internal int Length => Frame == (ushort)BodyFrame.Forward ? 1 : 4;
-        /// <summary>Calculates a component's authored offset and pose-specific hitbox pointer.</summary>
+        /// <summary>Selects a component's authored offset and pose-specific hitbox list.</summary>
         internal RidleyCollisionComponent this[int index] => (uint)index < Length
             ? ComponentAt((BodyFrame)Frame, index)
             : throw new IndexOutOfRangeException();
@@ -104,69 +127,43 @@ internal static class RidleyCollisionDefinitions
         }
     }
 
-    /// <summary>Derives a component offset and hitbox identity from Ridley's pose, reflecting offsets but keeping authored right-side rectangles.</summary>
+    /// <summary>Selects a component's offset and hitbox list from Ridley's pose, reflecting offsets but keeping the authored right-facing rectangles.</summary>
     private static RidleyCollisionComponent ComponentAt(BodyFrame frame, int component)
     {
-        if (frame == BodyFrame.Forward) return new(new(0, ForwardYOffset), ForwardHitbox);
+        if (frame == BodyFrame.Forward) return new(new(0, ForwardYOffset), Forward);
         bool right = frame is BodyFrame.Right or BodyFrame.RightMouthHalfOpen or BodyFrame.RightMouthOpen
             or BodyFrame.RightLegsHalfExtended or BodyFrame.RightLegsExtended;
-        ushort hitbox = component switch
+        RidleyCollisionHitbox[] hitboxes = component switch
         {
-            0 => (ushort)(LeftLegs + (frame switch
+            0 => frame switch
             {
-                BodyFrame.LeftLegsHalfExtended or BodyFrame.RightLegsHalfExtended => 1,
-                BodyFrame.LeftLegsExtended or BodyFrame.RightLegsExtended => 2,
-                BodyFrame.Left or BodyFrame.Right or BodyFrame.LeftMouthHalfOpen or BodyFrame.LeftMouthOpen or
-                    BodyFrame.RightMouthHalfOpen or BodyFrame.RightMouthOpen or BodyFrame.Forward => 0,
+                BodyFrame.LeftLegsHalfExtended => LeftLegsHalfExtended,
+                BodyFrame.RightLegsHalfExtended => RightLegsHalfExtended,
+                BodyFrame.LeftLegsExtended => LeftLegsExtended,
+                BodyFrame.RightLegsExtended => RightLegsExtended,
+                BodyFrame.Left or BodyFrame.LeftMouthHalfOpen or BodyFrame.LeftMouthOpen => LeftLegsNotExtended,
+                BodyFrame.Right or BodyFrame.RightMouthHalfOpen or BodyFrame.RightMouthOpen => RightLegsNotExtended,
+                BodyFrame.Forward => throw new InvalidOperationException("Forward Ridley has a single body component."),
                 _ => throw new InvalidOperationException($"Undefined BodyFrame {frame}."),
-            }) * (2 + 12)),
-            1 => LeftHand,
-            2 => LeftBody,
-            _ => (ushort)(LeftHead + (frame switch
+            },
+            1 => right ? RightHand : LeftHand,
+            2 => right ? RightTorso : LeftTorso,
+            _ => frame switch
             {
-                BodyFrame.LeftMouthHalfOpen or BodyFrame.RightMouthHalfOpen => 1,
-                BodyFrame.LeftMouthOpen or BodyFrame.RightMouthOpen => 2,
-                BodyFrame.Left or BodyFrame.Right or BodyFrame.LeftLegsHalfExtended or
-                    BodyFrame.LeftLegsExtended or BodyFrame.RightLegsHalfExtended or BodyFrame.RightLegsExtended or
-                    BodyFrame.Forward => 0,
+                BodyFrame.LeftMouthHalfOpen => LeftHeadMouthHalfOpen,
+                BodyFrame.RightMouthHalfOpen => RightHeadMouthHalfOpen,
+                BodyFrame.LeftMouthOpen => LeftHeadMouthOpen,
+                BodyFrame.RightMouthOpen => RightHeadMouthOpen,
+                BodyFrame.Left or BodyFrame.LeftLegsHalfExtended or BodyFrame.LeftLegsExtended => LeftHeadMouthClosed,
+                BodyFrame.Right or BodyFrame.RightLegsHalfExtended or BodyFrame.RightLegsExtended => RightHeadMouthClosed,
+                BodyFrame.Forward => throw new InvalidOperationException("Forward Ridley has a single body component."),
                 _ => throw new InvalidOperationException($"Undefined BodyFrame {frame}."),
-            }) * (2 + 2 * 12)),
+            },
         };
         Offset16<RoomPixels> origin = LeftBase[component];
-        return new(right ? origin.MirroredX() : origin,
-            (ushort)(hitbox + (right ? RightHitboxDisplacement : 0)));
+        return new(right ? origin.MirroredX() : origin, hitboxes);
     }
 
-    /// <summary>
-    /// Two contiguous list runs: the eight left-facing lists from $A6:EAE1 (three mouth states,
-    /// three leg states, hand and torso), then from $A6:EB91 the forward list followed by the
-    /// eight right-facing lists in the same order. Rectangles are fitted per facing to the
-    /// drawings, not mirrored.
-    /// </summary>
-    internal static readonly CollisionRecordRuns<RidleyCollisionHitbox> Lists = CollisionRecordRuns<RidleyCollisionHitbox>.HitboxLists(
-        new(LeftHead,
-        [
-            [new(-12, -26, 11, 13, Touch, Shot), new(-24, 3, -13, 21, Touch, Shot)],
-            [new(-41, -19, -21, -9, Touch, Shot), new(-20, -29, 11, 5, Touch, Shot)],
-            [new(-37, -40, -14, -31, Touch, Shot), new(-25, -31, 9, 6, Touch, Shot)],
-            [new(-15, -10, 7, 2, Touch, Shot)],
-            [new(-17, -9, 6, 15, Touch, Shot)],
-            [new(-14, -1, 10, 23, Touch, Shot)],
-            [new(-15, -2, -1, 8, Touch, Shot)],
-            [new(-16, -20, 12, 21, Touch, Shot)],
-        ]),
-        new(ForwardHitbox,
-        [
-            [new(-16, -32, 16, 34, Touch, Shot), new(-8, -45, 8, -33, Touch, Shot)],
-            [new(-12, -25, 11, 13, Touch, Shot), new(12, 5, 24, 20, Touch, Shot)],
-            [new(-13, -29, 20, 5, Touch, Shot), new(21, -18, 39, -8, Touch, Shot)],
-            [new(-10, -31, 25, 8, Touch, Shot), new(13, -42, 35, -32, Touch, Shot)],
-            [new(-10, -10, 17, 2, Touch, Shot)],
-            [new(-9, -8, 17, 15, Touch, Shot)],
-            [new(-11, -8, 14, 23, Touch, Shot)],
-            [new(1, -2, 14, 9, Touch, Shot)],
-            [new(-13, -22, 14, 21, Touch, Shot)],
-        ]));
     /// <summary>Accepts the eleven contiguous native extended body frame addresses at the side-frame stride.</summary>
     internal static bool HasFrame(ushort frame) => frame >= (ushort)BodyFrame.Left
         && frame <= (ushort)BodyFrame.Forward && (frame - (ushort)BodyFrame.Left) % SideFrameBytes == 0;
@@ -175,9 +172,4 @@ internal static class RidleyCollisionDefinitions
     internal static ComponentSequence ComponentsAt(ushort frame) => HasFrame(frame)
         ? new(frame)
         : throw new InvalidDataException($"Ridley frame $A6:{frame:X4} has no compiled collision.");
-    /// <summary>Resolves a compiled bank-$A6 hitbox list, rejecting pointers outside Ridley's seventeen lists.</summary>
-    internal static ReadOnlySpan<RidleyCollisionHitbox> HitboxesAt(ushort list) =>
-        Lists.TryGet(list, out RidleyCollisionHitbox[] hitboxes)
-            ? hitboxes
-            : throw new InvalidDataException($"Ridley hitbox list $A6:{list:X4} is not compiled.");
 }

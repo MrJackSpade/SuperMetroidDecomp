@@ -13,14 +13,19 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// Matrix D is absent because this particular cartridge routine uses A for both diagonal
 /// terms; B and C provide the two cross terms exactly as written by bank <c>$8B</c>.
 /// </remarks>
-/// <param name="MatrixA">M7A, also used for M7D.</param>
-/// <param name="MatrixB">M7B.</param>
-/// <param name="MatrixC">M7C.</param>
+/// <param name="MatrixA">M7A, also used for M7D: a signed 8.8 fixed-point coefficient (256 is 1.0).</param>
+/// <param name="MatrixB">M7B: a signed 8.8 fixed-point coefficient.</param>
+/// <param name="MatrixC">M7C: a signed 8.8 fixed-point coefficient.</param>
 /// <param name="Center">M7X/M7Y: the room point the shaft's layer-one Mode 7 plane rotates about.</param>
+/// <remarks>
+/// The coefficients are signed sixteen-bit 8.8 values: every product below treats them as signed and truncates
+/// to sixteen bits, so their width is part of the transform, and they are stored signed exactly as they are
+/// consumed.
+/// </remarks>
 public readonly record struct SamusMode7Transform(
-    ushort MatrixA,
-    ushort MatrixB,
-    ushort MatrixC,
+    short MatrixA,
+    short MatrixB,
+    short MatrixC,
     Position16<RoomPixels> Center)
 {
     /// <summary>
@@ -40,20 +45,20 @@ public readonly record struct SamusMode7Transform(
         // between the two `$26` additions is authentic 65816 behavior.
         ushort transformedHorizontalDistance = unchecked((ushort)(
             MultiplySigned8Point8(horizontalDistance, MatrixA) +
-            MultiplySigned8Point8(MatrixB, verticalDistance)));
+            MultiplySigned8Point8(verticalDistance, MatrixB)));
         ushort transformedVerticalDistance = unchecked((ushort)(
-            MultiplySigned8Point8(MatrixC, horizontalDistance) +
-            MultiplySigned8Point8(MatrixA, verticalDistance)));
+            MultiplySigned8Point8(horizontalDistance, MatrixC) +
+            MultiplySigned8Point8(verticalDistance, MatrixA)));
 
         return new Position16<RoomPixels>(
             unchecked((ushort)(Center.X + transformedHorizontalDistance)),
             unchecked((ushort)(Center.Y - transformedVerticalDistance)));
     }
 
-    /// <summary>Multiplies two signed matrix/distance words and truncates the shifted result to the cartridge's 16-bit intermediate.</summary>
-    private static ushort MultiplySigned8Point8(ushort left, ushort right)
+    /// <summary>Multiplies a distance word, read as signed, by a signed coefficient and truncates the shifted result to the cartridge's 16-bit intermediate.</summary>
+    private static ushort MultiplySigned8Point8(ushort distance, short coefficient)
     {
-        int product = unchecked((short)left) * unchecked((short)right);
+        int product = unchecked((short)distance) * coefficient;
         return unchecked((ushort)SnesEightEight.WholeOf(product));
     }
 }

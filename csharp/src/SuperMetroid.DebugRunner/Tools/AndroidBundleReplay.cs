@@ -43,14 +43,15 @@ internal static class AndroidBundleReplay
         if (!SHA256.HashData(importBus.Rom).SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Local ROM does not match Android recording digest.");
         ClipAudioCatalog assets = RepositoryInstallation.Installation.LoadAudioClips();
+        SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog maps = RepositoryInstallation.Installation.LoadMaps();
+        SaveSlotStore journalSaves = SaveRamCodec.Decode(recording.InitialSaveRam, maps);
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-android-replay-").FullName;
         try
         {
             SuperMetroidGame game;
             if (seed is null)
             {
-                SaveRamImage.Load(bus, recording.InitialSaveRam);
-                game = new SuperMetroidGame(bus, recording.GameOptions);
+                game = new SuperMetroidGame(journalSaves, recording.GameOptions);
             }
             else
             {
@@ -62,8 +63,10 @@ internal static class AndroidBundleReplay
                 var loaded = store.Load(0);
                 bus = loaded.AddressSpace;
                 game = loaded.Game;
-                if (!SaveRamImage.Capture(bus).SequenceEqual(recording.InitialSaveRam))
-                    throw new InvalidDataException("Preserved seed SRAM differs from the journal reset header.");
+                // Compare decoded saves: the journal's image may hold padding or noncanonical marker bytes the store
+                // does not keep, so its canonical encoding is what a matching seed reproduces.
+                if (!SaveRamCodec.Encode(game.Saves, maps).SequenceEqual(SaveRamCodec.Encode(journalSaves, maps)))
+                    throw new InvalidDataException("Preserved seed saves differ from the journal reset header.");
             }
 
             game.BindAudio(assets);
@@ -73,13 +76,12 @@ internal static class AndroidBundleReplay
             for (int tick = 0; tick < recording.ControllerInputs.Length; tick++)
             {
                 var frame = game.StepCaptured(recording.InputAt(tick), tick + 1, 1);
-                var pixels = frame.Snapshot is { } snapshot
-                    ? SoftwareFrameSnapshotRenderer.Render(snapshot) : frame.Frame.Pixels;
+                var pixels = SoftwareFrameSnapshotRenderer.Render(frame.Snapshot);
                 game.CopyAudioFrame(samples);
                 videoHash.AppendData(MemoryMarshal.AsBytes(pixels.AsSpan()));
                 audioHash.AppendData(MemoryMarshal.AsBytes(samples.AsSpan()));
             }
-            Console.WriteLine($"Android bundle replay: {recordingName}; seed={seed ?? "reset SRAM"}; frames={recording.ControllerInputs.Length}; final={game.GameState}; room={game.GameplayActiveRoomPointer:X4}");
+            Console.WriteLine($"Android bundle replay: {recordingName}; seed={seed ?? "reset SRAM"}; frames={recording.ControllerInputs.Length}; final={game.GameState}; room={game.GameplayActiveRoom?.Name}");
             Console.WriteLine($"Video SHA256: {Convert.ToHexString(videoHash.GetHashAndReset())}");
             Console.WriteLine($"Audio SHA256: {Convert.ToHexString(audioHash.GetHashAndReset())}");
             return 0;

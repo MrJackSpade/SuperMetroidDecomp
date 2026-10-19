@@ -12,5 +12,5 @@ internal static class MorphBallEyeAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params MorphBallEyeProgram[] programs) =>
         programs.SelectMany(program => MorphBallEyeAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => MorphBallEyeFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => MorphBallEyeFrameToolingDefinitions.Spritemap(step.Frame));
 }

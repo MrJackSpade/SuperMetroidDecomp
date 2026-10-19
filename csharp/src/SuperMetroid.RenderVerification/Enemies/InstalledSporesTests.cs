@@ -23,6 +23,10 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static class InstalledSporesTests
 {
+    /// <summary>Expected layer depth of an OBJ pixel for sprite priorities 0-3.</summary>
+    private static readonly int[] ObjPriorityLayers =
+        [0, 1, 4, 7];
+
     /// <summary>Loads stock and edited spores presentation, checks owner state and pixels, then round-trips packets through each D3D11 device kind.</summary>
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
@@ -84,12 +88,12 @@ internal static class InstalledSporesTests
         {
             records++;
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            byte[] initialRam = memory.WorkRam.ToArray(), initialSram = memory.SaveRam.ToArray();
+            byte[] initialRam = memory.WorkRam.ToArray();
             var baselineVram = new SnesVram(); var editedVram = new SnesVram();
             var colors = new SnesCgram(); var editedColors = new SnesCgram();
             RoomLayer3FxState baseline = Create(stock), replacement = Create(edited);
-            baseline.Load(memory, baselineVram, colors, definition.Pointer, definition.DoorPointer, 0);
-            replacement.Load(memory, editedVram, editedColors, definition.Pointer, definition.DoorPointer, 0);
+            baseline.LoadDefinition(baselineVram, colors, definition, 0);
+            replacement.LoadDefinition(editedVram, editedColors, definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
@@ -103,8 +107,8 @@ internal static class InstalledSporesTests
                 bool frozen = frame is >= 37 and < 45;
                 var camera = new Position16<RoomPixels>(unchecked((ushort)(frame * 79)), unchecked((ushort)(65520 + frame * 3)));
                 RoomLayer3FxRenderSnapshot before = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
-                baseline.Step(memory, baselineVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
-                replacement.Step(memory, editedVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
+                baseline.Step(baselineVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
+                replacement.Step(editedVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
                 var capture = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
                 if (frozen) Require(capture == before, "Frozen spores changed scroll or phase.");
                 else
@@ -145,7 +149,7 @@ internal static class InstalledSporesTests
                 }
                 comparisons++;
             }
-            Require(memory.WorkRam.SequenceEqual(initialRam) && memory.SaveRam.SequenceEqual(initialSram),
+            Require(memory.WorkRam.SequenceEqual(initialRam),
                 "Spore presentation mutated active game RAM.");
         }
         Require(records > 0 && alteredTransfers > 0, "Source-selected spore records or edits were not exercised.");
@@ -234,9 +238,9 @@ internal static class InstalledSporesTests
             // Statue frames overlap the middle strip and must retain their original
             // aliases even though spores now occupy the final nine characters.
             foreach (var statue in TourianStatueAnimatedTileMechanicsDefinitions.All)
-            foreach (ushort operand in statue.SourceOperandPointers)
+            foreach (var picture in statue.Pictures)
             {
-                int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(statue, operand);
+                int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(statue, picture);
                 int statueOffset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
                     source - TourianStatueAnimatedTileArtworkDefinitions.FirstSource;
                 Require(legacy.TryResolve(source, statue.TransferByteCount, out var actual) &&
@@ -359,7 +363,7 @@ internal static class InstalledSporesTests
                 SnesMainScreenLayers.Obj | ((enabled & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0) |
                     ((enabled & 2) != 0 ? SnesMainScreenLayers.Bg2 : 0));
             var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers),
-                new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero));
+                new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
             var scene = new LayeredRenderSnapshot(new(vram.Bytes, colors.Colors, oam, 1), [layer], 0, 15);
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only
@@ -374,7 +378,7 @@ internal static class InstalledSporesTests
                 }
                 if ((enabled & 2) != 0) Insert(bg2High ? 5 : 2, 0, 12, true);
                 if ((enabled & 1) != 0) Insert(bg1High ? 6 : 3, 10, 0, false);
-                if (objectPixel) Insert(new[] { 0, 1, 4, 7 }[objPriority], 18, 2, palette >= 4);
+                if (objectPixel) Insert(ObjPriorityLayers[objPriority], 18, 2, palette >= 4);
                 byte Expand(int value) => (byte)((value << 3) | (value >> 2));
                 var expected = new Rgba32(Expand(red), Expand(green), Expand(blue + (blend ? 7 : 0)));
                 int x = objectPixel ? 16 : 64;

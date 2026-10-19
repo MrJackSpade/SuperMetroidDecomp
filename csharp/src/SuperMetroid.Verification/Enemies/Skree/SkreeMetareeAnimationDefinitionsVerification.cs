@@ -30,8 +30,8 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         }
 
         Suite(nameof(VerifyAllSkreeMetareeInstallHandoffs), () => VerifyAllSkreeMetareeInstallHandoffs());
-        Suite(nameof(VerifyLiveMetareeAnimationHandoffs), () => VerifyLiveMetareeAnimationHandoffs(rom));
-        Suite(nameof(VerifyLiveSkreeAnimationHandoffs), () => VerifyLiveSkreeAnimationHandoffs(rom));
+        Suite(nameof(VerifyLiveMetareeAnimationHandoffs), () => VerifyLiveMetareeAnimationHandoffs());
+        Suite(nameof(VerifyLiveSkreeAnimationHandoffs), () => VerifyLiveSkreeAnimationHandoffs());
 
         var invalid = (SkreeMetareeAnimationPhase)4;
         AssertThrows<InvalidDataException>(
@@ -52,7 +52,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         {
             var phase = (SkreeMetareeAnimationPhase)index;
             var metareeSlot = NewSkreeMetareeAnimationSlot();
-            var metareeState = new MetareeEnemyState(metareeSlot)
+            var metareeState = new MetareeEnemyState
             {
                 RequestedInstructionListIndex = phase,
                 InstalledInstructionListIndex = DifferentSkreeMetareePhase(phase),
@@ -67,7 +67,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 $"Metaree {phase}");
 
             var skreeSlot = NewSkreeMetareeAnimationSlot();
-            var skreeState = new SkreeEnemyState(skreeSlot)
+            var skreeState = new SkreeEnemyState()
             {
                 RequestedInstructionIndex = phase,
                 InstalledInstructionIndex = DifferentSkreeMetareePhase(phase),
@@ -84,13 +84,14 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     }
 
     /// <summary>Drives a live Metaree from idle through attack preparation into its diving animation.</summary>
-    private static void VerifyLiveMetareeAnimationHandoffs(SuperMetroidAddressSpace rom)
+    private static void VerifyLiveMetareeAnimationHandoffs()
     {
-        var enemies = NewSkreeMetareeGuardedSystem(rom);
+        var enemies = NewSkreeMetareeGuardedSystem();
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
-        enemies.MetareeBehavior.InitializeMetaree(slot);
+        slot.Bind(EnemyDefinitionId.Metaree, slot.Definition);
+        MetareeBehavior.InitializeMetaree(slot);
         MetareeEnemyState state = (enemies.MetareeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MetareeStates[0]."));
         var samus = new SamusState
         {
@@ -118,13 +119,14 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     }
 
     /// <summary>Drives a live Skree from idle through attack preparation into its diving animation.</summary>
-    private static void VerifyLiveSkreeAnimationHandoffs(SuperMetroidAddressSpace rom)
+    private static void VerifyLiveSkreeAnimationHandoffs()
     {
-        var enemies = NewSkreeMetareeGuardedSystem(rom);
+        var enemies = NewSkreeMetareeGuardedSystem();
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
-        enemies.SkreeBehavior.InitializeSkree(slot);
+        slot.Bind(EnemyDefinitionId.Skree, slot.Definition);
+        SkreeBehavior.InitializeSkree(slot);
         SkreeEnemyState state = (enemies.SkreeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SkreeStates[0]."));
         var samus = new SamusState
         {
@@ -153,15 +155,15 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
 
     /// <summary>Creates an enemy system that rejects reads from the two migrated animation selector tables.</summary>
     private static RoomEnemySystem NewSkreeMetareeGuardedSystem(
-        SuperMetroidAddressSpace rom)
+)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewSkreeMetareeAnimationReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         return enemies;
     }
 
     /// <summary>Seeds nondefault instruction and timer values so installation must visibly replace them.</summary>
-    private static RoomEnemySlot NewSkreeMetareeAnimationSlot() => new(0)
+    private static RoomEnemySlot NewSkreeMetareeAnimationSlot() => new(0, EnemySlotFixtures.Registry)
     {
         InstructionTimer = NativeCountdown.Start(0x2222),
         Timer = NativeCountdown.Start(0x3333),
@@ -189,8 +191,4 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }
 
-    /// <summary>Forbids runtime reads of bank-$A3 Metaree and Skree animation selector words.</summary>
-    private static CartridgeReadGuard NewSkreeMetareeAnimationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3894e and < 0xa38956 or >= 0xa3c69c and < 0xa3c6a4,
-            address => $"Skree/Metaree attempted migrated selector read ${address:X6}.");
 }

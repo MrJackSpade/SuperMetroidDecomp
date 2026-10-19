@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -10,12 +12,19 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The Ceres door species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class CeresDoorBehavior : IEnemySpecies
+internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresDoor];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CeresDoorEntity(this, slot, common);
+
     /// <summary>Provides Ceres room artwork, boss status, and the gameplay RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Receives the quake type and duration selected during the escape.</summary>
@@ -52,7 +61,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<CeresDoorProgram> cursor = _doorPrograms[slot.SlotIndex];
-        EnemyProgramAnimation.Run(slot, CeresDoorAnimations.Programs, ref cursor, CeresDoorFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, CeresDoorAnimations.Programs, ref cursor, CeresDoorFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyCeresDoorCue(slot, samus, cue));
         _doorPrograms[slot.SlotIndex] = cursor;
     }
@@ -87,7 +96,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
                 // X=$0008 and clipped Samus at X=$001D after the getaway cutscene.
                 return _room.Services.Bosses.IsDefeated(BossBits.AreaBoss) ? null : cue.Target;
             case CeresDoorCueKind.GoToIfRidleyNotEscaped:
-                return _ridleyEncounter.CeresStatus != 0 ? null : cue.Target;
+                return _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : cue.Target;
             case CeresDoorCueKind.MakeIntangible:
                 slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 return null;
@@ -95,13 +104,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
                 slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
                 return null;
             case CeresDoorCueKind.HandDrawingToRidley:
-                slot.VariableB = 1;
+                RequireCeresDoorState(slot).HandsDrawingToRidley = true;
                 return null;
             case CeresDoorCueKind.MakeInvisible:
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
                 return null;
             case CeresDoorCueKind.MakeVisibleAndTakeDrawingBack:
-                slot.VariableB = 0;
+                RequireCeresDoorState(slot).HandsDrawingToRidley = false;
                 slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
                 return null;
             case CeresDoorCueKind.MakeVisible:
@@ -129,7 +138,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
     /// The view keeps its exact cadence observable to ROM-backed audits; active playback
     /// consumes the lossless <see cref="EnemyAudioQueue.SoundRequests"/> list.
     /// </summary>
-    public ushort? LastCeresDoorSoundEffectLibrary2 { get; private set; }
+    public SoundEffectId? LastCeresDoorSoundEffect { get; private set; }
 
     /// <summary>Gets the installed Ceres door artwork required by initialization and animation.</summary>
     private CeresDoorVisualCatalog SelectedCeresDoorVisual =>
@@ -143,19 +152,19 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         // remains mutable after load. RoomEnemySlot.Parameter1 is that exact WRAM field.
         // The earlier population "init" word seeds Enemy.instList before initialization;
         // it is not the variant despite its host-side historical name.
-        ushort variant = slot.Parameter1;
+        ushort variant = checked((ushort)slot.Parameter1);
 
         CeresDoorInitializationDefinition initialization =
             CeresDoorInitializationDefinitions.For(variant);
 
-        slot.SpritemapPointer = CeresDoorFrameDefinitions.InitialSpritemap;
+        slot.Frame = EnemyFrameId.CeresDoorInitial;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.VramTilesIndex = 0;
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
-        slot.VariableA = (ushort)initialization.MainFunction;
+        var state = new CeresDoorEnemyState { Function = initialization.MainFunction };
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         _doorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);
-        slot.VariableB = 0;
 
         // CeresDoor_Func_1 performs this extra direct transfer only for variant two. The
         // source/destination are the literal reconstructed DMA record at $A6:F739.
@@ -167,7 +176,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
             SelectedCeresDoorVisual.LoadTiles(_presentation.Vram);
         }
 
-        if (_ridleyEncounter.CeresStatus == 0 && variant == 3)
+        if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped && variant == 3)
         {
             // The native destination $142 is a byte offset into target_palettes: colors
             // 161..175. This runtime exposes the final fade target directly in CGRAM.
@@ -176,17 +185,18 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         }
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
-        if (_ridleyEncounter.CeresStatus != 0)
+        if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
             SelectedCeresDoorVisual.LoadEscapeColors(_presentation.Cgram, CeresDoorVisualRomData.ActiveTargetColor);
         else
             SelectedCeresDoorVisual.LoadNormalColors(_presentation.Cgram, CeresDoorVisualRomData.ActiveTargetColor);
     }
 
-    /// <summary>Dispatches the function word stored in Ceres-door variable A ($0FA8).</summary>
+    /// <summary>Dispatches the door's main-AI function.</summary>
     private void RunCeresDoorMain(RoomEnemySlot slot)
     {
-        CeresDoorFunction function =
-            ClosedNativeWords.Decode<CeresDoorFunction>(slot.VariableA, "Ceres door main function");
+        CeresDoorEnemyState state = RequireCeresDoorState(slot);
+        CeresDoorFunction function = state.Function
+            ?? throw new InvalidDataException("A Ceres door has no main function.");
         switch (function)
         {
             case CeresDoorFunction.HandleEarthquakeDuringEscape:
@@ -197,11 +207,11 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
                 return;
 
             case CeresDoorFunction.RidleyEscapeMode7Wall:
-                // Ridley's room overlay begins hidden. Odd status values reveal it and swap
+                // Ridley's room overlay begins hidden. Ridley's escape reveals it and swap
                 // to enemy palette seven; the actor remains present so later Mode-7 drawing
                 // can retain the native priority relationship with Samus and Ridley.
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-                if ((_ridleyEncounter.CeresStatus & 1) != 0)
+                if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyEscaped)
                 {
                     slot.PaletteIndex = EnemyPaletteBits.Palette7;
                     slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
@@ -210,15 +220,15 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
 
             case CeresDoorFunction.RotatingElevatorRoomDefault:
                 RunCeresDoorPaletteAnimation();
-                if (_ridleyEncounter.CeresStatus >= 2)
+                if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
                 {
                     // $A6:F7BD installs the destruction function and initializes all three
                     // actor-owned counters, but deliberately does not execute $F7DC until
                     // the following enemy frame.
-                    slot.VariableA = (ushort)CeresDoorFunction.RotatingElevatorRumble;
-                    slot.VariableD = CeresDoorRumbleDuration;
-                    slot.VariableE = 0;
-                    slot.VariableF = 0;
+                    state.Function = CeresDoorFunction.RotatingElevatorRumble;
+                    state.RumbleCallsLeft = CeresDoorRumbleDuration;
+                    state.ExplosionIntervalLeft = 0;
+                    state.ExplosionPositionIndex = 0;
                 }
                 return;
 
@@ -240,10 +250,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
     {
         // The door cannot start a second quake while the shared timer is active. A separate
         // engine stage decrements that timer; this actor only chooses the next type/duration.
-        if (_ridleyEncounter.CeresStatus < 2 || !_earthquake.EarthquakeTimer.IsZero)
+        if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.RidleyNotEscaped or CeresEscapeStatus.RidleyEscaped || !_earthquake.EarthquakeTimer.IsZero)
             return;
 
-        Func<ushort> readRandomNumber = _room.Random.Read;
+        Func<int> readRandomNumber = _room.Random.Read;
         // One random word in 32 (its low twelve bits below 128) picks the stronger quake.
         ushort lowTwelveBits = unchecked((ushort)(readRandomNumber() % 4096));
         if (lowTwelveBits < 128)
@@ -261,36 +271,37 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
     /// <summary>Ports the 49-call destruction state at $A6:F7DC exactly.</summary>
     internal void RunCeresDoorRumbleAndExplosions(RoomEnemySlot slot)
     {
-        NativeWordCounterStep rumble = NativeWordCounter.Decrement(slot.VariableD);
-        slot.VariableD = rumble.Value;
+        CeresDoorEnemyState state = RequireCeresDoorState(slot);
+        NativeWordCounterStep rumble = NativeWordCounter.Decrement(checked((ushort)state.RumbleCallsLeft));
+        state.RumbleCallsLeft = rumble.Value;
         if (rumble.IsNegative)
         {
             // The 49th call underflows $0000 to $FFFF. Native code hides the door, returns
-            // it to the perpetual elevator-animation function, and publishes $8000 so the
+            // it to the perpetual elevator-animation function, and publishes its destruction so the
             // room's Mode-7 controller begins the rotation after Ridley's escape.
             slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-            slot.VariableA = (ushort)CeresDoorFunction.ElevatorAnimation;
-            if (_ridleyEncounter.CeresStatus != 0)
-                _ridleyEncounter.CeresStatus = CeresStatusDefinitions.DoorEscaped;
+            state.Function = CeresDoorFunction.ElevatorAnimation;
+            if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
+                _ridleyEncounter.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
             return;
         }
 
-        NativeWordCounterStep interval = NativeWordCounter.Decrement(slot.VariableE);
-        slot.VariableE = interval.Value;
+        NativeWordCounterStep interval = NativeWordCounter.Decrement(checked((ushort)state.ExplosionIntervalLeft));
+        state.ExplosionIntervalLeft = interval.Value;
         if (!interval.IsNegative)
             return;
 
-        slot.VariableE = CeresDoorRumbleInterval;
-        NativeWordCounterStep burst = NativeWordCounter.Decrement(slot.VariableF);
-        slot.VariableF = burst.IsNegative ? unchecked((ushort)(CeresDoorRumbleGeometryDefinitions.Count - 1)) : burst.Value;
+        state.ExplosionIntervalLeft = CeresDoorRumbleInterval;
+        NativeWordCounterStep burst = NativeWordCounter.Decrement(checked((ushort)state.ExplosionPositionIndex));
+        state.ExplosionPositionIndex = burst.IsNegative ? CeresDoorRumbleGeometryDefinitions.Count - 1 : burst.Value;
 
-        (short xOffset, short yOffset) = CeresDoorRumbleGeometryDefinitions.Offset(slot.VariableF);
+        (short xOffset, short yOffset) = CeresDoorRumbleGeometryDefinitions.Offset(state.ExplosionPositionIndex);
         ushort explosionX = unchecked((ushort)(slot.Position.X.Whole + xOffset));
         ushort explosionY = unchecked((ushort)(slot.Position.Y.Whole + yOffset));
 
         // GenerateRandomNumber is called exactly once per explosion. Values below $4000
         // select animation $0C; all other values select animation three (smoke).
-        ushort randomNumber = _room.Random.Generate();
+        int randomNumber = _room.Random.Generate();
         MiscDustAnimation animation = randomNumber < 16384
             ? CeresDoorExplosionAnimation
             : CeresDoorSmokeAnimation;
@@ -298,9 +309,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
 
         // QueueSound_Lib2_Max6 runs even if the finite enemy-projectile pool was full and
         // could not allocate the visual effect, so publish the request unconditionally.
-        LastCeresDoorSoundEffectLibrary2 = SoundEffectLibrary2Sounds.CeresDoorExplosion.Value;
-        // New audio consumers use the lossless list; retain LastCeresDoorSoundEffectLibrary2
-        // as a debugger/test compatibility view until the older per-enemy seams are migrated.
+        // The request list carries the sound to the audio queue; this property is its debugger and test view.
+        LastCeresDoorSoundEffect = SoundEffectLibrary2Sounds.CeresDoorExplosion;
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.CeresDoorExplosion, maximumQueued: 6);
     }
 
@@ -310,7 +320,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         // $A6:F850 selects six colors by NMI counter bits 3..5. Enemy FrameCounter advances
         // at the same accepted-frame cadence in this runtime, so slot zero is the shared
         // timebase for the room-owned palette cycle.
-        ushort frame = _slotTable._slots[0].FrameCounter;
+        int frame = _slotTable._slots[0].FrameCounter;
 
         // AnimateCeresElevatorPlatform at $A6:F8F1 does not belong to either arrival
         // projectile. It survives their touchdown deletion because the rotating-room door
@@ -324,40 +334,38 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         SelectedCeresDoorVisual.LoadAnimationColors(_presentation.Cgram, colorRow);
     }
 
-    /// <summary>Registers initialization of each Ceres door population variant.</summary>
-    internal void RegisterCeresDoorInitializationAi(EnemyAiTable table)
+    /// <summary>Ports CeresDoor's initialization AI.</summary>
+    internal void RunCeresDoorInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_CeresDoor, null, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCeresDoor(slot);
-        });
+        InitializeCeresDoor(slot);
     }
 
-    /// <summary>Registers the main dispatcher for the door's escape and elevator states.</summary>
-    internal void RegisterCeresDoorMainAi(EnemyAiTable table)
+    /// <summary>Ports CeresDoor's main AI.</summary>
+    internal void RunCeresDoorMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_CeresDoor, null, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunCeresDoorMain(slot);
-        });
+        RunCeresDoorMain(slot);
     }
 
-    /// <summary>Runs the doors and walls as typed programs (#641).</summary>
-    internal void RegisterCeresDoorTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CeresDoor,
-            (slot, context) => AdvanceCeresDoorAnimation(slot, context.Samus));
+    /// <summary>Advances CeresDoor's typed animation.</summary>
+    internal void AdvanceCeresDoorTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        AdvanceCeresDoorAnimation(slot, context.Samus);
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        LastCeresDoorSoundEffectLibrary2 = null;
+        LastCeresDoorSoundEffect = null;
         _doorPrograms.Clear();
     }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        LastCeresDoorSoundEffectLibrary2 = null;
+        LastCeresDoorSoundEffect = null;
     }
+
+    /// <summary>The door's state, failing if the door never initialized.</summary>
+    internal static CeresDoorEnemyState RequireCeresDoorState(RoomEnemySlot slot) =>
+        slot.SpeciesState<CeresDoorEnemyState>() ?? throw new InvalidOperationException("A Ceres door has no state.");
 }

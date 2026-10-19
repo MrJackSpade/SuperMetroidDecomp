@@ -18,22 +18,22 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     /// The real initializer starts the fast grounded loop; each grounded loop runs on time and each airborne program
     /// shows its pose once and holds. With installed artwork supplied, every pose has an installed composition.
     /// </summary>
-    internal static void VerifyPuyoInstructionProgramDefinitions(SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
+    internal static void VerifyPuyoInstructionProgramDefinitions(EnemyTileArtworkCatalog? artwork = null)
     {
-        (RoomEnemySystem enemies, RoomEnemySlot slot, PuyoEnemyState state) = Create(rom, artwork);
+        (RoomEnemySystem enemies, RoomEnemySlot slot, PuyoEnemyState state) = Create(artwork);
         AssertEqual(AnimationProgramCursor<PuyoProgram>.Start(PuyoProgram.GroundedFast), state.Program, "Puyo starts on its fast grounded loop");
         foreach (PuyoProgram loop in new[] { PuyoProgram.GroundedFast, PuyoProgram.GroundedMedium, PuyoProgram.GroundedSlow })
         {
             Start(slot, state, loop);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Programs, loop, PuyoFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Programs, loop)), $"Puyo {loop} loop");
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Programs, loop, PuyoFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Programs, loop)), $"Puyo {loop} loop");
         }
         foreach (PuyoProgram pose in new[] { PuyoProgram.RightFrame0LeftFrame4, PuyoProgram.RightFrame1LeftFrame3, PuyoProgram.Frame2,
                      PuyoProgram.RightFrame3LeftFrame1, PuyoProgram.RightFrame4LeftFrame0 })
         {
             Start(slot, state, pose);
             ushort frame = PuyoAnimationsConstants.Spritemaps(pose).Single();
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]), EnemyInstructionRunner.ShownFrames(enemies, slot, 3), $"Puyo {pose} pose");
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]), EnemyInstructionRunner.ShownFrames(slot, 3), $"Puyo {pose} pose");
         }
         if (artwork is not null)
             foreach (ushort pose in PuyoAnimationsConstants.Spritemaps(Enum.GetValues<PuyoProgram>()).Distinct())
@@ -43,14 +43,14 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     }
 
     /// <summary>A Puyo after its real initializer.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, PuyoEnemyState) Create(SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork)
+    private static (RoomEnemySystem, RoomEnemySlot, PuyoEnemyState) Create(EnemyTileArtworkCatalog? artwork)
     {
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Puyo;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = PuyoFrameToolingDefinitions.Bank };
-        enemies.PuyoBehavior.InitializePuyo(slot);
+        slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PuyoFrameToolingDefinitions.Bank });
+        PuyoBehavior.InitializePuyo(slot);
         return (enemies, slot, enemies.PuyoStates[0] ?? throw new InvalidOperationException("Puyo has no state."));
     }
 
@@ -67,7 +67,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     internal static int PuyoInstructionMechanicsCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions(rom));
+        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
         Suite(nameof(PuyoAnimationsVerification.VerifyPuyoAnimations), () => PuyoAnimationsVerification.VerifyPuyoAnimations(rom));
         return 0;
     }

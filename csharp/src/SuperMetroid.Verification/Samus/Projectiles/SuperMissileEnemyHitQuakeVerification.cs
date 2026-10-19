@@ -25,11 +25,11 @@ internal static class SuperMissileEnemyHitQuakeVerification
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
-            SelectedHudItem = 2, SuperMissiles = 3,
+            SelectedHudItem = HudItem.SuperMissile, SuperMissiles = 3,
         };
         SamusProjectileSystem projectiles = CreateProjectileFixture();
         SamusBombProjectileSystem bombs = CreateBombFixture();
-        projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), bombs);
+        projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), bombs);
         AssertEqual(SamusProjectileFamily.SuperMissile, projectiles.Slots[0].PackedType.Family, "X fires a Super Missile");
 
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(0, markCollisionState: true);

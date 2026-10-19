@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -23,32 +24,34 @@ internal static class RetailKraidCaptureTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        var runtime = RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
         var samus = runtime.Player.IntroducedSamus;
         // Match the existing Kraid rise audit's stationary approach position.
         samus.Position = samus.Position.WithWhole(new(128, 456));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
         var boss = runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
         var body = runtime.Enemies.SlotTable.Slots[0];
-        var phases = new HashSet<ushort>();
+        KraidAiFunction BodyFunction() =>
+            (body.SpeciesState<KraidPartState>() ?? throw new InvalidOperationException("Kraid's body has no part state.")).Function;
+        var phases = new HashSet<KraidAiFunction>();
         int samples = 0;
         bool completed = false, ownedBackground = false;
         for (int tick = 0; tick < 1200; tick++)
         {
-            bool changed = phases.Add(body.VariableA);
+            bool changed = phases.Add(BodyFunction());
             ownedBackground |= boss.OwnsBg2Tilemap;
-            bool mainLoop = body.VariableA == (ushort)KraidAiFunction.MainloopThinking;
+            bool mainLoop = BodyFunction() == KraidAiFunction.MainloopThinking;
             if (changed || tick % 8 == 0 || mainLoop)
             {
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+                var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                    $"{device.Kind}: Kraid rise tick={tick}, AI={body.VariableA:X4}");
+                    $"{device.Kind}: Kraid rise tick={tick}, AI={BodyFunction()}");
             }
             if (mainLoop) { completed = true; break; }
             runtime.StepFrame(0);
@@ -60,27 +63,27 @@ internal static class RetailKraidCaptureTests
         {
             int waiting = 0;
             // The attack enters with a roar timer before its first head frame selects a mouth
-            // shape; until then the hitbox words still hold their initial values.
-            while (!(body.VariableA is (ushort)KraidAiFunction.MainAttackWithMouthOpen or (ushort)KraidAiFunction.MouthOpenReaction
-                && KraidMouthHitboxDefinitions.IsDefined(boss.InvulnerableMouthHitbox)) && waiting++ < 1400)
+            // shape; until then no frame is displayed, or the closed mouth's has no shape.
+            while (!(BodyFunction() is KraidAiFunction.MainAttackWithMouthOpen or KraidAiFunction.MouthOpenReaction
+                && boss.DisplayedHeadFrame is { InvulnerableShape: not null }) && waiting++ < 1400)
                 runtime.StepFrame(0);
             if (waiting >= 1400) throw new InvalidOperationException("Kraid never opened its mouth.");
             StrikeMouth(bus, runtime, body, boss);
             runtime.StepFrame(0);
         }
         int growthSamples = 0;
-        var growthPhases = new HashSet<ushort>();
+        var growthPhases = new HashSet<KraidAiFunction>();
         completed = false;
         for (int tick = 0; tick < 1800; tick++)
         {
-            bool changed = growthPhases.Add(body.VariableA);
-            bool finished = body.VariableA == (ushort)KraidAiFunction.SecondPhaseThinking;
+            bool changed = growthPhases.Add(BodyFunction());
+            bool finished = BodyFunction() == KraidAiFunction.SecondPhaseThinking;
             if (changed || tick % 4 == 0 || finished)
             {
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+                var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
-                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid growth tick={tick}, AI={body.VariableA:X4}");
+                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid growth tick={tick}, AI={BodyFunction()}");
                 growthSamples++;
             }
             if (finished) { completed = true; break; }
@@ -90,38 +93,38 @@ internal static class RetailKraidCaptureTests
             throw new InvalidOperationException("Kraid growth missed camera/priority/second-phase handoff.");
         Console.WriteLine($"{device.Kind}: Kraid growth: {growthSamples} exact samples across {growthPhases.Count} AI states, camera and BG2 priority handoff verified.");
         int deathWait = 0;
-        while (!(body.VariableA is (ushort)KraidAiFunction.MainAttackWithMouthOpen or (ushort)KraidAiFunction.MouthOpenReaction
-            && boss.InvulnerableMouthHitbox != ushort.MaxValue) && deathWait++ < 1400)
+        while (!(BodyFunction() is KraidAiFunction.MainAttackWithMouthOpen or KraidAiFunction.MouthOpenReaction
+            && boss.DisplayedHeadFrame is not { InvulnerableShape: null }) && deathWait++ < 1400)
             runtime.StepFrame(0);
         if (deathWait >= 1400) throw new InvalidOperationException("Kraid death fixture never reached an open mouth.");
         // Shorten combat only, as in the established runtime audit. The lethal hit
         // still runs collision and initializes the real death coroutine.
         body.Health = 100;
         StrikeMouth(bus, runtime, body, boss);
-        if (body.Health != 0 || body.VariableA != (ushort)KraidAiFunction.DeathInitialize)
+        if (body.Health != 0 || BodyFunction() != KraidAiFunction.DeathInitialize)
             throw new InvalidOperationException("Kraid lethal hit did not start death.");
         int deathSamples = 0;
-        var deathPhases = new HashSet<ushort>();
+        var deathPhases = new HashSet<KraidAiFunction>();
         for (int tick = 0; tick < 1200; tick++)
         {
-            bool changed = deathPhases.Add(body.VariableA);
+            bool changed = deathPhases.Add(BodyFunction());
             if (changed || tick % 4 == 0 || boss.DeathSequenceComplete)
             {
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+                var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
-                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={body.VariableA:X4}");
+                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={BodyFunction()}");
                 deathSamples++;
             }
             if (boss.DeathSequenceComplete) break;
             runtime.StepFrame(0);
         }
         if (!boss.DeathSequenceComplete || boss.DeathBg3TransferCount != 4 ||
-            !deathPhases.Contains((ushort)KraidAiFunction.DeathSink) ||
-            !deathPhases.Contains((ushort)KraidAiFunction.DeathFadeInBackground))
+            !deathPhases.Contains(KraidAiFunction.DeathSink) ||
+            !deathPhases.Contains(KraidAiFunction.DeathFadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, background fade or four BG3 restores.");
         Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, fade and BG3 restore verified.");
-        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left");
+        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left");
         // The second route starts from the saved defeat bit, as in the existing
         // regression. Run the defeated-room restoration before opening the other door.
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
@@ -130,7 +133,7 @@ internal static class RetailKraidCaptureTests
             runtime.StepFrame(0);
         if (runtime.Enemies.KraidBehavior.Kraid is not { DeathSequenceComplete: true })
             throw new InvalidOperationException("Defeated Kraid reload did not restore its background.");
-        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right");
+        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right");
     }
 
     /// <summary>Stages an audit missile at Kraid's active mouth hitbox and uses production collision.</summary>
@@ -139,7 +142,8 @@ internal static class RetailKraidCaptureTests
         // Match the established audit: stage a missile at the open-mouth hitbox, then use
         // the real collision/damage dispatcher to initiate growth. Resolve the shape exactly
         // as collision does: compiled $A7:9788 records or a live bank-$A7 low-half alias.
-        var (left, top, bottom) = KraidMouthHitboxDefinitions.ResolveCollision(bus, boss.InvulnerableMouthHitbox);
+        var (left, top, bottom) = KraidMouthHitboxDefinitions.ResolveCollision(
+            boss.DisplayedHeadFrame?.InvulnerableShape ?? throw new InvalidOperationException("Kraid shows no inner mouth shape to strike."));
         var shots = InstalledFixtures.CreateProjectileSystem();
         var shot = shots.Slots[0];
         shot.Type = KraidCaptureDefinitions.AuditMissileType;

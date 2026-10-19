@@ -39,9 +39,10 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         ];
         foreach ((ushort parameter, DachoraProgram expected) in initializerCases)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(rom, parameter);
-            enemies.DachoraBehavior.InitializeDachora(slot);
-            AssertEqual(AnimationProgramCursor<DachoraProgram>.Start(expected), enemies.DachoraBehavior._dachoraStates[0]?.Program,
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(parameter);
+            slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
+            DachoraBehavior.InitializeDachora(slot);
+            AssertEqual(AnimationProgramCursor<DachoraProgram>.Start(expected), enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>()?.Program,
                 $"Dachora initializer parameter ${parameter:X4}");
         }
 
@@ -49,13 +50,14 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         {
             if (DachoraAnimations.Programs.Steps(program)[^1] is not { Kind: AnimationProgramStepKind.GoTo } last || last.Target != program)
                 continue;
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(rom, 0);
-            enemies.DachoraBehavior.InitializeDachora(slot);
-            DachoraEnemyState state = enemies.DachoraBehavior._dachoraStates[0] ?? throw new InvalidOperationException("The Dachora has no state.");
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
+            slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
+            DachoraBehavior.InitializeDachora(slot);
+            DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Programs, program, DachoraFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Programs, program)),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Programs, program)),
                 $"Dachora {program} loop");
         }
 
@@ -65,18 +67,17 @@ internal static class DachoraInstructionProgramDefinitionsVerification
                      (DachoraProgram.RunningRight, DachoraProgram.RunningRightFast, DachoraProgram.RunningRightVeryFast),
                  })
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(rom, 0);
-            enemies.DachoraBehavior.InitializeDachora(slot);
-            DachoraEnemyState state = enemies.DachoraBehavior._dachoraStates[0] ?? throw new InvalidOperationException("The Dachora has no state.");
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
+            slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
+            DachoraBehavior.InitializeDachora(slot);
+            DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
             // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.
             state.Program = new AnimationProgramCursor<DachoraProgram>(slow, 3);
-            state.Speed = 3;
-            state.Subspeed = 0xf000;
+            state.Speed = SnesSignedSixteenSixteen.FromParts(3, 0xf000);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
             AssertEqual(new AnimationProgramCursor<DachoraProgram>(fast, 3), state.Program, $"Dachora {slow} speeds up at the same pose");
-            state.Speed = 7;
-            state.Subspeed = 0xf000;
+            state.Speed = SnesSignedSixteenSixteen.FromParts(7, 0xf000);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
             AssertEqual(new AnimationProgramCursor<DachoraProgram>(fastest, 3), state.Program, $"Dachora {fast} speeds up at the same pose");
         }
@@ -94,13 +95,13 @@ internal static class DachoraInstructionProgramDefinitionsVerification
     }
 
     /// <summary>A Dachora with spawn parameter <paramref name="parameter"/> in the first enemy slot.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot) NewDachora(ISnesAddressSpace bus, ushort parameter)
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot) NewDachora(ushort parameter)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Dachora;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
+        slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });
         slot.Parameter1 = parameter;
         return (enemies, slot);
     }

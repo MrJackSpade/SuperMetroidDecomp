@@ -14,7 +14,7 @@ internal static class EvirAnimationsVerification
     internal static void VerifyEvirAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, EvirAnimations.Programs,
-            EvirFrameDefinitions.Spritemap,
+            EvirFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

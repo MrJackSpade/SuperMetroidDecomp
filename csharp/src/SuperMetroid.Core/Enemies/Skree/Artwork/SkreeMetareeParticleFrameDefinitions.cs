@@ -1,17 +1,18 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Enemies.Skree.Artwork;
 
 /// <summary>
-/// The presentation boundary of the Skree's and Metaree's death particles programs (#641): the installed artwork key of each
-/// <see cref="SkreeMetareeParticleFrame"/> pose, which is the bank-$86 address of the native frame's spritemap operand.
+/// The presentation boundary of the Skree's and Metaree's death particles programs (#641): the projectile frame each
+/// <see cref="SkreeMetareeParticleFrame"/> pose shows.
 /// </summary>
 internal static class SkreeMetareeParticleFrameDefinitions
 {
-
-    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
-    internal static ushort PresentationKey(SkreeMetareeParticleFrame frame) => frame.Pose switch
-    {
-        0 => 0x8abf,
-        1 => 0x8ac7,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Skree/Metaree particle pose."),
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<SkreeMetareeParticleFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<SkreeMetareeParticleFrame, EnemyProjectileFrameId>
+        {
+            [new(0)] = EnemyProjectileFrameId.SkreeDebris,
+            [new(1)] = EnemyProjectileFrameId.MetareeDebris,
+        };
 }

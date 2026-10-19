@@ -3,116 +3,68 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
-/// Typed debugger view of Choot's six common-slot words and eight words in per-enemy extra
-/// WRAM. Every property aliases the same native-width storage used by the translated AI, so
-/// frame stepping exposes the actual table cursors instead of a second host-only model.
+/// The state of one Choot. The function, ascent index, falling cursor, loop counter, pattern and its loop advance
+/// are values the cartridge keeps in the enemy's common record, so they are emptied with that record when the enemy
+/// is killed (<see cref="ClearWithRecord"/>); the rest live in the slot's <see cref="ChootExtensionWords"/>.
 /// </summary>
 public sealed class ChootEnemyState
 {
-    /// <summary>Common enemy slot holding Choot's native-width variable words.</summary>
-    private readonly RoomEnemySlot _slot;
-    /// <summary>Per-slot whole-pixel room positions restored after a falling cycle.</summary>
-    private readonly Position16<RoomPixels>[] _spawnPositions;
-    /// <summary>Per-slot apex positions calculated from each Choot's jump height.</summary>
-    private readonly Position16<RoomPixels>[] _initialFallingPositions;
-    /// <summary>Per-slot base positions to which falling-pattern offsets are added.</summary>
-    private readonly Position16<RoomPixels>[] _fallingOrigins;
-    /// <summary>Per-slot ascent cursors restored when the jump cycle finishes.</summary>
-    private readonly ushort[] _initialYSpeedTableIndexes;
-    /// <summary>Per-slot delays that underflow before the next jump begins.</summary>
-    private readonly ushort[] _jumpDelayTimers;
+    /// <summary>The slot's Choot extension words, kept for the room across occupants.</summary>
+    private readonly ChootExtensionWords _words;
 
-    /// <summary>Binds the common slot and the per-enemy WRAM arrays without copying their state.</summary>
-    internal ChootEnemyState(
-        RoomEnemySlot slot,
-        Position16<RoomPixels>[] spawnPositions,
-        Position16<RoomPixels>[] initialFallingPositions,
-        Position16<RoomPixels>[] fallingOrigins,
-        ushort[] initialYSpeedTableIndexes,
-        ushort[] jumpDelayTimers)
-    {
-        _slot = slot;
-        _spawnPositions = spawnPositions;
-        _initialFallingPositions = initialFallingPositions;
-        _fallingOrigins = fallingOrigins;
-        _initialYSpeedTableIndexes = initialYSpeedTableIndexes;
-        _jumpDelayTimers = jumpDelayTimers;
-    }
+    /// <summary>Binds one Choot to its slot's extension words.</summary>
+    internal ChootEnemyState(ChootExtensionWords words) => _words = words;
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<ChootProgram> Program { get; set; }
 
-    /// <summary>Native <c>function</c> at <c>$0FA8 + enemy index</c>, stored in variable A: the bank-$A2 callback selected by Choot's main AI dispatcher.</summary>
-    public ChootEnemyFunction Function
-    {
-        get => (ChootEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>The behaviour selected by Choot's main AI dispatcher; none once a kill has emptied the record.</summary>
+    public ChootEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Encoded ascent cursor: its high byte is the quadratic-table index and native AI
-    /// changes the word by <c>$0200</c> per frame.
+    /// The ascent's quadratic-speed record index, falling by two per jumping update; the update that takes it below
+    /// zero is the apex. It starts at the even index whose integrated speeds cover the jump height, at most 94.
     /// </summary>
-    public ushort YSpeedTableIndex
-    {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
+    public int YSpeedTableIndex { get; internal set; }
 
-    /// <summary>8.8 falling-pattern frame cursor; main AI advances it by <c>$0100</c>.</summary>
-    public ushort FallingPatternIndex
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
+    /// <summary>The falling pattern's current frame, advanced by one per falling update and restarted at each terminator.</summary>
+    public int FallingPatternFrame { get; internal set; }
 
-    /// <summary>Signed-underflow loop counter initialized to parameter-one low minus one.</summary>
-    public NativeCountdown FallingPatternLoopCounter
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableD);
-        internal set => _slot.VariableD = value.RawValue;
-    }
+    /// <summary>Loop counter initialized to parameter one's low byte minus one, expiring when it decrements below zero.</summary>
+    public NativeCountdown FallingPatternLoopCounter { get; internal set; }
 
-    /// <summary>Same-bank pointer to one of five ROM-authored X/Y offset streams.</summary>
-    public ushort FallingPatternPointer
-    {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
-    }
+    /// <summary>The authored falling path the Choot follows after its apex; none once a kill has emptied the record.</summary>
+    internal ChootFallingPath? FallingPath { get; set; }
 
-    /// <summary>Whole-pixel Y origin advance applied between falling-pattern loops.</summary>
-    public ushort FallingPatternYDistance
-    {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
-    }
+    /// <summary>Whole-pixel Y origin advance applied between falling-pattern loops, the pattern's authored 28 to 32 pixels.</summary>
+    public int FallingPatternYDistance { get; internal set; }
 
-    /// <summary>Native <c>spawnXPosition</c>/<c>spawnYPosition</c> at <c>$7E:7800</c>/<c>$7E:7802 + enemy index</c>: the initial room position in whole pixels, restored after the last falling-pattern loop.</summary>
+    /// <summary>The initial room position in whole pixels, restored after the last falling-pattern loop.</summary>
     public Position16<RoomPixels> SpawnPosition
     {
-        get => _spawnPositions[_slot.SlotIndex];
-        internal set => _spawnPositions[_slot.SlotIndex] = value;
+        get => _words.SpawnPosition;
+        internal set => _words.SpawnPosition = value;
     }
 
-    /// <summary>Native <c>initialFallingXPosition</c>/<c>initialFallingYPosition</c> at <c>$7E:7804</c>/<c>$7E:7806 + enemy index</c>: spawn X and the wrapped whole-pixel spawn Y minus the computed jump height, installed as the position and falling origin at the apex transition.</summary>
+    /// <summary>Spawn X and the wrapped whole-pixel spawn Y minus the computed jump height, installed as the position and falling origin at the apex transition.</summary>
     public Position16<RoomPixels> InitialFallingPosition
     {
-        get => _initialFallingPositions[_slot.SlotIndex];
-        internal set => _initialFallingPositions[_slot.SlotIndex] = value;
+        get => _words.InitialFallingPosition;
+        internal set => _words.InitialFallingPosition = value;
     }
 
-    /// <summary>Native <c>fallingXOrigin</c>/<c>fallingYOrigin</c> at <c>$7E:7808</c>/<c>$7E:780A + enemy index</c>: the whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by <see cref="FallingPatternYDistance"/> at every stream terminator.</summary>
+    /// <summary>The whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by <see cref="FallingPatternYDistance"/> at every stream terminator.</summary>
     public Position16<RoomPixels> FallingOrigin
     {
-        get => _fallingOrigins[_slot.SlotIndex];
-        internal set => _fallingOrigins[_slot.SlotIndex] = value;
+        get => _words.FallingOrigin;
+        internal set => _words.FallingOrigin = value;
     }
 
-    /// <summary>Native <c>initialYSpeedTableIndex</c> at <c>$7E:780C + enemy index</c>: the saved encoded ascent cursor calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedTableIndex"/> when the jump cycle finishes.</summary>
-    public ushort InitialYSpeedTableIndex
+    /// <summary>The ascent record index calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedTableIndex"/> when the jump cycle finishes.</summary>
+    public int InitialYSpeedTableIndex
     {
-        get => _initialYSpeedTableIndexes[_slot.SlotIndex];
-        internal set => _initialYSpeedTableIndexes[_slot.SlotIndex] = value;
+        get => _words.InitialYSpeedTableIndex;
+        internal set => _words.InitialYSpeedTableIndex = value;
     }
 
     /// <summary>
@@ -121,7 +73,18 @@ public sealed class ChootEnemyState
     /// </summary>
     public NativeCountdown JumpDelayTimer
     {
-        get => NativeCountdown.FromRaw(_jumpDelayTimers[_slot.SlotIndex]);
-        internal set => _jumpDelayTimers[_slot.SlotIndex] = value.RawValue;
+        get => _words.JumpDelayTimer;
+        internal set => _words.JumpDelayTimer = value;
+    }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        YSpeedTableIndex = 0;
+        FallingPatternFrame = 0;
+        FallingPatternLoopCounter = NativeCountdown.Start(0);
+        FallingPath = null;
+        FallingPatternYDistance = 0;
     }
 }

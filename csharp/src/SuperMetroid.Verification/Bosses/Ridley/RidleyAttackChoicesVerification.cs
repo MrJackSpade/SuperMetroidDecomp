@@ -37,11 +37,10 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
         }
 
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var actual = new RoomEnemySystem();
         var reference = new RoomEnemySystem();
-        actual.BindFixtureBus(NewRidleyAttackReadGuard(rom));
-        reference.BindFixtureBus(rom);
+        actual.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        reference.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyFunction;
         ushort random = 0;
@@ -66,11 +65,11 @@ internal static class RidleyAttackChoicesVerification
         {
             random = (ushort)raw;
             advances = actualReads = referenceReads = 0;
-            var state = new RidleyEnemyState { Function = RidleyAiFunction.NorfairSelectAttack, ZeroHealthLungeCount = ushort.MaxValue };
+            var state = new RidleyEnemyState { Function = RidleyAiFunction.NorfairSelectAttack, ZeroHealthLungeCount = 0 };
             var expected = new RidleyEnemyState
             {
                 Function = native[sample.Row, raw & 7],
-                ZeroHealthLungeCount = sample.Row == 5 ? (ushort)0 : ushort.MaxValue,
+                ZeroHealthLungeCount = sample.Row == 5 ? 1 : 0,
             };
             foreach (var slot in new[] { actual.SlotTable.Slots[0], reference.SlotTable.Slots[0] })
             {
@@ -85,13 +84,9 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(expected.FunctionTimer.RawValue, state.FunctionTimer.RawValue, "Same-frame selected timer");
             AssertEqual(expected.Velocity.X.RawValue, state.Velocity.X.RawValue, "Same-frame selected X motion");
             AssertEqual(expected.Velocity.Y.RawValue, state.Velocity.Y.RawValue, "Same-frame selected Y motion");
-            AssertEqual(expected.ZeroHealthLungeCount, state.ZeroHealthLungeCount, "Zero-health lunge counter wraps; spin takes priority");
+            AssertEqual(expected.ZeroHealthLungeCount, state.ZeroHealthLungeCount, "Only a zero-health selection counts a lunge; spin takes priority");
         }
         Console.WriteLine("Ridley choices: all 48 native pointers and 655360 actual selections pass with table reads forbidden, exact RNG and same-frame setup checks.");
     }
 
-    /// <summary>Forbids production rereads of the compiled Ridley attack-choice table.</summary>
-    private static CartridgeReadGuard NewRidleyAttackReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6b38c and < 0xa6b3ec,
-            _ => "Unexpected migrated Ridley attack-choice read.");
 }

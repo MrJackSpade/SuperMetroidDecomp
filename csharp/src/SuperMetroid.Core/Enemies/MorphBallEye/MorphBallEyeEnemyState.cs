@@ -3,51 +3,38 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// Typed aliases for the four common enemy words used by retail enemy <c>$E6BF</c>.
-/// The mount and eye body share a definition, but parameter two's sign selects their role.
+/// The state of retail enemy <c>$E6BF</c>. The mount and eye body share a definition, but parameter two's sign selects
+/// their role. The values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed
+/// (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class MorphBallEyeEnemyState
 {
-    /// <summary>Native enemy slot whose variables C through F hold this eye's state.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects the eye's typed state over an existing enemy slot.</summary>
-    internal MorphBallEyeEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<MorphBallEyeProgram> Program { get; set; }
 
     /// <summary>
-    /// Native <c>Eye.activatedFlag</c> in variable C. The bank-$88 beam object sets this
-    /// when its initialization instruction runs and the body clears it on deactivation.
+    /// Whether the eye is activated (<c>Eye.activatedFlag</c>): set once the beam object has initialized, cleared once
+    /// the body starts closing. The beam keeps cycling its colours only while it is set.
     /// </summary>
-    public ushort ActivatedFlag
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
+    public bool IsActivated { get; internal set; }
 
     /// <summary>
-    /// Zero-up, clockwise, 1/256-turn aim angle in native variable D. Only the low byte is
-    /// meaningful, but the cartridge stores the complete accumulator result as a word.
+    /// Zero-up, clockwise, 1/256-turn aim angle.
     /// </summary>
-    public SnesAngle Angle
-    {
-        get => SnesAngle.FromTableIndex(unchecked((byte)_slot.VariableD));
-        internal set => _slot.VariableD = value.TableIndex;
-    }
+    public SnesAngle Angle { get; internal set; }
 
-    /// <summary>Activation/deactivation countdown in native variable E.</summary>
-    public NativeCountdown FunctionTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableE);
-        internal set => _slot.VariableE = value.RawValue;
-    }
+    /// <summary>Activation/deactivation countdown.</summary>
+    public NativeCountdown FunctionTimer { get; internal set; }
 
-    /// <summary>Indirect bank-$A8 function word in native variable F.</summary>
-    public MorphBallEyeAiFunction Function
+    /// <summary>Indirect bank-$A8 function word; none once a kill has emptied the record.</summary>
+    public MorphBallEyeAiFunction? Function { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => (MorphBallEyeAiFunction)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
+        IsActivated = false;
+        Angle = SnesAngle.FromTableIndex(0);
+        FunctionTimer = NativeCountdown.Start(0);
+        Function = null;
     }
 }

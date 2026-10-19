@@ -35,7 +35,7 @@ internal static class EnemyFormatDrawAccess
                 int spriteIndex = target.NextByteOffset >> 2;
                 image.LowTable.Slice(index * 4, 4).CopyTo(target._lowTable.AsSpan(target.NextByteOffset));
                 OamEntry entry = image.GetEntry(index);
-                target.SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(unchecked((ushort)entry.X), entry.IsLarge));
+                target.SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(unchecked((ushort)entry.Position.X), entry.IsLarge));
                 target.NextByteOffset = (target.NextByteOffset + 4) % OamBuffer.LowTableByteCount;
             }
         }

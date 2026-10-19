@@ -9,24 +9,24 @@ namespace SuperMetroid.Verification.Enemies.Deaths;
 internal static class EnemyDeathProjectileCueRules
 {
     /// <summary>Each command the lists use, the cue it becomes and its operand byte count (the spawns carry a sprite object).</summary>
-    private static readonly Dictionary<EnemyProjectileInstruction, (EnemyDeathProjectileCueKind Kind, int OperandBytes)> Commands = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, (EnemyDeathProjectileCueKind Kind, int OperandBytes)> Commands = new()
     {
-        [EnemyProjectileInstruction.Delete] = (EnemyDeathProjectileCueKind.Delete, 0),
-        [EnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_20] = (EnemyDeathProjectileCueKind.SpawnSpriteWithin32, 2),
-        [EnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10] = (EnemyDeathProjectileCueKind.SpawnSpriteWithin16, 2),
-        [EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = (EnemyDeathProjectileCueKind.PlayEnemyKilledSound, 0),
-        [EnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX] = (EnemyDeathProjectileCueKind.PlaySmallExplosionSound, 0),
-        [EnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX] = (EnemyDeathProjectileCueKind.PlayContactKilledSound, 0),
-        [EnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup] = (EnemyDeathProjectileCueKind.BecomePickup, 0),
-        [EnemyProjectileInstruction.Pickup_HandleRespawningEnemy] = (EnemyDeathProjectileCueKind.HandleRespawningEnemy, 0),
+        [NativeEnemyProjectileInstruction.Delete] = (EnemyDeathProjectileCueKind.Delete, 0),
+        [NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_20] = (EnemyDeathProjectileCueKind.SpawnSpriteWithin32, 2),
+        [NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10] = (EnemyDeathProjectileCueKind.SpawnSpriteWithin16, 2),
+        [NativeEnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = (EnemyDeathProjectileCueKind.PlayEnemyKilledSound, 0),
+        [NativeEnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX] = (EnemyDeathProjectileCueKind.PlaySmallExplosionSound, 0),
+        [NativeEnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX] = (EnemyDeathProjectileCueKind.PlayContactKilledSound, 0),
+        [NativeEnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup] = (EnemyDeathProjectileCueKind.BecomePickup, 0),
+        [NativeEnemyProjectileInstruction.Pickup_HandleRespawningEnemy] = (EnemyDeathProjectileCueKind.HandleRespawningEnemy, 0),
     };
 
     /// <summary>The oracle rules for the death and drop programs.</summary>
     internal static NativeEnemyProjectileCueRules<EnemyDeathProjectileCue> Rules { get; } = new(
-        word => Commands.TryGetValue((EnemyProjectileInstruction)word, out var command) ? command.OperandBytes : null,
+        word => Commands.TryGetValue((NativeEnemyProjectileInstruction)word, out var command) ? command.OperandBytes : null,
         (word, operands, cue, at) =>
         {
-            var command = Commands[(EnemyProjectileInstruction)word];
+            var command = Commands[(NativeEnemyProjectileInstruction)word];
             AssertEqual(command.Kind, cue.Kind, $"{at}: cue");
             RoomSpriteObjectKind spriteObject = command.OperandBytes == 2 ? (RoomSpriteObjectKind)SnesLittleEndian.Word(operands[0], operands[1]) : default;
             AssertEqual(spriteObject, cue.SpriteObject, $"{at}: sprite object");

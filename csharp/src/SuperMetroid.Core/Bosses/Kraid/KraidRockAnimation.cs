@@ -15,6 +15,6 @@ internal sealed class KraidRockAnimation(KraidRockProgram program) : EnemyProjec
     private protected override AnimationTimeline<KraidRockFrame, KraidRockCue> Timeline => KraidRockAnimations.Timeline(Program);
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(KraidRockFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(KraidRockVisualDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(KraidRockFrame frame) =>
+        KraidRockVisualDefinitions.ShownProjectileFrames[frame];
 }

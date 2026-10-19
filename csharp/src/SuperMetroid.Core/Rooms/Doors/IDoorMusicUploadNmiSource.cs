@@ -16,5 +16,5 @@ public interface IDoorMusicUploadNmiSource
     /// <summary>Accepted NMIs elapsed while uploading music data set <paramref name="musicDataIndex"/>.</summary>
     /// <param name="musicDataIndex">Native room music-data selector identifying the upload whose accepted-NMI count is requested.</param>
     /// <returns>The nonnegative count to apply to native NMI counters, without running extra gameplay updates or delaying the port.</returns>
-    int AcceptedNmisDuringUpload(byte musicDataIndex);
+    int AcceptedNmisDuringUpload(int musicDataIndex);
 }

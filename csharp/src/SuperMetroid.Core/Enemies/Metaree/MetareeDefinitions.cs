@@ -7,5 +7,5 @@ internal static class MetareeDefinitions
     /// The two low property bits Metaree ORs on as it descends. Their engine-wide meaning is not yet proven, so they keep
     /// this Metaree-specific name rather than a flags member.
     /// </summary>
-    internal const ushort DescentPropertyBits = 0x0003;
+    internal const byte DescentPropertyBits = 3;
 }

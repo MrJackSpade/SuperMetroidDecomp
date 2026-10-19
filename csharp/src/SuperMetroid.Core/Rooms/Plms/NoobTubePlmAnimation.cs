@@ -16,7 +16,7 @@ internal sealed class NoobTubePlmAnimation(NoobTubeProgram program)
     private protected override ushort DrawList(NoobTubeDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override NoobTubeProgram? Publish(NoobTubeCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override NoobTubeProgram? Publish(NoobTubeCue cue, PlmSlot slot, PlmStepContext context)
     {
         NoobTubePlms tube = context.Plms.NoobTube;
         switch (cue)
@@ -27,16 +27,16 @@ internal sealed class NoobTubePlmAnimation(NoobTubeProgram program)
                 SetLink(NoobTubeProgram.WaitForInput);
                 break;
             case NoobTubeCue.ArmPowerBombWake:
-                slot.PreInstruction = (ushort)NoobTubePlmPreInstruction.WakeOnPowerBomb;
+                slot.PreInstruction = NoobTubePreInstructions.WakeOnPowerBomb;
                 break;
             case NoobTubeCue.LinkBreak:
                 SetLink(NoobTubeProgram.Break);
                 break;
             case NoobTubeCue.ArmInputWake:
-                slot.PreInstruction = (ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput;
+                slot.PreInstruction = NoobTubePreInstructions.WakeOnAcceptedInput;
                 break;
             case NoobTubeCue.ClearPreInstruction:
-                slot.PreInstruction = (ushort)NoobTubePlmPreInstruction.Inactive;
+                slot.PreInstruction = NoobTubePreInstructions.Inactive;
                 break;
             case NoobTubeCue.LockSamus:
                 tube.SetSamusLocked(true);

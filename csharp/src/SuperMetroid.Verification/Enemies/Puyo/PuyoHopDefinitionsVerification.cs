@@ -13,7 +13,7 @@ internal static class PuyoHopDefinitionsVerification
     internal static void VerifyCompiledPuyoHops(SuperMetroidAddressSpace rom)
     {
         Action<PuyoEnemyState> calculate = PuyoBehavior.CalculateInitialPuyoHopSpeed;
-        var state = new PuyoEnemyState(new RoomEnemySystem().SlotTable.Slots[0]);
+        var state = new PuyoEnemyState();
         for (ushort index = 0; index < 56; index += 8)
         {
             var hop = PuyoHopDefinitions.FromByteIndex(index);
@@ -31,7 +31,7 @@ internal static class PuyoHopDefinitionsVerification
                 time = unchecked((ushort)(time + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index))));
                 distance = unchecked((ushort)(distance + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08390 + (SnesLittleEndian.HighByte(time)) * 8))));
             } while (unchecked((short)(target - distance)) >= 0);
-            state.HopTableIndex = index;
+            state.HopRecord = index / PuyoHopDefinitions.RecordSize;
             calculate(state);
             AssertEqual(time, state.YSpeedTableIndex, "Puyo real initial curve index without bus");
             AssertEqual(time / 2, state.InitialYSpeedTableIndexHalf, "Puyo half threshold");

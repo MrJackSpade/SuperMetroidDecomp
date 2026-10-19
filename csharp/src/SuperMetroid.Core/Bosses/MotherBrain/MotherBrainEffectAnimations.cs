@@ -19,17 +19,17 @@ internal static class MotherBrainEffectAnimations
         // $86:C432
         [P.OnionRing] =
         [
-            Cue(new(K.SetRadius, Value: 257)),
+            Cue(new(K.SetRadius, Radius: new(1, 1))),
             Show(0, 16),
-            Cue(new(K.SetRadius, Value: 514)),
+            Cue(new(K.SetRadius, Radius: new(2, 2))),
             Show(1, 10),
-            Cue(new(K.SetRadius, Value: 771)),
+            Cue(new(K.SetRadius, Radius: new(3, 3))),
             Show(2, 8),
-            Cue(new(K.SetRadius, Value: 1028)),
+            Cue(new(K.SetRadius, Radius: new(4, 4))),
             Show(3, 7),
-            Cue(new(K.SetRadius, Value: 1285)),
+            Cue(new(K.SetRadius, Radius: new(5, 5))),
             Show(4, 6),
-            Cue(new(K.SetRadius, Value: 1542)),
+            Cue(new(K.SetRadius, Radius: new(6, 6))),
             Show(5, 5),
             Hold,
         ],

@@ -19,7 +19,7 @@ internal static class RidleyPogoDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley pogo")]
     internal static void VerifyCompiledRidleyPogo(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifyRidleyAttackTimerRandomReads), () => VerifyRidleyAttackTimerRandomReads(rom));
+        Suite(nameof(VerifyRidleyAttackTimerRandomReads), () => VerifyRidleyAttackTimerRandomReads());
         var reference = new (ushort X, ushort Y, ushort Up, ushort Down)[4, 6];
         for (int pattern = 0; pattern < 4; pattern++)
         for (int stage = 0; stage < 6; stage++)
@@ -33,10 +33,9 @@ internal static class RidleyPogoDefinitionsVerification
             AssertTrue(native == RidleyPogoDefinitions.Read(pattern, stage), "All indirect native pogo records and accelerations");
         }
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         int reads = 0, advances = 0;
         ushort seed = 0;
-        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return seed; });
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); });
         Action<RidleyEnemyState> initialize = enemies.RidleyBehavior.InitializeNorfairRidleyPogoVelocity;
@@ -70,13 +69,12 @@ internal static class RidleyPogoDefinitionsVerification
     }
 
     /// <summary>Checks pogo and fireball setup timers consume the current RNG word without advancing it.</summary>
-    private static void VerifyRidleyAttackTimerRandomReads(SuperMetroidAddressSpace rom)
+    private static void VerifyRidleyAttackTimerRandomReads()
     {
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         int reads = 0, advances = 0;
         ushort seed = 0;
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return seed; });
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); });
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;

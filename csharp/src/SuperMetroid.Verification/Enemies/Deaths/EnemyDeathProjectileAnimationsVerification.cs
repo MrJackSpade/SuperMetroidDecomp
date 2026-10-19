@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Deaths.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Deaths;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Deaths;
 internal static class EnemyDeathProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EnemyDeathProjectileAnimations.Programs, EnemyDeathProjectileFrameDefinitions.PresentationKey, EnemyDeathProjectileCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EnemyDeathProjectileAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[frame])), EnemyDeathProjectileCueRules.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyEnemyDeathProjectileAnimations(SuperMetroidAddressSpace rom)

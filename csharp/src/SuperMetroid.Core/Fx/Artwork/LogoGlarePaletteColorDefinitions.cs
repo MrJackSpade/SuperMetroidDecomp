@@ -14,28 +14,13 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// exception; no intermediate animation color is included in that disposition.</summary>
 internal static class LogoGlarePaletteColorDefinitions
 {
-    /// <summary>Accepts aligned color words in the fourteen glare frames after each frame's leading command word.</summary>
-    internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
-    {
-        frame = color = 0;
-        int offset = PostCreditsIconGlarePaletteFxColorDefinitions.ColorOffset(pointer);
-        if ((uint)offset >= PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount *
-            PostCreditsIconGlarePaletteFxColorDefinitions.FrameByteCount) return false;
-        int within = offset % PostCreditsIconGlarePaletteFxColorDefinitions.FrameByteCount;
-        if ((within & 1) != 0 || within >= PostCreditsIconGlarePaletteFxColorDefinitions.ColorsPerFrame * Bgr555.ByteCount)
-            return false;
-        frame = offset / PostCreditsIconGlarePaletteFxColorDefinitions.FrameByteCount;
-        color = within / Bgr555.ByteCount;
-        return true;
-    }
-
     /// <summary>Calculate only intermediate colors from the final supplied row.
     /// The caller resolves explicit per-frame edits first. No generated row is cached.</summary>
-    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
     {
         value = Bgr555.Black;
-        if (!TryCoordinates(pointer, out int frame, out int color) || frame == 13 ||
-            !colors.TryGetValue(PostCreditsIconGlarePaletteFxColorDefinitions.ColorPointer(13, color), out Bgr555 basis))
+        if (!PostCreditsIconGlarePaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) || frame == 13 ||
+            !colors.TryGetValue(PostCreditsIconGlarePaletteFxColorDefinitions.Color(13, color), out Bgr555 basis))
             return false;
         int t = frame < 7 ? frame + 1 : 13 - frame;
         int red = ((basis.Red) * (7 - t) + 31 * t) / 7;

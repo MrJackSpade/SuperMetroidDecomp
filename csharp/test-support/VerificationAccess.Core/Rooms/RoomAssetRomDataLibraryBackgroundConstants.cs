@@ -20,4 +20,6 @@ internal static class RoomAssetRomDataLibraryBackgroundConstants
         /// <inheritdoc cref="RoomAssetRomDataLibraryBackgroundConstants.BankByteCount"/>
         internal static int BankByteCount => RoomAssetRomDataLibraryBackgroundConstants.BankByteCount;
     }
+        /// <summary>Maximum commands accepted before a malformed unterminated list fails.</summary>
+        public const int MaximumCommandsPerList = 128;
 }

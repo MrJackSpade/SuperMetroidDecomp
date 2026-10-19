@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
@@ -29,7 +30,7 @@ public static class DebuggerSaveStateSmokeTest
         {
             GameInstallation installation = GameAssetInstaller.Install(fullRomPath,
                 Path.Combine(temporaryDirectory, "installed"));
-            var game = new SuperMetroidGame(bus, new SuperMetroidGameOptions());
+            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions());
             var maps = installation.LoadMaps();
             game.BindArtwork(game.Artwork with
             {
@@ -58,7 +59,7 @@ public static class DebuggerSaveStateSmokeTest
                 directoryOverride: temporaryDirectory).Load(0);
             if (installedLoad.Warnings.Count != 0)
                 throw new InvalidDataException("Installer-verified debugger state identity did not match the retail source revision.");
-            VerifyInstalledRecorder(temporaryDirectory, bus.SaveRam, contentIdentity);
+            VerifyInstalledRecorder(temporaryDirectory, SuperMetroid.Core.Saves.SaveRamCodec.Encode(game.Saves, maps), contentIdentity);
             // Change only the two build IDs: the exact graph must remain loadable and its
             // deterministic continuation below must still match, including PCM and pixels.
             using (var changedBuild = new FileStream(saved.Path, FileMode.Open, FileAccess.Write))
@@ -70,12 +71,14 @@ public static class DebuggerSaveStateSmokeTest
             long stateBytes = new FileInfo(saved.Path).Length;
             const int continuationFrames = 45;
             var expected = new FrontendFrame[continuationFrames];
+            var expectedPixels = new Rgba32[continuationFrames][];
             var expectedPcm = new short[continuationFrames][];
             var expectedAcknowledgements = new CartridgeAudioAcknowledgements[continuationFrames];
             var expectedAudioEvents = new AudioEvent[continuationFrames][];
             for (int frame = 0; frame < continuationFrames; frame++)
             {
-                expected[frame] = game.Step(0).WithCopiedPixels();
+                expected[frame] = game.Step(0);
+                expectedPixels[frame] = game.PublishedPixels();
                 expectedPcm[frame] = new short[CartridgeAudioSession.PcmSamplesPerFrame];
                 game.CopyAudioFrame(expectedPcm[frame]);
                 expectedAcknowledgements[frame] = game.AudioAcknowledgementsForVerification;
@@ -124,7 +127,7 @@ public static class DebuggerSaveStateSmokeTest
                 if (actual.GameState != wanted.GameState ||
                     actual.FrameNumber != wanted.FrameNumber ||
                     actual.Phase != wanted.Phase ||
-                    !actual.Pixels.SequenceEqual(wanted.Pixels) ||
+                    !loaded.Game.PublishedPixels().SequenceEqual(expectedPixels[frame]) ||
                     !loaded.Game.AudioEventsForVerification.SequenceEqual(expectedAudioEvents[frame]) ||
                     !actualPcm.SequenceEqual(expectedPcm[frame]) ||
                     actualAcknowledgements != expectedAcknowledgements[frame])

@@ -36,7 +36,7 @@ internal static class WrapShotWidthsVerification
             var level = CreateRoom(new(checked((ushort)width), checked((ushort)height)), words, bts);
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
-                EquippedBeams = (ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9) };
+                EquippedBeams = (SamusBeamFlags)((ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9)) };
             var shots = CreateProjectileFixture();
             var bombs = CreateBombFixture();
             var plms = new RoomPlmSystem();
@@ -44,10 +44,10 @@ internal static class WrapShotWidthsVerification
             for (int frame = 0; frame < 40; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-                shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs);
+                bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+                shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs);
                 var shot = shots.Slots[0];
-                ushort targetWord = level.GetCollisionBlockByIndex(target).LevelWord;
+                ushort targetWord = level.GetCollisionBlockByIndex(target).PackedWord.Raw;
                 if (hit < 0 && targetWord == 0x840c) hit = frame;
                 string actual = $"{room},{beam},{offset},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},{shot.Radius.X:X4},{shot.Radius.Y:X4},{targetWord:X4}";
                 string expected = native[cursor++];

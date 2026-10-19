@@ -3,12 +3,12 @@ using SuperMetroid.SourceAudit;
 
 namespace SuperMetroid.Verification.Harness;
 
-/// <summary>Exercises domain literal classifiers and the reviewed production finding baseline.</summary>
+/// <summary>Exercises domain literal classifiers and requires production to hold no unowned literal.</summary>
 internal static class MagicNumberAuditVerification
 {
     /// <summary>
-    /// Proves every required domain classifier and then enforces the repository's exact
-    /// reviewed baseline. Constructed snippets make failures deterministic without needing
+    /// Proves every required domain classifier and then requires the repository to hold no
+    /// finding. Constructed snippets make failures deterministic without needing
     /// to add deliberate bad literals to production code.
     /// </summary>
     internal static void VerifyProductionMagicNumberAudit()
@@ -69,13 +69,11 @@ internal static class MagicNumberAuditVerification
         {
             throw new InvalidOperationException(
                 "Production magic-number audit found unreviewed literals:\n" +
-                string.Join('\n', repositoryAudit.NewFindings.Select(finding => finding.Diagnostic)));
+                string.Join('\n', repositoryAudit.Findings.Select(finding => finding.Diagnostic)));
         }
 
         Console.WriteLine(
-            $"  Magic numbers: 11 domain classifiers enforced; baseline " +
-            $"{repositoryAudit.BaselineCount}, current {repositoryAudit.CurrentFindingCount}, " +
-            $"retired {repositoryAudit.RetiredBaselineEntries}.");
+            "  Magic numbers: 11 domain classifiers enforced; production holds no unowned literal.");
     }
 
     /// <summary>Runs the production literal audit as a standalone verification command.</summary>

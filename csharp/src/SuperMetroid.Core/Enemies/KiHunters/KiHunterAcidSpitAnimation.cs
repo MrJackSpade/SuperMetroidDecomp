@@ -13,6 +13,6 @@ internal sealed class KiHunterAcidSpitAnimation(KiHunterAcidSpitProgram program)
     private protected override AnimationProgramSet<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Programs => KiHunterAcidSpitAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(KiHunterAcidSpitFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(KiHunterAcidSpitFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(KiHunterAcidSpitFrame frame) =>
+        KiHunterAcidSpitFrameDefinitions.ShownProjectileFrames[frame];
 }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Boulder.Artwork;
@@ -10,8 +11,14 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>The Boulder species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class BoulderBehavior : IEnemySpecies
+internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boulder];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BoulderEntity(this, slot, common);
+
     /// <summary>Moves the actor through room collision during fall and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Creates the dust explosion when a rolling or brittle boulder breaks.</summary>
@@ -27,26 +34,47 @@ internal sealed class BoulderBehavior : IEnemySpecies
     /// <summary>Room-graphics dust animation selected by terminal impacts.</summary>
     private const MiscDustAnimation BoulderDustAnimationIndex = MiscDustAnimation.RockParticles;
 
-    /// <summary>Per-slot trigger, bounce, speed, and last-position state.</summary>
-    internal readonly BoulderEnemyState?[] _boulderStates =
-        new BoulderEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The library-two sound queued when a falling or rolling boulder hits terrain.</summary>
+    private static readonly SoundEffectId BoulderImpactSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.BoulderImpactSound);
+
+    /// <summary>The library-two sound that replaces the impact sound when the boulder breaks into dust.</summary>
+    private static readonly SoundEffectId BoulderBreakSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.BoulderBreakSound);
+
+    /// <summary>Bounce-clock value the first rebound starts from: quadratic-speed record 32.</summary>
+    private const int FirstReboundBounceSpeed = 8192;
+
+    /// <summary>Change in the bounce clock per falling or rebounding update: one quadratic-speed record.</summary>
+    private const int BounceSpeedStep = 256;
+
+    /// <summary>Largest clock the initial fall, and the travel clock while bouncing, reach: quadratic-speed record 80.</summary>
+    private const int MaximumBouncingSpeed = 20480;
+
+    /// <summary>Change in the travel clock per bouncing update, an eighth of a record.</summary>
+    private const int BouncingTravelSpeedStep = 32;
+
+    /// <summary>Change in the travel clock per rolling update, a quarter of a record.</summary>
+    private const int RollingTravelSpeedStep = 64;
+
+    /// <summary>Largest travel clock while rolling: quadratic-speed record 64.</summary>
+    private const int MaximumRollingTravelSpeed = 16384;
 
     /// <summary>Most recent library-two sound emitted by a landing or terminal impact.</summary>
-    public ushort? LastBoulderSoundEffect { get; private set; }
+    public SoundEffectId? LastBoulderSoundEffect { get; private set; }
 
     /// <summary>Interprets both spawn parameters as direction, trigger windows, vertical compensation, and initial height; a zero offset starts rolling without bounces.</summary>
-    internal void InitializeBoulder(RoomEnemySlot slot)
+    internal static void InitializeBoulder(RoomEnemySlot slot)
     {
-        var state = new BoulderEnemyState(slot);
-        _boulderStates[slot.SlotIndex] = state;
+        var state = new BoulderEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.BounceSpeedAccumulator = 0;
         state.TravelSpeedAccumulator = 0;
         state.BounceCounter = NativeCountdown.Start(2);
         state.Function = BoulderAiFunction.WaitingForSamus;
         state.InitialPosition = slot.Position.Whole;
-        state.PreviousYPosition = slot.Position.Y.Whole;
-        state.PreviousYSubposition = slot.Position.Y.Fraction;
+        state.PreviousY = slot.Position.Y;
 
         byte initialYOffset = SnesLittleEndian.HighByte(slot.Parameter2);
         if (initialYOffset == 0)
@@ -75,7 +103,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
             state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Left);
         }
 
-        state.VerticalCompensation = (byte)slot.Parameter1 == 0 ? (ushort)2 : (ushort)5;
+        state.VerticalCompensation = new Offset16<RoomPixels>(0, (byte)slot.Parameter1 == 0 ? (short)2 : (short)5);
     }
 
     /// <summary>Dispatches wait, fall, rebound, roll, and inert phases with required Samus and terrain state.</summary>
@@ -107,7 +135,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Boulder function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Boulder function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -136,35 +164,39 @@ internal sealed class BoulderBehavior : IEnemySpecies
         AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, negative: false);
         if (unchecked((short)(slot.Position.Y.Whole - state.InitialPosition.Y)) < 0)
         {
-            state.BounceSpeedAccumulator = AddAndCapUnsigned(
+            state.BounceSpeedAccumulator = AddAndCap(
                 state.BounceSpeedAccumulator,
-                256,
-                20480);
+                BounceSpeedStep,
+                MaximumBouncingSpeed);
             return;
         }
 
         slot.Position = slot.Position.WithWholeY(state.InitialPosition.Y);
         state.Function = BoulderAiFunction.Rebound;
-        state.BounceSpeedAccumulator = 8192;
+        state.BounceSpeedAccumulator = FirstReboundBounceSpeed;
     }
 
     /// <summary>Applies upward quadratic motion while reducing bounce speed, adding sideways travel, then returns to falling.</summary>
     private static void RunBoulderRebound(RoomEnemySlot slot, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, negative: true);
-        state.BounceSpeedAccumulator = unchecked((ushort)(state.BounceSpeedAccumulator - 256));
-        if (unchecked((short)state.BounceSpeedAccumulator) < 0)
+
+        // The cartridge subtracts one record and branches on the sign of the result, storing zero in place of a
+        // result below zero, so the clock never keeps a value below zero past this update.
+        int slowed = state.BounceSpeedAccumulator - BounceSpeedStep;
+        if (slowed < 0)
         {
             state.BounceSpeedAccumulator = 0;
             state.Function = BoulderAiFunction.Falling;
             return;
         }
+        state.BounceSpeedAccumulator = slowed;
 
         AddBoulderHorizontalVelocity(slot, state);
-        state.TravelSpeedAccumulator = AddAndCapUnsigned(
+        state.TravelSpeedAccumulator = AddAndCap(
             state.TravelSpeedAccumulator,
-            32,
-            20480);
+            BouncingTravelSpeedStep,
+            MaximumBouncingSpeed);
     }
 
     /// <summary>Accelerates through terrain contact; ordinary impacts consume bounce indexes while selector two breaks immediately.</summary>
@@ -175,14 +207,14 @@ internal sealed class BoulderBehavior : IEnemySpecies
             negative: false);
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
-            LastBoulderSoundEffect = EnemySoundEffectDefinitions.BoulderImpactSound;
+            LastBoulderSoundEffect = BoulderImpactSound;
             if (state.DirectionSelector == 2)
             {
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 _projectiles.SpawnRoomGraphicsDustExplosion(
                     slot.Position.Whole,
                     BoulderDustAnimationIndex);
-                LastBoulderSoundEffect = EnemySoundEffectDefinitions.BoulderBreakSound;
+                LastBoulderSoundEffect = BoulderBreakSound;
                 return;
             }
 
@@ -194,20 +226,20 @@ internal sealed class BoulderBehavior : IEnemySpecies
             state.BounceCounter = state.BounceCounter.Decrement().Remaining;
             if (state.BounceCounter.IsNegative)
             {
-                state.PreviousYPosition = slot.Position.Y.Whole;
-                state.PreviousYSubposition = slot.Position.Y.Fraction;
+                state.PreviousY = slot.Position.Y;
                 state.Function = BoulderAiFunction.Rolling;
             }
             return;
         }
 
-        state.BounceSpeedAccumulator = unchecked((ushort)(
-            state.BounceSpeedAccumulator + 256));
+        // The falling clock is not capped: its next read selects the following quadratic record, and the table
+        // rejects record 95 before the clock could approach the word limit.
+        state.BounceSpeedAccumulator += BounceSpeedStep;
         AddBoulderHorizontalVelocity(slot, state);
-        state.TravelSpeedAccumulator = AddAndCapUnsigned(
+        state.TravelSpeedAccumulator = AddAndCap(
             state.TravelSpeedAccumulator,
-            32,
-            20480);
+            BouncingTravelSpeedStep,
+            MaximumBouncingSpeed);
     }
 
     /// <summary>Tracks the floor with vertical compensation and advances horizontally until a wall hides/deletes the actor and spawns dust.</summary>
@@ -217,9 +249,9 @@ internal sealed class BoulderBehavior : IEnemySpecies
             EnemyMath.ReadQuadraticEnemySpeed(
                 unchecked((byte)(SnesEightEight.WholeOf(state.TravelSpeedAccumulator))),
                 negative: false) +
-            SnesSixteenSixteen.FromWhole(state.VerticalCompensation));
+            SnesSixteenSixteen.FromWhole(state.VerticalCompensation.Y));
         _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - state.VerticalCompensation)));
+        slot.Position = slot.Position.WithWhole(slot.Position.Whole - state.VerticalCompensation);
 
         int horizontalDisplacement = ReadBoulderHorizontalDisplacement(state);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
@@ -229,27 +261,23 @@ internal sealed class BoulderBehavior : IEnemySpecies
             slot.Properties = slot.Properties.With(
                 EnemyProperties.Invisible | EnemyProperties.Deleted);
             state.Function = BoulderAiFunction.Inert;
-            LastBoulderSoundEffect = EnemySoundEffectDefinitions.BoulderImpactSound;
+            LastBoulderSoundEffect = BoulderImpactSound;
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 slot.Position.Whole,
                 BoulderDustAnimationIndex);
-            LastBoulderSoundEffect = EnemySoundEffectDefinitions.BoulderBreakSound;
+            LastBoulderSoundEffect = BoulderBreakSound;
         }
         else
         {
-            state.TravelSpeedAccumulator = AddAndCapUnsigned(
+            state.TravelSpeedAccumulator = AddAndCap(
                 state.TravelSpeedAccumulator,
-                64,
-                16384);
-            if (slot.Position.Y.Whole == state.PreviousYPosition &&
-                slot.Position.Y.Fraction == state.PreviousYSubposition)
-            {
-                state.VerticalCompensation = 0;
-            }
+                RollingTravelSpeedStep,
+                MaximumRollingTravelSpeed);
+            if (slot.Position.Y == state.PreviousY)
+                state.VerticalCompensation = Offset16<RoomPixels>.Zero;
         }
 
-        state.PreviousYPosition = slot.Position.Y.Whole;
-        state.PreviousYSubposition = slot.Position.Y.Fraction;
+        state.PreviousY = slot.Position.Y;
     }
 
     /// <summary>Adds the signed quadratic travel displacement to the actor's wrapped 16.16 X position.</summary>
@@ -268,65 +296,54 @@ internal sealed class BoulderBehavior : IEnemySpecies
             negative: state.DirectionSelector != 0);
 
     /// <summary>Adds or subtracts a quadratic table sample from the actor's wrapped 16.16 Y position.</summary>
-    private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, ushort accumulator, bool negative)
+    private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, int accumulator, bool negative)
     {
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
-            SnesLittleEndian.HighByte(accumulator),
+            unchecked((byte)(SnesEightEight.WholeOf(accumulator))),
             negative);
         uint position = slot.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
         slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 
-    /// <summary>Advances a native word accumulator and caps it using the cartridge's signed 16-bit comparison.</summary>
-    private static ushort AddAndCapUnsigned(ushort value, ushort increment, ushort maximum)
-    {
-        ushort result = unchecked((ushort)(value + increment));
-        return unchecked((short)(result - maximum)) < 0 ? result : maximum;
-    }
+    /// <summary>
+    /// Advances an acceleration clock and caps it. The cartridge compares the sum with the cap by the sign of their
+    /// word difference; both stay within 0 through 24576 here, so that is the ordinary comparison.
+    /// </summary>
+    private static int AddAndCap(int value, int increment, int maximum) => Math.Min(value + increment, maximum);
 
     /// <summary>Rejects main AI before the slot's Boulder state has been initialized.</summary>
-    private BoulderEnemyState RequireBoulderState(RoomEnemySlot slot) =>
-        _boulderStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static BoulderEnemyState RequireBoulderState(RoomEnemySlot slot) =>
+        slot.SpeciesState<BoulderEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boulder state.");
 
-    /// <summary>Runs the Boulder's rolling loops as typed programs (#641).</summary>
-    internal void RegisterBoulderTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireBoulderState(slot);
-            AnimationProgramCursor<BoulderProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, BoulderAnimations.Programs, ref cursor, BoulderFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Binds Boulder setup only to its matching enemy definition.</summary>
-    internal void RegisterBoulderInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Boulder's typed animation.</summary>
+    internal static void AdvanceBoulderTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Boulder, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBoulder(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireBoulderState(slot);
+        AnimationProgramCursor<BoulderProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, BoulderAnimations.Programs, ref cursor, BoulderFrameDefinitions.ShownFrames.Of);
+        state.Program = cursor;
     }
 
-    /// <summary>Binds the Boulder phase dispatcher to its native main-AI routine.</summary>
-    internal void RegisterBoulderMainAi(EnemyAiTable table)
+    /// <summary>Ports Boulder's initialization AI.</summary>
+    internal static void RunBoulderInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeBoulder(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Boulder, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunBoulderMain(slot, RequireBoulderState(slot), frame.Samus, frame.Level);
-        });
+    /// <summary>Ports Boulder's main AI.</summary>
+    internal void RunBoulderMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunBoulderMain(slot, RequireBoulderState(slot), frame.Samus, frame.Level);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastBoulderSoundEffect = null;
-        Array.Clear(_boulderStates);
     }
 
     /// <inheritdoc/>
@@ -338,6 +355,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastBoulderSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastBoulderSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

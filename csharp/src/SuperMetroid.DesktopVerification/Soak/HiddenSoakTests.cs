@@ -15,6 +15,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.DesktopVerification.Soak;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Measures paced hidden-window gameplay and pause rendering with real audio output.</summary>
 internal static class HiddenSoakTests
@@ -26,25 +27,22 @@ internal static class HiddenSoakTests
         var results = new List<object>();
         foreach (bool paused in new[] { false, true })
         {
-            var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
+            var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(),
                 new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
             game.BindAudio(DesktopAccess.LoadAudioClips());
             var audio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
             long sequence = 0;
             CapturedFrontendFrame Step(SnesButton input)
             {
-                var frame = game.StepCaptured(input, ++sequence, 1);
-                if (frame.Snapshot is null || frame.Frame.Pixels.Length != 0)
-                    throw new InvalidOperationException("Soak entered a raster fallback.");
-                return frame;
+                return game.StepCaptured(input, ++sequence, 1);
             }
             for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
                 Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
             Check(game.GameState == SuperMetroidGameState.MainGameplay, "soak startup failed");
             var runtime = game.RuntimeForVerification ?? throw new InvalidOperationException("Soak has no active runtime.");
-            ushort room = paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb;
+            RoomHeaderDefinition room = paused ? RoomHeaderDefinitions.GlassTunnel : RoomHeaderDefinitions.AlphaPowerBomb;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-            runtime.NmiHandler.RunNmi(0, true);
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
             Step(0);
             if (paused) Step(SnesButton.Start);
             for (int warmup = 0; warmup < 120; warmup++) Step(0);
@@ -71,10 +69,9 @@ internal static class HiddenSoakTests
                     long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
                     long began = Stopwatch.GetTimestamp();
                     var frame = game.StepCaptured(0, ++sequence, 1);
-                    Check(frame.Snapshot is not null && frame.Frame.Pixels.Length == 0, "soak raster fallback");
                     // The real producer order: capture and synthesize inside Step, copy and queue PCM, publish.
                     MixAndSubmit(audio, output, game, ref nonzero, ref pcmSamples);
-                    worker.Publish((frame.Snapshot ?? throw new InvalidOperationException("Verification requires frame.Snapshot.")));
+                    worker.Publish(frame.Snapshot);
                     producerMs[tick] = Stopwatch.GetElapsedTime(began).TotalMilliseconds;
                     allocation += GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
                     worker.ThrowIfFaulted();
@@ -88,7 +85,7 @@ internal static class HiddenSoakTests
                 Array.Sort(producerMs); Array.Sort(latenessMs);
                 results.Add(new
                 {
-                    Room = $"8F:{room:X4}", Paused = paused, Adapter = adapter, Seconds = clock.Elapsed.TotalSeconds, Frames = frames,
+                    Room = room.Name, Paused = paused, Adapter = adapter, Seconds = clock.Elapsed.TotalSeconds, Frames = frames,
                     ProducerP50Ms = producerMs[(int)Math.Ceiling(frames * .5) - 1],
                     ProducerP95Ms = producerMs[(int)Math.Ceiling(frames * .95) - 1],
                     ProducerP99Ms = producerMs[(int)Math.Ceiling(frames * .99) - 1],

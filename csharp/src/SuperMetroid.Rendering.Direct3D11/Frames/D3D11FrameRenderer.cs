@@ -52,6 +52,10 @@ public sealed class D3D11FrameRenderer : IDisposable
     private readonly ID3D11ShaderResourceView memoryView;
     /// <summary>The scene's whole-frame sprite draws, bound at register t1.</summary>
     private readonly D3D11SpriteDrawBuffer spriteDraws;
+    /// <summary>The scene's published background layers, bound at register t2.</summary>
+    private readonly D3D11BgLayerBuffer bgLayers;
+    /// <summary>Each packed background layer's shader index, for the dispatch that draws it.</summary>
+    private readonly Dictionary<SuperMetroid.Core.Assets.BgLayer, int> bgLayerIndices = new(ReferenceEqualityComparer.Instance);
     /// <summary>Per-pixel resolved OBJ winner shared across priority passes.</summary>
     private readonly ID3D11Texture2D resolvedObjects;
     /// <summary>Compute write view for resolved OBJ winners.</summary>
@@ -105,6 +109,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 BindFlags.ShaderResource, ResourceUsage.Default, CpuAccessFlags.None, ResourceOptionFlags.BufferStructured, sizeof(uint))));
             memoryView = Own(owner.Device.CreateShaderResourceView(memoryBuffer));
             spriteDraws = Own(new D3D11SpriteDrawBuffer(owner.Device));
+            bgLayers = Own(new D3D11BgLayerBuffer(owner.Device));
             resolvedObjects = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32G32_UInt,
                 SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess)));
             objectView = Own(owner.Device.CreateUnorderedAccessView(resolvedObjects));
@@ -195,7 +200,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var data = ClearUploadConstants();
         data[0] = (uint)(layer.Operation == ExpandedColorMathOperation.Add
             ? D3D11TileOperation.BgAdd : D3D11TileOperation.BgSubtract);
-        data[1] = layer.TilemapWord; data[2] = layer.CharacterWord;
+        data[1] = (uint)layer.TilemapWord; data[2] = (uint)layer.CharacterWord;
         data[5] = 32; data[6] = (uint)layer.MapHeightTiles; data[8] = 1;
         data[25] = (uint)layer.FirstScanline; data[26] = 224;
         for (int y = 0; y < layer.Scrolls.Length; y++)
@@ -218,10 +223,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         {
             ColorAddWindow line = layer.Windows[y];
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            data[offset] = (uint)(SnesLittleEndian.Word(line.Left, line.Right));
-            data[offset + 1] = line.Red;
-            data[offset + 2] = line.Green;
-            data[offset + 3] = line.Blue;
+            data[offset] = (uint)(SnesLittleEndian.Word(checked((byte)line.Left), checked((byte)line.Right)));
+            data[offset + 1] = (uint)line.Red;
+            data[offset + 2] = (uint)line.Green;
+            data[offset + 3] = (uint)line.Blue;
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
@@ -265,15 +270,15 @@ public sealed class D3D11FrameRenderer : IDisposable
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayGameplay;
         // Xray.hlsli reuses the tile header for BG1/BG2 registers and CGADSUB.
-        data[1] = r.Bg1CharacterWord; data[2] = r.Bg2CharacterWord;
+        data[1] = (uint)r.Bg1CharacterWord; data[2] = (uint)r.Bg2CharacterWord;
         data[3] = r.Bg1Scroll.X;
         data[4] = unchecked((ushort)(r.Bg1Scroll.Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
         data[5] = (uint)r.Bg2MapSize.X; data[6] = (uint)r.Bg2MapSize.Y;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.ColorMath;
-        data[10] = layer.FixedRed; data[11] = layer.FixedGreen; data[12] = layer.FixedBlue;
-        data[13] = (uint)scene.Memory.ModeledSpriteCount; data[14] = scene.ObjectSelection;
-        data[16] = r.Bg2TilemapWord; data[17] = r.HudCharacterWord;
+        data[10] = (uint)layer.FixedRed; data[11] = (uint)layer.FixedGreen; data[12] = (uint)layer.FixedBlue;
+        data[13] = (uint)scene.Memory.ModeledSpriteCount; data[14] = (uint)scene.ObjectSelection;
+        data[16] = (uint)r.Bg2TilemapWord; data[17] = (uint)r.HudCharacterWord;
         data[22] = layer.AddSubscreen ? 1u : 0u;
         data[26] = 224;
         data[27] = (uint)r.Bg2Mosaic.Size;
@@ -284,7 +289,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             data[15] = (uint)(layer.SubscreenUsesBg2
                 ? D3D11GameplaySubscreenKind.GameplayBg2AndCapturedBg3
                 : D3D11GameplaySubscreenKind.CapturedBg3);
-            data[18] = sub.TilemapWord; data[19] = sub.CharacterWord;
+            data[18] = (uint)sub.TilemapWord; data[19] = (uint)sub.CharacterWord;
             data[20] = (uint)sub.MapHeightTiles; data[21] = (uint)sub.FirstScanline;
         }
         for (int y = 32; y < 224; y++)
@@ -293,7 +298,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             var scroll = layer.Gameplay.Bg2ScrollAt(line);
             data[offset] = scroll.X;
             data[offset + 1] = unchecked((ushort)(scroll.Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
-            data[offset + 2] = D3D11ConstantPacking.Bytes(layer.Lines[y].Left, layer.Lines[y].Right, 0, 0);
+            data[offset + 2] = D3D11ConstantPacking.Bytes(checked((byte)layer.Lines[y].Left), checked((byte)layer.Lines[y].Right), 0, 0);
             // The high half carries the main-screen enable register for this line;
             // the low half retains the independent color-window edges.
             var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty
@@ -308,22 +313,18 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>Uploads centered message tile rows and the expanding window's scanline bounds.</summary>
+    /// <summary>Draws the message text layer from t2 with bank $85's two temporary palette colors.</summary>
     private unsafe void DispatchMessage(MessageBoxRenderLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Message;
-        data[1] = (uint)(GameplayMessageRomData.Layout.WindowCenterY - layer.RowCount * 4);
-        data[2] = GameplayMessageRomData.Layout.CharacterBaseWord;
-        data[3] = (uint)layer.RowCount;
+        data[1] = (uint)bgLayerIndices[layer.Text];
         data[10] = GameplayMessageRomData.Palette.TemporaryLightColor.ToWord();
         data[11] = GameplayMessageRomData.Palette.TemporaryDarkColor.ToWord();
         data[12] = GameplayMessageRomData.Palette.TemporaryLightIndex;
         data[13] = GameplayMessageRomData.Palette.TemporaryDarkIndex;
-        data[25] = (uint)(GameplayMessageRomData.Layout.WindowCenterY - layer.RadiusPixels);
-        data[26] = (uint)(GameplayMessageRomData.Layout.WindowCenterY + layer.RadiusPixels);
-        for (int i = 0; i < layer.Tilemap.Length; i++)
-            data[D3D11ShaderLayout.ScanlineParametersWordOffset + i * 4] = layer.Tilemap[i];
+        data[25] = 0;
+        data[26] = SnesPpuLayout.ScreenHeightPixels;
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -347,11 +348,11 @@ public sealed class D3D11FrameRenderer : IDisposable
             Objects(3);
 
             void Objects(uint priority) => DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = priority + 1, FirstScanline = (uint)floorStart });
-            void Background(bool high) => DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = floor.TilemapWord, Characters = floor.CharacterWord, Scroll = floor.Scroll.AsBgPlaneScroll(), MapSize = floor.MapSize, Priority = Priority(high), FirstScanline = (uint)floorStart });
+            void Background(bool high) => DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = (uint)floor.TilemapWord, Characters = (uint)floor.CharacterWord, Scroll = floor.Scroll.AsBgPlaneScroll(), MapSize = floor.MapSize, Priority = Priority(high), FirstScanline = (uint)floorStart });
         }
         // HUD color zero is opaque, and OBJ never overlays this band.
         if (layer.HudScanlines != 0)
-            DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = layer.HudTilemapWord, Characters = layer.HudCharacterWord, TransparentZero = 0, EndScanline = (uint)layer.HudScanlines });
+            DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = (uint)layer.HudTilemapWord, Characters = (uint)layer.HudCharacterWord, TransparentZero = 0, EndScanline = (uint)layer.HudScanlines });
     }
 
     /// <summary>Composes ordinary gameplay in Mode-1 priority order, splitting bands at layer-enable changes.</summary>
@@ -374,7 +375,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             Objects(2); Background2(true); Background1(true); Objects(3);
             first = end;
         }
-        DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = GameplayVramLayout.HudTilemapWord, Characters = r.HudCharacterWord, TransparentZero = 0, EndScanline = SnesPpuLayout.GameplayHudHeightPixels, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg3 });
+        DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = GameplayVramLayout.HudTilemapWord, Characters = (uint)r.HudCharacterWord, TransparentZero = 0, EndScanline = SnesPpuLayout.GameplayHudHeightPixels, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg3 });
 
         void Objects(uint priority)
         {
@@ -384,7 +385,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         void Background1(bool high)
         {
             if ((activeLayers & SnesMainScreenLayers.Bg1) != 0)
-                DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = GameplayVramLayout.Bg1TilemapWord, Characters = r.Bg1CharacterWord, Scroll = r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg1 });
+                DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = GameplayVramLayout.Bg1TilemapWord, Characters = (uint)r.Bg1CharacterWord, Scroll = r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg1 });
         }
         void Background2(bool high)
         {
@@ -398,7 +399,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var r = layer.Registers;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Bg4;
-        data[1] = r.Bg2TilemapWord; data[2] = r.Bg2CharacterWord;
+        data[1] = (uint)r.Bg2TilemapWord; data[2] = (uint)r.Bg2CharacterWord;
         data[5] = (uint)r.Bg2MapSize.X; data[6] = (uint)r.Bg2MapSize.Y;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
         data[25] = (uint)Math.Max(r.Bg2FirstScanline, first); data[26] = (uint)Math.Min(r.Bg2EndScanline, end);
@@ -422,8 +423,8 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.SubscreenAdd;
-        data[1] = layer.TilemapWord; data[2] = layer.CharacterWord;
-        data[4] = layer.VerticalScroll;
+        data[1] = (uint)layer.TilemapWord; data[2] = (uint)layer.CharacterWord;
+        data[4] = (uint)layer.VerticalScroll;
         data[5] = 32; data[6] = 32; data[8] = 1; data[26] = 224;
         data[27] = layer.FourBpp ? 1u : 0u;
         data[10] = layer.IncludeObjects ? 1u : 0u;
@@ -434,7 +435,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             // Subscreen operations do not use the Mode-7 matrix header. Keep coverage
             // there so all physical scanline rows remain available to HDMA scrolls.
             int offset = 16;
-            data[offset] = coverage.TilemapWord; data[offset + 1] = coverage.CharacterWord;
+            data[offset] = (uint)coverage.TilemapWord; data[offset + 1] = (uint)coverage.CharacterWord;
             data[offset + 2] = coverage.Scroll.X; data[offset + 3] = coverage.Scroll.Y;
             data[offset + 4] = coverage.MapSize.X; data[offset + 5] = coverage.MapSize.Y;
             data[offset + 6] = Priority(coverage.Priority); data[offset + 7] = 1;
@@ -468,16 +469,24 @@ public sealed class D3D11FrameRenderer : IDisposable
         fixed (uint* source = memory) UploadBuffer(memoryBuffer, (nint)source, memory.Length * sizeof(uint));
         spriteDraws.Pack(scene.Memory.SpriteDraws.AsSpan());
         fixed (uint* source = spriteDraws.Upload) UploadBuffer(spriteDraws.Buffer, (nint)source, spriteDraws.Upload.Length * sizeof(uint));
+        var sceneBgLayers = new List<SuperMetroid.Core.Assets.BgLayer>();
+        bgLayerIndices.Clear();
+        foreach (RenderLayer layer in scene.Layers)
+            if (layer is MessageBoxRenderLayer message && bgLayerIndices.TryAdd(message.Text, sceneBgLayers.Count))
+                sceneBgLayers.Add(message.Text);
+        bgLayers.Pack(sceneBgLayers);
+        fixed (uint* source = bgLayers.Upload) UploadBuffer(bgLayers.Buffer, (nint)source, bgLayers.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetShaderResource(0, memoryView);
         owner.Context.CSSetShaderResource(1, spriteDraws.View);
+        owner.Context.CSSetShaderResource(2, bgLayers.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);
         DispatchTile(D3D11TileOperation.Backdrop, new D3D11TileDispatch());
         bool needsObjects = false;
         foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7GameplayRenderLayer or OrdinaryGameplayRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true } or BgSubscreenAddRenderLayer { IncludeObjects: true };
-        if (needsObjects) DispatchTile(D3D11TileOperation.ResolveObj, new D3D11TileDispatch { ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = scene.ObjectSelection });
+        if (needsObjects) DispatchTile(D3D11TileOperation.ResolveObj, new D3D11TileDispatch { ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = (uint)scene.ObjectSelection });
         foreach (RenderLayer layer in scene.Layers)
         {
             switch (layer)
@@ -495,7 +504,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     DispatchMessage(message);
                     break;
                 case BgSubscreenAddRenderLayer sub:
-                    DispatchSubscreen(sub, (uint)scene.Memory.ModeledSpriteCount, scene.ObjectSelection);
+                    DispatchSubscreen(sub, (uint)scene.Memory.ModeledSpriteCount, checked((byte)scene.ObjectSelection));
                     break;
                 case Bg2BppColorMathRenderLayer math:
                     DispatchBackgroundMath(math);
@@ -508,30 +517,30 @@ public sealed class D3D11FrameRenderer : IDisposable
                     break;
                 case Mode7RenderLayer mode7:
                     DispatchMode7(mode7.Registers, subtractObj: mode7.SubtractObjSubscreen, addBg1: mode7.AddBg1Subscreen,
-                        objectCount: scene.Memory.ModeledSpriteCount, objectSelection: scene.ObjectSelection);
+                        objectCount: scene.Memory.ModeledSpriteCount, objectSelection: checked((byte)scene.ObjectSelection));
                     break;
                 case ObjRenderLayer objLayer:
-                    DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Red = objLayer.AddToScreen ? 1u : 0u, Green = objLayer.FixedColor is not null ? 1u : 0u, Blue = objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0, ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = scene.ObjectSelection });
+                    DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Red = objLayer.AddToScreen ? 1u : 0u, Green = objLayer.FixedColor is not null ? 1u : 0u, Blue = objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0, ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = (uint)scene.ObjectSelection });
                     break;
                 case ObjPriorityRenderLayer obj:
-                    DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = (uint)obj.Priority + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0, ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = scene.ObjectSelection });
+                    DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = (uint)obj.Priority + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0, ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = (uint)scene.ObjectSelection });
                     break;
                 case Bg4BppRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = bg.TilemapWord, Characters = bg.CharacterWord, Scroll = bg.Scroll, MapSize = bg.MapSize, Priority = Priority(bg.Priority) });
+                    DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Scroll = bg.Scroll, MapSize = bg.MapSize, Priority = Priority(bg.Priority) });
                     break;
                 case Bg2BppRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = bg.TilemapWord, Characters = bg.CharacterWord, Priority = Priority(bg.Priority) });
+                    DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Priority = Priority(bg.Priority) });
                     break;
                 case Bg2BppViewportRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = bg.TilemapWord, Characters = bg.CharacterWord, Scroll = new Position16<BgPlanePixels>(0, bg.VerticalScroll), Priority = Priority(bg.Priority), TransparentZero = bg.TransparentColorZero ? 1u : 0u });
+                    DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Scroll = new Position16<BgPlanePixels>(0, checked((ushort)bg.VerticalScroll)), Priority = Priority(bg.Priority), TransparentZero = bg.TransparentColorZero ? 1u : 0u });
                     break;
                 case FixedColorAddRenderLayer add:
-                    DispatchTile(D3D11TileOperation.FixedAdd, new D3D11TileDispatch { Red = add.Red, Green = add.Green, Blue = add.Blue });
+                    DispatchTile(D3D11TileOperation.FixedAdd, new D3D11TileDispatch { Red = (uint)add.Red, Green = (uint)add.Green, Blue = (uint)add.Blue });
                     break;
             }
         }
-        if (!gradient.IsEmpty) DispatchTitleGradient(gradient, scene.Memory.ModeledSpriteCount, scene.ObjectSelection);
-        DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = scene.Brightness });
+        if (!gradient.IsEmpty) DispatchTitleGradient(gradient, scene.Memory.ModeledSpriteCount, checked((byte)scene.ObjectSelection));
+        DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)scene.Brightness });
         foreach (byte level in packet.BrightnessPasses) DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = level });
     }
 
@@ -586,8 +595,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         for (int y = 0; y < lines.Length; y++)
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            data[offset] = lines[y].Red; data[offset + 1] = lines[y].Green;
-            data[offset + 2] = lines[y].Blue; data[offset + 3] = lines[y].Control;
+            data[offset] = (uint)lines[y].Red; data[offset + 1] = (uint)lines[y].Green;
+            data[offset + 2] = (uint)lines[y].Blue; data[offset + 3] = lines[y].Control.ToNativeByte();
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetShader(titleGradientShader);
@@ -643,6 +652,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetShaderResource(0, memoryView);
         owner.Context.CSSetShaderResource(1, spriteDraws.View);
+        owner.Context.CSSetShaderResource(2, bgLayers.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);
     }
@@ -655,17 +665,18 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (index > (int)SnesWindowTarget.Obj)
             throw new ArgumentOutOfRangeException(nameof(target));
         if ((enabled & (SnesMainScreenLayers)(1 << index)) == 0) return;
-        byte selection = target switch
+        SnesWindowSelectionPair selection = target switch
         {
             SnesWindowTarget.Bg1 or SnesWindowTarget.Bg2 => windows.Window12Selection,
             SnesWindowTarget.Bg3 or SnesWindowTarget.Bg4 => windows.Window34Selection,
             _ => windows.ObjectColorSelection,
         };
-        data[D3D11ShaderLayout.WindowSelectionWord] = (uint)(selection >> ((index & 1) * 4)) & 15;
+        data[D3D11ShaderLayout.WindowSelectionWord] = (uint)selection.Layer((index & 1) != 0);
         data[D3D11ShaderLayout.WindowLogicWord] = (uint)(target == SnesWindowTarget.Obj
             ? windows.ObjectColorLogic : windows.BackgroundLogic >> (index * 2)) & 3;
         data[D3D11ShaderLayout.WindowEdgesWord] = D3D11ConstantPacking.Bytes(
-            windows.FirstLeft, windows.FirstRight, windows.SecondLeft, windows.SecondRight);
+            checked((byte)windows.FirstLeft), checked((byte)windows.FirstRight), checked((byte)windows.SecondLeft),
+            checked((byte)windows.SecondRight));
         data[D3D11ShaderLayout.WindowEnabledWord] = 1;
     }
 }

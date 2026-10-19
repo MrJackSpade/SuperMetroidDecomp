@@ -24,19 +24,19 @@ internal static class BombChargeRejectionVerification
             var samus = new SamusState
             {
                 Pose = SamusPoseId.MorphBallGroundRightPose,
-                EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall |
-                    (bombsEquipped ? SamusEquipmentFlags.Bombs : 0)),
-                SelectedHudItem = powerBombSelected ? (ushort)3 : (ushort)0,
+                EquippedItems = (SamusEquipmentFlags)((ushort)(SamusEquipmentFlags.MorphBall |
+                    (bombsEquipped ? SamusEquipmentFlags.Bombs : 0))),
+                SelectedHudItem = powerBombSelected ? HudItem.PowerBomb : HudItem.Beam,
                 PowerBombs = 2,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
                 ProjectileFlareCounter = charge,
             };
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             var bombs = CreateBombFixture();
             // Down postpones a valid full-charge spread. The no-edge rejection below
             // therefore belongs only to the ordinary-bomb/Power-Bomb helper, not to
             // releasing a spread. Equipment guards that skip that helper preserve charge.
-            var result = bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, (SnesButton.X | SnesButton.Down), freshShoot ? SnesButton.X : (ushort)0);
+            var result = bombs.StepFrame(new SamusTerrain { Level = level }, samus, (SnesButton.X | SnesButton.Down), freshShoot ? SnesButton.X : (ushort)0);
             bool helperRuns = powerBombSelected || bombsEquipped && charge < 60;
             bool cancelled = helperRuns && !freshShoot && charge != 0;
             string context = $"charge={charge}, Bombs={bombsEquipped}, PB={powerBombSelected}, edge={freshShoot}";
@@ -58,11 +58,11 @@ internal static class BombChargeRejectionVerification
         foreach (ushort selection in new ushort[] { 0, 3 })
         {
             var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose,
-                EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-                SelectedHudItem = selection, PowerBombs = 2, ProjectileFlareCounter = charge,
+                EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+                SelectedHudItem = HudItems.Decode(selection), PowerBombs = 2, ProjectileFlareCounter = charge,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) };
             var bombs = CreateBombFixture();
-            var result = bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, SnesButton.Down, 0);
+            var result = bombs.StepFrame(new SamusTerrain { Level = level }, samus, SnesButton.Down, 0);
             string context = $"Shoot released, charge {charge}, HUD selection {selection}";
             AssertEqual(charge != 0, result.BeamChargeConsumed, $"outer native cancellation command: {context}");
             AssertEqual(charge != 0 ? 1 : 0, (result.SoundRequests ?? throw new InvalidOperationException("Verification requires result.SoundRequests.")).Count(sound => sound ==

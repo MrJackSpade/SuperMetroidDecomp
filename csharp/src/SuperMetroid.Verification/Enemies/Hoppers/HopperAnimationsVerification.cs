@@ -14,18 +14,24 @@ internal static class HopperAnimationsVerification
     internal static void VerifyHopperAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, HopperAnimations.Programs,
-            HopperFrameDefinitions.Spritemap,
+            HopperFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
                 AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                 for (int index = 0; index < operands.Length; index++)
-                    AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => cue.Value,
-                    _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
-                }, $"{at}: operand {index}");
+                    switch (instruction.Operands[index])
+                    {
+                        case 'V':
+                            AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operands[index]), cue.Sound,
+                                $"{at}: library-two sound");
+                            break;
+                        default:
+                            throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}.");
+                    }
+                }
             });
         Console.WriteLine($"  Hopper programs: {Entries.Length} programs ({steps} steps) match bank $A3.");
     }

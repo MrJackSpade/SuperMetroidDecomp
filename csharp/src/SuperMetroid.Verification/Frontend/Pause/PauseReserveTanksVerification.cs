@@ -27,9 +27,9 @@ internal static class PauseReserveTanksVerification
         int cases = 0;
         foreach (ushort capacity in new ushort[] { 0, 100, 200, 300, 400 })
         {
-            var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = 2,
-                CollectedBeams = (ushort)SamusBeamFlags.Charge };
-            var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+            var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = ReserveTankMode.Manual,
+                CollectedBeams = SamusBeamFlags.Charge };
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
             EnterPauseEquipment(pause);
             foreach (ushort supply in new ushort[] { 0, 1, 13, 14, 15, 41, 42, 55, 56, 98, 99, 100, 101, 199, 200, 299, 300, 399, 400 }.Where(n => n <= capacity))
             foreach (byte phase in new byte[] { 0, 4 })

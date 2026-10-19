@@ -14,7 +14,7 @@ internal static class CreditsPresentationAccess
                 row.Length != CreditsPresentationDefinitions.TilemapWidth))
             {
                 throw new ArgumentException(
-                    "Verification credits rows must be nonempty 32-word rows.", "rows");
+                    "Verification credits rows must be nonempty 32-word rows.", nameof(rows));
             }
             return new CreditsPresentation(null, rows.Select(row => row.ToArray()).ToArray(), "VERIFICATION");
         }

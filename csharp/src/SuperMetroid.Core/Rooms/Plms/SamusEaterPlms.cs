@@ -31,14 +31,14 @@ internal sealed class SamusEaterPlms
         {
             var slot = _slotTable._slots[index];
             if (slot.Active) continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = block.Index;
             slot.StartAnimation(new SamusEaterPlmAnimation(definition.Program));
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.PlantHeldPosition = new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1))));
-            level.SetForegroundEntry(block.Index, (ushort)(block.LevelWord & SamusEaterPlmRomData.DeactivatedTriggerMask));
+            level.SetForegroundEntry(block.Index, (ushort)(block.PackedWord.Raw & SamusEaterPlmRomData.DeactivatedTriggerMask));
             return;
         }
         // Native descending allocation simply returns when all slots are occupied.
@@ -51,7 +51,6 @@ internal sealed class SamusEaterPlms
     /// <summary>Repositions held Samus after normal movement and ORs in the native invincibility bit.</summary>
     internal void RunSamusEaterPreInstruction(PlmSlot slot)
     {
-        if (slot.PreInstruction != SamusEaterPlmRomData.HoldPreInstruction) return;
         var samus = RequirePlantSamus();
         samus.Position = samus.Position.WithWhole(new(slot.PlantHeldPosition.X, slot.PlantHeldPosition.Y));
         // Native TSB is bitwise OR, not a clamp or an input lock. Samus's normal

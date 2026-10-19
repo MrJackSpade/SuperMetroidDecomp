@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -6,8 +8,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>The Multiviola species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MultiviolaBehavior : IEnemySpecies
+internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Multiviola];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MultiviolaEntity(this, slot, common);
+
     /// <summary>Room collision mover used after each attempted Multiviola velocity component.</summary>
     private readonly EnemyTerrain _terrain;
 
@@ -26,15 +34,11 @@ internal sealed class MultiviolaBehavior : IEnemySpecies
     /// <summary>Angle bits toggled after collision with a horizontal surface.</summary>
     private const ushort MultiviolaVerticalReflection = 192;
 
-    /// <summary>Per-slot velocity state created during Multiviola initialization.</summary>
-    internal readonly MultiviolaEnemyState?[] _multiviolaStates =
-        new MultiviolaEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Multiviola</c> at $A2:B3E0.</summary>
-    internal void InitializeMultiviola(RoomEnemySlot slot)
+    internal static void InitializeMultiviola(RoomEnemySlot slot)
     {
-        var state = new MultiviolaEnemyState(slot);
-        _multiviolaStates[slot.SlotIndex] = state;
+        var state = new MultiviolaEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Retail redundantly performs the same magnitude calculation here and again at the
         // beginning of every main-AI call. Preserve the visible variable writes: debugging
@@ -96,11 +100,11 @@ internal sealed class MultiviolaBehavior : IEnemySpecies
     {
         ushort magnitude = (ushort)(SnesLittleEndian.LowByte(slot.Parameter2));
         int xProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            slot.Parameter1,
+            checked((ushort)slot.Parameter1),
             magnitude,
             MultiviolaCosineOffset);
         int yProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            slot.Parameter1,
+            checked((ushort)slot.Parameter1),
             magnitude,
             MultiviolaSineOffset);
         state.Velocity = new FixedVector<RoomPixels>(
@@ -132,51 +136,30 @@ internal sealed class MultiviolaBehavior : IEnemySpecies
             unchecked((short)~axis.WholeWord), unchecked((ushort)(~axis.Fraction + 1)));
 
     /// <summary>Gets the initialized state for an enemy slot or reports a missing room-load setup.</summary>
-    private MultiviolaEnemyState RequireMultiviolaState(RoomEnemySlot slot) =>
-        _multiviolaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static MultiviolaEnemyState RequireMultiviolaState(RoomEnemySlot slot) =>
+        slot.SpeciesState<MultiviolaEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Multiviola state.");
 
-    /// <summary>Runs Multiviola's spinning flight loop as a typed program (#641).</summary>
-    internal void RegisterMultiviolaTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Multiviola, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireMultiviolaState(slot);
-            AnimationProgramCursor<MultiviolaProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, MultiviolaAnimations.Programs, ref cursor, MultiviolaFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-
-    /// <summary>Registers bank $A2 initialization only for the Multiviola enemy definition.</summary>
-    internal void RegisterMultiviolaInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Multiviola's typed animation.</summary>
+    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Multiviola, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Multiviola, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMultiviola(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireMultiviolaState(slot);
+        AnimationProgramCursor<MultiviolaProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, MultiviolaAnimations.Programs, ref cursor, MultiviolaFrameDefinitions.ShownFrames.Of);
+        state.Program = cursor;
     }
 
-    /// <summary>Registers bank $A2 movement dispatch for active Multiviola slots.</summary>
-    internal void RegisterMultiviolaMainAi(EnemyAiTable table)
+    /// <summary>Ports Multiviola's initialization AI.</summary>
+    internal static void RunMultiviolaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Multiviola, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Multiviola, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMultiviolaMain(slot, RequireMultiviolaState(slot), frame.Level);
-        });
+        InitializeMultiviola(slot);
     }
 
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    /// <summary>Ports Multiviola's main AI.</summary>
+    internal void RunMultiviolaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        Array.Clear(_multiviolaStates);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
+        RunMultiviolaMain(slot, RequireMultiviolaState(slot), frame.Level);
     }
 }

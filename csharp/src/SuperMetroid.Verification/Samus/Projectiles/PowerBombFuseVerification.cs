@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombRuntimeIntegrationVerification;
 using static SuperMetroid.Verification.Rendering.RenderingAndRoomsVerification;
@@ -15,26 +15,29 @@ internal static class PowerBombFuseVerification
     /// <summary>Checks flag, wrap, expiration, and complete sixty-frame fuse behavior.</summary>
     internal static void VerifyPowerBombFuse()
     {
-        // Expected boundary cases follow the literal C157 branches, including a
-        // positive nonzero flag (native tests zero, not merely the sign bit).
-        foreach (ushort flag in new ushort[] { 0, 1, 0x8000, 0xffff })
+        // Expected boundary cases follow the literal C157 branches with the lock released and held.
+        // The fuse is a countdown: zero stays stopped, one expires into the collision
+        // sentinel, and the sentinel itself keeps wrapping downward one word per call.
+        NativeCountdown sentinel = NativeCountdown.FromRaw(SamusPowerBombFuseData.ExplosionStartedSentinel);
+        NativeCountdown sentinelAfterOneCall = NativeCountdown.FromRaw(SamusPowerBombFuseData.ExplosionStartedSentinel - 1);
+        foreach (bool flag in new[] { false, true })
         {
-            AssertEqual(new PowerBombFuseStep(0, false, false, flag == 0),
-                SamusPowerBombFuse.Step(0, flag), "zero fuse follows native flag equality");
-            AssertEqual(new PowerBombFuseStep(0xffff, false, true, false),
-                SamusPowerBombFuse.Step(1, flag), "expiration spawns before collision consumes sentinel");
-            AssertEqual(new PowerBombFuseStep(15, true, false, false),
-                SamusPowerBombFuse.Step(16, flag), "the fuse reaching fifteen switches to the fast list");
-            AssertEqual(new PowerBombFuseStep(14, false, false, false),
-                SamusPowerBombFuse.Step(15, flag), "fast threshold is tested after decrement");
-            AssertEqual(new PowerBombFuseStep(0xfffe, false, false, false),
-                SamusPowerBombFuse.Step(0xffff, flag), "fuse routine does not consume collision sentinel");
+            AssertEqual(new PowerBombFuseStep(NativeCountdown.Start(0), false, false, !flag),
+                SamusPowerBombFuse.Step(NativeCountdown.Start(0), flag), "zero fuse follows native flag equality");
+            AssertEqual(new PowerBombFuseStep(sentinel, false, true, false),
+                SamusPowerBombFuse.Step(NativeCountdown.Start(1), flag), "expiration spawns before collision consumes sentinel");
+            AssertEqual(new PowerBombFuseStep(NativeCountdown.Start(15), true, false, false),
+                SamusPowerBombFuse.Step(NativeCountdown.Start(16), flag), "the fuse reaching fifteen switches to the fast list");
+            AssertEqual(new PowerBombFuseStep(NativeCountdown.Start(14), false, false, false),
+                SamusPowerBombFuse.Step(NativeCountdown.Start(15), flag), "fast threshold is tested after decrement");
+            AssertEqual(new PowerBombFuseStep(sentinelAfterOneCall, false, false, false),
+                SamusPowerBombFuse.Step(sentinel, flag), "fuse routine does not consume collision sentinel");
         }
-        ushort timer = 60;
+        NativeCountdown timer = NativeCountdown.Start(60);
         int spawns = 0;
         for (int frame = 0; frame < 60; frame++)
         {
-            PowerBombFuseStep result = SamusPowerBombFuse.Step(timer, 0x8000);
+            PowerBombFuseStep result = SamusPowerBombFuse.Step(timer, true);
             timer = result.Timer;
             spawns += result.SpawnExplosion ? 1 : 0;
             AssertEqual(false, result.DeleteProjectile, "live fuse never requests deletion");
@@ -49,7 +52,32 @@ internal static class PowerBombFuseVerification
                     SamusPowerBombFuse.FastAnimation(new AnimationProgramCursor<SamusProjectileProgram>(slow, position)),
                     $"{slow} position {position} switches to the same fast position");
         Suite(nameof(VerifyPowerBombRetainedRadiusSpeed), () => VerifyPowerBombRetainedRadiusSpeed());
+        Suite(nameof(VerifyPowerBombRadiusWrap), () => VerifyPowerBombRadiusWrap());
         Console.WriteLine("Power Bomb fuse: native boundary/flag/wrap cases and complete 60-frame fuse agree.");
+    }
+
+    /// <summary>
+    /// Checks the Power Bomb radius arithmetic at its sixteen-bit boundaries: a speed decelerated below zero wraps to
+    /// the top of the range, a radius advanced past the top wraps to the bottom, and the shape phases' carry test
+    /// refuses exactly the sums that pass 65535.
+    /// </summary>
+    private static void VerifyPowerBombRadiusWrap()
+    {
+        AssertEqual(PowerBombRadius.FromRaw(0xffc0),
+            PowerBombRadius.FromRaw(0x0040).WrappingSubtract(SuperMetroid.Core.Samus.Abilities.SamusSpecialSequenceRomData.PowerBomb.PreExplosionAcceleration),
+            "pre-explosion deceleration below zero wraps the speed to $FFC0");
+        AssertEqual(PowerBombRadius.FromRaw(0x0010),
+            PowerBombRadius.FromRaw(0xfff0).WrappingAdd(PowerBombRadius.FromRaw(0x0020)),
+            "a radius advanced past $FFFF wraps to $0010");
+        AssertEqual(PowerBombRadius.FromRaw(0x0020),
+            PowerBombRadius.FromRaw(0xfff0).WrappingAdd(SuperMetroid.Core.Samus.Abilities.SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration),
+            "explosion acceleration past $FFFF wraps the speed");
+        AssertTrue(PowerBombRadius.FromRaw(0xff00).TryAddWithoutCarry(PowerBombRadius.FromRaw(0x00ff), out PowerBombRadius fits) &&
+            fits == PowerBombRadius.FromRaw(0xffff), "a sum of exactly $FFFF does not carry");
+        AssertTrue(!PowerBombRadius.FromRaw(0xff00).TryAddWithoutCarry(PowerBombRadius.FromRaw(0x0100), out PowerBombRadius frozen) &&
+            frozen == PowerBombRadius.FromRaw(0xff00), "a carrying sum leaves the radius frozen");
+        AssertThrows<ArgumentOutOfRangeException>(() => PowerBombRadius.FromRaw(0x10000), "values above $FFFF are rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PowerBombRadius.FromRaw(-1), "negative values are rejected");
     }
 
     /// <summary>Checks that cleanup and a later allocation preserve the native radius-speed word.</summary>
@@ -59,17 +87,17 @@ internal static class PowerBombFuseVerification
         var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombFixedColors };
         explosion.Arm();
         explosion.Spawn(new(128, 128));
-        ushort retainedSpeed = 0;
+        PowerBombRadius retainedSpeed = PowerBombRadius.Zero;
         bool completed = false;
         for (int frame = 0; frame < 400; frame++)
         {
             retainedSpeed = explosion.RadiusSpeed;
-            if (!explosion.StepFrame(bus)) continue;
+            if (!explosion.StepFrame()) continue;
             completed = true;
             break;
         }
         AssertTrue(completed, "Power Bomb cleanup was reached");
-        AssertTrue(retainedSpeed != 0, "native explosion accumulated a nonzero radius speed");
+        AssertTrue(retainedSpeed != PowerBombRadius.Zero, "native explosion accumulated a nonzero radius speed");
         // Original-CPU #441 replay: $88:8B4E clears both radii/status, but does not
         // write $0CF0. Allocation at $88:8AA4 also leaves that word alone.
         AssertEqual(retainedSpeed, explosion.RadiusSpeed, "cleanup preserves native radius-speed word");
@@ -84,14 +112,13 @@ internal static class PowerBombFuseVerification
      VerifyPowerBombFuse(); VerifyPowerBombColorMathWindow(); return 0; 
     }
 
-    /// <summary>Runs fuse, boundary, renderer integration, and magic-number checks.</summary>
+    /// <summary>Runs fuse, boundary and renderer integration checks.</summary>
     [VerificationCommand("--power-bomb-fuse")]
     internal static int PowerBombFuseCommand()
     {
         Suite(nameof(VerifyPowerBombFuse), () => VerifyPowerBombFuse());
         Suite(nameof(VerifyPowerBombBoundary), () => VerifyPowerBombBoundary());
         Suite(nameof(VerifyPowerBombRuntimeRendererIntegration), () => VerifyPowerBombRuntimeRendererIntegration());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

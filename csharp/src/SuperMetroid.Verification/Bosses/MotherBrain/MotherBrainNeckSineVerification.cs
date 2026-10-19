@@ -33,7 +33,7 @@ internal static class MotherBrainNeckSineVerification
                 body: new(0x0038, 0x00b6),
                 lowerAngle,
                 upperAngle);
-            MotherBrainNeckGeometry actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(body: new(0x0038, 0x00b6), lowerAngle, upperAngle, new MotherBrainNeckSegmentDistances());
+            MotherBrainNeckGeometry actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(body: new(0x0038, 0x00b6), SnesAngle.FromRaw(lowerAngle), SnesAngle.FromRaw(upperAngle), new MotherBrainNeckSegmentDistances());
             AssertEqual(expectedGeometry, actualGeometry,
                 $"Mother Brain complete neck geometry lower angle {angle:X2}");
         }

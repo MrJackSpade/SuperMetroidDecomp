@@ -31,8 +31,8 @@ internal static class RetailPresentationFixtureVerification
     }
 
     /// <summary>Creates a pause menu using the retail address space and installed map presentation.</summary>
-    internal static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus, PauseMenuEntry entry) =>
-        InstalledFixtures.CreatePause(bus, entry);
+    internal static PauseMenuState CreateRetailPauseFixture(PauseMenuEntry entry) =>
+        InstalledFixtures.CreatePause(entry);
 
     /// <summary>
     /// The shared installation's map presentation, the same extracted content contract the

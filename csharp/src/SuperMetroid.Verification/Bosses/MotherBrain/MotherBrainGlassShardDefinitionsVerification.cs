@@ -17,24 +17,25 @@ internal static class MotherBrainGlassShardDefinitionsVerification
     {
         Suite(nameof(VerifyGlassShardXPlacement), () => VerifyGlassShardXPlacement(rom));
         Suite(nameof(VerifyGlassShardYPlacement), () => VerifyGlassShardYPlacement(rom));
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewMotherBrainGlassShardReadGuard(rom);
 
         Suite(nameof(VerifyGlassShardProgramSelection), () => VerifyGlassShardProgramSelection(rom));
 
-        foreach (ushort parameter in new ushort[] { 0, 2, 4 })
+        foreach (MotherBrainGlassShard direction in Enum.GetValues<MotherBrainGlassShard>())
         {
+            // The direction's spawn parameter is its byte offset into the native emitter tables.
+            ushort parameter = (ushort)direction;
             MotherBrainGlassShardPlacement placement =
                 MotherBrainGlassShardDefinitions.Placement(parameter);
             for (ushort animationIndex = 0; animationIndex < 16; animationIndex++)
             {
                 var random = new Queue<ushort>([unchecked((ushort)(animationIndex << 4)), 8, 8]);
                 var enemies = new RoomEnemySystem();
-                enemies.BindFixtureBus(guarded);
+                enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => random.Dequeue()));
                 enemies.MotherBrainBehavior.SpawnMotherBrainGlassProjectile(new(
-                    (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
-                    parameter,
+                    RoomEnemyProjectileKind.MotherBrainGlassShard,
+                    direction,
                     PlmBlock: new(0x20, 0x08)));
 
                 RoomEnemyProjectileSlot shard =

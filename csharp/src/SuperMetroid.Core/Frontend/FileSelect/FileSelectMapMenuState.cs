@@ -16,8 +16,6 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public sealed class FileSelectMapMenuState
 {
-    /// <summary>Shared menu address space for map owners and sound-triggering navigation.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Receives confirmation, scrolling and transition sound requests during updates.</summary>
     private readonly CartridgeAudioState audio;
     /// <summary>Saved Zebes area; Ceres bypasses this menu.</summary>
@@ -33,7 +31,7 @@ public sealed class FileSelectMapMenuState
     /// <summary>Save-station marker positioned from the installed presentation catalog.</summary>
     private FileSelectStationMarker marker;
     /// <summary>Saved station index used to restore the marker and scroll anchor.</summary>
-    private readonly ushort stationIndex;
+    private readonly int stationIndex;
     /// <summary>Suppresses marker display until the room-map entry animation reaches it.</summary>
     private bool markerDrawn;
     /// <summary>Advances map icon arrows and highlight palette independently of rendering.</summary>
@@ -48,23 +46,21 @@ public sealed class FileSelectMapMenuState
     private FileSelectMapWindow? returnWindow;
     /// <summary>Remaining transition updates before load or return handoff.</summary>
     private int pendingFrames;
-    /// <summary>Master brightness applied after scene composition during fades.</summary>
-    private byte brightness = 15;
+    /// <summary>Master brightness from fifteen (full) down to zero (black) during the exit fades; each step is guarded by a positive level.</summary>
+    private int brightness = 15;
     /// <summary>Installed map artwork rebound after debugger restoration instead of serialized with navigation state.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
-    /// <param name="bus">Runtime address space shared by menu systems.</param>
     /// <param name="audio">Owner receiving menu confirmation, scroll, palette-loop, and transition sound requests.</param>
     /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
     /// <param name="initialHeldInput">Native controller-button word already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
     /// <param name="mapPresentation">Required installed map artwork/layout catalog, rebound separately after debugger restoration.</param>
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
     /// <exception cref="InvalidOperationException">Map presentation assets are absent.</exception>
-    public FileSelectMapMenuState(ISnesAddressSpace bus, CartridgeAudioState audio,
+    public FileSelectMapMenuState(CartridgeAudioState audio,
         SuperMetroidSaveSlot slot, SnesButton initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null)
     {
-        this.bus = Ensure.NotNull(bus);
         this.audio = Ensure.NotNull(audio);
         Ensure.NotNull(slot);
         area = slot.Area;
@@ -80,14 +76,14 @@ public sealed class FileSelectMapMenuState
         var typedArea = (AreaId)area;
         if (mapPresentation is null)
             throw new InvalidOperationException("File-select map requires installed map presentation assets.");
-        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(bus, area, mapPresentation);
-        roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
+        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, mapPresentation);
+        roomGraphics = new FileSelectRoomMapGraphics(system, typedArea, mapPresentation: mapPresentation);
         this.mapPresentation = mapPresentation;
         scroll = CreateScrollForCurrentContent();
-        marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation, mapPresentation?.SaveMarkers);
-        navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
+        marker = new FileSelectStationMarker(typedArea, slot.SaveStation, mapPresentation?.SaveMarkers);
+        navigation = new FileSelectMapNavigation(area, initialHeldInput);
         navigation.BindLabels(mapPresentation?.Labels);
-        animations = new FileSelectMapAnimations(bus, mapPresentation?.Arrows);
+        animations = new FileSelectMapAnimations(mapPresentation?.Arrows);
         animations.BindPalette(mapPresentation?.HighlightCycle);
         entry = new FileSelectMapEntry(mapPresentation?.Palettes ?? throw new InvalidOperationException(
             "File-select map requires installed map palettes."));
@@ -113,7 +109,7 @@ public sealed class FileSelectMapMenuState
         animations.BindPalette(catalog?.HighlightCycle);
         animations.BindPresentation(catalog?.Arrows);
         roomGraphics.BindMapPresentation(catalog);
-        marker.BindPosition(bus, (AreaId)area, stationIndex, catalog?.SaveMarkers);
+        marker.BindPosition((AreaId)area, stationIndex, catalog?.SaveMarkers);
     }
 
     /// <summary>Starts room-map scrolling at the compiled anchor for the saved area and station.</summary>
@@ -123,7 +119,7 @@ public sealed class FileSelectMapMenuState
         AreaMapPresentationCatalog catalog = mapPresentation ?? throw new InvalidOperationException(
             "File-select map requires installed map presentation assets.");
         var anchor = FileSelectMapLoadAnchors.Get(typedArea, stationIndex);
-        return new FileSelectMapScroll(bus, catalog.Get(typedArea), roomGraphics.MapSystem, anchor);
+        return new FileSelectMapScroll(catalog.Get(typedArea), roomGraphics.MapSystem, anchor);
     }
 
     /// <summary>Advances one menu update, retaining input latching during entry and native ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
@@ -160,7 +156,7 @@ public sealed class FileSelectMapMenuState
             if (Phase == FileSelectMapNavigationPhase.Room)
             {
                 scroll = CreateScrollForCurrentContent();
-                marker = new FileSelectStationMarker(bus, (AreaId)area, stationIndex, mapPresentation?.SaveMarkers);
+                marker = new FileSelectStationMarker((AreaId)area, stationIndex, mapPresentation?.SaveMarkers);
                 markerDrawn = false;
                 animations.ResetPalette();
             }
@@ -172,7 +168,7 @@ public sealed class FileSelectMapMenuState
                 if (++pendingFrames < FileSelectMapRomData.ReturnSetupFrames) break;
                 if (returnWindow is null)
                 {
-                    returnWindow = FileSelectMapWindow.CreateReturn(bus, area, mapPresentation?.Labels);
+                    returnWindow = FileSelectMapWindow.CreateReturn(area, mapPresentation?.Labels);
                     Queue(SoundEffectLibrary1Sounds.MapReturn);
                 }
                 else if (returnWindow.Step())
@@ -182,13 +178,13 @@ public sealed class FileSelectMapMenuState
                 }
                 break;
             case FileSelectMapNavigationPhase.OptionsRequested:
-                if (brightness > 0) brightness = NativeWordCounter.DecrementByte(brightness);
+                if (brightness > 0) brightness--;
                 OptionsRequested = brightness == 0;
                 break;
             case FileSelectMapNavigationPhase.LoadRequested:
                 pendingFrames++;
                 if (pendingFrames <= FileSelectMapRomData.LoadPreludeFrames) break;
-                if (brightness > 0) { brightness = NativeWordCounter.DecrementByte(brightness); break; }
+                if (brightness > 0) { brightness--; break; }
                 LoadRequested = pendingFrames >= FileSelectMapRomData.LoadPreludeFrames + 15 + FileSelectMapRomData.LoadBlackFrames;
                 break;
             // Navigation itself advances these phases; no menu countdown runs.
@@ -202,42 +198,6 @@ public sealed class FileSelectMapMenuState
             default:
                 throw new InvalidOperationException($"Undefined file-select map phase {Phase}.");
         }
-    }
-
-    /// <summary>Reusable composed frame buffer; callers must copy its contents before another render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
-
-    /// <summary>Draws the current 256-by-224 entry, area, room, or clipped transition scene and applies current master brightness without consuming input or advancing any timers.</summary>
-    /// <returns>An owned RGBA frame valid only until this menu renders again; callers retaining a frame must copy it.</returns>
-    public Rgba32[] Render()
-    {
-        Rgba32[] composed = frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
-        if (!entry.IsComplete) return entry.Render(areaGraphics.Render(usedStations), composed);
-        Rgba32[] pixels = Phase switch
-        {
-            FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>
-                FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations, false),
-                    roomGraphics.RenderFrameOnly(), navigation.ActiveWindow, composed),
-            FileSelectMapNavigationPhase.Room when !markerDrawn => roomGraphics.RenderBackgrounds(scroll.Scroll),
-            FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested =>
-                roomGraphics.Render(scroll.Scroll, marker, drawArrows ? animations : null),
-            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 =>
-                roomGraphics.Render(scroll.Scroll, marker, drawArrows ? animations : null),
-            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == FileSelectMapRomData.ReturnSetupFrames - 1 =>
-                FileSelectMapWindowCompositor.CompositeInitialEntryWindow(
-                    areaGraphics.Render(usedStations), roomGraphics.RenderFrameOnly(), composed),
-            FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null =>
-                // Return setup calls $81:A5B3 (CGADSUB=$25); unlike the forward
-                // expansion's $05, this retains backdrop addition outside the window.
-                FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations),
-                    roomGraphics.RenderFrameOnly(), returnWindow, composed),
-            FileSelectMapNavigationPhase.AreaReturnRequested => roomGraphics.RenderFrameOnly(),
-            FileSelectMapNavigationPhase.Area or FileSelectMapNavigationPhase.PreparingWindow or
-                FileSelectMapNavigationPhase.OptionsRequested or FileSelectMapNavigationPhase.EnteringArea => areaGraphics.Render(usedStations),
-            _ => throw new InvalidOperationException($"Undefined file-select map phase {Phase}."),
-        };
-        MasterBrightnessFilter.Apply(pixels, brightness);
-        return pixels;
     }
 
     /// <summary>Requests a menu sound through the audio owner's six-entry queue limit.</summary>
@@ -275,16 +235,17 @@ public sealed class FileSelectMapMenuState
                 FileSelectMapNavigationPhase.OptionsRequested or FileSelectMapNavigationPhase.EnteringArea => Area(),
             _ => throw new InvalidOperationException($"Undefined file-select map phase {Phase}."),
         };
-        return new(scene.Memory, scene.Layers, scene.ObjectSelection, brightness);
+        return new(scene.Memory, scene.Layers, scene.ObjectSelection, checked((byte)brightness));
     }
 
     /// <summary>Projects the native clipped room/area transition into render layers, including completed and off-screen windows.</summary>
     private static LayeredRenderSnapshot Window(LayeredRenderSnapshot areaScene, LayeredRenderSnapshot roomScene, FileSelectMapWindow window)
     {
         if (window.IsComplete) return window.IsReturning ? areaScene : roomScene;
-        int top = (byte)window.Top;
-        int bottom = Math.Min(SnesPpuLayout.ScreenHeightPixels, top + Math.Max(1, (int)unchecked((byte)(window.Bottom - window.Top))));
-        int left = (byte)window.Left, right = (byte)window.Right;
+        Position16<ScreenPixels> topLeft = window.TopLeft, bottomRight = window.BottomRight;
+        int top = (byte)topLeft.Y;
+        int bottom = Math.Min(SnesPpuLayout.ScreenHeightPixels, top + Math.Max(1, (int)unchecked((byte)(bottomRight.Y - topLeft.Y))));
+        int left = (byte)topLeft.X, right = (byte)bottomRight.X;
         // The legacy HDMA projection performs no row copies for a wholly off-screen
         // interval or crossed horizontal edges; resolve that before contract validation.
         if (left > right || top >= bottom) return areaScene;

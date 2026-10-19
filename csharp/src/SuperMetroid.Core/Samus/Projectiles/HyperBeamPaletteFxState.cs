@@ -41,8 +41,11 @@ public sealed class HyperBeamPaletteFxState
     /// <summary>Last palette record written, or -1 before the first handler call.</summary>
     public int CurrentFrameIndex { get; private set; } = -1;
 
-    /// <summary>Number of completed ten-frame loops, useful in debugger watches.</summary>
-    public ushort CompletedCycles { get; private set; }
+    /// <summary>
+    /// Number of completed ten-frame loops, a port-side debugger count. No cartridge word holds it and nothing in
+    /// gameplay reads it, so it is an ordinary count that starts at zero on spawn and grows by one per loop.
+    /// </summary>
+    public int CompletedCycles { get; private set; }
 
     /// <summary>
     /// Performs <c>Spawn_PaletteFXObject</c>'s state initialization for object
@@ -61,10 +64,9 @@ public sealed class HyperBeamPaletteFxState
     }
 
     /// <summary>Runs one call of <c>PaletteFXObject_Handler</c> for the Hyper Beam object.</summary>
-    public HyperBeamPaletteFxStepResult Step(ISnesAddressSpace bus, SnesCgram cgram,
+    public HyperBeamPaletteFxStepResult Step(SnesCgram cgram,
         HyperBeamFxColorCatalog? presentationColors = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
 
         if (!IsActive)
@@ -91,7 +93,7 @@ public sealed class HyperBeamPaletteFxState
 
         NativeCountdown unusedCounter = default;
         AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref _cursor, ref unusedCounter,
-            (cue, _) => cue == new PaletteFxCue(PaletteFxCueKind.SetColorIndex, ColorByteIndex: (ushort)SamusPaletteRomData.HyperBeamFx.DestinationByteIndex)
+            (cue, _) => cue == new PaletteFxCue(PaletteFxCueKind.SetColorIndex, ColorIndex: DestinationColorIndex)
                 ? (PaletteFxProgram?)null
                 : throw new InvalidDataException($"The Hyper Beam palette program published {cue}, which its object does not carry out."));
         if (advance.Kind != AnimationProgramAdvanceKind.Show)
@@ -101,7 +103,7 @@ public sealed class HyperBeamPaletteFxState
             throw new InvalidDataException($"The Hyper Beam palette program showed record {advance.Frame.Record}, outside its cycle.");
         // The cycle's goto returns to its first record: showing it again completes a cycle.
         if (frameIndex == 0 && CurrentFrameIndex >= 0)
-            CompletedCycles = unchecked((ushort)(CompletedCycles + 1));
+            CompletedCycles++;
 
         (presentationColors ?? throw new InvalidOperationException(
             "Hyper Beam palette FX requires installed colors."))
@@ -114,6 +116,6 @@ public sealed class HyperBeamPaletteFxState
 
     /// <summary>The palette-FX object definition the Hyper Beam spawns.</summary>
     private static RoomPaletteFxDefinition HyperBeamDefinition() =>
-        RoomPaletteFxDefinitions.Get(unchecked((ushort)SamusPaletteRomData.HyperBeamFx.ObjectDefinition));
+        RoomPaletteFxDefinitions.Get(PaletteFxObject.HyperBeam);
 
 }

@@ -14,7 +14,7 @@ internal static class LowerNorfairRioAnimationsVerification
     internal static void VerifyLowerNorfairRioAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, LowerNorfairRioAnimations.Programs,
-            LowerNorfairRioFrameDefinitions.Spritemap,
+            LowerNorfairRioFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

@@ -42,7 +42,7 @@ public sealed class BackgroundTilemapStreamer
             throw new ArgumentException("Every block definition must contain four 16-bit tile words.", nameof(blockDefinitions));
 
         RoomWidthInBlocks = roomWidthInBlocks;
-        SizeOfBg2 = sizeOfBg2;
+        Bg2TilemapOffsetWords = sizeOfBg2;
         _levelEntries = levelEntries.ToArray();
         _backgroundEntries = backgroundEntries.ToArray();
         _blockDefinitions = blockDefinitions.ToArray();
@@ -52,10 +52,17 @@ public sealed class BackgroundTilemapStreamer
     public int RoomWidthInBlocks { get; }
 
     /// <summary>
-    /// Native <c>$098E</c>. BG2 screen bases are formed by subtracting this room-specific
-    /// allocation offset from the corresponding BG1 bases.
+    /// How many VRAM words below each BG1 screen base the room's BG2 screen base lies: zero when the
+    /// BG2 tilemap shares BG1's pages (the scrolling sky) and 2048 for every ordinary room. Every use
+    /// subtracts it from a BG1 base and keeps the sixteen-bit wrap of that subtraction itself.
     /// </summary>
-    public ushort SizeOfBg2 { get; }
+    /// <remarks>
+    /// Stored as an ordinary count rather than the native word: the constructor accepts only a
+    /// sixteen-bit value, nothing writes it afterwards, it is only ever subtracted inside an
+    /// <c>unchecked((ushort)…)</c> destination calculation (identical for an <c>int</c> or a
+    /// <c>ushort</c> operand), and no other name or projection reads it.
+    /// </remarks>
+    public int Bg2TilemapOffsetWords { get; }
 
     /// <summary>
     /// Mirrors a bank-$84 level-data mutation into this streamer's retained source copy.
@@ -125,8 +132,8 @@ public sealed class BackgroundTilemapStreamer
             _blockDefinitions);
         return new PlmTilemapUpdate(
             destination,
-            new[] { tiles.TopLeft, tiles.TopRight },
-            new[] { tiles.BottomLeft, tiles.BottomRight });
+            new ushort[] { tiles.TopLeft, tiles.TopRight },
+            new ushort[] { tiles.BottomLeft, tiles.BottomRight });
     }
 
     /// <summary>Produces one native staging-buffer update, or null for Mode 7 rooms.</summary>
@@ -177,7 +184,7 @@ public sealed class BackgroundTilemapStreamer
         int xWordOffset = xBlock * 2;
         ushort screenBase = xBlock >= Bg1TilemapLayout.ScreenBlocks ? Bg1TilemapLayout.SecondScreenColumnBase : Bg1TilemapLayout.FirstScreen;
         if (request.Layer == BackgroundLayer.Background)
-            screenBase = unchecked((ushort)(screenBase - SizeOfBg2));
+            screenBase = unchecked((ushort)(screenBase - Bg2TilemapOffsetWords));
 
         ushort unwrappedDestination = unchecked((ushort)(screenBase + yWordOffset + xWordOffset));
         ushort wrappedDestination = unchecked((ushort)(screenBase + xWordOffset));
@@ -234,8 +241,8 @@ public sealed class BackgroundTilemapStreamer
         }
         if (request.Layer == BackgroundLayer.Background)
         {
-            wrappedScreenBase = unchecked((ushort)(wrappedScreenBase - SizeOfBg2));
-            unwrappedScreenBase = unchecked((ushort)(unwrappedScreenBase - SizeOfBg2));
+            wrappedScreenBase = unchecked((ushort)(wrappedScreenBase - Bg2TilemapOffsetWords));
+            unwrappedScreenBase = unchecked((ushort)(unwrappedScreenBase - Bg2TilemapOffsetWords));
         }
 
         ushort unwrappedDestination = unchecked((ushort)(unwrappedScreenBase + yWordOffset + xWordOffset));

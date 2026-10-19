@@ -16,12 +16,12 @@ internal static class CacatacMovementDefinitionsVerification
     internal static void VerifyCacatacMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int distanceTable = 0xa29f36;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewCacatacDistanceReadGuard(new TestAddressSpace()));
-        Action<RoomEnemySlot> initialize = enemies.CacatacBehavior.InitializeCacatac;
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        Action<RoomEnemySlot> initialize = CacatacBehavior.InitializeCacatac;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
 
         foreach (ushort spawnX in new ushort[] { 0, 0x100, ushort.MaxValue })
         {
@@ -37,9 +37,9 @@ internal static class CacatacMovementDefinitionsVerification
                 slot.Position = slot.Position.WithWholeX(spawnX);
                 initialize(slot);
                 CacatacEnemyState state = (enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CacatacStates[0]."));
-                AssertEqual(unchecked((ushort)(spawnX - native)), (state ?? throw new InvalidOperationException("Verification requires state.")).MinimumXPosition,
+                AssertEqual(unchecked((ushort)(spawnX - native)), (state ?? throw new InvalidOperationException("Verification requires state.")).LeftPatrolLimit.X,
                     $"Cacatac minimum X {spawnX:X4}/{distanceIndex}");
-                AssertEqual(unchecked((ushort)(spawnX + native)), state.MaximumXPosition,
+                AssertEqual(unchecked((ushort)(spawnX + native)), state.RightPatrolLimit.X,
                     $"Cacatac maximum X {spawnX:X4}/{distanceIndex}");
             }
         }
@@ -53,9 +53,4 @@ internal static class CacatacMovementDefinitionsVerification
             "Cacatac travel distances: six native words and 18 wrapped production initializers pass with table reads forbidden.");
     }
 
-    /// <summary>Rejects runtime reads of the migrated six-word table at $A2:9F36-9F41.</summary>
-    private static CartridgeReadGuard NewCacatacDistanceReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa29f36 and < 0xa29f42,
-                address => $"Cacatac initializer attempted migrated distance read ${address:X6}.");
 }

@@ -34,13 +34,13 @@ internal static class AndroidImportVerification
             throw new InvalidDataException("Empty-slot import claimed or created a nonexistent previous-state backup.");
 
         var saveMaps = new SuperMetroid.AssetExtraction.Installation.GameInstallation(root).LoadMaps();
-        var importedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
-        new SuperMetroidSaveRam(importedBus, saveMaps).SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 17 });
+        var imported = new SuperMetroid.Core.Saves.SaveSlotStore(saveMaps);
+        imported.SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 17 });
         string json = Path.Combine(root, "import-source.json");
-        File.WriteAllText(json, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(importedBus, saveMaps)));
+        File.WriteAllText(json, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(imported)));
         string save = Path.Combine(root, "SuperMetroid.save.json");
         byte[] previousSave = File.ReadAllBytes(save);
-        // Installed save validation only needs mutable SRAM. Prove it neither opens nor
+        // Installed save validation only needs the installed maps. Prove it neither opens nor
         // depends on the private cartridge path by using the ROM-free overload here.
         AndroidFileImport.StageRegularSave(root, json);
         if (!previousSave.SequenceEqual(File.ReadAllBytes(save)))
@@ -53,7 +53,7 @@ internal static class AndroidImportVerification
         if (!failed || !pendingBytes.SequenceEqual(File.ReadAllBytes(pending)))
             throw new InvalidDataException("Invalid JSON displaced the valid pending import.");
         using var restarted = new AndroidSessionData(root, rom, audio);
-        if (new SuperMetroidSaveRam(restarted.Bus, saveMaps).ReadSlot(0)?.Health != 17 || File.Exists(pending))
+        if (restarted.Game.Saves.ReadSlot(0)?.Health != 17 || File.Exists(pending))
             throw new InvalidDataException("Next session did not activate the pending regular save exactly once.");
         if (!Directory.GetFiles(Path.Combine(root, "import-backups"))
             .Any(path => previousSave.SequenceEqual(File.ReadAllBytes(path))))
@@ -61,15 +61,14 @@ internal static class AndroidImportVerification
         Console.WriteLine("PASS Android imports: corrupt rejection preserves slots/pending save, valid state bytes and backups, next-launch regular save activation.");
     }
 
-    /// <summary>Confirms ROM-free memory retains WRAM and SRAM writes while refusing cartridge capability.</summary>
-    [CpuBusBoundary("exact bus test: a cartridge-free address space retains WRAM/SRAM writes and rejects cartridge reads")]
+    /// <summary>Confirms ROM-free memory retains WRAM writes while refusing cartridge capability.</summary>
+    [CpuBusBoundary("exact bus test: a cartridge-free address space retains WRAM writes and rejects cartridge reads")]
     private static void VerifyMutableMemoryWithoutCartridge()
     {
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         memory.WriteByte(0x7e1234, 0x56);
-        memory.WriteByte(0x700123, 0x78);
-        if (memory.ReadWorkRamByte(0x7e1234) != 0x56 || memory.ReadSaveRamByte(0x700123) != 0x78)
-            throw new InvalidDataException("Cartridge-free address space did not retain mutable WRAM/SRAM.");
+        if (memory.ReadWorkRamByte(0x7e1234) != 0x56)
+            throw new InvalidDataException("Cartridge-free address space did not retain mutable WRAM.");
 
         bool rejectedRomRead = false;
         try { _ = memory.ReadCartridgeByte(0x808000); }

@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -21,7 +20,6 @@ internal sealed class BombTorizoHandPlms
         _bindings = bindings;
         _slotTable = slotTable;
     }
-    /// <summary>Bank-$86 projectile definition $A993 for the statue fragments spawned as Bomb Torizo wakes.</summary>
     /// <summary>VRAM transfers queued by the hand's copy-from-RAM instruction for this frame.</summary>
     private readonly List<PlmVramWriteRequest> _vramWriteRequests = [];
     /// <summary>Statue-fragment spawns queued by the hand's breaking instruction for this frame.</summary>
@@ -57,7 +55,7 @@ internal sealed class BombTorizoHandPlms
         if (bosses.IsDefeated(BossBits.AreaTorizo))
         {
             // Setup deletes synchronously, so the next population record may reuse this ID.
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             return;
         }
 
@@ -85,14 +83,6 @@ internal sealed class BombTorizoHandPlms
     /// </summary>
     internal void RunBombTorizoHandPreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand || slot.PreInstruction == 0)
-            return;
-        if (slot.PreInstruction != BombTorizoHandPlmProgramDefinitions.WakeIfSamusHasBombsPreInstruction)
-        {
-            throw new InvalidDataException(
-                $"Bomb Torizo hand has invalid pre-instruction $84:{slot.PreInstruction:X4}.");
-        }
-
         SamusState samus = _bindings.Samus?.Current
             ?? throw new InvalidOperationException(
                 "A live Bomb Torizo hand PLM has no active Samus inventory owner.");
@@ -102,20 +92,19 @@ internal sealed class BombTorizoHandPlms
         // The sleeping opcode leaves Y pointing at itself. D33B adds two to skip that word,
         // restores the instruction timer to one, and replaces its pre-instruction with RTS.
         slot.WakePastSleep();
-        slot.PreInstruction = 0;
+        slot.PreInstruction = PlmPreInstructions.Inert;
     }
     /// <summary><c>$84:87E5</c>: copies the Chozo debris tiles to VRAM before the hand crumbles.</summary>
     internal void CopyDebrisTiles() =>
         _vramWriteRequests.Add(new PlmVramWriteRequest(
             checked((ushort)TorizoInstructionTileRomData.ChozoDebrisByteCount),
             TorizoInstructionTileRomData.ChozoDebrisSource,
-            BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord));
+            GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset)));
 
-    /// <summary><c>$84:D357</c>: spawns one statue-breaking fragment with <paramref name="parameter"/> at the hand's block.</summary>
-    internal void SpawnFragment(PlmSlot slot, ushort parameter) =>
+    /// <summary><c>$84:D357</c>: spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
+    internal void SpawnFragment(PlmSlot slot, int fragment) =>
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
-            (ushort)RoomEnemyProjectileKind.BombTorizoStatueBreaking,
-            parameter,
+            fragment,
             // The native fragment spawn carries both block coordinates as bytes.
             new(checked((byte)(slot.BlockIndex % _bombTorizoHandRoomWidth)),
                 checked((byte)(slot.BlockIndex / _bombTorizoHandRoomWidth)))));
@@ -135,6 +124,6 @@ internal sealed class BombTorizoHandPlms
         if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand)
             return;
         slot.HeaderPointer = 0;
-        slot.PreInstruction = 0;
+        slot.PreInstruction = PlmPreInstructions.Inert;
     }
 }

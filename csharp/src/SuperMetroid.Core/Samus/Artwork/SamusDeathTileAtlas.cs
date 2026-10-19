@@ -73,7 +73,7 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
         var characters = new byte[segments.Length * pageBytes];
         for (int index = 0; index < segments.Length; index++)
             ReadRange(index * pageBytes, pageBytes).CopyTo(characters,
-                (segments[index].EncodedVramDestination - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort));
+                (segments[index].Destination.Encoded - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort));
         return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusDeathExplosion), characters);
     }
 

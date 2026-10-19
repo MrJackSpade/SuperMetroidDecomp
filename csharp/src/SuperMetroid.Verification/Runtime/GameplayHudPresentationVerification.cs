@@ -12,6 +12,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>Checks installed gameplay HUD art, live tile updates, and editable layout overrides.</summary>
@@ -40,30 +41,30 @@ internal static class GameplayHudPresentationVerification
                 InHudRange(address, GameplayHudDefinitions.AmmoDigitsAddress, 20) ||
                 InHudRange(address, GameplayHudDefinitions.AutoReserveTableAddress, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
-        var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         // A queue restored from before presentation was bound still sources the row from $80:988B; binding the
         // presentation rebinds that pending transfer to the installed asset, as a fresh HUD setup queues it.
         topRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));
         topRowRuntime.Artwork.MapPresentation = original;
-        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, ReferenceMutableMemory.From(guard), topRowRuntime.Artwork);
+        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, topRowRuntime.Artwork);
         AssertTrue(topRowRuntime.Vram.Bytes.Slice(0xb000, GameplayHudDefinitions.TopRowByteCount)
             .SequenceEqual(presentation.TopRowTransfer.Span),
             "queued immutable HUD row uses installed visual data without source reads");
-        ushort equipment = (ushort)(SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.GrappleBeam);
+        ushort equipment = ((SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.GrappleBeam).ToNativeWord());
         var snapshot = new HudSnapshot(
             Health: 345, MaxHealth: 499,
             Missiles: 123, MaxMissiles: 230,
             SuperMissiles: 45, MaxSuperMissiles: 50,
             PowerBombs: 6, MaxPowerBombs: 10,
-            EquippedItems: equipment, SelectedItem: 2,
-            ReserveHealth: 50, ReserveMode: 1);
+            EquippedItems: (SamusEquipmentFlags)equipment, SelectedItem: HudItem.SuperMissile,
+            ReserveHealth: 50, ReserveMode: ReserveTankMode.Auto);
         var native = new HudState();
         var installed = new HudState();
         native.BindPresentation(presentation);
         installed.BindPresentation(presentation);
-        native.Initialize(bus, snapshot);
-        installed.Initialize(guard, snapshot);
+        native.Initialize(snapshot);
+        installed.Initialize(snapshot);
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed HUD template, icons, tanks, counters, AUTO and highlight match native");
 
@@ -77,13 +78,13 @@ internal static class GameplayHudPresentationVerification
             MaxSuperMissiles = 50,
             PowerBombs = 4,
             MaxPowerBombs = 10,
-            EquippedItems = equipment,
-            SelectedHudItem = 3,
+            EquippedItems = (SamusEquipmentFlags)equipment,
+            SelectedHudItem = HudItem.PowerBomb,
             ReserveEnergy = 25,
-            ReserveTankMode = 1,
+            ReserveTankMode = ReserveTankMode.Auto,
         };
-        native.UpdateGameplayCounters(bus, samus);
-        installed.UpdateGameplayCounters(guard, samus);
+        native.UpdateGameplayCounters(samus);
+        installed.UpdateGameplayCounters(samus);
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed live HUD updates match native without presentation ROM reads");
         AssertEqual(native.SelectionSoundRequestedThisFrame, installed.SelectionSoundRequestedThisFrame,
@@ -93,8 +94,8 @@ internal static class GameplayHudPresentationVerification
         var installedSystem = new Bank80SystemState();
         nativeSystem.SetAreaMapAcquired(AreaId.Crateria);
         installedSystem.SetAreaMapAcquired(AreaId.Crateria);
-        native.UpdateMinimap(bus, nativeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
-        installed.UpdateMinimap(guard, installedSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
+        native.UpdateMinimap(nativeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
+        installed.UpdateMinimap(installedSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed minimap anchor matches native and needs no HUD visual ROM data");
 
@@ -115,12 +116,12 @@ internal static class GameplayHudPresentationVerification
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "gameplay HUD override changes selected catalog identity");
-        var editedTopRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
-            { Artwork = { MapPresentation = edited } };
+        var editedTopRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        editedTopRowRuntime.Artwork.MapPresentation = edited;
         // With presentation bound, the HUD setup queues the immutable row as its installed asset.
         editedTopRowRuntime.VramWrites.EnqueueAsset(VramAssetId.HudTopRowTilemap, GameplayHudDefinitions.TopRowByteCount,
             VramDmaDestination.FromNative(0x5800));
-        editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram, ReferenceMutableMemory.From(guard),
+        editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram,
             editedTopRowRuntime.Artwork);
         AssertTrue(editedTopRowRuntime.Vram.Bytes.Slice(0xb000,
                 GameplayHudDefinitions.TopRowByteCount)
@@ -132,10 +133,10 @@ internal static class GameplayHudPresentationVerification
 
         var editedHud = new HudState();
         editedHud.BindPresentation(edited.GameplayHud);
-        editedHud.Initialize(guard, snapshot);
+        editedHud.Initialize(snapshot);
         var stockHud = new HudState();
         stockHud.BindPresentation(original.GameplayHud);
-        stockHud.Initialize(guard, snapshot);
+        stockHud.Initialize(snapshot);
         AssertEqual(stockHud.Tiles[70], editedHud.Tiles[68],
             "edited health anchor moves its first digit through production HUD setup");
         AssertEqual(stockHud.Tiles[71], editedHud.Tiles[69],
@@ -145,10 +146,10 @@ internal static class GameplayHudPresentationVerification
 
         var rebind = new HudState();
         rebind.BindPresentation(original.GameplayHud);
-        rebind.Initialize(guard, snapshot);
+        rebind.Initialize(snapshot);
         var rebindSystem = new Bank80SystemState();
         rebindSystem.SetAreaMapAcquired(AreaId.Crateria);
-        rebind.UpdateMinimap(guard, rebindSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, PresentationMap = original.Get(AreaId.Crateria) });
+        rebind.UpdateMinimap(rebindSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, PresentationMap = original.Get(AreaId.Crateria) });
         ushort[] logicalMap = Enumerable.Range(0, 15)
             .Select(i => rebind.Tiles[(i / 5) * 32 + 26 + i % 5]).ToArray();
         rebind.BindPresentation(edited.GameplayHud, samus);

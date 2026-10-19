@@ -31,8 +31,12 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
     public static bool IsScrollingSkyRoomMain(RoomMainCallback callback) =>
         IsLandRoomMain(callback) || callback == RoomMainCallback.ScrollingSkyOcean;
 
-    /// <summary>BG2VOFS mirror written from layer-1 Y by <c>$88:AFB2</c>.</summary>
-    public ushort VerticalScroll { get; private set; }
+    /// <summary>
+    /// The BG2 scroll the sky publishes: <c>$88:AFB2</c> copies layer-one Y, with its sixteen-bit wrap, into Y.
+    /// X stays zero because the sky never writes the uniform horizontal scroll; its bands come from
+    /// <see cref="BuildGameplayHorizontalScrolls"/> instead.
+    /// </summary>
+    public Position16<Bg2Pixels> Bg2Scroll { get; private set; }
 
     /// <summary>Whether the indirect table has not been terminated by a frozen frame.</summary>
     public bool HdmaEnabled { get; private set; } = horizontalHdmaConfigured;
@@ -63,7 +67,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
 
         HdmaEnabled = HorizontalHdmaConfigured;
         if (HorizontalHdmaConfigured) AdvanceHorizontalScrolls();
-        VerticalScroll = layer1YPosition;
+        Bg2Scroll = new Position16<Bg2Pixels>(0, layer1YPosition);
         QueueTilemapRows(layer1YPosition, writes, roomMainCallback == RoomMainCallback.ScrollingSkyOcean
             ? ScrollingSkyChunkTable.Ocean
             : ScrollingSkyChunkTable.Land);
@@ -101,9 +105,8 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
         {
             SkyScrollSection section = RoomFxRomData.ScrollingSky.GetSection(index);
-            uint velocity = (SnesSixteenSixteen.FromWhole((uint)section.Speed)) | section.Subspeed;
             _fixedHorizontalScrolls[section.DataSlot] = unchecked(
-                _fixedHorizontalScrolls[section.DataSlot] + velocity);
+                _fixedHorizontalScrolls[section.DataSlot] + (uint)section.Velocity.RawValue);
         }
 
         // $88:ADF2-$88:ADFA clears the final fractional and integer words after all 23
@@ -121,7 +124,10 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
             RoomFxRomData.ScrollingSky.UpperRowCameraOffset));
         int upperChunk = SnesLittleEndian.HighByte(upperPosition);
         int upperByteOffset = (SnesLittleEndian.LowByte(upperPosition)) * 8;
-        int upperSource = RoomFxRomData.Banks.Tilemaps |
+        // Ocean index 255 reads the wrapper's TimeIsFrozenFlag address ($0A78) as its DMA source: live WRAM the port
+        // does not keep there. The rows lie behind the HUD, so they upload blank (owner decision on #1318).
+        bool upperBlank = pointerTable == ScrollingSkyChunkTable.Ocean && upperChunk == byte.MaxValue;
+        int upperSource = upperBlank ? 0 : RoomFxRomData.Banks.Tilemaps |
             unchecked((ushort)(ScrollingSkyChunkDefinitions.Get(
                 pointerTable, upperChunk) + upperByteOffset));
 
@@ -142,11 +148,20 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
             layer1YPosition + RoomFxRomData.ScrollingSky.LowerRowCameraOffset)) &
             RoomFxRomData.ScrollingSky.TilemapPositionMask);
 
-        writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, upperSource, RoomFxVram.ScrollingSkyDma(upperRow));
-        writes.Enqueue(
-            RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-            upperSource + RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-            RoomFxVram.ScrollingSkyDma(upperRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
+        if (upperBlank)
+        {
+            writes.EnqueueZeroFill(RoomFxRomData.ScrollingSky.TilemapRowByteCount, RoomFxVram.ScrollingSkyDma(upperRow));
+            writes.EnqueueZeroFill(RoomFxRomData.ScrollingSky.TilemapRowByteCount,
+                RoomFxVram.ScrollingSkyDma(upperRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
+        }
+        else
+        {
+            writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, upperSource, RoomFxVram.ScrollingSkyDma(upperRow));
+            writes.Enqueue(
+                RoomFxRomData.ScrollingSky.TilemapRowByteCount,
+                upperSource + RoomFxRomData.ScrollingSky.TilemapRowByteCount,
+                RoomFxVram.ScrollingSkyDma(upperRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
+        }
         writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, lowerSource, RoomFxVram.ScrollingSkyDma(lowerRow));
         writes.Enqueue(
             RoomFxRomData.ScrollingSky.TilemapRowByteCount,
@@ -159,7 +174,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
     {
         for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
         {
-            ushort nextTop = index + 1 < RoomFxRomData.ScrollingSky.SectionCount
+            int nextTop = index + 1 < RoomFxRomData.ScrollingSky.SectionCount
                 ? RoomFxRomData.ScrollingSky.GetSection(index + 1).TopPosition
                 : RoomFxRomData.ScrollingSky.WorldEndPosition;
             if (worldY >= RoomFxRomData.ScrollingSky.GetSection(index).TopPosition && worldY < nextTop)

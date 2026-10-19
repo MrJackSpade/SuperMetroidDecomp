@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the Sciser contact-damage sound that delayed a door transition in the 13% recording.</summary>
 internal static class ContactDamageSoundVerification
@@ -21,17 +22,16 @@ internal static class ContactDamageSoundVerification
     internal static void VerifyContactDamageSound()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xd0b9);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MtEverest);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
         RoomEnemySlot sciser = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
-        ushort healthBefore = sciser.Health;
+        int healthBefore = sciser.Health;
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         runtime.Enemies.Collision.ResolveNormalEnemyTouch(sciser, samus, false);
 
         AssertTrue(sciser.Health < healthBefore, "the speed booster damages the Sciser");

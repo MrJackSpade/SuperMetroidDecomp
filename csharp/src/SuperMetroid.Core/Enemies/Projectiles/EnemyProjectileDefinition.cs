@@ -4,13 +4,11 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// One complete fourteen-byte <c>EprojDef</c> record from bank <c>$86</c>.
 /// </summary>
 /// <param name="PreInstruction">Per-frame callback installed before the first frame-list tick.</param>
-/// <param name="InitialInstructionList">Initial mixed animation/behavior program.</param>
 /// <param name="RadiusWord">Packed X radius in the low byte and Y radius in the high byte.</param>
 /// <param name="Properties">Damage and collision/draw property bits.</param>
 /// <param name="TouchInstructionList">Optional list installed when the actor touches Samus.</param>
 internal readonly record struct EnemyProjectileDefinition(
-    ushort PreInstruction,
-    ushort InitialInstructionList,
+    EnemyProjectilePreInstruction PreInstruction,
     ushort RadiusWord,
     ushort Properties,
     ushort TouchInstructionList)

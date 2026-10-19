@@ -9,16 +9,16 @@ internal static class RoomLayer3FxStateAccess
     extension(RoomLayer3FxState self)
     {
         /// <summary>Loads an explicit immutable FX definition through the normal room-load path.</summary>
-        internal void LoadDefinition(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram,
+        internal void LoadDefinition(SnesVram vram, SnesCgram cgram,
             RoomFxRecordDefinition definition, ushort randomNumber)
         {
             Ensure.NotNull(definition);
-            self.LoadCore((ISnesAddressSpace)(bus), (SnesVram)(vram), (SnesCgram)(cgram), new RoomFxLoadSource
+            self.LoadCore((SnesVram)(vram), (SnesCgram)(cgram), new RoomFxLoadSource
             {
-                FxPointer = definition.Pointer,
-                DoorPointer = definition.DoorPointer,
+                Fx = null,
+                Door = definition.Door,
                 RandomNumber = randomNumber,
-                RoomHeaderPointer = 0,
+                Room = null,
                 SuppliedDefinition = definition,
             });
         }

@@ -14,7 +14,7 @@ internal static class CacatacAnimationsVerification
     internal static void VerifyCacatacAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, CacatacAnimations.Programs,
-            CacatacFrameDefinitions.Spritemap,
+            CacatacFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {
@@ -23,7 +23,7 @@ internal static class CacatacAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => cue.Value,
+                    'V' => (ushort)cue.Direction,
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

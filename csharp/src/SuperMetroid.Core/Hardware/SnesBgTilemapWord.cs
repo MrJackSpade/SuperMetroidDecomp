@@ -16,6 +16,12 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     /// <summary>The two upper bits carry horizontal and vertical reflection independently.</summary>
     private const ushort FlipMask = 0xc000;
 
+    /// <summary>Bit 14, the horizontal-mirror flag.</summary>
+    internal const ushort HorizontalFlipMask = (ushort)SnesTileFlipFlags.Horizontal;
+
+    /// <summary>Bit 15, the vertical-mirror flag.</summary>
+    internal const ushort VerticalFlipMask = (ushort)SnesTileFlipFlags.Vertical;
+
     /// <summary>Gets the ten-bit character number, from 0 through 1023, relative to the background's character base.</summary>
     public int CharacterIndex => Raw & CharacterMask;
     /// <summary>Gets the three-bit background palette selector, from 0 through 7.</summary>

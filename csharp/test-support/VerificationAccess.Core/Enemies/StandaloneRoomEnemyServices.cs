@@ -17,7 +17,7 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     private readonly RandomNumbers random;
 
     /// <summary>Services whose RNG advances with <paramref name="generate"/>.</summary>
-    public StandaloneRoomEnemyServices(Func<ushort> generate) => random = new RandomNumbers(Ensure.NotNull(generate));
+    public StandaloneRoomEnemyServices(Func<int> generate) => random = new RandomNumbers(Ensure.NotNull(generate));
 
     /// <inheritdoc />
     public IEnemyRandomNumbers Random => random;
@@ -41,27 +41,27 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     public IMotherBrainRoomEffects MotherBrain { get; init; } = Unavailable.Instance;
 
     /// <summary>Installs the RNG seed's read and write, which some initializers sample or overwrite.</summary>
-    public Func<ushort> ReadRandom { init => random.Read = Ensure.NotNull(value); }
+    public Func<int> ReadRandom { init => random.Read = Ensure.NotNull(value); }
 
     /// <summary>Installs the RNG seed write.</summary>
-    public Action<ushort> SeedRandom { init => random.Write = Ensure.NotNull(value); }
+    public Action<int> SeedRandom { init => random.Write = Ensure.NotNull(value); }
 
     /// <summary>Routes generated values through a required fixture callback and current-word access through optional callbacks.</summary>
-    private sealed class RandomNumbers(Func<ushort> generate) : IEnemyRandomNumbers
+    private sealed class RandomNumbers(Func<int> generate) : IEnemyRandomNumbers
     {
         /// <summary>Optional source for the current RNG seed without advancing it.</summary>
-        internal Func<ushort>? Read;
+        internal Func<int>? Read;
         /// <summary>Optional sink for writes to the current RNG seed.</summary>
-        internal Action<ushort>? Write;
+        internal Action<int>? Write;
 
         /// <summary>Advances the host-supplied RNG generator exactly once.</summary>
-        public ushort Generate() => generate();
+        public int Generate() => generate();
 
         /// <summary>Reads a configured seed source or fails at the missing RNG dependency.</summary>
-        ushort IEnemyRandomNumbers.Read() => (Read ?? throw Unavailable.Missing("read the current random-number word"))();
+        int IEnemyRandomNumbers.Read() => (Read ?? throw Unavailable.Missing("read the current random-number word"))();
 
         /// <summary>Writes through a configured seed sink or fails at the missing RNG dependency.</summary>
-        public void Seed(ushort value) => (Write ?? throw Unavailable.Missing("seed the random-number word"))(value);
+        public void Seed(int value) => (Write ?? throw Unavailable.Missing("seed the random-number word"))(value);
     }
 
     /// <summary>The services a standalone host does not provide: every call fails at the dependency.</summary>

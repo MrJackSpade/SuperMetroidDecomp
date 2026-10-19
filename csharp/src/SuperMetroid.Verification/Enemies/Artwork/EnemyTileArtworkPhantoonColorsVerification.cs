@@ -18,6 +18,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// native RGB5 data and live palette transitions.</summary>
 internal static class EnemyTileArtworkPhantoonColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Checks isolated color edits through boss fade and hurt handlers,
     /// with native source reads forbidden and malformed overrides rejected.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
@@ -43,7 +46,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         string file = Path.Combine(stockDirectory, PhantoonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         PhantoonColorDocument visual = JsonSerializer.Deserialize<PhantoonColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Phantoon color JSON is null.");
         visual.HealthBands[2][1] = ChangeRed(visual.HealthBands[2][1]);
         visual.FadeOut[1] = ChangeRed(visual.FadeOut[1]);
@@ -86,9 +89,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             address => $"Phantoon accessed migrated palette ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
@@ -98,6 +100,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             Eye = eye,
             Tentacles = tentacles,
         };
+        enemies.PhantoonBehavior.Phantoon = state;
         for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
         {
             body.Health = unchecked((ushort)(band * 312 + 1));
@@ -105,11 +108,11 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             AssertBodyBand(band, $"Phantoon live health restore band {band}");
             for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
                 cgram.SetColor(PhantoonColorRomData.BodyDestination + color, new Bgr555(0, 0, 0));
-            eye.VariableE = 1;
-            eye.VariableF = 0;
+            state.Parts[eye.SlotIndex].FadeNumerator = 1;
+            state.Parts[eye.SlotIndex].FadeComplete = false;
             enemies.PhantoonBehavior.AdvancePhantoonFadeIn(body, state, (ushort)0);
             AssertBodyBand(band, $"Phantoon live materialization band {band}");
-            AssertEqual((ushort)2, eye.VariableE,
+            AssertEqual((ushort)2, state.Parts[eye.SlotIndex].FadeNumerator,
                 $"Phantoon fade-in band {band} retains native numerator advance");
         }
 
@@ -121,25 +124,25 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         AssertEqual((ushort)0x0001, tentacles.Parameter2,
             "Phantoon hurt restore clears only the flash-latch byte");
 
-        eye.VariableE = 1;
-        eye.VariableF = 0;
+        state.Parts[eye.SlotIndex].FadeNumerator = 1;
+        state.Parts[eye.SlotIndex].FadeComplete = false;
         enemies.PhantoonBehavior.AdvancePhantoonFadeOut(state, (ushort)0);
         for (int color = 0; color < PhantoonColorRomData.FadeOutCount; color++)
             AssertEqual(colors.ResolveFadeOut(color),
                 cgram.Colors[PhantoonColorRomData.BodyDestination + color],
                 $"Phantoon live fade-out target {color}");
-        AssertEqual((ushort)2, eye.VariableE,
+        AssertEqual((ushort)2, state.Parts[eye.SlotIndex].FadeNumerator,
             "Phantoon fade-out retains native numerator advance");
 
-        eye.VariableD = 0;
-        eye.VariableE = 1;
-        bool complete = (bool)enemies.PhantoonBehavior.AdvanceWreckedShipPowerPalette(eye);
+        state.Parts[eye.SlotIndex].FadeDenominator = 0;
+        state.Parts[eye.SlotIndex].FadeNumerator = 1;
+        bool complete = (bool)enemies.PhantoonBehavior.AdvanceWreckedShipPowerPalette(state.Parts[eye.SlotIndex]);
         AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
         for (int color = 0; color < PhantoonColorRomData.PowerOnCount; color++)
             AssertEqual(colors.ResolvePowerOn(color),
                 cgram.Colors[PhantoonColorRomData.PowerOnDestination + color],
                 $"Phantoon live ship power-on target {color}");
-        AssertEqual((ushort)2, eye.VariableE,
+        AssertEqual((ushort)2, state.Parts[eye.SlotIndex].FadeNumerator,
             "Phantoon ship power-on retains native numerator advance");
 
         File.WriteAllBytes(overrideFile, [0]);

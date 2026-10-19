@@ -13,6 +13,6 @@ internal sealed class EyeDoorProjectileAnimation(EyeDoorProjectileProgram progra
     private protected override AnimationProgramSet<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> Programs => EyeDoorProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(EyeDoorProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(EyeDoorProjectileFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(EyeDoorProjectileFrame frame) =>
+        EyeDoorProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

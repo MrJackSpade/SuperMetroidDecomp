@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// Drives the attract demo: sets up its room and Samus, then substitutes the scripted input each frame and
 /// restores the player's controller afterwards.
 /// </summary>
-internal sealed class AttractDemoDriver
+internal sealed class AttractDemoDriver : IAttractSamusInput
 {
     /// <summary>Installs the selected Samus palette before demo room graphics are loaded.</summary>
     private readonly RuntimeArtwork _artwork;
@@ -30,7 +30,7 @@ internal sealed class AttractDemoDriver
     /// <summary>Builds the initial HUD from the demo record's health and ammunition.</summary>
     private readonly GameplayHudSetup _hudSetup;
     /// <summary>Publishes initial HUD graphics before loading the demo room.</summary>
-    private readonly NmiHandler _nmiHandler;
+    private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Receives Samus state and the selected demo pose or shinespark launch.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Holds demo room viewport, camera scrolls, and load-station state.</summary>
@@ -39,8 +39,6 @@ internal sealed class AttractDemoDriver
     private readonly RoomLoader _roomLoader;
     /// <summary>Seeds demo progression bits without reading or writing a player save.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Provides pose setup, palette initialization, and animation data during demo setup.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Retains the runtime owners used to initialize and advance attract scenes.</summary>
     internal AttractDemoDriver(AttractDemoDriverDependencies dependencies)
@@ -51,23 +49,22 @@ internal sealed class AttractDemoDriver
         _controller1 = dependencies.Controller1;
         _enemies = dependencies.Enemies;
         _hudSetup = dependencies.HudSetup;
-        _nmiHandler = dependencies.NmiHandler;
+        _frameBoundary = dependencies.FrameBoundary;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _roomLoader = dependencies.RoomLoader;
         _system = dependencies.System;
-        _addressSpace = dependencies.AddressSpace;
     }
     /// <summary>Reflects whether the current session is substituting an attract demo for gameplay.</summary>
-    internal bool IsAttractDemo => _attractSession.IsAttractDemo;
+    public bool IsAttractDemo => _attractSession.IsAttractDemo;
 
     /// <summary>Advances the recorded input and temporarily substitutes its held and new button edges.</summary>
-    internal void BeginAttractSamusInput()
+    public void BeginAttractSamusInput()
     {
         if (_attractSession.Input is null) return;
         _player.IntroducedSamus.InputSnapshot.PreviousDrawNewInput = _attractSession.Input.Script.NewlyPressed;
         _attractSession.Input.StepStock(SuperMetroidGameState.PlayingDemo,
-            _player.IntroducedSamus.PoseMetadata.ReadMovementType(_addressSpace));
+            _player.IntroducedSamus.PoseMetadata.ReadMovementType());
         _attractSession.InputRestore = _controller1.UseDemoInput(
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);
     }
@@ -103,6 +100,7 @@ internal sealed class AttractDemoDriver
 
         _player.Samus = new SamusState
         {
+            Mode7QueueResidue = _enemies.Room.Mode7QueueResidue,
             Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition),
             EquippedItems = scene.Items, CollectedItems = scene.Items,
             EquippedBeams = scene.EquippedBeams, CollectedBeams = scene.CollectedBeams,
@@ -117,20 +115,20 @@ internal sealed class AttractDemoDriver
         _hudSetup.InitializeHud(new HudSnapshot(_player.Samus.Health, _player.Samus.MaxHealth,
             _player.Samus.Missiles, _player.Samus.MaxMissiles, _player.Samus.SuperMissiles, _player.Samus.MaxSuperMissiles,
             _player.Samus.PowerBombs, _player.Samus.MaxPowerBombs, _player.Samus.EquippedItems, 0, 0, 0));
-        _nmiHandler.RunNmi(0, true);
-        CartridgeDoorHeader door = DoorDefinitions.Get(scene.DoorPointer);
+        _frameBoundary.BeginAcceptedFrame(0);
+        CartridgeDoorHeader door = scene.Door;
         // The demo record independently supplies room and door. Do not replace room
         // selection with the door destination or derive placement from a load station.
-        var room = _roomLoader.LoadCartridgeRoomHeader(scene.RoomPointer);
+        var room = _roomLoader.LoadCartridgeRoomHeader(scene.Room);
         _room.ActiveLoadStation = null;
         _room.CeresElevatorArrival = null;
         _roomLoader.LoadCartridgeRoom(door, room, scene.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport);
         ApplyAttractRoomSetup(scene.RoomSetupPointer);
-        _player.Samus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
-        _player.Samus.PoseMetadata.RefreshCollisionRadii(_addressSpace);
-        _player.Samus.Presentation.InitializeAnimation(_addressSpace);
-        _player.Samus.Presentation.PrimeGraphics(_addressSpace);
+        _player.Samus.Presentation.LoadSuitPalette(_cgram);
+        _player.Samus.PoseMetadata.RefreshCollisionRadii();
+        _player.Samus.Presentation.InitializeAnimation();
+        _player.Samus.Presentation.PrimeGraphics();
         _player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
         _player.GroundedSamusMovementEnabled = true;
         _attractSession.Input = new AttractDemoInput(scene);
@@ -143,7 +141,7 @@ internal sealed class AttractDemoDriver
         switch (pointer)
         {
             case AttractDemoSamusSetup.LandingSite:
-                samus.PoseMetadata.ApplyForwardFacingPoseSetup(_addressSpace);
+                samus.PoseMetadata.ApplyForwardFacingPoseSetup();
                 break;
             case AttractDemoSamusSetup.StandingRight:
                 samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -161,10 +159,10 @@ internal sealed class AttractDemoDriver
                 samus.Pose = SamusPoseId.FallingLeftPose;
                 break;
             case AttractDemoSamusSetup.DiagonalShinespark:
-                samus.Shinespark.BeginDemoLaunch(_addressSpace, samus, SamusPoseId.ShinesparkDiagonalRightPose);
+                samus.Shinespark.BeginDemoLaunch(samus, SamusPoseId.ShinesparkDiagonalRightPose);
                 break;
             case AttractDemoSamusSetup.HorizontalShinespark:
-                samus.Shinespark.BeginDemoLaunch(_addressSpace, samus, SamusPoseId.ShinesparkHorizontalLeftPose);
+                samus.Shinespark.BeginDemoLaunch(samus, SamusPoseId.ShinesparkHorizontalLeftPose);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {pointer}.");
@@ -188,7 +186,7 @@ internal sealed class AttractDemoDriver
                     throw new InvalidDataException("Landing Site demo requires the scrolling-sky BG2 owner.");
                 break;
             case AttractDemoRoomSetup.KraidTimer:
-                _enemies.SlotTable.Slots[0].VariableF = AttractDemoRomData.SetupValues.KraidFunctionTimer;
+                _enemies.AttractDemoHooks.SetKraidFunctionTimer(AttractDemoRomData.SetupValues.KraidFunctionTimer);
                 break;
             case AttractDemoRoomSetup.DefeatedKraid:
                 _system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);

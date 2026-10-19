@@ -25,9 +25,10 @@ public sealed class SamusCeresRidleyEjectionState
     public bool InitializationPending { get; private set; }
 
     /// <summary>
-    /// Native <c>samus_var62</c>: one pushes toward the left wall, two toward the right.
+    /// The wall the shove carries Samus toward (native <c>samus_var62</c>); <see cref="CeresRidleyShoveDirection.None"/>
+    /// until initialization chooses a side and again once wall contact ends the shove.
     /// </summary>
-    public ushort PushDirection { get; private set; }
+    public CeresRidleyShoveDirection PushDirection { get; private set; }
 
     /// <summary>
     /// <c>SetSamusToBePushedOutOfCeresRidleysWay</c> ($90:E119): installs the handlers
@@ -57,13 +58,13 @@ public sealed class SamusCeresRidleyEjectionState
 
     /// <summary>Executes one `$90:E12E` or `$90:E1C8` handler call.</summary>
     public CeresRidleyEjectionResult Step(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         ushort layer1X,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!IsActive)
@@ -77,14 +78,14 @@ public sealed class SamusCeresRidleyEjectionState
             // refreshes the animation. InitializeSamusPose_1 does not publish the hurt pose's
             // radius, so the `21 - radius` alignment uses the source pose's live radius; the
             // ordinary pose epilogue publishes radius 21 on the following frame.
-            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection(bus) == 4;
+            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection() == 4;
             samus.Pose = facingLeft
                 ? SamusPoseId.KnockbackLeftPose
                 : SamusPoseId.KnockbackRightPose;
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             // The gamma initialization owns this shift. Request/BeginFrame must
             // not publish it early, and subsequent shove frames must not repeat it.
-            samus.CommitPoseHistory(bus);
+            samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWholeY(unchecked((ushort)(
                 samus.Position.Y.Whole - (21 - samus.Kinematics.Radius.Y))));
 
@@ -92,8 +93,8 @@ public sealed class SamusCeresRidleyEjectionState
             // rightward branch because the native BMI tests a signed `(screenX - 128)`.
             ushort screenX = unchecked((ushort)(samus.Position.X.Whole - layer1X));
             PushDirection = unchecked((short)(screenX - 128)) < 0
-                ? (ushort)1
-                : (ushort)2;
+                ? CeresRidleyShoveDirection.Left
+                : CeresRidleyShoveDirection.Right;
             samus.Kinematics.YSpeed = TerminalDownwardSpeed;
             samus.Kinematics.YSubspeed = 0;
 
@@ -109,23 +110,22 @@ public sealed class SamusCeresRidleyEjectionState
         horizontalSpeed.SelectEnvironmentSpeedTable(
             samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = horizontalSpeed.CalculateBaseSpeed(
-            bus,
-            samus.PoseMetadata.ReadMovementType(bus));
-        var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == 1, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
+            samus.PoseMetadata.ReadMovementType());
+        var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == CeresRidleyShoveDirection.Left, samus, baseSpeed);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
 
         if (horizontal.Collided)
         {
             // MoveSamus_Left/Right end in Kill_SamusXSpeed_IfCollisionDetected ($90:E5CE),
             // which cancels speed boosting and clears the extra-run words as well.
-            samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
             // `$90:E1FD/$E21C` restore the ordinary handlers, then
             // HandleKnockbackVerticalCollision ($90:DF6E) sees the still-set collision flag,
             // clears the movement words and aligns the feet to the previous pose. The push
             // never sets knockback direction `$0A52`, so `$90:DDE9` does not convert the
             // hurt pose; `$53/$54` remains for the ordinary movement handler.
             IsActive = false;
-            PushDirection = 0;
+            PushDirection = CeresRidleyShoveDirection.None;
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YDirection = SamusVerticalDirection.None;
@@ -146,7 +146,7 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Kinematics.YSpeed = SnesFixedPosition.WholeOf(unchecked((int)accelerated));
             samus.Kinematics.YSubspeed = unchecked((ushort)accelerated);
         }
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new VerticalBlockMove { Displacement = unchecked((int)samus.Kinematics.VerticalSpeedFixed), ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, new VerticalBlockMove { Displacement = unchecked((int)samus.Kinematics.VerticalSpeedFixed), ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
 
         return new CeresRidleyEjectionResult();
     }

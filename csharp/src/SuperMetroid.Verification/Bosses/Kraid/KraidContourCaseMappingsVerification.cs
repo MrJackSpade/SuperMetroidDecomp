@@ -54,7 +54,7 @@ internal static class KraidContourCaseMappingsVerification
 
     /// <summary>Decodes native tilemap comparisons and offsets to find Kraid's head-resume pointer and timer.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth head-resume immediates")]
-    internal static KraidHeadResumeDefinition NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
+    internal static (ushort Pointer, ushort Timer) NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
     {
         // Decode the native LDY/CMP immediates rather than using compiled selector constants.
         ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c042);
@@ -65,14 +65,29 @@ internal static class KraidContourCaseMappingsVerification
             offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((instruction + 1));
             break;
         }
-        return new((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c047) + offset), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa70000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c04d) + offset))));
+        return ((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c047) + offset), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa70000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c04d) + offset))));
     }
 
-    /// <summary>Checks the compiled growth-resume selector for every sixteen-bit tilemap value.</summary>
+    /// <summary>
+    /// Checks the typed growth resumes against the native selector for every sixteen-bit word growth could read: the
+    /// closed, opening and wider poses' head images select their resume, and every other word selects the default.
+    /// </summary>
     internal static void VerifyKraidGrowthResumeCases(SuperMetroidAddressSpace rom)
     {
+        var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
+        var selected = new Dictionary<ushort, KraidHeadGrowthResume>
+        {
+            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Closed)] = KraidHeadGrowthResume.NextFrameClosed,
+            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Opening)] = KraidHeadGrowthResume.NextFrameOpening,
+            [SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Wider)] = KraidHeadGrowthResume.NextFrameWider,
+        };
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
-            AssertEqual(NativeKraidGrowthResume(rom, (ushort)raw), KraidHeadInstructionDefinitions.GrowthResume((ushort)raw),
-                "Kraid native tilemap-dependent resume pointer and timer");
+        {
+            KraidHeadGrowthResume resume = selected.GetValueOrDefault((ushort)raw, KraidHeadGrowthResume.NextStepOther);
+            (ushort pointer, ushort timer) = NativeKraidGrowthResume(rom, (ushort)raw);
+            AssertEqual(native.CursorAt(pointer), KraidHeadAnimations.GrowthResumeCursor(resume),
+                "Kraid native word-dependent resume cursor");
+            AssertEqual((int)timer, KraidHeadAnimations.GrowthResumeDelay(resume), "Kraid native word-dependent resume delay");
+        }
     }
 }

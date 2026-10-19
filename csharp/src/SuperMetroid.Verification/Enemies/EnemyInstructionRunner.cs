@@ -16,8 +16,8 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class EnemyInstructionRunner
 {
     /// <summary>Processes the slot's instruction list for one frame.</summary>
-    internal static void Process(RoomEnemySystem enemies, object?[] arguments) =>
-        enemies.Instructions.ProcessInstructions(
+    internal static void Process(object?[] arguments) =>
+        EnemyInstructionInterpreter.ProcessInstructions(
             arguments[0] as RoomEnemySlot ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
             Optional<SamusState>(arguments, 1),
             Optional<RoomLevelData>(arguments, 2),
@@ -28,13 +28,13 @@ internal static class EnemyInstructionRunner
     /// Processes <paramref name="slot"/>'s animation for <paramref name="updates"/> updates with no Samus, level, camera or
     /// input, and lists each newly shown frame as <c>update:spritemap</c> (hexadecimal), comma-separated.
     /// </summary>
-    internal static string ShownFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int updates)
+    internal static string ShownFrames(RoomEnemySlot slot, int updates)
     {
         object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         var shown = new List<string>();
         for (int update = 0; update < updates; update++)
         {
-            Process(enemies, arguments);
+            Process(arguments);
             if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
                 shown.Add($"{update}:{slot.SpritemapPointer:X4}");
         }

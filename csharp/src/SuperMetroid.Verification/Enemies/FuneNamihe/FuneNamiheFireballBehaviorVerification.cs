@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 
@@ -22,7 +23,7 @@ internal static class FuneNamiheFireballBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, FuneNamiheFireballNativeListAddresses.Extent, "Fune/Namihe fireball");
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(288, 128));
         source.Parameter2 = 0;
@@ -43,12 +44,12 @@ internal static class FuneNamiheFireballBehaviorVerification
                 AssertTrue(!deleted, $"{program} loops");
             }
         }
-        for (int pose = 0; pose < FuneNamiheFireballFrameDefinitions.PoseCount; pose++)
+        for (int pose = 0; pose < FuneNamiheFireballFrameToolingDefinitions.PoseCount; pose++)
         {
             FuneNamiheFireballFrame frame = new(pose);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, FuneNamiheFireballFrameDefinitions.PresentationKey(frame), out ushort selected),
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame]), out ushort selected),
                 $"pose {pose} has a calculated selector");
-            AssertEqual(FuneNamiheFireballFrameDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
+            AssertEqual(FuneNamiheFireballFrameToolingDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the fireball's native list bytes");
         Console.WriteLine("  Fune/Namihe fireball behavior: both kinds and directions loop as their native lists do and every selector matches.");

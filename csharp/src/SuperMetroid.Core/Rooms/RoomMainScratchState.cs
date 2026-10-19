@@ -14,7 +14,11 @@ namespace SuperMetroid.Core.Rooms;
 public sealed class RoomMainScratchState
 {
     /// <summary>WRAM <c>$07E1</c>.</summary>
-    public ushort Var1 { get; set; }
+    public int Var1
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// WRAM <c>$07E1</c> read as the wrapping countdown the timed and screen-shaking room-main routines keep

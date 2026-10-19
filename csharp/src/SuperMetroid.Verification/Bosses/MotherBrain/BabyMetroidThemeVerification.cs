@@ -14,7 +14,6 @@ internal static class BabyMetroidThemeVerification
     /// <summary>Confirms the frame-72 data-upload and track pair follows the initial stop, each with the native eight-frame queue delay and no duplicate requests.</summary>
     internal static int VerifyBabyMetroidTheme()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
@@ -33,7 +32,7 @@ internal static class BabyMetroidThemeVerification
         {
             begin();
             beginMotherBrain();
-            var step = baby.Step(bus, samus, sequence, HeadOf(sequence));
+            var step = baby.Step(samus, sequence, HeadOf(sequence));
             apply(state, step);
             collect();
             ushort[] expected = frame switch { 0 => [0], 72 => [0xff48, 5], _ => [] };

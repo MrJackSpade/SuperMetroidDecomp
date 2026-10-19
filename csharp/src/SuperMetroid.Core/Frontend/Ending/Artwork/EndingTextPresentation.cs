@@ -36,8 +36,8 @@ public sealed class EndingTextPresentation
                 resultOverrides.Add(cell, resultPanel[cell]);
         this.copyrightPanel = copyrightPanel;
         for (int cell = 0; cell < japaneseSubtitle.Length; cell++)
-            if (japaneseSubtitle[cell].Raw != EndingTextLayoutDefinitions.SubtitleWord(cell))
-                subtitleOverrides.Add(cell, japaneseSubtitle[cell].Raw);
+            if (japaneseSubtitle[cell].Word.Raw != EndingTextLayoutDefinitions.SubtitleWord(cell))
+                subtitleOverrides.Add(cell, japaneseSubtitle[cell].Word.Raw);
         this.percentage = percentage;
         this.finalMessage = finalMessage;
         ContentIdentity = contentIdentity;
@@ -132,7 +132,7 @@ public sealed class EndingTextPresentation
             throw new InvalidDataException("Ending text requires version 1 and exact result/subtitle template dimensions.");
         }
 
-        ushort[] result = document.ResultPanel.Template.Select(static cell => cell.Raw).ToArray();
+        ushort[] result = document.ResultPanel.Template.Select(static cell => cell.Word.Raw).ToArray();
         Array.Fill(result, EndingTextDefinitions.ResultBlankWord,
             EndingTextDefinitions.ResultProducedBy.Row * EndingTextDefinitions.TilemapWidth +
                 EndingTextDefinitions.ResultProducedBy.Column,
@@ -177,9 +177,9 @@ public sealed class EndingTextPresentation
             int index = character.Row * EndingTextDefinitions.TilemapWidth + character.Column;
             if ((uint)index >= target.Length || character.Row >= rows)
                 throw new InvalidDataException($"Ending {identity} exceeds its bounded tilemap.");
-            target[index] = character.TopWord;
+            target[index] = character.TopWord.Raw;
             if (character.BottomWord is { } bottom)
-                target[index + EndingTextDefinitions.TilemapWidth] = bottom;
+                target[index + EndingTextDefinitions.TilemapWidth] = bottom.Raw;
         }
     }
 
@@ -195,9 +195,9 @@ public sealed class EndingTextPresentation
             char glyph = text[index];
             try
             {
-                ushort top = EndingTextDefinitions.CompileGlyph(glyph, region.Style);
-                ushort? bottom = region.Style is EndingTextStyle.CopyrightLarge or EndingTextStyle.FinalLarge
-                    ? EndingTextDefinitions.CompileGlyph(glyph, region.Style, bottom: true)
+                var top = new SnesBgTilemapWord(EndingTextDefinitions.CompileGlyph(glyph, region.Style));
+                SnesBgTilemapWord? bottom = region.Style is EndingTextStyle.CopyrightLarge or EndingTextStyle.FinalLarge
+                    ? new SnesBgTilemapWord(EndingTextDefinitions.CompileGlyph(glyph, region.Style, bottom: true))
                     : null;
                 result[index] = new(region.Row, region.Column + index, top, bottom);
             }

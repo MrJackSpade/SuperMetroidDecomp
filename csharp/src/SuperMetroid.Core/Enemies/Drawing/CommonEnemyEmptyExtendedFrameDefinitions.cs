@@ -34,9 +34,4 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitions
     /// </summary>
     internal static bool HasEmptySpritemap(byte bank, ushort pointer) =>
         pointer == EmptySpritemap && IsSupportedBank(bank);
-
-    /// <summary>Selects the shared bank-$A0 shot or touch callback used by the empty frame.</summary>
-    internal static ushort Callback(bool selectShot) => selectShot
-        ? EnemyAiCodePointers.BankA0.NormalEnemyShot
-        : EnemyAiCodePointers.BankA0.NormalEnemyTouch;
 }

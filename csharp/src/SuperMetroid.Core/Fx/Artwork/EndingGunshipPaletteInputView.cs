@@ -16,10 +16,10 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// recite this drawing. Shared channel/shade rules and temporal fades are calculated.
 /// The exact18 retained components and source-art evidence are recorded in the review
 /// inventory's endingGunshipIndependentInkReview.</remarks>
-internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
+internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<PaletteFxColorKey, Bgr555>
 {
     /// <summary>Ordinary stored fade colors after the thirteen final-frame painted inks are separated.</summary>
-    private readonly Dictionary<ushort, Bgr555> colors;
+    private readonly Dictionary<PaletteFxColorKey, Bgr555> colors;
     /// <summary>Gold highlight inputs with green derived from red minus one.</summary>
     private readonly Channels highlight;
     /// <summary>Light hull gold inputs using the same one-step green offset.</summary>
@@ -50,10 +50,10 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
     private readonly int undersideBlueOffset;
 
     /// <summary>Extracts independent channel edits and shared hue relationships from the final gunship palette frame.</summary>
-    internal EndingGunshipPaletteInputView(Dictionary<ushort, Bgr555> colors)
+    internal EndingGunshipPaletteInputView(Dictionary<PaletteFxColorKey, Bgr555> colors)
     {
         this.colors = colors;
-        Bgr555 Word(EndingGunshipPaletteInk ink) => colors[Pointer(ink)];
+        Bgr555 Word(EndingGunshipPaletteInk ink) => colors[Key(ink)];
         int Red(EndingGunshipPaletteInk ink) => Word(ink).Red;
         Channels Gold(EndingGunshipPaletteInk ink) => new(Word(ink), null, Math.Max(0, Red(ink) - 1), null);
         Channels Hull(EndingGunshipPaletteInk ink, int? red = null) => new(Word(ink), red, Math.Max(0, Red(ink) - 3), 0);
@@ -80,7 +80,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
         undersideLight = Underside(EndingGunshipPaletteInk.UndersideLight);
         undersideMiddle = Underside(EndingGunshipPaletteInk.UndersideMiddle);
         undersideDark = Underside(EndingGunshipPaletteInk.UndersideDark);
-        foreach (EndingGunshipPaletteInk ink in Enum.GetValues<EndingGunshipPaletteInk>()) colors.Remove(Pointer(ink));
+        foreach (EndingGunshipPaletteInk ink in Enum.GetValues<EndingGunshipPaletteInk>()) colors.Remove(Key(ink));
     }
 
     /// <summary>Nullable independent RGB5 components over a calculated gunship ink.</summary>
@@ -126,10 +126,10 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
     }
 
     /// <summary>Reconstructs thirteen final-frame gunship inks while leaving other fade and non-ink words stored.</summary>
-    public bool TryGetValue(ushort pointer, out Bgr555 value)
+    public bool TryGetValue(PaletteFxColorKey key, out Bgr555 value)
     {
         // Colors 0, 2 and 15 of the final frame are not inks; they stay stored values.
-        if (EndingGunshipPaletteColorDefinitions.TryCoordinates(pointer, out int frame, out int color) && frame == 15 &&
+        if (ZebesExplosionGunshipPaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) && frame == 15 &&
             Enum.IsDefined((EndingGunshipPaletteInk)color))
         {
             Bgr555 calculated = (EndingGunshipPaletteInk)color switch
@@ -153,32 +153,32 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
             value = calculated;
             return true;
         }
-        return colors.TryGetValue(pointer, out value);
+        return colors.TryGetValue(key, out value);
     }
 
-    /// <summary>Finds the native final-frame color address for one selected gunship ink.</summary>
-    private static ushort Pointer(EndingGunshipPaletteInk ink) => ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer(15, (int)ink);
-    /// <summary>Requires a stored fade color or reconstructed final-frame ink at its native address.</summary>
-    public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
+    /// <summary>The final-frame color of one selected gunship ink.</summary>
+    private static PaletteFxColorKey Key(EndingGunshipPaletteInk ink) => ZebesExplosionGunshipPaletteFxColorDefinitions.Color(15, (int)ink);
+    /// <summary>Requires a stored fade color or reconstructed final-frame ink.</summary>
+    public Bgr555 this[PaletteFxColorKey key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
     /// <summary>Includes ordinary stored colors and thirteen reconstructed painted inks.</summary>
     public int Count => colors.Count + 13;
     /// <summary>Checks membership among ordinary colors and reconstructed final-frame inks.</summary>
-    public bool ContainsKey(ushort key) => TryGetValue(key, out _);
-    /// <summary>Enumerates ordinary color addresses followed by the thirteen final-frame inks.</summary>
-    public IEnumerable<ushort> Keys
+    public bool ContainsKey(PaletteFxColorKey key) => TryGetValue(key, out _);
+    /// <summary>Enumerates ordinary colors followed by the thirteen final-frame inks.</summary>
+    public IEnumerable<PaletteFxColorKey> Keys
     {
         get
         {
-            foreach (ushort key in colors.Keys) yield return key;
-            foreach (EndingGunshipPaletteInk ink in Enum.GetValues<EndingGunshipPaletteInk>()) yield return Pointer(ink);
+            foreach (PaletteFxColorKey key in colors.Keys) yield return key;
+            foreach (EndingGunshipPaletteInk ink in Enum.GetValues<EndingGunshipPaletteInk>()) yield return Key(ink);
         }
     }
     /// <summary>Resolves values in the same stored-then-derived order as <see cref="Keys"/>.</summary>
     public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
-    /// <summary>Enumerates every ordinary or reconstructed gunship color by native pointer.</summary>
-    public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
+    /// <summary>Enumerates every ordinary or reconstructed gunship color by color.</summary>
+    public IEnumerator<KeyValuePair<PaletteFxColorKey, Bgr555>> GetEnumerator()
     {
-        foreach (ushort key in Keys) yield return new(key, this[key]);
+        foreach (PaletteFxColorKey key in Keys) yield return new(key, this[key]);
     }
     /// <summary>Exposes the same gunship color pairs to non-generic consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

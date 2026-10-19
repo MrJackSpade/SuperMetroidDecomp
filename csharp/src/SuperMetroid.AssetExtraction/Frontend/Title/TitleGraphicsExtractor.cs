@@ -36,9 +36,9 @@ internal static class TitleGraphicsExtractor
         byte[] mode7Pixels = SnesGraphics.DecodeMode7Tiles(mode7, 16, out Extent16<ImagePixels> mode7Size);
         byte[] objectPixels = SnesGraphics.DecodePlanarTiles(objects, 4, 32, out Extent16<ImagePixels> objectSize);
         byte[] babyPixels = SnesGraphics.DecodeMode7Tiles(baby, 4, out Extent16<ImagePixels> babySize);
-        if (mode7Size.X != TitleGraphicsFormat.Mode7Width || mode7Size.Y != TitleGraphicsFormat.Mode7Height ||
-            objectSize.X != TitleGraphicsFormat.ObjectWidth || objectSize.Y != TitleGraphicsFormat.ObjectHeight ||
-            babySize.X != TitleGraphicsFormat.BabyWidth || babySize.Y != TitleGraphicsFormat.BabyHeight)
+        if (mode7Size != new Extent16<ImagePixels>(TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height) ||
+            objectSize != new Extent16<ImagePixels>(TitleGraphicsFormat.ObjectWidth, TitleGraphicsFormat.ObjectHeight) ||
+            babySize != new Extent16<ImagePixels>(TitleGraphicsFormat.BabyWidth, TitleGraphicsFormat.BabyHeight))
             throw new InvalidDataException("Title graphics decoded to unexpected atlas dimensions.");
 
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal)

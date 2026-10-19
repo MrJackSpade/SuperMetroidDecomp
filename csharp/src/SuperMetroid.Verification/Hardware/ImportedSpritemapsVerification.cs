@@ -15,7 +15,7 @@ using SuperMetroid.Verification.Harness;
 internal static class ImportedSpritemapsVerification
 {
     /// <summary>Draws a native enemy map through the import boundary, including constructed cartridge fixtures.</summary>
-    internal static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam, EnemySpritemapDraw draw) =>
+    internal static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam, NativeEnemySpritemapDraw draw) =>
         ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), oam, draw);
 
     /// <summary>
@@ -44,7 +44,7 @@ internal static class ImportedSpritemapsVerification
         var frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(
             frame => frame.Name, frame => EnemySpritemapFiles.ExtractParts(bus, 0x8d, frame.Pointer));
         var programs = new Dictionary<string, SpriteVisualPart[]>();
-        foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
+        foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
         {
             ushort pointer = bus.ReadCartridgeWordFixedBank(0x860000 | frame.OperandAddress);
             // An unwritten fixture operand has no art. Do not turn a zero selector into
@@ -82,7 +82,7 @@ internal static class ImportedSpritemapsVerification
         HashSet<ushort> executedOperands, ushort? expectedOperand = null)
     {
         if (!projectile.IsActive || projectile.InstructionTimer.IsZero) return;
-        ushort operand = expectedOperand ?? unchecked((ushort)(projectile.InstructionPointer - 2));
+        ushort operand = expectedOperand ?? throw new InvalidOperationException("An executed typed frame names its native operand.");
         ushort nativePointer = (ushort)(SnesLittleEndian.Word(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand), ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1)))));
         executedOperands.Add(operand);
         ReadOnlyMemory<EnemySpritemapPart> parts;

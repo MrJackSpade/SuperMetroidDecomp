@@ -62,46 +62,46 @@ internal static class RoomPlmSystemAccess
         /// <summary>Every resident colored-door actor in the shared native PLM pool.</summary>
         internal IReadOnlyList<ColoredDoorPlmSnapshot> ColoredDoors =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: slot.ColoredDoor))
+            .. ActiveSlots(self).Select(slot => (slot, door: slot.Family as ColoredDoorPlmState))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new ColoredDoorPlmSnapshot(
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
-                    entry.slot.RoomArgument,
+                    checked((ushort)entry.slot.RoomArgument),
                     (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
                     entry.slot.Animation is ColoredDoorPlmAnimation colored ? colored.Orientation
                         : throw new InvalidOperationException($"Coloured cap at block {entry.slot.BlockIndex} runs {entry.slot.Animation}."),
-                    ColoredPhase(entry.slot), entry.door.HitCounter)),
+                    ColoredPhase(entry.slot), checked((byte)entry.door.HitCounter))),
         ];
 
         /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
         internal IReadOnlyList<GreyDoorPlmSnapshot> GreyDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: slot.GreyDoor))
+            .. ActiveSlots(self).Select(slot => (slot, door: slot.Family as GreyDoorPlmState))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new GreyDoorPlmSnapshot(
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
-                    entry.slot.RoomArgument,
+                    checked((ushort)entry.slot.RoomArgument),
                     entry.slot.Animation is GreyDoorPlmAnimation grey ? grey.Variant.Orientation
                         : throw new InvalidOperationException($"Grey cap at block {entry.slot.BlockIndex} runs {entry.slot.Animation}."),
                     (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Condition,
-                    GreyPhase(entry.slot), entry.door.HitCounter, entry.slot.Animation)),
+                    GreyPhase(entry.slot), checked((byte)entry.door.HitCounter), entry.slot.Animation)),
         ];
 
         /// <summary>Debugger-visible projections of every live eye-door component.</summary>
         internal IReadOnlyList<EyeDoorPlmSnapshot> EyeDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: slot.EyeDoor))
+            .. ActiveSlots(self).Select(slot => (slot, door: slot.Family as EyeDoorPlms.EyeDoorPlmState))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new EyeDoorPlmSnapshot(
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
-                    entry.slot.RoomArgument,
+                    checked((ushort)entry.slot.RoomArgument),
                     ((entry.door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
-                    (entry.door).HitCounter,
+                    checked((byte)(entry.door).HitCounter),
                     entry.slot.Animation,
-                    entry.slot.PreInstruction)),
+                    PlmPreInstructionNativeRoutines.Of(entry.slot.PreInstruction))),
         ];
 
         /// <summary>
@@ -114,9 +114,9 @@ internal static class RoomPlmSystemAccess
                 return true;
             foreach (var slot in ActiveSlots(self))
             {
-                if (slot.BlockIndex != blockIndex || (slot.ColoredDoor is null && slot.GreyDoor is null))
+                if (slot.BlockIndex != blockIndex || slot.Family is not (ColoredDoorPlmState or GreyDoorPlmState))
                     continue;
-                if (slot.PreInstruction == 0)
+                if (slot.PreInstruction == PlmPreInstructions.Inert)
                     return false;
                 return self.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, projectileType);
             }
@@ -128,7 +128,7 @@ internal static class RoomPlmSystemAccess
         internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass._motherBrainGlassWasLoaded;
 
         /// <summary>Current native room argument, retained after the header deletes itself.</summary>
-        internal ushort MotherBrainGlassRoomArgument => MotherBrainGlassSlot(self) is { } slot
+        internal int MotherBrainGlassRoomArgument => MotherBrainGlassSlot(self) is { } slot
             ? slot.RoomArgument
             : self.MotherBrainGlass._motherBrainGlassLastRoomArgument;
 
@@ -136,37 +136,16 @@ internal static class RoomPlmSystemAccess
         internal PlmAnimation? MotherBrainGlassAnimation => MotherBrainGlassSlot(self)?.Animation;
 
         /// <summary>
-        /// Places a constructed program in low work RAM, where the `$84` interpreter executes
-        /// wrapped instruction pointers, and redirects the sole live PLM to it.
-        /// </summary>
-        [CpuBusBoundary("exact bus test: places a constructed PLM program in the bank-$84 low-window WRAM mirror")]
-        internal void SetSoleWorkRamProgramForVerification(ISnesAddressSpace memory, ushort pointer,
-            params ReadOnlySpan<ushort> instructions)
-        {
-            if (memory is not ISnesMutableMemory)
-                throw new ArgumentException("A work-RAM program needs a live WRAM bus.", nameof(memory));
-            if (pointer + instructions.Length * 2 > RoomPlmMemoryLayout.WorkRamMirrorEnd)
-                throw new ArgumentOutOfRangeException(nameof(pointer), "The program must lie inside the low WRAM mirror.");
-            for (int index = 0; index < instructions.Length; index++)
-            {
-                int address = (int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, (ushort)(pointer + index * 2));
-                memory.WriteByte(address, (byte)instructions[index]);
-                memory.WriteByte(address + 1, SnesLittleEndian.HighByte(instructions[index]));
-            }
-            self.SetSoleInstructionPointerForVerification(pointer);
-        }
-
-        /// <summary>
         /// Runs the production timed-frame draw for the sole live PLM, exactly as the `$84`
         /// interpreter dispatches a timer/draw pair, without injecting a synthetic program.
         /// </summary>
-        internal void DrawSolePlmFrameForVerification(ISnesAddressSpace bus, RoomLevelData level,
+        internal void DrawSolePlmFrameForVerification(RoomLevelData level,
             BackgroundTilemapStreamer streamer, ushort drawPointer)
         {
             PlmSlot[] active = [.. ActiveSlots(self)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
-            self.Drawing.DrawPlmInstruction(bus, level, streamer, active[0].HeaderPointer, active[0].BlockIndex, drawPointer, default(PlmView));
+            self.Drawing.DrawPlmInstruction(level, streamer, active[0].HeaderPointer, active[0].BlockIndex, drawPointer, default(PlmView));
         }
 
         /// <summary>
@@ -182,17 +161,6 @@ internal static class RoomPlmSystemAccess
             if (active.Length != 1)
                 throw new InvalidOperationException("Program probe requires exactly one active PLM slot.");
             start.StartOn(active[0]);
-            active[0].InstructionTimer = NativeCountdown.Start(1);
-        }
-
-        /// <summary>Points the sole live PLM at a native list, as a native list store does.</summary>
-        internal void SetSoleInstructionPointerForVerification(ushort instructionPointer)
-        {
-            PlmSlot[] active = [.. self.SlotTable._slots.Where(slot => slot.Active)];
-            if (active.Length != 1)
-                throw new InvalidOperationException(
-                    "Instruction probe requires exactly one active PLM slot.");
-            active[0].InstructionPointer = instructionPointer;
             active[0].InstructionTimer = NativeCountdown.Start(1);
         }
 
@@ -212,7 +180,7 @@ internal static class RoomPlmSystemAccess
             foreach (var slot in self.SlotTable._slots)
             {
                 if (!slot.Active || slot.BlockIndex != blockIndex ||
-                    slot.EyeDoor is not { } door ||
+                    slot.Family is not EyeDoorPlms.EyeDoorPlmState door ||
                     door.Component != EyeDoorComponent.Eye)
                 {
                     continue;
@@ -229,7 +197,7 @@ internal static class RoomPlmSystemAccess
 
         /// <summary>Every live elevator-platform PLM in native physical-slot order.</summary>
         internal IReadOnlyList<RoomPlmSlotSnapshot> ElevatorPlatforms => self.PopulationSlots
-            .Where(snapshot => self.SlotTable._slots[snapshot.NativeSlotIndex].IsElevatorPlatform)
+            .Where(snapshot => self.SlotTable._slots[snapshot.NativeSlotIndex].HeaderPointer == PlmHeaderId.ElevatorPlatform)
             .ToArray();
 
         /// <summary>Physical-slot views in cartridge handler order, highest ID first.</summary>
@@ -253,12 +221,10 @@ internal static class RoomPlmSystemAccess
                 NativeSlotIndex: index,
                 HeaderPointer: slot.HeaderPointer,
                 BlockIndex: slot.BlockIndex,
-                RoomArgument: slot.RoomArgument,
-                InstructionPointer: slot.InstructionPointer,
-                PreInstruction: slot.PreInstruction,
+                RoomArgument: checked((ushort)slot.RoomArgument),
+                PreInstruction: PlmPreInstructionNativeRoutines.Of(slot.PreInstruction),
                 InstructionTimer: slot.InstructionTimer.RawValue,
-                LinkInstruction: slot.LinkInstruction,
-                LoopTimer: slot.LoopTimer,
+                LoopTimer: checked((ushort)slot.LoopTimer),
                 Animation: slot.Animation);
         }
 
@@ -377,19 +343,19 @@ internal static class RoomPlmSystemAccess
             if (areaDependent && !bts.IsAreaReactionIndex(8))
             {
                 throw new ArgumentOutOfRangeException(
-                    "bts",
+                    nameof(bts),
                     "Area-dependent shootable BTS must address one of its eight native entries.");
             }
             if (!areaDependent && !bts.IsNormalReactionIndex(16))
             {
                 throw new ArgumentOutOfRangeException(
-                    "bts",
+                    nameof(bts),
                     "Translated normal-bomb shootable BTS must be in range zero through fifteen.");
             }
             if (projectileType.Family != SamusProjectileFamily.Bomb)
             {
                 throw new ArgumentOutOfRangeException(
-                    "projectileType",
+                    nameof(projectileType),
                     "This setup translation currently accepts the normal-bomb family only.");
             }
 
@@ -402,7 +368,7 @@ internal static class RoomPlmSystemAccess
                     continue;
 
                 RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-                PlmPopulationLoader.ClearSlot(slot);
+                slot.Clear();
                 slot.Active = true;
                 slot.BlockIndex = blockIndex;
                 slot.InstructionTimer = NativeCountdown.Start(1);
@@ -421,11 +387,11 @@ internal static class RoomPlmSystemAccess
                     // CE6B throws away the original visual/BTS low twelve bits. The generated
                     // `$x052` word is both PLM_Vars and the source of the temporary collision
                     // word, exactly like the retail setup's two consecutive stores.
-                    slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
-                    slot.InstructionPointer = RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
+                    slot.RestoreLevelWord = unchecked((ushort)((block.PackedWord.Raw & 0xf000) | 0x0052));
+                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.RespawningShot(bts.NormalReactionIndex)));
                     level.SetForegroundEntry(
                         blockIndex,
-                        unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
+                        unchecked((ushort)(slot.RestoreLevelWord.Raw & 0x8fff)));
                     return true;
                 }
 
@@ -434,10 +400,10 @@ internal static class RoomPlmSystemAccess
                     // Setup_DeactivatePLM does not synthesize a restore word. Clearing bits
                     // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
                     // solid until the same-frame list draws its first breaking frame.
-                    slot.InstructionPointer = RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
+                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.PermanentShot(bts.NormalReactionIndex - 4)));
                     level.SetForegroundEntry(
                         blockIndex,
-                        unchecked((ushort)(block.LevelWord & 0x8fff)));
+                        unchecked((ushort)(block.PackedWord.Raw & 0x8fff)));
                     return true;
                 }
 
@@ -445,7 +411,7 @@ internal static class RoomPlmSystemAccess
                 {
                     // CF2E sees projectile family `$0500` and replaces the entry's normal
                     // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                    slot.InstructionPointer = RoomPlmInstructionLists.BombedPowerBombBlockUnused;
+                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmProgram.BombedPowerBombBlockUnused));
                     return true;
                 }
 
@@ -453,7 +419,7 @@ internal static class RoomPlmSystemAccess
                 {
                     // CF67 performs the analogous redirect to visible super-missile word
                     // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                    slot.InstructionPointer = RoomPlmInstructionLists.BombedSuperMissileBlockUnused;
+                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmProgram.BombedSuperMissileBlockUnused));
                     return true;
                 }
 
@@ -532,14 +498,13 @@ internal static class RoomPlmSystemAccess
         /// can inspect the exact block and destination before the runtime executes them.
         /// </remarks>
         internal IReadOnlyList<PlmTilemapUpdate> Step(
-            ISnesAddressSpace bus,
             RoomLevelData level,
             BackgroundTilemapStreamer streamer,
             PlmView view,
             RoomScrollGrid? scrolls = null,
             ushort enemyDeaths = 0,
             byte enemyDeathQuota = 0)
-            => self.Step(bus, level, streamer, view, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
+            => self.Step(level, streamer, view, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
     }
 
     /// <summary>Filters the physical PLM pool to slots whose active bit is set.</summary>

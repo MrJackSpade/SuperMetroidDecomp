@@ -1,15 +1,25 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The Ceres steam species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class CeresSteamBehavior
+internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Steam];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CeresSteamEntity(this, slot, common);
+
     /// <summary>Room services that supply the live RNG used to stagger vent activation.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Common contact resolution used after steam's extended hitbox selects its touch callback.</summary>
@@ -34,7 +44,7 @@ internal sealed class CeresSteamBehavior
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<CeresSteamProgram> cursor = _ventPrograms[slot.SlotIndex];
-        EnemyProgramAnimation.Run(slot, CeresSteamAnimations.Programs, ref cursor, CeresSteamFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, CeresSteamAnimations.Programs, ref cursor, CeresSteamFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyCeresSteamCue(slot, cue));
         _ventPrograms[slot.SlotIndex] = cursor;
     }
@@ -50,9 +60,10 @@ internal sealed class CeresSteamBehavior
                 return null;
             case CeresSteamCueKind.CountDownToActivation:
             {
-                // Variable D holds the vent's activation delay, which initialization staggers.
-                NativeWordCounterStep step = NativeCountdown.FromRaw(slot.VariableD).Decrement();
-                slot.VariableD = step.Value;
+                // The vent's activation delay, which initialization staggers.
+                CeresSteamEnemyState state = RequireCeresSteamState(slot);
+                NativeWordCounterStep step = state.ActivationDelay.Decrement();
+                state.ActivationDelay = step.Remaining;
                 if (!step.IsZero)
                     return cue.Target;
                 slot.Properties = slot.Properties.Without(
@@ -91,12 +102,16 @@ internal sealed class CeresSteamBehavior
         slot.Timer = NativeCountdown.Start(0);
         slot.PaletteIndex = CeresSteamPaletteIndex;
 
-        // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. Variable D is then
+        // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. The delay is then
         // consumed by instruction `$F127`, giving each vent a cartridge-authored stagger.
-        slot.VariableD = unchecked((ushort)((_room.Random.Generate() & CeresSteamDefinitions.ActivationDelayMask) + 1));
+        var state = new CeresSteamEnemyState
+        {
+            ActivationDelay = NativeCountdown.Start((_room.Random.Generate() & CeresSteamDefinitions.ActivationDelayMask) + 1),
+        };
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         _ventPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresSteamProgram>.Start(initialization.Program);
-        slot.VariableA = (ushort)initialization.Function;
+        state.Function = initialization.Function;
     }
 
     /// <summary>Ports <c>CeresSteam_Main</c> at <c>$A6:F00D</c>.</summary>
@@ -108,7 +123,8 @@ internal sealed class CeresSteamBehavior
         // cannot be destroyed by a projectile that happened to overlap an active plume.
         slot.Health = CeresSteamIndestructibleHealth;
 
-        switch ((CeresSteamFunction)slot.VariableA)
+        CeresSteamEnemyState state = RequireCeresSteamState(slot);
+        switch (state.Function)
         {
             // Parameters zero through three point at `$EFF4`, a literal RTS. Their base
             // world position is also their draw position, so no graphical word is changed.
@@ -133,37 +149,34 @@ internal sealed class CeresSteamBehavior
 
             default:
                 throw new InvalidDataException(
-                    $"Ceres steam function $A6:{slot.VariableA:X4} is not translated.");
+                    $"Ceres steam function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
-    /// <summary>Registers the initializer that selects the variant's instruction list and RNG activation delay.</summary>
-    internal void RegisterCeresSteamInitializationAi(EnemyAiTable table)
-    {
+    /// <summary>The vent's state, failing if the vent never initialized.</summary>
+    private static CeresSteamEnemyState RequireCeresSteamState(RoomEnemySlot slot) =>
+        slot.SpeciesState<CeresSteamEnemyState>() ?? throw new InvalidOperationException("A Ceres steam vent has no state.");
 
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_CeresSteam, null, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCeresSteam(slot);
-        });
+    /// <summary>Ports CeresSteam's initialization AI.</summary>
+    internal void RunCeresSteamInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeCeresSteam(slot);
     }
 
-    /// <summary>Registers the main AI that restores health and applies the rotating elevator's graphical offset.</summary>
-    internal static void RegisterCeresSteamMainAi(EnemyAiTable table)
+    /// <summary>Ports CeresSteam's main AI.</summary>
+    internal static void RunCeresSteamMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_CeresSteam, null, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunCeresSteamMain(slot, frame.Mode7Transform);
-        });
+        RunCeresSteamMain(slot, frame.Mode7Transform);
     }
 
-    /// <summary>Runs the vents as typed programs (#641).</summary>
-    internal void RegisterCeresSteamTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam,
-            (slot, _) => AdvanceCeresSteamAnimation(slot));
+    /// <summary>Advances CeresSteam's typed animation.</summary>
+    internal void AdvanceCeresSteamTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceCeresSteamAnimation(slot);
+    }
 
     /// <summary>Registers contact handling only for steam's authored extended hitbox callback.</summary>
-    internal void RegisterCeresSteamTouch(EnemyAiTable table)
+    internal void RegisterCeresSteamTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CeresSteamTouch,
@@ -176,8 +189,8 @@ internal sealed class CeresSteamBehavior
                 {
                     throw new InvalidDataException(
                         $"Ceres steam requires extended touch AI $A6:{EnemyAiCodePointers.BankA6.CeresSteamTouch:X4}; " +
-                        $"extended={context.UsesExtendedHitboxes}, selected=$A6:{context.HitboxTouchAiPointer:X4}, " +
-                        $"map=$A6:{context.Slot.SpritemapPointer:X4}.");
+                        $"extended={context.UsesExtendedHitboxes}, selected={context.HitboxTouchAi?.ToString() ?? "(unnamed)"}, " +
+                        $"map=$A6:{context.Slot.Frame}.");
                 }
 
                 // `$A6:F03F` restores health immediately before entering common touch AI.
@@ -189,9 +202,42 @@ internal sealed class CeresSteamBehavior
     }
 
     /// <summary>Routes steam shots to ordinary common shot AI without a species-specific reaction.</summary>
-    internal static void RegisterCeresSteamShotReactions(EnemyAiTable table)
+    internal static void RegisterCeresSteamShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NoOp));
+    }
+
+    /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
+    internal static bool? FindHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    {
+        callback = null;
+        if (!(enemy.Definition.Bank == CeresSteamCollisionDefinitions.Bank &&
+            (CeresSteamCollisionDefinitions.Frames.Contains(enemy.Frame) ||
+             probe.ArtworkInstalled)))
+            return null;
+
+        // The high byte of each steam frame's $1001 header is drawing
+        // metadata, not an extra component. Both damaging rectangles and
+        // callbacks remain fixed even if its installed OAM is edited.
+        foreach (CeresSteamCollisionComponent component in
+                 CeresSteamCollisionDefinitions.Frames.Of(enemy.Frame))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            foreach (CeresSteamCollisionHitbox hitbox in
+                     component.Hitboxes)
+            {
+                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = CeresSteamHitboxCallbackCodec.ToCallback(probe.SelectShotCallback);
+                return true;
+            }
+        }
+        return false;
+    
     }
 }

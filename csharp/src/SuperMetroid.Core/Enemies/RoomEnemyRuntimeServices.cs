@@ -42,13 +42,13 @@ internal sealed class RoomEnemyRuntimeServices(
     public IMotherBrainRoomEffects MotherBrain => this;
 
     /// <summary>Advances the shared system RNG once for an enemy request.</summary>
-    public ushort Generate() => system.NextRandom();
+    public int Generate() => system.NextRandom();
 
     /// <summary>Observes the current RNG word without advancing it.</summary>
-    public ushort Read() => system.RandomNumber;
+    public int Read() => system.RandomNumber;
 
     /// <summary>Installs an enemy-supplied seed into the shared system RNG.</summary>
-    public void Seed(ushort value) => system.SetRandomNumber(value);
+    public void Seed(int value) => system.SetRandomNumber(value);
 
     /// <summary>Checks a persistent event bit from the system owner.</summary>
     public bool Has(EventNumber eventNumber) => system.HasEvent(eventNumber);

@@ -35,7 +35,7 @@ internal static class BossMapMarkersVerification
                 ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (list + record * 4 + 2));
                 var system = new Bank80SystemState();
                 system.SetAreaMapAcquired(area);
-                var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
+                var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                 // Center the marker under test without changing its authored position.
                 pause.mapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));
                 var alive = pause.Render();
@@ -56,51 +56,51 @@ internal static class BossMapMarkersVerification
                 AssertTrue(changed > 0, $"area {area} boss bit {record} must visibly change on defeat");
                 // A newly opened pause page must observe the same live progression
                 // byte, not an icon cached before the boss died.
-                AssertTrue(dead.SequenceEqual(CenteredPause(bus, system).Render()),
+                AssertTrue(dead.SequenceEqual(CenteredPause(system).Render()),
                     "reopening pause preserves defeated marker pixels");
 
                 // Exercise the production snapshot, SRAM checksum/slot codec, JSON
                 // format and restore path, entirely in disposable memory.
-                var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-                new SuperMetroidSaveRam(source, RetailPresentationFixture()).SaveSlot(0,
-                    SuperMetroidSaveSnapshot.Capture(new SamusState(), system, new SaveSnapshotContext { Area = (ushort)area, SaveStation = 0 }));
-                string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source, RetailPresentationFixture()));
+                var source = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
+                source.SaveSlot(0,
+                    SuperMetroidSaveSnapshot.Capture(new SamusState(), system, new SaveSnapshotContext { Area = (AreaId)area, SaveStation = 0 }));
+                string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source));
                 var restored = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-                GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored, RetailPresentationFixture());
-                var slot = new SuperMetroidSaveRam(restored, RetailPresentationFixture()).ReadSlot(0) ??
+                var slot = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture()).ReadSlot(0) ??
                     throw new InvalidDataException("Boss-marker fixture lost its save slot.");
                 var restoredSystem = new Bank80SystemState();
                 slot.ApplyTo(new SamusState(), restoredSystem);
-                AssertTrue(dead.SequenceEqual(CenteredPause(restored, restoredSystem).Render()),
+                AssertTrue(dead.SequenceEqual(CenteredPause(restoredSystem).Render()),
                     "JSON/SRAM reload preserves the complete defeated pause image");
                 // The existing-save menu creates its own progression owner from the
                 // slot. Compare that actual constructor path with the live source.
-                var savedMenu = new FileSelectMapMenuState(restored, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0,
+                var savedMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0,
                     RetailPresentationFixture());
                 var savedGraphics = savedMenu.roomGraphics;
-                var liveGraphics = new FileSelectRoomMapGraphics(bus, system, (AreaId)area, mapPresentation: RetailPresentationFixture());
-                var marker = new FileSelectStationMarker(bus, (AreaId)area, 0, RetailPresentationFixture().SaveMarkers);
+                var liveGraphics = new FileSelectRoomMapGraphics(system, (AreaId)area, mapPresentation: RetailPresentationFixture());
+                var marker = new FileSelectStationMarker((AreaId)area, 0, RetailPresentationFixture().SaveMarkers);
                 ushort scrollX = unchecked((ushort)(x - 128)), scrollY = unchecked((ushort)(y - 112));
                 AssertTrue(liveGraphics.Render(new(scrollX, scrollY), marker).SequenceEqual(
                     savedGraphics.Render(new(scrollX, scrollY), marker)),
                     "existing-save menu restores exact boss-marker pixels with its slot-owned progression");
-                var runtime = CreateRetailRuntimeFixture(restored);
+                var runtime = CreateRetailRuntimeFixture();
                 runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-                runtime.NmiHandler.RunNmi(0, true);
+                runtime.FrameBoundary.BeginAcceptedFrame(0);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
                 slot.ApplyTo(runtime.Player.IntroducedSamus, runtime.System);
-                ushort room = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(restored, (AreaId)area, 0).RoomPointer;
+                RoomHeaderDefinition room = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(restored, (AreaId)area, 0).Room
+                    ?? throw new InvalidDataException($"{(AreaId)area} station 0 has no room.");
                 for (int entry = 0; entry < 2; entry++)
                 {
                     runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-                    AssertTrue(dead.SequenceEqual(CenteredPause(restored, runtime.System).Render()),
+                    AssertTrue(dead.SequenceEqual(CenteredPause(runtime.System).Render()),
                         "ordinary room load/reload preserves defeated marker and acquired map");
                 }
 
-                PauseMenuState CenteredPause(ISnesAddressSpace addressSpace, Bank80SystemState state)
+                PauseMenuState CenteredPause(Bank80SystemState state)
                 {
-                    var reopened = CreateRetailPauseFixture(addressSpace, new PauseMenuEntry { Samus = new SamusState(), System = state, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
+                    var reopened = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = state, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                     reopened.mapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));
                     return reopened;
                 }

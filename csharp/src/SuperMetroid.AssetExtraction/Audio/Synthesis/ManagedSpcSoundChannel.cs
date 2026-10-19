@@ -5,59 +5,56 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal sealed class ManagedSpcSoundChannel
 {
     /// <summary>Bit selecting the hardware voice temporarily owned by this SFX stream.</summary>
-    internal byte VoiceBitset;
+    internal int VoiceBitset;
     /// <summary>Ticks until this stream reads its next sound instruction.</summary>
-    internal byte InstructionTimer;
+    internal int InstructionTimer;
     /// <summary>Fractional pitch byte advanced during a sound effect slide.</summary>
-    internal byte Subnote;
+    internal int Subnote;
     /// <summary>Instruction index saved at a sound effect repeat-start command.</summary>
-    internal byte RepeatPoint;
+    internal int RepeatPoint;
     /// <summary>Current whole-number pitch byte of the active SFX note.</summary>
-    internal byte Note;
+    internal int Note;
     /// <summary>Byte offset into the current sound effect instruction stream.</summary>
-    internal byte PointerIndex;
+    internal int PointerIndex;
     /// <summary>Twice the borrowed hardware voice number, matching SPC DSP addressing.</summary>
-    internal byte VoiceIndex;
+    internal int VoiceIndex;
     /// <summary>Eight times the borrowed voice number for per-voice ADSR register writes.</summary>
-    internal byte VoiceIndexTimesEight;
+    internal int VoiceIndexTimesEight;
     /// <summary>Short key-off delay used before a non-legato stream releases its note.</summary>
-    internal byte ReleaseTimer;
+    internal int ReleaseTimer;
     /// <summary>Saved music-channel volume restored when this SFX releases its voice.</summary>
-    internal byte Volume;
+    internal int Volume;
     /// <summary>Whole-number pitch destination of the current SFX slide.</summary>
-    internal byte TargetNote;
+    internal int TargetNote;
     /// <summary>Saved music-channel pan and phase flags restored after SFX playback.</summary>
-    internal byte PhaseInvert;
+    internal int PhaseInvert;
     /// <summary>Address of the current sound effect byte stream.</summary>
-    internal ushort Pointer;
+    internal int Pointer;
     /// <summary>Remaining repetitions after an SFX repeat-start instruction.</summary>
-    internal byte RepeatCounter;
+    internal int RepeatCounter;
     /// <summary>Marks that each SFX tick must advance toward the target note.</summary>
-    internal byte EnablePitchSlide;
+    internal int EnablePitchSlide;
     /// <summary>Tracks whether the release key-off delay has begun for this note.</summary>
-    internal byte ReleaseFlag;
+    internal int ReleaseFlag;
     /// <summary>Retains the slide opcode's legato form until the next pitch update.</summary>
-    internal byte EnablePitchSlideLegato;
+    internal int EnablePitchSlideLegato;
     /// <summary>Two ADSR bytes supplied by an inline SFX envelope override.</summary>
-    internal ushort AdsrSettings;
+    internal int AdsrSettings;
     /// <summary>Inverse borrowed-voice bit mask used to clear that voice from shared DSP masks.</summary>
-    internal byte ChannelMask;
+    internal int ChannelMask;
     /// <summary>Lets a sliding note continue without retriggering its hardware voice.</summary>
-    internal byte Legato;
+    internal int Legato;
     /// <summary>Marks an unallocated or finished SFX channel so its stream does not run.</summary>
-    internal byte Disabled;
+    internal int Disabled;
     /// <summary>Fractional pitch step added or subtracted during each slide tick.</summary>
-    internal byte SubnoteDelta;
+    internal int SubnoteDelta;
     /// <summary>Requests writing the inline ADSR override to the borrowed voice.</summary>
-    internal byte UpdateAdsr;
+    internal int UpdateAdsr;
 
     /// <summary>Appends every field of this sound-effect channel, in declaration order, to a driver-state snapshot (#1305).</summary>
     internal void WriteState(List<byte> state)
     {
-        state.AddRange([VoiceBitset, InstructionTimer, Subnote, RepeatPoint, Note, PointerIndex, VoiceIndex, VoiceIndexTimesEight, ReleaseTimer, Volume, TargetNote, PhaseInvert, RepeatCounter, EnablePitchSlide, ReleaseFlag, EnablePitchSlideLegato, ChannelMask, Legato, Disabled, SubnoteDelta, UpdateAdsr]);
-        state.Add(SnesLittleEndian.LowByte(Pointer));
-        state.Add(SnesLittleEndian.HighByte(Pointer));
-        state.Add(SnesLittleEndian.LowByte(AdsrSettings));
-        state.Add(SnesLittleEndian.HighByte(AdsrSettings));
+        SpcDriverSnapshot.AddBytes(state, [VoiceBitset, InstructionTimer, Subnote, RepeatPoint, Note, PointerIndex, VoiceIndex, VoiceIndexTimesEight, ReleaseTimer, Volume, TargetNote, PhaseInvert, RepeatCounter, EnablePitchSlide, ReleaseFlag, EnablePitchSlideLegato, ChannelMask, Legato, Disabled, SubnoteDelta, UpdateAdsr]);
+        SpcDriverSnapshot.AddWords(state, [Pointer, AdsrSettings]);
     }
 }

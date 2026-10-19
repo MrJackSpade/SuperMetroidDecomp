@@ -45,6 +45,51 @@ internal sealed class SamusHandlerFrame
     /// <summary>Whether the input lookup fell through to the pose-definition fallback ($91:82D9).</summary>
     internal bool UsePoseDefinitionFallback;
 
+    /// <summary>The installed alpha and beta handlers; beta-handler gates read <see cref="SamusControlMode.Beta"/>.</summary>
+    internal SamusControlMode Mode;
+
     /// <summary>Whether horizontal momentum remained when the fallback pose was selected.</summary>
     internal bool DeceleratingFallbackHasMomentum;
+
+    /// <summary>
+    /// Whether Samus movement was enabled when alpha's head finished; alpha's tail, the post-EnemyMain resample and beta
+    /// movement run only then.
+    /// </summary>
+    internal bool MovementEnabled;
+
+    /// <summary>Whether EnemyMain ran before Samus because this frame has no movement to wait for.</summary>
+    internal bool EnemyMainAlreadyRan;
+
+    /// <summary>
+    /// Whether that hoisted EnemyMain restored the normal handler pair (gunship $A2:A987). The locked alpha has
+    /// already been installed for this frame, so only alpha's checks still see the lock.
+    /// </summary>
+    internal bool EnemyMainReleasedAlphaLock;
+
+    /// <summary>Whether the refill-station lock owns Samus for this beta.</summary>
+    internal bool RefillStationLocked;
+
+    /// <summary>Whether X-ray owns pose input this frame.</summary>
+    internal bool XrayOwnsPoseInput;
+
+    /// <summary>Whether the locked alpha, a bomb jump, Shinespark or Crystal Flash, or the elevator locks pose input.</summary>
+    internal bool ActorLocksPoseInput;
+
+    /// <summary>Whether the posture-transition input dispatcher, an RTS ($91:8146), skips pose input.</summary>
+    internal bool PostureTransitionSkipsPoseInput;
+
+    /// <summary>Whether ordinary alpha's HUD, bomb and projectile owners run.</summary>
+    internal bool AlphaRuns;
+
+    /// <summary>Whether grapple owns beta movement.</summary>
+    internal bool GrappleOwnsMovement;
+
+    /// <summary>Whether the grapple-release mover keeps alpha's pending aim or turn transition.</summary>
+    internal bool GrappleReleaseAcceptsPoseInput;
+
+    /// <summary>
+    /// Whether this frame's alpha handler is the locked one installed at its start. Read live at each check: X-ray
+    /// admission can change the lock between them.
+    /// </summary>
+    internal bool AlphaInputLocked(SamusState samus) => samus.InputLocked || EnemyMainReleasedAlphaLock;
 }

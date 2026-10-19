@@ -28,33 +28,33 @@ internal static class EscapeAnimalBlocksVerification
         var system = new Bank80SystemState();
         // The real escape room population installs event ownership; its grey door may
         // continue stepping alongside the rescue animation, as it does in gameplay.
-        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
+        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
         int origin = level.GetBlockIndex(new(15, 10));
         plms.EscapeAnimals.SetupCrittersEscapeBlock(level, origin);
-        AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Behavior, "rescue origin is shootable BTS 4F");
+        AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Bts.Value, "rescue origin is shootable BTS 4F");
         for (int y = 11; y <= 12; y++)
-            AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(15, checked((ushort)y))).LevelWord, "rescue extensions preserve visual tile");
+            AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(15, checked((ushort)y))).PackedWord.Raw, "rescue extensions preserve visual tile");
         for (int y = 10; y <= 12; y++)
         {
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(248, (ushort)(y * 16 + 8))) };
-            SeedStationaryGrappleCollisionProbe(bus, samus);
+            SeedStationaryGrappleCollisionProbe(samus);
             int before = plms.SlotTable.ActiveCount;
-            SamusGrappleMovement.StepFiring(bus, level, samus,
+            SamusGrappleMovement.StepFiring(level, samus,
                 SnesButton.X, plms);
             AssertEqual(GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "grapple stops on rescue origin or extension");
             AssertEqual(before, plms.SlotTable.ActiveCount, "zero grapple word cannot allocate the rescue animation");
-            AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Behavior, "grapple leaves rescue wall intact");
+            AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Bts.Value, "grapple leaves rescue wall intact");
             AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "grapple alone cannot rescue animals");
         }
         AssertTrue(!plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 0, true), "native zero grapple word rejected");
         AssertTrue(plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 1, true), "nonzero beam opens rescue wall");
         AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "rescue event waits for animation");
         for (int frame = 0; frame < 16; frame++)
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(system.HasEvent(EventNumber.CrittersEscaped), "native animation sets rescue event");
         for (int y = 10; y <= 12; y++)
-            AssertEqual((ushort)0x80ff, level.GetCollisionBlock(new(15, checked((ushort)y))).LevelWord, "native rescue opening clears artwork but remains solid to Samus");
+            AssertEqual((ushort)0x80ff, level.GetCollisionBlock(new(15, checked((ushort)y))).PackedWord.Raw, "native rescue opening clears artwork but remains solid to Samus");
         Console.WriteLine("Animal rescue: native setup, ROM break animation, cleared wall and event verified.");
     }
 

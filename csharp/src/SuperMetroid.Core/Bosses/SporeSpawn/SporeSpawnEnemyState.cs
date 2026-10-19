@@ -35,20 +35,29 @@ public sealed class SporeSpawnEnemyState
     /// is raised 128 pixels; native <c>XOrigin</c>/<c>YOrigin</c> at WRAM $0FAC/$0FAE.
     /// </summary>
     public Position16<RoomPixels> MovementCenter { get; internal set; }
-    /// <summary>Byte-wrapped sway phase stored in a word at $7E:7814, with 256 units per cycle; X samples cosine and Y samples the doubled, shifted phase.</summary>
-    public ushort Angle { get; internal set; }
-    /// <summary>Horizontal sway amplitude in room pixels, native $7E:7816; vertical amplitude is this value minus sixteen.</summary>
-    public ushort MaximumXRadius { get; internal set; }
-    /// <summary>Signed angular increment per movement update, native $7E:7818; hits may reverse its sign or increase its magnitude from one to two below 400 health, with movement using the low byte.</summary>
-    public ushort AngleDelta { get; internal set; }
-    /// <summary>Native $7E:9000 emitter gate: zero permits ceiling spawner countdowns, while nonzero suppresses generation during protected instruction phases.</summary>
-    public ushort SporeGenerationFlag { get; internal set; }
-    /// <summary>Native $7E:801E one-hit guard for an open phase; nonzero prevents repeated direction reversal and close-list installation until the clear-damaged opcode resets it.</summary>
-    public ushort DamagedFlag { get; internal set; }
+    /// <summary>
+    /// Sway phase in 256ths of a turn, starting at three quarters; X samples cosine and Y samples the doubled,
+    /// shifted phase. The phase wraps around the turn as it advances, which the sway depends on.
+    /// </summary>
+    public SnesAngle Angle { get; internal set; }
+    /// <summary>
+    /// Horizontal sway amplitude in room pixels; vertical amplitude is this value minus sixteen. Set to 48 by the
+    /// descent and 64 by the fight-start cue, and widened by eight while below forty, so it stays within 0..64.
+    /// </summary>
+    public int MaximumXRadius { get; internal set; }
+    /// <summary>
+    /// Signed sway step per movement update in 256ths of a turn: one from the program, doubled to two below 400
+    /// health with its sign kept, and negated by the first damaging hit of an open phase, so it stays within -2..2.
+    /// </summary>
+    public int AngleDelta { get; internal set; }
+    /// <summary>Whether the ceiling spore emitters are stopped: the program sets it during protected phases and clears it, and death clears it.</summary>
+    public bool SporeGenerationSuppressed { get; internal set; }
+    /// <summary>One-hit guard for an open phase: once set, further hits neither reverse the sway nor close the head until the program clears it.</summary>
+    public bool Damaged { get; internal set; }
     /// <summary>Health value last recorded by the guarded damaging-hit palette update, native $7E:8800; used to avoid reloading an unchanged health palette.</summary>
-    public ushort PreviousHealth { get; internal set; }
-    /// <summary>Fixed byte-sized death-drift direction toward (128,624), stored at $7E:8806; zero is right, $40 up, $80 left, and $C0 down.</summary>
-    public ushort DeathAngle { get; internal set; }
+    public int PreviousHealth { get; internal set; }
+    /// <summary>Fixed death-drift direction toward (128,624) in 256ths of a turn: zero is right, a quarter turn up, a half turn left and three quarters down.</summary>
+    public SnesAngle DeathAngle { get; internal set; }
     /// <summary>
     /// Unsigned 16.16 pixels-per-update death-drift magnitude per axis, combining native death
     /// speed/subspeed words $7E:8010/$8012 (X) and $7E:8014/$8016 (Y); <see cref="DeathAngle"/>

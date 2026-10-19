@@ -40,24 +40,39 @@ internal sealed class OldTourianEscapeShaftWallBehavior
             projectile,
             RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion,
             graphicsIndex: 0);
-        projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionDefinitions.XPosition);
-        projectile.Variable0 = OldTourianEscapeShaftWallExplosionDefinitions.XPosition;
-        projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionDefinitions.YPosition);
-        projectile.Variable1 = OldTourianEscapeShaftWallExplosionDefinitions.YPosition;
+        projectile.StartAnimation(new OldTourianWallExplosionAnimation(OldTourianWallExplosionProgram.Start));
+        projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.XPosition);
+        projectile.Variable0 = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.XPosition;
+        projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.YPosition);
+        projectile.Variable1 = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.YPosition;
     }
 
 
-    /// <summary>Registers the wall explosion's library-two sound opcode only for the owned projectile kind, then advances its cursor.</summary>
-    internal void RegisterWallExplosionSoundInstruction(EnemyProjectileHandlerTable table)
+    /// <summary>Registers the handler that carries out the wall explosion program's commands.</summary>
+    internal void RegisterWallExplosionCues(EnemyProjectileHandlerTable table) =>
+        table.RegisterCue<OldTourianWallExplosionCue>((context, cue) => ApplyWallExplosionCue(context.Projectile, context.Samus, cue));
+
+    /// <summary>Carries out one command of the wall explosion's program.</summary>
+    private void ApplyWallExplosionCue(RoomEnemyProjectileSlot projectile, SamusState? samus, OldTourianWallExplosionCue cue)
     {
-        table.RegisterInstruction(EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, projectile => OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind),
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
+        switch (cue)
+        {
+            case OldTourianWallExplosionCue.ClearPreInstruction:
+                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
+                break;
+            case OldTourianWallExplosionCue.Scatter:
+                _projectiles.Scatter(projectile, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter);
+                break;
+            case OldTourianWallExplosionCue.ExplosionSound:
                 _audio.QueueEnemySound(
-                    OldTourianEscapeShaftWallExplosionDefinitions.ExplosionSound,
-                    OldTourianEscapeShaftWallExplosionDefinitions.ExplosionSoundMaximum);
-                cursor = unchecked((ushort)(cursor + 3));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+                    OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ExplosionSound,
+                    OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ExplosionSoundMaximum);
+                break;
+            case OldTourianWallExplosionCue.Delete:
+                projectile.Clear();
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(OldTourianWallExplosionCue)} {cue}.");
+        }
     }
 }

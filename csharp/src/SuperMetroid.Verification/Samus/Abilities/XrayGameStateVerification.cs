@@ -28,28 +28,28 @@ internal static class XrayGameStateVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) CreateWithXraySelected()
         {
-            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
+            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
             SamusState samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             // Open floor in the Scope chamber, as used by the X-ray input fixture.
             samus.Position = samus.Position.WithWhole(new(128, 139));
-            samus.EquippedItems = (ushort)SamusEquipmentFlags.XrayScope;
+            samus.EquippedItems = SamusEquipmentFlags.XrayScope;
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
-            var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-            game.runtime = runtime;
-            game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+            game.Session.runtime = runtime;
+            game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
             game.GameState = SuperMetroidGameState.MainGameplay;
             game.Step(0);
             game.Step(SnesButton.Select);
             AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "selecting X-ray stays in state eight");
-            AssertEqual(SamusXrayRomData.SelectedHudItem, samus.SelectedHudItem, "Select reaches the equipped X-ray");
+            AssertEqual(HudItem.XRay, samus.SelectedHudItem, "Select reaches the equipped X-ray");
             AssertTrue(!samus.Xray.IsActive, "selection alone does not activate X-ray");
             return (game, runtime, samus);
         }
@@ -61,18 +61,18 @@ internal static class XrayGameStateVerification
             AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "Start begins pause darkening");
             game.Step(runtime.Options.ControllerBindings.Dash);
             AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "the held-Run frame is a darkening gameplay frame");
-            AssertEqual((ushort)SuperMetroidGameState.PausingDarkening, runtime.DispatchGameState, "the runtime sees the live darkening state");
+            AssertEqual(SuperMetroidGameState.PausingDarkening, runtime.DispatchGameState, "the runtime sees the live darkening state");
             AssertTrue(!samus.Xray.IsActive, "state $0C rejects X-ray setup");
             AssertTrue(!runtime.Freeze.TimeIsFrozen, "a rejected setup does not freeze gameplay");
         }
 
         // State $12: the unpause fade also runs the state-eight routine.
         {
-            game.pauseBrightness = 0;
+            game.Session.pauseBrightness = 0;
             game.GameState = SuperMetroidGameState.Unpausing;
             game.Step(runtime.Options.ControllerBindings.Dash);
             AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "the held-Run frame is an unpausing gameplay frame");
-            AssertEqual((ushort)SuperMetroidGameState.Unpausing, runtime.DispatchGameState, "the runtime sees the live unpausing state");
+            AssertEqual(SuperMetroidGameState.Unpausing, runtime.DispatchGameState, "the runtime sees the live unpausing state");
             AssertTrue(!samus.Xray.IsActive, "state $12 rejects X-ray setup");
             AssertTrue(!runtime.Freeze.TimeIsFrozen, "a rejected setup does not freeze gameplay");
         }

@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Runtime;
 
@@ -34,10 +35,12 @@ internal static class RuntimeCartridgeBoundaryVerification
         AssertTrue(!MetadataShape.DeclaresMethod(typeof(SnesVram), "ExecuteQueuedWrite") &&
                 !MetadataShape.DeclaresMethod(typeof(SnesVram), "ExecuteHardwareDmaWrite"),
             "VRAM must not retain untyped CPU-bus DMA APIs");
-        AssertEqual(typeof(ISnesMutableMemory), MetadataShape.ParameterTypes(typeof(SnesVram), nameof(SnesVram.ExecuteQueuedMemoryWrite))[0],
-            "queued memory DMA requires a compile-time mutable-memory source");
-        AssertEqual(typeof(ISnesMutableMemory), MetadataShape.ParameterTypes(typeof(VramWriteQueue), nameof(VramWriteQueue.DrainTo))[1],
-            "NMI queue drainage requires a compile-time mutable-memory source");
+        AssertTrue(!MetadataShape.DeclaresMethod(typeof(SnesVram), "ExecuteQueuedMemoryWrite") &&
+                !MetadataShape.DeclaresMethod(typeof(SnesVram), "ExecuteDmaWrite"),
+            "VRAM must not retain a memory-sourced DMA path; queued transfers come from installed artwork");
+        AssertTrue(!MetadataShape.ParameterTypes(typeof(VramWriteQueue), nameof(VramWriteQueue.DrainTo))
+                .Any(type => typeof(ISnesMemoryBus).IsAssignableFrom(type) || typeof(ISnesMutableMemory).IsAssignableFrom(type)),
+            "NMI queue drainage takes no memory source");
         AssertTrue(!MetadataShape.DeclaresMethod(typeof(SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundLoader), "ExecuteNativeForVerification", BindingFlags.Static | BindingFlags.NonPublic),
             "Core must not contain a native background byte decoder, even behind a diagnostic-only entry point");
         AssertEqual(typeof(SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinition),
@@ -47,5 +50,13 @@ internal static class RuntimeCartridgeBoundaryVerification
                  { "SuperMetroid.AssetExtraction.Compression.SmCompression", "SuperMetroid.AssetExtraction.ReferenceRendering.RoomRenderer" })
             AssertTrue(runtimeBus.Assembly.GetType(importOnlyType) is null,
                 $"Core must not compile the import-only {importOnlyType} type");
+    }
+
+    /// <summary>Runs the runtime's cartridge and memory boundary checks.</summary>
+    [VerificationCommand("--runtime-cartridge-boundary")]
+    internal static int RuntimeCartridgeBoundaryCommand()
+    {
+        SuiteTimingVerification.Suite(nameof(VerifyRuntimeAddressSpaceHasNoCartridgeApi), () => VerifyRuntimeAddressSpaceHasNoCartridgeApi());
+        return 0;
     }
 }

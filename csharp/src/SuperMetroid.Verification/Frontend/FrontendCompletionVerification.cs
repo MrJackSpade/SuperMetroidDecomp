@@ -16,6 +16,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks options, door opening, reserve recovery, and ending handoffs in the playable frontend.</summary>
 internal static class FrontendCompletionVerification
@@ -93,7 +94,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         GameOptionsRomData.TilemapByteCount,
         0);
     var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-    var options = new GameOptionsMenuState(bus, mapPresentation: RetailPresentationFixture());
+    var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture());
     StepOptionsUntil(options, GameOptionsPhase.Main);
 
     for (int row = 0; row < 3; row++)
@@ -128,7 +129,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     PressOptions(options, SnesButton.Right);
     AssertTrue(options.MoonwalkEnabled, "special page toggles Moonwalk with Right");
 
-    var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+    var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {
         ControllerBindings = options.ControllerBindings,
@@ -154,7 +155,7 @@ internal static void VerifyReserveAutoRecovery()
         MaxHealth = 99,
         ReserveEnergy = 2,
         MaxReserveEnergy = 99,
-        ReserveTankMode = 1,
+        ReserveTankMode = ReserveTankMode.Auto,
     };
     var reserve = new SamusReserveAutoRecoveryState();
     reserve.Begin(samus);
@@ -203,8 +204,8 @@ internal static void VerifyDoorOpeningTrajectories()
             RoomLoader.DoorTransitionAlignsX((DoorDirection)direction),
             $"door direction {direction} alignment axis");
         var door = new CartridgeDoorHeader(
-            Pointer: 0x8000,
-            DestinationRoomPointer: 0x9000,
+            Name: "fixture door",
+            DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
             Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
             PlmBlock: new(0, 0),
             DestinationScreen: new(3, 2),
@@ -379,7 +380,7 @@ internal static void VerifyEndingCreditsState()
 
     var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     var audio = new SuperMetroid.Core.Audio.CartridgeAudioState();
-    var ending = CreateRetailEndingFixture(bus, audio, gameTimeHours: 2, gameTimeMinutes: 59);
+    var ending = CreateRetailEndingFixture(audio, gameTimeHours: 2, gameTimeMinutes: 59);
     ending.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus))));
     EndingCreditsPhase previous = ending.Phase;
@@ -414,22 +415,22 @@ internal static void VerifyEndingCreditsState()
     AssertTrue(renderedTransitions >= 20,
         "ending renders each materially different cartridge phase");
 
-    var middle = CreateRetailEndingFixture(bus, audio, gameTimeHours: 3, gameTimeMinutes: 0);
-    var slow = CreateRetailEndingFixture(bus, audio, gameTimeHours: 10, gameTimeMinutes: 0);
+    var middle = CreateRetailEndingFixture(audio, gameTimeHours: 3, gameTimeMinutes: 0);
+    var slow = CreateRetailEndingFixture(audio, gameTimeHours: 10, gameTimeMinutes: 0);
     AssertEqual(EndingReward.Suitless, ending.EndingReward, "under-three-hour ending branch");
     AssertEqual(EndingReward.Helmetless, middle.EndingReward, "three-to-ten-hour ending branch");
     AssertEqual(EndingReward.Armored, slow.EndingReward, "ten-hour ending branch");
 
     var percentageTilemap = new ushort[0x400];
     Array.Fill(percentageTilemap, (ushort)0x007f);
-    var percentage = new EndingBackgroundTextState(bus, new EndingBackgroundTextSetup { Tilemap = percentageTilemap, InstructionPointer = 0xdfdb, Inventory = new EndingInventorySnapshot(
+    var percentage = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = percentageTilemap, Inventory = new EndingInventorySnapshot(
             MaxHealth: 1499,
             MaxReserveEnergy: 400,
             MaxMissiles: 230,
             MaxSuperMissiles: 50,
             MaxPowerBombs: 50,
-            CollectedItems: 0xf32f,
-            CollectedBeams: 0x100f), JapaneseText = false, Presentation = RetailPresentationFixture().EndingText, InstalledSequence = EndingTextSequence.ItemPercentage });
+            CollectedItems: (SamusEquipmentFlags)0xf32f,
+            CollectedBeams: (SamusBeamFlags)0x100f), JapaneseText = false, Presentation = RetailPresentationFixture().EndingText, InstalledSequence = EndingTextSequence.ItemPercentage });
     var percentageVram = new SnesVram();
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
         percentage.Step(percentageVram);

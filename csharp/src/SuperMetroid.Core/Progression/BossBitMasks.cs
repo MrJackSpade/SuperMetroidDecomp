@@ -11,17 +11,6 @@ public static class BossBitMasks
     public const BossBits AllKnown =
         BossBits.AreaBoss | BossBits.AreaMiniBoss | BossBits.AreaTorizo;
 
-    /// <summary>
-    /// Converts a cartridge operand to a named mask and rejects bits without established
-    /// semantics. Context is included so a malformed selector or PLM identifies its owner.
-    /// </summary>
-    public static BossBits FromCartridge(byte value, string context)
-    {
-        BossBits bits = (BossBits)value;
-        Validate(bits, context);
-        return bits;
-    }
-
     /// <summary>Rejects unnamed flags passed through a typed gameplay API.</summary>
     public static void Validate(BossBits bits, string context)
     {

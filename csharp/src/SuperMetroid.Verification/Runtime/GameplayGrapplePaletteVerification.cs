@@ -24,18 +24,17 @@ internal static class GameplayGrapplePaletteVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyGameplayGrapplePalette()
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var projectiles=installation.LoadProjectiles();
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.ParlorAndAlcatraz);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
         var words = new ushort[32 * 16];
         for (int i = 12 * 32; i < 13 * 32; i++) words[i] = 0x8000;
@@ -49,12 +48,12 @@ internal static class GameplayGrapplePaletteVerification
         {
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.InputLocked = false;
-            samus.EquippedItems = samus.CollectedItems = (ushort)SamusEquipmentFlags.GrappleBeam;
-            samus.EquippedBeams = beam;
-            samus.SelectedHudItem = SamusHudRomData.GrappleSelectedItem;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
-            samus.CommitPoseHistory(bus);
+            samus.EquippedItems = samus.CollectedItems = SamusEquipmentFlags.GrappleBeam;
+            samus.EquippedBeams = (SamusBeamFlags)beam;
+            samus.SelectedHudItem = HudItem.Grapple;
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
+            samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(192 - samus.Kinematics.Radius.Y)));
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
             runtime.StepFrame(0);
@@ -64,9 +63,9 @@ internal static class GameplayGrapplePaletteVerification
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
             samus.Pose = SamusPoseId.StandingAimDiagonalUpRightPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
-            samus.CommitPoseHistory(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
+            samus.CommitPoseHistory();
             palettes.LoadTo(runtime.Cgram, SamusBeamCombinations.FromTableIndex(beam));
             runtime.Cgram.SetColor(223, Bgr555.FromWord(0x1234));
             runtime.StepFrame(SnesButton.X);

@@ -19,8 +19,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class MaridiaEnvironmentalPaletteFxColorDefinitions
 {
-    /// <summary>$8D:F4E9: native Maridia1 color-index setup, followed contiguously by sand-fall and waterfall programs.</summary>
-    internal const ushort SandPitProgram = 0xF4E9;
     /// <summary>$8D:F4EF/F547: four-color sand rotation group.</summary>
     internal const int SandRotationColors = 4;
     /// <summary>$8D:F4EF: pair of separately rotating sand-pit color bands.</summary>

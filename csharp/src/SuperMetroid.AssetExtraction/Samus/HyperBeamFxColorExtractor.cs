@@ -5,6 +5,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Fx;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -20,23 +21,7 @@ public static class HyperBeamFxColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var frames = new PaletteRgb5[HyperBeamFxColorFormat.FrameCount][];
-        for (int frame = 0; frame < frames.Length; frame++)
-        {
-            ushort pointer = HyperBeamPaletteFxColorDefinitions.FrameColorsPointer(frame);
-            frames[frame] = new PaletteRgb5[HyperBeamFxColorFormat.ColorsPerFrame];
-            for (int color = 0; color < frames[frame].Length; color++)
-            {
-                int address = SamusPaletteRomData.Banks.PaletteFx | (pointer + color * sizeof(ushort));
-                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-                frames[frame][color] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
-            }
-        }
+        PaletteRgb5[][] frames = PaletteFxColorExtraction.ReadFrames(bus, HyperBeamPaletteFxColorDefinitions.Rows);
         return HyperBeamFxColorCatalog.Write(new() { Version = HyperBeamFxColorFormat.Version, Frames = frames });
     }
 }

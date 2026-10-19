@@ -64,8 +64,8 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
                  NorfairEnvironmentalPaletteFxColorDefinitions.All)
         {
-            native.SpawnDefinition(bus, definition.DefinitionPointer, equippedItems: 0);
-            installed.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            native.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
+            installed.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
         }
 
         var nativeCgram = new SnesCgram();
@@ -73,8 +73,8 @@ internal static class RoomPaletteFxPresentationVerification
         int frames = NorfairEnvironmentalPaletteFxColorDefinitions.CycleFrames * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            installed.Step(guarded, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Norfair palette equals native output on frame {frame}");
             AssertEqual(native.SamusInHeatPaletteIndex, installed.SamusInHeatPaletteIndex,
@@ -176,7 +176,7 @@ internal static class RoomPaletteFxPresentationVerification
             VerifyInstalledPaletteFxFamily(bus, presentation, $"Crateria escape {definition.Owner}", new PaletteFxFamilyShape { FrameCount = CrateriaEscapeLightningPaletteFxColorDefinitions.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, CrateriaEscapeLightningPaletteFxColorDefinitions.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Crateria and Brinstar beacon flash", new PaletteFxFamilyShape { FrameCount = BeaconPaletteFxColorDefinitions.FrameCount, ColorsPerFrame = BeaconPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = BeaconPaletteFxColorDefinitions.ColorPointer, Definitions = [BeaconPaletteFxColorDefinitions.DefinitionPointer] }, BeaconPaletteFxColorDefinitions.CycleFrames * 2));
-        Suite(nameof(VerifyRoomPaletteFxPresentationValidation), () => VerifyRoomPaletteFxPresentationValidation(extracted, bus));
+        Suite(nameof(VerifyRoomPaletteFxPresentationValidation), () => VerifyRoomPaletteFxPresentationValidation(extracted));
         Console.WriteLine(
             "  Room palette presentation: 5108 editable palette colors match ROM; " +
             "fifty-five installed programs match native execution without color-source reads.");
@@ -203,11 +203,11 @@ internal static class RoomPaletteFxPresentationVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value);
         AssertEqual(17, inputs.Count, "gunship reveal independent source-color count");
         ushort[] inputPointers = inputs.Keys.ToArray();
-        var inputView = new EndingGunshipPaletteInputView(ToColors(inputs));
-        AssertTrue(inputPointers.ToHashSet().SetEquals(inputView.Keys), "gunship input identities survive shared-channel calculation");
+        var inputView = new EndingGunshipPaletteInputView(PaletteFxColorAddressAccess.Keyed(ToColors(inputs)));
+        AssertTrue(inputPointers.ToHashSet().SetEquals(inputView.Pointers), "gunship input identities survive shared-channel calculation");
         AssertEqual(17, inputView.Count, "gunship input view keeps its complete logical key count");
         foreach (ushort pointer in inputPointers)
-            AssertEqual(original[pointer], inputView[pointer], "original gunship base word reconstructed from independent channels");
+            AssertEqual(original[pointer], inputView[PaletteFxColorAddressAccess.KeyAt(pointer)], "original gunship base word reconstructed from independent channels");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;
@@ -340,7 +340,7 @@ internal static class RoomPaletteFxPresentationVerification
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             var supplied = new Dictionary<ushort, ushort>(endpointFixture) { [endpoint] = (ushort)rgb };
-            Dictionary<ushort, Bgr555> source = ToColors(supplied);
+            Dictionary<PaletteFxColorKey, Bgr555> source = PaletteFxColorAddressAccess.Keyed(ToColors(supplied));
             var view = new LoadingPaletteInputView(source);
             foreach (ushort selected in splitEndpoints)
             {
@@ -499,7 +499,7 @@ internal static class RoomPaletteFxPresentationVerification
                 [0xe55e] = ReadVerificationWord(bus, 0x8de55e),
             };
             supplied[endpoint] = (ushort)rgb;
-            Dictionary<ushort, Bgr555> source = ToColors(supplied);
+            Dictionary<PaletteFxColorKey, Bgr555> source = PaletteFxColorAddressAccess.Keyed(ToColors(supplied));
             var split = new HeatPaletteInputView(source);
             AssertTrue(split.TryGetValue(endpoint, out Bgr555 actual), "Split endpoint remains owned");
             AssertEqual((ushort)rgb, actual, "Every independently edited RGB5 endpoint survives channel decomposition");
@@ -669,7 +669,7 @@ internal static class RoomPaletteFxPresentationVerification
                  PaletteFxHeatProgramMechanicsDefinitions.All)
         {
             var forbidden = new HashSet<int>();
-            foreach (PaletteFxHeatProgramFrameDefinition frame in definition.Frames)
+            foreach (var frame in definition.Frames)
             for (int index = 0; index < PaletteFxHeatProgramDefinition.ColorsPerFrame; index++)
             {
                 ushort pointer = unchecked((ushort)(frame.FirstColorPointer +
@@ -693,20 +693,20 @@ internal static class RoomPaletteFxPresentationVerification
             ushort equipment = definition.Suit switch
             {
                 PaletteFxHeatSuit.Power => 0,
-                PaletteFxHeatSuit.Varia => (ushort)SamusEquipmentFlags.VariaSuit,
-                PaletteFxHeatSuit.Gravity => (ushort)SamusEquipmentFlags.GravitySuit,
+                PaletteFxHeatSuit.Varia => SamusEquipmentFlags.VariaSuit.ToNativeWord(),
+                PaletteFxHeatSuit.Gravity => SamusEquipmentFlags.GravitySuit.ToNativeWord(),
                 _ => throw new InvalidOperationException(),
             };
-            native.SpawnDefinition(bus, RoomPaletteFxDefinitions.SamusInHeat, equipment);
-            installed.SpawnDefinition(guard, RoomPaletteFxDefinitions.SamusInHeat, equipment);
+            native.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, (SamusEquipmentFlags)equipment);
+            installed.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, (SamusEquipmentFlags)equipment);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             int steps = 1 + Enumerable.Range(0, definition.Frames.Count)
                 .Sum(phase => PaletteFxHeatProgramDefinitionConstants.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
             {
-                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(guard, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = (SamusEquipmentFlags)equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = (SamusEquipmentFlags)equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {definition.Suit} heat CGRAM matches native frame {step}");
             }
@@ -743,14 +743,14 @@ internal static class RoomPaletteFxPresentationVerification
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var native = new RoomPaletteFxSystem();
             var installed = new RoomPaletteFxSystem();
-            native.SpawnDefinition(bus, definition, equippedItems: 0);
-            installed.SpawnDefinition(guarded, definition, equippedItems: 0);
+            native.SpawnDefinition(definition, equippedItems: 0);
+            installed.SpawnDefinition(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             for (int frame = 0; frame < framesToRun; frame++)
             {
-                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(guarded, installedCgram, presentation, new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {description} definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
@@ -803,15 +803,15 @@ internal static class RoomPaletteFxPresentationVerification
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var native = new RoomPaletteFxSystem();
             var installed = new RoomPaletteFxSystem();
-            native.SpawnDefinition(bus, definition, equippedItems: 0);
-            installed.SpawnDefinition(guarded, definition, equippedItems: 0);
+            native.SpawnDefinition(definition, equippedItems: 0);
+            installed.SpawnDefinition(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             const int frames = 160;
             for (int frame = 0; frame < frames; frame++)
             {
-                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(guarded, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed Wrecked Ship definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
@@ -856,8 +856,8 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (MaridiaEnvironmentalPaletteFxColorDefinition definition in
                  MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
-            native.SpawnDefinition(bus, definition.DefinitionPointer, equippedItems: 0);
-            installed.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            native.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
+            installed.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
         }
 
         var nativeCgram = new SnesCgram();
@@ -865,8 +865,8 @@ internal static class RoomPaletteFxPresentationVerification
         const int frames = 80;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            installed.Step(guarded, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Maridia palette equals native output on frame {frame}");
         }
@@ -876,7 +876,7 @@ internal static class RoomPaletteFxPresentationVerification
 
     /// <summary>Checks schema version, shape, and color validation for edited room palette-FX documents.</summary>
     private static void VerifyRoomPaletteFxPresentationValidation(
-        byte[] extracted, ISnesAddressSpace bus)
+        byte[] extracted)
     {
         RoomPaletteFxPresentationDocument document =
             JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
@@ -962,16 +962,16 @@ internal static class RoomPaletteFxPresentationVerification
             new MemoryStream(Json(), writable: false));
         var stockOwner = new RoomPaletteFxSystem();
         var editedOwner = new RoomPaletteFxSystem();
-        stockOwner.SpawnDefinition(bus, RoomPaletteFxDefinitions.SamusInHeat,
+        stockOwner.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat,
             equippedItems: 0);
-        editedOwner.SpawnDefinition(bus, RoomPaletteFxDefinitions.SamusInHeat,
+        editedOwner.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat,
             equippedItems: 0);
         // The same native control stream selects both color sources. Only the
         // visible CGRAM word should change, not phase or sound side effects.
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        stockOwner.Step(bus, stockCgram, currentStock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        editedOwner.Step(bus, editedCgram, editedHeat, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        stockOwner.Step(stockCgram, currentStock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        editedOwner.Step(editedCgram, editedHeat, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(editedCgram)),
             "editing Samus's Power Suit heat color changes visible CGRAM");
         AssertEqual(stockOwner.SamusInHeatPaletteIndex,

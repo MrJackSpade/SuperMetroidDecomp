@@ -73,17 +73,17 @@ public sealed class OamBuffer
     }
 
     /// <summary>Draws a compiled visual part with the same $81:879F clipping/packing as cartridge spritemaps.</summary>
-    public void AddOnScreenSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
+    public void AddOnScreenSpritePart(SnesSpritemapXWord xOffset, SnesSpritemapYByte yOffset,
         SnesObjAttributeWord attributes, Position16<OamPixels> origin)
         => AppendGenericSprite(xOffset, yOffset, attributes, origin, originIsOnScreen: true);
 
     /// <summary>Draws a compiled visual part with $81:8853's reversed vertical-wrap branch.</summary>
-    public void AddOffScreenSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
+    public void AddOffScreenSpritePart(SnesSpritemapXWord xOffset, SnesSpritemapYByte yOffset,
         SnesObjAttributeWord attributes, Position16<OamPixels> origin)
         => AppendGenericSprite(xOffset, yOffset, attributes, origin, originIsOnScreen: false);
 
     /// <summary>Applies the generic spritemap vertical-wrap clipping and packs one hardware OBJ record.</summary>
-    private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
+    private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, SnesSpritemapYByte encodedYOffset,
         SnesObjAttributeWord finalAttributes, Position16<OamPixels> origin, bool originIsOnScreen)
     {
         if (NextByteOffset >= LowTableByteCount) return; // Native stops at the hardware OAM capacity.
@@ -91,9 +91,8 @@ public sealed class OamBuffer
         // Only the low nine X bits reach hardware. The independent size flag
         // survives even when vertical clipping parks the sprite off screen.
         ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
-        int calculatedY = (byte)origin.Y + encodedYOffset;
-        bool yOffsetIsNegative = unchecked((sbyte)encodedYOffset) < 0;
-        bool hideForVerticalWrap = ShouldHideForOnScreenOrigin(calculatedY, yOffsetIsNegative);
+        int calculatedY = (byte)origin.Y + encodedYOffset.Raw;
+        bool hideForVerticalWrap = ShouldHideForOnScreenOrigin(calculatedY, encodedYOffset.IsNegative);
         if (!originIsOnScreen)
             hideForVerticalWrap = !hideForVerticalWrap;
 
@@ -113,21 +112,6 @@ public sealed class OamBuffer
         NextByteOffset += 4;
     }
 
-    /// <summary>Draws an installed enemy frame without reading visual records from ROM.</summary>
-    public void AddEnemySpritemap(
-        ReadOnlySpan<EnemySpritemapPart> parts,
-        Position16<OamPixels> origin,
-        ushort paletteBits,
-        ushort baseTileIndex,
-        bool clipVerticalWrap = false,
-        bool originYIsOnScreen = true)
-    {
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
-        foreach (EnemySpritemapPart part in parts)
-            AppendEnemySpritemapPart(part, origin, paletteBits,
-                baseTileIndex, clipVerticalWrap, originYIsOnScreen);
-    }
-
     /// <summary>Appends an immutable calculated enemy composition in its original drawing order.</summary>
     public void AddEnemySpritemap(EnemySpritemapParts parts,
         Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
@@ -141,12 +125,12 @@ public sealed class OamBuffer
     }
 
     /// <summary>Packs an enemy part after adding its tile base, palette, and optional vertical clipping.</summary>
-    private void AppendEnemySpritemapPart(EnemySpritemapPart part,
+    internal void AppendEnemySpritemapPart(EnemySpritemapPart part,
         Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap, bool originYIsOnScreen)
     {
         SnesSpritemapXWord encodedXOffset = part.X;
-        byte encodedYOffset = part.Y;
+        byte encodedYOffset = part.Y.Raw;
         ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
         int unsignedYSum = unchecked((byte)origin.Y) + encodedYOffset;
         byte calculatedY;
@@ -233,8 +217,9 @@ public sealed class OamBuffer
             SnesLittleEndian.Word(_lowTable[lowOffset + 2], _lowTable[lowOffset + 3]));
 
         return new OamEntry(
-            X: _lowTable[lowOffset] + (highPair.XHigh ? ByteRange : 0),
-            Y: _lowTable[lowOffset + 1],
+            Position: new Position16<OamPixels>(
+                checked((ushort)(_lowTable[lowOffset] + (highPair.XHigh ? ByteRange : 0))),
+                _lowTable[lowOffset + 1]),
             TileNumber: attributes.TileNumber,
             Palette: attributes.PaletteIndex,
             Priority: attributes.Priority,

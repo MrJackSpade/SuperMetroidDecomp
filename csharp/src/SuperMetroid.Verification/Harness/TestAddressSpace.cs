@@ -12,7 +12,7 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 [CpuBusBoundary("exact bus test: sparse synthetic CPU address space whose bytes the test seeds directly")]
 internal sealed class TestAddressSpace : ISnesMemoryBus,
     IImportCartridgeSource,
-    IRoomEnemyFixtureSource, IRoomEnemyFallingTubeFixtureSource
+    IRoomEnemyDefinitionSource
 {
     /// <summary>Only CPU addresses explicitly seeded by a focused fixture; all others read as zero.</summary>
     private readonly Dictionary<int, byte> _bytes = [];
@@ -44,9 +44,6 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     /// <summary>Reads the exact seeded WRAM alias without synthesizing mirrored banks.</summary>
     public byte ReadWorkRamByte(int address) => ReadByte(address);
 
-    /// <summary>Reads the exact seeded SRAM alias without synthesizing mirrored banks.</summary>
-    public byte ReadSaveRamByte(int address) => ReadByte(address);
-
     /// <summary>Seeds one validated 24-bit CPU address for a focused fixture.</summary>
     public void WriteByte(int address, byte value)
     {
@@ -73,7 +70,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     {
         int address = MotherBrainNativeListAddresses.TubePopulationRecord(piece);
         ushort Word(int offset) => SnesLittleEndian.Word(ReadByte(address + offset), ReadByte(address + offset + 1));
-        return new RoomEnemyPopulationRecord((EnemyDefinitionId)Word(0), new(Word(2), Word(4)), Word(6), Word(8), Word(10), Word(12), Word(14));
+        return new RoomEnemyPopulationRecord((EnemyDefinitionId)Word(0), new(Word(2), Word(4)), Word(6), EnemyPropertyWord.FromNativeWord(Word(8)), EnemyExtraPropertyWord.FromNativeWord(Word(10)), Word(12), Word(14));
     }
 
     /// <summary>Reads up to 32 native-sized enemy population records through the terminating sentinel.</summary>
@@ -86,15 +83,18 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             ushort definitionPointerWord = ReadFixtureWord(cursor);
             if (definitionPointerWord == 0xffff)
                 return new RoomEnemyPopulationDefinition(
-                    pointer, records.ToArray(), ReadByte(cursor + 2));
+                    $"fixture population ${pointer:X4}", records.ToArray(), ReadByte(cursor + 2));
             EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
             if (slot == RoomEnemySystem.MaximumEnemyCount)
                 throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");
-            records.Add(new RoomEnemyPopulationRecord(definitionPointer, new(ReadFixtureWord(cursor + 2), ReadFixtureWord(cursor + 4)), ReadFixtureWord(cursor + 6), ReadFixtureWord(cursor + 8), ReadFixtureWord(cursor + 10), ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
+            records.Add(new RoomEnemyPopulationRecord(definitionPointer, new(ReadFixtureWord(cursor + 2), ReadFixtureWord(cursor + 4)), ReadFixtureWord(cursor + 6), EnemyPropertyWord.FromNativeWord(ReadFixtureWord(cursor + 8)), EnemyExtraPropertyWord.FromNativeWord(ReadFixtureWord(cursor + 10)), ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
             cursor += 16;
         }
         throw new InvalidDataException($"Fixture population ${pointer:X4} is unterminated.");
     }
+
+    /// <summary>An empty graphics set for a fixture whose empty population never loads one.</summary>
+    public static RoomEnemyGraphicsSetDefinition UnusedGraphicsSet { get; } = new("unused fixture graphics set", []);
 
     /// <summary>Reads up to four enemy graphics headers through the native terminator.</summary>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
@@ -105,11 +105,11 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         {
             ushort definitionPointerWord = ReadFixtureWord(cursor);
             if (definitionPointerWord == 0xffff)
-                return new RoomEnemyGraphicsSetDefinition(pointer, records.ToArray());
+                return new RoomEnemyGraphicsSetDefinition($"fixture graphics set ${pointer:X4}", records.ToArray());
             EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
             if (slot == 4)
                 throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");
-            records.Add(new RoomEnemyGraphicsSetHeader(
+            records.Add(RoomEnemyGraphicsSetHeader.FromNative(
                 definitionPointer, ReadFixtureWord(cursor + 2)));
             cursor += 4;
         }

@@ -21,8 +21,8 @@ internal static class RetailEndingTests
         {
             var leftBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom); var rightBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             var leftAudio = new CartridgeAudioState(); var rightAudio = new CartridgeAudioState();
-            var legacy = InstalledFixtures.CreateEnding(leftBus, leftAudio, hours, 59);
-            var captured = InstalledFixtures.CreateEnding(rightBus, rightAudio, hours, 59);
+            var legacy = InstalledFixtures.CreateEnding(leftAudio, hours, 59);
+            var captured = InstalledFixtures.CreateEnding(rightAudio, hours, 59);
             var credits = CreditsPresentation.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(leftBus)));
             legacy.BindStaffCredits(credits);

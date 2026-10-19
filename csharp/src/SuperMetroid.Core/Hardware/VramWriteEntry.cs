@@ -5,14 +5,38 @@ namespace SuperMetroid.Core.Hardware;
 /// </summary>
 /// <param name="SizeInBytes">DMA byte count written to <c>DAS1</c>.</param>
 /// <param name="SourceAddress">24-bit CPU bus address written to <c>A1T1/A1B1</c>.</param>
-/// <param name="EncodedVramDestination">
-/// Destination word address; bit 15 selects a 32-word rather than one-word increment.
-/// </param>
+/// <param name="Destination">Where the transfer lands in VRAM, and the increment it writes with.</param>
 public readonly record struct VramWriteEntry(
-    ushort SizeInBytes,
+    int SizeInBytes,
     int SourceAddress,
-    ushort EncodedVramDestination)
+    VramDmaDestination Destination)
 {
+    /// <summary>The largest byte count the sixteen-bit DMA size register holds.</summary>
+    public const int MaximumSizeInBytes = ushort.MaxValue;
+
+    /// <summary>DMA byte count written to <c>DAS1</c>, 0 through <see cref="MaximumSizeInBytes"/>.</summary>
+    public int SizeInBytes { get; } = SizeInBytes is >= 0 and <= MaximumSizeInBytes
+        ? SizeInBytes
+        : throw new ArgumentOutOfRangeException(nameof(SizeInBytes), SizeInBytes, "A queued DMA moves 0 through 65535 bytes.");
+
     /// <summary>None preserves the original bus-backed record. Asset transfers resolve against current host content at drain time.</summary>
     public VramAssetId AssetId { get; init; }
+
+    /// <summary>Whether the transfer writes zero bytes instead of reading a source.</summary>
+    public bool ZeroFill { get; init; }
+
+    /// <summary>
+    /// The owned buffer the transfer reads when the queue drains, in place of the WRAM its native
+    /// <see cref="SourceAddress"/> names; null for bus, asset and zero-fill transfers.
+    /// </summary>
+    public VramStagingBuffer? Staging { get; init; }
+
+    /// <summary>The first byte of <see cref="Staging"/> the transfer reads.</summary>
+    public int StagingOffset { get; init; }
+
+    /// <summary>
+    /// The owned little-endian word table the transfer reads when the queue drains, in place of the WRAM its native
+    /// <see cref="SourceAddress"/> names; null for every other transfer.
+    /// </summary>
+    public ushort[]? StagingWords { get; init; }
 }

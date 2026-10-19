@@ -3,92 +3,91 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Debugger-facing projection of Botwoon's large extra-RAM allocation. The original uses
-/// several disjoint WRAM pages and aliases thirteen segment records through enemy-shaped
-/// structures. Named host fields retain those exact meanings without pretending the words
-/// belong to thirteen ordinary enemy slots.
+/// Debugger-facing projection of Botwoon's large extra-RAM allocation. The original uses several disjoint WRAM pages
+/// and aliases thirteen segment records through enemy-shaped structures. Named host fields retain those exact meanings
+/// without pretending the words belong to thirteen ordinary enemy slots. The values the cartridge keeps in the head's
+/// common record are emptied with it when the head is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class BotwoonEnemyState
 {
-    /// <summary>Botwoon's live head slot, whose variables D through F select three independent callbacks.</summary>
-    private readonly RoomEnemySlot _head;
+    /// <summary>
+    /// The bank-$B3 main-function pointer, owning initial waiting, traversal/spitting, and synchronized death
+    /// progression; none once a kill has emptied the record.
+    /// </summary>
+    public BotwoonEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Attaches the named boss state to its physical head enemy slot.</summary>
-    internal BotwoonEnemyState(RoomEnemySlot head) => _head = head;
+    /// <summary>
+    /// The independent bank-$B3 movement callback, choosing direct hole movement or descriptor-driven signed path
+    /// samples; none once a kill has emptied the record.
+    /// </summary>
+    public BotwoonMovementFunction? MovementFunction { get; internal set; }
 
-    /// <summary>Variable D's bank-$B3 main-function pointer, owning initial waiting, traversal/spitting, and synchronized death progression.</summary>
-    public BotwoonEnemyFunction Function
-    {
-        get => (BotwoonEnemyFunction)_head.VariableD;
-        internal set => _head.VariableD = (ushort)value;
-    }
+    /// <summary>
+    /// The independent bank-$B3 head callback, controlling movement orientation, aiming, spit-frame admission, and
+    /// cooldown; none once a kill has emptied the record.
+    /// </summary>
+    public BotwoonHeadFunction? HeadFunction { get; internal set; }
 
-    /// <summary>Variable E's independent bank-$B3 movement callback, choosing direct hole movement or descriptor-driven signed path samples.</summary>
-    public BotwoonMovementFunction MovementFunction
-    {
-        get => (BotwoonMovementFunction)_head.VariableE;
-        internal set => _head.VariableE = (ushort)value;
-    }
-
-    /// <summary>Variable F's independent bank-$B3 head callback, controlling movement orientation, aiming, spit-frame admission, and cooldown.</summary>
-    public BotwoonHeadFunction HeadFunction
-    {
-        get => (BotwoonHeadFunction)_head.VariableF;
-        internal set => _head.VariableF = (ushort)value;
-    }
-
-    /// <summary>Four-byte-aligned cursor $000-$3FC into the 1-KiB X/Y history ring; each moving frame writes its head position and advances modulo $400.</summary>
-    public ushort RingByteOffset { get; internal set; }
-    /// <summary>Byte distance between successive body samples in the history ring, selected inversely to movement speed: 24, 16, or 12.</summary>
-    public ushort SegmentSpacingBytes { get; internal set; }
+    /// <summary>Cursor 0-255 into the X/Y history ring; each moving frame writes its head position and advances modulo 256.</summary>
+    public int RingIndex { get; internal set; }
+    /// <summary>History-entry distance between successive body samples, selected inversely to movement speed: 6, 4, or 3.</summary>
+    public int SegmentSpacingEntries { get; internal set; }
     /// <summary>Initial unsigned countdown, seeded to 256 and decremented until zero before normal traversal begins.</summary>
     public NativeCountdown InitialDelayTimer { get; internal set; }
     /// <summary>Spit-action cooldown, seeded to 48 for the stationary attack and decremented to signed underflow by the head callback before being pinned to zero.</summary>
-    public ushort AttackTimer { get; internal set; }
-    /// <summary>Pre-fall death count, seeded to 240 once the tail completes the hole transition and incremented toward 256.</summary>
-    public ushort DeathTimer { get; internal set; }
-    /// <summary>Head-fall acceleration cursor; its high byte indexes the quadratic speed table and each still-airborne update adds $00C0.</summary>
-    public ushort DeathFallAccumulator { get; internal set; }
+    public NativeCountdown AttackTimer { get; internal set; }
+    /// <summary>
+    /// Pre-fall death count: seeded to 240 once the tail completes the hole transition and incremented once per update
+    /// until it reaches 256, when the head starts falling; it stays within 240..256.
+    /// </summary>
+    public int DeathTimer { get; internal set; }
+    /// <summary>
+    /// Head-fall acceleration in 256ths of a quadratic-speed step: each still-airborne update adds 192, and the whole
+    /// steps select the fall speed. The fall reaches the floor before the speed table runs out, so it stays well below
+    /// 95 whole steps.
+    /// </summary>
+    public int DeathFallAccumulator { get; internal set; }
     /// <summary>Elapsed wall-explosion update count 0 through 192, also used as the vertical progression of randomized explosion positions.</summary>
-    public ushort WallExplosionFrame { get; internal set; }
+    public int WallExplosionFrame { get; internal set; }
     /// <summary>Large wall-explosion countdown, active from update 64 and reloaded to 12 after signed underflow.</summary>
     public NativeCountdown LargeExplosionTimer { get; internal set; }
     /// <summary>Small wall-explosion countdown, active from update 64 and reloaded to four after signed underflow to emit a pair of effects.</summary>
     public NativeCountdown SmallExplosionTimer { get; internal set; }
     /// <summary>Health-selected movement magnitude 2, 3, or 4: pixels per direct-vector update or signed path samples consumed per authored-path update.</summary>
-    public ushort Speed { get; internal set; }
-    /// <summary>Byte offset 0, 8, 16, or 24 selecting one of four hole rectangles and its direct-movement target.</summary>
-    public ushort TargetHoleOffset { get; internal set; }
-    /// <summary>Raw byte-angle result retained in a word for the clamped head-to-hole vector, before conversion to the movement angle convention.</summary>
-    public ushort TargetAngle { get; internal set; }
-    /// <summary>Wrapping movement byte-angle, calculated as 64 minus the target angle and consumed by the signed fixed-point vector helper.</summary>
-    public byte MovementAngle { get; internal set; }
-    /// <summary>Wrapping spit byte-angle, calculated as 64 minus the head-to-Samus angle; volley children add their spread offsets to it.</summary>
-    public byte SpitAngle { get; internal set; }
-    /// <summary>Byte offset into the authored descriptor table, combining an RNG choice, the current target hole, and the inside-hole table half.</summary>
-    public ushort PathChoiceOffset { get; internal set; }
-    /// <summary>Low-word pointer in bank $B3 to the next signed X/Y movement-byte pair, advanced or reversed by two bytes per sample.</summary>
-    public ushort PathPointer { get; internal set; }
-    /// <summary>Signed descriptor direction: negative walks the sample pointer backward and negates accumulated displacements; nonnegative walks forward.</summary>
+    public int Speed { get; internal set; }
+    /// <summary>The hole, zero through three, that direct movement targets and the next path choice starts from.</summary>
+    public int TargetHoleIndex { get; internal set; }
+    /// <summary>Wrapping movement angle in 256ths of a turn: a quarter turn minus the clamped head-to-hole angle, consumed by the signed fixed-point vector helper.</summary>
+    public SnesAngle MovementAngle { get; internal set; }
+    /// <summary>Wrapping spit angle in 256ths of a turn: a quarter turn minus the head-to-Samus angle; volley children add their spread offsets to it.</summary>
+    public SnesAngle SpitAngle { get; internal set; }
+    /// <summary>
+    /// The authored path chosen next, zero through 31: one of four random variants for the target hole, in the visible
+    /// half of the table or, from inside a hole, the hidden half.
+    /// </summary>
+    public int PathChoice { get; internal set; }
+    /// <summary>The next movement sample of the current path, advanced or reversed by one sample per step.</summary>
+    public int PathSampleIndex { get; internal set; }
+    /// <summary>Signed descriptor direction: negative walks the samples backward and negates accumulated displacements; nonnegative walks forward.</summary>
     public short PathDirection { get; internal set; }
     /// <summary>The head animation the AI last installed; reinstalling the same program does not restart it.</summary>
     internal BotwoonHeadProgram HeadProgram { get; set; } = BotwoonHeadProgram.Hidden;
     /// <summary>The next step of the head animation's timeline.</summary>
     internal int HeadAnimationPosition { get; set; }
-    /// <summary>CGRAM destination measured in bytes; retail initialization targets color $F0, the start of OBJ palette seven.</summary>
-    public ushort PaletteDestinationByteOffset { get; internal set; }
-    /// <summary>Even byte offset 0 through 14 selecting the next health threshold/palette; offset 16 marks completion of all eight palette steps.</summary>
-    public ushort PalettePhaseByteOffset { get; internal set; }
+    /// <summary>CGRAM destination color; retail initialization targets color $F0, the start of OBJ palette seven.</summary>
+    public int PaletteDestinationColor { get; internal set; }
+    /// <summary>Band 0 through 7 selecting the next health threshold/palette; 8 marks completion of all eight palette steps.</summary>
+    public int PalettePhase { get; internal set; }
     /// <summary>Head health retained from initialization, independently of subsequent damage and the palette threshold table.</summary>
-    public ushort MaximumHealth { get; internal set; }
+    public int MaximumHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right one, used as the strict threshold for movement health phase 1.</summary>
-    public ushort HalfHealth { get; internal set; }
+    public int HalfHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right two, used as the strict threshold for the fastest movement health phase.</summary>
-    public ushort QuarterHealth { get; internal set; }
+    public int QuarterHealth { get; internal set; }
     /// <summary>Native previous-health extended-word snapshot, initialized from the head's spawn health separately from its maximum/threshold fields.</summary>
-    public ushort PreviousHealth { get; internal set; }
+    public int PreviousHealth { get; internal set; }
     /// <summary>Movement/spit speed record index 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
-    public byte HealthPhase { get; internal set; }
+    public int HealthPhase { get; internal set; }
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }
     /// <summary>Inside-hole state observed by the direct-movement callback on its previous call; a difference marks that traversal complete.</summary>
@@ -115,8 +114,8 @@ public sealed class BotwoonEnemyState
     public bool WallCrumbleRequested { get; internal set; }
     /// <summary>Whether defeat persistence has been recognized or written; live death sets the area miniboss bit only after the complete wall-explosion phase.</summary>
     public bool BossBitSet { get; internal set; }
-    /// <summary>Ring byte offset saved at a head hole crossing so delayed body samples toggle at the same position; $FFFF means no crossing remains pending.</summary>
-    public ushort SavedHoleRingByteOffset { get; internal set; } = BotwoonNavigationDefinitions.NoPendingHoleCrossing;
+    /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null (native $FFFF) means no crossing remains pending.</summary>
+    public int? SavedHoleRingIndex { get; internal set; }
 
     /// <summary>Thirteen actors, indexed by native spawn argument 0,2,...24 divided by two.</summary>
     public RoomEnemyProjectileSlot?[] BodySegments { get; } =
@@ -127,8 +126,8 @@ public sealed class BotwoonEnemyState
         throw new InvalidOperationException($"Botwoon body segment {index} has not spawned or lost its projectile slot.");
 
     /// <summary>
-    /// Native variable 10 for each aliased segment record. One means that body point is
-    /// travelling inside the wall/hole; crossing the head's saved ring offset toggles it.
+    /// Native variable 10 for each aliased segment record. One means that body point is travelling inside the
+    /// wall/hole; crossing the head's saved ring offset toggles it.
     /// </summary>
     internal bool[] SegmentInsideHole { get; } = new bool[13];
 
@@ -137,4 +136,12 @@ public sealed class BotwoonEnemyState
 
     /// <summary>Four delayed head positions used to choose the visible head orientation.</summary>
     internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[4];
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        MovementFunction = null;
+        HeadFunction = null;
+    }
 }

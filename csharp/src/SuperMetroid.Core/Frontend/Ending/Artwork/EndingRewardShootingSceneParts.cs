@@ -92,7 +92,7 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
                     throw new InvalidOperationException($"{pose} is not a falling, landing or shooting figure.");
             }
             return new(SnesSpritemapXWord.Create(originX + 8 * (tile & 15), large),
-                unchecked((byte)(originY + 8 * (tile / 16))), SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
+                SnesSpritemapYByte.Create(originY + 8 * (tile / 16)), SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
     /// <summary>Traverses calculated OAM pieces in the source composition's drawing order.</summary>

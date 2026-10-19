@@ -1,28 +1,28 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Enemies.Kago.Artwork;
 
 /// <summary>
-/// The presentation boundary of the Kago's bugs programs (#641): the installed artwork key of each
-/// <see cref="KagoBugProjectileFrame"/> pose, which is the bank-$86 address of the native frame's spritemap operand.
+/// The presentation boundary of the Kago's bugs programs (#641): the projectile frame each
+/// <see cref="KagoBugProjectileFrame"/> pose shows.
 /// </summary>
 internal static class KagoBugProjectileFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 11;
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
-    internal static ushort PresentationKey(KagoBugProjectileFrame frame) => frame.Pose switch
-    {
-        0 => 0xd03e,
-        1 => 0xd044,
-        2 => 0xd04c,
-        3 => 0xd054,
-        4 => 0xd058,
-        5 => 0xd05e,
-        6 => 0xd068,
-        7 => 0xd06c,
-        8 => 0xd070,
-        9 => 0xd074,
-        10 => 0xd078,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Kago bug pose."),
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<KagoBugProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<KagoBugProjectileFrame, EnemyProjectileFrameId>
+        {
+            [new(0)] = EnemyProjectileFrameId.KagoBugFrame00,
+            [new(1)] = EnemyProjectileFrameId.KagoBugFrame01,
+            [new(2)] = EnemyProjectileFrameId.KagoBugFrame02,
+            [new(3)] = EnemyProjectileFrameId.KagoBugFrame03,
+            [new(4)] = EnemyProjectileFrameId.KagoBugFrame04,
+            [new(5)] = EnemyProjectileFrameId.KagoBugFrame05,
+            [new(6)] = EnemyProjectileFrameId.KagoBugFrame06,
+            [new(7)] = EnemyProjectileFrameId.KagoBugFrame07,
+            [new(8)] = EnemyProjectileFrameId.KagoBugFrame08,
+            [new(9)] = EnemyProjectileFrameId.KagoBugFrame09,
+            [new(10)] = EnemyProjectileFrameId.KagoBugFrame10,
+        };
 }

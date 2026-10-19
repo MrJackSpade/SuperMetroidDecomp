@@ -1,25 +1,25 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Enemies.Dragon.Artwork;
 
 /// <summary>
-/// The presentation boundary of Dragon's fireball programs (#641): the installed artwork key of each
-/// <see cref="DragonFireballFrame"/> pose, which is the bank-$86 address of the native frame's spritemap operand.
+/// The presentation boundary of Dragon's fireball programs (#641): the projectile frame each
+/// <see cref="DragonFireballFrame"/> pose shows.
 /// </summary>
 internal static class DragonFireballFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 8;
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
-    internal static ushort PresentationKey(DragonFireballFrame frame) => frame.Pose switch
-    {
-        0 => 0xb4c1,
-        1 => 0xb4c5,
-        2 => 0xb4cd,
-        3 => 0xb4d1,
-        4 => 0xb4d9,
-        5 => 0xb4dd,
-        6 => 0xb4e5,
-        7 => 0xb4e9,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Dragon fireball pose."),
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<DragonFireballFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<DragonFireballFrame, EnemyProjectileFrameId>
+        {
+            [new(0)] = EnemyProjectileFrameId.DragonFireballFrame00,
+            [new(1)] = EnemyProjectileFrameId.DragonFireballFrame01,
+            [new(2)] = EnemyProjectileFrameId.DragonFireballFrame02,
+            [new(3)] = EnemyProjectileFrameId.DragonFireballFrame03,
+            [new(4)] = EnemyProjectileFrameId.DragonFireballFrame04,
+            [new(5)] = EnemyProjectileFrameId.DragonFireballFrame05,
+            [new(6)] = EnemyProjectileFrameId.DragonFireballFrame06,
+            [new(7)] = EnemyProjectileFrameId.DragonFireballFrame07,
+        };
 }

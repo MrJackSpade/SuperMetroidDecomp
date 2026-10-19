@@ -4,6 +4,8 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks the complete native room set that suppresses statue earthquake sound.</summary>
 internal static class LookupQuakeSoundSuppressionVerification
@@ -21,24 +23,24 @@ internal static class LookupQuakeSoundSuppressionVerification
             nativeRooms.Add(ReadVerificationWord(rom, instruction + 1));
         }
         AssertEqual(6, nativeRooms.Count, "Six distinct native suppressed rooms");
-        for (int room = 0; room <= ushort.MaxValue; room++)
-            AssertEqual(nativeRooms.Contains((ushort)room),
-                RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains((ushort)room),
-                "Quake suppression complete room identity domain");
+        foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
+            AssertEqual(nativeRooms.Contains(RoomHeaderDefinitions.PointerOf(room)),
+                RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(room),
+                "Quake suppression complete room domain");
 
         var state = new RoomLayer3FxState();
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        foreach (ushort room in nativeRooms.Append((ushort)0))
+        foreach (RoomHeaderDefinition? room in nativeRooms.Select(pointer => RoomHeaderDefinitions.Get(pointer)).Append(null))
         {
-            state.Load(bus, vram, cgram, fxPointer: 0, doorPointer: 0, randomNumber: 0,
-                roomHeaderPointer: room);
+            state.Load(vram, cgram, fx: null, door: null, randomNumber: 0,
+                room: room);
             state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
-            AssertEqual(nativeRooms.Contains(room) ? 0 : 1, state.SoundRequests.Count,
+            AssertEqual(room is not null ? 0 : 1, state.SoundRequests.Count,
                 "Actual room initialization and quake emission honor native suppression");
-            state.Load(bus, vram, cgram, fxPointer: 0, doorPointer: 0, randomNumber: 0,
-                roomHeaderPointer: 0);
+            state.Load(vram, cgram, fx: null, door: null, randomNumber: 0,
+                room: null);
             state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(1, state.SoundRequests.Count, "Unsuppressed room resets previous sentinel");
         }

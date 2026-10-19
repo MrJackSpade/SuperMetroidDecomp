@@ -26,19 +26,20 @@ public static class SoftwareLayeredSnapshotRenderer
             SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels, gameplayOutputBuffer);
         // Resolve OAM precedence once. Drawing independently filtered OBJ lists would
         // wrongly allow a higher-numbered record to shine through the winning record.
+        byte obsel = checked((byte)snapshot.ObjectSelection);
         bool usesObjInsertion = false;
         foreach (RenderLayer layer in snapshot.Layers)
             usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true } or Mode7RenderLayer { AddBg1Subscreen: true }
                 or BgSubscreenAddRenderLayer { IncludeObjects: true } or BgSubscreenAddRenderLayer { MainObjects: true };
         ResolvedObjFrame objects = usesObjInsertion
-            ? scratch.ResolveObjects(memory, snapshot.ObjectSelection)
+            ? scratch.ResolveObjects(memory, obsel)
             : default;
         foreach (RenderLayer layer in snapshot.Layers)
         {
             switch (layer)
             {
                 case GameplayColorMathRenderLayer gameplayXray:
-                    output = SoftwareGameplayColorMathRenderer.Render(memory, gameplayXray, snapshot.ObjectSelection, gameplayOutputBuffer);
+                    output = SoftwareGameplayColorMathRenderer.Render(memory, gameplayXray, obsel, gameplayOutputBuffer);
                     break;
                 case WindowedSceneRenderLayer window:
                     Rgba32[] scene = Render(window.Scene, scratch.Colors(SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels));
@@ -68,7 +69,7 @@ public static class SoftwareLayeredSnapshotRenderer
                         {
                             palettes = scratch.Bytes(subscreen.Length);
                             SnesObjRenderer.CompositeUnfiltered(ObjSpriteImage.Of(memory.Sprites), memory.Vram, memory.Cgram,
-                                snapshot.ObjectSelection, scratch.Colors(subscreen.Length), palettes);
+                                obsel, scratch.Colors(subscreen.Length), palettes);
                             highMain = scratch.Colors(256 * 224);
                             SnesBgTilemapRenderer.Composite4BppViewport(highMain, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = coverage.TilemapWord, CharacterBaseWord = coverage.CharacterWord }, new BgViewport { Scroll = coverage.Scroll, Size = SnesPpuLayout.ScreenSize, TilemapSize = coverage.MapSize }, priority: true);
                         }
@@ -84,14 +85,14 @@ public static class SoftwareLayeredSnapshotRenderer
                     SnesLayerCompositor.AddSubscreen(output, subscreen);
                     break;
                 case Mode7GameplayRenderLayer gameplay7:
-                    output = SoftwareMode7GameplayRenderer.Render(memory, scratch, gameplay7, snapshot.ObjectSelection,
+                    output = SoftwareMode7GameplayRenderer.Render(memory, scratch, gameplay7, obsel,
                         gameplayOutputBuffer);
                     break;
                 case Bg2BppColorMathRenderLayer bgMath:
                     SoftwareBgColorMathRenderer.Composite(output, memory.Vram, memory.Cgram, bgMath);
                     break;
                 case MessageBoxRenderLayer message:
-                    GameplayMessageBoxRenderer.Composite(output, message, memory.Vram, memory.Cgram);
+                    GameplayMessageBoxRenderer.Composite(output, message, memory.Cgram);
                     break;
                 case ScanlineColorAddRenderLayer colorWindows:
                     SoftwareScanlineColorRenderer.Composite(output, colorWindows);
@@ -99,7 +100,7 @@ public static class SoftwareLayeredSnapshotRenderer
                 case OrdinaryGameplayRenderLayer gameplay:
                     OrdinaryGameplayRegisters r = gameplay.Registers;
                     output = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                        memory.Vram, memory.Cgram, memory.Sprites, gameplay, snapshot.ObjectSelection, gameplayOutputBuffer);
+                        memory.Vram, memory.Cgram, memory.Sprites, gameplay, obsel, gameplayOutputBuffer);
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = scratch.Colors(256 * 32 * 8);
@@ -126,7 +127,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     {
                         var palettes = scratch.Bytes(output.Length);
                         SnesObjRenderer.CompositeUnfiltered(ObjSpriteImage.Of(memory.Sprites), memory.Vram, memory.Cgram,
-                            snapshot.ObjectSelection, scratch.Colors(output.Length), palettes);
+                            obsel, scratch.Colors(output.Length), palettes);
                         for (int i = 0; i < output.Length; i++)
                         {
                             Rgba32 sub = mode7Pixels[i];
@@ -154,7 +155,7 @@ public static class SoftwareLayeredSnapshotRenderer
                         var palettes = scratch.Bytes(output.Length);
                         var coloredObjects = scratch.Colors(output.Length);
                         SnesObjRenderer.CompositeUnfiltered(ObjSpriteImage.Of(memory.Sprites), memory.Vram, memory.Cgram,
-                            snapshot.ObjectSelection, coloredObjects, palettes);
+                            obsel, coloredObjects, palettes);
                         for (int i = 0; i < output.Length; i++)
                         {
                             Rgba32 pixel = coloredObjects[i];
@@ -172,7 +173,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     {
                         priorityPalettes = scratch.Bytes(output.Length);
                         SnesObjRenderer.CompositeUnfiltered(ObjSpriteImage.Of(memory.Sprites), memory.Vram, memory.Cgram,
-                            snapshot.ObjectSelection, scratch.Colors(output.Length), priorityPalettes);
+                            obsel, scratch.Colors(output.Length), priorityPalettes);
                     }
                     for (int pixel = 0; pixel < output.Length; pixel++)
                         if (objects.Priorities[pixel] == obj.Priority)
@@ -206,7 +207,7 @@ public static class SoftwareLayeredSnapshotRenderer
         bool perLine = !layer.Scrolls.IsEmpty;
         Rgba32[] source = scratch.Colors(256 * (perLine ? 256 : 224));
         if (layer.FourBpp)
-            SnesBgTilemapRenderer.Composite4BppViewport(source, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = layer.TilemapWord, CharacterBaseWord = layer.CharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, perLine ? (ushort)0 : layer.VerticalScroll), Size = new Extent16<ScreenPixels>(256, checked((ushort)(perLine ? 256 : 224))), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
+            SnesBgTilemapRenderer.Composite4BppViewport(source, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = layer.TilemapWord, CharacterBaseWord = layer.CharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, perLine ? (ushort)0 : checked((ushort)layer.VerticalScroll)), Size = new Extent16<ScreenPixels>(256, checked((ushort)(perLine ? 256 : 224))), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
         else
             SnesBgTilemapRenderer.Render2Bpp(source, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = layer.TilemapWord, CharacterBaseWord = layer.CharacterWord }, rowCount: perLine ? 32 : 28, transparentColorZero: true, priority: priority);
         if (!perLine) return source;
@@ -218,7 +219,7 @@ public static class SoftwareLayeredSnapshotRenderer
         return result;
     }
     /// <summary>Adds a five-bit fixed-color component to an RGBA channel with SNES-style saturation.</summary>
-    private static byte AddFixed(byte component, byte addend)
+    private static byte AddFixed(byte component, int addend)
     {
         int reduced = (component * 31 + 127) / 255;
         int sum = Math.Min(31, reduced + addend);

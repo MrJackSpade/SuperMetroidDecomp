@@ -1,10 +1,11 @@
+using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// How one runtime frame's speed-booster echo and low-health check reach the cartridge audio queue
 /// (#633). Each scenario is named; there is no partially configured audio host.
 /// </summary>
-public sealed class RuntimeFrameAudio
+public sealed class RuntimeFrameAudio : ISamusFrameAudio
 {
     /// <summary>Captures only the audio callbacks admitted by a named frame scenario.</summary>
     private RuntimeFrameAudio(Func<ushort>? queueEchoSound, Action? checkLowHealth)
@@ -36,4 +37,10 @@ public sealed class RuntimeFrameAudio
 
     /// <summary>The admitted low-health check; none when this scenario makes no check.</summary>
     internal Action? CheckLowHealth { get; }
+
+    /// <inheritdoc/>
+    Func<ushort>? ISamusFrameAudio.QueueEchoSound => QueueEchoSound;
+
+    /// <inheritdoc/>
+    Action? ISamusFrameAudio.CheckLowHealth => CheckLowHealth;
 }

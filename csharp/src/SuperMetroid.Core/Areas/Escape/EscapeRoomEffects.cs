@@ -16,18 +16,18 @@ internal sealed class EscapeRoomEffects
     /// <summary>Suppresses explosion generation while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Sets the native two- or four-frame explosion cadence.</summary>
-    private readonly NmiClock _nmi;
+    private readonly FrameClock _clock;
     /// <summary>Provides the active room callback, camera, level, and scratch countdown.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Supplies the cartridge random sequence and Zebes timebomb event.</summary>
     private readonly Bank80SystemState _system;
 
     /// <summary>Binds room, enemy, freeze, clock, and system owners used by escape callbacks.</summary>
-    internal EscapeRoomEffects(RoomEnemySystem enemies, GameplayTimeFreeze freeze, NmiClock nmi, ActiveRoomState room, Bank80SystemState system)
+    internal EscapeRoomEffects(RoomEnemySystem enemies, GameplayTimeFreeze freeze, FrameClock clock, ActiveRoomState room, Bank80SystemState system)
     {
         _enemies = enemies;
         _freeze = freeze;
-        _nmi = nmi;
+        _clock = clock;
         _room = room;
         _system = system;
     }
@@ -99,15 +99,15 @@ internal sealed class EscapeRoomEffects
                 _enemies.Earthquake.EarthquakeType = light ? ZebesEscapeRomData.MediumDiagonal : ZebesEscapeRomData.StrongDiagonal;
             }
         }
-        if (!_freeze.TimeIsFrozen && (_nmi.NmiFrameCounter & (nonblank ? 1 : 3)) == 0)
+        if (!_freeze.TimeIsFrozen && (_clock.Counter & (nonblank ? 1 : 3)) == 0)
         {
-            ushort random = _system.NextRandom();
+            int random = _system.NextRandom();
             Position16<RoomPixels> explosion = new(
                 unchecked((ushort)(_room.Camera.PixelPosition.X + (byte)random)),
                 unchecked((ushort)(_room.Camera.PixelPosition.Y + (SnesLittleEndian.HighByte(random)))));
             int blockIndex = _room.LevelData.Size.RowMajorIndex(explosion.ToRoomBlock());
-            if (!nonblank || new RoomLevelWord(_room.LevelData.GetPlmCollisionBlockByIndex(blockIndex).LevelWord).VisualBlockIndex != ZebesEscapeRomData.BlankTile)
-                _enemies.EscapeExplosionsBehavior.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);
+            if (!nonblank || _room.LevelData.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.VisualBlockIndex != ZebesEscapeRomData.BlankTile)
+                _enemies.PlmSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);
         }
         if (nonblank) _enemies.Earthquake.AddTimerBits(ZebesEscapeRomData.ContinuousTimerBit);
     }

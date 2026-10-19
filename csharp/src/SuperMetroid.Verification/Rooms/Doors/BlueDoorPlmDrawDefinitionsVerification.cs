@@ -74,12 +74,12 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 $"{orientation} blue door allocates its native opening actor");
             var guarded = NewBlueDoorDrawReadGuard(rom, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             int stride = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right
                 ? width : 1;
             for (int block = 0; block < 4; block++)
                 AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],
-                    level.GetCollisionBlockByIndex(origin + block * stride).LevelWord,
+                    level.GetCollisionBlockByIndex(origin + block * stride).PackedWord.Raw,
                     $"{orientation} native draw writes physical block {block} without ROM payload reads");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{orientation} opening avoids compiled program and draw ROM bytes");
@@ -95,7 +95,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
 
             // Continue through every opening draw, the long air-cap hold and Delete.
             for (int frame = 0; frame < 128 && plms.SlotTable.ActiveCount != 0; frame++)
-                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, plms.SlotTable.ActiveCount,
                 $"{orientation} blue-door opening reaches its native Delete");
 
@@ -106,11 +106,11 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                     $"{orientation} allocates actor for {program}");
                 plms.StartSoleProgramForVerification(PlmProgramStart.Typed(program));
                 for (int frame = 0; frame < 20 && plms.SlotTable.ActiveCount != 0; frame++)
-                    plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                    plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(0, plms.SlotTable.ActiveCount,
                     $"{orientation} {program} reaches its deletion");
                 AssertEqual((int)behavior.Value,
-                    level.GetCollisionBlockByIndex(origin).Behavior,
+                    level.GetCollisionBlockByIndex(origin).Bts.Value,
                     $"{orientation} {program} restores the blue-door BTS");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,

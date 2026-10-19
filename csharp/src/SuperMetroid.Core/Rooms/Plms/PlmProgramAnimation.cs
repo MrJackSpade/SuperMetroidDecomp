@@ -37,14 +37,14 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
     private protected abstract ushort DrawList(TFrame frame);
 
     /// <summary>Draws <paramref name="frame"/> at the slot's block: its bank-$84 draw list unless the family draws it otherwise.</summary>
-    private protected virtual void Draw(TFrame frame, PlmSlot slot, PlmAnimationContext context) =>
+    private protected virtual void Draw(TFrame frame, PlmSlot slot, PlmStepContext context) =>
         context.Draw(slot, DrawList(frame));
 
     /// <inheritdoc/>
     internal sealed override Enum RunningProgram => Program;
 
     /// <summary>Carries out <paramref name="cue"/>; returns a program to continue at, or null to continue in place.</summary>
-    private protected abstract TProgram? Publish(TCue cue, PlmSlot slot, PlmAnimationContext context);
+    private protected abstract TProgram? Publish(TCue cue, PlmSlot slot, PlmStepContext context);
 
     /// <summary>Continues at the start of <paramref name="program"/> on the next advance, as a native wake does.</summary>
     internal void Restart(TProgram program) => Cursor = AnimationProgramCursor<TProgram>.Start(program);
@@ -75,7 +75,7 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
     }
 
     /// <inheritdoc/>
-    internal sealed override void Advance(PlmSlot slot, PlmAnimationContext context)
+    internal sealed override void Advance(PlmSlot slot, PlmStepContext context)
     {
         for (int visited = 0; visited < StepLimit; visited++)
         {

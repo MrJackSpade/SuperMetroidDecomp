@@ -86,8 +86,8 @@ public sealed class Bank80SystemState
     // corruption extremely difficult to trace.
     /// <summary>Eight persistent story-event bytes mirrored from $7E:D820.</summary>
     private readonly byte[] _events = new byte[EventByteCount];
-    /// <summary>One native boss-bit byte per area.</summary>
-    private readonly byte[] _bossBitsByArea = new byte[AreaCount];
+    /// <summary>Each area's boss state, including any bit whose meaning is not yet proven.</summary>
+    private readonly BossBits[] _bossBitsByArea = new BossBits[AreaCount];
     /// <summary>Persistent broken-Chozo-orb bits, independent of item collection.</summary>
     internal readonly byte[] _roomChozoBits = new byte[RoomChozoBitByteCount];
     /// <summary>Persistent bits keyed by physical item PLM arguments.</summary>
@@ -103,10 +103,17 @@ public sealed class Bank80SystemState
     private readonly byte[] _mapStations = new byte[MapStationByteCount];
 
     /// <summary>
-    /// Saved frontend dispatcher word at $7E:D914. Ordinary gameplay persists state five;
-    /// SpaceTime Beam can overwrite this independently of Samus equipment and checkpoint.
+    /// Saved frontend dispatcher value at $7E:D914, 0 through 65,535: the save field's range. Ordinary gameplay persists
+    /// state five; SpaceTime Beam can overwrite this independently of Samus equipment and checkpoint, so any value a save
+    /// field holds is possible. It is only copied, never counted or compared by sign.
     /// </summary>
-    public ushort SavedLoadingGameState { get; private set; } = SaveLoadingGameStates.MainGame;
+    public int SavedLoadingGameState
+    {
+        get;
+        private set => field = SaveFieldValue.IsInRange(value)
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), value, "The saved loading game state is a save field.");
+    } = SaveLoadingGameStates.MainGame;
 
     /// <summary>The game's power-on random-number seed, <c>$0061</c>.</summary>
     private const ushort PowerOnRandomSeed = 97;
@@ -123,9 +130,9 @@ public sealed class Bank80SystemState
     /// Creates state with a chosen RNG seed. The overload exists primarily so all 65,536
     /// input states can be checked against the original algorithm.
     /// </summary>
-    public Bank80SystemState(ushort randomNumberSeed)
+    public Bank80SystemState(int randomNumberSeed)
     {
-        RandomNumber = randomNumberSeed;
+        RandomState = new SharedRandomState(randomNumberSeed);
     }
 
     /// <summary>
@@ -136,55 +143,62 @@ public sealed class Bank80SystemState
     /// </summary>
     public bool MainGameLoopCarry { get; set; }
 
-    /// <summary>Restores the raw cartridge word loaded from one checksummed save slot.</summary>
-    public void LoadSavedLoadingGameState(ushort value) => SavedLoadingGameState = value;
-
-    /// <summary>$7E:D91A; cumulative item PLM initializations, including repeat visits.</summary>
-    public ushort LoadedItemCount { get; set; }
+    /// <summary>Restores the saved loading game state from one checksummed save slot or a checkpoint.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is outside a save field's range.</exception>
+    public void LoadSavedLoadingGameState(int value) => SavedLoadingGameState = value;
 
     /// <summary>
-    /// Publishes the translated progression owners into their literal live-SRAM mirror.
-    /// Invalid native callbacks operate on this shared WRAM rather than on domain objects.
-    /// Untranslated padding bytes are deliberately left untouched.
+    /// $7E:D91A; cumulative item PLM initializations, including repeat visits, 0 through 65,535. The count is saved as
+    /// one save field and wraps from 65,535 to zero when an item initializes, a wrap the saved value shows; the setter
+    /// rejects anything outside the field's range, so the producer that counts must apply that wrap.
     /// </summary>
-    public void WritePersistentMirror(ISnesMemoryBus bus)
+    public int LoadedItemCount
     {
-        Ensure.NotNull(bus);
-        var mirror = new SaveMirrorMemory(bus);
-        mirror.Events.CopyFrom(_events);
-        mirror.BossBits.CopyFrom(_bossBitsByArea);
-        mirror.RoomChozoBits.CopyFrom(_roomChozoBits);
-        mirror.CollectedItemBits.CopyFrom(_collectedItemBits);
-        mirror.OpenedDoorBits.CopyFrom(_openedDoorBits);
-        mirror.UsedSaveStations.CopyFrom(_usedSaveStationsAndElevators);
-        mirror.MapStations.CopyFrom(_mapStations);
-        mirror.LoadedItemCount = LoadedItemCount;
+        get;
+        set => field = SaveFieldValue.IsInRange(value)
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), value, "The loaded-item count is a save field.");
+    }
+
+    /// <summary>
+    /// Publishes the progression owners into the native mirror slice that malformed callbacks overwrite as raw
+    /// bytes. Bytes no owner holds are left as they are.
+    /// </summary>
+    public void WritePersistentMirror(SaveMirrorImage mirror)
+    {
+        _events.CopyTo(mirror.Events);
+        Span<byte> bossBytes = mirror.BossBits;
+        for (int area = 0; area < AreaCount; area++)
+            bossBytes[area] = _bossBitsByArea[area].ToNativeByte();
+        _roomChozoBits.CopyTo(mirror.RoomChozoBits);
+        _collectedItemBits.CopyTo(mirror.CollectedItemBits);
+        _openedDoorBits.CopyTo(mirror.OpenedDoorBits);
+        _usedSaveStationsAndElevators.CopyTo(mirror.UsedSaveStations);
+        _mapStations.CopyTo(mirror.MapStations);
         mirror.LoadingGameState = SavedLoadingGameState;
     }
 
     /// <summary>
-    /// Reclaims the translated owners after native-compatible WRAM corruption. This is a
-    /// raw load, not bitwise gameplay API use: every cartridge-written bit must survive.
+    /// Reclaims the owners from the native mirror slice after a raw overwrite. This is a raw load, not bitwise
+    /// gameplay API use: every cartridge-written bit must survive.
     /// </summary>
-    public void LoadPersistentMirror(ISnesMemoryBus bus)
+    public void LoadPersistentMirror(SaveMirrorImage mirror)
     {
-        Ensure.NotNull(bus);
-        var mirror = new SaveMirrorMemory(bus);
         mirror.Events.CopyTo(_events);
-        mirror.BossBits.CopyTo(_bossBitsByArea);
+        LoadBossBytes(mirror.BossBits);
         mirror.RoomChozoBits.CopyTo(_roomChozoBits);
         mirror.CollectedItemBits.CopyTo(_collectedItemBits);
         mirror.OpenedDoorBits.CopyTo(_openedDoorBits);
         mirror.UsedSaveStations.CopyTo(_usedSaveStationsAndElevators);
         mirror.MapStations.CopyTo(_mapStations);
-        LoadedItemCount = mirror.LoadedItemCount;
         SavedLoadingGameState = mirror.LoadingGameState;
     }
 
-    /// <summary>
-    /// Current 16-bit RNG state, corresponding to WRAM <c>$05E5</c>.
-    /// </summary>
-    public ushort RandomNumber { get; private set; }
+    /// <summary>The shared RNG state, corresponding to WRAM <c>$05E5</c>.</summary>
+    public SharedRandomState RandomState { get; private set; }
+
+    /// <summary>The current shared RNG state as a sample, 0 through 65535, without advancing it.</summary>
+    public int RandomNumber => RandomState.Value;
 
     /// <summary>
     /// Performs a direct write to the shared RNG word at WRAM <c>$05E5</c>. Most callers
@@ -196,7 +210,10 @@ public sealed class Bank80SystemState
     /// $A3:A325 both execute <c>STA $05E5</c> with <c>$000B</c>, so later unrelated random
     /// consumers must observe the replacement seed as well.
     /// </remarks>
-    public void SetRandomNumber(ushort value) => RandomNumber = value;
+    public void SetRandomNumber(int value) => RandomState = new SharedRandomState(value);
+
+    /// <summary>Stores the shared RNG state with its two bytes exchanged, as the lava and acid FX routine does.</summary>
+    internal void SwapRandomBytes() => RandomState = RandomState.WithBytesSwapped();
 
     /// <summary>
     /// Most recently calculated held input, corresponding to WRAM <c>$05D9</c>.
@@ -212,10 +229,11 @@ public sealed class Bank80SystemState
     public NativeCountdown TimedHeldInputTimer { get; internal set; }
 
     /// <summary>
-    /// Reload value at WRAM <c>$05DD</c>. A value of N requires N + 1 stable update
-    /// calls after the held-input value changes.
+    /// Reload value at WRAM <c>$05DD</c>, 0 through 65,535: any value the held-input countdown can start at. A value of
+    /// N requires N + 1 stable update calls after the held-input value changes. The value is only ever reloaded into
+    /// <see cref="TimedHeldInputTimer"/>, never counted itself; that countdown keeps the wrap.
     /// </summary>
-    public ushort TimedHeldInputTimerReset { get; internal set; }
+    public int TimedHeldInputTimerReset { get; internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
     /// Filtered input at WRAM <c>$05DF</c>. Bits appear after their buttons have remained
@@ -245,34 +263,12 @@ public sealed class Bank80SystemState
     /// does, preserving the two byte-multiply results, high-byte addition carry,
     /// and final 16-bit wrapping addition. Every caller observes the updated seed.
     /// </summary>
-    /// <returns>The new 16-bit RNG state, also stored in <see cref="RandomNumber"/>.</returns>
-    public ushort NextRandom()
+    /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="RandomState"/>.</returns>
+    public int NextRandom()
     {
         RandomCallObserver?.Invoke();
-        // The ROM performs two separate 8x8 multiplies through the SNES hardware
-        // multiplier ($4202/$4203). This first product is retained as a 16-bit word.
-        int lowByteProduct = (SnesLittleEndian.LowByte(RandomNumber)) * 5;
-
-        // The second hardware multiplication is read through an 8-bit accumulator, so
-        // only its low result byte participates directly in the next addition.
-        int highByteProductLow = unchecked((byte)(SnesLittleEndian.HighByte(RandomNumber) * 5));
-
-        // SEC makes the addition start with carry=1. It modifies the high byte of the
-        // first product. The ninth bit is retained separately as the processor carry.
-        int highByteSum = SnesLittleEndian.HighByte(unchecked((ushort)lowByteProduct)) + highByteProductLow + 1;
-
-        // STA $02,S replaces the saved product's high byte but, naturally, stores only
-        // eight bits. Reconstruct that post-STA stack word explicitly.
-        int savedProduct = SnesLittleEndian.Word(unchecked((byte)lowByteProduct), unchecked((byte)highByteSum));
-
-        // After PLA restores 16-bit A, ADC #$0011 consumes the carry left by the 8-bit
-        // addition. That extra carry is the reason this is only *roughly* r*5+$0111.
-        int result = savedProduct + 17 + (SnesCarry.OutOfByte(highByteSum));
-
-        // A 65C816 accumulator wraps at 16 bits. The explicit unchecked cast documents
-        // that overflow is required behavior rather than an accidental omission.
-        RandomNumber = unchecked((ushort)result);
-        return RandomNumber;
+        RandomState = RandomState.Next();
+        return RandomState.Value;
     }
 
     /// <summary>
@@ -282,7 +278,7 @@ public sealed class Bank80SystemState
     /// <param name="timerReset">Number of stable frames minus one before activation.</param>
     /// <param name="controllerInput">All buttons currently down (WRAM <c>$8B</c>).</param>
     /// <param name="controllerNewInput">Buttons newly pressed this frame (WRAM <c>$8F</c>).</param>
-    public void UpdateHeldInput(ushort timerReset, SnesButton controllerInput, SnesButton controllerNewInput)
+    public void UpdateHeldInput(int timerReset, SnesButton controllerInput, SnesButton controllerNewInput)
     {
         TimedHeldInputTimerReset = timerReset;
 
@@ -299,7 +295,7 @@ public sealed class Bank80SystemState
         {
             // Any change, including releasing one member of a multi-button chord, restarts
             // the delay and suppresses filtered input for this update.
-            TimedHeldInputTimer = NativeCountdown.FromRaw(TimedHeldInputTimerReset);
+            TimedHeldInputTimer = NativeCountdown.Start(TimedHeldInputTimerReset);
             TimedHeldInput = 0;
         }
         else
@@ -335,7 +331,7 @@ public sealed class Bank80SystemState
     {
         ValidateAreaIndex(areaIndex);
         BossBitMasks.Validate(bits, "Boss-state set mask");
-        _bossBitsByArea[areaIndex] |= (byte)bits;
+        _bossBitsByArea[areaIndex] |= bits;
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -350,7 +346,7 @@ public sealed class Bank80SystemState
     {
         ValidateAreaIndex(areaIndex);
         BossBitMasks.Validate(bits, "Boss-state clear mask");
-        _bossBitsByArea[areaIndex] &= unchecked((byte)~(byte)bits);
+        _bossBitsByArea[areaIndex] &= ~bits;
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -364,7 +360,7 @@ public sealed class Bank80SystemState
     {
         ValidateAreaIndex(areaIndex);
         BossBitMasks.Validate(bits, "Boss-state query mask");
-        return (_bossBitsByArea[areaIndex] & (byte)bits) != 0;
+        return (_bossBitsByArea[areaIndex] & bits) != BossBits.None;
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -378,7 +374,7 @@ public sealed class Bank80SystemState
     public byte GetBossBitsRaw(int areaIndex)
     {
         ValidateAreaIndex(areaIndex);
-        return _bossBitsByArea[areaIndex];
+        return _bossBitsByArea[areaIndex].ToNativeByte();
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -390,8 +386,10 @@ public sealed class Bank80SystemState
     /// </summary>
     public BossBits GetBossBits(int areaIndex)
     {
-        byte raw = GetBossBitsRaw(areaIndex);
-        return BossBitMasks.FromCartridge(raw, $"Area {areaIndex} boss state");
+        ValidateAreaIndex(areaIndex);
+        BossBits bits = _bossBitsByArea[areaIndex];
+        BossBitMasks.Validate(bits, $"Area {areaIndex} boss state");
+        return bits;
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -402,7 +400,8 @@ public sealed class Bank80SystemState
     {
         Ensure.LengthEqual(bytes, AreaCount);
 
-        bytes.CopyTo(_bossBitsByArea);
+        for (int area = 0; area < AreaCount; area++)
+            _bossBitsByArea[area] = BossBitsCodec.FromNativeByte(bytes[area]);
     }
 
     /// <summary>

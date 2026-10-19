@@ -19,31 +19,31 @@ internal static class DeadTourianBehaviorVerification
     /// update that reaches the native sleep still reports the one-update pose as new); the hop shows its eight frames and
     /// its landing cue hands the Sidehopper back to main AI's post-landing delay.
     /// </summary>
-    internal static void VerifyDeadSidehopperBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadSidehopperBehavior()
     {
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
-        corpse.EnemyDefinitionPointer = EnemyDefinitionId.CorpseSidehopper;
-        corpse.Definition = default(RoomEnemyDefinition) with { Bank = DeadTourianFrameToolingDefinitions.Bank };
+        corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
+        corpse.Bind(corpse.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DeadTourianFrameToolingDefinitions.Bank });
         corpse.Parameter1 = 0;
         enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
         AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperIdle),
-            enemies.DeadSidehopperBehavior._deadSidehopperPrograms[0], "real dead Sidehopper initializer starts the alive-idle pose");
+            enemies.DeadSidehopperBehavior._extensions[0].Program, "real dead Sidehopper initializer starts the alive-idle pose");
 
         foreach (DeadTourianProgram pose in new[] { DeadTourianProgram.SidehopperIdle, DeadTourianProgram.SidehopperCorpse, DeadTourianProgram.SidehopperInitiallyDead })
         {
             enemies.DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, pose);
             ushort frame = DeadTourianAnimationsConstants.Spritemaps(pose).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
-                EnemyInstructionRunner.ShownFrames(enemies, corpse, 3), $"dead Sidehopper {pose} pose");
+                EnemyInstructionRunner.ShownFrames(corpse, 3), $"dead Sidehopper {pose} pose");
         }
 
         enemies.DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, DeadTourianProgram.SidehopperHopping);
         ushort[] hop = DeadTourianAnimationsConstants.Spritemaps(DeadTourianProgram.SidehopperHopping).ToArray();
         int[] holds = [2, 4, 5, 48, 5, 4, 5, 4];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(hop, holds),
-            EnemyInstructionRunner.ShownFrames(enemies, corpse, holds.Sum() + 1), "dead Sidehopper hop");
+            EnemyInstructionRunner.ShownFrames(corpse, holds.Sum() + 1), "dead Sidehopper hop");
         AssertEqual(DeadSidehopperAiFunction.BeginPostLandingDelay,
             (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0].")).Function,
             "the landing cue returns ownership to main AI");
@@ -55,7 +55,7 @@ internal static class DeadTourianBehaviorVerification
     internal static int DeadSidehopperBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyDeadSidehopperBehavior), () => VerifyDeadSidehopperBehavior(rom));
+        Suite(nameof(VerifyDeadSidehopperBehavior), () => VerifyDeadSidehopperBehavior());
         Suite(nameof(DeadTourianAnimationsVerification.VerifyDeadTourianAnimations), () => DeadTourianAnimationsVerification.VerifyDeadTourianAnimations(rom));
         return 0;
     }

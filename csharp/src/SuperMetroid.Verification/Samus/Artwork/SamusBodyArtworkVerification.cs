@@ -115,17 +115,17 @@ internal static class SamusBodyArtworkVerification
             {
                 int at = address + 2 + part * 5;
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at),
-                    record.Parts[part].X, $"Samus OAM ${pointer:X4} part {part} X/size");
-                AssertEqual(bus.ReadCartridgeByte(at + 2), record.Parts[part].Y,
+                    record.Parts[part].X.Raw, $"Samus OAM ${pointer:X4} part {part} X/size");
+                AssertEqual(bus.ReadCartridgeByte(at + 2), record.Parts[part].Y.Raw,
                     $"Samus OAM ${pointer:X4} part {part} Y");
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at + 3),
-                    record.Parts[part].Attributes,
+                    record.Parts[part].Attributes.Raw,
                     $"Samus OAM ${pointer:X4} part {part} attributes");
             }
             var nativeOam = new OamBuffer();
             nativeOam.BeginFrame();
             DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, new(127, 131));
-            OamBuffer installedOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(spritemapGuard, (ushort)index,
+            OamBuffer installedOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap((ushort)index,
                 new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus)));
             AssertTrue(nativeOam.ImageEquals(installedOam) &&
                 nativeOam.NextByteOffset == installedOam.LastFinalizedSpriteCount * 4,
@@ -133,16 +133,11 @@ internal static class SamusBodyArtworkVerification
         }
         AssertEqual(1913, nonzeroSpritemaps, "all nonzero Samus OAM pointer entries");
         int zeroIndex = Array.FindIndex(sprites.Pointers.ToArray(), pointer => pointer == 0);
-        AssertTrue(zeroIndex >= 0, "retail Samus pointer table contains a mutable-memory entry");
-        var mutableSpriteMemory = new TestAddressSpace();
-        byte[] mutableRecord = [1, 0, 3, 0, 2, 0x34, 0x12];
-        for (int offset = 0; offset < mutableRecord.Length; offset++)
-            WriteTestByte(mutableSpriteMemory, 0x920000 + offset, mutableRecord[offset]);
-        OamBuffer mutableOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(mutableSpriteMemory, (ushort)zeroIndex,
+        AssertTrue(zeroIndex >= 0, "retail Samus pointer table contains a zero entry");
+        // Owner decision on #1318 row 11: a zero entry draws nothing instead of reading direct-page scratch.
+        OamBuffer zeroOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap((ushort)zeroIndex,
             new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus)));
-        AssertEqual(1, mutableOam.LastFinalizedSpriteCount, "zero Samus pointer emits its WRAM-authored part");
-        AssertTrue(mutableOam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }),
-            "zero Samus pointer reads mutable WRAM rather than cartridge art");
+        AssertEqual(0, zeroOam.LastFinalizedSpriteCount, "zero Samus pointer draws nothing");
         for (int i = 0; i < stock.LandingYOffsets.Length; i++)
             AssertEqual((ushort)bus.ReadCartridgeByte(SamusRenderingRomData.Body.LandingVerticalOffsets + i),
                 stock.LandingYOffsets[i], $"Samus landing visual byte {i}");
@@ -168,9 +163,9 @@ internal static class SamusBodyArtworkVerification
             var installedEffects = new SamusAtmosphericEffectsState();
             nativeEffects.SetSlot(0, type, 0, 2, new(128, 128));
             installedEffects.SetSlot(0, type, 0, 2, new(128, 128));
-            OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(bus, frame, new(0, 0), 128,
+            OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
                 stock.Spritemaps, standardObjects: SpriteFrameTestArtwork.StandardObjects));
-            OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(guardedBus, frame, new(0, 0), 128,
+            OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame, new(0, 0), 128,
                 stock.Spritemaps, standardObjects: SpriteFrameTestArtwork.StandardObjects));
             AssertTrue(nativeEffectOam.LastFinalizedSpriteCount > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam),
@@ -192,9 +187,9 @@ internal static class SamusBodyArtworkVerification
             var installedEffects = new SamusAtmosphericEffectsState();
             nativeEffects.SetSlot(0, type, frame, 2, new(128, 128));
             installedEffects.SetSlot(0, type, frame, 2, new(128, 128));
-            OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(bus, frame, new(0, 0), 128,
+            OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
                 directArtwork: stock.Atmosphere, standardObjects: SpriteFrameTestArtwork.StandardObjects));
-            OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(guardedBus, frame,
+            OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame,
                 Position16<RoomPixels>.Zero, 128, stock.Spritemaps, stock.Atmosphere, SpriteFrameTestArtwork.StandardObjects));
             AssertTrue(nativeEffectOam.LastFinalizedSpriteCount > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam) &&
@@ -208,18 +203,18 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        deathSamus.DeathSequence.Begin(bus, deathSamus, layer1: new(0, 0));
+        deathSamus.DeathSequence.Begin(deathSamus, layer1: new(0, 0));
         var deathCgram = new SnesCgram();
         for (int frame = 0; deathSamus.DeathSequence.Phase != SamusDeathSequencePhase.SuitExplosion;
             frame++)
         {
             AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");
-            deathSamus.DeathSequence.Step(bus, deathSamus, deathCgram, stock.DeathPalettes);
+            deathSamus.DeathSequence.Step(deathSamus, deathCgram, stock.DeathPalettes);
         }
         OamBuffer nativeDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
-            deathSamus.DeathSequence.DrawExplosion(bus, frame, stock.Spritemaps, stock.DeathTiles));
+            deathSamus.DeathSequence.DrawExplosion(frame, stock.Spritemaps, stock.DeathTiles));
         OamBuffer installedDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
-            deathSamus.DeathSequence.DrawExplosion(guardedBus, frame, stock.Spritemaps, stock.DeathTiles));
+            deathSamus.DeathSequence.DrawExplosion(frame, stock.Spritemaps, stock.DeathTiles));
         AssertTrue(nativeDeathOam.LastFinalizedSpriteCount > 0 &&
             nativeDeathOam.ImageEquals(installedDeathOam),
             "death explosion uses installed Samus OAM art with native parity");
@@ -234,18 +229,18 @@ internal static class SamusBodyArtworkVerification
                     $"death tile segment ${segment.SourceAddress:X6} byte {offset:X3}");
             var installedQueue = new VramWriteQueue();
             installedQueue.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-                segment.SourceAddress, VramDmaDestination.FromNative(segment.EncodedVramDestination));
+                segment.SourceAddress, segment.Destination);
             var nativeDeathVram = new SnesVram();
             var installedDeathVram = new SnesVram();
             nativeDeathVram.ExecuteQueuedAssetWrite(
                 Enumerable.Range(0, SamusSpecialSequenceRomData.Death.TileSegmentByteCount)
                     .Select(offset => bus.ReadCartridgeByte(segment.SourceAddress + offset)).ToArray(),
-                segment.EncodedVramDestination);
-            installedQueue.DrainTo(installedDeathVram, ReferenceMutableMemory.From(guardedBus),
+                segment.Destination.Encoded);
+            installedQueue.DrainTo(installedDeathVram,
                 new DeathTileAssetProvider(stock.DeathTiles));
             AssertTrue(nativeDeathVram.ImageEquals(installedDeathVram),
                 $"death tile segment ${segment.SourceAddress:X6} NMI transfer parity");
-            int firstCharacter = (segment.EncodedVramDestination - GameplayVramLayout.ObjectCharacters.Offset) /
+            int firstCharacter = (segment.Destination.Encoded - GameplayVramLayout.ObjectCharacters.Offset) /
                 (SpriteArtwork.CharacterByteCount / sizeof(ushort));
             AssertTrue(stock.DeathTiles.Explosion.Characters.Slice(firstCharacter * SpriteArtwork.CharacterByteCount,
                     SamusSpecialSequenceRomData.Death.TileSegmentByteCount).SequenceEqual(installedSegment.Span),
@@ -285,35 +280,35 @@ internal static class SamusBodyArtworkVerification
         {
             ushort equipment = suit switch
             {
-                1 => (ushort)SamusEquipmentFlags.VariaSuit,
-                2 => (ushort)SamusEquipmentFlags.GravitySuit,
+                1 => SamusEquipmentFlags.VariaSuit.ToNativeWord(),
+                2 => SamusEquipmentFlags.GravitySuit.ToNativeWord(),
                 _ => 0,
             };
             var nativeSamus = new SamusState
             {
-                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = equipment,
+                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = (SamusEquipmentFlags)equipment,
             };
             var installedSamus = new SamusState
             {
-                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = equipment,
+                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = (SamusEquipmentFlags)equipment,
             };
-            nativeSamus.DeathSequence.Begin(bus, nativeSamus, Position16<RoomPixels>.Zero);
-            installedSamus.DeathSequence.Begin(bus, installedSamus, Position16<RoomPixels>.Zero);
+            nativeSamus.DeathSequence.Begin(nativeSamus, Position16<RoomPixels>.Zero);
+            installedSamus.DeathSequence.Begin(installedSamus, Position16<RoomPixels>.Zero);
             var nativeColors = new SnesCgram();
             var installedColors = new SnesCgram();
             // Preflash still animates Samus's death pose. Begin comparison when
             // palette ownership passes to the independent bank-$9B sequence.
             for (int frame = 0; frame < 16; frame++)
             {
-                nativeSamus.DeathSequence.Step(bus, nativeSamus, nativeColors, stock.DeathPalettes);
-                installedSamus.DeathSequence.Step(bus, installedSamus, installedColors, stock.DeathPalettes);
+                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors, stock.DeathPalettes);
+                installedSamus.DeathSequence.Step(installedSamus, installedColors, stock.DeathPalettes);
             }
             for (int frame = 0; frame < 240; frame++)
             {
                 SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
-                    bus, nativeSamus, nativeColors, stock.DeathPalettes);
+                    nativeSamus, nativeColors, stock.DeathPalettes);
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
-                    guardedBus, installedSamus, installedColors, stock.DeathPalettes);
+                    installedSamus, installedColors, stock.DeathPalettes);
                 AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(installedColors)) &&
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
                     nativeSamus.DeathSequence.AnimationTimer.RawValue ==
@@ -332,16 +327,16 @@ internal static class SamusBodyArtworkVerification
             var installedTransfer = new SamusTileTransferState();
             nativeTransfer.BindArtwork(stock);
             installedTransfer.BindArtwork(stock);
-            nativeTransfer.SelectForPoseFrame(bus, (SamusPoseId)pose, 0);
-            installedTransfer.SelectForPoseFrame(guardedBus, (SamusPoseId)pose, 0);
+            nativeTransfer.SelectForPoseFrame((SamusPoseId)pose, 0);
+            installedTransfer.SelectForPoseFrame((SamusPoseId)pose, 0);
             AssertEqual(nativeTransfer.TopDefinitionAddress, installedTransfer.TopDefinitionAddress,
                 $"Samus pose {pose:X2} upper transfer pointer");
             AssertEqual(nativeTransfer.BottomDefinitionAddress, installedTransfer.BottomDefinitionAddress,
                 $"Samus pose {pose:X2} lower transfer pointer");
             var nativeVram = new SnesVram();
             var installedVram = new SnesVram();
-            nativeTransfer.TransferToVram(bus, nativeVram);
-            installedTransfer.TransferToVram(guardedBus, installedVram);
+            nativeTransfer.TransferToVram(nativeVram);
+            installedTransfer.TransferToVram(installedVram);
             AssertTrue(nativeVram.ImageEquals(installedVram),
                 $"Samus pose {pose:X2} complete split VRAM transfer parity");
         }
@@ -454,7 +449,7 @@ internal static class SamusBodyArtworkVerification
         var originalArmSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile,
         };
         var editedArmSamus = new SamusState
         {
@@ -466,25 +461,25 @@ internal static class SamusBodyArtworkVerification
         editedArmSamus.ArmCannon.Artwork = replacement.ArmCannon;
         for (int frame = 0; frame < 4; frame++)
         {
-            originalArmSamus.ArmCannon.Update(guardedBus, originalArmSamus);
-            editedArmSamus.ArmCannon.Update(guardedBus, editedArmSamus);
+            originalArmSamus.ArmCannon.Update(originalArmSamus);
+            editedArmSamus.ArmCannon.Update(editedArmSamus);
         }
         var originalArmFrame = new SpriteFrameBuffer();
         var editedArmFrame = new SpriteFrameBuffer();
         originalArmFrame.BeginFrame();
         editedArmFrame.BeginFrame();
         originalArmSamus.ArmCannon.Draw(
-            guardedBus, originalArmFrame, originalArmSamus, Position16<RoomPixels>.Zero, 0);
+            originalArmFrame, originalArmSamus, Position16<RoomPixels>.Zero, 0);
         editedArmSamus.ArmCannon.Draw(
-            guardedBus, editedArmFrame, editedArmSamus, Position16<RoomPixels>.Zero, 0);
+            editedArmFrame, editedArmSamus, Position16<RoomPixels>.Zero, 0);
         OamBuffer originalArmOam = originalArmFrame.FinalizeAsOam();
         OamBuffer editedArmOam = editedArmFrame.FinalizeAsOam();
         AssertTrue(originalArmOam.LastFinalizedSpriteCount == 1 && editedArmOam.LastFinalizedSpriteCount == 1,
             "stock and edited covers both emit a visible OBJ");
         int originalSignedX = unchecked((sbyte)stockArmX);
         int editedSignedX = unchecked((sbyte)(unchecked((byte)(stockArmX + 1))));
-        AssertEqual(originalArmOam.GetEntry(0).X + editedSignedX - originalSignedX,
-            editedArmOam.GetEntry(0).X,
+        AssertEqual(originalArmOam.GetEntry(0).Position.X + editedSignedX - originalSignedX,
+            editedArmOam.GetEntry(0).Position.X,
             "edited arm-cannon pose offset moves the production OAM entry on screen");
         AssertEqual(SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(unchecked((ushort)selectedArmTileSource)),
             editedArmFrame.Draws[0].Draw.Artwork.Id.Variant,
@@ -496,9 +491,9 @@ internal static class SamusBodyArtworkVerification
         AssertTrue(replacement.Frames[0].TopPosition != stock.Frames[0].TopPosition,
             "Samus body JSON override changes a visual frame selector");
         ushort poseOneIndex = stock.Spritemaps.TopBase(SamusPoseId.FacingRightNormalPose);
-        OamBuffer stockSpritemapOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(guardedBus, poseOneIndex,
+        OamBuffer stockSpritemapOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(poseOneIndex,
             new Position16<ScreenPixels>(128, 128), SpriteFrameTestArtwork.Spritemaps(stock.Spritemaps), new SpriteSource(SpriteSourceKind.Samus)));
-        OamBuffer editedSpritemapOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(guardedBus, poseOneIndex,
+        OamBuffer editedSpritemapOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(poseOneIndex,
             new Position16<ScreenPixels>(128, 128), SpriteFrameTestArtwork.Spritemaps(replacement.Spritemaps), new SpriteSource(SpriteSourceKind.Samus)));
         AssertEqual(unchecked((byte)(stockSpritemapOam.LowTable[0] + 1)),
             editedSpritemapOam.LowTable[0],
@@ -507,9 +502,9 @@ internal static class SamusBodyArtworkVerification
         var editedSplash = new SamusAtmosphericEffectsState();
         stockSplash.SetSlot(0, 3, 0, 2, new(128, 128));
         editedSplash.SetSlot(0, 3, 0, 2, new(128, 128));
-        OamBuffer stockSplashOam = SpriteFrameBuffer.DrawnOam(frame => stockSplash.UpdateAndDraw(guardedBus, frame, new(0, 0), 128,
+        OamBuffer stockSplashOam = SpriteFrameBuffer.DrawnOam(frame => stockSplash.UpdateAndDraw(frame, new(0, 0), 128,
             stock.Spritemaps, standardObjects: SpriteFrameTestArtwork.StandardObjects));
-        OamBuffer editedSplashOam = SpriteFrameBuffer.DrawnOam(frame => editedSplash.UpdateAndDraw(guardedBus, frame, new(0, 0), 128,
+        OamBuffer editedSplashOam = SpriteFrameBuffer.DrawnOam(frame => editedSplash.UpdateAndDraw(frame, new(0, 0), 128,
             replacement.Spritemaps, standardObjects: SpriteFrameTestArtwork.StandardObjects));
         AssertEqual(unchecked((byte)(stockSplashOam.LowTable[0] + 1)),
             editedSplashOam.LowTable[0],
@@ -518,9 +513,9 @@ internal static class SamusBodyArtworkVerification
         var editedDirect = new SamusAtmosphericEffectsState();
         stockDirect.SetSlot(0, 1, 0, 2, new(128, 128));
         editedDirect.SetSlot(0, 1, 0, 2, new(128, 128));
-        OamBuffer stockDirectOam = SpriteFrameBuffer.DrawnOam(frame => stockDirect.UpdateAndDraw(guardedBus, frame,
+        OamBuffer stockDirectOam = SpriteFrameBuffer.DrawnOam(frame => stockDirect.UpdateAndDraw(frame,
             Position16<RoomPixels>.Zero, 128, stock.Spritemaps, stock.Atmosphere, SpriteFrameTestArtwork.StandardObjects));
-        OamBuffer editedDirectOam = SpriteFrameBuffer.DrawnOam(frame => editedDirect.UpdateAndDraw(guardedBus, frame,
+        OamBuffer editedDirectOam = SpriteFrameBuffer.DrawnOam(frame => editedDirect.UpdateAndDraw(frame,
             Position16<RoomPixels>.Zero, 128, replacement.Spritemaps, replacement.Atmosphere, SpriteFrameTestArtwork.StandardObjects));
         AssertEqual(unchecked((byte)(stockDirectOam.LowTable[2] + 1)),
             editedDirectOam.LowTable[2],
@@ -529,13 +524,13 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        editedDeathSamus.DeathSequence.Begin(bus, editedDeathSamus, Position16<RoomPixels>.Zero);
+        editedDeathSamus.DeathSequence.Begin(editedDeathSamus, Position16<RoomPixels>.Zero);
         var editedDeathColors = new SnesCgram();
         for (int frame = 0; frame < 16; frame++)
-            editedDeathSamus.DeathSequence.Step(bus, editedDeathSamus,
+            editedDeathSamus.DeathSequence.Step(editedDeathSamus,
                 editedDeathColors, replacement.DeathPalettes);
         for (int frame = 0; frame < 60; frame++)
-            editedDeathSamus.DeathSequence.Step(guardedBus, editedDeathSamus,
+            editedDeathSamus.DeathSequence.Step(editedDeathSamus,
                 editedDeathColors, replacement.DeathPalettes);
         AssertEqual((ushort)(originalDeathColor + 1),
             editedDeathColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart],
@@ -544,21 +539,21 @@ internal static class SamusBodyArtworkVerification
         var stockDeathTransfer = new VramWriteQueue();
         var editedDeathTransfer = new VramWriteQueue();
         stockDeathTransfer.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-            firstDeathSegment.SourceAddress, VramDmaDestination.FromNative(firstDeathSegment.EncodedVramDestination));
+            firstDeathSegment.SourceAddress, firstDeathSegment.Destination);
         editedDeathTransfer.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-            firstDeathSegment.SourceAddress, VramDmaDestination.FromNative(firstDeathSegment.EncodedVramDestination));
+            firstDeathSegment.SourceAddress, firstDeathSegment.Destination);
         var stockDeathTilesVram = new SnesVram();
         var editedDeathTilesVram = new SnesVram();
-        stockDeathTransfer.DrainTo(stockDeathTilesVram, ReferenceMutableMemory.From(guardedBus),
+        stockDeathTransfer.DrainTo(stockDeathTilesVram,
             new DeathTileAssetProvider(stock.DeathTiles));
-        editedDeathTransfer.DrainTo(editedDeathTilesVram, ReferenceMutableMemory.From(guardedBus),
+        editedDeathTransfer.DrainTo(editedDeathTilesVram,
             new DeathTileAssetProvider(replacement.DeathTiles));
         AssertTrue(!stockDeathTilesVram.ImageEquals(editedDeathTilesVram),
             "edited death explosion PNG reaches the queued production VRAM transfer");
         OamBuffer stockDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
-            deathSamus.DeathSequence.DrawExplosion(guardedBus, frame, stock.Spritemaps, stock.DeathTiles));
+            deathSamus.DeathSequence.DrawExplosion(frame, stock.Spritemaps, stock.DeathTiles));
         OamBuffer editedDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
-            deathSamus.DeathSequence.DrawExplosion(guardedBus, frame, replacement.Spritemaps, replacement.DeathTiles));
+            deathSamus.DeathSequence.DrawExplosion(frame, replacement.Spritemaps, replacement.DeathTiles));
         AssertEqual(unchecked((byte)(stockDeathOam.LowTable[0] + 1)),
             editedDeathOam.LowTable[0],
             "edited death explosion spritemap reaches the production sequence owner");
@@ -572,21 +567,21 @@ internal static class SamusBodyArtworkVerification
         };
         stockLandingSamus.Presentation.TileTransfers.BindArtwork(stock);
         editedLandingSamus.Presentation.TileTransfers.BindArtwork(replacement);
-        stockLandingSamus.Presentation.Draw(guardedBus, new SpriteFrameBuffer(), layer1: new(0, 0));
-        editedLandingSamus.Presentation.Draw(guardedBus, new SpriteFrameBuffer(), layer1: new(0, 0));
+        stockLandingSamus.Presentation.Draw(new SpriteFrameBuffer(), layer1: new(0, 0));
+        editedLandingSamus.Presentation.Draw(new SpriteFrameBuffer(), layer1: new(0, 0));
         AssertEqual(unchecked((ushort)(stockLandingSamus.Presentation.SpritemapPosition.Y - 1)),
             editedLandingSamus.Presentation.SpritemapPosition.Y,
             "edited landing visual offset changes production OAM origin without a ROM read");
         var editedSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
         editedSamus.Presentation.TileTransfers.BindArtwork(replacement);
         AssertEqual((sbyte)(originalYOffset + 1),
-            editedSamus.PoseMetadata.ReadGraphicsYOffset(guardedBus),
+            editedSamus.PoseMetadata.ReadGraphicsYOffset(),
             "edited Samus visual Y offset is used without a cartridge read");
         var stockSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         stockSamus.Presentation.TileTransfers.BindArtwork(stock);
         editedSamus.Position = editedSamus.Position.WithWhole(stockSamus.Position.Whole);
-        stockSamus.Presentation.Draw(guardedBus, new SpriteFrameBuffer(), layer1: new(0, 0));
-        editedSamus.Presentation.Draw(guardedBus, new SpriteFrameBuffer(), layer1: new(0, 0));
+        stockSamus.Presentation.Draw(new SpriteFrameBuffer(), layer1: new(0, 0));
+        editedSamus.Presentation.Draw(new SpriteFrameBuffer(), layer1: new(0, 0));
         AssertEqual(unchecked((ushort)(stockSamus.Presentation.SpritemapPosition.Y - 1)),
             editedSamus.Presentation.SpritemapPosition.Y,
             "edited pose graphics Y offset shifts the actual Samus OAM origin one pixel");
@@ -597,20 +592,20 @@ internal static class SamusBodyArtworkVerification
         var editedSelector = new SamusTileTransferState();
         originalSelector.BindArtwork(stock);
         editedSelector.BindArtwork(replacement);
-        originalSelector.SelectForPoseFrame(guardedBus, pose: SamusPoseId.FacingRightNormalPose, animationFrame: 0);
-        editedSelector.SelectForPoseFrame(guardedBus, pose: SamusPoseId.FacingRightNormalPose, animationFrame: 0);
+        originalSelector.SelectForPoseFrame(pose: SamusPoseId.FacingRightNormalPose, animationFrame: 0);
+        editedSelector.SelectForPoseFrame(pose: SamusPoseId.FacingRightNormalPose, animationFrame: 0);
         AssertTrue(originalSelector.TopDefinitionAddress != editedSelector.TopDefinitionAddress,
             "edited Samus body JSON changes the production pose-$01 frame selector");
         var stockTransfer = new SamusTileTransferState();
         var editedTransfer = new SamusTileTransferState();
         stockTransfer.BindArtwork(stock);
         editedTransfer.BindArtwork(replacement);
-        stockTransfer.SelectForPoseFrame(guardedBus, pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
-        editedTransfer.SelectForPoseFrame(guardedBus, pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
+        stockTransfer.SelectForPoseFrame(pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
+        editedTransfer.SelectForPoseFrame(pose: SamusPoseId.MovingRightNormalPose, animationFrame: 0);
         var stockPixels = new SnesVram();
         var editedPixels = new SnesVram();
-        stockTransfer.TransferToVram(guardedBus, stockPixels);
-        editedTransfer.TransferToVram(guardedBus, editedPixels);
+        stockTransfer.TransferToVram(stockPixels);
+        editedTransfer.TransferToVram(editedPixels);
         AssertTrue(!stockPixels.ImageEquals(editedPixels),
             "edited Samus body PNG changes the production VRAM transfer for pose $09");
         document.Required("topPointers")[0] = 0x8000;
@@ -687,7 +682,7 @@ internal static class SamusBodyArtworkVerification
         var nativeSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            AnimationFrame = 0, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1,
+            AnimationFrame = 0, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile,
         };
         var installedSamus = new SamusState
         {
@@ -703,18 +698,18 @@ internal static class SamusBodyArtworkVerification
         installedSamus.Presentation.TileTransfers.BindArtwork(body);
         for (int frame = 0; frame < 4; frame++)
         {
-            SamusArmCannonUpdateResult native = nativeSamus.ArmCannon.Update(bus, nativeSamus);
+            SamusArmCannonUpdateResult native = nativeSamus.ArmCannon.Update(nativeSamus);
             SamusArmCannonUpdateResult installed = installedSamus.ArmCannon.Update(
-                NewFrontendCartridgeReadGuard(bus), installedSamus);
+                installedSamus);
             AssertEqual(native, installed, $"installed arm-cannon update frame {frame}");
         }
         var nativeFrame = new SpriteFrameBuffer();
         var installedFrame = new SpriteFrameBuffer();
         nativeFrame.BeginFrame();
         installedFrame.BeginFrame();
-        nativeSamus.ArmCannon.Draw(bus, nativeFrame, nativeSamus, Position16<RoomPixels>.Zero, 0);
+        nativeSamus.ArmCannon.Draw(nativeFrame, nativeSamus, Position16<RoomPixels>.Zero, 0);
         installedSamus.ArmCannon.Draw(
-            NewFrontendCartridgeReadGuard(bus), installedFrame, installedSamus, Position16<RoomPixels>.Zero, 0);
+            installedFrame, installedSamus, Position16<RoomPixels>.Zero, 0);
         AssertTrue(nativeFrame.FinalizeAsOam().LowTable.SequenceEqual(installedFrame.FinalizeAsOam().LowTable),
             "installed arm-cannon cover draws identical visible OAM");
         AssertEqual(nativeFrame.Draws[0].Draw.Artwork.Id, installedFrame.Draws[0].Draw.Artwork.Id,

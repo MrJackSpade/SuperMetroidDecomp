@@ -38,10 +38,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// hardcoded wall is reached, derive the vertical component from the live beam angle.
     /// </summary>
     public MotherBrainForcedSamusMovementResult MoveTowardWall(
-        ISnesAddressSpace bus,
         SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         FixedPosition<RoomPixels> before = Capture(samus);

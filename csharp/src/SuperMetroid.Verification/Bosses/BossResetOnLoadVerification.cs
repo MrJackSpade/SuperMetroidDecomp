@@ -32,9 +32,9 @@ internal static class BossResetOnLoadVerification
         {
             Area = 0, SaveStation = 1, Health = 77, MaxHealth = 199,
             Missiles = 12, MaxMissiles = 25,
-            CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-            EquippedItems = (ushort)SamusEquipmentFlags.MorphBall,
-            BossBytes = Enumerable.Repeat((byte)0x07, Bank80SystemState.AreaCount).ToArray(),
+            CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            EquippedItems = SamusEquipmentFlags.MorphBall,
+            BossFlags = Enumerable.Repeat(BossBitMasks.AllKnown, Bank80SystemState.AreaCount).ToArray(),
             EventBytes = Enumerable.Repeat((byte)0xff, Bank80SystemState.EventByteCount).ToArray(),
             OpenedDoorBytes = Enumerable.Repeat((byte)0xff, Bank80SystemState.DoorBitByteCount).ToArray(),
             CollectedItemBytes = Enumerable.Repeat((byte)0xa5, Bank80SystemState.ItemBitByteCount).ToArray(),
@@ -44,13 +44,13 @@ internal static class BossResetOnLoadVerification
         // out of escape so room selection can demonstrate both Torizo encounters.
         snapshot.EventBytes[(int)EventNumber.ZebesTimebombSet >> 3] &=
             unchecked((byte)~(1 << ((int)EventNumber.ZebesTimebombSet & 7)));
-        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
         ushort[] eyeBits = [0x45, 0x5c, 0x85, 0x9b, 0xa8];
         foreach (bool enabled in new[] { false, true })
         {
-            var runtime = CreateRetailRuntimeFixture(bus);
+            var runtime = CreateRetailRuntimeFixture();
             runtime.RoomLoader.InitializeSavedGame(slot, resetBossesOnLoad: enabled);
             for (int area = 0; area < Bank80SystemState.AreaCount; area++)
             {
@@ -72,21 +72,21 @@ internal static class BossResetOnLoadVerification
                 AssertEqual(snapshot.CollectedItemBytes[index], runtime.System.GetCollectedItemByteRaw(index), "pickups preserved");
             for (int index = 0; index < Bank80SystemState.RoomChozoBitByteCount; index++)
                 AssertEqual(snapshot.RoomChozoBytes[index], runtime.System.GetRoomChozoByteRaw(index), "Chozo orbs preserved");
-            AssertEqual(slot.CollectedItems, (ushort)runtime.Player.IntroducedSamus.CollectedItems, "collected inventory preserved");
-            AssertEqual(slot.EquippedItems, (ushort)runtime.Player.IntroducedSamus.EquippedItems, "equipment selection preserved");
+            AssertEqual(slot.CollectedItems, runtime.Player.IntroducedSamus.CollectedItems, "collected inventory preserved");
+            AssertEqual(slot.EquippedItems, runtime.Player.IntroducedSamus.EquippedItems, "equipment selection preserved");
             AssertEqual(slot.Health, runtime.Player.IntroducedSamus.Health, "health preserved");
             AssertEqual(slot.Missiles, runtime.Player.IntroducedSamus.Missiles, "ammo preserved");
             foreach (var (room, alive, defeated) in new (ushort, ushort, ushort)[]
                 { (0x9804, 0x981b, 0x9835), (0x9dc7, 0x9dd9, 0x9df3),
                   (0xb283, 0xb295, 0xb2af), (0xd8c5, 0xd8d7, 0xd8f1) })
             {
-                var header = runtime.RoomLoader.LoadCartridgeRoomHeader(room);
+                var header = runtime.RoomLoader.LoadCartridgeRoomHeader(RoomHeaderDefinitions.Get(room));
                 AssertEqual(enabled ? alive : defeated, header.State.Pointer,
                     $"loaded progression selects encounter state for room {room:X4}");
             }
             // Prove this is not a continuously enforced immortality/respawn mode.
             runtime.System.SetBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss);
-            _ = runtime.RoomLoader.LoadCartridgeRoomHeader((ushort)0x9dc7);
+            _ = runtime.RoomLoader.LoadCartridgeRoomHeader(RoomHeaderDefinitions.SporeSpawn);
             AssertTrue(runtime.System.HasAnyBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss),
                 "subsequent defeat persists until another explicit save load");
         }

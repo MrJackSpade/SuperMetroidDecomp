@@ -185,17 +185,6 @@ internal static class ProjectileTrailCoordinateDefinitions
     private const int EmptyFamilyWrappedCoordinateByte = 0x9bffff;
 
     /// <summary>
-    /// Exact cartridge observations after the authored trail-coordinate data. These are
-    /// physical results of the bounded saved-state type/frame domain, not executable code.
-    /// </summary>
-    private static ReadOnlySpan<byte> ReachableAdjacentCode =>
-    [
-        0x08, 0x8b, 0x4b, 0xab, 0xc2, 0x30, 0xad, 0x1f,
-        0x0a, 0x29, 0xff, 0x00, 0x48, 0xc9, 0x03, 0x00,
-        0xd0, 0x07, 0xa9, 0x32, 0x00, 0x22, 0x49, 0x90,
-        0x80, 0x68, 0xaa, 0xbd,
-    ];
-    /// <summary>
     /// Bank-$9B bytes a trail can read right after a reflection. $90:BE17 installs the new
     /// direction's list start, so a trail spawned before its first record reads the word
     /// preceding that list (a goto operand or another list's frame) as its animation frame.
@@ -754,8 +743,11 @@ internal static class ProjectileTrailCoordinateDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(reflection)),
     };
 
-    /// <summary>Reads compiled pointer, coordinate, or reachable adjacent-code bytes by native address.</summary>
-    internal static bool TryReadByte(int address, out byte value)
+    /// <summary>
+    /// Reads compiled pointer, coordinate, or reachable adjacent-code bytes by native address. The adjacent bytes are
+    /// cartridge observations past the authored coordinate data, which <paramref name="overreads"/> holds.
+    /// </summary>
+    internal static bool TryReadByte(int address, SamusOverreadCatalog? overreads, out byte value)
     {
         if (address == EmptyFamilyWrappedCoordinateByte)
         {
@@ -765,7 +757,9 @@ internal static class ProjectileTrailCoordinateDefinitions
 
         if (address is >= ReachableAdjacentCodeStart and <= ReachableAdjacentCodeEnd)
         {
-            value = ReachableAdjacentCode[address - ReachableAdjacentCodeStart];
+            value = (overreads ?? throw new InvalidOperationException(
+                    "A trail reading past the coordinate data needs the installed Samus overread catalog."))
+                .TrailCoordinateAdjacentByte(address - ReachableAdjacentCodeStart);
             return true;
         }
 
@@ -795,10 +789,10 @@ internal static class ProjectileTrailCoordinateDefinitions
     }
 
     /// <summary>Reads a compiled little-endian word with bank-local high-byte progression.</summary>
-    internal static ushort ReadCompiledWord(int address)
+    internal static ushort ReadCompiledWord(int address, SamusOverreadCatalog? overreads)
     {
         int next = SnesAddressMath.AddWithinBank(address, 1);
-        if (TryReadByte(address, out byte low) && TryReadByte(next, out byte high))
+        if (TryReadByte(address, overreads, out byte low) && TryReadByte(next, overreads, out byte high))
             return (ushort)(SnesLittleEndian.Word(low, high));
 
         throw new InvalidDataException(
@@ -806,55 +800,27 @@ internal static class ProjectileTrailCoordinateDefinitions
     }
 
     /// <summary>Reads one beam-family selector from the compiled high-bank pointer catalog.</summary>
-    internal static ushort ReadFamilyPointer(int address) => ReadCompiledWord(address);
+    internal static ushort ReadFamilyPointer(int address, SamusOverreadCatalog? overreads) => ReadCompiledWord(address, overreads);
 
-    /// <summary>
-    /// Reads a direction-list pointer from compiled data or the genuine bank-$9B low-half
-    /// alias selected by empty trail families.
-    /// </summary>
-    internal static ushort ReadDirectionPointer(ISnesAddressSpace bus, int address)
+    /// <summary>Reads a direction-list pointer from compiled data; false for an empty family's low-half pointer.</summary>
+    internal static bool TryReadDirectionPointer(int address, SamusOverreadCatalog? overreads, out ushort pointer)
     {
         int next = SnesAddressMath.AddWithinBank(address, 1);
-        if (TryReadByte(address, out byte low) && TryReadByte(next, out byte high))
-            return (ushort)(SnesLittleEndian.Word(low, high));
-
-        SnesAddress source = SnesAddress.FromBusAddress(address);
-        SnesAddress following = SnesAddress.FromBusAddress(next);
-        if (source.Bank == 0x9b && !source.IsUpperLoRomWindow &&
-            following.Bank == 0x9b && !following.IsUpperLoRomWindow)
-        {
-            var live = new SamusOverreadMemory(bus);
-            return (ushort)(SnesLittleEndian.Word(live.TrailDirectionByte(address), live.TrailDirectionByte(next)));
-        }
-
-        throw new InvalidDataException(
-            $"Projectile trail direction pointer {source} is outside compiled data " +
-            "and is not a mutable bank-$9B low-half alias.");
+        bool compiled = TryReadByte(address, overreads, out byte low) & TryReadByte(next, overreads, out byte high);
+        pointer = compiled ? (ushort)SnesLittleEndian.Word(low, high) : (ushort)0;
+        return compiled;
     }
 
-    /// <summary>Reads both signed coordinate bytes, falling through to live overread memory when necessary.</summary>
-    internal static ushort ReadCoordinateWord(ISnesAddressSpace bus, ushort operand, ushort index)
+    /// <summary>
+    /// Reads both signed coordinate bytes of an absolute-indexed word from compiled data; false when either byte lies
+    /// outside it (an empty family's operand straddling into the following bank or an undriven window).
+    /// </summary>
+    internal static bool TryReadCoordinateWord(ushort operand, ushort index, SamusOverreadCatalog? overreads, out ushort word)
     {
         int address = (SamusProjectileRomData.Banks.PaletteAndTrailData + operand + index) & SnesCpuAddressLayout.AddressMask;
         int next = (address + 1) & SnesCpuAddressLayout.AddressMask;
-        if (TryReadByte(address, out byte compiledLow) &&
-            TryReadByte(next, out byte compiledHigh))
-            return (ushort)(SnesLittleEndian.Word(compiledLow, compiledHigh));
-
-        // A native absolute-indexed word may straddle compiled bank-$9B data and
-        // the following bank's mutable mirror. Resolve each byte separately; the
-        // low byte drives MDR for an undriven high-byte read.
-        byte low = ReadCoordinateOperandByte(bus, address, SnesLittleEndian.HighByte(operand));
-        byte high = ReadCoordinateOperandByte(bus, next, low);
-        return (ushort)(SnesLittleEndian.Word(low, high));
-    }
-
-    /// <summary>Uses compiled data when owned, otherwise reads the native mutable overread byte.</summary>
-    private static byte ReadCoordinateOperandByte(
-        ISnesAddressSpace bus, int address, byte memoryDataRegister)
-    {
-        if (TryReadByte(address, out byte compiled))
-            return compiled;
-        return new SamusOverreadMemory(bus).TrailCoordinateOperandByte(address, memoryDataRegister);
+        bool compiled = TryReadByte(address, overreads, out byte low) & TryReadByte(next, overreads, out byte high);
+        word = compiled ? (ushort)SnesLittleEndian.Word(low, high) : (ushort)0;
+        return compiled;
     }
 }

@@ -78,8 +78,7 @@ internal sealed class BeamFiring
     }
 
     /// <summary>Handles held Shoot, release, pose-transition release, Hyper Beam, and special attack timing.</summary>
-    internal (int? Slot, ushort Sound, byte MaximumQueued) HandleBeamInput(
-        ISnesAddressSpace bus,
+    internal (int? Slot, SoundEffectId? Sound, int MaximumQueued) HandleBeamInput(
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
@@ -93,12 +92,12 @@ internal sealed class BeamFiring
         // `$90:B80D` gives the Hyper flag priority over Charge equipment. It still uses
         // held Shoot rather than a new edge, with its own 21-frame cooldown preventing a
         // desktop-held button from allocating more frequently than the cartridge.
-        if (samus.HyperBeam != 0)
+        if (samus.HyperBeamEnabled)
         {
-            (int? slot, ushort sound) = (controllerInput & shoot) != 0
-                ? TryFireHyperBeam(bus, level, samus, sharedProjectiles, roomPlms)
-                : (null, 0);
-            return (slot, sound, sound == 0 ? (byte)0 : (byte)15);
+            (int? slot, SoundEffectId? sound) = (controllerInput & shoot) != 0
+                ? TryFireHyperBeam(level, samus, sharedProjectiles, roomPlms)
+                : (null, null);
+            return (slot, sound, sound is null ? 0 : 15);
         }
 
         // Retail inventory normally owns twelve low-nibble combinations, but the native
@@ -113,17 +112,16 @@ internal sealed class BeamFiring
         {
             _charge.FlareCounter = 0;
             _animation.ClearFlareAnimationState();
-            (int? slot, ushort sound) = held
+            (int? slot, SoundEffectId? sound) = held
                 ? TryFireBeam(
-                    bus,
                     level,
                     samus,
                     controllerNewInput,
                     sharedProjectiles,
                     roomPlms,
                     charged: false)
-                : (null, 0);
-            return (slot, sound, sound == 0 ? (byte)0 : (byte)15);
+                : (null, null);
+            return (slot, sound, sound is null ? 0 : 15);
         }
 
         if (samus.PoseTransitionShotDirection != 0)
@@ -137,7 +135,6 @@ internal sealed class BeamFiring
             _charge.FlareCounter = 0;
             _animation.ClearFlareAnimationState();
             return CompleteBeamRelease(TryFireBeam(
-                bus,
                 level,
                 samus,
                 controllerNewInput,
@@ -157,15 +154,14 @@ internal sealed class BeamFiring
                 if (_charge.FlareCounter == 1)
                 {
                     _animation.ClearFlareAnimationState();
-                    (int? slot, ushort sound) = TryFireBeam(
-                        bus,
+                    (int? slot, SoundEffectId? sound) = TryFireBeam(
                         level,
                         samus,
                         controllerNewInput,
                         sharedProjectiles,
                         roomPlms,
                         charged: false);
-                    return (slot, sound, sound == 0 ? (byte)0 : (byte)15);
+                    return (slot, sound, sound is null ? 0 : 15);
                 }
 
                 // `$90:BAFC` owns both flare graphics and their audio. Its draw-time call
@@ -174,13 +170,10 @@ internal sealed class BeamFiring
                 // here, on the alpha pass that advances the counter to sixteen.
                 if (_charge.FlareCounter == SamusProjectileRomData.Beams.ChargeSoundStartCounter)
                 {
-                    return (
-                        null,
-                        SoundEffectLibrary1Sounds.ChargeBeamStart.Value,
-                        MaximumQueued: 9);
+                    return (null, SoundEffectLibrary1Sounds.ChargeBeamStart, MaximumQueued: 9);
                 }
             }
-            else if (_combos.TryActivateCombo(bus, samus, sharedProjectiles, out ushort comboSound))
+            else if (_combos.TryActivateCombo(samus, sharedProjectiles, out ushort comboSound))
             {
                 // Native tries FireSBA only on the call after charge reaches 120.
                 // Successful activation clears flare animation and restores the suit;
@@ -188,20 +181,19 @@ internal sealed class BeamFiring
                 _charge.FlareCounter = 0;
                 _animation.ClearFlareAnimationState();
                 samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
-                return (null, comboSound, 6);
+                return (null, LibraryOneRequest(comboSound), 6);
             }
-            return (null, 0, 0);
+            return (null, null, 0);
         }
 
         if (_charge.FlareCounter == 0)
-            return (null, 0, 0);
+            return (null, null, 0);
 
         bool releaseCharged =
             _charge.FlareCounter >= SamusProjectileRomData.Beams.FullyChargedCounter;
         _charge.FlareCounter = 0;
         _animation.ClearFlareAnimationState();
         return CompleteBeamRelease(TryFireBeam(
-            bus,
             level,
             samus,
             controllerNewInput,
@@ -216,8 +208,8 @@ internal sealed class BeamFiring
     /// muzzle initialization rejects a release after counter sixteen, the cartridge queues
     /// library-one `$02` instead so the sustained charge cannot remain audible.
     /// </summary>
-    private (int? Slot, ushort Sound, byte MaximumQueued) CompleteBeamRelease(
-        (int? Slot, ushort Sound) firing)
+    private (int? Slot, SoundEffectId? Sound, int MaximumQueued) CompleteBeamRelease(
+        (int? Slot, SoundEffectId? Sound) firing)
     {
         // FireChargedBeam's success path queues the indexed sound value even when an
         // out-of-domain beam combination reads zero from the adjacent table. Allocation,
@@ -229,13 +221,19 @@ internal sealed class BeamFiring
 
         return _charge.PreviousBeamChargeCounter >=
             SamusProjectileRomData.Beams.ChargeSoundStartCounter
-            ? (null, SoundEffectLibrary1Sounds.CancelAll.Value, MaximumQueued: 15)
-            : (null, 0, 0);
+            ? (null, SoundEffectLibrary1Sounds.CancelAll, MaximumQueued: 15)
+            : (null, null, 0);
     }
 
+    /// <summary>
+    /// The library-one sound a firing table or combo request names. The cartridge's zero request queues nothing, so
+    /// it becomes no sound.
+    /// </summary>
+    private static SoundEffectId? LibraryOneRequest(ushort request) =>
+        request == 0 ? null : SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, request);
+
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>
-    internal (int? Slot, ushort Sound) TryFireBeam(
-        ISnesAddressSpace bus,
+    internal (int? Slot, SoundEffectId? Sound) TryFireBeam(
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerNewInput,
@@ -252,7 +250,7 @@ internal sealed class BeamFiring
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
             (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
         {
-            return (null, 0);
+            return (null, null);
         }
 
         // `$90:AC39` writes one before allocating storage. A corrupt counter/free-slot
@@ -266,7 +264,7 @@ internal sealed class BeamFiring
             // Consistent state cannot arrive here. Match the producer's defensive rollback
             // so a debugger mutation does not leave the count permanently above five.
             _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
-            return (null, 0);
+            return (null, null);
         }
 
         // The fire routines overwrite only the words they initialize. Words such as the
@@ -276,16 +274,16 @@ internal sealed class BeamFiring
 
         byte direction = samus.PoseTransitionShotDirection != 0
             ? unchecked((byte)samus.PoseTransitionShotDirection)
-            : samus.PoseMetadata.ReadShotDirection(bus);
+            : samus.PoseMetadata.ReadShotDirection();
 
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
             _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
-            return (null, 0);
+            return (null, null);
         }
 
         slot.Direction = direction;
-        InitializePosition(bus, samus, slot);
+        InitializePosition(samus, slot);
         slot.TrailTimer = NativeCountdown.Start(4);
         slot.Type = SamusProjectileTypeWord.CreateBeam(samus.EquippedBeams, charged);
         ProjectileInvincibilityTimer = NativeCountdown.Start(10);
@@ -320,7 +318,7 @@ internal sealed class BeamFiring
                 : SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.AutoFireCooldowns + beamType.TableIndex);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
-        ushort sound = SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType);
+        SoundEffectId? sound = LibraryOneRequest(SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType));
         if (charged)
             _charge.ChargedShotGlowTimer = NativeCountdown.Start(4);
 
@@ -342,14 +340,13 @@ internal sealed class BeamFiring
                 SamusBeamCallbackDefinitions.Resolve(charged, beamType);
             slot.PreInstruction = callback.Translated ?? throw new NotSupportedException(
                 $"Beam callback $90:{callback.NativePointer:X4} is not translated.");
-            InitializePowerBeamVelocity(bus, slot);
+            InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
         }
         return (slotIndex, sound);
     }
 
     /// <summary>Allocates charged-Plasma art with Hyper damage, Wave collision, and a 21-frame cooldown.</summary>
-    internal (int? Slot, ushort Sound) TryFireHyperBeam(
-        ISnesAddressSpace bus,
+    internal (int? Slot, SoundEffectId? Sound) TryFireHyperBeam(
         RoomLevelData level,
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles,
@@ -360,7 +357,7 @@ internal sealed class BeamFiring
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
             (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
         {
-            return (null, 0);
+            return (null, null);
         }
 
         sharedProjectiles.SetSharedCooldown(1);
@@ -369,27 +366,27 @@ internal sealed class BeamFiring
         if (slotIndex < 0)
         {
             _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
-            return (null, 0);
+            return (null, null);
         }
 
         // As for ordinary beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable._slots[slotIndex];
-        byte direction = samus.PoseMetadata.ReadShotDirection(bus);
+        byte direction = samus.PoseMetadata.ReadShotDirection();
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
             _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
-            return (null, 0);
+            return (null, null);
         }
         slot.Direction = direction;
 
-        InitializePosition(bus, samus, slot);
+        InitializePosition(samus, slot);
         ProjectileInvincibilityTimer = NativeCountdown.Start(10);
 
         // The literal `$9018` is charged Plasma for bank-$93 data/art purposes even though
         // acquisition equips `$1009` Wave+Plasma tiles/palette. InitializeProjectile first
         // reads charged table entry eight; `$90:BD21` then deliberately replaces its damage
         // with 1000 before the first instruction record executes.
-        slot.Type = SamusProjectileTypeWord.CreateBeam((ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Plasma), charged: true);
+        slot.Type = SamusProjectileTypeWord.CreateBeam((SamusBeamFlags.Charge | SamusBeamFlags.Plasma), charged: true);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType.TableIndex * 2);
@@ -410,7 +407,7 @@ internal sealed class BeamFiring
             waveBeam: true,
             sharedProjectiles.PowerBombExplosion);
         slot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
-        InitializePowerBeamVelocity(bus, slot);
+        InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
 
         // These are literal stores at `$90:BD29-$BD52`. `$8014` is not an ordinary four-call
         // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
@@ -422,14 +419,13 @@ internal sealed class BeamFiring
         _charge._flareTimers[0] = _charge._flareTimers[1] = _charge._flareTimers[2] = NativeCountdown.Start(3);
         _charge.FlareCounter = 1 << 15;
 
-        ushort sound = SamusProjectileSoundRoutingDefinitions.Resolve(
-            charged: true, hyperBeamType);
+        SoundEffectId? sound = LibraryOneRequest(SamusProjectileSoundRoutingDefinitions.Resolve(
+            charged: true, hyperBeamType));
         return (slotIndex, sound);
     }
 
     /// <summary>Consumes a current or retained Shoot edge, ammo, and cooldown to launch a missile.</summary>
-    internal (int? Slot, ushort Sound) TryFireMissile(
-        ISnesAddressSpace bus,
+    internal (int? Slot, SoundEffectId? Sound) TryFireMissile(
         SamusState samus,
         SnesButton controllerNewInput,
         SnesButton controllerPreviousNewInput,
@@ -443,41 +439,41 @@ internal sealed class BeamFiring
         // Bank-$91 demo playback supplies the analogous scripted edge. Cooldown still
         // owns admission, so the delayed copy cannot manufacture held-button auto-fire.
         if (((controllerNewInput | controllerPreviousNewInput) & shoot) == 0)
-            return (null, 0);
+            return (null, null);
 
         // Admission reserves room for a Super Missile's later collision link. Ammo/free-
         // slot rejection rolls back the native count, but does not undo its cooldown write.
-        bool isSuperMissile = samus.SelectedHudItem == 2;
-        ushort ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
+        bool isSuperMissile = samus.SelectedHudItem == HudItem.SuperMissile;
+        int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SamusProjectileRomData.NonBeam.SuperMissileAdmissionLimit : SamusProjectileSystem.SlotCount;
         if (_slotTable.ProjectileCounter >= admissionLimit ||
             (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
         {
-            return (null, 0);
+            return (null, null);
         }
 
         sharedProjectiles.SetSharedCooldown(1);
         if (ammo == 0)
-            return (null, 0);
+            return (null, null);
 
         int slotIndex = Array.FindIndex(_slotTable._slots, candidate => candidate.Damage == 0);
         if (slotIndex < 0)
-            return (null, 0);
+            return (null, null);
 
         // As for beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable._slots[slotIndex];
-        byte direction = samus.PoseMetadata.ReadShotDirection(bus);
+        byte direction = samus.PoseMetadata.ReadShotDirection();
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
-            return (null, 0);
+            return (null, null);
         slot.Direction = direction;
 
-        InitializePosition(bus, samus, slot);
+        InitializePosition(samus, slot);
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
         ProjectileInvincibilityTimer = NativeCountdown.Start(20);
         if (isSuperMissile)
-            samus.SuperMissiles = NativeWordCounter.Decrement(samus.SuperMissiles).Value;
+            samus.SuperMissiles = SamusQuantity.DecrementWord(samus.SuperMissiles);
         else
-            samus.Missiles = NativeWordCounter.Decrement(samus.Missiles).Value;
+            samus.Missiles = SamusQuantity.DecrementWord(samus.Missiles);
         slot.TrailTimer = NativeCountdown.Start(4);
         slot.Type = (ushort)(SamusProjectileTypeWord.LiveMarker | (ushort)(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile));
         slot.Variable = 0;
@@ -485,10 +481,10 @@ internal sealed class BeamFiring
         // The producer first calls the generic velocity initializer with base speed zero.
         // Missile_Func1 replaces that zero with `$0100` during this same frame's alpha pass;
         // keeping both calls makes the one-frame ignition transition directly inspectable.
-        InitializeDirectionalVelocity(bus, slot, baseSpeed: 0);
+        InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: 0);
 
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem * 2);
+            SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem.ToNativeWord() * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
         SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
@@ -505,39 +501,40 @@ internal sealed class BeamFiring
         // to begin charging safely while the missile cooldown suppresses its unsafe initial
         // uncharged shot.
         sharedProjectiles.SetSharedCooldown(isSuperMissile ? (ushort)20 : (ushort)10);
-        if (samus.AutoCancelHudItemIndex != 0)
+        if (samus.AutoCancelHudItemIndex != HudItem.Beam)
         {
-            samus.SelectedHudItem = 0;
-            samus.AutoCancelHudItemIndex = 0;
+            samus.SelectedHudItem = HudItem.Beam;
+            samus.AutoCancelHudItemIndex = HudItem.Beam;
         }
         else if ((isSuperMissile ? samus.SuperMissiles : samus.Missiles) == 0)
-            samus.SelectedHudItem = 0;
-        return (slotIndex, isSuperMissile ? (ushort)4 : (ushort)3);
+            samus.SelectedHudItem = HudItem.Beam;
+        return (slotIndex, LibraryOneRequest(isSuperMissile
+            ? SamusProjectileSoundRoutingDefinitions.SuperMissileRequest
+            : SamusProjectileSoundRoutingDefinitions.MissileRequest));
     }
 
     /// <summary>Places the muzzle using pose height and the running or ordinary directional origin table.</summary>
     internal static void InitializePosition(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusProjectileSlot slot)
     {
         byte poseYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
 
         // `$90:BA94` uses the running/moonwalk origin table for movement type one and for
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
-        var origin = SamusProjectileOriginDefinitions.Read(runningOrigin, slot.Direction);
+        var origin = SamusProjectileOriginDefinitions.Read(runningOrigin, slot.PackedDirection.Raw);
         slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + origin.X)), unchecked((ushort)(samus.Position.Y.Whole + origin.Y - poseYOffset))));
     }
 
     /// <summary>Selects beam speed from its combination and diagonal direction before applying inherited velocity.</summary>
     internal static void InitializePowerBeamVelocity(
-        ISnesAddressSpace bus,
+        ProjectileInheritanceRecords inheritance,
         SamusProjectileSlot slot)
     {
-        byte direction = slot.PackedDirection.DirectionIndex;
+        int direction = slot.PackedDirection.DirectionIndex;
         bool diagonal = direction is 1 or 3 or 6 or 8;
         int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusProjectileRomData.Beams.InitialSpeedRowBytes;
         short speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
@@ -545,17 +542,17 @@ internal sealed class BeamFiring
                 ? SamusProjectileRomData.Beams.DiagonalSpeeds
                 : SamusProjectileRomData.Beams.HorizontalVerticalSpeeds) + rowOffset));
 
-        InitializeDirectionalVelocity(bus, slot, speed);
+        InitializeDirectionalVelocity(inheritance, slot, speed);
     }
 
     /// <summary>Clears projectile position fractions and combines base speed with Samus' inherited motion.</summary>
     internal static void InitializeDirectionalVelocity(
-        ISnesAddressSpace bus,
+        ProjectileInheritanceRecords inheritance,
         SamusProjectileSlot slot,
         short baseSpeed)
     {
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
-        slot.Velocity = SamusProjectileInheritance.ReadVelocity(bus, slot.Direction, baseSpeed);
+        slot.Velocity = inheritance.ReadVelocity(slot.PackedDirection.Raw, baseSpeed);
     }
 
     /// <summary>

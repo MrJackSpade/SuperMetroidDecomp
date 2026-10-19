@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
@@ -24,16 +25,16 @@ internal static class ZeroDistanceJumpContactVerification
                 Pose = left ? SamusPoseId.NeutralJumpTransitionLeftPose : SamusPoseId.NeutralJumpTransitionRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
             };
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x8000).WithFractionY(0xffff);
             samus.Kinematics.InteractiveEnemies =
             [
                 new SolidEnemyCollisionBody(Index: 0, Position: new((ushort)(100 + (left ? -1 : 1) * (10 + gap)), 100),
-                    Radius: new(5, 8), FreezeTimer: (ushort)(frozen ? 1 : 0),
-                    Properties: (ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)),
+                    Radius: new(5, 8), Frozen: frozen,
+                    Properties: EnemyPropertyWord.FromNativeWord((ushort)((ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)))),
             ];
             uint initialX = unchecked((uint)samus.Kinematics.Position.X.RawValue);
-            var result = SamusAerialMovement.StepNormalJump(bus, level, samus, SnesButton.A, 0);
+            var result = SamusAerialMovement.StepNormalJump(level, samus, SnesButton.A, 0);
             AssertEqual(initialX, unchecked((uint)samus.Kinematics.Position.X.RawValue), "zero-distance jump leaves both X words unchanged");
             AssertEqual(100, samus.Position.Y.Whole, "zero-distance contact leaves whole Y unchanged");
             AssertEqual(gap == 0 ? 0 : 0xffff, samus.Kinematics.Position.Y.Fraction,
@@ -44,11 +45,11 @@ internal static class ZeroDistanceJumpContactVerification
         }
 
         var crouched = new SamusState { Pose = SamusPoseId.CrouchingLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-        crouched.PoseMetadata.RefreshCollisionRadii(bus);
-        SamusKnockbackMovement.Start(bus, crouched, 0, new KnockbackLaunch { KnockbackXDirection = 1, KnockbackTimer = 5 }, level: level);
+        crouched.PoseMetadata.RefreshCollisionRadii();
+        SamusKnockbackMovement.Start(crouched, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Right, KnockbackTimer = NativeCountdown.Start(5) }, level: level);
         AssertEqual(SamusPoseId.KnockbackLeftPose, crouched.Pose, "crouch contact installs hurt pose");
         AssertEqual(16, crouched.Kinematics.Radius.Y, "hurt commit retains live crouch radius");
-        crouched.PoseMetadata.RefreshCollisionRadii(bus);
+        crouched.PoseMetadata.RefreshCollisionRadii();
         AssertEqual(21, crouched.Kinematics.Radius.Y, "next alpha publishes hurt radius");
     }
 }

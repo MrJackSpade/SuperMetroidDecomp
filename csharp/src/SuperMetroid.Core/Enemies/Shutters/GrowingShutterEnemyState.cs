@@ -3,56 +3,112 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// Typed view of growing-shutter enemy variables and its two extended movement words.
-/// Origin words B-E are the four independently positioned 16-pixel growth sections.
+/// The state of a growing shutter: its behaviour, the four independently positioned 16-pixel growth sections' origins,
+/// its growth level and its extended movement state. The values the cartridge keeps in the enemy's common record are
+/// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>); the activation wait stays in the slot's
+/// population parameter.
 /// </summary>
 public sealed class GrowingShutterEnemyState
 {
-    /// <summary>Backs native variable A-F access for one growing-shutter slot.</summary>
+    /// <summary>Pixels between consecutive growth sections' origins along the growth direction.</summary>
+    private const short SectionOriginSpacing = 8;
+
+    /// <summary>The shutter's slot, whose position and first population parameter the state reads.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Creates the typed view over a room-owned shutter slot.</summary>
+    /// <summary>Creates the state for a room-owned shutter slot.</summary>
     internal GrowingShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
-    /// <summary>Enemy variable A's bank-$A2 dispatcher pointer; initialization selects a wait function and activation replaces it with a growth function.</summary>
-    public GrowingShutterFunction Function
+    /// <summary>
+    /// The bank-$A2 dispatcher behaviour; initialization selects a wait function and activation replaces it with a
+    /// growth function. None once a kill has emptied the record.
+    /// </summary>
+    public GrowingShutterFunction? Function { get; internal set; }
+
+    /// <summary>
+    /// The timer-mode activation wait held in parameter 1: tested for expiry before each decrement, so a wait of N
+    /// activates on call N + 1 and an expired wait stays expired instead of wrapping.
+    /// </summary>
+    public NativeCountdown ActivationTimer
     {
-        get => (GrowingShutterFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
+        get => NativeCountdown.FromRaw(checked((ushort)_slot.Parameter1));
+        internal set => _slot.Parameter1 = value.RawValue;
     }
 
-    /// <summary>Variable B: the first section's whole-pixel Y origin, initialized to the spawn position.</summary>
-    public ushort GrowthLevel0OriginY { get => _slot.VariableB; internal set => _slot.VariableB = value; }
-    /// <summary>Variable C: the second section's Y origin, eight pixels above or below the spawn position according to growth direction.</summary>
-    public ushort GrowthLevel1OriginY { get => _slot.VariableC; internal set => _slot.VariableC = value; }
-    /// <summary>Variable D: the third section's Y origin, sixteen pixels above or below the spawn position, wrapping as a native word.</summary>
-    public ushort GrowthLevel2OriginY { get => _slot.VariableD; internal set => _slot.VariableD = value; }
-    /// <summary>Variable E: the fourth section's Y origin, twenty-four pixels above or below the spawn position, wrapping as a native word.</summary>
-    public ushort GrowthLevel3OriginY { get => _slot.VariableE; internal set => _slot.VariableE = value; }
-
-    /// <summary>Variable F; zero through four, where four is the fully grown terminal state.</summary>
-    public ushort GrowthLevel { get => _slot.VariableF; internal set => _slot.VariableF = value; }
-
-    /// <summary>Signed whole word of the positive 16.16 growth speed.</summary>
-    public short GrowthVelocity { get; internal set; }
-
-    /// <summary>Fraction word of the positive 16.16 growth speed.</summary>
-    public ushort GrowthSubvelocity { get; internal set; }
-
-    /// <summary>Extended word $7E:8800,x used to derive Samus's whole-pixel carry.</summary>
-    public ushort PreviousYPosition { get; internal set; }
-
-    /// <summary>Selects the current growth section's stored Y origin; level four has no next section.</summary>
-    internal ushort OriginForLevel() => GrowthLevel switch
+    /// <summary>
+    /// The first section's origin: the spawn position. A growing shutter only ever moves vertically, so every section
+    /// origin shares the shutter's own column.
+    /// </summary>
+    public Position16<RoomPixels> GrowthLevel0Origin
     {
-        0 => GrowthLevel0OriginY,
-        1 => GrowthLevel1OriginY,
-        2 => GrowthLevel2OriginY,
-        3 => GrowthLevel3OriginY,
+        get => new(_slot.Position.X.Whole, field.Y);
+        internal set => field = new(0, value.Y);
+    }
+    /// <summary>The second section's origin, eight pixels above or below the spawn position according to growth direction.</summary>
+    public Position16<RoomPixels> GrowthLevel1Origin
+    {
+        get => new(_slot.Position.X.Whole, field.Y);
+        internal set => field = new(0, value.Y);
+    }
+    /// <summary>The third section's origin, sixteen pixels from the spawn position, wrapping at the room coordinate's sixteen bits.</summary>
+    public Position16<RoomPixels> GrowthLevel2Origin
+    {
+        get => new(_slot.Position.X.Whole, field.Y);
+        internal set => field = new(0, value.Y);
+    }
+    /// <summary>The fourth section's origin, twenty-four pixels from the spawn position, wrapping at the room coordinate's sixteen bits.</summary>
+    public Position16<RoomPixels> GrowthLevel3Origin
+    {
+        get => new(_slot.Position.X.Whole, field.Y);
+        internal set => field = new(0, value.Y);
+    }
+
+    /// <summary>Number of completed growth sections: zero through four, where four is the fully grown terminal state.</summary>
+    public int GrowthLevel
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, 4, value);
+    }
+
+    /// <summary>Positive 16.16 growth speed in pixels per update; upward growth applies its exact negation.</summary>
+    public SnesSignedSixteenSixteen GrowthSpeed { get; internal set; }
+
+    /// <summary>The shutter's whole-pixel position immediately before its current upward move, used to derive Samus's carry.</summary>
+    public Position16<RoomPixels> PreviousPosition { get; internal set; }
+
+    /// <summary>
+    /// Places the four section origins from the shutter's current (spawn) position, each eight pixels further along the
+    /// growth direction, wrapping at the room coordinate's sixteen bits as the cartridge's origins do.
+    /// </summary>
+    internal void PlaceSectionOrigins(bool growsUp)
+    {
+        Position16<RoomPixels> spawn = _slot.Position.Whole;
+        var spacing = new Offset16<RoomPixels>(0, growsUp ? (short)-SectionOriginSpacing : SectionOriginSpacing);
+        GrowthLevel0Origin = spawn;
+        GrowthLevel1Origin = spawn + spacing;
+        GrowthLevel2Origin = spawn + spacing + spacing;
+        GrowthLevel3Origin = spawn + spacing + spacing + spacing;
+    }
+
+    /// <summary>Selects the current growth section's stored origin; level four has no next section.</summary>
+    internal Position16<RoomPixels> OriginForLevel() => GrowthLevel switch
+    {
+        0 => GrowthLevel0Origin,
+        1 => GrowthLevel1Origin,
+        2 => GrowthLevel2Origin,
+        3 => GrowthLevel3Origin,
         _ => throw new InvalidOperationException(
             $"Growing shutter level {GrowthLevel} has no section origin."),
     };
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour, no origins, level zero.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        GrowthLevel0Origin = GrowthLevel1Origin = GrowthLevel2Origin = GrowthLevel3Origin = Position16<RoomPixels>.Zero;
+        GrowthLevel = 0;
+    }
 }

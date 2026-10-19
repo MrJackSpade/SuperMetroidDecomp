@@ -14,7 +14,7 @@ internal static class AlcoonAnimationsVerification
     internal static void VerifyAlcoonAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, AlcoonAnimations.Programs,
-            AlcoonFrameDefinitions.Spritemap,
+            AlcoonFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

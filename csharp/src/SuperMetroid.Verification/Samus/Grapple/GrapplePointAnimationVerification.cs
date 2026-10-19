@@ -30,7 +30,7 @@ internal static class GrapplePointAnimationVerification
                 expectedPointer = unchecked((ushort)(expectedPointer + 512));
                 if ((short)(expectedPointer - end) >= 0) expectedPointer = begin;
             }
-            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, new SpriteFrameBuffer(), new(0, 0), SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            SamusGrappleMovement.DrawConnectedBeam(grapple, new SpriteFrameBuffer(), new(0, 0), SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);
             AssertEqual(expectedTimer, grapple.PointAnimationTimer.RawValue, "Grapple endpoint timer matches native DEC/BPL");
             AssertEqual(0x9a0000 | expectedPointer, GrapplePointAnimationDefinitions.SourceAddress(grapple.PointAnimationFrame),
                 $"Grapple endpoint follows four-frame native stride at tick {tick}");

@@ -48,7 +48,9 @@ internal static class GrappleFlarePresentationVerification
             {
                 var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
                 samus.Grapple.Phase = phase;
-                samus.Grapple.FireDirection = (byte)(pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose ? 7 : 2);
+                samus.Grapple.FireDirection = pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose
+                    ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
+                    : SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
                 samus.Grapple.FlareCounter = counter;
                 samus.Grapple.FlareAnimationFrame = 29;
                 samus.Grapple.FlareAnimationTimer = NativeCountdown.Start(0);
@@ -63,7 +65,9 @@ internal static class GrappleFlarePresentationVerification
         {
             var native = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             native.Grapple.Phase = GrapplePhase.Firing;
-            native.Grapple.FireDirection = (byte)(pose == SamusPoseId.MovingLeftNormalPose ? 7 : 2);
+            native.Grapple.FireDirection = pose == SamusPoseId.MovingLeftNormalPose
+                ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
+                : SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
             native.Grapple.FlareCounter = 1;
             var actual = Clone(native); var changed = Clone(native);
             for (int tick = 0; tick < 512; tick++)
@@ -101,7 +105,8 @@ internal static class GrappleFlarePresentationVerification
                 samus.Presentation.TileTransfers.BindArtwork(body);
                 samus.Grapple.FlarePlacement = flarePlacement;
             }
-            ushort expectedFrame = native.Grapple.FlareAnimationFrame, expectedTimer = native.Grapple.FlareAnimationTimer.RawValue;
+            int expectedFrame = native.Grapple.FlareAnimationFrame;
+            ushort expectedTimer = native.Grapple.FlareAnimationTimer.RawValue;
             if (SamusGrappleMovement.UsesBeamSpecificDrawingPath(native.Grapple.Phase) && native.Grapple.FlareCounter != 0)
             {
                 if (native.Grapple.FlareCounter == 1) { expectedFrame = 16; expectedTimer = 3; }
@@ -121,19 +126,19 @@ internal static class GrappleFlarePresentationVerification
                 }
             }
             var aFrame = new SpriteFrameBuffer(); var bFrame = new SpriteFrameBuffer(); var cFrame = new SpriteFrameBuffer();
-            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(bus, native, aFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(native, aFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
             OamBuffer a = aFrame.FinalizeAsOam();
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, actual, bFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple catalog retains native flare visibility");
+            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(actual, bFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple catalog retains native flare visibility");
             OamBuffer b = bFrame.FinalizeAsOam();
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, changed, cFrame, Position16<RoomPixels>.Zero, edited, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple art edit retains origin visibility gate");
+            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(changed, cFrame, Position16<RoomPixels>.Zero, edited, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple art edit retains origin visibility gate");
             OamBuffer c = cFrame.FinalizeAsOam();
             AssertEqual((expectedFrame, expectedTimer), (actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.ImageEquals(b) && (a.LastFinalizedSpriteCount * 4) == (b.LastFinalizedSpriteCount * 4), "Grapple stock parts preserve native complete OAM");
             AssertEqual((a.LastFinalizedSpriteCount * 4), (c.LastFinalizedSpriteCount * 4), "Grapple art edit preserves sprite count");
             for (int i = 0; i < (a.LastFinalizedSpriteCount * 4) / 4; i++)
             {
-                AssertEqual((a.GetEntry(i).X + 7) & 511, c.GetEntry(i).X, "Grapple emits edited visual part offsets");
-                AssertEqual(a.GetEntry(i).Y, c.GetEntry(i).Y, "Grapple X-only visual edit preserves Y");
+                AssertEqual((a.GetEntry(i).Position.X + 7) & 511, c.GetEntry(i).Position.X, "Grapple emits edited visual part offsets");
+                AssertEqual(a.GetEntry(i).Position.Y, c.GetEntry(i).Position.Y, "Grapple X-only visual edit preserves Y");
             }
             AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(actual)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Flare edits preserve complete Samus/Grapple state including physical origins and timers");
             cases++;
@@ -156,22 +161,24 @@ internal static class GrappleFlarePresentationVerification
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes) { Artwork = { MapPresentation = maps } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes);
+        runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.GrappleArtwork = grappleArtwork;
         runtime.Artwork.ChargeFlareCompositions = stock;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics(bus);
+        samus.Presentation.InitializeAnimation(); samus.Presentation.PrimeGraphics();
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = NativeCountdown.Start(100);
-        var game = new SuperMetroidGame(bus);
-        game.runtime = runtime;
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        game.Session.runtime = runtime;
         byte[] original = Draw(runtime);
-        AssertTrue(runtime.ActorDrawing.LastGrappleFlareDrawn, "Real actor fixture reaches Grapple flare path");
+        samus.Grapple.FlareCounter = 0;
+        AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real actor fixture reaches Grapple flare path");
+        samus.Grapple.FlareCounter = 2;
         game.BindArtwork(game.Artwork with
         {
             ChargeFlareCompositions = stock,
@@ -184,7 +191,7 @@ internal static class GrappleFlarePresentationVerification
         AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real Grapple actor consumes current composition override");
         using var stream = new MemoryStream(SerializeGraph(game));
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = restored.GameplayRuntime;
+        var restoredRuntime = restored.Session.GameplayRuntime;
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
         restoredRuntime.Artwork.GrappleArtwork = grappleArtwork;

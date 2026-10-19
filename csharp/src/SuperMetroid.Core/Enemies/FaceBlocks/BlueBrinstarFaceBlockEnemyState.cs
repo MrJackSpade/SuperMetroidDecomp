@@ -3,38 +3,36 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>
-/// Debugger-facing names for the two private words used by <c>$A8:E8AE</c>. The activation
-/// latch and last horizontal delta remain in the ordinary enemy slot, so watches still map
-/// directly to native variables A and B instead of drifting into a parallel object model.
+/// The state of the Blue Brinstar face block (<c>$A8:E8AE</c>). Its activation latch and last horizontal distance
+/// are values the cartridge keeps in the enemy's common record, so a kill empties them with that record
+/// (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class BlueBrinstarFaceBlockEnemyState
 {
-    /// <summary>Native enemy slot whose variables A and B hold the face block's observable state.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Binds debugger-facing state to the original physical enemy slot.</summary>
-    internal BlueBrinstarFaceBlockEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<BlueBrinstarFaceBlockProgram> Program { get; set; }
 
     /// <summary>
-    /// Native variable A. Once set, the face has selected its directional animation and the
-    /// main AI never performs the proximity test again.
+    /// Once set, the face has selected its directional animation and the main AI never performs the proximity test
+    /// again.
     /// </summary>
-    public bool Activated
-    {
-        get => _slot.VariableA != 0;
-        internal set => _slot.VariableA = value ? (ushort)1 : (ushort)0;
-    }
+    public bool Activated { get; internal set; }
 
     /// <summary>
-    /// Native variable B, written only after Samus passes the vertical range test. Retaining
-    /// the wrapped 16-bit subtraction makes left-side deltas directly comparable to WRAM.
+    /// Samus's signed horizontal distance in room pixels from the face block, -32768 through 32767, written only after
+    /// Samus passes the vertical range test; negative when Samus is to the left. The room-coordinate subtraction wraps
+    /// at the word boundary, so the setter accepts either the signed distance or its wrapped word.
     /// </summary>
-    public ushort LastHorizontalDelta
+    public int LastHorizontalDelta
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get;
+        internal set => field = unchecked((short)value);
+    }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record: not activated, no distance.</summary>
+    internal void ClearWithRecord()
+    {
+        Activated = false;
+        LastHorizontalDelta = 0;
     }
 }

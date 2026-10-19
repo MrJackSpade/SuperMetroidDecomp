@@ -32,7 +32,7 @@ internal static class EndingLogoVerification
         int landings = 0;
         EndingPaletteCatalog palettes = RepositoryInstallation.Installation.LoadEndingPalettes();
         EndingLogoSpritePresentation logoSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites;
-        var logo = new EndingLogo(guarded, cgram, () => landings++, palettes);
+        var logo = new EndingLogo(cgram, () => landings++, palettes);
         int frame = 0, fadeStart = 0;
         var poses = new HashSet<string>();
         while (!logo.Completed && frame < 300)
@@ -181,7 +181,7 @@ internal static class EndingLogoVerification
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn), "native LDY actor definition" );
             ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn + 1));
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.PreInstruction.NativeAddress,
                 $"logo actor {index} pre-instruction callback");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
                 $"logo actor {index} initial instruction list");

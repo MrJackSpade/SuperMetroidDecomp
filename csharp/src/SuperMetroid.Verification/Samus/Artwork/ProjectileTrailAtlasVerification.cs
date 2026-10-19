@@ -21,7 +21,7 @@ internal static class ProjectileTrailAtlasVerification
         // The bound projectile page places the trail characters where the standard upload holds them.
         SpriteArtwork standard = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
             InstalledFixtures.StandardObjects.Transfer.Span);
-        byte[] native = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, atlas).For((ushort)0).Characters.ToArray();
+        byte[] native = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, atlas).For(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags.None).Characters.ToArray();
         int iceWaveByte = ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter * SpriteArtwork.CharacterByteCount;
         int missileByte = ProjectileObjectPageDefinitions.MissileTrailFirstCharacter * SpriteArtwork.CharacterByteCount;
         AssertTrue(standard.Characters.Slice(iceWaveByte, atlas.IceAndWave.Length).SequenceEqual(atlas.IceAndWave.Span) &&
@@ -35,7 +35,7 @@ internal static class ProjectileTrailAtlasVerification
             IndexedPng.Write(changed, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             changed.Position = 0;
             var edited = ProjectileTrailAtlas.Load(changed);
-            ReadOnlySpan<byte> actual = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, edited).For((ushort)0).Characters;
+            ReadOnlySpan<byte> actual = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, edited).For(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags.None).Characters;
             int changedByte = tile < 8 ? iceWaveByte + tile * SpriteArtwork.CharacterByteCount
                 : missileByte + (tile - 8) * SpriteArtwork.CharacterByteCount;
             for (int i = 0; i < native.Length; i++)
@@ -68,18 +68,18 @@ internal static class ProjectileTrailAtlasVerification
         stream.Position = 0;
         var atlas = ProjectileTrailAtlas.Load(stream);
         var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailExtractor.Extract(bus)), atlas);
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         byte[] before = runtime.Vram.Bytes.ToArray();
         runtime.Artwork.TrailArtwork = catalog;
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(before.SequenceEqual(runtime.Vram.Bytes), "Trail rebind is a page binding, not a VRAM write");
         Check(runtime);
         // Room initialization reloads the standard OBJ sheet; the bound trail characters stay on the page.
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         Check(runtime);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         using var saved = new MemoryStream();
@@ -89,12 +89,12 @@ internal static class ProjectileTrailAtlasVerification
         AssertTrue(restored.Artwork.TrailArtwork is null, "State does not embed selected trail PNGs");
         BindRetailRuntimeFixture(restored);
         restored.Artwork.TrailArtwork = catalog;
-        restored.NmiHandler.RunNmi(0, true);
+        restored.FrameBoundary.BeginAcceptedFrame(0);
         Check(restored);
         void Check(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             ReadOnlySpan<byte> page = (target.Artwork.ProjectileObjects
-                ?? throw new InvalidOperationException("The runtime has no projectile page.")).For((ushort)0).Characters;
+                ?? throw new InvalidOperationException("The runtime has no projectile page.")).For(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags.None).Characters;
             AssertTrue(page.Slice(ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter * SpriteArtwork.CharacterByteCount, atlas.IceAndWave.Length).SequenceEqual(atlas.IceAndWave.Span), "The bound page shows the current ice/wave trail PNG");
             AssertTrue(page.Slice(ProjectileObjectPageDefinitions.MissileTrailFirstCharacter * SpriteArtwork.CharacterByteCount, atlas.Missile.Length).SequenceEqual(atlas.Missile.Span), "The bound page shows the current missile trail PNG");
         }

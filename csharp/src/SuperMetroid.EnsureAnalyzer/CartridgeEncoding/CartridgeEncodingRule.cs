@@ -37,4 +37,18 @@ internal enum CartridgeEncodingRule
     /// <c>byte</c> field, property or element. Ratcheted by SME6349.
     /// </summary>
     CountdownSelfDecrement,
+    /// <summary>
+    /// A value of a <c>[Flags]</c> enum cast to an integral primitive in functional code (#1323): the typed flags
+    /// leave their type before the encoding boundary. Ratcheted by SME6346.
+    /// </summary>
+    FlagsPrimitiveCast,
+    /// <summary>A <c>[Flags]</c> cast inside a catalog or <c>[SnesEncodingOwner]</c> type, or under a reviewed allowance. Inventoried.</summary>
+    OwnedFlagsPrimitiveCast,
+    /// <summary>
+    /// A <c>byte</c> or <c>ushort</c> instance field, property or positional record parameter in functional code
+    /// (#1323): gameplay state stored as a CPU word. Ratcheted by SME6347.
+    /// </summary>
+    NarrowStorageMember,
+    /// <summary>A narrow member inside a catalog or <c>[SnesEncodingOwner]</c> type, or under a reviewed allowance. Inventoried.</summary>
+    OwnedNarrowStorageMember,
 }

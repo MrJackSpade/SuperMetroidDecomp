@@ -17,12 +17,12 @@ internal static class SpcDspPublicationVerification
             var player = new ManagedSpcPlayer();
             var dsp = player.dsp;
             dsp.SetSampleBank(new ManagedPcmSampleBank("publication-fixture", 0,
-                new Dictionary<byte, ManagedPcmSample>
+                new Dictionary<int, ManagedPcmSample>
                 {
                     [0] = new ManagedPcmSample("silent", 32000, new short[16], 0),
                 }));
             var direct = new byte[256];
-            void Set(ref byte register, int address, byte value)
+            void Set(ref int register, int address, byte value)
             {
                 direct[address] = value;
                 register = value;

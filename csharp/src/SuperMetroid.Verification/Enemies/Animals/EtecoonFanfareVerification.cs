@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
@@ -16,22 +17,20 @@ internal static class EtecoonFanfareVerification
     /// <summary>Verifies the dormant transition gate, single post-fade sound request, and audible advancing melody.</summary>
     internal static void VerifyEtecoonFanfareAfterDoor()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         for (int index = 0; index < 3; index++)
         {
             var slot = enemies.SlotTable.Slots[index];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Etecoon;
-            slot.Definition = RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer);
-            slot.AiBank = slot.Definition.Bank;
+            slot.Bind(EnemyDefinitionId.Etecoon, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer));
             slot.Health = slot.Definition.Health;
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Position = slot.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
-            slot.Properties = 0x0c00;
+            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x0c00));
             slot.Parameter2 = (ushort)index;
-            enemies.EtecoonBehavior.InitializeEtecoon(slot);
+            EtecoonBehavior.InitializeEtecoon(slot);
         }
         var samus = new SamusState { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         var level = new RoomLevelData(new Extent16<RoomBlocks>(48, 192), new RoomLevelPlanes(new ushort[48 * 192], new byte[48 * 192], new ushort[48 * 192]), new byte[8]);
@@ -61,7 +60,7 @@ internal static class EtecoonFanfareVerification
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "next frame does not repeat fanfare");
         var channels = renderer.PlayerForVerification.soundChannels;
-        var notes = new HashSet<byte>();
+        var notes = new HashSet<int>();
         int peak = 0;
         for (int frame = 0; frame < 240; frame++)
         {

@@ -38,4 +38,7 @@ internal interface IEnemyAiFrame
 
     /// <summary>Destination for actor graphics transfers.</summary>
     VramWriteQueue? VramWriteQueue { get; }
+
+    /// <summary>The accepted-frame counters this enemy pass reads.</summary>
+    FrameCounters Clock { get; }
 }

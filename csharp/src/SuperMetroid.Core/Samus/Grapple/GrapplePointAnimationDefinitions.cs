@@ -13,7 +13,7 @@ internal static class GrapplePointAnimationDefinitions
     internal const ushort Delay = 5;
 
     /// <summary>Combines a frame's bank-relative tile pointer with the grapple character-data bank.</summary>
-    internal static int SourceAddress(byte frame) => SamusGrappleRomData.Banks.CharacterData |
+    internal static int SourceAddress(int frame) => SamusGrappleRomData.Banks.CharacterData |
         unchecked((ushort)(BeginPointer + frame * FrameStride));
 
     /// <summary>Decrements the endpoint timer, advances by one native tile stride on expiry, and wraps at the exclusive limit.</summary>
@@ -25,6 +25,6 @@ internal static class GrapplePointAnimationDefinitions
         state.PointAnimationTimer = NativeCountdown.Start(Delay);
         ushort pointer = unchecked((ushort)(SourceAddress(state.PointAnimationFrame) + FrameStride));
         if (unchecked((short)(pointer - EndPointer)) >= 0) pointer = BeginPointer;
-        state.PointAnimationFrame = (byte)(unchecked((ushort)(pointer - BeginPointer)) / FrameStride);
+        state.PointAnimationFrame = unchecked((ushort)(pointer - BeginPointer)) / FrameStride;
     }
 }

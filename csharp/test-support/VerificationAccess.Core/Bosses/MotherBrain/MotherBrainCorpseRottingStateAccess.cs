@@ -10,10 +10,10 @@ internal static class MotherBrainCorpseRottingStateAccess
     extension(MotherBrainCorpseRottingState)
     {
         /// <summary>Reads one native four-byte table entry for debugger and verification use.</summary>
-        internal static MotherBrainCorpseRotEntry ReadEntry(ISnesMemoryBus memory, int entryIndex)
+        internal static MotherBrainCorpseRotEntry ReadEntry(EnemyStagingSurfaces staging, int entryIndex)
         {
             CorpseRottingTableEntry entry = CorpseRottingTableProcessor.ReadEntry(
-                new EnemyScratchMemory(memory).MotherBrainRotTable, entryIndex);
+                staging.MotherBrainRotTable, entryIndex);
             return new MotherBrainCorpseRotEntry(entry.YOffset, entry.Timer);
         }
     }

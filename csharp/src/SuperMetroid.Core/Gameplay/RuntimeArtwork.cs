@@ -41,6 +41,25 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         (_enemies.TileArtwork?.CrocomireSkeleton ?? throw new InvalidOperationException(
             "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(entry);
 
+    /// <summary>The installed HUD atlas <see cref="HudCharacters"/> was built from, so a rebind rebuilds it.</summary>
+    [NonSerialized] private HudTileAtlas? hudCharactersSource;
+    /// <summary>The installed two-bpp BG3 characters (HUD, minimap and message glyphs) as background artwork; null until bound.</summary>
+    [field: NonSerialized]
+    internal BgArtwork? HudCharacters
+    {
+        get
+        {
+            if (MapPresentation?.HudTiles is not { } atlas)
+                return null;
+            if (!ReferenceEquals(atlas, hudCharactersSource))
+            {
+                field = new BgArtwork(new BgArtworkId(BgArtworkKind.HudCharacters), 2, atlas.Transfer.Span);
+                hudCharactersSource = atlas;
+            }
+            return field;
+        }
+    }
+
     /// <summary>Resolves a legacy native-source DMA record from currently installed artwork.</summary>
     bool IInstalledArtworkTransferSource.TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
         TryResolveInstalledArtwork(sourceAddress, byteCount, out data);
@@ -283,6 +302,14 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         set { field = value; BindProjectileObjects(); }
     }
 
+    /// <summary>The installed cartridge bytes Samus's glitch paths read; the projectile system binds them.</summary>
+    [field: NonSerialized]
+    public SamusOverreadCatalog? SamusOverreads
+    {
+        get;
+        set { field = value; _projectiles.Overreads = value; }
+    }
+
     /// <summary>Beam artwork bound since the last accepted NMI, whose palette that NMI publishes.</summary>
     [NonSerialized] private BeamTileCatalog? pendingBeamPalette;
 
@@ -291,6 +318,23 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     {
         get;
         set { field = value; pendingBeamPalette = value; BindProjectileObjects(); }
+    }
+
+    /// <summary>
+    /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> ($90:AC8D) last loaded. The
+    /// projectile pages show this beam's characters until the next update, even when code changes the equipment in
+    /// between: the Golden Torizo code grants beams during room initialization, after the entering beam was loaded.
+    /// </summary>
+    public SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags LoadedBeams { get; private set; }
+
+    /// <summary>
+    /// Ports <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D: latches the beam whose characters the projectile pages
+    /// show and loads its palette.
+    /// </summary>
+    internal void UpdateBeamTilesAndPalette(SnesCgram cgram, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams)
+    {
+        LoadedBeams = equippedBeams;
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(cgram, equippedBeams, BeamArtwork?.Palettes);
     }
 
     /// <summary>

@@ -34,7 +34,7 @@ public static class SamusInsideBlockReactions
                     throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active PLM owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
-                ApplyConveyor(block.Behavior);
+                ApplyConveyor(block.Bts.Value);
                 return;
             }
             SpecialAirReactionDefinition areaReaction =
@@ -78,7 +78,7 @@ public static class SamusInsideBlockReactions
                     QuicksandSurfacePhysics physics =
                         QuicksandDefinitions.SurfacePhysics(
                             (samus.EquippedItems &
-                                (ushort)SamusEquipmentFlags.GravitySuit) != 0);
+                                SamusEquipmentFlags.GravitySuit) != 0);
                     // $84:B433 indexes a four-entry table with the direction's low two bits;
                     // its fourth entry repeats the grounded handler, but $0B36 only ever
                     // holds the three defined directions.
@@ -86,20 +86,21 @@ public static class SamusInsideBlockReactions
                     {
                         case SamusVerticalDirection.None:
                             body.YSpeed = body.YSubspeed = 0;
-                            SetExtra(SnesEightEight.FromWhole(physics.StationaryDisplacement));
+                            SetExtra(physics.StationaryDisplacement);
                             break;
                         case SamusVerticalDirection.Up:
-                            ushort limit = physics.UpwardSpeedLimit;
-                            // The original compares the middle word of the 16.16 speed.
-                            if ((ushort)(SnesEightEight.WholeOf(body.VerticalSpeedFixed)) > limit)
+                            SnesSignedSixteenSixteen limit = physics.UpwardSpeedLimit;
+                            // The original compares the middle words of the 16.16 speed and limit, then
+                            // replaces the speed's whole pixels and fraction with the limit's.
+                            if ((ushort)(SnesEightEight.WholeOf(body.VerticalSpeedFixed)) > SnesEightEight.WholeOf(limit.RawValue))
                             {
-                                body.YSpeed = (ushort)(SnesLittleEndian.HighByte(limit));
-                                body.YSubspeed = unchecked((ushort)SnesSixteenSixteen.FromEightEight(limit));
+                                body.YSpeed = limit.WholeWord;
+                                body.YSubspeed = limit.Fraction;
                             }
-                            SetExtra(SnesEightEight.FromWhole(physics.MovingDisplacement));
+                            SetExtra(physics.MovingDisplacement);
                             break;
                         case SamusVerticalDirection.Down:
-                            SetExtra(SnesEightEight.FromWhole(physics.MovingDisplacement));
+                            SetExtra(physics.MovingDisplacement);
                             break;
                         default:
                             throw new InvalidOperationException(
@@ -107,13 +108,13 @@ public static class SamusInsideBlockReactions
                     }
                     break;
                 case SpecialAirReactionSetup.SubmergingQuicksand:
-                    SetExtra(QuicksandRomData.SubmergingDisplacement);
+                    SetExtra(SnesSignedSixteenSixteen.FromRaw(QuicksandRomData.SubmergingDisplacement));
                     break;
                 case SpecialAirReactionSetup.SandFallsSlow:
-                    SetExtra(QuicksandRomData.SlowFallsDisplacement);
+                    SetExtra(SnesSignedSixteenSixteen.FromRaw(QuicksandRomData.SlowFallsDisplacement));
                     break;
                 case SpecialAirReactionSetup.SandFallsFast:
-                    SetExtra(QuicksandRomData.FastFallsDisplacement);
+                    SetExtra(SnesSignedSixteenSixteen.FromRaw(QuicksandRomData.FastFallsDisplacement));
                     break;
                 case SpecialAirReactionSetup.ClearCarry:
                 case SpecialAirReactionSetup.QuicksandSurfaceCollision:
@@ -128,7 +129,7 @@ public static class SamusInsideBlockReactions
                     throw new InvalidOperationException($"Undefined special-air setup {setup}.");
             }
         }
-        void ApplyConveyor(byte bts)
+        void ApplyConveyor(int bts)
         {
             // The normal special-air table shares its BTS space; only conveyor entries react here.
             if (!Enum.IsDefined((ConveyorBlockBts)bts)) return;
@@ -149,9 +150,9 @@ public static class SamusInsideBlockReactions
             body.ExtraDisplacement = body.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(
                 rightward ? ConveyorBlockRomData.RightDisplacement : ConveyorBlockRomData.LeftDisplacement, 0));
         }
-        void SetExtra(int displacement)
+        void SetExtra(SnesSignedSixteenSixteen displacement)
         {
-            body.ExtraDisplacement = body.ExtraDisplacement.WithY(SnesSignedSixteenSixteen.FromRaw(displacement));
+            body.ExtraDisplacement = body.ExtraDisplacement.WithY(displacement);
         }
     }
 

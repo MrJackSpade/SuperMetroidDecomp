@@ -34,11 +34,13 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 var slot=bombs.Slots[i]; var expected=reference[i];
                 ushort y=unchecked((ushort)-(expected.YSpeed+((hold>>6)&3)));
                 AssertEqual(expected.FuseTimer,slot.BombTimer.RawValue,"Spread fuse by physical slot");
-                AssertEqual(expected.XVelocity,slot.BombSpreadDirectionMagnitude,"Spread native direction/magnitude word");
-                AssertEqual(expected.YSubspeed,slot.BombSpreadInitialYSubvelocity,"Spread initial subvelocity");
-                AssertEqual(expected.YSubspeed,slot.BombSpreadYSubvelocity,"Spread live subvelocity");
-                AssertEqual(y,slot.BombSpreadYVelocity,"Spread hold modifier and negated whole velocity");
-                AssertEqual(y,slot.BombSpreadBounceYVelocity,"Spread bounce retains launch velocity");
+                AssertEqual(BombSpreadHorizontalVelocity.FromLaunchWord(expected.XVelocity),slot.BombSpreadHorizontal,"Spread horizontal direction and speed");
+                AssertEqual((int)expected.XVelocity,slot.BombSpreadDirectionMagnitude,"Spread horizontal travel re-encodes the native direction/magnitude word");
+                var launchVelocity=SnesSignedSixteenSixteen.FromParts(unchecked((short)y),expected.YSubspeed);
+                AssertEqual(launchVelocity,slot.BombSpreadLaunchVelocity,"Spread hold modifier, negated whole velocity and authored fraction");
+                AssertEqual(launchVelocity,slot.BombSpreadVerticalVelocity,"Spread live velocity starts at the launch velocity");
+                AssertEqual((int)y,slot.BombSpreadYVelocity,"Spread whole velocity word");
+                AssertEqual((int)expected.YSubspeed,slot.BombSpreadYSubvelocity,"Spread fractional velocity word");
                 AssertEqual(samus.Position.X.Whole,slot.Position.X.Whole,"Spread launch X wraps with Samus");
                 AssertEqual(samus.Position.Y.Whole,slot.Position.Y.Whole,"Spread launch Y wraps with Samus");
             }
@@ -47,6 +49,64 @@ internal static class BombSpreadLaunchDefinitionsVerification
             AssertEqual((ushort)0,samus.BombSpreadChargeTimeoutCounter,"Spread clears hold counter");
         }
         Console.WriteLine("Bomb Spread launch: twenty native words and 327680 actual slot initializations match with launch ROM reads forbidden.");
+        VerifyBombSpreadMotionWraps();
+    }
+
+    /// <summary>
+    /// Checks the typed spread-bomb motion against the cartridge's split-word arithmetic at its wrap boundaries: the
+    /// horizontal step's fraction carry and borrow and its whole-word wrap through zero and 65535 in both directions,
+    /// for every launch speed, and gravity's fraction carry into a wrapping whole velocity word.
+    /// </summary>
+    private static void VerifyBombSpreadMotionWraps()
+    {
+        ushort[] boundaries = [0, 1, 0x7fff, 0x8000, 0xff00, 0xffff];
+        for (int slot = 0; slot < SamusBombSpreadRomData.SlotCount; slot++)
+        {
+            ushort launchWord = SamusBombSpreadLaunchDefinitions.ForSlot(slot).XVelocity;
+            foreach (BombSpreadHorizontalVelocity velocity in new[] {
+                BombSpreadHorizontalVelocity.FromLaunchWord(launchWord),
+                BombSpreadHorizontalVelocity.FromLaunchWord(launchWord).Reversed() })
+            foreach (ushort whole in boundaries)
+            foreach (ushort fraction in boundaries)
+            {
+                // The cartridge decodes the byte-swapped word and steps the split X words with explicit carry or borrow.
+                ushort swapped = SnesLittleEndian.SwapBytes(checked((ushort)velocity.LaunchWord));
+                int subvelocity = SnesLittleEndian.HighByteInPlace(swapped);
+                int magnitude = swapped & 127;
+                bool left = (swapped & 1 << 7) != 0;
+                int fractionSum = left ? fraction - subvelocity : fraction + subvelocity;
+                int carry = left ? (fractionSum < 0 ? 1 : 0) : (fractionSum > ushort.MaxValue ? 1 : 0);
+                ushort expectedWhole = unchecked((ushort)(left ? whole - magnitude - carry : whole + magnitude + carry));
+                ushort expectedFraction = unchecked((ushort)fractionSum);
+
+                var start = FixedPosition<RoomPixels>.FromWhole(new(whole, 0)).WithFractionX(fraction);
+                var moved = start.AdvanceX(velocity.Displacement);
+                AssertEqual((expectedWhole, expectedFraction), (moved.X.Whole, moved.X.Fraction),
+                    $"spread step {velocity} from {whole:X4}.{fraction:X4} matches the split-word carry and wrap");
+            }
+        }
+
+        foreach (ushort velocityWhole in boundaries)
+        foreach (ushort velocityFraction in boundaries)
+        foreach (ushort gravityFraction in new ushort[] { 0, 0x1c00, 0xffff })
+        {
+            uint fractionalSum = (uint)velocityFraction + gravityFraction;
+            ushort expectedWhole = unchecked((ushort)(velocityWhole + (fractionalSum > ushort.MaxValue ? 1 : 0)));
+            var accelerated = SnesSignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction) +
+                SnesSignedSixteenSixteen.FromParts(0, gravityFraction);
+            AssertEqual((expectedWhole, unchecked((ushort)fractionalSum)), (accelerated.WholeWord, accelerated.Fraction),
+                $"spread gravity from {velocityWhole:X4}.{velocityFraction:X4} carries and wraps like the split words");
+        }
+    }
+
+    /// <summary>Runs the Bomb Spread launch-word, slot-initialization and motion-wrap checks against the retail ROM.</summary>
+    [SuperMetroid.Verification.Harness.VerificationCommand("--bomb-spread-launch")]
+    internal static int BombSpreadLaunchCommand()
+    {
+        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        SuperMetroid.Verification.Harness.SuiteTimingVerification.Suite(
+            nameof(VerifyBombSpreadLaunchDefinitions), () => VerifyBombSpreadLaunchDefinitions(rom));
+        return 0;
     }
 
     /// <summary>Forbids production reads across the migrated Bomb Spread launch tables.</summary>

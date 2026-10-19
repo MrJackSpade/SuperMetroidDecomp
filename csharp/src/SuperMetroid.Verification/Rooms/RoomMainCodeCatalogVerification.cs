@@ -1,6 +1,7 @@
 using System.Globalization;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Rooms;
@@ -8,6 +9,14 @@ namespace SuperMetroid.Verification.Rooms;
 /// <summary>Checks bank-$8F room-main callbacks against every reachable retail room state.</summary>
 internal static class RoomMainCodeCatalogVerification
 {
+    /// <summary>Runs the room-main callback catalog check on its own.</summary>
+    [VerificationCommand("--room-main-code-catalog")]
+    internal static int RoomMainCodeCatalogCommand()
+    {
+        VerifyRoomMainCodeCatalog();
+        return 0;
+    }
+
     /// <summary>
     /// Enumerates every state reachable from every named retail room header and proves
     /// every nonzero main callback belongs to the dedicated bank-$8F catalog.
@@ -16,7 +25,7 @@ internal static class RoomMainCodeCatalogVerification
     {
         ushort[] catalog = Enum.GetValues<RoomMainCallback>()
             .Where(callback => callback != RoomMainCallback.None)
-            .Select(callback => (ushort)callback)
+            .Select(callback => RoomCallbackDefinitions.PointerOf(callback))
             .ToArray();
         AssertEqual(catalog.Length, catalog.Distinct().Count(),
             "room-main callback catalog has no aliases");
@@ -48,8 +57,8 @@ internal static class RoomMainCodeCatalogVerification
                 CartridgeRoomState state = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
                 if (!statePointers.Add(state.Pointer))
                     continue;
-                if (state.MainCodePointer != 0)
-                    retailMainPointers.Add(state.MainCodePointer);
+                if (state.MainCallback != RoomMainCallback.None)
+                    retailMainPointers.Add(RoomCallbackDefinitions.PointerOf(state.MainCallback));
             }
         }
 

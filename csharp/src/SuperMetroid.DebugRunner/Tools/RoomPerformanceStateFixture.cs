@@ -23,9 +23,8 @@ internal static class RoomPerformanceStateFixture
         Directory.CreateDirectory(root);
         using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
-        const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
-        data.Game.SetupSelectedGame();
-        var runtime = data.Game.GameplayRuntime;
+        data.Game.Session.SetupSelectedGame();
+        var runtime = data.Game.Session.GameplayRuntime;
         bool surface = scene == "surface";
         ushort camera = surface ? (ushort)1024 : (ushort)0;
         if (scene == "map")
@@ -37,7 +36,7 @@ internal static class RoomPerformanceStateFixture
         }
         else
         {
-            ushort room = surface ? RoomHeaderPointers.LandingSite : RoomHeaderPointersTooling.CrateriaSaveStation;
+            RoomHeaderDefinition room = surface ? RoomHeaderDefinitions.LandingSite : RoomHeaderDefinitions.CrateriaSave;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(camera, camera));
         }
         runtime.Player.IntroducedSamus.InputLocked = true;
@@ -54,7 +53,7 @@ internal static class RoomPerformanceStateFixture
             var result = data.Game.StepCaptured(0, frame, data.Generation);
             lastSnapshot = result.Snapshot;
             long stepped = Stopwatch.GetTimestamp();
-            pixels = result.Snapshot is { } snapshot ? SoftwareFrameSnapshotRenderer.Render(snapshot) : result.Frame.Pixels;
+            pixels = SoftwareFrameSnapshotRenderer.Render(result.Snapshot);
             long rendered = Stopwatch.GetTimestamp();
             data.Game.CopyAudioFrame(pcm);
             long mixed = Stopwatch.GetTimestamp();
@@ -68,7 +67,7 @@ internal static class RoomPerformanceStateFixture
             throw new InvalidDataException($"Performance fixture unexpectedly left gameplay: {data.Game.GameState}");
         PngWriterTooling.WriteRgba(Path.Combine(root, "room.png"), new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), pixels);
         Console.WriteLine(data.SaveSlot(9));
-        Console.WriteLine($"{scene}: room ${(byte?)data.Game.GameplayActiveAreaIndex:X2}/${data.Game.GameplayActiveRoomIndex:X2}; " +
+        Console.WriteLine($"{scene}: room {data.Game.GameplayActiveRoomIdentity}; " +
             $"600 measured Windows frames: step (including audio synthesis)={stepMs / 600:F3}ms render={renderMs / 600:F3}ms audio copy={audioMs / 600:F3}ms.");
         if (lastSnapshot?.Layers is { } layers)
         {

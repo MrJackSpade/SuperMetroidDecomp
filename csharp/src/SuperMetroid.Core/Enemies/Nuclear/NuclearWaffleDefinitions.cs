@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 internal static class NuclearWaffleDefinitions
 {
 
-    /// <summary>Sound effect $5E in library two, queued when a joint turns.</summary>
-    internal const ushort TurnSoundEffect = 0x005e;
+    /// <summary>Sound effect $5E in library two, queued when a joint makes its rising turn.</summary>
+    internal static readonly SoundEffectId TurnSoundEffect = new(SoundEffectLibrary.Library2, 0x5e);
 
     /// <summary>$A6:95F6 endpoint pairs mirror around angle $140.</summary>
     private const int SweepCenter = 0x140;
@@ -21,8 +21,8 @@ internal static class NuclearWaffleDefinitions
         if (direction >= 2)
             throw new InvalidDataException($"Nuclear Waffle direction {direction} is outside the two native sweeps.");
         int sign = 1 - direction * 2;
-        return new((ushort)(SweepCenter + sign * SweepRadius), (ushort)(SweepCenter - sign * SweepRadius),
+        return new(SweepCenter + sign * SweepRadius, SweepCenter - sign * SweepRadius,
             (short)(-sign * SegmentPitch), (short)(-sign * SegmentPitch / 2),
-            (ushort)(SweepCenter + sign * TurnRadius), (ushort)(SweepCenter - sign * TurnRadius));
+            SweepCenter + sign * TurnRadius, SweepCenter - sign * TurnRadius);
     }
 }

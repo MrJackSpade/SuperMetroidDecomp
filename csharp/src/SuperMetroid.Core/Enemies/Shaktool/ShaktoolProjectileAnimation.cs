@@ -13,6 +13,6 @@ internal sealed class ShaktoolProjectileAnimation(ShaktoolProjectileProgram prog
     private protected override AnimationProgramSet<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue> Programs => ShaktoolProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(ShaktoolProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(ShaktoolProjectileFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(ShaktoolProjectileFrame frame) =>
+        ShaktoolProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

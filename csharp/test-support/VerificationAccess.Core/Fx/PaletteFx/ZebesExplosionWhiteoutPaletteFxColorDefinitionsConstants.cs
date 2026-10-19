@@ -25,4 +25,6 @@ internal static class ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants
     public const ushort WideExplosionBackgroundColorByteIndex = 0x0022;
     /// <summary>The space-whiteout entry writes CGRAM from byte index <c>$0000</c>.</summary>
     public const ushort SpaceWhiteoutColorByteIndex = 0x0000;
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => ZebesExplosionWhiteoutPaletteFxColorDefinitions.Rows.Color(frame, color);
 }

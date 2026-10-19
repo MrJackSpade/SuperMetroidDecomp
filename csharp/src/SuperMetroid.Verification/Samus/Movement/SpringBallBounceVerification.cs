@@ -24,14 +24,14 @@ internal static class SpringBallBounceVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x169)),
                 MorphBallBounceState = bounceState,
             };
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = 1;
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YSubacceleration = 0x1c00;
 
-            SamusMorphBallMovement.StepSpringBallInAir(bus, room, samus, SnesButton.Right, 0);
+            SamusMorphBallMovement.StepSpringBallInAir(room, samus, SnesButton.Right, 0);
             string context = $"Spring Ball in air with bounce state ${(int)bounceState:X4}";
             if (bounceState != SamusBallBounceState.None)
             {

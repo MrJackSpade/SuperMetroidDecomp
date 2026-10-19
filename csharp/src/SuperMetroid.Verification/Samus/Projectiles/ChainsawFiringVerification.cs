@@ -20,6 +20,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Focused cartridge-probe comparison for Chainsaw shot admission, collision, lifetime and door interference.</summary>
 internal static class ChainsawFiringVerification
@@ -33,27 +34,27 @@ internal static class ChainsawFiringVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
         var samus = new SamusState
         {
-            CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
-            EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
-            CollectedBeams = 0x100f,
-            EquippedBeams = (ushort)(SamusBeamFlags.Wave | SamusBeamFlags.Spazer),
+            CollectedItems = SamusEquipmentFlags.HiJumpBoots,
+            EquippedItems = SamusEquipmentFlags.HiJumpBoots,
+            CollectedBeams = (SamusBeamFlags)0x100f,
+            EquippedBeams = (SamusBeamFlags.Wave | SamusBeamFlags.Spazer),
         };
-        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         pause.Step(0, (SnesButton.Left | SnesButton.A));
-        AssertEqual((ushort)0x000d, samus.EquippedBeams,
+        AssertEqual((ushort)0x000d, samus.EquippedBeams.ToNativeWord(),
             "same-frame Boots Left+A equips Wave, Spazer, and Plasma without Ice");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(128, 128));
-        samus.SelectedHudItem = 0;
+        samus.SelectedHudItem = HudItem.Beam;
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
-        projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
+        projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
 
         // A missing shot also leaves an empty slot, so checking deletion alone would
         // incorrectly pass the existing silent >=12 rejection in HandleBeamInput.
-        AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
+        AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
             "native Chainsaw admits and allocates the shot");
         AssertEqual(0, projectiles.SlotTable.ProjectileCounter, "inactive Power Bomb deletes Chainsaw on first update");
         AssertEqual(0, projectiles.Slots[0].InstructionPointer, "deleted Chainsaw has no animation list");
@@ -73,10 +74,10 @@ internal static class ChainsawFiringVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = 0x000d,
-            SelectedHudItem = 0,
+            EquippedBeams = (SamusBeamFlags)0x000d,
+            SelectedHudItem = HudItem.Beam,
         };
-        AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Bus = bus, Level = reactiveLevel }, reactiveSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
+        AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = reactiveLevel }, reactiveSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
 
         // Wave collision scans do not kill their owner, but they still run every touched
         // block's shot reaction before the B0AC callback deletes the no-Power-Bomb shot.
@@ -97,12 +98,12 @@ internal static class ChainsawFiringVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = 0x000d,
-            SelectedHudItem = 0,
+            EquippedBeams = (SamusBeamFlags)0x000d,
+            SelectedHudItem = HudItem.Beam,
         };
         var doorPlms = new RoomPlmSystem();
         var doorProjectiles = CreateProjectileFixture();
-        doorProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = doorLevel, Plms = doorPlms }, doorSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture());
+        doorProjectiles.StepFrame(new SamusTerrain { Level = doorLevel, Plms = doorPlms }, doorSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture());
         AssertEqual(1, doorPlms.SlotTable.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
         AssertEqual(RoomCollisionType.SolidBlock,
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
@@ -122,10 +123,10 @@ internal static class ChainsawFiringVerification
         ushort[] inheritedY = [0x0034, 0x9027, 0x902f, 0x9037, 0x903f, 0x9047, 0x904f, 0x9057];
         for (int update = 0; update < nextLists.Length; update++)
         {
-            activeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = update == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = update == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), activeShared);
+            activeProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = update == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = update == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), activeShared);
             SamusProjectileSlot slot = activeProjectiles.Slots[0];
             if (update == 0)
-                AssertTrue(activeProjectiles.LastFiredProjectileSnapshot is not null && slot.IsActive,
+                AssertTrue(slot.IsActive,
                     "active-Power-Bomb Chainsaw allocation");
             AssertEqual(nextLists[update], slot.InstructionPointer, $"active Chainsaw next list {update}");
             AssertEqual(spritemaps[update], slot.SpritemapPointer, $"active Chainsaw spritemap {update}");
@@ -145,23 +146,23 @@ internal static class ChainsawFiringVerification
         var combatShared = CreateBombFixture();
         combatShared.PowerBombExplosion.Arm();
         var combatProjectiles = CreateProjectileFixture();
-        combatProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), combatShared);
+        combatProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), combatShared);
         var combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemySlot target = combat.System.SlotTable.Slots[0];
-        target.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
-        target.Definition = default(RoomEnemyDefinition) with
+        target.Bind((EnemyDefinitionId)0x9000, target.Definition);
+        target.Bind(target.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,
             ShotAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyShot,
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
-        };
+        });
         target.Position = target.Position.WithWhole(new(139, 123));
         target.Radius = new(16, 16);
         target.Health = 1000;
-        target.SpritemapPointer = 0x8000;
+        target.Frame = EnemyFrameId.SkulteraSwimLeft0;
         combat.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = combat.Level });
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
-            combat.Bus, combatProjectiles, combatShared, samus),
+            combatProjectiles, combatShared, samus),
             "active Chainsaw overlaps one ordinary enemy");
         AssertEqual((ushort)850, target.Health,
             "Chainsaw uses Super-Missile vulnerability byte for a 150-point hit");
@@ -186,15 +187,15 @@ internal static class ChainsawFiringVerification
         var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new ushort[25]), new byte[0x400 * 8]);
         var interferencePlms = new RoomPlmSystem();
         var interferenceStreamer = interferenceLevel.CreateBackgroundStreamer();
-        AssertEqual(1, interferencePlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(interferenceBus, interferenceLevel, interferenceStreamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, interferencePlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(interferenceLevel, interferenceStreamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
-        interferencePlms.Step(interferenceBus, interferenceLevel, interferenceStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        interferencePlms.Step(interferenceLevel, interferenceStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
 
         var interferenceReactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             interferenceLevel,
             new(32, 32),
-            0x1000,
+            PowerBombRadius.FromRaw(0x1000),
             interferenceReactions,
             interferencePlms,
             AreaId.Crateria,
@@ -202,12 +203,12 @@ internal static class ChainsawFiringVerification
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             interferenceLevel,
             new(32, 32),
-            0x1000,
+            PowerBombRadius.FromRaw(0x1000),
             interferenceReactions,
             interferencePlms,
             AreaId.Crateria,
             0x800d);
-        interferencePlms.Step(interferenceBus, interferenceLevel, interferenceStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        interferencePlms.Step(interferenceLevel, interferenceStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         ColoredDoorPlmSnapshot suppressedDoor = interferencePlms.ColoredDoors.Single();
         AssertEqual(ColoredDoorPhase.Waiting, suppressedDoor.Phase,
             "later Chainsaw hit suppresses yellow-door opening");
@@ -223,7 +224,7 @@ internal static class ChainsawFiringVerification
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,
             new(32, 32),
-            0x1000,
+            PowerBombRadius.FromRaw(0x1000),
             breakingReactions,
             breakingPlms,
             AreaId.Crateria,
@@ -231,7 +232,7 @@ internal static class ChainsawFiringVerification
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,
             new(32, 32),
-            0x1000,
+            PowerBombRadius.FromRaw(0x1000),
             breakingReactions,
             breakingPlms,
             AreaId.Crateria,
@@ -241,7 +242,7 @@ internal static class ChainsawFiringVerification
             "Chainsaw callback preserves the Power Bomb's synchronous break setup");
         AssertEqual(1, breakingPlms.SlotTable.ActiveCount,
             "Power Bomb terrain reaction remains owned after Chainsaw callback");
-        breakingPlms.Step(bus, breakingLevel, breakingLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        breakingPlms.Step(breakingLevel, breakingLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(RoomCollisionType.Air,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
             "Power Bomb terrain completes its visible break after Chainsaw callback");
@@ -256,18 +257,18 @@ internal static class ChainsawFiringVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = 0x100d,
+            EquippedBeams = (SamusBeamFlags)0x100d,
         };
         var chargedShared = CreateBombFixture();
         var chargedProjectiles = CreateProjectileFixture();
         for (int frame = 0; frame < 60; frame++)
         {
-            chargedShared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, chargedSamus, 0, 0);
-            chargedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), chargedShared);
+            chargedShared.StepFrame(new SamusTerrain { Level = level }, chargedSamus, 0, 0);
+            chargedProjectiles.StepFrame(new SamusTerrain { Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), chargedShared);
         }
-        chargedShared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, chargedSamus, 0, 0);
+        chargedShared.StepFrame(new SamusTerrain { Level = level }, chargedSamus, 0, 0);
         NotSupportedException chargedFault = AssertThrows<NotSupportedException>(
-            () => chargedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargedShared),
+            () => chargedProjectiles.StepFrame(new SamusTerrain { Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargedShared),
             "charged Chainsaw reaches mutable low-WRAM execution");
         AssertTrue(chargedFault.Message.Contains("$90:0A0A", StringComparison.Ordinal) &&
             chargedFault.Message.Contains("$7E:0A0A", StringComparison.Ordinal),

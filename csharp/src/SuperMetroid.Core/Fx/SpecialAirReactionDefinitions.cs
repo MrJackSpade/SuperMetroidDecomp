@@ -95,7 +95,7 @@ public static class SpecialAirReactionDefinitions
     public static readonly SpecialAirReactionDefinition WreckedShipChozoHand = new(PlmHeaderId.CollisionWreckedShipChozoHandCheck, SpecialAirReactionSetup.WreckedShipChozoHand);
 
     /// <summary>Resolves the native inside-body header/setup for retail areas and indexes 0..15.</summary>
-    public static SpecialAirReactionDefinition ResolveInside(AreaId area, byte areaReactionIndex)
+    public static SpecialAirReactionDefinition ResolveInside(AreaId area, int areaReactionIndex)
     {
         Validate(area, areaReactionIndex, "inside-body");
         return (area, areaReactionIndex) switch
@@ -117,7 +117,7 @@ public static class SpecialAirReactionDefinitions
     }
 
     /// <summary>Resolves the native movement-collision header/setup for retail areas and indexes 0..15.</summary>
-    public static SpecialAirReactionDefinition ResolveCollision(AreaId area, byte areaReactionIndex)
+    public static SpecialAirReactionDefinition ResolveCollision(AreaId area, int areaReactionIndex)
     {
         Validate(area, areaReactionIndex, "movement-collision");
         return (area, areaReactionIndex) switch
@@ -141,7 +141,7 @@ public static class SpecialAirReactionDefinitions
     }
 
     /// <summary>Restricts special-air lookup to retail areas and their sixteen authored BTS entries.</summary>
-    private static void Validate(AreaId area, byte areaReactionIndex, string context)
+    private static void Validate(AreaId area, int areaReactionIndex, string context)
     {
         _ = AreaIds.ToIndex(area);
         if (areaReactionIndex >= EntriesPerArea)

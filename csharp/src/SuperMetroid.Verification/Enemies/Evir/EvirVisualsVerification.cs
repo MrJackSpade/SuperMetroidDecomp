@@ -31,7 +31,7 @@ internal static class EvirVisualsVerification
                 $"Evir pose $A8:{pointer:X4} has editable OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = EvirVisualDefinitions.Bank, Pointer = pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = EvirVisualDefinitions.Bank, Pointer = pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
@@ -43,19 +43,15 @@ internal static class EvirVisualsVerification
             "every exported Evir frame is shown by a program");
         foreach (EvirProgram loop in new[] { EvirProgram.BodyFacingLeft, EvirProgram.ArmsFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingRight })
         {
-            RoomEnemySystem enemies = NewEvirInstructionSystem(rom);
+            RoomEnemySystem enemies = NewEvirInstructionSystem();
             enemies.TileArtwork = stock;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.Evir, loop);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Programs, loop)),
+            PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Programs, loop)),
                 $"installed Evir {loop} shows its authored poses");
         }
         Console.WriteLine(
             "  Evir visuals: 24 editable OAM frames match the cartridge and every installed loop shows its authored poses.");
     }
-
-    /// <summary>Reads a cartridge byte solely for the native Evir frame and OAM comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Evir visuals")]
-    private static byte InstalledEvirVisualsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

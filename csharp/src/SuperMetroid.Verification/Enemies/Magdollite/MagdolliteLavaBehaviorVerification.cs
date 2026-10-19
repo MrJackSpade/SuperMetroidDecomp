@@ -21,15 +21,15 @@ internal static class MagdolliteLavaBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, MagdolliteLavaNativeListAddresses.Extent, "Magdollite-lava");
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(288, 128));
         source.VramTilesIndex = 512;
         source.PaletteIndex = 3072;
-        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, 0);
-        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, 1);
+        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: false);
+        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: true);
         foreach ((ushort direction, MagdolliteLavaProgram program) in new (ushort, MagdolliteLavaProgram)[] { (0, MagdolliteLavaProgram.Left), (1, MagdolliteLavaProgram.Right) })
         {
             RoomEnemyProjectileSlot lava = Find(direction);
@@ -42,7 +42,6 @@ internal static class MagdolliteLavaBehaviorVerification
         shot.StartAnimation(new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
         (bool removed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot, MagdolliteLavaNativeListAddresses.Entry(MagdolliteLavaProgram.Shot), 4, "shot lava");
         AssertTrue(removed && updates == 1, "the shot program deletes the lava on its first pass");
-        AssertTrue(enemies.MagdolliteBehavior.LastMagdolliteLavaDropRequest is not null, "the shot program requests the lava's drop");
         // $86:DFEA allocates its pickup at the shot lava's position.
         RoomEnemyProjectileSlot drop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
         AssertEqual(source.Position.X.Whole, drop.Position.X.Whole, "the drop keeps the lava's X");

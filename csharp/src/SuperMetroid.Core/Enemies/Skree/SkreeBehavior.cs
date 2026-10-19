@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -9,8 +10,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>The Skree species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class SkreeBehavior : IEnemySpecies
+internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skree];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SkreeEntity(this, slot, common);
+
     /// <summary>Queues the dive and floor-impact sound requests at their AI transitions.</summary>
     private readonly EnemyAudioQueue _audio;
 
@@ -48,21 +55,17 @@ internal sealed class SkreeBehavior : IEnemySpecies
         return null;
     }
 
-    /// <summary>Per-slot Skree state cleared on each room load.</summary>
-    internal readonly SkreeEnemyState?[] _skreeStates =
-        new SkreeEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Starts a Skree in its idle function and initial shared instruction list.</summary>
-    internal void InitializeSkree(RoomEnemySlot slot)
+    internal static void InitializeSkree(RoomEnemySlot slot)
     {
-        var state = new SkreeEnemyState(slot)
+        var state = new SkreeEnemyState
         {
             RequestedInstructionIndex = SkreeMetareeAnimationPhase.Idling,
             InstalledInstructionIndex = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
             Function = SkreeEnemyFunction.Idling,
         };
-        _skreeStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.SkreeIdling);
     }
 
@@ -94,7 +97,6 @@ internal sealed class SkreeBehavior : IEnemySpecies
                 // `$A3:C70F` queues library-two sound $5B on the exact frame the wind-up
                 // instruction releases the dive. Publishing it as a frame event retains
                 // native timing without coupling enemy AI to a particular audio backend.
-                LastSkreeSoundEffect = EnemySoundEffectDefinitions.DiveSound;
                 _audio.QueueEnemySound(SoundEffectLibrary2Sounds.SkreeDive, maximumQueued: 6);
                 return;
 
@@ -110,7 +112,7 @@ internal sealed class SkreeBehavior : IEnemySpecies
 
             default:
                 throw new InvalidDataException(
-                    $"Skree function $A3:{(ushort)state.Function:X4} is not translated.");
+                    $"Skree function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -124,14 +126,13 @@ internal sealed class SkreeBehavior : IEnemySpecies
         // The USA/Japan build reloads 21 every airborne frame. It becomes the complete
         // burrow lifetime only on the frame whose six-pixel downward probe collides.
         state.BurrowTimer = NativeCountdown.Start(21);
-        slot.Properties = unchecked((ushort)(slot.Properties | 3));
+        slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | 3));
         if (EnemyTerrain.EnemyHasSolidHighBitAhead(level, slot, 6 << 16, movingDown: true))
         {
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Timer = NativeCountdown.Start(0);
             state.Function = SkreeEnemyFunction.Burrowing;
             // The floor collision has its own distinct impact/burrow request at `$A3:C771`.
-            LastSkreeSoundEffect = EnemySoundEffectDefinitions.BurrowSound;
             _audio.QueueEnemySound(SoundEffectLibrary2Sounds.SkreeBurrow, maximumQueued: 6);
             return;
         }
@@ -174,64 +175,39 @@ internal sealed class SkreeBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects Skree AI dispatch for a slot lacking room-load initialization.</summary>
-    private SkreeEnemyState RequireSkreeState(RoomEnemySlot slot) =>
-        _skreeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static SkreeEnemyState RequireSkreeState(RoomEnemySlot slot) =>
+        slot.SpeciesState<SkreeEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Skree state.");
 
-    /// <summary>Registers the Skree-specific initializer for matching enemy definitions.</summary>
-    internal void RegisterSkreeInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Skree's initialization AI.</summary>
+    internal static void RunSkreeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Skree, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeSkree(slot);
-        });
+        InitializeSkree(slot);
     }
 
-    /// <summary>Registers Skree's idle, dive, and burrow AI callback.</summary>
-    internal void RegisterSkreeMainAi(EnemyAiTable table)
+    /// <summary>Ports Skree's main AI.</summary>
+    internal void RunSkreeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Skree, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunSkreeMain(slot, frame.Samus, frame.Level);
-        });
+        RunSkreeMain(slot, frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs Skree's animations as typed programs (#641).</summary>
-    internal void RegisterSkreeTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireSkreeState(slot);
-            AnimationProgramCursor<SkreeMetareeProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.Spritemap,
-                    (cue, _) => ApplySkreeCue(slot, state, cue));
-            state.Program = cursor;
-        });
-
-
-    /// <summary>Last library-two Skree dive ($5B) or burrow-impact ($5C) sound this enemy pass, also queued by its AI through Max6; cleared before the next pass.</summary>
-    public ushort? LastSkreeSoundEffect { get; private set; }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    /// <summary>Advances Skree's typed animation.</summary>
+    internal static void AdvanceSkreeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        LastSkreeSoundEffect = null;
-        Array.Clear(_skreeStates);
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireSkreeState(slot);
+        AnimationProgramCursor<SkreeMetareeProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplySkreeCue(slot, state, cue));
+        state.Program = cursor;
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastSkreeSoundEffect = null;
-    }
 
     // $A3:C7F5 adds Skree's four debris actors after the shared normal shot handler reports death, before the
     // common death animation releases the enemy slot.
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
-    internal void RegisterSkreeShotReactions(EnemyAiTable table)
+    internal void RegisterSkreeShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SkreeShot)
@@ -243,7 +219,7 @@ internal sealed class SkreeBehavior : IEnemySpecies
     // Skree's callback owns its four-piece burst and death animation because it called
     // `NormalEnemyShotAiSkipDeathAnim`. A normal bomb selects death variant zero (only missiles select two).
     /// <summary>Handles lethal bombs with Skree's particle burst and death variant zero after the shared hit path.</summary>
-    internal void RegisterSkreeBombReactions(EnemyAiTable table)
+    internal void RegisterSkreeBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.SkreeShot)

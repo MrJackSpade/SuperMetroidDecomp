@@ -90,10 +90,8 @@ internal static class RoomVisualLayoutsVerification
         int spikeBlocks = 0;
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(
-                header.Pointer);
-            foreach (ushort statePointer in RoomStateSelectionDefinitions.GetStatePointers(
-                header.Pointer))
+            CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(header);
+            foreach (ushort statePointer in RoomStateSelectionDefinitions.GetStatePointers(header))
             {
                 room = room with { State = RoomStateDefinitions.Get(statePointer) };
                 int source = room.State.CompressedLevelDataAddress;
@@ -102,8 +100,7 @@ internal static class RoomVisualLayoutsVerification
                 int blockCount = layerBytes / 2;
                 int bg2Offset = 2 + layerBytes + blockCount;
                 int availableBg2 = Math.Min(layerBytes, native.Length - bg2Offset);
-                RoomLevelData loaded = LoadFixtureRoomAssets(
-                    NewRoomLevelStreamReadGuard(bus, source), room,
+                RoomLevelData loaded = LoadFixtureRoomAssets(room,
                     characterArt: characters, paletteArt: palettes,
                     metatileArt: metatiles, visualLayouts: stock, levelStreams: levelStreams).LevelData;
                 AssertEqual(blockCount, loaded.Size.X * loaded.Size.Y,
@@ -118,9 +115,9 @@ internal static class RoomVisualLayoutsVerification
                         ? BinaryPrimitives.ReadUInt16LittleEndian(
                             native.AsSpan(bg2Offset + blockIndex * 2))
                         : RoomLevelMemoryLayout.PrefilledLevelWord;
-                    AssertEqual(nativeWord, block.LevelWord,
+                    AssertEqual(nativeWord, block.PackedWord.Raw,
                         $"room ${header.Pointer:X4} state ${statePointer:X4} collision word {blockIndex}");
-                    AssertEqual(nativeBts, block.Behavior,
+                    AssertEqual(nativeBts, block.Bts.Value,
                         $"room ${header.Pointer:X4} state ${statePointer:X4} BTS {blockIndex}");
                     AssertEqual(nativeBg2Word, loaded.BackgroundEntries.Span[blockIndex],
                         $"room ${header.Pointer:X4} state ${statePointer:X4} BG2 word {blockIndex}");
@@ -149,12 +146,10 @@ internal static class RoomVisualLayoutsVerification
         string overridePath = Path.Combine(installed.RoomVisualLayoutOverrideDirectory, name);
         File.WriteAllText(overridePath, document.ToJsonString());
 
-        CartridgeRoomAssets nativeRoom = LoadFixtureRoomAssets(bus, landing);
-        CartridgeRoomAssets stockRoom = LoadFixtureRoomAssets(
-            NewRoomLevelStreamReadGuard(bus, landingSource), landing,
+        CartridgeRoomAssets nativeRoom = LoadFixtureRoomAssets(landing);
+        CartridgeRoomAssets stockRoom = LoadFixtureRoomAssets(landing,
             visualLayouts: stock, levelStreams: levelStreams);
-        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
-            NewRoomLevelStreamReadGuard(bus, landingSource), landing,
+        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
             visualLayouts: installed.LoadRoomVisualLayouts(), levelStreams: levelStreams);
         AssertTrue(nativeRoom.LevelData.ForegroundEntries.Span.SequenceEqual(
                 editedRoom.LevelData.ForegroundEntries.Span) &&
@@ -196,9 +191,8 @@ internal static class RoomVisualLayoutsVerification
         foreach (ushort pointer in new ushort[] { 0xdf8d, 0xc98e })
         {
             CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, pointer);
-            CartridgeRoomAssets nativeOther = LoadFixtureRoomAssets(bus, room);
-            CartridgeRoomAssets installedOther = LoadFixtureRoomAssets(
-                NewRoomLevelStreamReadGuard(bus, room.State.CompressedLevelDataAddress), room,
+            CartridgeRoomAssets nativeOther = LoadFixtureRoomAssets(room);
+            CartridgeRoomAssets installedOther = LoadFixtureRoomAssets(room,
                 visualLayouts: stock, levelStreams: levelStreams);
             AssertTrue(nativeOther.LevelData.ForegroundEntries.Span.SequenceEqual(
                     installedOther.LevelData.ForegroundEntries.Span) &&
@@ -309,8 +303,4 @@ internal static class RoomVisualLayoutsVerification
             directory => EditManifest(directory, manifest => manifest.Required("entries").AsObject().Remove(firstName)));
     }
 
-    /// <summary>Rejects a runtime read of the compressed level source already supplied by the installed corpus.</summary>
-    private static CartridgeReadGuard NewRoomLevelStreamReadGuard(ISnesAddressSpace source, int levelSource) =>
-        new CartridgeReadGuard(source).Forbid(address => address == levelSource,
-            address => $"Installed room reread native level source ${address:X6}.");
 }

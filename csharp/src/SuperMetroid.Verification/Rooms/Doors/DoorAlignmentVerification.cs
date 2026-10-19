@@ -8,6 +8,8 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Rooms.Doors;
 
 /// <summary>Checks native door-camera alignment steps and the complete retail transition handoff.</summary>
@@ -57,8 +59,8 @@ internal static class DoorAlignmentVerification
         for (int direction = 0; direction < 4; direction++)
         {
             var door = new CartridgeDoorHeader(
-                Pointer: 0x8000,
-                DestinationRoomPointer: 0x9000,
+                Name: "fixture door",
+                DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
                 PlmBlock: new(0, 0),
                 DestinationScreen: new(3, 2),
@@ -91,10 +93,10 @@ internal static class DoorAlignmentVerification
     /// <summary>Drives a retail door transition to verify alignment calls, input continuity, game time, and running momentum.</summary>
     private static void VerifyCompleteDoorAlignmentHandoff()
     {
-        const ushort sourceRoom = 0xb236;
-        const ushort destinationRoom = 0xb1e5;
+        RoomHeaderDefinition sourceRoom = RoomHeaderDefinitions.MainHall;
+        RoomHeaderDefinition destinationRoom = RoomHeaderDefinitions.AcidStatue;
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -103,7 +105,7 @@ internal static class DoorAlignmentVerification
         RoomLevelData level = runtime.Room.LoadedLevelData;
         int doorX = -1;
         int doorY = -1;
-        byte behavior = 0;
+        int behavior = 0;
         for (int y = 0; y < level.Size.Y && doorX < 0; y++)
         for (int x = 0; x < level.Size.X; x++)
         {
@@ -111,15 +113,14 @@ internal static class DoorAlignmentVerification
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
             CartridgeDoorHeader? candidate = level.ResolveDoorCollision(
-                bus,
-                block.Behavior,
+                block.Bts.Value,
                 SamusPoseId.MovingRightNormalPose,
                 publishDoorSideEffects: false).Door;
-            if (candidate?.DestinationRoomPointer != destinationRoom)
+            if (candidate?.DestinationRoom != destinationRoom)
                 continue;
             doorX = x;
             doorY = y;
-            behavior = block.Behavior;
+            behavior = block.Bts.Value;
             break;
         }
         AssertTrue(doorX >= 0, "door-alignment route contains its retail destination door");
@@ -135,9 +136,9 @@ internal static class DoorAlignmentVerification
         samus.HorizontalSpeed.ExtraRunSpeed = 2;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
         samus.HorizontalSpeed.HasRunningMomentum = true;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, behavior, samus.Pose, true);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
         runtime.Room.LoadedCamera.SetPosition(
             new Position16<RoomPixels>(runtime.Room.LoadedCamera.PixelPosition.X, unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 2))));
         runtime.GameTime.Load(frames: 58, seconds: 56, minutes: 34, hours: 12);
@@ -170,12 +171,12 @@ internal static class DoorAlignmentVerification
             "two-pixel offset takes two movement calls and one completion call");
         AssertTrue(observedDestinationBuild,
             "door transition exercised the destination OAM handoff");
-        AssertEqual(destinationRoom, runtime.Room.LoadedRoom.Pointer,
+        AssertEqual(destinationRoom, runtime.Room.LoadedRoom.Definition,
             "offset retail transition reaches its destination");
-        AssertEqual((ushort)58, runtime.GameTime.Frames, "door transition excludes game-time frames");
-        AssertEqual((ushort)56, runtime.GameTime.Seconds, "door transition excludes game-time seconds");
-        AssertEqual((ushort)34, runtime.GameTime.Minutes, "door transition excludes game-time minutes");
-        AssertEqual((ushort)12, runtime.GameTime.Hours, "door transition excludes game-time hours");
+        AssertEqual(58, runtime.GameTime.Frames, "door transition excludes game-time frames");
+        AssertEqual(56, runtime.GameTime.Seconds, "door transition excludes game-time seconds");
+        AssertEqual(34, runtime.GameTime.Minutes, "door transition excludes game-time minutes");
+        AssertEqual(12, runtime.GameTime.Hours, "door transition excludes game-time hours");
         AssertEqual((ushort)1, samus.HorizontalSpeed.BaseSpeed,
             "door transition retains base running speed");
         AssertEqual((ushort)0x8000, samus.HorizontalSpeed.BaseSubspeed,

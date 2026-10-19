@@ -8,9 +8,9 @@ public sealed class SamusProjectileTrailSide
     /// <summary>Updates remaining before the current trail instruction advances.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Bank-$90 pointer to the current trail instruction.</summary>
-    public ushort InstructionPointer { get; internal set; }
+    public int InstructionPointer { get; internal set; }
     /// <summary>Packed tile number and OBJ attributes drawn for this trail side.</summary>
-    public ushort TileNumberAttributes { get; internal set; }
+    public SnesObjAttributeWord TileNumberAttributes { get; internal set; }
     /// <summary>
     /// Room-pixel position the side shows this frame: <see cref="Position"/> when the side last advanced. `$90:B6A9`
     /// draws each side right after advancing it, so a sibling's later move command shows only on the next frame.
@@ -23,7 +23,7 @@ public sealed class SamusProjectileTrailSide
         Position = Position16<RoomPixels>.Zero;
         InstructionTimer = NativeCountdown.Start(0);
         InstructionPointer = 0;
-        TileNumberAttributes = 0;
+        TileNumberAttributes = default;
         DisplayedPosition = Position16<RoomPixels>.Zero;
     }
 }

@@ -21,6 +21,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -43,7 +44,7 @@ internal static class ChargeFlarePlacementVerification
         var system = new SamusProjectileSystem();
         var sprites = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
         var drawMetadata = new FlareMetadataDraw(system.Animation.DrawFlareComponentWithMetadata);
-        var draw = new Action<ISnesAddressSpace, SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
+        var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork objects = InstalledFixtures.ProjectileArtwork();
         int cases = 0;
         foreach (SamusPoseId pose in new[]
@@ -53,7 +54,7 @@ internal static class ChargeFlarePlacementVerification
         })
         for (byte direction = 0; direction < 16; direction++)
         foreach (ushort coordinate in new ushort[] { 0, 100, 255, ushort.MaxValue })
-        foreach (SamusMode7Transform? transform in new SamusMode7Transform?[] { null, new(240, 16, 65520, new Position16<RoomPixels>(128, 112)) })
+        foreach (SamusMode7Transform? transform in new SamusMode7Transform?[] { null, new(240, 16, -16, new Position16<RoomPixels>(128, 112)) })
         for (int component = 0; component < 3; component++)
         {
             // Exercise all original low-nibble operands at the renderer's metadata
@@ -83,19 +84,19 @@ internal static class ChargeFlarePlacementVerification
         var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
-        OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(bus, frame, subject, Position16<RoomPixels>.Zero, 0, null,
+        OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, 0, null,
             new ChargeFlareArtwork { Placement = stock, Compositions = sprites, Objects = objects }));
-        OamBuffer changed = SpriteFrameBuffer.DrawnOam(frame => draw(bus, frame, subject, Position16<RoomPixels>.Zero, 0, null,
+        OamBuffer changed = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, 0, null,
             new ChargeFlareArtwork { Placement = edited, Compositions = sprites, Objects = objects }));
         AssertTrue(original.LastFinalizedSpriteCount > 0, "Edited flare placement fixture draws visible sprites");
         AssertEqual(original.LastFinalizedSpriteCount, changed.LastFinalizedSpriteCount, "Visual shift retains sprite count");
         for (int i = 0; i < original.LastFinalizedSpriteCount; i++)
         {
-            AssertEqual((original.GetEntry(i).X + 7) & 511, changed.GetEntry(i).X, "Editable placement shifts the actual flare OBJ seven pixels");
-            AssertEqual(original.GetEntry(i).Y, changed.GetEntry(i).Y, "X-only flare edit preserves Y");
+            AssertEqual((original.GetEntry(i).Position.X + 7) & 511, changed.GetEntry(i).Position.X, "Editable placement shifts the actual flare OBJ seven pixels");
+            AssertEqual(original.GetEntry(i).Position.Y, changed.GetEntry(i).Position.Y, "X-only flare edit preserves Y");
         }
         AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject)) && beforeSystem.SequenceEqual(GraphDigest(system)), "Flare art edit changes neither Samus physics nor any projectile/timer state");
-        foreach (ushort hyper in new ushort[] { 0, 1 })
+        foreach (bool hyper in new[] { false, true })
         {
             var originalSystem = new SamusProjectileSystem(); var editedSystem = new SamusProjectileSystem();
             foreach (var target in new[] { originalSystem, editedSystem })
@@ -104,18 +105,18 @@ internal static class ChargeFlarePlacementVerification
                 var frames = target.Charge._flareFrames;
                 Array.Fill(frames, (ushort)2);
             }
-            subject.HyperBeam = hyper;
+            subject.HyperBeamEnabled = hyper;
             var guarded = new FlarePlacementGuard(bus, subject.Pose, 2, true);
-            original = SpriteFrameBuffer.DrawnOam(frame => originalSystem.DrawChargeFlare(guarded, frame, subject, new(0, 0),
+            original = SpriteFrameBuffer.DrawnOam(frame => originalSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 originalSystem.AdvanceChargeFlare(subject), null,
                 new ChargeFlareArtwork { Placement = stock, Compositions = sprites, Objects = objects }));
-            changed = SpriteFrameBuffer.DrawnOam(frame => editedSystem.DrawChargeFlare(guarded, frame, subject, new(0, 0),
+            changed = SpriteFrameBuffer.DrawnOam(frame => editedSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 editedSystem.AdvanceChargeFlare(subject), null,
                 new ChargeFlareArtwork { Placement = edited, Compositions = sprites, Objects = objects }));
             AssertTrue(original.LastFinalizedSpriteCount > 0, "Public normal/Hyper flare producer emits visible components");
             AssertEqual(original.LastFinalizedSpriteCount, changed.LastFinalizedSpriteCount, "Public flare placement preserves component admission");
             for (int i = 0; i < original.LastFinalizedSpriteCount; i++)
-                AssertEqual((original.GetEntry(i).X + 7) & 511, changed.GetEntry(i).X, "Public normal/Hyper path forwards selected placement to all components");
+                AssertEqual((original.GetEntry(i).Position.X + 7) & 511, changed.GetEntry(i).Position.X, "Public normal/Hyper path forwards selected placement to all components");
             AssertTrue(GraphDigest(originalSystem).SequenceEqual(GraphDigest(editedSystem)), "Normal/Hyper flare visual edits retain identical complete post-tick simulation state");
         }
         document.Required("offsets").AsObject().Remove(ChargeFlarePlacementDefinitions.Key(false, 0));
@@ -136,7 +137,7 @@ internal static class ChargeFlarePlacementVerification
 
     /// <summary>Overlays a chosen pose and direction while rejecting reads from the migrated flare-origin table.</summary>
     [CpuBusBoundary("exact bus test: pose-table overlay that substitutes one synthetic pose row and direction byte while forbidding the flare-origin table")]
-    internal sealed class FlarePlacementGuard(ISnesAddressSpace source, SamusPoseId pose, byte direction, bool forbid) : ISnesAddressSpace, IImportCartridgeSource
+    internal sealed class FlarePlacementGuard(ISnesAddressSpace source, SamusPoseId pose, byte direction, bool forbid) : ISnesWritableAddressSpace, IImportCartridgeSource
     {
         /// <summary>Routes cartridge-byte requests through the same pose overlay as ordinary bus reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
@@ -160,17 +161,16 @@ internal static class ChargeFlarePlacementVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeFlarePlacement(SuperMetroidAddressSpace bus, ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
     {
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(bus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics(bus);
+        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
-        var game = CreateRetailGameFixture(bus);
-        game.runtime = runtime;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
+        game.Session.runtime = runtime;
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
         InstalledFixtures.BindProjectileArtwork(runtime);
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
@@ -206,7 +206,7 @@ internal static class ChargeFlarePlacementVerification
         AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Flare catalog does not enter frontend/runtime saved graphs");
         with.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = restored.GameplayRuntime;
+        var restoredRuntime = restored.Session.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ChargeFlarePlacement is null, "Restored flare catalog requires host rebind");
         BindRetailRuntimeFixture(restoredRuntime);
         game.BindArtwork(game.Artwork with

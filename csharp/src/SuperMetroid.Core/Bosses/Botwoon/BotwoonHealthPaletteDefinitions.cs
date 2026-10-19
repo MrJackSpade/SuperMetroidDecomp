@@ -18,7 +18,7 @@ internal static class BotwoonHealthPaletteDefinitions
     public const int DestinationColor = 240;
 
     /// <summary>Terminal native byte offset after all eight threshold words are consumed.</summary>
-    public const ushort CompletePhaseByteOffset = 16;
+    public const int CompletePhase = 8;
 
     /// <summary>
     /// Returns whether the current health is below the threshold selected by an even native
@@ -30,18 +30,14 @@ internal static class BotwoonHealthPaletteDefinitions
     /// offset by two before multiplying; subtract in sixteen bits and interpret the
     /// result as signed, matching CMP/BPL at $B3:983B. All ushort health values remain
     /// supported, including wrapped differences. Offset 16 is caller-owned completion,
-    /// not an extrapolated threshold; odd offsets remain invalid.
+    /// not an extrapolated threshold.
     /// </remarks>
-    public static bool ShouldAdvance(ushort phaseByteOffset, ushort health)
+    public static bool ShouldAdvance(int phase, int health)
     {
-        if ((phaseByteOffset & 1) != 0 || phaseByteOffset >= CompletePhaseByteOffset)
-        {
-            throw new InvalidDataException(
-                $"Botwoon palette phase offset ${phaseByteOffset:X4} is outside the " +
-                "eight even retail threshold entries.");
-        }
+        if (phase is < 0 or >= CompletePhase)
+            throw new InvalidDataException($"Botwoon palette phase {phase} is outside the eight retail threshold entries.");
 
-        int threshold = 375 * (8 - phaseByteOffset / sizeof(ushort));
+        int threshold = 375 * (8 - phase);
         return unchecked((short)(health - threshold)) < 0;
     }
 }

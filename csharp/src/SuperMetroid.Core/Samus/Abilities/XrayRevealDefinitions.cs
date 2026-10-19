@@ -79,7 +79,7 @@ internal static class XrayRevealDefinitions
     /// 256 BTS values, including the no-match cases; each selected BTS table
     /// has its own lookup and proof.
     /// </remarks>
-    public static XrayRevealDefinition? Find(RoomCollisionType type, byte bts) => type switch
+    public static XrayRevealDefinition? Find(RoomCollisionType type, int bts) => type switch
     {
         RoomCollisionType.Air => Air,
         RoomCollisionType.SpecialAir => FindSpecialAir(bts),
@@ -97,14 +97,14 @@ internal static class XrayRevealDefinitions
     };
 
     /// <summary>Finds the special-air reveal for one unsigned BTS byte: the one-entry $91:D306 table.</summary>
-    private static XrayRevealDefinition? FindSpecialAir(byte bts) => bts switch
+    private static XrayRevealDefinition? FindSpecialAir(int bts) => bts switch
     {
         SpecialAirRevealBts => Air,
         _ => null,
     };
 
     /// <summary>Finds the spike-block reveal for one unsigned BTS byte: the one-entry $91:D318 table.</summary>
-    private static XrayRevealDefinition? FindSpikeBlock(byte bts) => bts switch
+    private static XrayRevealDefinition? FindSpikeBlock(int bts) => bts switch
     {
         SpikeRevealBts => One(0x005f),
         _ => null,
@@ -122,7 +122,7 @@ internal static class XrayRevealDefinitions
     /// is clearer than a general formula. Direct ROM keys/pointers and the
     /// independent 256-case special-block oracle including operands agree.
     /// </remarks>
-    private static XrayRevealDefinition? FindSpecialBlock(byte bts) => bts switch
+    private static XrayRevealDefinition? FindSpecialBlock(int bts) => bts switch
     {
         0 or 4 or 8 or 9 or 0x0a or 0x0b or 0x0c or 0x0d => One(0x00bc),
         1 or 5 => Wide(0x00bc, 0x00bc),
@@ -146,7 +146,7 @@ internal static class XrayRevealDefinitions
     /// ROM keys/pointers and the independent 256-case shootable-block oracle
     /// including command operands agree.
     /// </remarks>
-    private static XrayRevealDefinition? FindShootableBlock(byte bts) => bts switch
+    private static XrayRevealDefinition? FindShootableBlock(int bts) => bts switch
     {
         0 or 4 => One(0x0052),
         1 or 5 => Wide(0x0096, 0x0097),
@@ -167,7 +167,7 @@ internal static class XrayRevealDefinitions
     /// identities remain authored. Direct ROM keys/pointers and the
     /// independent 256-case grapple-block oracle including operands agree.
     /// </remarks>
-    private static XrayRevealDefinition? FindGrappleBlock(byte bts) => bts switch
+    private static XrayRevealDefinition? FindGrappleBlock(int bts) => bts switch
     {
         0 => One(0x009b),
         1 or 2 => One(0x00b7),
@@ -185,7 +185,7 @@ internal static class XrayRevealDefinitions
     /// by this switch. Direct ROM keys/pointers and the independent
     /// 256-case bombable-block oracle including operands agree.
     /// </remarks>
-    private static XrayRevealDefinition? FindBombableBlock(byte bts) => bts switch
+    private static XrayRevealDefinition? FindBombableBlock(int bts) => bts switch
     {
         0 or 4 => One(0x0058),
         1 or 5 => Wide(0x0058, 0x0058),

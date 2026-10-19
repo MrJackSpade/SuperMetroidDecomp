@@ -29,25 +29,24 @@ internal static class BossDisplayBindingsFixtureVerification
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton> instructions;
         /// <summary>Bound extended-hitbox query used by the collision check.</summary>
         private readonly HitboxQuery hitbox;
-        /// <summary>Queries an extended hitbox and returns its callback pointer when touched.</summary>
+        /// <summary>Queries an extended hitbox and returns its callback when touched.</summary>
         private delegate bool HitboxQuery(RoomEnemySlot actor, Position16<RoomPixels> position,
-            Extent16<RoomPixels> radius, bool shot, out ushort callback);
+            Extent16<RoomPixels> radius, bool shot, out EnemyInteractionCallback? callback);
 
         /// <summary>Installs one centered boss actor in <paramref name="slot"/> and enqueues it for the production draw path.</summary>
         internal BossDisplayFixture(EnemyDefinitionId definition, EnemyTileArtworkCatalog artwork, int slot = 0)
         {
             _slot = slot;
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
-            Enemies.BindFixtureBus(Memory); Enemies.Presentation._vram = Vram; Enemies.Presentation._cgram = new SnesCgram();
-            Actor.EnemyDefinitionPointer = definition;
-            Actor.Definition = RoomEnemyDefinitionCatalog.Get(definition);
-            Actor.AiBank = Actor.Definition.Bank;
+            Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance); Enemies.Presentation._vram = Vram; Enemies.Presentation._cgram = new SnesCgram();
+            Actor.Bind(definition, Actor.Definition);
+            Actor.Bind(Actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(definition));
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
-            Actor.Properties = (ushort)EnemyProperties.ProcessInstructions;
+            Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions);
             Enemies.Drawing.Enqueue(0, Actor.NativeIndex);
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(Enemies.Instructions.ProcessInstructions);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
         }
 
@@ -55,8 +54,8 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Actor.SpritemapPointer = frame;
-            Actor.ExtraProperties = (ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
-                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0));
+            Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
+                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0))));
         }
 
         /// <summary>Runs queued enemy drawing into a fresh OAM frame.</summary>
@@ -75,7 +74,10 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>Probes the actor's extended hitbox at a two-pixel radius.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal (bool Hit, ushort Callback) Hitbox(Position16<RoomPixels> probe, bool shot)
-        { bool hit = hitbox(Actor, probe, new(2, 2), shot, out ushort callback); return (hit, callback); }
+        {
+            bool hit = hitbox(Actor, probe, new(2, 2), shot, out EnemyInteractionCallback? callback);
+            return (hit, callback is { } selected ? EnemyInteractionCallbackAccess.Word(selected) : (ushort)0);
+        }
         /// <summary>Clears the boss BG2 tilemap before a presentation check.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal void ClearBg2() => Vram.ExecuteWordTransfer(

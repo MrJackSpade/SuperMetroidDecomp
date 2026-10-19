@@ -147,13 +147,13 @@ public sealed class MotherBrainRainbowPalettePresentation
     public void ApplyNormal(SnesCgram cgram) =>
         ApplyColors(cgram, normal);
 
-    /// <summary>Copies a drain fade and publishes its trailing palette word to WRAM $017C.</summary>
-    public void ApplyToGrey(ISnesAddressSpace bus, SnesCgram cgram, int frame) =>
-        ApplyGrey(bus, cgram, toGrey, frame);
+    /// <summary>Copies a drain fade.</summary>
+    public void ApplyToGrey(SnesCgram cgram, int frame) =>
+        ApplyGrey(cgram, toGrey, frame);
 
     /// <summary>Copies a revival fade, preserving the two native body/brain tail colors.</summary>
-    public void ApplyFromGrey(ISnesAddressSpace bus, SnesCgram cgram, int frame) =>
-        ApplyGrey(bus, cgram, fromGrey, frame);
+    public void ApplyFromGrey(SnesCgram cgram, int frame) =>
+        ApplyGrey(cgram, fromGrey, frame);
 
     /// <summary>Changes only the three brain colors during the fake-death descent.</summary>
     public void ApplyFakeDeathToGrey(SnesCgram cgram, int frame)
@@ -185,11 +185,12 @@ public sealed class MotherBrainRainbowPalettePresentation
         ApplyColors(cgram, frames[frame]);
     }
 
-    /// <summary>Copies a grey-transition phase and writes its trailing rear color to live WRAM.</summary>
-    private static void ApplyGrey(ISnesAddressSpace bus, SnesCgram cgram,
-        IPaletteFade frames, int frame)
+    /// <summary>
+    /// Copies a grey-transition phase. The cartridge also writes the trailing rear color to <c>$7E:017C</c>, a word
+    /// nothing reads, so the port does not keep it.
+    /// </summary>
+    private static void ApplyGrey(SnesCgram cgram, IPaletteFade frames, int frame)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         if ((uint)frame >= frames.Length)
             throw new InvalidDataException($"Mother Brain grey-transition frame {frame} is outside the authored sequence.");
@@ -201,10 +202,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         }
         for (int color = 0; color < frames.LegCount; color++)
             new MotherBrainPalettes(cgram).DrainedRearLegs.Write(color, frames.Leg(frame, color));
-        var spill = new MotherBrainPaletteMemoryDefinitions(
-            SnesMemoryBusRequirement.Require(bus, "Mother Brain's grey palette spill requires live WRAM."));
-        spill.GreyTrailingWord = frames.Trailing(frame) ??
-            throw new InvalidDataException($"Mother Brain grey-transition frame {frame} has no WRAM spill color.");
     }
 
     /// <summary>Mirrors body inks to the brain palette and writes the selected rear-leg inks.</summary>
@@ -721,8 +718,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         Bgr555 Body(int frame, int color);
         /// <summary>Reads a phase's rear-leg ink.</summary>
         Bgr555 Leg(int frame, int color);
-        /// <summary>Reads the phase's optional WRAM spill ink.</summary>
-        Bgr555? Trailing(int frame);
     }
 
     /// <summary>Revival rounds endpoint RGB5 channels to nearest, retaining sparse authored exceptions including a stock tissue hold.</summary>
@@ -760,8 +755,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         public Bgr555 Body(int frame, int color) => Color(frame, color);
         /// <summary>Reads a rear ink after the body range in the flattened fade.</summary>
         public Bgr555 Leg(int frame, int color) => Color(frame, BodyCount + color);
-        /// <summary>Reads the WRAM spill ink after body and rear colors.</summary>
-        public Bgr555? Trailing(int frame) => Color(frame, BodyCount + LegCount);
 
         /// <summary>Prefers an authored exception to the calculated revival shade.</summary>
         private Bgr555 Color(int frame, int color) => suppliedOverrides.TryGetValue((frame, color), out Bgr555 supplied)

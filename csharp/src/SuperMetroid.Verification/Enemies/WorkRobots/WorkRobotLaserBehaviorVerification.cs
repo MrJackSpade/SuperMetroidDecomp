@@ -18,22 +18,22 @@ internal static class WorkRobotLaserBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, WorkRobotLaserNativeListAddresses.Extent, "Work Robot laser");
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
-        var robot = new RoomEnemySlot(0)
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var robot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Radius = new(12, 16),
             VramTilesIndex = 512,
             PaletteIndex = 3072,
         };
-        var state = new WorkRobotEnemyState(robot);
+        var state = new WorkRobotEnemyState();
         foreach ((WorkRobotLaser definition, short xVelocity) in new (WorkRobotLaser, short)[]
                  {
                      (WorkRobotLaser.UpLeft, -512), (WorkRobotLaser.Horizontal, -512), (WorkRobotLaser.DownLeft, -512),
                      (WorkRobotLaser.UpRight, 512), (WorkRobotLaser.DownRight, 512),
                  })
         {
-            state.LaserXVelocity = unchecked((ushort)xVelocity);
+            state.LaserVelocity = new(xVelocity, 0);
             enemies.WorkRobotBehavior.SpawnWorkRobotLaser(robot, state, definition, Position16<RoomPixels>.Zero);
         }
         RoomEnemyProjectileSlot[] lasers = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Animation is WorkRobotLaserAnimation)];

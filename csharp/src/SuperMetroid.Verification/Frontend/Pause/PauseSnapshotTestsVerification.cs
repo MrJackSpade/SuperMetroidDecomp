@@ -30,8 +30,8 @@ internal static class PauseSnapshotTestsVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState
         {
-            CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-            EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             MaxReserveEnergy = 100, ReserveEnergy = 47,
             Position = FixedPosition<RoomPixels>.FromWhole(new(512, 768)),
         };
@@ -43,9 +43,9 @@ internal static class PauseSnapshotTestsVerification
         ushort[] hud = new ushort[128];
         for (int i = 0; i < hud.Length; i++) hud[i] = (ushort)(0x2000 | (i % 64));
         gameplayVram.ExecuteWordTransfer(hud, GameplayVramLayout.HudTilemapWord, 1);
-        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram });
         var pages = new HashSet<int>();
-        var levels = new HashSet<byte>();
+        var levels = new HashSet<int>();
         for (int frame = 0; frame < 128; frame++)
         {
             Rgba32[] expected = pause.Render();

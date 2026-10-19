@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
@@ -15,22 +17,24 @@ internal static class CeresDoorFrameDefinitions
     /// <summary>The Ridley-room door overlay $A6:A329 that Ridley's scene draws while it holds the door.</summary>
     internal const ushort RidleyPrivateOverlaySpritemap = 0xa329;
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(CeresDoorFrame frame) => frame.Pose switch
+    /// <summary>The Ridley scene's private door overlay frame.</summary>
+    internal const EnemyFrameId RidleyPrivateOverlayFrame = EnemyFrameId.CeresDoorRidleyPrivateOverlay;
+
+    /// <summary>The installed frame each <see cref="CeresDoorFrame"/> shows.</summary>
+    internal static EnemyFrameTable<CeresDoorFrame> ShownFrames { get; } = new()
     {
-        0 => 0xf921,
-        1 => 0xf95f,
-        2 => 0xf989,
-        3 => 0xf9b3,
-        4 => 0xf9d3,
-        5 => 0xf9f3,
-        6 => 0xfa13,
-        7 => 0xfa3d,
-        8 => 0xfa67,
-        9 => 0xfa87,
-        10 => 0xfaa7,
-        11 => 0xface,
-        12 => 0xfb2f,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Ceres door pose."),
+        { new(Pose: 0), EnemyFrameId.CeresDoorRotatingOverlay },
+        { new(Pose: 1), EnemyFrameId.CeresDoorLeftHold },
+        { new(Pose: 10), EnemyFrameId.CeresDoorRightTransition3 },
+        { new(Pose: 11), EnemyFrameId.CeresDoorMode7LeftWall },
+        { new(Pose: 12), EnemyFrameId.CeresDoorMode7RightWall },
+        { new(Pose: 2), EnemyFrameId.CeresDoorLeftTransition0 },
+        { new(Pose: 3), EnemyFrameId.CeresDoorLeftTransition1 },
+        { new(Pose: 4), EnemyFrameId.CeresDoorLeftTransition2 },
+        { new(Pose: 5), EnemyFrameId.CeresDoorLeftTransition3 },
+        { new(Pose: 6), EnemyFrameId.CeresDoorRightHold },
+        { new(Pose: 7), EnemyFrameId.CeresDoorRightTransition0 },
+        { new(Pose: 8), EnemyFrameId.CeresDoorRightTransition1 },
+        { new(Pose: 9), EnemyFrameId.CeresDoorRightTransition2 },
     };
 }

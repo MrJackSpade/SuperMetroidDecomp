@@ -13,5 +13,5 @@ internal static class SkulteraAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params SkulteraProgram[] programs) =>
         programs.SelectMany(program => SkulteraAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => SkulteraFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => SkulteraFrameToolingDefinitions.Spritemap(step.Frame));
 }

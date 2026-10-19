@@ -21,8 +21,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </remarks>
 public sealed class CeresElevatorArrivalState
 {
-    /// <summary>Address space bound at arrival construction for the projectile lifecycle.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>First spawned projectile, which moves Samus before the platform checks landing.</summary>
     internal readonly CeresElevatorProjectile pad;
     /// <summary>Second spawned projectile, which waits behind the pad until touchdown.</summary>
@@ -32,11 +30,9 @@ public sealed class CeresElevatorArrivalState
 
     /// <summary>Installs both compiled definitions and performs their initialization AIs.</summary>
     public CeresElevatorArrivalState(
-        ISnesAddressSpace bus,
         SamusState samus,
         EnemyProjectileSpritemapCatalog? projectileSpritemaps = null)
     {
-        this.bus = Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         this.projectileSpritemaps = projectileSpritemaps;
 
@@ -133,7 +129,6 @@ public sealed class CeresElevatorArrivalState
         Position16<RoomPixels> position)
     {
         return new CeresElevatorProjectile(
-            definition.DefinitionPointer,
             definition.Program,
             position,
             CeresElevatorArrivalDefinitions.NativeGraphicsIndex);
@@ -157,7 +152,7 @@ public sealed class CeresElevatorArrivalState
         {
             case AnimationProgramAdvanceKind.Show:
                 projectile.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                projectile.SpritemapPointer = CeresElevatorArrivalDefinitions.Spritemap(advance.Frame);
+                projectile.Pose = advance.Frame;
                 return;
             case AnimationProgramAdvanceKind.Stop:
                 projectile.Active = false;
@@ -175,8 +170,7 @@ public sealed class CeresElevatorArrivalState
         SpriteArtwork objects,
         Position16<RoomPixels> camera)
     {
-        if (!projectile.Active ||
-            projectile.SpritemapPointer == CeresElevatorArrivalDefinitions.NoSpritemap)
+        if (!projectile.Active || projectile.Pose is not { } pose)
             return;
 
         Position16<ScreenPixels> screen = projectile.Position.ToScreen(camera);
@@ -188,32 +182,32 @@ public sealed class CeresElevatorArrivalState
 
         var installed = projectileSpritemaps ?? throw new InvalidOperationException(
             "Ceres elevator projectiles require installed sprite artwork.");
-        ushort paletteBits = new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits;
+        ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
         EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
-            EnemySpriteFrames.Frame(installed.Get(projectile.SpritemapPointer), unchecked((byte)projectile.GraphicsIndex), paletteBits),
+            EnemySpriteFrames.Frame(installed.Get(CeresElevatorArrivalDefinitions.Spritemap(pose)), unchecked((byte)projectile.GraphicsIndex), paletteBits),
             screen, paletteBits);
     }
 
     /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>
     internal sealed class CeresElevatorProjectile
     {
-        /// <summary>Initializes a projectile's definition, program, position, and graphics index.</summary>
+        /// <summary>Initializes a projectile's program, position, and graphics index.</summary>
         public CeresElevatorProjectile(
-            ushort definitionPointer,
             CeresElevatorArrivalProgram program,
             Position16<RoomPixels> position,
-            ushort graphicsIndex)
+            int graphicsIndex)
         {
-            DefinitionPointer = definitionPointer;
             Program = AnimationProgramCursor<CeresElevatorArrivalProgram>.Start(program);
             Position = position;
             GraphicsIndex = graphicsIndex;
         }
 
-        /// <summary>The projectile's bank-$86 definition identity.</summary>
-        public ushort DefinitionPointer { get; }
         /// <summary>Native graphics word supplying palette and tile-base bits for drawing.</summary>
-        public ushort GraphicsIndex { get; }
+        public int GraphicsIndex
+        {
+            get;
+            private init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        }
         /// <summary>Whether the projectile still occupies its arrival slot.</summary>
         public bool Active { get; set; } = true;
         /// <summary>Whole room position; the pre-instruction only rewrites Y.</summary>
@@ -231,7 +225,7 @@ public sealed class CeresElevatorArrivalState
         }
         /// <summary>Frames until this projectile's next instruction pass.</summary>
         public NativeCountdown InstructionTimer { get; set; } = NativeCountdown.Start(1);
-        /// <summary>Current bank-8D visual identity or the no-spritemap sentinel.</summary>
-        public ushort SpritemapPointer { get; set; } = CeresElevatorArrivalDefinitions.NoSpritemap;
+        /// <summary>The pose the projectile shows, none before its first frame.</summary>
+        internal CeresElevatorArrivalPose? Pose { get; set; }
     }
 }

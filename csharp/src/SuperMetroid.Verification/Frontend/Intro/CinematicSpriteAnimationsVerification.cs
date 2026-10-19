@@ -129,7 +129,7 @@ internal static class CinematicSpriteAnimationsVerification
                 case SharedWord.SetPreInstruction:
                     AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: pre-instruction install");
                     AssertEqual(CinematicSpriteCueKind.SetPreInstruction, step.PublishedCue.Kind, $"{at}: pre-instruction cue");
-                    AssertEqual(operand, (ushort)step.PublishedCue.PreInstruction, $"{at}: pre-instruction");
+                    AssertEqual(operand, step.PublishedCue.PreInstruction.NativeAddress, $"{at}: pre-instruction");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case SharedWord.SetCounter:
@@ -169,7 +169,7 @@ internal static class CinematicSpriteAnimationsVerification
             AssertEqual(native.Active, actor.IsActive, $"{at}: liveness");
             if (!native.Active)
                 return update + 1;
-            AssertEqual(native.Spritemap, actor.SpriteMapPointer, $"{at}: spritemap");
+            AssertEqual(native.Spritemap, CinematicSpritePoseSpritemaps.Of(actor.Pose), $"{at}: spritemap");
             AssertEqual(native.PreInstruction, actor.PreInstructionPointer, $"{at}: pre-instruction");
             AssertEqual(native.Timer.RawValue, actor.GeneralTimer, $"{at}: loop timer");
             AssertTrue(native.Cues.SequenceEqual(cues), $"{at}: owner cues");

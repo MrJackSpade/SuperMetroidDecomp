@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -49,22 +48,25 @@ public sealed class BabyMetroidCutsceneState
         BabyMetroidCutscenePhase.Inactive;
 
     /// <summary>Enemy properties after initialization ORs in <c>$3000</c>.</summary>
-    public ushort Properties { get; private set; }
+    public EnemyPropertyWord Properties { get; private set; }
 
-    /// <summary>Enemy palette word. Flashing may later alternate this with zero.</summary>
-    public ushort Palette { get; private set; }
+    /// <summary>
+    /// Whether the onion-ring hit flash shows the shared white palette this update instead of
+    /// the Baby's own sprite palette.
+    /// </summary>
+    public bool HitFlashPaletteShown { get; private set; }
 
-    /// <summary>Enemy graphics offset selecting the four transferred Baby tile rows.</summary>
-    public ushort GraphicsOffset { get; private set; }
+    /// <summary>
+    /// Tile base and attribute fragment the enemy drawer applies to every Baby spritemap entry: tile 160, where the
+    /// four transferred Baby tile rows live, plus one priority-field step for the fatal blow.
+    /// </summary>
+    public SnesObjAttributeWord GraphicsOffset { get; private set; }
 
     /// <summary>The Baby's current program.</summary>
     public MotherBrainBabyProgram Program { get; private set; }
 
-    /// <summary>Enemy instruction timer reset to one whenever the list changes.</summary>
-    public ushort InstructionTimer { get; private set; }
-
-    /// <summary>Enemy instruction loop counter.</summary>
-    public ushort InstructionLoopCounter { get; private set; }
+    /// <summary>Enemy instruction timer, restarted at one whenever the program changes.</summary>
+    public NativeCountdown InstructionTimer { get; private set; }
 
     /// <summary>
     /// Native 16.16 room position. Only the high byte of each subposition participates in
@@ -75,17 +77,14 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Signed 8.8 velocity.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Unsigned 8.8 magnitude used by the curved entrance.</summary>
-    public ushort Speed { get; private set; }
+    /// <summary>Speed magnitude in 8.8 pixels per update used by the curved entrance, 0 through $0E00.</summary>
+    public int Speed { get; private set; }
 
-    /// <summary>8.8 angle; only the high byte is passed to shared component math.</summary>
-    public ushort Angle { get; private set; }
+    /// <summary>Heading of the curved entrance; only its table index is passed to shared component math.</summary>
+    public SnesAngle Angle { get; private set; }
 
     /// <summary>Native function timer, decremented with 16-bit wrap and BMI tests.</summary>
     public NativeCountdown FunctionTimer { get; private set; }
-
-    /// <summary>Normal-palette handler delay initialized to ten and changed to one at latch.</summary>
-    public ushort PaletteHandlerDelay { get; private set; }
 
     /// <summary>Initial request to permit the Baby cry effect.</summary>
     public bool CrySoundEnabled { get; private set; }
@@ -94,16 +93,16 @@ public sealed class BabyMetroidCutsceneState
     public bool HealthBasedPaletteEnabled { get; private set; }
 
     /// <summary>
-    /// Bank-$A9 movement-table pointer installed after the ceiling collision. Zero means
-    /// the table-driven ceiling-to-Samus route has not started yet.
+    /// Zero-based leg of the ceiling-to-Samus route the Baby is steering along, started at the
+    /// first leg after the ceiling collision.
     /// </summary>
-    public ushort MovementTablePointer { get; private set; }
+    public int RouteLeg { get; private set; }
 
     /// <summary>
     /// Native enemy health. Header <c>$A0:ECBF</c> supplies 3,200; Mother Brain later drains
     /// this word after the healing hold, so it belongs to actor state rather than rendering.
     /// </summary>
-    public ushort Health { get; internal set; }
+    public int Health { get; internal set; }
 
     /// <summary>
     /// Extra enemy word <c>$7E:7806,x</c>. Mother Brain's onion-ring collision handler
@@ -112,12 +111,6 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public NativeCountdown OnionRingHitFlashTimer { get; private set; }
 
-    /// <summary>
-    /// The low-health palette countdown installed by <c>$A9:CADA</c> when the ordinary
-    /// ring volleys have reduced health to zero. This is separate from the hit-flash word.
-    /// </summary>
-    public ushort LowHealthPaletteTimer { get; private set; }
-
     /// <summary>Saved whole-pixel origin used by the fatal-blow shake at <c>$A9:CC3E</c>.</summary>
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
@@ -125,25 +118,46 @@ public sealed class BabyMetroidCutsceneState
     public NativeCountdown FadeToBlackPaletteTimer { get; private set; }
 
     /// <summary>Current `$AD:E8E2` black-fade palette index; valid stored values are 0..6.</summary>
-    public ushort FadeToBlackPaletteIndex { get; private set; }
+    public int FadeToBlackPaletteIndex { get; private set; }
 
     /// <summary>Five-call cadence word for the dust explosions surrounding the dying Baby.</summary>
     public NativeCountdown DeathExplosionTimer { get; private set; }
 
     /// <summary>
-    /// Host name for the native layout alias called Mother Brain body's walk counter.
-    /// Long-indexed access uses the Baby's slot, so this actor owns its increment/wrap.
+    /// Index into the shared death-explosion scatter pattern, cycling through its ten offsets.
+    /// The cartridge keeps it in the word it calls Mother Brain body's walk counter, indexed
+    /// through the Baby's slot, so this actor owns its increment and wrap.
     /// </summary>
-    public ushort DeathExplosionPatternIndex { get; private set; }
+    public int DeathExplosionPatternIndex { get; private set; }
 
     /// <summary>Zero-based index of the next `$A9:8FC7` attack-tile DMA record.</summary>
-    public ushort AttackTileTransferIndex { get; private set; }
+    public int AttackTileTransferIndex { get; private set; }
 
-    /// <summary>Palette-table argument used while restoring the phase-three room lights.</summary>
-    public ushort RoomLightsTransitionCounter { get; private set; }
+    /// <summary>Palette-table argument used while restoring the phase-three room lights, 0 through 8.</summary>
+    public int RoomLightsTransitionCounter { get; private set; }
 
-    /// <summary>Fractional `$0300` accumulator used to slow the rainbow Samus palette.</summary>
-    public ushort SamusRainbowPaletteAnimationCounter { get; private set; }
+    /// <summary>
+    /// Fraction of a rainbow palette frame accumulated toward slowing Samus's rainbow, in
+    /// 1/65536 frames: each call adds 768, and every completed whole frame advances the palette.
+    /// </summary>
+    public int SamusRainbowPaletteAnimationCounter { get; private set; }
+
+    /// <summary>The accumulated fraction, in 1/65536 frames, that completes one rainbow palette frame.</summary>
+    private const int SamusRainbowPaletteFractionsPerFrame = 65536;
+
+    /// <summary>
+    /// Adds one call's 768/65536 of a rainbow palette frame to <paramref name="fraction"/>, returning
+    /// the fraction left over and whether the addition completed a whole frame. This is the
+    /// cartridge's carry out of its 16-bit accumulator: the slowing rainbow advances one palette
+    /// frame on every carry and keeps the remainder.
+    /// </summary>
+    internal static (int Fraction, bool FrameCompleted) AdvanceSamusRainbowFraction(int fraction)
+    {
+        int sum = Ensure.BetweenInclusive(0, SamusRainbowPaletteFractionsPerFrame - 1, fraction) + 768;
+        return sum >= SamusRainbowPaletteFractionsPerFrame
+            ? (sum - SamusRainbowPaletteFractionsPerFrame, true)
+            : (sum, false);
+    }
 
     /// <summary>Which of the two native rainbow-palette handlers is currently installed.</summary>
     public BabyMetroidSamusRainbowPhase SamusRainbowPhase { get; private set; }
@@ -160,23 +174,20 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public void Initialize(
         FixedPosition<RoomPixels> previousOccupant,
-        ushort populationProperties =
-            (ushort)(EnemyProperties.ProcessInstructions |
-                EnemyProperties.ProcessOffScreen))
+        EnemyPropertyWord? populationProperties = null)
     {
-        Properties = populationProperties.With(
+        Properties = (populationProperties ?? new EnemyPropertyWord(
+            EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen)).With(
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.ProcessInstructions);
-        Palette = EnemyPaletteBits.Palette7;
-        GraphicsOffset = 160;
+        HitFlashPaletteShown = false;
+        GraphicsOffset = SnesObjAttributeWord.Create(tileNumber: 160, paletteIndex: 0, priority: 0);
         SetProgram(MotherBrainBabyProgram.Initial);
         CrySoundEnabled = true;
-        PaletteHandlerDelay = 10;
         HealthBasedPaletteEnabled = false;
-        MovementTablePointer = 0;
+        RouteLeg = 0;
         Health = 3200;
         OnionRingHitFlashTimer = NativeCountdown.Start(0);
-        LowHealthPaletteTimer = 0;
         FatalBlowOrigin = Position16<RoomPixels>.Zero;
         FadeToBlackPaletteTimer = NativeCountdown.Start(0);
         FadeToBlackPaletteIndex = 0;
@@ -189,7 +200,7 @@ public sealed class BabyMetroidCutsceneState
         Position = FixedPosition<RoomPixels>.FromWhole(new(320, 96)).WithFractionsOf(previousOccupant);
         Velocity = default;
         Speed = 0;
-        Angle = 0;
+        Angle = SnesAngle.Zero;
         Phase = BabyMetroidCutscenePhase.DashOntoScreen;
         FunctionTimer = NativeCountdown.Start(248);
     }
@@ -202,15 +213,13 @@ public sealed class BabyMetroidCutsceneState
     /// the head AI has already moved this frame; <paramref name="head"/> carries them.
     /// </summary>
     public BabyMetroidCutsceneStepResult Step(
-        ISnesAddressSpace bus,
         SamusState samus,
         MotherBrainRainbowBeamAttackSequence motherBrain,
         Position16<RoomPixels> head,
         Position16<RoomPixels> layer1 = default,
-        ushort enemyFrameCounter = 0,
-        ushort randomNumber = 0)
+        int enemyFrameCounter = 0,
+        int randomNumber = 0)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         Ensure.NotNull(motherBrain);
         if (Phase == BabyMetroidCutscenePhase.Inactive)
@@ -258,7 +267,7 @@ public sealed class BabyMetroidCutsceneState
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
-                    Angle = 55296;
+                    Angle = SnesAngle.FromTableIndex(216);
                     Speed = 2560;
                     Phase = BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
                     FunctionTimer = NativeCountdown.Start(10);
@@ -293,7 +302,7 @@ public sealed class BabyMetroidCutsceneState
                 if (brainCollision)
                 {
                     Phase = BabyMetroidCutscenePhase.LatchOntoMotherBrain;
-                    samus.Drained.PutStanding(bus, samus); // Drained Samus command one.
+                    samus.Drained.PutStanding(samus); // Drained Samus command one.
                 }
                 break;
 
@@ -330,7 +339,6 @@ public sealed class BabyMetroidCutsceneState
                     Position = Position.WithWhole(target);
                     SetProgram(MotherBrainBabyProgram.DrainingMotherBrain);
                     Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
-                    PaletteHandlerDelay = 1;
                     motherBrain.InterruptFinalBeamForBabyDrain();
                     latchSoundQueued = true; // Sound library one, effect `$40`.
                 }
@@ -341,7 +349,7 @@ public sealed class BabyMetroidCutsceneState
             {
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
                 Position = Position.WithWhole(head + ShakingOffsets[shakingIndex] + BrainLatchOffset);
-                if (motherBrain.Phase2CorpseState != 0)
+                if (motherBrain.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
                     FunctionTimer = NativeCountdown.Start(64);
@@ -357,7 +365,6 @@ public sealed class BabyMetroidCutsceneState
                 if (FunctionTimer.IsNegative)
                 {
                     SetProgram(MotherBrainBabyProgram.Initial);
-                    PaletteHandlerDelay = 10;
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
                     FunctionTimer = NativeCountdown.Start(32);
                     Velocity = default;
@@ -400,9 +407,9 @@ public sealed class BabyMetroidCutsceneState
                 brainCollision = ceilingCollision;
                 if (ceilingCollision)
                 {
-                    samus.Drained.PutCrouchingOrFalling(bus, samus);
+                    samus.Drained.PutCrouchingOrFalling(samus);
                     Phase = BabyMetroidCutscenePhase.MoveToSamus;
-                    MovementTablePointer = BabyMetroidRouteDefinitions.FirstRecordPointer;
+                    RouteLeg = 0;
                 }
                 break;
             }
@@ -419,10 +426,9 @@ public sealed class BabyMetroidCutsceneState
                 // `$CA24-$CA64` is eight overlapping records. The fixed targets, divisor
                 // indexes, and callback identities are compiled mechanics definitions;
                 // sprite/instruction presentation remains separately cartridge-backed.
-                BabyMetroidRouteRecord record =
-                    BabyMetroidRouteDefinitions.GetRecord(MovementTablePointer);
+                BabyMetroidRouteRecord record = BabyMetroidRouteDefinitions.GetRecord(RouteLeg);
                 Position16<RoomPixels> target = record.Target;
-                ushort divisorIndex = record.AccelerationDivisorIndex;
+                int divisorIndex = record.AccelerationDivisorIndex;
 
                 // `$F56A` is `[10,0F,...,01]`; every retail `$CA24` record uses index zero,
                 // but implementing all legal indices costs nothing and catches malformed
@@ -430,9 +436,9 @@ public sealed class BabyMetroidCutsceneState
                 if (divisorIndex > 15)
                 {
                     throw new InvalidDataException(
-                        $"Baby route ${MovementTablePointer:X4} has invalid divisor index ${divisorIndex:X4}.");
+                        $"Baby route leg {RouteLeg} has invalid divisor index {divisorIndex}.");
                 }
-                ushort accelerationDivisor = unchecked((ushort)(16 - divisorIndex));
+                ushort accelerationDivisor = (ushort)(16 - divisorIndex);
                 ushort wrongWayExtra = BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed(
                     record.MovementFunction);
 
@@ -443,25 +449,14 @@ public sealed class BabyMetroidCutsceneState
                     layer1);
 
                 // The route's 4x4 rectangle test occurs before the common velocity mover.
-                // On ordinary records, +8 is merely the next record's target X and the
-                // pointer advances eight bytes. The final record deliberately overlaps its
-                // +8 word with `$CA66`, so BMI installs the next AI function instead.
+                // Reaching an ordinary leg's target moves on to the next leg; reaching the
+                // final leg's target installs the latch-onto-Samus function instead.
                 if (CollidesWithRectangle(target, TargetRadius))
                 {
-                    ushort nextWord = record.FollowingWord;
-                    if (unchecked((short)nextWord) < 0)
-                    {
-                        if (nextWord != BabyMetroidRouteDefinitions.LatchOntoSamusFunction)
-                        {
-                            throw new InvalidDataException(
-                                $"Baby route terminates at unexpected function ${nextWord:X4}.");
-                        }
+                    if (record.EndsWithLatchOntoSamus)
                         Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
-                    }
                     else
-                    {
-                        MovementTablePointer = unchecked((ushort)(MovementTablePointer + 8));
-                    }
+                        RouteLeg++;
                 }
                 break;
             }
@@ -488,8 +483,8 @@ public sealed class BabyMetroidCutsceneState
 
                 // `$C59F` adds exactly one energy per enemy-processing call. CMP/BMI is a
                 // signed 16-bit comparison; normal game maxima stay in its positive range.
-                ushort candidateHealth = unchecked((ushort)(samus.Health + 1));
-                if (unchecked((short)(candidateHealth - samus.MaxHealth)) < 0)
+                int candidateHealth = samus.Health + 1;
+                if (candidateHealth < samus.MaxHealth)
                 {
                     samus.Health = candidateHealth;
                 }
@@ -521,11 +516,6 @@ public sealed class BabyMetroidCutsceneState
                     // disables health-band palettes, and lets `$CB13` run next frame.
                     Health = 320;
                     Phase = BabyMetroidCutscenePhase.ReleaseSamus;
-                    LowHealthPaletteTimer = 10;
-                    // `$A9:CB05` stores ten in the same enemy variable used by the normal
-                    // palette handler.  This is not an immediate/zero-delay switch: the
-                    // low-health palette routine counts through its own ten-frame cadence.
-                    PaletteHandlerDelay = 10;
                     HealthBasedPaletteEnabled = false;
                 }
                 break;
@@ -613,7 +603,7 @@ public sealed class BabyMetroidCutsceneState
                     // `$A9:CBF2-$CC3D` changes graphics/list state, freezes the body AI,
                     // clears velocity, remembers the shake origin, and falls through into
                     // the first of 17 fatal-blow shake calls.
-                    GraphicsOffset = 4256;
+                    GraphicsOffset = SnesObjAttributeWord.Create(tileNumber: 160, paletteIndex: 0, priority: 1);
                     SetProgram(MotherBrainBabyProgram.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
@@ -734,8 +724,8 @@ public sealed class BabyMetroidCutsceneState
             {
                 // `$CCF0` increments the shared counter, passes its previous value to
                 // `$AD:F24B`, and treats pointer-table entry seven as the carry-set end.
-                ushort paletteIndex = RoomLightsTransitionCounter;
-                RoomLightsTransitionCounter = unchecked((ushort)(RoomLightsTransitionCounter + 1));
+                int paletteIndex = RoomLightsTransitionCounter;
+                RoomLightsTransitionCounter++;
                 if (paletteIndex < 7)
                 {
                     backgroundPaletteTransfer = new MotherBrainBackgroundPaletteTransferRequest(
@@ -769,11 +759,11 @@ public sealed class BabyMetroidCutsceneState
         if (!OnionRingHitFlashTimer.IsZero)
         {
             OnionRingHitFlashTimer = OnionRingHitFlashTimer.Decrement().Remaining;
-            Palette = (OnionRingHitFlashTimer.RawValue & 2) != 0 ? (ushort)0 : EnemyPaletteBits.Palette7;
+            HitFlashPaletteShown = (OnionRingHitFlashTimer.RawValue & 2) != 0;
         }
         else
         {
-            Palette = EnemyPaletteBits.Palette7;
+            HitFlashPaletteShown = false;
         }
 
         return new BabyMetroidCutsceneStepResult(
@@ -800,7 +790,7 @@ public sealed class BabyMetroidCutsceneState
     /// <remarks>Zero health leaves all state unchanged. The caller must establish overlap and owns the Baby cry request, physical enemy-slot synchronization, and ring explosion/deletion.</remarks>
     public BabyMetroidOnionRingHitResult ApplyMotherBrainOnionRingHit(ushort damage = 80)
     {
-        ushort healthBefore = Health;
+        int healthBefore = Health;
         if (healthBefore == 0)
             return new BabyMetroidOnionRingHitResult();
 
@@ -832,9 +822,9 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown:
             {
-                uint sum = (uint)SamusRainbowPaletteAnimationCounter + 768;
-                SamusRainbowPaletteAnimationCounter = unchecked((ushort)sum);
-                if (sum > ushort.MaxValue)
+                (int fraction, bool frameCompleted) = AdvanceSamusRainbowFraction(SamusRainbowPaletteAnimationCounter);
+                SamusRainbowPaletteAnimationCounter = fraction;
+                if (frameCompleted)
                     samus.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
                 return;
             }
@@ -870,7 +860,7 @@ public sealed class BabyMetroidCutsceneState
             return false;
 
         FadeToBlackPaletteTimer = NativeCountdown.Start(8);
-        ushort nextIndex = unchecked((ushort)(FadeToBlackPaletteIndex + 1));
+        int nextIndex = FadeToBlackPaletteIndex + 1;
         if (nextIndex >= 7)
             return true;
 
@@ -899,15 +889,14 @@ public sealed class BabyMetroidCutsceneState
         return new BabyMetroidDeathExplosionRequest(
             Position: Position.Whole + DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex),
             Animation: MiscDustAnimation.SmallExplosion,
-            SoundEffect: MotherBrainSoundDefinitions.Explosion.Value);
+            SoundEffect: MotherBrainSoundDefinitions.Explosion);
     }
 
-    /// <summary>Switches the Baby's program and resets its timer and loop counter.</summary>
+    /// <summary>Switches the Baby's program and restarts its instruction timer.</summary>
     private void SetProgram(MotherBrainBabyProgram program)
     {
         Program = program;
-        InstructionTimer = 1;
-        InstructionLoopCounter = 0;
+        InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Clamps speed and angle toward their targets before deriving 8.8 X/Y velocity from native sine values.</summary>
@@ -920,29 +909,32 @@ public sealed class BabyMetroidCutsceneState
         if (Speed != targetSpeed)
         {
             if (targetSpeed < Speed)
-                Speed = Speed - 32 < targetSpeed ? targetSpeed : unchecked((ushort)(Speed - 32));
+                Speed = Math.Max(Speed - 32, targetSpeed);
             else
-                Speed = Speed + 32 >= targetSpeed ? targetSpeed : unchecked((ushort)(Speed + 32));
+                Speed = Math.Min(Speed + 32, targetSpeed);
         }
 
-        ushort candidateAngle = unchecked((ushort)(Angle + angleDelta));
+        // The turn stops at the target angle: the signed difference from the target says
+        // whether this step would carry the heading past it.
+        SnesAngle candidateAngle = Angle.AddRaw(angleDelta);
         if (unchecked((short)angleDelta) < 0)
         {
-            Angle = unchecked((short)(candidateAngle - targetAngle)) >= 0
+            Angle = unchecked((short)(candidateAngle.RawValue - targetAngle)) >= 0
                 ? candidateAngle
-                : targetAngle;
+                : SnesAngle.FromRaw(targetAngle);
         }
         else
         {
-            Angle = unchecked((short)(candidateAngle - targetAngle)) < 0
+            Angle = unchecked((short)(candidateAngle.RawValue - targetAngle)) < 0
                 ? candidateAngle
-                : targetAngle;
+                : SnesAngle.FromRaw(targetAngle);
         }
 
-        byte angleByte = SnesLittleEndian.HighByte(Angle);
+        byte angleByte = Angle.TableIndex;
+        ushort speed = checked((ushort)Speed);
         Velocity = new(
-            new SnesSignedEightEight(CalculateVelocityComponent(Speed, angleByte)),
-            new SnesSignedEightEight(CalculateVelocityComponent(Speed, unchecked((byte)(angleByte + 64)))));
+            new SnesSignedEightEight(CalculateVelocityComponent(speed, angleByte)),
+            new SnesSignedEightEight(CalculateVelocityComponent(speed, unchecked((byte)(angleByte + 64)))));
     }
 
     /// <summary>Multiplies speed by a signed sine-table entry with the cartridge's bit-8-to-23 result.</summary>

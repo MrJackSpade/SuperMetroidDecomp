@@ -40,7 +40,7 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
                 (column != 0 ? SnesTileFlipFlags.Horizontal : 0) |
                 (row != 0 ? SnesTileFlipFlags.Vertical : 0) : 0;
             return new(SnesSpritemapXWord.Create((column - 1) * 16, true),
-                unchecked((byte)((row - 1) * 16)), SnesObjAttributeWord.Create(tile, 0, 0, flips), true);
+                SnesSpritemapYByte.Create((row - 1) * 16), SnesObjAttributeWord.Create(tile, 0, 0, flips), true);
         }
     }
     /// <summary>Yields the four parts in native drawing order.</summary>

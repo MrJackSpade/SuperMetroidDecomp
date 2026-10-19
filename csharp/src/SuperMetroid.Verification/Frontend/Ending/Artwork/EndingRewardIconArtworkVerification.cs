@@ -36,8 +36,8 @@ internal static class EndingRewardIconArtworkVerification
         var installedBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var nativeScene = CreateRetailEndingFixture(nativeBus, nativeAudio, 3, 0);
-        var installedScene = CreateRetailEndingFixture(installedBus, installedAudio, 3, 0);
+        var nativeScene = CreateRetailEndingFixture(nativeAudio, 3, 0);
+        var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
         nativeScene.BindStaffCredits(credits);
         installedScene.BindStaffCredits(credits);
         installedScene.BindMode7Artwork(stock);
@@ -110,7 +110,7 @@ internal static class EndingRewardIconArtworkVerification
                 }
                 EndingMode7ArtworkCatalog edited = installation.LoadEndingMode7Art();
                 var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-                var upload = new EndingRewardGraphicsUpload(uploadBus, stock.RewardIcon);
+                var upload = new EndingRewardGraphicsUpload(stock.RewardIcon);
                 var partialVram = new SnesVram();
                 partialVram.LoadBytes(0, Enumerable.Repeat((byte)0xa5,
                     SnesVram.ByteCount).ToArray());
@@ -127,7 +127,7 @@ internal static class EndingRewardIconArtworkVerification
                     $"{name} partial upload never reads compressed ROM icon art");
                 var sceneBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var sceneAudio = new CartridgeAudioState();
-                var scene = CreateRetailEndingFixture(sceneBus, sceneAudio, 3, 0);
+                var scene = CreateRetailEndingFixture(sceneAudio, 3, 0);
                 scene.BindStaffCredits(credits);
                 scene.BindMode7Artwork(stock);
                 for (int frame = 0; frame < 60_000 &&

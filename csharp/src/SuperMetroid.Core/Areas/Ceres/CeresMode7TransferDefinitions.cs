@@ -69,20 +69,20 @@ public static class CeresMode7TransferDefinitions
             {
                 if ((uint)index >= Count) throw new IndexOutOfRangeException();
                 if (pointer is CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark)
-                    return new((ushort)(PlatformRow * MapColumns + PlatformColumn), new(pointer, index, 4),
+                    return new(PlatformRow * MapColumns + PlatformColumn, new(pointer, index, 4),
                         pointer == CeresMode7TransferList.ElevatorLight ? PlatformLightSource : PlatformDarkSource);
                 if (pointer is CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2)
                 {
                     int frame = (pointer - CeresMode7TransferList.BabyFrame0) / (2 * 9 + 1);
-                    return new((ushort)((BabyRow + index) * MapColumns + BabyColumn), new(pointer, index, 2),
-                        (ushort)(BabySources + BabyRowBytes * (2 * frame + index)));
+                    return new((BabyRow + index) * MapColumns + BabyColumn, new(pointer, index, 2),
+                        BabySources + BabyRowBytes * (2 * frame + index));
                 }
                 WingRegion region = WingRegions[index];
                 int offset = 0;
                 for (int row = 0; row < index; row++) offset += 2 * WingRegions[row].Width;
                 if (pointer == CeresMode7TransferList.WingFrame1) offset += region.Width;
-                return new((ushort)(index * MapColumns + region.Column),
-                    new(pointer, index, region.Width), (ushort)(WingSources + offset));
+                return new(index * MapColumns + region.Column,
+                    new(pointer, index, region.Width), WingSources + offset);
             }
         }
         /// <summary>Enumerates calculated descriptors in native transfer order without executing DMA or advancing animation.</summary>

@@ -91,7 +91,7 @@ internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IRe
                     large = index is 10 or >= 13 and < 17 or >= 20;
                 }
             }
-            return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }

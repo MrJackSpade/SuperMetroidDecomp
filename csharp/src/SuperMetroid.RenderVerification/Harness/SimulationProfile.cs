@@ -10,18 +10,22 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Unpaced, room-local CPU baseline. Not a presentation, waveOut-underrun, or five-minute soak gate.</summary>
 internal static class SimulationProfile
 {
+    /// <summary>JSON options: Indented output.</summary>
+    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+
     /// <summary>Prints 600-frame capture, audio, publication, and allocation distributions for gameplay and pause fixtures.</summary>
     internal static void Run()
     {
         VerifyPublicationProfiler();
         var results = new[]
         {
-            Measure(SlowConsumerFixture.AlphaPowerBombRoom, paused: false),
-            Measure(SimulationProfileRooms.MaridiaTube, paused: true),
+            Measure(RoomHeaderDefinitions.AlphaPowerBomb, paused: false),
+            Measure(RoomHeaderDefinitions.GlassTunnel, paused: true),
         };
         Console.WriteLine("Simulation timing baseline: " + JsonSerializer.Serialize(new
         {
@@ -36,13 +40,13 @@ internal static class SimulationProfile
             WarmupFrames = 120,
             MeasuredFrames = 600,
             Results = results,
-        }, new JsonSerializerOptions { WriteIndented = true }));
+        }, IndentedJson));
     }
 
     /// <summary>Warms one installed room, captures unpaced frames with desktop audio, and summarizes their timing samples.</summary>
-    private static object Measure(ushort room, bool paused)
+    private static object Measure(RoomHeaderDefinition room, bool paused)
     {
-        var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
+        var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(),
             new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
         game.BindAudio(DesktopAccess.LoadAudioClips());
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
@@ -56,8 +60,6 @@ internal static class SimulationProfile
             long start = Stopwatch.GetTimestamp();
             var frame = game.StepCaptured(input, ++sequence, 1);
             long captured = Stopwatch.GetTimestamp();
-            if (frame.Snapshot is null || frame.Frame.Pixels.Length != 0)
-                throw new InvalidOperationException("Profile unexpectedly entered a CPU raster path.");
             game.CopyAudioFrame(pcm);
             long end = Stopwatch.GetTimestamp();
             foreach (short value in pcm) if (value != 0) nonzeroPcmSamples++;
@@ -71,7 +73,7 @@ internal static class SimulationProfile
             Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
         if (game.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Profile failed startup.");
         game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-        game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0, true);
+        game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         Step(0);
         if (paused)
         {
@@ -96,8 +98,8 @@ internal static class SimulationProfile
         }
         var combined = Distribution(total);
         if (nonzeroPcmSamples == 0) throw new InvalidOperationException("Audio timing baseline contained only silence.");
-        Console.WriteLine($"Room $8F:{room:X4}, paused={paused}: simulation+audio p50/p95/p99 {combined.P50:F3}/{combined.P95:F3}/{combined.P99:F3}ms; allocation p50 {Distribution(allocated).P50:F0} bytes/frame.");
-        return new { Room = $"8F:{room:X4}", Paused = paused, CaptureMs = Distribution(capture), AudioMs = Distribution(mixing),
+        Console.WriteLine($"Room {room.Name}, paused={paused}: simulation+audio p50/p95/p99 {combined.P50:F3}/{combined.P95:F3}/{combined.P99:F3}ms; allocation p50 {Distribution(allocated).P50:F0} bytes/frame.");
+        return new { Room = room.Name, Paused = paused, CaptureMs = Distribution(capture), AudioMs = Distribution(mixing),
             PublicationMs = Distribution(publication), PublicationAllocationBytes = Distribution(publicationAllocated),
             TotalMs = combined, AllocationBytes = Distribution(allocated), PcmSamples = 600 * CartridgeAudioSession.PcmSamplesPerFrame,
             NonzeroPcmSamples = nonzeroPcmSamples };

@@ -6,6 +6,4 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="Index">The frame's position in the catalog.</param>
 public readonly record struct DraygonFrame(int Index)
 {
-    /// <summary>The installed extended spritemap the frame shows.</summary>
-    internal ushort Spritemap => DraygonFrameDefinitions.Spritemap(this);
 }

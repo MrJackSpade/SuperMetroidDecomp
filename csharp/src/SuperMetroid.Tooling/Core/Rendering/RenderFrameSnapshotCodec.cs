@@ -48,14 +48,14 @@ public static class RenderFrameSnapshotCodec
                     {
                         gradient = new SuperMetroid.Core.Rendering.TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];
                         for (int i = 0; i < gradient.Length; i++)
-                            gradient[i] = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+                            gradient[i] = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), (ColorMathControlFlags)reader.ReadByte());
                     }
                     frame = new(identity, new Mode7ObjRenderSnapshot(memory, bg, obsel, brightness, gradient), fades);
                 }
                 else
                 {
                     var layers = new RenderLayer[ReadCount(reader)];
-                    for (int i = 0; i < layers.Length; i++) layers[i] = ReadLayer(reader, version);
+                    for (int i = 0; i < layers.Length; i++) layers[i] = ReadLayer(reader, version, memory);
                     frame = new(identity, new LayeredRenderSnapshot(memory, layers, obsel, brightness), fades);
                 }
             }
@@ -181,7 +181,8 @@ public static class RenderFrameSnapshotCodec
         {
             registers = registers with
             {
-                Windows = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte(),
+                Windows = new((SnesWindowSelectionPair)reader.ReadByte(), (SnesWindowSelectionPair)reader.ReadByte(),
+                    (SnesWindowSelectionPair)reader.ReadByte(), reader.ReadByte(),
                     reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()),
                 MainScreenWindowMask = (SnesMainScreenLayers)reader.ReadByte(),
             };
@@ -202,7 +203,7 @@ public static class RenderFrameSnapshotCodec
     }
 
     /// <summary>Dispatches a layer tag to its version-gated payload parser.</summary>
-    private static RenderLayer ReadLayer(BinaryReader reader, ushort version, bool childScene = false) => (RenderPacketLayerKind)reader.ReadByte() switch
+    private static RenderLayer ReadLayer(BinaryReader reader, ushort version, PpuMemorySnapshot memory, bool childScene = false) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
         RenderPacketLayerKind.XrayGameplay when version >= RenderPacketFormat.XrayGameplayVersion => ReadXrayGameplay(reader, version),
         RenderPacketLayerKind.WindowedScene when version >= RenderPacketFormat.WindowedSceneLayerVersion && !childScene => ReadWindowedScene(reader, version),
@@ -211,7 +212,8 @@ public static class RenderFrameSnapshotCodec
         RenderPacketLayerKind.ScrolledBg4SubscreenAdd when version >= RenderPacketFormat.ScrolledSubscreenVersion => ReadSubscreen(reader, version, true, true),
         RenderPacketLayerKind.Mode7Gameplay when version >= RenderPacketFormat.Mode7GameplayLayerVersion => ReadMode7Gameplay(reader, version),
         RenderPacketLayerKind.BgColorMath when version >= RenderPacketFormat.BgColorMathLayerVersion => ReadBgColorMath(reader),
-        RenderPacketLayerKind.MessageBox when version >= RenderPacketFormat.MessageLayerVersion => ReadMessageLayer(reader),
+        RenderPacketLayerKind.MessageBox when version >= RenderPacketFormat.BgLayerVersion => ReadMessageLayer(reader),
+        RenderPacketLayerKind.MessageBox when version >= RenderPacketFormat.MessageLayerVersion => ReadLegacyMessageLayer(reader, memory),
         RenderPacketLayerKind.ScanlineColorAdd when version >= RenderPacketFormat.ScanlineColorLayerVersion =>
             ReadColorWindows(reader),
         RenderPacketLayerKind.OrdinaryGameplay when version >= RenderPacketFormat.OrdinaryGameplayLayerVersion =>
@@ -286,7 +288,7 @@ public static class RenderFrameSnapshotCodec
         PpuMemorySnapshot memory = ReadMemory(reader, version);
         byte obsel = reader.ReadByte(), brightness = reader.ReadByte();
         var layers = new RenderLayer[ReadCount(reader)];
-        for (int i = 0; i < layers.Length; i++) layers[i] = ReadLayer(reader, version, childScene: true);
+        for (int i = 0; i < layers.Length; i++) layers[i] = ReadLayer(reader, version, memory, childScene: true);
         return new(new(memory, layers, obsel, brightness), left, top, right, bottom);
     }
 
@@ -328,8 +330,37 @@ public static class RenderFrameSnapshotCodec
         return new(map, characters, height, firstLine, operation, lines);
     }
 
-    /// <summary>Validates message row count before reading its tilemap and corner radius.</summary>
+    /// <summary>Reads a version-31 message: its reveal radius and its text layer.</summary>
     private static MessageBoxRenderLayer ReadMessageLayer(BinaryReader reader)
+    {
+        int radius = reader.ReadByte();
+        return new(ReadBgLayer(reader), radius);
+    }
+
+    /// <summary>Reads a background layer: source, artwork, grid, origin and scanline band.</summary>
+    private static BgLayer ReadBgLayer(BinaryReader reader)
+    {
+        var source = new BgLayerSource((BgLayerSourceKind)reader.ReadInt32(), reader.ReadInt32());
+        var id = new BgArtworkId((BgArtworkKind)reader.ReadInt32(), reader.ReadInt32());
+        int bitsPerPixel = reader.ReadByte();
+        int byteCount = reader.ReadInt32();
+        if (byteCount is <= 0 or > RenderPacketFormat.MaximumPacketBytes)
+            throw new InvalidDataException($"Invalid background artwork size {byteCount}.");
+        var artwork = new BgArtwork(id, bitsPerPixel, ReadExact(reader, byteCount));
+        int width = reader.ReadUInt16();
+        var cells = ImmutableArray.CreateBuilder<BgCell>(ReadCount(reader));
+        for (int i = 0; i < cells.Capacity; i++)
+            cells.Add(new BgCell(reader.ReadUInt16(), reader.ReadByte(), ReadBoolean(reader), (SnesTileFlipFlags)reader.ReadUInt16()));
+        var origin = new Position16<ScreenPixels>(reader.ReadUInt16(), reader.ReadUInt16());
+        int first = reader.ReadUInt16(), end = reader.ReadUInt16();
+        return new BgLayer(source, artwork, width, cells.MoveToImmutable(), origin, first, end);
+    }
+
+    /// <summary>
+    /// Reads a message from versions 7-30, whose tilemap named BG3 characters in the packet's VRAM: the text layer reads
+    /// those characters as its artwork.
+    /// </summary>
+    private static MessageBoxRenderLayer ReadLegacyMessageLayer(BinaryReader reader, PpuMemorySnapshot memory)
     {
         int rows = reader.ReadByte();
         int radius = reader.ReadByte();
@@ -337,7 +368,16 @@ public static class RenderFrameSnapshotCodec
             throw new InvalidDataException("Invalid message row count in display fixture.");
         var tiles = new ushort[rows * SuperMetroid.Core.Hud.GameplayMessageRomData.Layout.TilemapWidth];
         for (int i = 0; i < tiles.Length; i++) tiles[i] = reader.ReadUInt16();
-        return new(tiles, radius);
+        return MessageBoxRenderLayer.FromTilemap(tiles, radius, LegacyMessageCharacters(memory));
+    }
+
+    /// <summary>The 1024 two-bpp characters a version-7-30 message tilemap could name, read from the packet's VRAM.</summary>
+    [PpuLayoutBoundary("codec: legacy message packets name BG3 characters by VRAM address")]
+    private static BgArtwork LegacyMessageCharacters(PpuMemorySnapshot memory)
+    {
+        const int characters = 1024, characterBytes = 16;
+        int first = GameplayVramLayout.HudCharacterWord * 2;
+        return new BgArtwork(new BgArtworkId(BgArtworkKind.HudCharacters), 2, memory.Vram.Slice(first, characters * characterBytes));
     }
 
     /// <summary>Reads one color-add window for every PPU scanline.</summary>

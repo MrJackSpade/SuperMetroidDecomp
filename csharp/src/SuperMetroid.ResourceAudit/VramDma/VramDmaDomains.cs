@@ -18,6 +18,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.ResourceAudit.VramDma;
 
@@ -57,11 +58,6 @@ internal static class VramDmaDomains
                 return Native(CeresEscapeVramTransferDefinitionsTooling.All.Where(frame =>
                     frame.Pointer is >= CeresEscapeVramTransferDefinitions.JapaneseOverlay and
                     < CeresEscapeVramTransferDefinitions.TimerSprites).Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
-            case "corpse":
-                return Native(DeadMonsterRottingDefinitionsTooling.AllTransfers.Select(frame => (frame.SourceAddress, (int)frame.SizeInBytes)));
-            case "dead-torizo":
-                return Native(DeadTorizoVramTransferDefinitions.ForPhase(0).Concat(
-                    DeadTorizoVramTransferDefinitions.ForPhase(1).ToArray()).Select(frame => (frame.SourceAddress, (int)frame.SizeInBytes)));
             case "kraid":
                 return Typed(Enumerable.Range(0, KraidBackgroundRomData.StandardBg3TransferCount).Select(index =>
                     (KraidBackgroundRomData.StandardBg3AssetForQuarter(index), (int)KraidBackgroundRomData.StandardBg3TransferBytes)));
@@ -69,8 +65,8 @@ internal static class VramDmaDomains
                 return Native(GunshipLiftoffTransferDefinitions.Frames.Select(frame => (frame.SourceAddress, (int)GunshipLiftoffTransferDefinitions.ByteCount)))
                     .Concat(Typed(GunshipLiftoffTransferDefinitions.Frames.Select(frame => (frame.Asset, (int)GunshipLiftoffTransferDefinitions.ByteCount))));
             case "enemies":
-                return Native(RoomEnemyGraphicsSetDefinitions.Pointers.SelectMany(pointer =>
-                    RoomEnemyGraphicsSetDefinitions.Get(pointer).Records.ToArray()).Select(entry =>
+                return Native(RoomEnemyGraphicsSetDefinitions.All.SelectMany(set =>
+                    set.Records.ToArray()).Select(entry =>
                     (RoomEnemyDefinitionCatalog.Get(entry.DefinitionPointer).TileDataAddress,
                      (int)RoomEnemyDefinitionCatalog.Get(entry.DefinitionPointer).TileDataSize & VramDmaDomainGeometry.EnemyTileByteCountMask)).Distinct());
             case "fx":
@@ -87,13 +83,13 @@ internal static class VramDmaDomains
                     (BeamTileCatalog.AssetFor(selection), BeamTileAtlasDefinitions.ByteCount)));
             case "statues":
                 return Native(TourianStatueAnimatedTileMechanicsDefinitions.All.SelectMany(definition =>
-                    definition.SourceOperandPointers.Select(operand =>
-                        (TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, operand), (int)definition.TransferByteCount))));
+                    definition.Pictures.Select(picture =>
+                        (TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, picture), definition.TransferByteCount))));
             case "treadmill":
                 return Native(Enumerable.Range(0, RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount).Select(index =>
                     (WreckedShipTreadmillRomData.FrameSource(index), (int)WreckedShipTreadmillRomData.TransferByteCount)));
             case "landing":
-                return Native(LibraryBackgroundProgramDefinitionsTooling.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)).Instructions
+                return Native(LibraryBackgroundSources.Program(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)).Instructions
                     .Where(instruction => instruction.Command == LibraryBackgroundCommand.TransferForDoor)
                     .Select(instruction => (instruction.SourceAddress, (int)instruction.ByteCount)));
             case "sky":
@@ -114,16 +110,16 @@ internal static class VramDmaDomains
         // index 6..8 ocean rows below the six-screen room. Last-row blue scrolls
         // align at zero; nonblue rows permit the camera's additional $1F.
         foreach (var room in RoomHeaderDefinitions.All)
-        foreach (var state in RoomStateSelectionDefinitions.GetStatePointers(room.Pointer).Select(RoomStateDefinitions.Get)
+        foreach (var state in RoomStateSelectionDefinitions.GetStates(room)
                      .Where(state => ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback)))
         {
             ScrollingSkyChunkTable table = state.MainCallback == RoomMainCallback.ScrollingSkyOcean
                 ? ScrollingSkyChunkTable.Ocean
                 : ScrollingSkyChunkTable.Land;
             int logicalCount = room.Size.Area;
-            bool blueBottom = unchecked((short)state.ScrollPointer) >= 0
-                ? (byte)(state.ScrollPointer + 1) == (byte)RoomScrollState.Blue
-                : RoomScrollDefinitions.Get(state.ScrollPointer).Storage.Span
+            bool blueBottom = state.Scroll.ImplicitBottomRow is { } bottomRow
+                ? bottomRow == RoomScrollState.Blue
+                : state.Scroll.Storage.Span
                     .Slice(logicalCount - room.Size.X, room.Size.X)
                     .All(cell => cell == (byte)RoomScrollState.Blue);
             int maximum = ((room.Size.Y - 1) << VramDmaDomainGeometry.ScreenPixelShift) +

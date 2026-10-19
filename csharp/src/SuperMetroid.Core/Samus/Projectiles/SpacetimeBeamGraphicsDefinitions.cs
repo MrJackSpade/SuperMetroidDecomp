@@ -9,15 +9,18 @@ internal static class SpacetimeBeamGraphicsDefinitions
     internal const SamusBeamCombination Selection = SamusBeamCombination.SpazerPlasmaIce;
     /// <summary>$9A:C401: $90:C3CD's palette pointer used as a tile pointer by $90:AC8D.</summary>
     internal const int TileSource = 0x9ac401;
-    /// <summary>$90:19FF: $90:C3E5's palette color used as a pointer by $90:ACCD, mirroring live WRAM.</summary>
-    internal const ushort PalettePointer = 0x19ff;
+    /// <summary>
+    /// Every colour of the SpaceTime beam palette. The cartridge's <c>$90:ACCD</c> reads its colours through
+    /// <c>$90:C3E5</c>'s colour word used as a pointer, <c>$90:19FF</c>: live enemy-projectile timers and
+    /// pre-instructions in WRAM. The port does not keep that native layout, so the palette is a defined one instead
+    /// (owner decision on #1318).
+    /// </summary>
+    internal const ushort PaletteWord = 0x0000;
 
-    /// <summary>Loads sixteen beam colors through the glitched adjacent-table pointer, retaining only the fifteen CGRAM color bits.</summary>
-    internal static void LoadPalette(ISnesAddressSpace bus, SnesCgram cgram)
+    /// <summary>Loads the SpaceTime beam's defined palette.</summary>
+    internal static void LoadPalette(SnesCgram cgram)
     {
         for (ushort color = 0; color < SuperMetroid.Core.Samus.Artwork.BeamPaletteDefinitions.ColorCount; color++)
-            // The glitched pointer reads arbitrary words; the CGRAM port keeps fifteen bits.
-            new SamusPalettes(cgram).Beam.Write(color,
-                Bgr555.FromCgramPortWord(new SamusOverreadMemory(bus).SpacetimePaletteWord(color)));
+            new SamusPalettes(cgram).Beam.Write(color, Bgr555.FromCgramPortWord(PaletteWord));
     }
 }

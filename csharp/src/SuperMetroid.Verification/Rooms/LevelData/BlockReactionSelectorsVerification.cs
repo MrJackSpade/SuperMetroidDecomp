@@ -75,8 +75,6 @@ internal static class BlockReactionSelectorsVerification
         {
             AssertTrue(RoomPlmBombedRevealProgramDefinitions.TryReadWord(address, out ushort value), "bombed reveal native control owned");
             AssertEqual(ReadRomWord(rom,0x840000 | address), value, "bombed reveal native one-frame duration/delete");
-            AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "bombed reveal shared control reader");
-            AssertEqual(value,shared,"bombed reveal shared control value");
         }
     }
 
@@ -88,8 +86,6 @@ internal static class BlockReactionSelectorsVerification
         {
             AssertTrue(RoomPlmBombedRevealProgramDefinitions.TryReadWord(address, out ushort value), "bombed reveal native draw operand owned");
             AssertEqual(ReadRomWord(rom,0x840000 | address), value, "bombed reveal named draw selection matches native operand");
-            AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "bombed reveal shared draw reader");
-            AssertEqual(value,shared,"bombed reveal shared draw value");
         }
     }
 
@@ -110,22 +106,22 @@ internal static class BlockReactionSelectorsVerification
     /// <summary>Checks collision-triggered bomb PLM instruction selection through native headers.</summary>
     internal static void VerifyCollisionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
-            RoomPlmInstructionLists.CollisionBombByReactionIndex, "collision bomb"));
+            index => RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.CollisionBomb(index)), "collision bomb"));
 
     /// <summary>Checks projectile-triggered bomb reaction instruction selection through native headers.</summary>
     internal static void VerifyReactionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
-            RoomPlmInstructionLists.ReactionBombByReactionIndex, "bomb reaction"));
+            index => RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.ReactionBomb(index)), "bomb reaction"));
 
     /// <summary>Checks crumble-reveal instruction selection for the four native sizes.</summary>
     internal static void VerifyCrumbleRevealInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 4,
-            RoomPlmInstructionLists.CrumbleRevealBySize, "crumble reveal"));
+            index => RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.CrumbleReveal(index)), "crumble reveal"));
 
     /// <summary>Checks contact-crumble instruction selection for the eight native reactions.</summary>
     internal static void VerifyContactCrumbleInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949139, 8,
-            RoomPlmInstructionLists.ContactCrumbleByReactionIndex, "contact crumble"));
+            index => RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.ContactCrumble(index)), "contact crumble"));
 
     /// <summary>Checks the bounded bomb-special BTS domain, including adjacent area aliases.</summary>
     internal static void VerifyBombSpecialInstructionSelection(SuperMetroidAddressSpace rom)

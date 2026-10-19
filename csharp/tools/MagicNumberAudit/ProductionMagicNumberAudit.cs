@@ -7,14 +7,11 @@ namespace SuperMetroid.SourceAudit;
 
 /// <summary>
 /// Rejects raw hexadecimal domain values in production C# while permitting named data
-/// catalogs and a reviewed, exact baseline. The scanner deliberately has no Roslyn or
+/// catalogs and reasoned same-line allowances; there is no baseline. The scanner deliberately has no Roslyn or
 /// project dependency, so both Verification and DebugRunner can execute it offline.
 /// </summary>
 internal static partial class ProductionMagicNumberAudit
 {
-    /// <summary>Repository-relative reviewed fingerprint set used to distinguish existing debt from new findings.</summary>
-    private const string BaselineRelativePath = "csharp/magic-number-baseline.txt";
-
     /// <summary>Functional source trees checked by the offline audit.</summary>
     private static readonly string[] ProductionSourceRoots =
     [
@@ -60,21 +57,16 @@ internal static partial class ProductionMagicNumberAudit
     [GeneratedRegex(@"^\s*(?:\[[^\]]*\]\s*)*(?:(?:public|internal|private|protected|file|static|sealed|abstract|readonly|partial|unsafe|ref)\s+)*(?:class|struct|record|interface)\s+\w+", RegexOptions.CultureInvariant)]
     private static partial Regex BehaviorTypeDeclarationRegex();
 
-    /// <summary>A type declaration line, capturing the declared name.</summary>
-    [GeneratedRegex(@"^\s*(?:\[[^\]]*\]\s*)*(?:(?:public|internal|private|protected|file|static|sealed|abstract|readonly|partial|unsafe|ref)\s+)*(?:class|struct|record|interface|enum|delegate\s+[\w<>\[\],.? ]+?)\s+(?<name>\w+)", RegexOptions.CultureInvariant)]
-    private static partial Regex TypeDeclarationRegex();
 
     /// <summary>Recognizes a raw hexadecimal switch discriminator before small-value exemptions apply.</summary>
     [GeneratedRegex(@"\bcase\s+0[xX]", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex RawCaseRegex();
 
-    /// <summary>Runs the repository audit and returns every non-baselined finding.</summary>
+    /// <summary>Runs the repository audit and returns every finding.</summary>
     public static MagicNumberAuditResult Run(string repositoryRoot)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(repositoryRoot);
         string root = Path.GetFullPath(repositoryRoot);
-        string baselinePath = Path.Combine(root, BaselineRelativePath.Replace('/', Path.DirectorySeparatorChar));
-        HashSet<string> baseline = ReadBaseline(baselinePath);
         var current = new List<MagicNumberFinding>();
 
         foreach (string relativeRoot in ProductionSourceRoots)
@@ -94,40 +86,12 @@ internal static partial class ProductionMagicNumberAudit
             }
         }
 
-        MagicNumberFinding[] newFindings = current
-            .Where(finding => !baseline.Contains(finding.BaselineFingerprint))
+        return new MagicNumberAuditResult([.. current
             .OrderBy(finding => finding.RelativePath, StringComparer.Ordinal)
             .ThenBy(finding => finding.LineNumber)
-            .ThenBy(finding => finding.Literal, StringComparer.Ordinal)
-            .ToArray();
-        int retiredBaselineEntries = baseline.Count(signature =>
-            current.All(finding => finding.BaselineFingerprint != signature));
-        return new MagicNumberAuditResult(
-            current.Count,
-            baseline.Count,
-            retiredBaselineEntries,
-            current,
-            newFindings);
+            .ThenBy(finding => finding.Literal, StringComparer.Ordinal)]);
     }
 
-    /// <summary>
-    /// Serializes reviewed findings as sorted 64-bit SHA-256 prefixes. The compact binary
-    /// set retains per-finding membership (and therefore identifies additions) without a
-    /// thousand-line textual debt file. A prefix collision is computationally negligible.
-    /// </summary>
-    public static string CreateBaselinePayload(IEnumerable<MagicNumberFinding> findings)
-    {
-        string[] fingerprints = findings
-            .Select(finding => finding.BaselineFingerprint)
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(value => value, StringComparer.Ordinal)
-            .ToArray();
-        var bytes = new byte[fingerprints.Length * 8];
-        for (int index = 0; index < fingerprints.Length; index++)
-            Convert.FromHexString(fingerprints[index]).CopyTo(bytes, index * 8);
-        return $"count={fingerprints.Length}{Environment.NewLine}" +
-            $"fingerprints={Convert.ToBase64String(bytes)}";
-    }
 
     /// <summary>Finds the repository root from a command's current or output directory.</summary>
     public static string FindRepositoryRoot()
@@ -209,11 +173,6 @@ internal static partial class ProductionMagicNumberAudit
         {
             return;
         }
-        // A finding belongs to the file's declared type (one per file, #626), so moving or renaming the file keeps
-        // its reviewed identity; a file declaring no type is identified by its name.
-        string owner = source.Select(line => TypeDeclarationRegex().Match(line)).FirstOrDefault(match => match.Success)?.Groups["name"].Value ??
-            Path.GetFileNameWithoutExtension(relativePath);
-
         bool insideBlockComment = false;
         int lineNumber = 0;
         foreach (string originalLine in source)
@@ -231,9 +190,8 @@ internal static partial class ProductionMagicNumberAudit
                 if (category is null || HasReviewedInlineExemption(originalLine, category.Value))
                     continue;
 
-                findings.Add(MagicNumberFinding.Create(
+                findings.Add(new MagicNumberFinding(
                     relativePath,
-                    owner,
                     lineNumber,
                     literal,
                     category.Value,
@@ -328,26 +286,6 @@ internal static partial class ProductionMagicNumberAudit
         return ulong.Parse(digits, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
     }
 
-    /// <summary>Decodes the reviewed 64-bit fingerprint prefixes from the compact baseline payload.</summary>
-    private static HashSet<string> ReadBaseline(string path)
-    {
-        if (!File.Exists(path))
-            throw new FileNotFoundException("The reviewed magic-number baseline is missing.", path);
-
-        string? encoded = File.ReadLines(path)
-            .Select(line => line.Trim())
-            .FirstOrDefault(line => line.StartsWith("fingerprints=", StringComparison.Ordinal));
-        if (encoded is null)
-            return [];
-
-        byte[] bytes = Convert.FromBase64String(encoded["fingerprints=".Length..]);
-        if (bytes.Length % 8 != 0)
-            throw new InvalidDataException("Magic-number baseline fingerprint data is truncated.");
-        var fingerprints = new HashSet<string>(StringComparer.Ordinal);
-        for (int offset = 0; offset < bytes.Length; offset += 8)
-            fingerprints.Add(Convert.ToHexString(bytes, offset, 8).ToLowerInvariant());
-        return fingerprints;
-    }
 
     /// <summary>Retains only code on one line while carrying block-comment state across lines.</summary>
     private static string RemoveCommentsAndQuotedText(string line, ref bool insideBlockComment)

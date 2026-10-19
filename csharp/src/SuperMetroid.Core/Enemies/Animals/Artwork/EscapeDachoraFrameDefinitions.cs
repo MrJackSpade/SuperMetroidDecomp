@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Animals.Artwork;
 
 /// <summary>
@@ -23,5 +25,22 @@ internal static class EscapeDachoraFrameDefinitions
         10 => 0xed0f,
         11 => 0xed3e,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined escape Dachora pose."),
+    };
+
+    /// <summary>The installed frame each <see cref="EscapeDachoraFrame"/> shows.</summary>
+    internal static EnemyFrameTable<EscapeDachoraFrame> ShownFrames { get; } = new()
+    {
+        { new(Pose: 0), EnemyFrameId.EscapeDachora00 },
+        { new(Pose: 1), EnemyFrameId.EscapeDachora01 },
+        { new(Pose: 10), EnemyFrameId.EscapeDachora10 },
+        { new(Pose: 11), EnemyFrameId.EscapeDachora11 },
+        { new(Pose: 2), EnemyFrameId.EscapeDachora02 },
+        { new(Pose: 3), EnemyFrameId.EscapeDachora03 },
+        { new(Pose: 4), EnemyFrameId.EscapeDachora04 },
+        { new(Pose: 5), EnemyFrameId.EscapeDachora05 },
+        { new(Pose: 6), EnemyFrameId.EscapeDachora06 },
+        { new(Pose: 7), EnemyFrameId.EscapeDachora07 },
+        { new(Pose: 8), EnemyFrameId.EscapeDachora08 },
+        { new(Pose: 9), EnemyFrameId.EscapeDachora09 },
     };
 }

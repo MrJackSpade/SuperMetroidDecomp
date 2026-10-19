@@ -14,6 +14,11 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks the canonical selected-content digest for the opening and Ceres presentation bundle.</summary>
 internal static class IntroContentIdentityVerification
 {
+    /// <summary>JSON options: Camel-case property names, indented output.</summary>
+    private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Verifies source-identified opening/Ceres presentation coverage; no gameplay read discovery.</summary>
     internal static void VerifyIntroContentIdentity()
     {
@@ -83,7 +88,7 @@ internal static class IntroContentIdentityVerification
     {
         // Serialize a fixture document, optionally changing only whitespace formatting.
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = edit == "json-indent" }));
+            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
         // Create indexed artwork with an optional last-pixel edit and separately variable display colors.
         MemoryStream Png(string name, int width, int height, int colors)
         {

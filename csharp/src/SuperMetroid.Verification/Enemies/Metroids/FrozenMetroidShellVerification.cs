@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Metroids;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
@@ -17,24 +18,28 @@ internal static class FrozenMetroidShellVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static int VerifyFrozenMetroidShell()
     {
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(120, 100));
+        slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
         enemies.MetroidBehavior.InitializeMetroid(slot);
         var state = enemies.MetroidStates[0];
         (state ?? throw new InvalidOperationException("Verification requires state.")).OuterBodyA.Position = state.OuterBodyA.Position.WithWholeX(500); // Isolate the shell from the electrical overlay.
         var shell = state.OuterBodyB;
-        shell.InstructionPointer = 0xc4ba; // Native alternating empty shell record.
-        RoomSpriteObjectPool.LoadRoomSpriteObjectFrame(shell);
+        // The shell program's second record, the native alternating empty shell frame.
+        var shellSteps = RoomSpriteObjectAnimations.Programs.Steps(RoomSpriteObjectProgram.MetroidShell);
+        shell.Cursor = new(RoomSpriteObjectProgram.MetroidShell, 2);
+        shell.Frame = shellSteps[1].Frame;
+        shell.Timer = NativeCountdown.Start(shellSteps[1].Duration);
+        Require(shell.InstructionPointer == 0xc4ba, "The reproduction must run the native empty shell record.");
         var actual = new OamBuffer();
         actual.BeginFrame();
         enemies.SpriteObjects.DrawRoomSpriteObjectsAsOam(actual, Position16<RoomPixels>.Zero);
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
             "The reproduction must begin on the native empty shell frame.");
         ushort retainedTimer = shell.InstructionTimer;
-        ushort expectedPointer = RoomSpriteObjectVisualDefinitions.FrameAt(0xc4b8);
+        ushort expectedPointer = RoomSpriteObjectVisualDefinitions.Spritemap(shellSteps[0].Frame);
         Require((enemies.TileArtwork.Spritemaps ?? throw new InvalidOperationException("Verification requires enemies.TileArtwork.Spritemaps.")).TryGetDisplay(0xb4, expectedPointer, out var parts),
             "Installed frozen shell artwork must exist.");
         var expected = new OamBuffer();
@@ -43,7 +48,7 @@ internal static class FrozenMetroidShellVerification
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {
-            enemies.MetroidBehavior.RunMetroidFrozen(slot);
+            MetroidBehavior.RunMetroidFrozen(slot);
             enemies.SpriteObjects.StepRoomSpriteObjects();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");

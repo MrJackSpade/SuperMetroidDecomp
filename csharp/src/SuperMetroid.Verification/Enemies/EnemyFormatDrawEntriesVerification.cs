@@ -36,8 +36,7 @@ internal static class EnemyFormatDrawEntriesVerification
     {
         EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        enemies.BindFixtureBus(memory);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var resolver = new EnemyTileTransfers(artwork);
         EnemySpritemapCatalog spritemaps = artwork.Spritemaps ?? throw new InvalidOperationException("The installation has no enemy spritemaps.");
         EnemyExtendedFrameCatalog extendedFrames = artwork.ExtendedFrames ?? throw new InvalidOperationException("The installation has no extended enemy frames.");
@@ -48,7 +47,7 @@ internal static class EnemyFormatDrawEntriesVerification
         int boyonBytes = boyon.TileDataSize & short.MaxValue;
         var queue = new VramWriteQueue();
         queue.Enqueue((ushort)boyonBytes, boyon.TileDataAddress, EnemyVram.EnemyTilesDma(0));
-        queue.DrainTo(new SnesVram(), ReferenceMutableMemory.From(memory), resolver, enemies.ObjCharacters);
+        queue.DrainTo(new SnesVram(), resolver, enemies.ObjCharacters);
         ObjCharacterUpload upload = enemies.ObjCharacters.Uploads.Single();
         AssertEqual(ObjCharacterSourceKind.Transfer, upload.Source.Kind, "Enemy tiles bind their installed artwork, not copied bytes");
         SpriteArtwork page = new ObjCharacterTablePage().Page(enemies.ObjCharacters, resolver);
@@ -60,8 +59,7 @@ internal static class EnemyFormatDrawEntriesVerification
         EnemySpritemapDefinition ordinaryFrame = EnemySpritemapDefinitions.Frames.First(frame =>
             spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out EnemySpritemapParts parts) && parts.Count > 0);
         RoomEnemySlot ordinary = enemies.SlotTable.Slots[0];
-        ordinary.EnemyDefinitionPointer = EnemyDefinitionId.Boyon;
-        ordinary.Definition = default(RoomEnemyDefinition) with { Bank = ordinaryFrame.Bank };
+        ordinary.Bind(EnemyDefinitionId.Boyon, default(RoomEnemyDefinition) with { Bank = ordinaryFrame.Bank });
         ordinary.SpritemapPointer = ordinaryFrame.Pointer;
         ordinary.VramTilesIndex = OrdinaryTileBase;
         ordinary.PaletteIndex = OrdinaryPaletteBits;
@@ -74,8 +72,7 @@ internal static class EnemyFormatDrawEntriesVerification
             extendedFrames.TryGetDisplay(frame.Bank, frame.Pointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) &&
             components.Length > 1);
         RoomEnemySlot extended = enemies.SlotTable.Slots[1];
-        extended.EnemyDefinitionPointer = EnemyDefinitionId.Boyon;
-        extended.Definition = default(RoomEnemyDefinition) with { Bank = extendedFrame.Bank };
+        extended.Bind(EnemyDefinitionId.Boyon, default(RoomEnemyDefinition) with { Bank = extendedFrame.Bank });
         extended.ExtraProperties = extended.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         extended.SpritemapPointer = extendedFrame.Pointer;
         extended.InstructionTimer = NativeCountdown.Start(7);
@@ -83,12 +80,13 @@ internal static class EnemyFormatDrawEntriesVerification
         enemies.Drawing.Enqueue(1, RoomEnemySystem.NativeSlotSize);
 
         // Enemy projectile in the high-priority pass.
-        (ushort projectilePointer, _) = EnemyProjectileSpritemapDefinitions.Frames.First(frame =>
-            projectileSpritemaps.Get(frame.Pointer).Length > 0);
+        EnemyProjectileFrameId projectileFrame = EnemyProjectilePresentationFrameSets.All.ToArray()
+            .Select(frame => EnemyProjectileFrames.Identity(frame.Name))
+            .First(frame => EnemyProjectileFrames.Parts(projectileSpritemaps, frame).Length > 0);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[17];
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
         projectile.DrawPriority = EnemyProjectileDrawPriority.High;
-        projectile.SpritemapPointer = projectilePointer;
+        projectile.Frame = projectileFrame;
         projectile.GraphicsIndex = ProjectileGraphicsIndex;
         projectile.Position = projectile.Position.WithWhole(new(30, 40));
 
@@ -119,7 +117,7 @@ internal static class EnemyFormatDrawEntriesVerification
         AssertTrue(entry > 2, "The extended enemy publishes one entry per visible component");
 
         AssertEntry(draws[entry++], new SpriteSource(SpriteSourceKind.EnemyProjectile, 17),
-            EnemySpriteFrames.Frame(projectileSpritemaps.Get(projectilePointer), ProjectileTileBase, ProjectilePaletteBits), new(30, 40), ProjectilePalette, "Enemy projectile");
+            EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectileSpritemaps, projectileFrame), ProjectileTileBase, ProjectilePaletteBits), new(30, 40), ProjectilePalette, "Enemy projectile");
         AssertEqual(draws.Length, entry, "No other entries are published");
 
         // The shake tick belongs to the advance: it is consumed identically whether or not the frame is drawn.

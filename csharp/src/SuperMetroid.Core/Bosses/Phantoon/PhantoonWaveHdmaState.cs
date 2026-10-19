@@ -5,16 +5,21 @@ public sealed class PhantoonWaveHdmaState
 {
     /// <summary>Whether a new channel request still needs its setup-only first HDMA pass.</summary>
     private bool _pendingSetup;
-    /// <summary>Eye parameter captured for the next channel setup.</summary>
-    private ushort _pendingMode;
+    /// <summary>Wave mode captured for the next channel setup: the introductory or final-death wave, never zero.</summary>
+    private int _pendingMode;
     /// <summary>Reusable short or long wave-cycle scroll words; death initialization fills the full range.</summary>
     internal ushort[] _cycle = new ushort[PhantoonWaveRomData.LongHalfCycle * 2];
     /// <summary>Selected wave cycle length, set only when pending setup executes.</summary>
     internal int _cycleLength;
     /// <summary>Whether an HDMA setup has run and the channel has not subsequently observed eye parameter one equal to zero; scheduling Begin alone does not activate it.</summary>
     public bool Active { get; private set; }
-    /// <summary>Native sine-table byte phase: setup seeds $FFFE, then active calls add twice mouth variable F and mask to nine bits; not a pixel coordinate or word index.</summary>
-    public ushort Phase { get; private set; }
+    /// <summary>
+    /// Sine-table byte phase: setup seeds <see cref="PhantoonWaveRomData.InitialPhase"/> (two below a whole cycle of
+    /// the sixteen-bit counter), then each active call adds twice mouth variable F and keeps the nine-bit remainder,
+    /// so the phase is that seed or 0..511. The seed is a multiple of the nine-bit cycle minus two, so the first
+    /// masked advance is the same whether it is reached through sixteen-bit or ordinary arithmetic.
+    /// </summary>
+    public int Phase { get; private set; }
     /// <summary>Last display-latched array of 192 wrapped whole-pixel BG2 horizontal-scroll words, starting below the 32-line HUD; null when a latch observes no active channel.</summary>
     public ushort[]? DisplayedScrolls { get; private set; }
 
@@ -43,7 +48,7 @@ public sealed class PhantoonWaveHdmaState
     {
         if (_pendingSetup)
         {
-            boss.Eye.Parameter1 = _pendingMode;
+            boss.Eye.Parameter1 = checked((ushort)_pendingMode);
             _cycleLength = ((_pendingMode & PhantoonWaveRomData.LongWaveModeBit) != 0
                 ? PhantoonWaveRomData.LongHalfCycle : PhantoonWaveRomData.ShortHalfCycle) * 2;
             Phase = PhantoonWaveRomData.InitialPhase;
@@ -57,8 +62,8 @@ public sealed class PhantoonWaveHdmaState
             Active = false; // Native deletes the channel, retaining its last data words.
             return;
         }
-        Phase = (ushort)((Phase + 2 * boss.Mouth.VariableF) & PhantoonWaveRomData.PhaseMask);
-        PhantoonWaveTable.Build(boss.Eye.Parameter1, Phase, boss.Mouth.VariableD,
+        Phase = (Phase + 2 * boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta) & PhantoonWaveRomData.PhaseMask;
+        PhantoonWaveTable.Build(checked((ushort)boss.Eye.Parameter1), checked((ushort)Phase), checked((ushort)boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude),
             boss.Bg2Scroll.X, _cycle.AsSpan(0, _cycleLength));
     }
 

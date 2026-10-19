@@ -29,12 +29,11 @@ internal static class DoorDefinitionsVerification
     /// <summary>Confirms Landing Site door collision resolves the compiled BTS-indexed transition.</summary>
     internal static void VerifyCompiledDoorListCollision()
     {
-        DoorListDefinition landingDoors = DoorDefinitionsTooling.GetList(
-            RoomHeaderDefinitions.Get(RoomHeaderPointers.LandingSite).DoorListPointer);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([0], [0], [0]), [], doorListPointer: landingDoors.Pointer);
+        IReadOnlyList<DoorListEntry> landingDoors = RoomDoorListDefinitions.ByRoom[RoomHeaderDefinitions.LandingSite];
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([0], [0], [0]), [], doors: landingDoors);
         CartridgeDoorHeader resolved = (level.ResolveDoorCollision(
-            NewDoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door."));
-        AssertEqual(DoorDefinitions.Get(landingDoors.DoorPointers.Span[0]), resolved,
+            behavior: 0, samusPose: 0).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door."));
+        AssertEqual(landingDoors[0].Door, resolved,
             "production collision resolves compiled BTS index without a bus read");
         AssertEqual(resolved, level.PendingDoorTransition,
             "compiled collision publishes the selected transition");

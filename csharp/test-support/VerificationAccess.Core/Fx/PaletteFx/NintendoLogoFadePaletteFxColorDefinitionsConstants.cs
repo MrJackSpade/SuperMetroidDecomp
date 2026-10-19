@@ -31,4 +31,6 @@ internal static class NintendoLogoFadePaletteFxColorDefinitionsConstants
     public const ushort BootLogoColorByteIndex = 0x0132;
     /// <summary>The copyright text writes CGRAM from byte index <c>$0192</c>.</summary>
     public const ushort CopyrightColorByteIndex = 0x0192;
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => NintendoLogoFadePaletteFxColorDefinitions.Rows.Color(frame, color);
 }

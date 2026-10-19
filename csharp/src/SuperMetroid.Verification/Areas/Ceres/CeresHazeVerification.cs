@@ -85,16 +85,16 @@ internal static class CeresHazeVerification
         Suite(nameof(VerifyCeresHazeNativeRamp), () => VerifyCeresHazeNativeRamp(rom));
         Suite(nameof(VerifyCeresHazePhaseControl), () => VerifyCeresHazePhaseControl(rom));
 
-        var runtime = CreateRetailRuntimeFixture(rom);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
         AssertTrue(runtime.CeresHaze.Enabled && !runtime.CeresHaze.IsRed, "Ridley room spawns blue haze");
         runtime.System.SetBossBits(runtime.Room.LoadedRoom.AreaIndex, BossBits.AreaBoss);
         for (int frame = 0; frame < 30; frame++) runtime.CeresHaze.Step();
         AssertTrue(!runtime.CeresHaze.IsRed, "defeat cannot replace the current room's HDMA channel");
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.AddressSpace, 0, runtime.Player.IntroducedSamus.Pose);
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(0, runtime.Player.IntroducedSamus.Pose);
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
@@ -103,7 +103,7 @@ internal static class CeresHazeVerification
         {
             bool fadingIn = transition.Phase == DoorTransitionPhase.FadeInDestinationPalette;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
-            if (runtime.Room.LoadedRoom.Pointer == RoomHeaderPointers.CeresRidleyRoom)
+            if (runtime.Room.LoadedRoom.Definition == RoomHeaderDefinitions.CeresRidley)
                 AssertTrue(!runtime.CeresHaze.IsRed, "source room remains blue through actual door fade");
             if (fadingIn)
             {
@@ -112,7 +112,7 @@ internal static class CeresHazeVerification
             }
         }
         AssertTrue(!transition.IsActive && sawDestinationFade, "retail escape door completes its haze fade handoff");
-        AssertEqual(RoomHeaderPointers.CeresFinalHallway, runtime.Room.LoadedRoom.Pointer, "retail exit enters final hallway");
+        AssertEqual(RoomHeaderDefinitions.Room58Escape, runtime.Room.LoadedRoom.Definition, "retail exit enters final hallway");
         AssertTrue(runtime.CeresHaze.Enabled && runtime.CeresHaze.IsRed, "next room selects escape red on load");
         Console.WriteLine("Ceres haze: native ramps, source fade and retail room-owned blue/red selection agree.");
     }

@@ -22,31 +22,30 @@ internal static class DraygonScrollingSpeedCapVerification
         var checkpoint = FixedPosition<RoomPixels>.FromWords(0x0190, 0, 0x0170, 0);
 
         // Down 33 and right 8: Y is capped twelve beyond Samus, X is under the threshold.
-        (ushort x, ushort y) = PreviousAfterDraygonMove(bus, checkpoint, body: new(0x0190, 0x0169));
+        (ushort x, ushort y) = PreviousAfterDraygonMove(checkpoint, body: new(0x0190, 0x0169));
         AssertEqual((ushort)0x0190, x, "an 8-pixel move keeps the previous X");
         AssertEqual((ushort)(0x0191 + 12), y, "a 33-pixel drop puts the previous Y twelve below Samus");
 
         // Up 32 and left 24: both axes are capped twelve above and left of Samus.
-        (x, y) = PreviousAfterDraygonMove(bus, checkpoint, body: new(0x0170, 0x0128));
+        (x, y) = PreviousAfterDraygonMove(checkpoint, body: new(0x0170, 0x0128));
         AssertEqual((ushort)(0x0178 - 12), x, "a 24-pixel move left puts the previous X twelve left of Samus");
         AssertEqual((ushort)(0x0150 - 12), y, "a 32-pixel rise puts the previous Y twelve above Samus");
 
         // Down 11: under the threshold, the frame's previous Y stands.
-        (_, y) = PreviousAfterDraygonMove(bus, checkpoint, body: new(0x0190, 0x0153));
+        (_, y) = PreviousAfterDraygonMove(checkpoint, body: new(0x0190, 0x0153));
         AssertEqual((ushort)0x0170, y, "an 11-pixel drop keeps the previous Y");
         Console.WriteLine("  Draygon scrolling-speed cap: carried Samus's previous position stays within twelve pixels.");
     }
 
     /// <summary>Runs the real Draygon carry path and reads Samus's resulting previous-position words.</summary>
     private static (ushort X, ushort Y) PreviousAfterDraygonMove(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, FixedPosition<RoomPixels> checkpoint, Position16<RoomPixels> body)
+        FixedPosition<RoomPixels> checkpoint, Position16<RoomPixels> body)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.ScrollCap._samusPreviousPositionCheckpoint = checkpoint;
         var samus = new SamusState { Position = new(new(checkpoint.X.Whole, 0), new(checkpoint.Y.Whole, 0))};
-        samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
+        samus.DraygonGrabbed.Begin(samus, draygonFacingRight: true);
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
         state.Body.Position = state.Body.Position.WithWhole(body);
         state.FacingRight = true;

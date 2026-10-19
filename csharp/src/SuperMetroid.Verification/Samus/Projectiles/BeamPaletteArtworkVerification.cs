@@ -36,13 +36,13 @@ internal static class BeamPaletteArtworkVerification
             }
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
-            SamusProjectileSystem.LoadBeamPalette(NewProjectileCompositionForbiddenBus(), actual, selection, catalog);
+            SamusProjectileSystem.LoadBeamPalette(actual, (SamusBeamFlags)selection, catalog);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Extracted beam palette matches native full CGRAM including untouched neighbors");
             var document = RequiredJson.Parse(bytes);
             var red = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
             red["red"] = red.Required("red").GetValue<int>() ^ 1;
             var edited = BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
-            SamusProjectileSystem.LoadBeamPalette(NewProjectileCompositionForbiddenBus(), actual, selection, edited);
+            SamusProjectileSystem.LoadBeamPalette(actual, (SamusBeamFlags)selection, edited);
             for (int i = 0; i < SnesCgram.ColorCount; i++)
                 AssertEqual((ushort)(expected.Colors[i].ToWord() ^ (i == SamusProjectileRomData.Palettes.BeamDestinationIndex + 3 ? 1 : 0)),
                     actual.Colors[i], "Palette edit changes exactly the selected color channel bit");
@@ -74,39 +74,37 @@ internal static class BeamPaletteArtworkVerification
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, BeamPaletteCatalog palettes)
     {
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), palettes);
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var expected = new SnesCgram();
         palettes.LoadTo(expected, 0);
         runtime.Cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex, new Bgr555(27, 3, 0));
         runtime.Artwork.BeamArtwork = artwork;
-        runtime.NmiHandler.RunNmi(0, false);
-        AssertEqual(123, runtime.Cgram.Colors[SamusProjectileRomData.Palettes.BeamDestinationIndex], "Lag NMI retains palette before rebind publication");
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
 
         var flash = runtime.Player.IntroducedSamus.CrystalFlash;
-        flash.SpecialPaletteType = (ushort)SamusSpecialPaletteType.CrystalFlash;
+        flash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
         runtime.Cgram.SetColor(224, new Bgr555(27, 3, 0));
         runtime.Artwork.BeamArtwork = artwork;
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(123, runtime.Cgram.Colors[224], "Rebind cannot erase active Crystal Flash palette");
         flash.SpecialPaletteTimer = NativeCountdown.Start(ushort.MaxValue);
-        AssertTrue(flash.UpdatePalette(NewProjectileCompositionForbiddenBus(), runtime.Cgram, runtime.Player.IntroducedSamus, palettes), "Crystal Flash restores catalog without ROM reads");
+        AssertTrue(flash.UpdatePalette(runtime.Cgram, runtime.Player.IntroducedSamus, palettes), "Crystal Flash restores catalog without ROM reads");
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Crystal Flash completion restores selected palette");
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");
         runtime.Player.IntroducedSamus.Drained.HyperBeamPaletteFx.Spawn();
         runtime.Cgram.SetColor(224, new Bgr555(8, 14, 0));
         runtime.Artwork.BeamArtwork = artwork;
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(456, runtime.Cgram.Colors[224], "Rebind cannot erase active Hyper palette");
 
         // Debug grapple selection uses the same palette index as native firing, but
         // installed artwork must win over the cartridge pointer table after binding.
-        var nativeRuntime = CreateRetailRuntimeFixture(bus);
+        var nativeRuntime = CreateRetailRuntimeFixture();
         nativeRuntime.LoadDebugGrapplePalette();
         var grappleExpected = new SnesCgram();
         palettes.LoadTo(grappleExpected, SamusBeamCombination.Ice);

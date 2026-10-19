@@ -17,6 +17,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks Shitroid's normal palette cycle and three target fades against installed art and native RGB5 data.</summary>
 internal static class EnemyTileArtworkShitroidColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Exercises edited colors through live CGRAM consumers while preserving native timer selection and forbidding source reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Shitroid colors")]
@@ -40,7 +43,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         string file = Path.Combine(stockDirectory, ShitroidColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         ShitroidColorDocument visual = JsonSerializer.Deserialize<ShitroidColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Shitroid color JSON is null.");
         foreach (PaletteRgb5[] frame in visual.Normal) frame[2] = ChangeRed(frame[2]);
         visual.Sidehopper[5] = ChangeRed(visual.Sidehopper[5]);
@@ -83,9 +86,8 @@ internal static class EnemyTileArtworkShitroidColorsVerification
             address => $"Live Shitroid read migrated color ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         enemies.ShitroidBehavior.InitializeShitroid(slot, (ushort)0);
@@ -96,11 +98,11 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         CheckLiveTarget(ShitroidColorTarget.DeadSidehopper, 0xf0);
         for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
         {
-            state.PaletteTimerAndPhase = (ushort)((frame + 7) & 7);
+            state.PalettePhase = (frame + 7) % 8;
+            state.PaletteTimer = 0;
             enemies.ShitroidBehavior.StepShitroidNormalPalette(state);
-            AssertEqual(SnesLittleEndian.Word(unchecked((byte)frame), unchecked((byte)state.PaletteDelay)),
-                state.PaletteTimerAndPhase,
-                $"Shitroid normal frame {frame} retains native timer/phase selection");
+            AssertEqual(frame, state.PalettePhase, $"Shitroid normal frame {frame} advances to the next palette phase");
+            AssertEqual(state.PaletteDelay, state.PaletteTimer, $"Shitroid normal frame {frame} reloads the palette timer");
             for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
                 AssertEqual(colors.NormalColor(frame, color), cgram.Colors[165 + color],
                     $"live Shitroid normal frame {frame} color {color}");

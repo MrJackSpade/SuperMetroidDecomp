@@ -113,15 +113,14 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
-            guarded,
-            PaletteFxDeleteDefinitions.EmptyRoomEffectDefinition,
+            PaletteFxObject.Nothing,
             equippedItems: 0);
         AssertTrue(paletteFx.IsDefinitionActive(
-                PaletteFxDeleteDefinitions.EmptyRoomEffectDefinition),
+                PaletteFxObject.Nothing),
             "empty room palette-FX definition occupies a slot before its first handler pass");
-        paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!paletteFx.IsDefinitionActive(
-                PaletteFxDeleteDefinitions.EmptyRoomEffectDefinition),
+                PaletteFxObject.Nothing),
             "empty room palette-FX definition deletes itself on its first handler pass");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "empty room palette-FX deletion performs no mechanics ROM reads");
@@ -149,16 +148,16 @@ internal static class PaletteFxInstructionCodesVerification
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
-            paletteFx.SpawnDefinition(guarded, definitionPointer, 0);
+            paletteFx.SpawnDefinition(definitionPointer, 0);
             for (int step = 0;
                  step < NintendoLogoFadePaletteFxColorDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             }
             AssertTrue(paletteFx.IsDefinitionActive(definitionPointer),
                 $"{owner} fade remains active through its final hold");
-            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(!paletteFx.IsDefinitionActive(definitionPointer),
                 $"{owner} fade deletes after its final hold");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -181,19 +180,18 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
-            guarded,
             TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
              step < TitleLogoFadePaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         }
         AssertTrue(paletteFx.IsDefinitionActive(
                 TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer),
             "title-logo fade remains active through its final hold");
-        paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!paletteFx.IsDefinitionActive(
                 TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer),
             "title-logo fade deletes after its final hold");
@@ -226,19 +224,18 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
-            guarded,
             PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
              step < PostCreditsIconGlarePaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         }
         AssertTrue(paletteFx.IsDefinitionActive(
                 PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer),
             "post-credits icon glare remains active through its final hold");
-        paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!paletteFx.IsDefinitionActive(
                 PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer),
             "post-credits icon glare deletes after its final hold");
@@ -279,14 +276,13 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
-            guarded,
             UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
              step <= UnusedCinematicFadePaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer),
@@ -321,19 +317,18 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
-            guarded,
             ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
              step < ZebesExplosionGunshipPaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         }
         AssertTrue(paletteFx.IsDefinitionActive(
                 ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer),
             "ending gunship reveal remains active through its final hold");
-        paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer),
             "ending gunship reveal deletes after its final hold");
@@ -368,12 +363,12 @@ internal static class PaletteFxInstructionCodesVerification
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
-            paletteFx.SpawnDefinition(guarded, definitionPointer, 0);
+            paletteFx.SpawnDefinition(definitionPointer, 0);
             for (int step = 0;
                  step <= ZebesExplosionWhiteoutPaletteFxColorDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             }
             AssertTrue(!paletteFx.IsDefinitionActive(definitionPointer),
                 $"{owner} whiteout deletes after its final hold");
@@ -397,14 +392,13 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
-            guarded,
             ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
              step <= ZebesExplosionFinalePaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer),
@@ -428,14 +422,13 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
-            guarded,
             ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
              step <= ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer),
@@ -459,14 +452,13 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
-            guarded,
             ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
              step <= ExplodingZebesFadePaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer),
@@ -522,9 +514,9 @@ internal static class PaletteFxInstructionCodesVerification
 
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
-            paletteFx.SpawnDefinition(guarded, definitionPointer, 0);
+            paletteFx.SpawnDefinition(definitionPointer, 0);
             for (int step = 0; step <= cycleFrames; step++)
-                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(paletteFx.IsDefinitionActive(definitionPointer),
                 $"{owner} completes and repeats its cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -544,9 +536,9 @@ internal static class PaletteFxInstructionCodesVerification
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
-        paletteFx.SpawnDefinition(guarded, UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, 0);
+        paletteFx.SpawnDefinition(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, 0);
         for (int step = 0; step <= UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.CycleFrames; step++)
-            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(paletteFx.IsDefinitionActive(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer),
             "upper-Crateria escape flash completes and repeats its cycle");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "upper-Crateria escape flash avoids mechanics ROM reads");
@@ -565,14 +557,13 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
-            guarded,
             OldTourianEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer,
             equippedItems: 0);
         for (int step = 0;
              step <= OldTourianEscapeRedFlashPaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         }
 
         AssertTrue(paletteFx.IsDefinitionActive(
@@ -599,12 +590,12 @@ internal static class PaletteFxInstructionCodesVerification
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
-            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            paletteFx.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
                  step <= TourianEscapeSharedRedFlashPaletteFxColorDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             }
 
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
@@ -633,7 +624,6 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
         paletteFx.SpawnDefinition(
-            guarded,
             BeaconPaletteFxColorDefinitions.DefinitionPointer,
             equippedItems: 0);
         int soundCount = 0;
@@ -641,7 +631,7 @@ internal static class PaletteFxInstructionCodesVerification
              step <= BeaconPaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             if (paletteFx.SoundRequests.Count == 0)
                 continue;
             AssertEqual(1, paletteFx.SoundRequests.Count,
@@ -692,12 +682,12 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
-            paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
+            paletteFx.SpawnDefinition(definition, equippedItems: 0);
             for (int step = 0;
                  step <= TourianGlowPaletteFxColorDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                paletteFx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             }
 
             AssertTrue(paletteFx.IsDefinitionActive(definition),
@@ -722,12 +712,11 @@ internal static class PaletteFxInstructionCodesVerification
         }
 
         var deletionFx = new RoomPaletteFxSystem();
-        deletionFx.SpawnDefinition(bus,
-            TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer, 0);
-        deletionFx.SpawnDefinition(bus, 0xf795, 0);
-        deletionFx.SpawnDefinition(bus, 0xf799, 0);
-        deletionFx.Step(bus, new SnesCgram(), new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        deletionFx.Step(bus, new SnesCgram(), new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        deletionFx.SpawnDefinition(TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer, 0);
+        deletionFx.SpawnDefinition(0xf795, 0);
+        deletionFx.SpawnDefinition(0xf799, 0);
+        deletionFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        deletionFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!deletionFx.IsDefinitionActive(
                 TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer),
             "Tourian glow pre-instruction deletes its owner when two later slots exist");
@@ -745,12 +734,12 @@ internal static class PaletteFxInstructionCodesVerification
         var cgram = new SnesCgram();
         const ushort definition =
             RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer;
-        paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
+        paletteFx.SpawnDefinition(definition, equippedItems: 0);
         const int cycleFrames =
             RedBrinstarGlowPaletteFxColorDefinitions.FrameCount * 10;
         for (int step = 0; step <= cycleFrames; step++)
         {
-            paletteFx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         }
 
         AssertTrue(paletteFx.IsDefinitionActive(definition),
@@ -777,12 +766,12 @@ internal static class PaletteFxInstructionCodesVerification
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
-            paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            paletteFx.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
                  step < TourianStatueGreyPaletteFxColorDefinitions.FramesThroughDeletion;
                  step++)
             {
-                paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             }
 
             AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
@@ -811,12 +800,12 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
-            paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
+            paletteFx.SpawnDefinition(definition, equippedItems: 0);
             int steps = 1 +
                 WreckedShipGreenLightPaletteFxColorDefinitions.FrameCount * 10;
             for (int step = 0; step <= steps; step++)
             {
-                paletteFx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                paletteFx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             }
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -873,7 +862,7 @@ internal static class PaletteFxInstructionCodesVerification
             int table = 0x8d0000 | ReadVerificationWord(bus, operand);
             for (ushort phase = 0; phase < 16; phase++)
                 AssertEqual(ReadVerificationWord(bus, table + 2 * phase),
-                    PaletteFxHeatInstructionListDefinitionsConstants.ResolveForEquippedItems((ushort)equipment, phase),
+                    PaletteFxHeatInstructionListDefinitionsConstants.ResolveForEquippedItems((SamusEquipmentFlags)equipment, phase),
                     "All equipment words preserve native Gravity-before-Varia selection at every phase");
         }
     }
@@ -889,13 +878,13 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
         var samus = new SamusState { Health = 99 };
-        paletteFx.SpawnDefinition(bus, definition: 0xf761, equippedItems: 0);
-        paletteFx.SpawnDefinition(bus, definition: 0xf785, equippedItems: 0);
+        paletteFx.SpawnDefinition(definition: 0xf761, equippedItems: 0);
+        paletteFx.SpawnDefinition(definition: 0xf785, equippedItems: 0);
 
         int damageSoundCount = 0;
         for (ushort frame = 0; frame <= 17; frame++)
         {
-            paletteFx.Step(bus, cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, EnemyZeroIsDead = false, AreaMiniBossDefeated = false, Samus = samus, NmiFrameCounter = frame });
+            paletteFx.Step(cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, EnemyZeroIsDead = false, AreaMiniBossDefeated = false, Samus = samus, NmiFrameCounter = frame });
             damageSoundCount += paletteFx.SoundRequests.Count;
             foreach (PaletteFxSoundRequest request in paletteFx.SoundRequests)
             {
@@ -908,9 +897,9 @@ internal static class PaletteFxInstructionCodesVerification
             }
             if (frame == 16)
             {
-                AssertEqual((ushort)1, paletteFx.SamusInHeatPaletteIndex,
+                AssertEqual(1, paletteFx.SamusInHeatPaletteIndex,
                     "$F785 publishes its second heat phase on its own slot pass");
-                AssertEqual((ushort)0, paletteFx.PreviousSamusInHeatPaletteIndex,
+                AssertEqual(0, paletteFx.PreviousSamusInHeatPaletteIndex,
                     "shared heat owner has not consumed the later slot's phase in the same frame");
             }
         }
@@ -919,7 +908,7 @@ internal static class PaletteFxInstructionCodesVerification
             "retail Norfair heat owner carries quarter-units into whole damage");
         AssertEqual((ushort)0x4000, samus.LiquidPhysics.PeriodicSubDamage,
             "retail Norfair heat owner retains exact 16.16 fractional carry");
-        AssertEqual((ushort)1, paletteFx.PreviousSamusInHeatPaletteIndex,
+        AssertEqual(1, paletteFx.PreviousSamusInHeatPaletteIndex,
             "shared heat owner consumes $F785 phase on following frame");
         AssertEqual(2, damageSoundCount,
             "retail Norfair heat owner publishes on frame-eight boundaries");
@@ -1245,7 +1234,7 @@ internal static class PaletteFxInstructionCodesVerification
             foreach (PaletteFxHeatProgramDefinition definition in
                      PaletteFxHeatProgramMechanicsDefinitions.All)
             {
-                foreach (PaletteFxHeatProgramFrameDefinition frame in definition.Frames)
+                foreach (var frame in definition.Frames)
                 {
                     int colorOffset = source.Offset - frame.FirstColorPointer;
                     if ((uint)colorOffset <
@@ -1349,7 +1338,7 @@ internal static class PaletteFxInstructionCodesVerification
             foreach (CrateriaLightningPaletteFxColorDefinition definition in
                      CrateriaLightningPaletteFxColorDefinitions.All)
             {
-                foreach (CrateriaLightningPaletteFrame frame in definition.Frames)
+                foreach (var frame in definition.Frames)
                 {
                     int colorOffset = source.Offset - frame.FirstColorPointer;
                     if ((uint)colorOffset < frame.ColorCount * sizeof(ushort))
@@ -1565,13 +1554,13 @@ internal static class PaletteFxInstructionCodesVerification
     {
         var paletteFx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
-        paletteFx.SpawnDefinition(bus, definition: 0xf781, equippedItems: 0);
+        paletteFx.SpawnDefinition(definition: 0xf781, equippedItems: 0);
 
         int soundFrame = -1;
         PaletteFxSoundRequest soundRequest = default;
         for (int frame = 0; frame < 256; frame++)
         {
-            paletteFx.Step(bus, cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             if (paletteFx.SoundRequests.Count == 0)
                 continue;
             AssertEqual(1, paletteFx.SoundRequests.Count,
@@ -1591,7 +1580,7 @@ internal static class PaletteFxInstructionCodesVerification
 
         // The next call must parse the timed palette record immediately after the byte
         // operand. This is the observable consequence of returning Y+1 at $8D:C67A.
-        paletteFx.Step(bus, cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        paletteFx.Step(cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertEqual(0, paletteFx.SoundRequests.Count,
             "$F781 advances beyond its one-byte sound operand");
     }

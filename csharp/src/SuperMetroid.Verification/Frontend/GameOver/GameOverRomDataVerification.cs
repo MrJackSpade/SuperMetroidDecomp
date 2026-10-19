@@ -27,15 +27,13 @@ internal static class GameOverRomDataVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
-        var menu = new GameOverMenuState(bus, audio, RetailPresentationFixture());
-        const System.Reflection.BindingFlags flags =
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var menu = new GameOverMenuState(audio, RetailPresentationFixture());
         // The Baby stream advances only in indexes one and three onward. A separate menu walks
         // index zero and its NMI continuation, takes index one's first Baby tick, and then
         // enters the fade so every later update ticks the Baby; the music wait and index
         // one's continuation never touch it, so skipping them leaves the stream intact.
         var babyAudio = new CartridgeAudioState();
-        var babyMenu = new GameOverMenuState(bus, babyAudio, RetailPresentationFixture());
+        var babyMenu = new GameOverMenuState(babyAudio, RetailPresentationFixture());
         babyMenu.Step(0);
         babyMenu.Step(0);
         void StepBaby()
@@ -50,6 +48,8 @@ internal static class GameOverRomDataVerification
         var queues = babyAudio._soundQueues;
         var writes = babyAudio._soundWritePositions;
         ushort pointer = GameOverRomData.BabyAnimation.FirstInstruction;
+        // Record order in the native stream is the program's step identity.
+        int step = 0;
         int timer = rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)pointer), cries = 0, records = 0, ticks = 0;
         bool looped = false;
         while (!looped && ticks < 1000)
@@ -62,6 +62,7 @@ internal static class GameOverRomDataVerification
                 if (command == ushort.MaxValue)
                 {
                     next = GameOverRomData.BabyAnimation.FirstInstruction;
+                    step = -1;
                     looped = true;
                 }
                 else if ((command & 0x8000) != 0)
@@ -79,14 +80,16 @@ internal static class GameOverRomDataVerification
                 else StepBaby();
                 if (looped) StepBaby();
                 pointer = (ushort)next;
+                step++;
                 timer = rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)pointer);
             }
             else StepBaby();
             ticks++;
-            AssertEqual(pointer, babyMenu.BabyInstructionPointer,
-                "game-over live pointer matches independent ROM stream each tick");
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(pointer + 2)), babyMenu.BabySpritemap,
-                "game-over live spritemap matches independent ROM stream each tick");
+            AssertEqual(step, babyMenu.BabyStep,
+                "game-over live step matches independent ROM stream record each tick");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(pointer + 2)),
+                GameOverBabyAnimationDefinitions.NativeSpritemap(babyMenu.BabyFrame),
+                "game-over live pose matches independent ROM stream spritemap each tick");
             AssertEqual((byte)(cries + 1), writes[2], "game-over cry queue changes only at native handoffs");
         }
         AssertTrue(looped, "game-over Baby reaches the native end marker and loops");

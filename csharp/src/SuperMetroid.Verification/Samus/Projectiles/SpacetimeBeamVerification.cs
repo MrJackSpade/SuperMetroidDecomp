@@ -1,6 +1,6 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -42,9 +42,10 @@ internal static class SpacetimeBeamVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         VerifySpacetimeCopySourceAgainstRetailRom(bus);
-        AssertThrows<InvalidOperationException>(() => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(0x009130),
+        AssertThrows<ArgumentOutOfRangeException>(() => InstalledFixtures.SamusOverreads.SpacetimeCopySourceByte(-1),
             "adjacent instruction before bounded source is not admitted");
-        AssertThrows<InvalidOperationException>(() => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(0x010000),
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => InstalledFixtures.SamusOverreads.SpacetimeCopySourceByte(SamusOverreadDefinitions.SpacetimeCopySourceByteCount),
             "word carry must return to the mutable-memory owner");
         var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
@@ -54,23 +55,23 @@ internal static class SpacetimeBeamVerification
         // technique's actual player-accessible setup.
         var samus = new SamusState
         {
-            CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
-            EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
-            CollectedBeams = 0x100f,
-            EquippedBeams = 0x1006,
+            CollectedItems = SamusEquipmentFlags.HiJumpBoots,
+            EquippedItems = SamusEquipmentFlags.HiJumpBoots,
+            CollectedBeams = (SamusBeamFlags)0x100f,
+            EquippedBeams = (SamusBeamFlags)0x1006,
         };
-        var selection = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(selection);
         SelectPauseBoots(selection);
         selection.Step(0, (SnesButton.Left | SnesButton.A));
-        AssertEqual((ushort)0x100e, samus.EquippedBeams,
+        AssertEqual((ushort)0x100e, samus.EquippedBeams.ToNativeWord(),
             "same-frame Boots Left+A creates the SpaceTime beam word");
 
         Suite(nameof(VerifySpacetimeBeamGraphics), () => VerifySpacetimeBeamGraphics());
 
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(128, 128));
-        samus.SelectedHudItem = 0;
+        samus.SelectedHudItem = HudItem.Beam;
         samus.Missiles = 20;
         samus.MaxMissiles = 50;
         samus.SuperMissiles = 7;
@@ -104,55 +105,55 @@ internal static class SpacetimeBeamVerification
 
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
-        system.WritePersistentMirror(bus);
-        FillProgressionPadding(bus, 0xa5);
+        projectiles.Overreads = InstalledFixtures.SamusOverreads;
+        var mirror = new SaveMirrorImage();
+        system.WritePersistentMirror(mirror);
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
-        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Bus = gameplayBus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
+        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, ProgressionMirror = mirror }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
         AssertEqual((int?)0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
         AssertTrue(!held.PersistentMemoryCorrupted,
             "initial inherited Y=$0038 does not enter the palette-copy loop");
         AssertEqual((ushort)0x9137, projectiles.Slots[0].InstructionPointer,
             "native frame-zero next animation record");
-        AssertEqual(0x8e3eec21u, HashWram(bus),
-            "native frame-zero progression hash remains the A5 baseline");
+        AssertEqual(0xa11546b9u, HashProgression(mirror),
+            "native frame-zero progression hash");
 
-        system.WritePersistentMirror(bus);
+        system.WritePersistentMirror(mirror);
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
-        SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Bus = gameplayBus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
+        SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, ProgressionMirror = mirror }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         AssertEqual((int?)1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         AssertTrue(released.PersistentMemoryCorrupted,
             "prior shot's inherited Y=$912F crosses the persistent mirror");
-        system.LoadPersistentMirror(bus);
-        AssertEqual(0x2c169a4au, HashWram(bus),
+        system.LoadPersistentMirror(mirror);
+        AssertEqual(0x601b9b2cu, HashProgression(mirror),
             "retail frame-one progression hash");
         AssertEqual((ushort)0x0880, system.SavedLoadingGameState,
             "retail frame-one loading_game_state corruption");
-        AssertEqual((ushort)0x100e, samus.EquippedBeams,
+        AssertEqual((ushort)0x100e, samus.EquippedBeams.ToNativeWord(),
             "SpaceTime corruption does not rewrite live equipment");
 
-        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
-        saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = (ushort)AreaId.Crateria, SaveStation = 7 }));
+        var saveRam = new SaveSlotStore(RetailPresentationFixture());
+        saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = AreaId.Crateria, SaveStation = 7 }));
         SuperMetroidSaveSlot saved = saveRam.ReadSlot(0)
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
-        AssertEqual((ushort)0x100e, saved.EquippedBeams,
+        AssertEqual((ushort)0x100e, saved.EquippedBeams.ToNativeWord(),
             "save retains invalid SpaceTime equipment");
         AssertEqual((ushort)0x0880, saved.LoadingGameState,
             "save retains corrupted startup dispatcher word");
-        var mirror = new SaveMirrorMemory(bus);
-        AssertTrue(saved.EventBytes.SequenceEqual(ReadTable(mirror.Events)),
+        AssertTrue(saved.EventBytes.SequenceEqual(mirror.Events.ToArray()),
             "save retains corrupted event bytes");
-        AssertTrue(saved.BossBytes.SequenceEqual(ReadTable(mirror.BossBits)),
+        AssertTrue(saved.BossBytes.SequenceEqual(mirror.BossBits.ToArray()),
             "save retains corrupted boss bytes");
-        AssertTrue(saved.CollectedItemBytes.SequenceEqual(ReadTable(mirror.CollectedItemBits)),
+        AssertTrue(saved.CollectedItemBytes.SequenceEqual(mirror.CollectedItemBits.ToArray()),
             "save retains corrupted item bytes");
-        AssertTrue(saved.OpenedDoorBytes.SequenceEqual(ReadTable(mirror.OpenedDoorBits)),
+        AssertTrue(saved.OpenedDoorBytes.SequenceEqual(mirror.OpenedDoorBits.ToArray()),
             "save retains corrupted door bytes");
 
         var restarted = new SamusState();
-        SuperMetroidGame.RestoreSpacetimeRestartInventory(restarted, saved);
-        AssertEqual((ushort)0x100e, restarted.EquippedBeams,
+        FrontendSession.RestoreSpacetimeRestartInventory(restarted, saved);
+        AssertEqual((ushort)0x100e, restarted.EquippedBeams.ToNativeWord(),
             "Ceres restart retains the SpaceTime equipment word");
         AssertEqual((ushort)0, restarted.Missiles,
             "intro flashback removes current missiles");
@@ -170,51 +171,33 @@ internal static class SpacetimeBeamVerification
             "equipment retention and SRAM persistence match the retail probe.");
     }
 
-    /// <summary>Checks each byte in the bounded copy source against the supported ROM before replaying the beam.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the bounded SpaceTime copy-source definition")]
+    /// <summary>Checks each installed copy-source byte against the supported ROM before replaying the beam.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed SpaceTime copy source")]
     private static void VerifySpacetimeCopySourceAgainstRetailRom(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         AssertEqual(SpacetimeBeamCopyDefinitions.LastSourceAddress - SpacetimeBeamCopyDefinitions.FirstSourceAddress + 1,
-            SpacetimeBeamCopyDefinitions.SourceBytes.Length, "bounded native copy definition size");
-        for (int offset = 0; offset < SpacetimeBeamCopyDefinitions.SourceBytes.Length; offset++)
+            SamusOverreadDefinitions.SpacetimeCopySourceByteCount, "bounded native copy source size");
+        for (int offset = 0; offset < SamusOverreadDefinitions.SpacetimeCopySourceByteCount; offset++)
             AssertEqual(bus.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
-                SpacetimeBeamCopyDefinitions.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
-                "SpaceTime copy source agrees with supported cartridge");
+                InstalledFixtures.SamusOverreads.SpacetimeCopySourceByte(offset),
+                "installed SpaceTime copy source agrees with supported cartridge");
     }
 
     /// <summary>
-    /// The native Pit Room probe's FNV-1a hash of the raw $7E:D820-$7E:D913 progression mirror,
-    /// unassigned padding included, in address order.
+    /// FNV-1a hash of the owned progression bytes from the event bitset through the map stations, in native mirror
+    /// order. The retail probe's hash also covered the eight unowned bytes after the door bits, which no game logic reads.
     /// </summary>
-    [CpuBusBoundary("exact bus test: native probe hash of the raw $7E:D820-$7E:D913 progression mirror range")]
-    private static uint HashWram(SuperMetroidAddressSpace bus)
+    private static uint HashProgression(SaveMirrorImage mirror)
     {
         uint hash = 2166136261;
-        for (int address = SaveRamLayout.EventsWramAddress;
-            address < SaveRamLayout.MapStationsWramAddress + Bank80SystemState.MapStationByteCount;
-            address++)
+        foreach (byte value in (byte[])[.. mirror.Events, .. mirror.BossBits, .. mirror.RoomChozoBits,
+            .. mirror.CollectedItemBits, .. mirror.OpenedDoorBits, .. mirror.UsedSaveStations, .. mirror.MapStations])
         {
-            hash ^= bus.ReadWorkRamByte(address);
+            hash ^= value;
             hash *= 16777619;
         }
         return hash;
-    }
-
-    /// <summary>Fills the unassigned $7E:D8F0-$7E:D8F7 mirror bytes that the native probe hash covers.</summary>
-    [CpuBusBoundary("exact bus test: seeds the unassigned progression-mirror padding the native probe hash covers")]
-    private static void FillProgressionPadding(SuperMetroidAddressSpace bus, byte value)
-    {
-        for (int index = 0; index < SaveRamLayout.ProgressionPaddingByteCount; index++)
-            bus.WriteByte(SaveRamLayout.ProgressionPaddingWramAddress + index, value);
-    }
-
-    /// <summary>Copies a live progression-mirror table for bytewise comparison with the saved snapshot.</summary>
-    private static byte[] ReadTable(WorkRamByteTable table)
-    {
-        var bytes = new byte[table.Length];
-        table.CopyTo(bytes);
-        return bytes;
     }
 
     /// <summary>Loads a SpaceTime-equipped save through both opening paths and checks Ceres restart inventory and progression.</summary>
@@ -234,10 +217,10 @@ internal static class SpacetimeBeamVerification
                 MaxSuperMissiles = 10,
                 PowerBombs = 3,
                 MaxPowerBombs = 5,
-                EquippedBeams = 0x100e,
-                CollectedBeams = 0x100f,
-                EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit,
-                CollectedItems = (ushort)SamusEquipmentFlags.GravitySuit,
+                EquippedBeams = (SamusBeamFlags)0x100e,
+                CollectedBeams = (SamusBeamFlags)0x100f,
+                EquippedItems = SamusEquipmentFlags.GravitySuit,
+                CollectedItems = SamusEquipmentFlags.GravitySuit,
                 LoadingGameState = SaveLoadingGameStates.OpeningCinematic,
             };
             Array.Fill(snapshot.EventBytes, byte.MaxValue);
@@ -248,11 +231,11 @@ internal static class SpacetimeBeamVerification
         {
             var restartBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
-            var restartSaves = new SuperMetroidSaveRam(restartBus, RetailPresentationFixture());
+            var restartSaves = new SaveSlotStore(RetailPresentationFixture());
             restartSaves.SaveSlot(0, CreateResetSnapshot());
             restartSaves.SelectSlot(0);
             var game = CreateRetailGameFixture(
-                restartBus,
+                restartSaves,
                 new SuperMetroidGameOptions { SkipOpeningCinematic = skipOpening },
                 renderGameplayFrames: false);
             game.BindArtwork(game.Artwork with
@@ -295,7 +278,7 @@ internal static class SpacetimeBeamVerification
         SuperMetroidRuntime runtime = skippedGame.GameplayRuntimeForVerification;
         AssertEqual(AreaId.Ceres, runtime.Room.LoadedRoom.AreaIndex,
             "SpaceTime save restarts at Ceres");
-        AssertEqual((ushort)0x100e, runtime.Player.IntroducedSamus.EquippedBeams,
+        AssertEqual((ushort)0x100e, runtime.Player.IntroducedSamus.EquippedBeams.ToNativeWord(),
             "SpaceTime Ceres restart retains equipped beams");
         AssertEqual((ushort)0, runtime.Player.IntroducedSamus.MaxMissiles,
             "SpaceTime Ceres restart loses Missiles after the intro flashback");
@@ -332,17 +315,17 @@ internal static class SpacetimeBeamVerification
         // The page SpaceTime's equipped word binds shows the bytes its native DMA reads.
         var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
             InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
-        ReadOnlySpan<byte> page = pages.For((ushort)0x100e).Characters;
+        ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)((ushort)0x100e)).Characters;
         int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
         for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i], page[first + i], "SpaceTime native tile bytes");
         foreach (int seed in new[] { 5, 19 })
         {
-            // The palette aliases current enemy-projectile WRAM; changing it must be observable.
+            // The palette is a defined one (#1318), whatever the enemy-projectile WRAM it once aliased holds.
             for (int i = 0; i < 32; i++) bus.WriteByte(0x7e19ff + i, (byte)(i * 7 + seed));
             var cgram = new SnesCgram();
-            SamusProjectileSystem.LoadBeamPalette(gameplayBus, cgram, 0x100e, artwork.Palettes);
-            for (int i = 0; i < 16; i++) AssertEqual(bus.ReadWorkRamWord(0x7e19ff + i * 2) & 0x7fff, cgram.Colors[0xe0 + i],
-                "SpaceTime colors retain current mutable memory rather than a frozen palette");
+            SamusProjectileSystem.LoadBeamPalette(cgram, (SamusBeamFlags)0x100e, artwork.Palettes);
+            for (int i = 0; i < 16; i++) AssertEqual(SpacetimeBeamGraphicsDefinitions.PaletteWord, cgram.Colors[0xe0 + i],
+                "SpaceTime colors are its defined palette");
         }
     }
 
@@ -353,9 +336,6 @@ internal static class SpacetimeBeamVerification
         AssertEqual(SpacetimeBeamGraphicsDefinitions.TileSource & 0xffff,
             bus.ReadCartridgeWord(0x90c3cd),
             "SpaceTime tile pointer comes from adjacent native palette table");
-        AssertEqual(SpacetimeBeamGraphicsDefinitions.PalettePointer,
-            bus.ReadCartridgeWord(0x90c3e5),
-            "SpaceTime palette pointer comes from the native color word");
         var tiles = new byte[256];
         for (int i = 0; i < tiles.Length; i++)
             tiles[i] = bus.ReadCartridgeByte(0x9ac401 + i);
@@ -371,12 +351,11 @@ internal static class SpacetimeBeamVerification
         return guard;
     }
 
-    /// <summary>Runs the SpaceTime beam and production magic-number checks from the verification command line.</summary>
+    /// <summary>Runs the SpaceTime beam checks from the verification command line.</summary>
     [VerificationCommand("--spacetime-beam")]
     internal static int SpacetimeBeamCommand()
     {
         Suite(nameof(VerifySpacetimeBeam), () => VerifySpacetimeBeam());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

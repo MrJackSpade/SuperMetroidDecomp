@@ -70,7 +70,7 @@ internal static class SamusRenderingRomDataVerification
                 $"pose ${pose:X2} graphics selector remains in bank $92 ROM");
             TouchRange(
                 bus,
-                SamusRenderingRomData.Banks.GraphicsDefinitions | pointer,
+                SamusRenderingRomDataBanksConstants.GraphicsDefinitions | pointer,
                 SamusRenderingRomData.TileTransfers.AnimationRecordByteCount,
                 $"pose ${pose:X2} frame-zero graphics selector");
         }

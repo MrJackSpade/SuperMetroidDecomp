@@ -1,53 +1,54 @@
 
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Doors;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Lossless cartridge view of bank $8F's eleven-byte room header and its selected
-/// twenty-six-byte room-state record.
+/// A retail room's fixed header and its selected twenty-six-byte room-state record.
 /// </summary>
 /// <remarks>
 /// The engine calls <c>HandleRoomDefStateSelect</c> at $8F:E5D2 immediately after reading
 /// the fixed header. State selection is data-driven and can depend on events, bosses, or
 /// inventory. This first reusable loader accepts those facts explicitly; a fresh Ceres
 /// start supplies an all-clear context and therefore follows the exact default branch.
+/// <c>UpScroller</c> and <c>DownScroller</c> are the camera's vertical scroller distances in pixels, 0 through 255.
+/// <c>UsesIsolatedDoorTransition</c> is the header's common-room-element bit that door transitions read: when the
+/// source or destination room sets it, the transition hides BG1 below the HUD and does not keep the common
+/// room elements' colours while the source palette fades.
 /// </remarks>
-public sealed record CartridgeRoomHeader(
-    ushort Pointer,
-    byte RoomIndex,
-    AreaId AreaIndex,
-    Position16<MapTiles> MapPosition,
-    Extent16<RoomScreens> Size,
-    byte UpScroller,
-    byte DownScroller,
-    byte CreBitset,
-    ushort DoorListPointer,
-    CartridgeRoomState State)
+public sealed record CartridgeRoomHeader(RoomHeaderDefinition Definition, CartridgeRoomState State)
 {
-    /// <summary>Logical area/room pair, kept separate from <see cref="Pointer"/>.</summary>
+    /// <summary>The room's native per-area index, 0 through 255.</summary>
+    public int RoomIndex => Definition.RoomIndex;
+
+    /// <summary>The room's validated retail world area.</summary>
+    public AreaId AreaIndex => Definition.AreaIndex;
+
+    /// <summary>The room's top-left position on its area map.</summary>
+    public Position16<MapTiles> MapPosition => Definition.MapPosition;
+
+    /// <summary>The room's dimensions in screens.</summary>
+    public Extent16<RoomScreens> Size => Definition.Size;
+
+    /// <summary>The camera's upward scroller distance in pixels.</summary>
+    public int UpScroller => Definition.UpScroller;
+
+    /// <summary>The camera's downward scroller distance in pixels.</summary>
+    public int DownScroller => Definition.DownScroller;
+
+    /// <summary>Whether door transitions into or out of this room hide BG1 and drop the common room elements' colours.</summary>
+    public bool UsesIsolatedDoorTransition => (Definition.CreBitset & RoomCreBitsets.SuppressDoorTransitionBg1) != 0;
+
+    /// <summary>The entries the room's type-$9 blocks select by index.</summary>
+    public IReadOnlyList<DoorListEntry> Doors => RoomDoorListDefinitions.ByRoom[Definition];
+
+    /// <summary>Logical area/room pair.</summary>
     public RoomIdentity Identity => new(AreaIndex, RoomIndex);
 
     /// <summary>Builds a room entirely from compiled fixed metadata, selection, and state payloads.</summary>
     public static CartridgeRoomHeader LoadUsingCompiledSelection(
-        ushort roomPointer,
-        RoomStateSelectionContext selection = default)
-    {
-        RoomHeaderDefinition header = RoomHeaderDefinitions.Get(roomPointer);
-        ushort statePointer = RoomStateSelectionDefinitions.Select(roomPointer, selection);
-        return new CartridgeRoomHeader(
-            header.Pointer,
-            header.RoomIndex,
-            header.AreaIndex,
-            header.MapPosition,
-            header.Size,
-            header.UpScroller,
-            header.DownScroller,
-            header.CreBitset,
-            header.DoorListPointer,
-            RoomStateDefinitions.Get(statePointer));
-    }
-
-    /// <summary>Returns a compiled fixed header's area without reading native room data.</summary>
-    public static AreaId ReadAreaIndex(ushort roomPointer) =>
-        RoomHeaderDefinitions.Get(roomPointer).AreaIndex;
-
+        RoomHeaderDefinition room,
+        RoomStateSelectionContext selection = default) =>
+        new(Ensure.NotNull(room), RoomStateSelectionDefinitions.Select(room, selection));
 }

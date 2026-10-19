@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Fx;
@@ -9,8 +11,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>The Alcoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class AlcoonBehavior : IEnemySpecies
+internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Alcoon];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AlcoonEntity(this, slot, common);
+
     /// <summary>Provides RNG for the randomized post-volley walk count.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves Alcoon's jump landing and its walking collisions.</summary>
@@ -64,19 +72,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     /// <summary>Guards the initializer's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
-    /// <summary>Whole halves of per-slot vertical acceleration for native WRAM compatibility.</summary>
-    internal readonly ushort[] _alcoonYAccelerations = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Fractional halves of per-slot vertical acceleration.</summary>
-    internal readonly ushort[] _alcoonYSubaccelerations = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Spawn X coordinates used to decide when Alcoon hides again.</summary>
-    internal readonly ushort[] _alcoonSpawnXPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Predicted floor Y coordinates used for the activation-height check.</summary>
-    internal readonly ushort[] _alcoonLandingYPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Walking steps remaining before Alcoon may fire at Samus.</summary>
-    internal readonly ushort[] _alcoonStepCounters = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Active Alcoon state indexed by enemy slot.</summary>
-    internal readonly AlcoonEnemyState?[] _alcoonStates =
-        new AlcoonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+
 
     /// <summary>Ports <c>InitAI_Alcoon</c> at <c>$A8:DCCD</c>, including its floor search.</summary>
     private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData? level)
@@ -87,14 +83,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies
                 "Alcoon initialization requires the room's collision layer to simulate its landing.");
         }
 
-        var state = new AlcoonEnemyState(
-            slot,
-            _alcoonYAccelerations,
-            _alcoonYSubaccelerations,
-            _alcoonSpawnXPositions,
-            _alcoonLandingYPositions,
-            _alcoonStepCounters);
-        _alcoonStates[slot.SlotIndex] = state;
+        var state = new AlcoonEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.StepCounter = NativeCountdown.Start(0);
         state.SpawnPosition = slot.Position.Whole;
@@ -124,7 +114,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             GuardAlcoonJumpSimulation(++iterations, slot);
         }
 
-        state.LandingYPosition = slot.Position.Y.Whole;
+        state.LandingPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithWholeY(state.SpawnPosition.Y);
     }
 
@@ -159,7 +149,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Alcoon function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Alcoon function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -172,7 +162,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         if (samus is null)
             throw new InvalidOperationException("Alcoon proximity AI requires the active Samus actor.");
 
-        if (EnemyMath.WrappedMagnitude(unchecked((ushort)(state.LandingYPosition - samus.Position.Y.Whole))) >= 32)
+        if (EnemyMath.WrappedMagnitude(unchecked((ushort)(state.LandingPosition.Y - samus.Position.Y.Whole))) >= 32)
             return;
 
         ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
@@ -323,17 +313,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     {
         state.Velocity = new FixedVector<RoomPixels>(
             SnesSignedSixteenSixteen.Zero, SnesSignedSixteenSixteen.FromParts(-12, 0));
-        state.ClearedVariable = 0;
-        state.YAcceleration = 0;
-        state.YSubacceleration = 32768;
+        // The cartridge also clears a record word here that nothing reads.
+        state.YAcceleration = SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromWhole(1) / 2);
     }
 
     /// <summary>Adds the per-slot 16.16 acceleration to Alcoon's vertical velocity.</summary>
     private static void AccelerateAlcoonY(AlcoonEnemyState state)
     {
-        SnesSignedSixteenSixteen acceleration = SnesSignedSixteenSixteen.FromParts(
-            unchecked((short)state.YAcceleration), state.YSubacceleration);
-        state.Velocity = state.Velocity.WithY(state.Velocity.Y + acceleration);
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + state.YAcceleration);
     }
 
     /// <summary>Integrates vertical velocity without collision during airborne ascent or retreat.</summary>
@@ -364,7 +351,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     private AlcoonProgram StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
-        Func<ushort> readRandomNumber = _room.Random.Read;
+        Func<int> readRandomNumber = _room.Random.Read;
         ushort count = unchecked((ushort)(readRandomNumber() & 3));
         state.StepCounter = NativeCountdown.FromRaw(count == 0 ? (ushort)2 : count);
         return state.Velocity.X.WholePixels < 0
@@ -403,8 +390,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     }
 
     /// <summary>Requires per-slot state created by the Alcoon initializer.</summary>
-    private AlcoonEnemyState RequireAlcoonState(RoomEnemySlot slot) =>
-        _alcoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static AlcoonEnemyState RequireAlcoonState(RoomEnemySlot slot) =>
+        slot.SpeciesState<AlcoonEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Alcoon state.");
 
     /// <summary>Connects Alcoon fireballs to their bank-$86 movement pre-instruction.</summary>
@@ -416,38 +403,30 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.AlcoonFireball);
     }
 
-    /// <summary>Registers initialization only for the Alcoon enemy header.</summary>
-    internal void RegisterAlcoonInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Alcoon's initialization AI.</summary>
+    internal void RunAlcoonInitializationAi(RoomEnemySlot slot, RoomLevelData? level, SamusState? _, SnesButton _1, ushort _2)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Alcoon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeAlcoon(slot, level);
-        });
+        InitializeAlcoon(slot, level);
     }
 
-    /// <summary>Registers Alcoon's seven-phase main dispatcher.</summary>
-    internal void RegisterAlcoonMainAi(EnemyAiTable table)
+    /// <summary>Ports Alcoon's main AI.</summary>
+    internal void RunAlcoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Alcoon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunAlcoonMain(slot, RequireAlcoonState(slot), frame.Samus, frame.Level);
-        });
+        RunAlcoonMain(slot, RequireAlcoonState(slot), frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs the Alcoon's walking, fireball and airborne animations as typed programs (#641); its steps need the room's collision data.</summary>
-    internal void RegisterAlcoonTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon, (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireAlcoonState(slot);
-            AnimationProgramCursor<AlcoonProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, AlcoonAnimations.Programs, ref cursor, AlcoonFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Advances Alcoon's typed animation.</summary>
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireAlcoonState(slot);
+        AnimationProgramCursor<AlcoonProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, AlcoonAnimations.Programs, ref cursor, AlcoonFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
+        state.Program = cursor;
+    }
+
     /// <summary>Initial horizontal fireball speed in native 8.8 units.</summary>
     private const ushort AlcoonFireballGraphicsHorizontalSpeed = 1024;
     /// <summary>Horizontal speed at which fireball deceleration stops.</summary>
@@ -521,18 +500,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     }
 
     /// <summary>Last library-two Alcoon emerge or volley sound this enemy pass, using the Max6 queue entry; null means no current-pass request.</summary>
-    public ushort? LastAlcoonSoundEffect { get; private set; }
+    public SoundEffectId? LastAlcoonSoundEffect { get; private set; }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastAlcoonSoundEffect = null;
-        Array.Clear(_alcoonStates);
-        Array.Clear(_alcoonYAccelerations);
-        Array.Clear(_alcoonYSubaccelerations);
-        Array.Clear(_alcoonSpawnXPositions);
-        Array.Clear(_alcoonLandingYPositions);
-        Array.Clear(_alcoonStepCounters);
     }
 
     /// <inheritdoc/>
@@ -544,6 +517,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastAlcoonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastAlcoonSoundEffect, maximumQueued: 6);
     }
 }

@@ -55,9 +55,9 @@ public sealed class SamusAtmosphericArtworkCatalog
     /// <param name="frame">Animation-frame index 0..3; does not select an animation duration.</param>
     /// <param name="attributes">Selected packed tile/attribute word on success; zero on failure.</param>
     /// <returns>True for a supported type and frame; false otherwise without reading cartridge or mutable memory.</returns>
-    public bool TryResolve(byte type, byte frame, out ushort attributes)
+    public bool TryResolve(byte type, int frame, out ushort attributes)
     {
-        if (type is not (1 or 4 or 6 or 7) || frame >= SamusMovementRomData.Environment.DirectAtmosphericFrameCount)
+        if (type is not (1 or 4 or 6 or 7) || frame < 0 || frame >= SamusMovementRomData.Environment.DirectAtmosphericFrameCount)
         {
             attributes = 0;
             return false;

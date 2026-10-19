@@ -23,7 +23,7 @@ internal static class YardAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => cue.Value,
+                    'D' => checked((ushort)cue.Direction),
                     'S' => unchecked((ushort)cue.Offset),
                     'Y' => unchecked((ushort)cue.OffsetY),
                     'N' => cue.OptionalTarget is { } optional ? NativeEnemyProgramOracle.EntryOf(Entries, optional) : NullTarget,

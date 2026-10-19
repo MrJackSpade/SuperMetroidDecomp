@@ -49,7 +49,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
                 var oamFrame = new SpriteFrameBuffer();
                 oamFrame.BeginFrame();
                 OamBuffer oam;
-                effects.UpdateAndDraw(runtimeBus, oamFrame, new(0, 0), 128,
+                effects.UpdateAndDraw(oamFrame, new(0, 0), 128,
                     directArtwork: artwork, standardObjects: SpriteFrameTestArtwork.StandardObjects);
                 oam = oamFrame.FinalizeAsOam();
                 AssertEqual((byte)expected, oam.LowTable[2],
@@ -65,7 +65,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
                 var oamFrame = new SpriteFrameBuffer();
                 oamFrame.BeginFrame();
                 OamBuffer oam;
-                missing.UpdateAndDraw(runtimeBus, oamFrame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                missing.UpdateAndDraw(oamFrame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects);
                 oam = oamFrame.FinalizeAsOam();
             }, "authored atmospheric art cannot fall back to ROM");
 
@@ -73,13 +73,13 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
             var mutable = new SamusAtmosphericEffectsState();
             mutable.SetSlot(0, 2, 0, 2, new(128, 128));
             OamBuffer mutableOam = SpriteFrameBuffer.DrawnOam(frame =>
-                mutable.UpdateAndDraw(runtimeBus, frame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects));
-            AssertEqual((byte)0x5a, mutableOam.LowTable[2],
-                "type-two null pointer reads the live mirrored WRAM low byte");
-            AssertEqual((byte)0x34, mutableOam.LowTable[3],
-                "type-two null pointer reads the live mirrored WRAM high byte");
+                mutable.UpdateAndDraw(frame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+            OamBuffer emptyOam = SpriteFrameBuffer.DrawnOam(frame =>
+                new SamusAtmosphericEffectsState().UpdateAndDraw(frame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+            AssertTrue(mutableOam.LowTable.ToArray().SequenceEqual(emptyOam.LowTable.ToArray()),
+                "type two's null list pointer draws nothing, whatever WRAM holds (#1318)");
 
-            Console.WriteLine("Samus atmospheric artwork: all 16 authored frames use installed assets; null-pointer type two reads only live WRAM.");
+            Console.WriteLine("Samus atmospheric artwork: all 16 authored frames use installed assets; null-pointer type two draws nothing.");
         }
         finally
         {

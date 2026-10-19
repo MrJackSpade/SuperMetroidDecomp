@@ -4,6 +4,11 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
@@ -31,17 +36,18 @@ internal static class AttractDemoSceneImporter
         ushort setup = RomDataReader.ReadWordFixedBank(cartridge,
             RecordAddress(AttractDemoRomData.EquipmentBank, setupList, scene, sizeof(ushort)));
         return new(
-            Room(AttractDemoRomDataRoomFields.Room), Room(AttractDemoRomDataRoomFields.Door),
+            RoomHeaderSources.Room(Room(AttractDemoRomDataRoomFields.Room)), DoorHeaderSources.Door(Room(AttractDemoRomDataRoomFields.Door)),
             new(Room(AttractDemoRomDataRoomFields.CameraX), Room(AttractDemoRomDataRoomFields.CameraY)),
             new(unchecked((short)Room(AttractDemoRomDataRoomFields.SamusXFromCenter)),
                 unchecked((short)Room(AttractDemoRomDataRoomFields.SamusYFromTop))),
             Room(AttractDemoRomDataRoomFields.Duration),
             ClosedNativeWords.Decode<AttractDemoRoomSetup>(Room(AttractDemoRomDataRoomFields.Setup), "demo room setup"),
             ClosedNativeWords.Decode<AttractDemoSamusSetup>(setup, "demo Samus setup"),
-            Equipment(AttractDemoRomDataEquipmentFields.Items), Equipment(AttractDemoRomDataEquipmentFields.Missiles),
+            (SamusEquipmentFlags)(Equipment(AttractDemoRomDataEquipmentFields.Items)), Equipment(AttractDemoRomDataEquipmentFields.Missiles),
             Equipment(AttractDemoRomDataEquipmentFields.SuperMissiles), Equipment(AttractDemoRomDataEquipmentFields.PowerBombs),
-            Equipment(AttractDemoRomDataEquipmentFields.Health), Equipment(AttractDemoRomDataEquipmentFields.CollectedBeams),
-            Equipment(AttractDemoRomDataEquipmentFields.EquippedBeams), Equipment(AttractDemoRomDataEquipmentFields.InputObject));
+            Equipment(AttractDemoRomDataEquipmentFields.Health), (SamusBeamFlags)(Equipment(AttractDemoRomDataEquipmentFields.CollectedBeams)),
+            (SamusBeamFlags)(Equipment(AttractDemoRomDataEquipmentFields.EquippedBeams)),
+            DemoInputObjectDefinitions.FromNativeHeader(Equipment(AttractDemoRomDataEquipmentFields.InputObject)));
     }
 
     /// <summary>Bounds a fixed-stride scene record within its native cartridge data bank.</summary>

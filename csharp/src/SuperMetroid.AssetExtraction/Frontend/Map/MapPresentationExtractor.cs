@@ -38,6 +38,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 [CpuBusBoundary("codec: ROM map screen tilemaps, sprites and palettes → stock map presentation")]
 public static class MapPresentationExtractor
 {
+    /// <summary>JSON options: Camel-case property names, indented output.</summary>
+    private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
+    /// <summary>JSON options: Indented output.</summary>
+    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+
     /// <summary>Creates the complete stock map family in fresh staging, including area maps, reveal masks, character atlases, palettes, labels, markers, sprites, screens, and a provenance/hash manifest.</summary>
     /// <param name="bus">Supported-cartridge address space supplying every native map presentation source.</param>
     /// <param name="directory">Destination stock directory; generated files use create-new semantics and are never user overrides.</param>
@@ -65,7 +70,7 @@ public static class MapPresentationExtractor
                 file.Write(bytes);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
         }
-        byte[] revealBytes = JsonSerializer.SerializeToUtf8Bytes(stationCells, new JsonSerializerOptions { WriteIndented = true });
+        byte[] revealBytes = JsonSerializer.SerializeToUtf8Bytes(stationCells, IndentedJson);
         using (var file = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.StationRevealFile), FileMode.CreateNew, FileAccess.Write))
             file.Write(revealBytes);
         hashes.Add(AreaMapCatalogFormat.StationRevealFile, Convert.ToHexString(SHA256.HashData(revealBytes)));
@@ -357,6 +362,6 @@ public static class MapPresentationExtractor
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {
             Version = AreaMapCatalogFormat.Version, SourceCartridgeSha256 = sourceCartridgeSha256, Sha256 = hashes
-        }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
+        }, CamelCaseIndentedJson);
     }
 }

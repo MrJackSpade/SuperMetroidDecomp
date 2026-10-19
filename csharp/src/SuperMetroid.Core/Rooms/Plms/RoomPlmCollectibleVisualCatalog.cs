@@ -17,13 +17,13 @@ public sealed class RoomPlmCollectibleVisualCatalog
         {
             content.Append("frame", frame.Pointer);
             content.Append("runs", 1);
-            buffer[0] = GetWord(frame.Pointer);
+            buffer[0] = GetWord(checked((ushort)frame.Pointer));
             content.AppendWords("words", buffer);
         }
     });
 
     /// <summary>Only collectible frame appearances that differ from compiled stock visual bits.</summary>
-    private readonly Dictionary<ushort, ushort>? customWords;
+    private readonly Dictionary<int, int>? customWords;
 
     /// <summary>Validates all twenty-four compiled one-cell frames and retains authored visual differences without changing pickup, collision, or persistence rules.</summary>
     /// <param name="entries">Exactly one visual-only word for each compiled collectible frame identity.</param>
@@ -33,8 +33,8 @@ public sealed class RoomPlmCollectibleVisualCatalog
         IEnumerable<RoomPlmCollectibleVisualEntry> entries)
     {
         Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort>();
-        var seen = new HashSet<ushort>();
+        var selected = new Dictionary<int, int>();
+        var seen = new HashSet<int>();
         foreach (RoomPlmCollectibleVisualEntry entry in entries)
         {
             if (entry is null ||
@@ -44,7 +44,7 @@ public sealed class RoomPlmCollectibleVisualCatalog
                     "Collectible visuals changed a compiled frame identity or contain an invalid word.");
             if (!seen.Add(frame.Pointer))
                 throw new InvalidDataException($"Collectible visuals repeat frame {entry.Id}.");
-            if (entry.VisualWord != new RoomLevelWord(frame.LevelWord).VisualWord)
+            if (entry.VisualWord != frame.LevelWord.VisualWord)
                 selected.Add(frame.Pointer, entry.VisualWord);
         }
         if (seen.Count != RoomPlmCollectibleDrawDefinitions.All.Count())
@@ -60,7 +60,7 @@ public sealed class RoomPlmCollectibleVisualCatalog
     {
         if (!RoomPlmCollectibleDrawDefinitions.TryGetWord(pointer, out ushort physical))
             throw new InvalidDataException($"Collectible visuals lack frame ${pointer:X4}.");
-        return customWords is not null && customWords.TryGetValue(pointer, out ushort word)
-            ? word : new RoomLevelWord(physical).VisualWord;
+        return customWords is not null && customWords.TryGetValue(pointer, out int word)
+            ? checked((ushort)word) : new RoomLevelWord(physical).VisualWord;
     }
 }

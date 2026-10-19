@@ -20,12 +20,12 @@ public readonly record struct MotherBrainSpecialSpriteSheetDefinition(
 
     /// <summary>Calculates a page's native OBJ transfer, including its list-relative entry index.</summary>
     public MotherBrainSpriteTileTransferRequest Transfer(int page) => (uint)page < PageCount
-        ? new((ushort)page, PageByteCount, (uint)(SourceAddress + page * PageByteCount),
+        ? new(page, PageByteCount, (uint)(SourceAddress + page * PageByteCount),
             (ushort)(FirstDestinationWord + page * DestinationWordStride))
         : throw new IndexOutOfRangeException();
 
     /// <summary>Checks the cartridge's page alignment, size and destination.</summary>
-    public int ResolvePage(uint sourceAddress, ushort byteCount, ushort destinationWord)
+    public int ResolvePage(uint sourceAddress, int byteCount, int destinationWord)
     {
         if (!ContainsSource(sourceAddress))
             throw new InvalidDataException(

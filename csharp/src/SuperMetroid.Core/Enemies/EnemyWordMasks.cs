@@ -6,9 +6,6 @@ internal static class EnemyWordMasks
     /// <summary>Bit 15: the word's sign, or a flag stored in its sign position.</summary>
     internal const ushort SignBit = 0x8000;
 
-    /// <summary>Bits 0-14 beneath <see cref="SignBit"/>.</summary>
-    internal const ushort BelowSignBits = 0x7fff;
-
     /// <summary>Bit 7: the sign of the word's low byte.</summary>
     internal const ushort LowByteSignBit = 0x0080;
 

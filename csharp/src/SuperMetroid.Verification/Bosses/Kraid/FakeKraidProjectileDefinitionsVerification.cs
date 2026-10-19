@@ -34,14 +34,14 @@ internal static class FakeKraidProjectileDefinitionsVerification
 
         foreach (bool movingRight in new[] { false, true })
         {
-            var enemies = NewFakeKraidProjectileSystem(guarded);
-            var source = new RoomEnemySlot(0)
+            var enemies = NewFakeKraidProjectileSystem();
+            var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 VramTilesIndex = 0x0200,
                 PaletteIndex = 0x0c00,
             };
-            var state = new FakeKraidEnemyState(source);
+            var state = new FakeKraidEnemyState();
             enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, state, movingRight);
             AssertEqual(2, state.SpawnedSpitCount,
                 $"Fake Kraid {(movingRight ? "right" : "left")} spit count");
@@ -72,14 +72,14 @@ internal static class FakeKraidProjectileDefinitionsVerification
         foreach (short facingDelta in new short[] { -4, 4 })
         for (int row = 0; row < 3; row++)
         {
-            var enemies = NewFakeKraidProjectileSystem(guarded);
-            var source = new RoomEnemySlot(0)
+            var enemies = NewFakeKraidProjectileSystem();
+            var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 VramTilesIndex = 0x0200,
                 PaletteIndex = 0x0c00,
             };
-            var state = new FakeKraidEnemyState(source) { FacingDelta = facingDelta };
+            var state = new FakeKraidEnemyState() { FacingDelta = facingDelta };
             bool spawned = (bool)enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);
             AssertTrue(spawned, $"Fake Kraid spike row {row} allocated");
             RoomEnemyProjectileSlot spike = enemies.Projectiles.EnemyProjectiles.Single(
@@ -124,10 +124,10 @@ internal static class FakeKraidProjectileDefinitionsVerification
 
     /// <summary>Binds a fresh projectile pool to a bus that rejects migrated definition reads.</summary>
     private static RoomEnemySystem NewFakeKraidProjectileSystem(
-        ISnesAddressSpace bus)
+)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         return enemies;
     }
 }

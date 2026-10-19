@@ -35,35 +35,35 @@ internal static class ScrollPlmsVerification
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
         var plms = new RoomPlmSystem();
-        AssertEqual(5, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(5, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "single loader parses the trigger and four synchronous extensions");
         AssertEqual(1, plms.Scrolls.Snapshots.Count,
             "extension setup consumes no persistent PLM slot");
 
         int origin = level.GetBlockIndex(new(3, 3));
-        AssertEqual(0x3000, level.GetCollisionBlockByIndex(origin).LevelWord,
+        AssertEqual(0x3000, level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "B703 setup installs type-three special air");
-        AssertEqual(0x46, level.GetCollisionBlockByIndex(origin).Behavior,
+        AssertEqual(0x46, level.GetCollisionBlockByIndex(origin).Bts.Value,
             "B703 setup installs BTS $46");
-        AssertEqual(0x5000, level.GetCollisionBlock(new(4, 3)).LevelWord,
+        AssertEqual(0x5000, level.GetCollisionBlock(new(4, 3)).PackedWord.Raw,
             "right extension setup installs type five");
-        AssertEqual(0xff, level.GetCollisionBlock(new(4, 3)).Behavior,
+        AssertEqual(0xff, level.GetCollisionBlock(new(4, 3)).Bts.Value,
             "right extension points one block left");
-        AssertEqual(0x5000, level.GetCollisionBlock(new(2, 3)).LevelWord,
+        AssertEqual(0x5000, level.GetCollisionBlock(new(2, 3)).PackedWord.Raw,
             "left extension setup installs type five");
-        AssertEqual(0x01, level.GetCollisionBlock(new(2, 3)).Behavior,
+        AssertEqual(0x01, level.GetCollisionBlock(new(2, 3)).Bts.Value,
             "left extension points one block right");
-        AssertEqual(0xd000, level.GetCollisionBlock(new(3, 4)).LevelWord,
+        AssertEqual(0xd000, level.GetCollisionBlock(new(3, 4)).PackedWord.Raw,
             "down extension setup installs type D");
-        AssertEqual(0xff, level.GetCollisionBlock(new(3, 4)).Behavior,
+        AssertEqual(0xff, level.GetCollisionBlock(new(3, 4)).Bts.Value,
             "down extension points one row up");
-        AssertEqual(0xd000, level.GetCollisionBlock(new(3, 2)).LevelWord,
+        AssertEqual(0xd000, level.GetCollisionBlock(new(3, 2)).PackedWord.Raw,
             "up extension setup installs type D");
-        AssertEqual(0x01, level.GetCollisionBlock(new(3, 2)).Behavior,
+        AssertEqual(0x01, level.GetCollisionBlock(new(3, 2)).Bts.Value,
             "up extension points one row down");
 
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            bus, size: new Extent16<RoomScreens>(2, 2),
+            new RoomScrollStorage(), size: new Extent16<RoomScreens>(2, 2),
             lastRowState: RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
 
@@ -78,7 +78,7 @@ internal static class ScrollPlmsVerification
             SamusInsideBlockReactions.PrepareFrame(level, insideSamus, AreaId.Crateria, plms: plms);
             AssertEqual(shouldWake, plms.ScrollPlmTriggered(origin),
                 "inside scroll reaction admits only a separately visited center, not feet/head");
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         }
 
         // A direct touch wakes the resident object. Its next handler pass interprets the
@@ -87,7 +87,7 @@ internal static class ScrollPlmsVerification
             "direct special-air contact finds resident scroll owner");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "direct contact sets native PLM var bit fifteen");
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
             "scroll byte-pair program mutates active room grid");
         AssertTrue(!plms.ScrollPlmTriggered(origin),
@@ -102,12 +102,12 @@ internal static class ScrollPlmsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
             Radius = new(8, 7),
         };
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, body, new HorizontalBlockMove { Displacement = 1 << 16 });
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, body, new HorizontalBlockMove { Displacement = 1 << 16 });
         AssertTrue(!movement.Collided,
             "scroll extension remains traversable special air");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "horizontal extension resolves and wakes B703 owner");
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
             "extension-triggered contact executes the same scroll program");
 
@@ -123,11 +123,11 @@ internal static class ScrollPlmsVerification
             Pose = SamusPoseId.MorphBallGroundRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
         };
-        ball.PoseMetadata.RefreshCollisionRadii(bus);
+        ball.PoseMetadata.RefreshCollisionRadii();
         ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(1, 0));
         ushort ballStartX = ball.Position.X.Whole;
         SamusMorphBallMovement.StepGrounded(
-            bus,
+
             level,
             ball,
             nmiFrameCounter: 0,
@@ -136,7 +136,7 @@ internal static class ScrollPlmsVerification
             "Morph Ball traverses scroll extension as special air");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "Morph Ball wrapper forwards live PLM owner to block collision");
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
             "Morph Ball scroll contact executes resident bank-$8F program");
 
@@ -149,18 +149,18 @@ internal static class ScrollPlmsVerification
         var bombJump = new SamusState
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
-            EquippedItems = (ushort)SamusEquipmentFlags.Bombs,
+            EquippedItems = SamusEquipmentFlags.Bombs,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 40)),
         };
-        bombJump.PoseMetadata.RefreshCollisionRadii(bus);
+        bombJump.PoseMetadata.RefreshCollisionRadii();
         bombJump.Kinematics.YAcceleration = 0;
         bombJump.Kinematics.YSubacceleration = 0;
         bombJump.RequestMorphedBombJump(2);
-        SamusBombJumpMovement.Start(bus, bombJump);
+        SamusBombJumpMovement.Start(bombJump);
         bombJump.Kinematics.YSpeed = 1;
         bombJump.Kinematics.YSubspeed = 0;
         SamusBombJumpMovement.Step(
-            bus,
+
             level,
             bombJump,
             nmiFrameCounter: 0,

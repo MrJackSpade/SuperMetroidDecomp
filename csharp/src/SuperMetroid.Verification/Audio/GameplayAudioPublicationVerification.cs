@@ -13,9 +13,9 @@ internal static class GameplayAudioPublicationVerification
     internal static void VerifyGameplayAudioPublication()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         var samus = runtime.Player.IntroducedSamus;
@@ -26,11 +26,11 @@ internal static class GameplayAudioPublicationVerification
         var publication = new GameplayAudioFramePublication(audio);
 
         // Use real native landing publishers, not direct injection into private lists.
-        samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(bus, samus,
+        samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(samus,
             SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, 5, 0);
         AssertEqual(0x0103, publication.QueueEcho(runtime),
             "echo sees earlier landing sound in the same queue");
-        samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(bus, samus,
+        samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(samus,
             SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, 1, 1);
         publication.PublishPrefix(runtime);
         publication.PublishPrefix(runtime);

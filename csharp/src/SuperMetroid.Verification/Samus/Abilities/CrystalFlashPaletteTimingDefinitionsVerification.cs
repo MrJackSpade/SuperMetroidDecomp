@@ -50,11 +50,11 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             SuperMissiles = 10,
             PowerBombs = 10,
         };
-        samus.PoseMetadata.RefreshCollisionRadii(rom);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(0);
         AssertTrue(
             samus.CrystalFlash.TryBegin(
-                rom, samus, controllerInput: 0, skipInputCheck: true),
+                samus, controllerInput: 0, skipInputCheck: true),
             "Crystal Flash timing production fixture begins");
 
         var guard = NewCrystalFlashPaletteTimingReadGuard(rom);
@@ -64,7 +64,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
         for (int call = 0; call < callCount; call++)
         {
-            AssertTrue(samus.CrystalFlash.UpdatePalette(guard, cgram, samus, colors: colors),
+            AssertTrue(samus.CrystalFlash.UpdatePalette(cgram, samus, colors: colors),
                 $"Crystal Flash timing call {call} retains palette ownership");
 
             ushort expectedTimer = unchecked((ushort)(
@@ -76,7 +76,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
                 CrystalFlashPaletteTimingDefinitions.RecordByteCount));
             AssertEqual(expectedTimer, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
                 $"production Crystal Flash body timer call {call}");
-            AssertEqual(expectedOffset, samus.CrystalFlash.CommonPaletteTimer,
+            AssertEqual(expectedOffset, samus.CrystalFlash.BodyPaletteRecordOffset,
                 $"production Crystal Flash body record call {call}");
         }
 

@@ -25,18 +25,17 @@ internal static class UnpauseReserveBlackoutVerification
     internal static void VerifyUnpauseReserveBlackout()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         (SuperMetroidGame Game, SuperMetroidRuntime Runtime) Create()
         {
-            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
+            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
             runtime.Player.IntroducedSamus.InputLocked = false;
-            var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-            game.runtime = runtime;
-            game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+            game.Session.runtime = runtime;
+            game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
             return (game, runtime);
         }
 
@@ -44,18 +43,18 @@ internal static class UnpauseReserveBlackoutVerification
         SamusState samus = unpausingRuntime.Player.IntroducedSamus;
         samus.Health = 0;
         samus.MaxReserveEnergy = samus.ReserveEnergy = 100;
-        samus.ReserveTankMode = 1;
-        unpausing.pauseBrightness = (byte)0;
+        samus.ReserveTankMode = ReserveTankMode.Auto;
+        unpausing.Session.pauseBrightness = (byte)0;
         unpausing.GameState = SuperMetroidGameState.Unpausing;
         unpausing.Step(0);
         AssertEqual(SuperMetroidGameState.ReserveTanksAuto, unpausing.GameState,
             "state $12's gameplay pass routes zero health into the auto reserve refill");
-        AssertEqual((byte)0, unpausing.pauseBrightness, "the interrupted fade-in leaves $51 black");
+        AssertEqual((byte)0, unpausing.Session.pauseBrightness, "the interrupted fade-in leaves $51 black");
 
         // Once gameplay resumes the screen is still black; a pause darkens from there.
         var (pausing, _) = Create();
         pausing.GameState = SuperMetroidGameState.MainGameplay;
-        pausing.pauseBrightness = (byte)0;
+        pausing.Session.pauseBrightness = (byte)0;
         pausing.Step(0);
         pausing.Step(SnesButton.Start);
         AssertEqual(SuperMetroidGameState.PausingDarkening, pausing.GameState, "Start pauses");

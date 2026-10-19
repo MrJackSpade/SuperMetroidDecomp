@@ -14,7 +14,7 @@ internal static class MagdolliteAnimationsVerification
     internal static void VerifyMagdolliteAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, MagdolliteAnimations.Programs,
-            MagdolliteFrameDefinitions.Spritemap,
+            MagdolliteFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {
@@ -23,7 +23,7 @@ internal static class MagdolliteAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => cue.Value,
+                    'V' => cue.Sound is { } sound ? (ushort)sound.Value : throw new InvalidOperationException($"{at}: the sound cue carries no sound."),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

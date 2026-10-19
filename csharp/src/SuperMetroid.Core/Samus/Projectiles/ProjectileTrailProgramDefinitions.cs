@@ -53,20 +53,15 @@ public static class ProjectileTrailProgramDefinitions
     private static bool IsIceFallCommand(int offset) => offset == 6 * 4 ||
         (offset >= 8 * 4 + 2 && offset < IceTerminatorOffset - 4 && (offset - (8 * 4 + 2)) % 6 == 0);
     /// <summary>
-    /// Reads compiled high-bank mechanics or a genuine mutable bank-$90 low-half alias.
-    /// Presentation words and unrelated cartridge bytes are not valid program entries.
+    /// Reads compiled high-bank mechanics. Presentation words, unrelated cartridge bytes and the bank's low half are
+    /// not valid program entries.
     /// </summary>
-    public static ushort Read(ISnesAddressSpace bus, int address)
+    public static ushort Read(int address)
     {
         if (TryRead(address, out ushort word))
             return word;
 
-        SnesAddress source = SnesAddress.FromBusAddress(address);
-        if (source.Bank == 0x90 && !source.IsUpperLoRomWindow)
-            return new SamusOverreadMemory(bus).TrailProgramWord(source);
-
         throw new InvalidDataException(
-            $"Projectile trail program word {source} is outside compiled mechanics data " +
-            "and is not a mutable bank-$90 low-half alias.");
+            $"Projectile trail program word {SnesAddress.FromBusAddress(address)} is outside compiled mechanics data.");
     }
 }

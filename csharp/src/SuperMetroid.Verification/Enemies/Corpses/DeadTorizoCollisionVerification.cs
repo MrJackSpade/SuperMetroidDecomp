@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Input;
 using System.Reflection;
 using SuperMetroid.Core.Enemies;
@@ -16,15 +17,14 @@ internal static class DeadTorizoCollisionVerification
     /// <summary>Exercises contact, shot, Power Bomb, and delayed solid-contact triggers through real collision paths.</summary>
     internal static int VerifyDeadTorizoCollision()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         foreach (string trigger in new[] { "contact", "shot", "power bomb", "solid collision delay" })
         {
             var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            enemies.BindFixtureBus(installation.OpenRuntimeAddressSpace());
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
             var slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.CorpseTorizo;
+            slot.Bind(EnemyDefinitionId.CorpseTorizo, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(120, 100));
             slot.Radius = new(16, 32);
             enemies.DeadTorizoBehavior.InitializeDeadTorizo(slot);
@@ -61,19 +61,21 @@ internal static class DeadTorizoCollisionVerification
             Require(!IsInteractive(), $"{trigger}: rotting corpse must leave the interaction list.");
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(90);
             Require(!Probe().Collided, $"{trigger}: the same movement must pass the rotting corpse.");
-            ushort phase = slot.VariableA;
-            slot.VariableA = 0xd3c7; // Native completed/no-operation phase.
+            DeadTorizoEnemyState corpse = slot.SpeciesState<DeadTorizoEnemyState>()
+                ?? throw new InvalidOperationException("The initialized corpse has no state.");
+            DeadTorizoFunction? phase = corpse.Function;
+            corpse.Function = DeadTorizoFunction.NoOperation;
             enemies.DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(slot);
-            Require(slot.VariableA == 0xd3c7, "An ignored corpse must not restart from another power bomb.");
-            Require(phase == 0xd3e6, "Each trigger must enter the native rotting phase.");
+            Require(corpse.Function == DeadTorizoFunction.NoOperation, "An ignored corpse must not restart from another power bomb.");
+            Require(phase == DeadTorizoFunction.Rotting, "Each trigger must enter the native rotting phase.");
 
             bool IsInteractive()
             {
                 enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(Position16<RoomPixels>.Zero);
-                return ((IReadOnlyList<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes).Contains(slot.NativeIndex);
+                return ((IReadOnlyList<int>)enemies.ProcessingWindow._interactiveEnemyIndexes).Contains(slot.NativeIndex);
             }
             SolidEnemyCollisionResult Probe() => SamusSolidEnemyCollision.Probe(samus.Kinematics,
-                IsInteractive() ? [new SolidEnemyCollisionBody(slot.NativeIndex, slot.Position.Whole, new(slot.Radius.X, slot.Radius.Y), slot.FrozenTimer.RawValue, slot.Properties)] : [],
+                IsInteractive() ? [new SolidEnemyCollisionBody(slot.NativeIndex, slot.Position.Whole, new(slot.Radius.X, slot.Radius.Y), !slot.FrozenTimer.IsZero, slot.Properties)] : [],
                 SamusCollisionDirection.Right, 16, 0);
         }
         Console.WriteLine("Dead Torizo: contact, shot, power bomb and delayed solid contact release collision correctly.");

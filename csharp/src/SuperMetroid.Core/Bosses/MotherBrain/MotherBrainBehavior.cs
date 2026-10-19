@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
@@ -15,12 +16,22 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Mother Brain species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MotherBrainBehavior : IEnemySpecies
+internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MotherBrainEntity(this, slot, common);
+
     /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
@@ -61,6 +72,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// <summary>Binds the encounter's room services while keeping one state owner for body and head.</summary>
     internal MotherBrainBehavior(MotherBrainBehaviorDependencies dependencies)
     {
+        _frameResults = dependencies.FrameResults;
         _dispatch = dependencies.Dispatch;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -79,21 +91,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         _roomStatus = dependencies.RoomStatus;
     }
 
-    /// <summary>Recognizes the two enemy definitions that share the encounter state.</summary>
-    private static bool IsMotherBrainDefinition(EnemyDefinitionId definition) =>
-        definition is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead;
 
     /// <summary>Discards the prior room's shared body/head state before enemy initialization.</summary>
     internal void ResetMotherBrainRoomState() => _motherBrainEncounter.MotherBrain = null;
 
-    /// <summary>Where each falling tube's program resumes (#641), by enemy slot.</summary>
-    internal readonly AnimationProgramCursor<MotherBrainTubePiece>[] FallingTubeCursors =
-        new AnimationProgramCursor<MotherBrainTubePiece>[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
+    internal readonly MotherBrainExtensionWords[] _extensions = NewExtensions();
 
-    /// <summary>Binds the falling tubes' typed programs (#641) to the enemy instruction stage.</summary>
-    internal void RegisterMotherBrainTubeTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes,
-            (slot, context) => AdvanceMotherBrainTubeAnimation(slot));
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static MotherBrainExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new MotherBrainExtensionWords())];
 
     /// <summary>
     /// Runs a falling tube's program where the enemy instruction interpreter would: its pose shows on the update the
@@ -109,17 +116,17 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             return;
         }
 
-        AnimationProgramCursor<MotherBrainTubePiece> cursor = FallingTubeCursors[tube.SlotIndex];
+        AnimationProgramCursor<MotherBrainTubePiece> cursor = _extensions[tube.SlotIndex].FallingTubeCursor;
         NativeCountdown counter = tube.Timer;
         AnimationProgramAdvance<MotherBrainTubeFrame> advance = MotherBrainTubeAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => throw new InvalidOperationException($"Falling-tube programs publish no cue {cue}."));
         tube.Timer = counter;
-        FallingTubeCursors[tube.SlotIndex] = cursor;
+        _extensions[tube.SlotIndex].FallingTubeCursor = cursor;
         switch (advance.Kind)
         {
             case AnimationProgramAdvanceKind.Show:
                 tube.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                tube.SpritemapPointer = advance.Frame.Spritemap;
+                tube.Frame = MotherBrainVisualDefinitions.TubeFrames.Of(advance.Frame);
                 tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:
@@ -141,7 +148,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
         // Prepare the future body image without replacing the visible pipe background.
         // The phase-two transition owns the first transfer from staging into VRAM.
-        WorkRamWordTable bg2 = _room.Scratch.EnemyBg2Tilemap;
+        StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
         for (int index = 0; index < MotherBrainBg2Definitions.ClearWordCount; index++)
             bg2[index] = MotherBrainBg2Definitions.BlankTile;
 
@@ -160,18 +167,23 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
         _motherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body)
         {
-            Form = 0,
+            Form = MotherBrainForm.Glass,
             EnableUnpauseHook = false,
-            HitboxesEnabled = 2,
+            HitboxesEnabled = MotherBrainHitboxParts.Brain,
             BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn,
             Function = MotherBrainBodyFunction.FirstPhase,
-            FxEntry = 1,
             BackgroundTilemapPrepared = true,
             EnemyBg2TilemapSize = MotherBrainBg2Definitions.InitialTransferByteCount,
         };
         _motherBrainEncounter.MotherBrain.RecordInitialTurretRequests();
+        // The first LoadFxEntry, which the room loader applies after enemy initialization.
+        _frameResults.MotherBrainFxEntry = 1;
         SpawnMotherBrainInitialTurrets();
     }
+
+    /// <summary>Requests a bank-$84 PLM spawn at a foreground room-block coordinate for this pass.</summary>
+    private void RequestMotherBrainPlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
+        _frameResults.MotherBrainPlms.Add(new MotherBrainPlmRequest(block, header));
 
     /// <summary>Applies the installed room-entry palette for glass and tube artwork.</summary>
     internal void LoadMotherBrainRoomEntryColors()
@@ -195,7 +207,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         // The cartridge seeds the complete future corpse effect during room load, not when
         // Mother Brain dies. Keeping this eager call preserves the exact WRAM state visible
         // throughout every earlier phase and prevents the death sequence from inventing it.
-        state.CorpseRotting.Initialize(_room.LoadedBus, _room.MotherBrainCorpseArtwork);
+        state.CorpseRotting.Initialize(_room.Staging, _room.MotherBrainCorpseArtwork);
 
         head.Health = 3000;
         // `$A9:8714` gives the head enemy the dummy program for life (the encounter state's
@@ -207,14 +219,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
         head.PaletteIndex = EnemyPaletteBits.Palette1;
         state.Head = head;
-        state.NeckPaletteIndex = EnemyPaletteBits.Palette1;
-        state.BrainPaletteIndex = EnemyPaletteBits.Palette1;
+        state.NeckPalette = SnesObjPalettes.Index1;
+        state.BrainPalette = SnesObjPalettes.Index1;
         SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
-
-        // SetupMotherBrainHeadNormalPalette installs a ten-frame timer. Palette table
-        // interpolation belongs to the later damage/phase slice, but the state producer is
-        // already real here and therefore starts with the cartridge's exact value.
-        state.BrainPaletteTimer = 10;
     }
 
     /// <summary>Ports the common body main/hurt entry at <c>$A9:873E</c>.</summary>
@@ -385,8 +392,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 state.DeleteTurretsAndRinkas = true;
                 // Mother Brain and Rinka alias native slot-zero variable $1D. Publish the
                 // shared word before later enemy slots can keep drawing replaced tile art.
-                _rinkaBehavior._rinkaTerminationFlag = 1;
-                state.Form = 1;
+                _rinkaBehavior._rinkaTerminationFlag = true;
+                state.Form = MotherBrainForm.FakeDeath;
                 state.RequestMusic(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames);
 
                 // MotherBrain_SealWall at `$AD:E396` creates both dust puffs before its
@@ -394,8 +401,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 // $84 allocator searches the same descending pool for each call.
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 152), MiscDustAnimation.SmallDustCloud);
-                state.RequestPlm(new(15, 4), PlmHeaderId.FillMotherBrainsWall);
-                state.RequestPlm(new(15, 9), PlmHeaderId.FillMotherBrainsWall);
+                RequestMotherBrainPlm(new(15, 4), PlmHeaderId.FillMotherBrainsWall);
+                RequestMotherBrainPlm(new(15, 9), PlmHeaderId.FillMotherBrainsWall);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
             }
         }
@@ -458,7 +465,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             SpawnMotherBrainPurpleBreathSmall(state);
         // `$A9:936F` advances the brain list here, after every enemy's AI, and returns out
         // of the whole draw when the list is not live.
-        if (AdvanceMotherBrainBrain(state, _deathsAndDrops._samusForEnemyDrops) is not ushort brainSpritemap)
+        if (AdvanceMotherBrainBrain(state, _deathsAndDrops._samusForEnemyDrops) is not MotherBrainHeadFrame brainFrame)
             return;
 
         Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
@@ -468,12 +475,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 MotherBrainDrawData.BrainLeftCullMargin - camera.X)) >= 0)
         DrawMotherBrainWorldSpritemap(
             oam,
-            brainSpritemap,
+            MotherBrainVisualDefinitions.HeadFrames.Of(brainFrame),
             head.Position.Whole + brainShake,
             // The custom draw hook bypasses ordinary enemy palette selection. Retail
             // still selects the shared white hurt palette on odd flash-timer frames.
-            (head.FlashTimer.RawValue & 1) != 0 ? (ushort)0 : state.BrainPaletteIndex,
-            head.VramTilesIndex,
+            (head.FlashTimer.RawValue & 1) != 0 ? (ushort)0 : state.BrainPalette.PaletteBits,
+            checked((ushort)head.VramTilesIndex),
             camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
@@ -496,10 +503,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             Position16<RoomPixels> segment = segments[index];
             DrawMotherBrainWorldSpritemap(
                 oam,
-                spritemapPointer: MotherBrainVisualDefinitions.NeckJoint.Pointer,
+                frame: MotherBrainVisualDefinitions.NeckJointFrame,
                 segment + neckShake,
-                state.NeckPaletteIndex,
-                head.VramTilesIndex,
+                state.NeckPalette.PaletteBits,
+                checked((ushort)head.VramTilesIndex),
                 camera);
         }
     }
@@ -511,7 +518,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// <summary>Draws a selected world-space Mother Brain frame with palette and camera offsets.</summary>
     internal void DrawMotherBrainWorldSpritemap(
         OamBuffer oam,
-        ushort spritemapPointer,
+        EnemyFrameId frame,
         Position16<RoomPixels> world,
         ushort paletteIndex,
         ushort vramTilesIndex,
@@ -524,7 +531,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (unchecked((short)screen.Y) < 0)
             return;
 
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = MotherBrainVisualDefinitions.Bank, Pointer = spritemapPointer, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = vramTilesIndex });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = frame, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = vramTilesIndex });
     }
 
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>
@@ -552,8 +559,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     {
         if (state.NeckMovementEnabled)
         {
-            ushort lowerAngle = state.LowerNeckAngle;
-            ushort upperAngle = state.UpperNeckAngle;
+            SnesAngle lowerAngle = state.LowerNeckAngle;
+            SnesAngle upperAngle = state.UpperNeckAngle;
             MotherBrainNeckMovement lowerIndex = state.LowerNeckMovementIndex;
             MotherBrainNeckMovement upperIndex = state.UpperNeckMovementIndex;
             MotherBrainNeckKinematics.StepAngles(
@@ -592,7 +599,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// (CMP/BPL), the timer counting up; past it, cues run until the next frame, which
     /// resets the timer to one.
     /// </summary>
-    internal ushort? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState? samus)
+    internal MotherBrainHeadFrame? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState? samus)
     {
         if (state.BrainCursor is not { } cursor)
             return null;
@@ -600,16 +607,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue> step = programs.Steps(cursor.Program)[cursor.Position];
         if (_frameContext._enemyFrameTimeIsFrozen)
         {
-            return step.Kind == AnimationProgramStepKind.Show ? step.Frame.Spritemap : throw new InvalidOperationException(
+            return step.Kind == AnimationProgramStepKind.Show ? step.Frame : throw new InvalidOperationException(
                 $"Mother Brain's frozen brain rests on {step.Kind} step {cursor.Position} of {cursor.Program}, not a frame.");
         }
 
         if (step.Kind == AnimationProgramStepKind.Show)
         {
-            if (unchecked((short)(step.Duration - state.BrainFrameTimer)) >= 0)
+            if (state.BrainFrameTimer <= step.Duration)
             {
-                state.BrainFrameTimer = unchecked((ushort)(state.BrainFrameTimer + 1));
-                return step.Frame.Spritemap;
+                state.BrainFrameTimer++;
+                return step.Frame;
             }
             cursor = cursor with { Position = cursor.Position + 1 };
         }
@@ -622,13 +629,20 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         // The native pointer rests on the frame it shows, so the cursor steps back onto it.
         state.BrainCursor = cursor with { Position = cursor.Position - 1 };
         state.BrainFrameTimer = 1;
-        return advance.Frame.Spritemap;
+        return advance.Frame;
     }
 
-    /// <summary>Binds the typed body and head-slot programs (#641) to the enemy instruction stage.</summary>
-    internal void RegisterMotherBrainTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsMotherBrainDefinition(slot.EnemyDefinitionPointer),
-            (slot, context) => AdvanceMotherBrainSlotAnimation(slot, context.Samus));
+    /// <summary>Advances MotherBrainTubes's typed animation.</summary>
+    internal void AdvanceMotherBrainTubesTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceMotherBrainTubeAnimation(slot);
+    }
+
+    /// <summary>Advances MotherBrainBody's typed animation.</summary>
+    internal void AdvanceMotherBrainBodyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        AdvanceMotherBrainSlotAnimation(slot, context.Samus);
+    }
 
     /// <summary>
     /// Runs the body's program, or the head slot's dummy, where the enemy instruction interpreter would: the frame
@@ -663,7 +677,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         {
             case AnimationProgramAdvanceKind.Show:
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.SpritemapPointer = advance.Frame.Spritemap;
+                slot.Frame = MotherBrainBodyVisualDefinitions.ShownFrames.Of(advance.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:
@@ -709,7 +723,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             {
                 SamusState target = samus ?? throw new InvalidOperationException(
                     "Mother Brain hand-beam aiming requires the active Samus actor.");
-                state.LastSoundEffect = MotherBrainSoundDefinitions.HandBeam.Value;
+                state.LastSoundEffect = MotherBrainSoundDefinitions.HandBeam;
                 SpawnMotherBrainHandBeamCharging(state, target);
                 return;
             }
@@ -737,10 +751,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 SpawnMotherBrainPurpleBreathBig(state);
                 return null;
             case MotherBrainHeadCueKind.QueueSound:
-                state.LastSoundEffect = (cue.Sound ?? throw new InvalidOperationException("A sound cue carries no sound.")).Value;
+                state.LastSoundEffect = cue.Sound ?? throw new InvalidOperationException("A sound cue carries no sound.");
                 return null;
             case MotherBrainHeadCueKind.QueueLibrary3Sound:
-                state.LastSoundEffectLibrary3 = (cue.Sound ?? throw new InvalidOperationException("A sound cue carries no sound.")).Value;
+                state.LastSoundEffectLibrary3 = cue.Sound ?? throw new InvalidOperationException("A sound cue carries no sound.");
                 return null;
             case MotherBrainHeadCueKind.DisableNeckMovement:
                 state.NeckMovementEnabled = false;
@@ -780,13 +794,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             case MotherBrainHeadCueKind.QueueBabyMetroidAttackSound:
                 // `$A9:9DF7` skips the attack cry once the attack counter reaches eleven.
                 if (RequireLiveMotherBrainRainbowSequence(state).BabyMetroidAttackCounter != 11)
-                    state.LastSoundEffect = MotherBrainSoundDefinitions.AttackCry.Value;
+                    state.LastSoundEffect = MotherBrainSoundDefinitions.AttackCry;
                 return null;
             case MotherBrainHeadCueKind.PrepareRainbowBeamCharge:
                 state.SmallPurpleBreathGenerationEnabled = false;
-                // Both bytes of the palette timer start at two.
-                state.BrainPaletteTimer = SnesLittleEndian.Word(2, 2);
-                state.LastSoundEffect = MotherBrainSoundDefinitions.RainbowBeamCharge.Value;
+                state.LastSoundEffect = MotherBrainSoundDefinitions.RainbowBeamCharge;
                 return null;
             case MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle:
                 SpawnMotherBrainRainbowChargingProjectile();
@@ -823,7 +835,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             head.Position.Whole + new Offset16<RoomPixels>(16, 4),
             movingRight: true);
         if (laser is not null)
-            state.LastSoundEffect = EnemySoundEffectDefinitions.PirateMotherBrainLaserSound;
+            state.LastSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.PirateMotherBrainLaserSound);
     }
 
     /// <summary>
@@ -869,7 +881,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     }
 
     /// <summary>Installs the handlers used when Samus's bombs contact Mother Brain.</summary>
-    internal void RegisterMotherBrainBombReactions(EnemyAiTable table)
+    internal void RegisterMotherBrainBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
                                   c.SelectedShotAi == EnemyInteractionCallback.MotherBrainHeadShot,
@@ -882,8 +894,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         switch (cue.Kind)
         {
             case MotherBrainEffectCueKind.SetRadius:
-                // The operand packs the X radius in its low byte and the Y radius in its high byte.
-                projectile.Radius = new(SnesLittleEndian.LowByte(cue.Value), SnesLittleEndian.HighByte(cue.Value));
+                projectile.Radius = cue.Radius;
                 break;
             case MotherBrainEffectCueKind.UsePaletteZero:
                 projectile.GraphicsIndex = 0;
@@ -899,10 +910,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                     .SmallPurpleBreathActive = false;
                 break;
             case MotherBrainEffectCueKind.SetPreInstruction:
-                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                projectile.PreInstruction = cue.PreInstruction;
                 break;
             case MotherBrainEffectCueKind.ClearPreInstruction:
-                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
             case MotherBrainEffectCueKind.Delete:
                 projectile.Clear();
@@ -917,15 +928,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     {
         table.RegisterTouchAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
         table.RegisterShotAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
-        table.RegisterCue<MotherBrainTurretCue>((projectile, samus, cue) =>
+        table.RegisterCue<MotherBrainTurretCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case MotherBrainTurretCue.UsePaletteZero:
                     projectile.GraphicsIndex = 0;
                     return;
                 case MotherBrainTurretCue.ClearPreInstruction:
-                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                     return;
                 case MotherBrainTurretCue.Delete:
                     projectile.Clear();
@@ -934,8 +946,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                     throw new InvalidOperationException($"Undefined {nameof(MotherBrainTurretCue)} {cue}.");
             }
         });
-        table.RegisterCue<MotherBrainGlassCue>((projectile, samus, cue) =>
+        table.RegisterCue<MotherBrainGlassCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case MotherBrainGlassCue.Delete:
@@ -1013,17 +1026,18 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             PinMotherBrainEscapeSubtitle(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction);
 
-        table.RegisterCue<MotherBrainEffectCue>(ApplyMotherBrainEffectCue);
+        table.RegisterCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, context.Samus, cue));
         // A touched onion ring runs its typed impact program, the list its definition names.
         table.RegisterTouchAnimation(RoomEnemyProjectileKind.MotherBrainOnionRing,
             () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.OnionRingHit));
 
-        table.RegisterCue<MotherBrainHandBeamCue>((projectile, samus, cue) =>
+        table.RegisterCue<MotherBrainHandBeamCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case MotherBrainHandBeamCue.SpawnNextBeam:
-                    SpawnMotherBrainHandBeamFired(projectile.Variable0);
+                    SpawnMotherBrainHandBeamFired(checked((ushort)projectile.Variable0));
                     return;
                 case MotherBrainHandBeamCue.Delete:
                     projectile.Clear();
@@ -1034,50 +1048,45 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Binds body and head initialization to their native enemy definitions.</summary>
-    internal void RegisterMotherBrainInitializationAi(EnemyAiTable table)
+    /// <summary>Ports MotherBrainBody's initialization AI.</summary>
+    internal void RunMotherBrainBodyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_MotherBrainBody, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMotherBrainBody(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_MotherBrainHead, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMotherBrainHead(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_MotherBrainTubes, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMotherBrainFallingTube(slot);
-        });
+        InitializeMotherBrainBody(slot);
     }
 
-    /// <summary>Binds body and head frame updates to their native enemy definitions.</summary>
-    internal void RegisterMotherBrainMainAi(EnemyAiTable table)
+    /// <summary>Ports MotherBrainHead's initialization AI.</summary>
+    internal void RunMotherBrainHeadInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeMotherBrainHead(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_HurtAI_MotherBrainBody, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMotherBrainBodyMain(slot, frame.Samus, frame.SharedProjectiles);
-        });
+    /// <summary>Ports MotherBrainTubes's initialization AI.</summary>
+    internal void RunMotherBrainTubesInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeMotherBrainFallingTube(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_HurtAI_MotherBrainHead, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMotherBrainHeadMain(slot, frame.Samus);
-        });
+    /// <summary>Ports MotherBrainBody's main AI.</summary>
+    internal void RunMotherBrainBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunMotherBrainBodyMain(slot, frame.Samus, frame.SharedProjectiles);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_MotherBrainTubes, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMotherBrainFallingTubeMain(slot);
-        });
+    /// <summary>Ports MotherBrainHead's main AI.</summary>
+    internal void RunMotherBrainHeadMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunMotherBrainHeadMain(slot, frame.Samus);
+    }
+
+    /// <summary>Ports MotherBrainTubes's main AI.</summary>
+    internal void RunMotherBrainTubesMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
+    {
+        RunMotherBrainFallingTubeMain(slot);
     }
 
     /// <summary>Binds head and body shot responses for each combat phase.</summary>
-    internal void RegisterMotherBrainShotReactions(EnemyAiTable table)
+    internal void RegisterMotherBrainShotReactions(EnemySharedReactions table)
     {
-
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MotherBrainBodyShot)
         {
@@ -1088,8 +1097,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 if (c.HitboxShotAi != EnemyInteractionCallback.MotherBrainBodyShot)
                 {
                     throw new InvalidDataException(
-                        $"Mother Brain's body selected shot AI $A9:{c.HitboxShotAiPointer:X4} from " +
-                        $"frame $A9:{c.Enemy.SpritemapPointer:X4}; only $A9:B503 is ported.");
+                        $"Mother Brain's body selected shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} from " +
+                        $"frame $A9:{c.Enemy.Frame}; only $A9:B503 is ported.");
                 }
                 // The common collision prelude still owns Super-Missile quake first.
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
@@ -1132,7 +1141,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         bomb.Variable0 = 112; // Horizontal speed restored after each floor bounce.
         bomb.Variable1 = 0;      // Byte offset into the ten-word acceleration table.
         bomb.DirectionParameter = afterburnCount;
-        state.BombCounter = unchecked((ushort)(state.BombCounter + 1));
+        state.RecordBombSpawned();
     }
 
     /// <summary>Ports pre-instruction <c>$86:C4C8-C604</c>.</summary>
@@ -1208,7 +1217,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             ushort y = bomb.Position.Y.Whole;
             DeleteMotherBrainBomb(bomb, state);
             _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.SmallDustCloud);
-            state.LastBombDropRequest = new MotherBrainBombDropRequest();
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
                 new(x, y),
                 state.Head.EnemyDefinitionPointer);
@@ -1236,7 +1244,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         bomb.Position = bomb.Position.WithWholeY(208);
         bomb.Velocity = new(new SnesSignedEightEight(unchecked((short)bomb.Velocity.X.RawValue) < 0
             ? unchecked((ushort)-bomb.Variable0)
-            : bomb.Variable0), SnesSignedEightEight.FromSignedRaw(-512));
+            : checked((ushort)bomb.Variable0)), SnesSignedEightEight.FromSignedRaw(-512));
         return true;
     }
 
@@ -1257,7 +1265,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             impact,
             afterburnCount);
         _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallExplosion);
-        state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion.Value;
+        state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion;
     }
 
     /// <summary>Clears a bomb slot when its native lifetime or collision ends.</summary>
@@ -1265,7 +1273,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state)
     {
-        state.BombCounter = NativeWordCounter.Decrement(state.BombCounter).Value;
+        state.RecordBombRemoved();
         bomb.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         bomb.Clear();
     }
@@ -1290,8 +1298,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        ushort enabled = state.HitboxesEnabled;
-        if ((enabled & 1) != 0 && ResolveMotherBrainSamusCollisionPart(
+        MotherBrainHitboxParts enabled = state.HitboxesEnabled;
+        if ((enabled & MotherBrainHitboxParts.Body) != 0 && ResolveMotherBrainSamusCollisionPart(
                 state,
                 samus,
                 MotherBrainContactPart.Body,
@@ -1300,9 +1308,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             return true;
         }
 
-        enabled >>= 1;
         RoomEnemySlot head = state.Head;
-        if ((enabled & 1) != 0 && ResolveMotherBrainSamusCollisionPart(
+        if ((enabled & MotherBrainHitboxParts.Brain) != 0 && ResolveMotherBrainSamusCollisionPart(
                 state,
                 samus,
                 MotherBrainContactPart.Brain,
@@ -1311,8 +1318,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             return true;
         }
 
-        enabled >>= 1;
-        if ((enabled & 1) != 0)
+        if ((enabled & MotherBrainHitboxParts.Neck) != 0)
         {
             // Native tests only middle joints one, two, and three. Joint zero is buried in
             // the body and joint four is already covered by the separate brain rectangles.
@@ -1363,7 +1369,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(unchecked((short)Math.Max(xOverlap, 4)), 4));
             samus.InvincibilityTimer = NativeCountdown.Start(96);
             samus.KnockbackTimer = NativeCountdown.Start(5);
-            samus.KnockbackXDirection = 1;
+            samus.KnockbackXDirection = KnockbackHorizontalDirection.Right;
             if (unchecked((short)(samus.Position.Y.Whole - 192)) < 0)
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
 
@@ -1385,11 +1391,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 ? unchecked((ushort)(body.Definition.Damage >> 1))
                 : body.Definition.Damage;
         samus.Health = samus.Health <= damage
-            ? (ushort)0
-            : unchecked((ushort)(samus.Health - damage));
+            ? 0
+            : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.Start(96);
         samus.KnockbackTimer = NativeCountdown.Start(5);
-        samus.KnockbackXDirection = samus.Position.X.Whole >= body.Position.X.Whole ? (ushort)1 : (ushort)0;
+        samus.KnockbackXDirection = samus.Position.X.Whole >= body.Position.X.Whole ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
     }
 
     /// <summary>
@@ -1403,7 +1409,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         SamusProjectileSlot projectile,
         SamusProjectileSystem projectiles,
         SamusProjectileTypeWord projectileType,
-        ushort projectileDamage)
+        int projectileDamage)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain head shot AI ran without its multipart encounter state.");
@@ -1413,7 +1419,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 "Mother Brain head shot AI ran for a slot not linked to the loaded body.");
         }
         SamusProjectileFamily family = projectileType.Family;
-        if (state.Form != 0)
+        if (state.Form != MotherBrainForm.Glass)
         {
             ResolveMotherBrainLaterFormHeadShot(
                 state,
@@ -1449,7 +1455,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (vulnerability == byte.MaxValue)
         {
             head.FrozenTimer = NativeCountdown.Start(400);
-            head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+            head.AiStates = head.AiStates | EnemyAiStates.Frozen;
             head.InvincibilityTimer = NativeCountdown.Start(10);
             return;
         }
@@ -1461,12 +1467,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             return;
         }
 
-        ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
-        head.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-        head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+        head.FlashTimer = NativeCountdown.Start(head.HurtFlashFrames + 8);
+        head.AiStates = head.AiStates | EnemyAiStates.Hurt;
         head.Health = damage >= head.Health
-            ? (ushort)0
-            : unchecked((ushort)(head.Health - damage));
+            ? 0
+            : head.Health - damage;
     }
 
     /// <summary>
@@ -1481,7 +1486,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         SamusProjectileSlot projectile,
         SamusProjectileSystem projectiles,
         SamusProjectileTypeWord projectileType,
-        ushort projectileDamage)
+        int projectileDamage)
     {
         // The bank-$A0 walker marked the projectile before dispatching this callback.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
@@ -1512,10 +1517,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 throw new InvalidOperationException(
                     "Mother Brain received a form-four beam without its phase-three state owner.");
             }
-            state.WalkCounter = reaction.WalkCounter;
+            state.WalkCounter = reaction.WalkCredit;
         }
 
-        if (state.Form == 1)
+        if (state.Form == MotherBrainForm.FakeDeath)
         {
             _projectiles.CreateEnemyProjectileDudShot(projectile);
             return;
@@ -1528,7 +1533,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (vulnerability.FreezeImmediately)
         {
             head.FrozenTimer = NativeCountdown.Start(400);
-            head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+            head.AiStates = head.AiStates | EnemyAiStates.Frozen;
             head.InvincibilityTimer = NativeCountdown.Start(10);
             return;
         }
@@ -1540,16 +1545,15 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             return;
         }
 
-        ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
-        head.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-        head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+        head.FlashTimer = NativeCountdown.Start(head.HurtFlashFrames + 8);
+        head.AiStates = head.AiStates | EnemyAiStates.Hurt;
         // The shared native no-death tail still grants Plasma's hit immunity.
         // A surviving penetrating beam cannot damage this head again every frame.
         if (projectileType.BeamCombination.HasPlasma)
             head.InvincibilityTimer = NativeCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
         head.Health = damage >= head.Health
-            ? (ushort)0
-            : unchecked((ushort)(head.Health - damage));
+            ? 0
+            : head.Health - damage;
     }
 
     /// <summary>
@@ -1572,13 +1576,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 "Mother Brain head normal-bomb AI ran for a slot not linked to the loaded body.");
         }
 
-        if (state.Form == 0)
+        if (state.Form == MotherBrainForm.Glass)
             return;
 
-        state.WalkCounter = state.WalkCounter < 256
-            ? (ushort)0
-            : unchecked((ushort)(state.WalkCounter - 256));
-        if (state.Form == 1)
+        state.WalkCounter = state.WalkCounter.SpendStepForBomb();
+        if (state.Form == MotherBrainForm.FakeDeath)
             return;
 
         _collision.ApplyCommonNormalBombDamage(head, bomb, runGenericDeath: false);
@@ -1596,7 +1598,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             step.PhaseAfter != step.PhaseBefore)
         {
             _presentation.BossPalettes.MotherBrainCorpse.CopyFrom(_presentation.BossPalettes.MotherBrainBrain.Colors);
-            state.BrainPaletteIndex = sequence.BrainPaletteIndex;
+            state.BrainPalette = sequence.BrainPalette;
             state.BrainPaletteHandlingEnabled = false;
             state.DroolGenerationEnabled = false;
         }
@@ -1619,7 +1621,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             state.Body.Properties = sequence.BodyProperties;
             var words = new ushort[MotherBrainDeathRomData.Bg2LastByte / 2 + 1];
             Array.Fill(words, MotherBrainDeathRomData.EmptyBodyTile);
-            WorkRamWordTable bg2 = _room.Scratch.EnemyBg2Tilemap;
+            StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
             for (int i = 0; i < words.Length; i++)
                 bg2[i] = words[i];
             new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words);
@@ -1641,7 +1643,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);
             // $A9:B252 queues the rot dust through QueueSound_Lib2_Max3.
             if (dust.SoundEffectQueued)
-                _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, dust.SoundEffect), maximumQueued: 3);
+                _audio.QueueEnemySound(dust.SoundEffect, maximumQueued: 3);
         }
         if (step.MusicStopQueued) state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
         if (step.EscapeMusicQueued) state.RequestMusic(MusicCommand.LoadData(MotherBrainDeathRomData.EscapeMusicData), MusicCommandDelay.EightFrames);
@@ -1662,10 +1664,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(doorDust.Position, doorDust.Animation);
             // $A9:B346 queues the door explosion through QueueSound_Lib2_Max3.
-            _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, doorDust.SoundEffect), maximumQueued: 3);
+            _audio.QueueEnemySound(doorDust.SoundEffect, maximumQueued: 3);
         }
         if (step.EscapeDoorPlm is { } doorPlm)
-            state.RequestPlm(doorPlm.Block, doorPlm.PlmEntry);
+            RequestMotherBrainPlm(doorPlm.Block, doorPlm.PlmEntry);
         foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Parameter);
         if (step.TimeBombSetSubtitleSpawnRequested)
         {
@@ -1680,8 +1682,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             step.PhaseAfter == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadCorpseTiles ||
             step.EscapeMusicTrackQueued || step.EarthquakeTimerRefreshed)
         {
-            _earthquake.EarthquakeType = sequence.EarthquakeType;
-            _earthquake.EarthquakeTimer = NativeCountdown.FromRaw(sequence.EarthquakeTimer);
+            _earthquake.EarthquakeType = checked((ushort)sequence.EarthquakeType);
+            _earthquake.EarthquakeTimer = sequence.EarthquakeTimer;
         }
     }
 
@@ -1747,7 +1749,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     }
 
     /// <summary>Spawns a falling door fragment from the native parameter identity.</summary>
-    internal void SpawnMotherBrainDoorFragment(ushort parameter)
+    internal void SpawnMotherBrainDoorFragment(int parameter)
     {
         MotherBrainDoorFragmentDefinition definition =
             MotherBrainDoorFragmentDefinitions.ForParameter(parameter);
@@ -1769,8 +1771,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         fragment.Velocity = fragment.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(negative ? -speed : speed))));
         fragment.Velocity = fragment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(fragment.Velocity.Y.RawValue + MotherBrainDeathRomData.DoorFragmentGravity))));
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
-        fragment.Variable0--;
-        if (unchecked((short)fragment.Variable0) >= 0) return;
+        // The fragment's lifetime counts down in variable zero and expires when it passes zero.
+        NativeWordCounterStep lifetime = NativeCountdown.FromRaw(checked((ushort)fragment.Variable0)).Decrement();
+        fragment.Variable0 = lifetime.Remaining.RawValue;
+        if (lifetime.IsNonNegative) return;
         ushort x = fragment.Position.X.Whole, y = unchecked((ushort)(fragment.Position.Y.Whole - MotherBrainDeathRomData.DoorDustYOffset));
         fragment.Clear();
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MotherBrainDeathRomData.DoorDustParameter);
@@ -1855,13 +1859,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 // arms the head's independent tube sequence, and clears both fade words.
                 state.RoomFlashFrame = 0;
                 state.RoomFlashTimer = 1;
-                state.FxEntry = 2;
+                _frameResults.MotherBrainFxEntry = 2;
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots;
                 state.TubeCollapseTimer = NativeCountdown.Start(0);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;
                 state.FunctionTimer = NativeCountdown.Start(0);
                 state.GrayFadeIndex = 0;
-                state.RequestPlm(new(14, 2), PlmHeaderId.ClearMotherBrainCeilingBlock);
+                RequestMotherBrainPlm(new(14, 2), PlmHeaderId.ClearMotherBrainCeilingBlock);
                 return;
 
             case MotherBrainBodyFunction.FakeDeathDescentFadeToGray:
@@ -1963,7 +1967,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (timer.IsNegative)
         {
             state.FunctionTimer = NativeCountdown.Start(8);
-            ushort step = state.GrayFadeIndex++;
+            int step = state.GrayFadeIndex++;
             if (step == MotherBrainFakeDeathPaletteRomData.FrameCount)
             {
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentCollapseTubes;
@@ -2026,15 +2030,17 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             return;
 
         state.FakeDeathExplosionTimer = NativeCountdown.Start(8);
-        state.FakeDeathExplosionIndex = unchecked((ushort)((state.FakeDeathExplosionIndex - 1) & 7));
+        // The index steps backward through the eight positions, from the first back to the last.
+        state.FakeDeathExplosionIndex = (state.FakeDeathExplosionIndex + MotherBrainFakeDeathExplosionPositions.Length - 1) %
+            MotherBrainFakeDeathExplosionPositions.Length;
         (ushort x, ushort y) = MotherBrainFakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
 
         // `$A9:8904` samples the existing RNG word and never advances it. A host random
         // call here would desynchronize every later Rinka and phase-two attack decision.
-        ushort sampledRandom = _room.Random.Read();
+        int sampledRandom = _room.Random.Read();
         MiscDustAnimation animation = sampledRandom < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), animation);
-        state.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion.Value;
+        state.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion;
     }
 
     // Every spawn after the first ($A9:8983-$8ACB) begins with DEC timer : BPL return, so
@@ -2161,14 +2167,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     }
 
     /// <summary>Queues the room tile change at the tube's native location.</summary>
-    private static void RequestMotherBrainTubePlm(
+    private void RequestMotherBrainTubePlm(
         MotherBrainEnemyState state,
         Position16<RoomBlocks> block,
         PlmHeaderId header,
         MotherBrainTubeCollapseFunction next,
         ushort timer)
     {
-        state.RequestPlm(block, header);
+        RequestMotherBrainPlm(block, header);
         state.TubeCollapseFunction = next;
         state.TubeCollapseTimer = NativeCountdown.Start(timer);
     }
@@ -2222,11 +2228,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (slotIndex < 0)
             return; // SpawnEnemy silently fails when all 32 native records are occupied.
 
-        // Authored verifier buses may supply constructed records. A retail runtime
-        // instead resolves the fixed cutscene placement without touching bank $A9.
-        RoomEnemyPopulationRecord population = _room.Bus is IRoomEnemyFallingTubeFixtureSource fixture
-            ? fixture.ReadFallingTubePopulation(piece)
-            : MotherBrainFallingTubePopulationDefinitions.Get(piece);
+        // The bound source supplies the fixed cutscene placement; retail rooms resolve it without touching bank $A9.
+        RoomEnemyPopulationRecord population = _room.LoadedDefinitions.ReadFallingTubePopulation(piece);
         if (population.DefinitionPointer != EnemyDefinitionId.MotherBrainTubes)
         {
             throw new InvalidDataException(
@@ -2235,12 +2238,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
 
         RoomEnemySlot tube = _slotTable._slots[slotIndex];
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, population.DefinitionPointer);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(tube, population, definition);
         _dispatch.RunInitializationAi(tube);
-        tube.SpritemapPointer = tube.Properties.HasAny(EnemyProperties.ProcessInstructions)
-            ? CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap
-            : (ushort)0;
+        tube.Frame = tube.Properties.HasAny(EnemyProperties.ProcessInstructions)
+            ? EnemyFrameId.Empty
+            : null;
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
         _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
         if (_motherBrainEncounter.MotherBrain is not null)
@@ -2252,30 +2255,38 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     {
         int tubeIndex = tube.Parameter1 / 2;
         (ushort xRadius, ushort yRadius, ushort floor) = MotherBrainFallingTubeBody(tubeIndex);
-        FallingTubeCursors[tube.SlotIndex] = AnimationProgramCursor<MotherBrainTubePiece>.Start((MotherBrainTubePiece)tubeIndex);
+        _extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start((MotherBrainTubePiece)tubeIndex);
         tube.Radius = new(xRadius, yRadius);
-        tube.VariableA = (ushort)(tubeIndex == (int)MotherBrainTubePiece.Main
-            ? MotherBrainTubeFunction.MainTube_WaitingToFall
-            : MotherBrainTubeFunction.NonMainTube);
-        tube.VariableB = floor;
-        tube.VariableC = 0;
-        tube.VariableD = 0;
-        tube.VariableE = 0;
+        var state = new MotherBrainFallingTubeState
+        {
+            Function = tubeIndex == (int)MotherBrainTubePiece.Main
+                ? MotherBrainTubeFunction.MainTube_WaitingToFall
+                : MotherBrainTubeFunction.NonMainTube,
+            FloorY = floor,
+        };
+        tube.SetSpeciesState(state, state.ClearWithRecord);
     }
+
+    /// <summary>A falling tube's state, failing if the tube never initialized.</summary>
+    private static MotherBrainFallingTubeState RequireFallingTubeState(RoomEnemySlot tube) =>
+        tube.SpeciesState<MotherBrainFallingTubeState>() ?? throw new InvalidOperationException("A falling tube has no state.");
 
     /// <summary>Ports the $A9:8B85 function-pointer dispatcher for physical tube enemies.</summary>
     internal void RunMotherBrainFallingTubeMain(RoomEnemySlot tube)
     {
-        switch (ClosedNativeWords.Decode<MotherBrainTubeFunction>(tube.VariableA, "Mother Brain tube function"))
+        MotherBrainFallingTubeState tubeState = RequireFallingTubeState(tube);
+        switch (tubeState.Function ?? throw new InvalidDataException("A falling tube has no function."))
         {
             case MotherBrainTubeFunction.NonMainTube:
                 FallMotherBrainTube(tube, mainTube: false);
                 return;
             case MotherBrainTubeFunction.MainTube_WaitingToFall:
-                tube.Parameter2 = unchecked((ushort)(tube.Parameter2 - 1));
-                if (unchecked((short)tube.Parameter2) >= 0)
+                // The main tube's fall delay counts down in parameter two and expires when it passes zero.
+                NativeWordCounterStep fallDelay = NativeCountdown.FromRaw(checked((ushort)tube.Parameter2)).Decrement();
+                tube.Parameter2 = fallDelay.Remaining.RawValue;
+                if (fallDelay.IsNonNegative)
                     return;
-                tube.VariableA = (ushort)MotherBrainTubeFunction.MainTube_Falling;
+                tubeState.Function = MotherBrainTubeFunction.MainTube_Falling;
                 FallMotherBrainTube(tube, mainTube: true);
                 return;
             case MotherBrainTubeFunction.MainTube_Falling:
@@ -2283,19 +2294,20 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain falling tube function $A9:{tube.VariableA:X4} is not translated.");
+                    $"Mother Brain falling tube function {tubeState.Function} is not translated.");
         }
     }
 
     /// <summary>Moves a falling tube, with a distinct path for the main tube.</summary>
     private void FallMotherBrainTube(RoomEnemySlot tube, bool mainTube)
     {
-        tube.VariableC = unchecked((ushort)(tube.VariableC + 6));
-        tube.Position = tube.Position.AdvanceY(new SnesSignedEightEight(tube.VariableC).ToSixteenSixteenDelta());
+        MotherBrainFallingTubeState tubeState = RequireFallingTubeState(tube);
+        tubeState.FallSpeed = new SnesSignedEightEight(unchecked((ushort)(tubeState.FallSpeed.RawValue + 6)));
+        tube.Position = tube.Position.AdvanceY(tubeState.FallSpeed.ToSixteenSixteenDelta());
 
         if (!mainTube)
         {
-            if (tube.Position.Y.Whole >= tube.VariableB)
+            if (tube.Position.Y.Whole >= tubeState.FloorY)
                 ExplodeMotherBrainTube(tube);
             else
                 SpawnMotherBrainTubeSmoke(tube);
@@ -2321,7 +2333,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
         // `$A9:8C0C/$8C0F` zero the channel words of HDMA objects 0-3, deleting the room's
         // liquid scroll objects (and any X-ray object) for the rest of the encounter.
-        _motherBrainEncounter.MotherBrainDeletedHdmaObjects = true;
+        _frameResults.DeleteLiquidHdmaObjects = true;
         state.Head.Position = state.Head.Position.WithWholeY(196);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
 
@@ -2333,8 +2345,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.NeckSegment2Distance = 20;
         state.NeckSegment3Distance = 10;
         state.NeckSegment4Distance = 20;
-        state.LowerNeckAngle = 18432;
-        state.UpperNeckAngle = 20480;
+        state.LowerNeckAngle = SnesAngle.FromRaw(18432);
+        state.UpperNeckAngle = SnesAngle.FromRaw(20480);
         state.NeckAngleDelta = 256;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3;
         ExplodeMotherBrainTube(tube);
@@ -2343,14 +2355,17 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// <summary>Emits smoke at the falling tube's current position.</summary>
     private void SpawnMotherBrainTubeSmoke(RoomEnemySlot tube)
     {
-        tube.VariableD = unchecked((ushort)(tube.VariableD - 1));
-        if (unchecked((short)tube.VariableD) >= 0)
+        // The smoke cadence counts down and emits when it passes zero.
+        MotherBrainFallingTubeState tubeState = RequireFallingTubeState(tube);
+        NativeWordCounterStep smokeDelay = tubeState.SmokeDelay.Decrement();
+        tubeState.SmokeDelay = smokeDelay.Remaining;
+        if (smokeDelay.IsNonNegative)
             return;
 
-        tube.VariableD = 8;
-        tube.VariableE = unchecked((ushort)((tube.VariableE + 1) & 3));
+        tubeState.SmokeDelay = NativeCountdown.Start(8);
+        tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) & 3;
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(tube.Position.X.Whole + MotherBrainFallingTubeSmokeXOffsets[tube.VariableE])), 208),
+            new(unchecked((ushort)(tube.Position.X.Whole + MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex])), 208),
             MiscDustAnimation.SmallDustCloud);
     }
 
@@ -2362,11 +2377,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         tube.Properties = tube.Properties.With(EnemyProperties.Deleted);
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.SmallExplosion);
         if (_motherBrainEncounter.MotherBrain is not null)
-            _motherBrainEncounter.MotherBrain.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion.Value;
+            _motherBrainEncounter.MotherBrain.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion;
     }
 
     /// <summary>Queues the BG2 room rows revealed by the tube collapse.</summary>
-    private static void RequestMotherBrainRoomRows(
+    private void RequestMotherBrainRoomRows(
         MotherBrainEnemyState state,
         PlmHeaderId firstHeader,
         PlmHeaderId secondHeader,
@@ -2382,8 +2397,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD => 12,
             _ => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
         };
-        state.RequestPlm(new(2, firstRow), firstHeader);
-        state.RequestPlm(new(2, unchecked((byte)(firstRow + 1))), secondHeader);
+        RequestMotherBrainPlm(new(2, firstRow), firstHeader);
+        RequestMotherBrainPlm(new(2, unchecked((byte)(firstRow + 1))), secondHeader);
         state.Function = next;
     }
 
@@ -2400,7 +2415,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         // The native transition now requests the prepared enemy image, replacing the
         // room's pipe background before the articulated body becomes visible.
         var words = new ushort[state.EnemyBg2TilemapSize / 2];
-        WorkRamWordTable bg2 = _room.Scratch.EnemyBg2Tilemap;
+        StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
         for (int index = 0; index < words.Length; index++)
             words[index] = bg2[index];
         new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words);
@@ -2421,18 +2436,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
         _room.EnsureLoaded();
-        if (request.DefinitionPointer != (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard)
+        if (request.Kind != RoomEnemyProjectileKind.MotherBrainGlassShard)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(request),
-                $"Mother Brain glass requested unsupported projectile " +
-                $"$86:{request.DefinitionPointer:X4}.");
+                $"Mother Brain glass requested unsupported projectile {request.Kind}.");
         }
-        if (request.Parameter is not (0 or 2 or 4))
+        if (!Enum.IsDefined(request.Shard))
         {
             throw new InvalidDataException(
-                $"Mother Brain glass shard parameter ${request.Parameter:X4} is not a " +
-                "cartridge X/Y offset-table index.");
+                $"Mother Brain glass shard {request.Shard} is not one of the three emitters.");
         }
 
         RoomEnemyProjectileSlot? shard = _projectiles.AllocateEnemyProjectile();
@@ -2459,7 +2472,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         shard.GraphicsIndex = MotherBrainGlassShardDefinitions.GraphicsIndex;
 
         MotherBrainGlassShardPlacement placement =
-            MotherBrainGlassShardDefinitions.Placement(request.Parameter);
+            MotherBrainGlassShardDefinitions.Placement((ushort)request.Shard);
         shard.Position = shard.Position.WithWhole(request.PlmBlock.ToRoomPixels() + placement.Offset);
 
         // Position jitter consumes two additional RNG samples in this order. It is not
@@ -2633,10 +2646,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
         state.HandBeamNextPosition = beam.Position;
 
-        ushort angleRandom = _room.Random.Generate();
+        int angleRandom = _room.Random.Generate();
         byte scatterAngle = unchecked((byte)(
             state.HandBeamNextAngle + unchecked((byte)angleRandom)));
-        ushort speedRandom = _room.Random.Generate();
+        int speedRandom = _room.Random.Generate();
         // Bits 8 to 10 of the random word: a whole speed of zero to seven.
         ushort scatterSpeed = SnesLittleEndian.Word(0, (byte)(SnesLittleEndian.HighByte(speedRandom) & 7));
         beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(scatterSpeed, scatterAngle)));
@@ -2653,7 +2666,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 new(impactX, impactY),
                 MiscDustAnimation.BigExplosion);
-            state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion.Value;
+            state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion;
             _earthquake.EarthquakeTimer = NativeCountdown.Start(10);
             _earthquake.EarthquakeType = 5;
             return;
@@ -2912,25 +2925,20 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// <summary>Drains the pending body sprite transfer and reports whether more VRAM work remains.</summary>
     internal bool ProcessMotherBrainSpriteTileTransfer(MotherBrainEnemyState state)
     {
-        int index = state.SpriteTileTransferEntryPointer == 0
-            ? 0
-            : MotherBrainLegTileTransferDefinitions.IndexOf(
-                state.SpriteTileTransferEntryPointer);
+        int index = state.NextLegTilePage;
         MotherBrainSpriteTileTransferRequest transfer =
             MotherBrainLegTileTransferDefinitions.Get(index);
         _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(transfer);
 
         // Native checks the next record's zero terminator on the same call as
-        // page eleven. Preserve that same-frame completion and pointer reset.
+        // page eleven. Preserve that same-frame completion and list reset.
         if (index + 1 == MotherBrainLegTileTransferDefinitions.PageCount)
         {
-            state.SpriteTileTransferEntryPointer = 0;
+            state.NextLegTilePage = 0;
             return true;
         }
 
-        state.SpriteTileTransferEntryPointer = unchecked((ushort)(
-            MotherBrainLegTileTransferDefinitions.NativeListPointer +
-            (index + 1) * MotherBrainLegTileTransferDefinitions.RecordByteCount));
+        state.NextLegTilePage = index + 1;
         return false;
     }
 
@@ -2942,7 +2950,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
         PublishMotherBrainBg2Scroll(state, new(unchecked((ushort)-27), unchecked((ushort)-217)));
-        state.HitboxesEnabled = 7;
+        state.HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake;
     }
 
@@ -2997,10 +3005,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             state.BodySubFunctionTimer = NativeCountdown.Start(7);
 
         ushort x = MotherBrainAscentDustXPositions[state.BodySubFunctionTimer.RawValue];
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         MiscDustAnimation animation = (SnesLittleEndian.HighByte(random) & 1) == 0 ? MiscDustAnimation.SmallDustCloud : MiscDustAnimation.ShortBigDustCloud;
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, 212), animation);
-        state.LastSoundEffect = MotherBrainSoundDefinitions.AscentDust.Value;
+        state.LastSoundEffect = MotherBrainSoundDefinitions.AscentDust;
     }
 
     /// <summary>Holds the body phase until its slow uncrouch animation ends.</summary>
@@ -3021,7 +3029,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             return;
 
         state.FunctionTimer = NativeCountdown.Start(4);
-        ushort paletteStep = state.GrayTransitionCounter++;
+        int paletteStep = state.GrayTransitionCounter++;
         if (paletteStep < MotherBrainFakeDeathPaletteRomData.FrameCount)
         {
             // Fake-death restoration changes only brain sprite colors one through three.
@@ -3033,7 +3041,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
 
         state.BrainPaletteHandlingEnabled = true;
-        state.Form = 2;
+        state.Form = MotherBrainForm.SecondPhase;
         state.DroolGenerationEnabled = true;
         state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
         state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
@@ -3097,7 +3105,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
 
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         if (state.Head.Health >= 4500)
         {
             if (random < 4096)
@@ -3172,7 +3180,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
         byte randomLow = unchecked((byte)_room.Random.Read());
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(_room.LoadedBus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
         if ((byte)movementType >= 28)
         {
             throw new InvalidDataException(
@@ -3260,7 +3268,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// <summary>Ports <c>$A9:B781-B7AB</c>, including its immediate posture decision.</summary>
     private void DecideMotherBrainBombWalking(MotherBrainEnemyState state)
     {
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         if (random < 65408)
         {
             ushort targetX = random >= 24576 ? (ushort)64 : (ushort)96;
@@ -3353,7 +3361,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// <summary>Literal target/pose/list behavior of <c>$A9:C647</c> at delay-table offset six.</summary>
     private static bool TryWalkMotherBrainBackwards(
         MotherBrainEnemyState state,
-        ushort targetX)
+        int targetX)
     {
         ushort targetMinusBody = unchecked((ushort)(targetX - state.Body.Position.X.Whole));
         if (unchecked((short)targetMinusBody) >= 0)
@@ -3442,9 +3450,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
 
-        state.NeckAngleDelta = unchecked((short)state.NeckAngleDelta) >= 0
-            ? (ushort)256
-            : unchecked((ushort)-256);
+        state.NeckAngleDelta = state.NeckAngleDelta >= 0 ? 256 : -256;
         SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Laser);
         state.Function = MotherBrainBodyFunction.SecondPhaseLaserFinishAttack;
         state.FunctionTimer = NativeCountdown.Start(16);
@@ -3475,9 +3481,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         // actual displacement remains bytecode-owned, which also keeps BG2 scroll aligned.
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
-        if (state.WalkCounter == 0)
+        if (state.WalkCounter.IsEmpty)
         {
-            state.WalkCounter = 1;
+            state.WalkCounter = MotherBrainWalkCredit.Of(1);
             if (state.Body.Position.X.Whole >= 48)
             {
                 SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.WalkBackwardFast);
@@ -3486,8 +3492,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
         else
         {
-            state.WalkCounter = unchecked((ushort)(state.WalkCounter + 6));
-            if (state.WalkCounter >= 256)
+            state.WalkCounter = state.WalkCounter.AddCredit(6);
+            if (!state.WalkCounter.BelowStep)
             {
                 StartMotherBrainForwardWalk(state);
                 return;
@@ -3505,7 +3511,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// <summary>Starts the body animation and state for a forward step.</summary>
     private static void StartMotherBrainForwardWalk(MotherBrainEnemyState state)
     {
-        state.WalkCounter = 128;
+        state.WalkCounter = MotherBrainWalkCredit.Of(128);
         if (state.Body.Position.X.Whole < 128)
             SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.WalkForwardMedium);
     }
@@ -3550,8 +3556,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
         // Form three additionally queues library-three sound $16. Phase two normally never
         // reaches that branch, but retaining it here makes the shared gait opcode complete.
-        if (_motherBrainEncounter.MotherBrain?.Form == 3)
-            _motherBrainEncounter.MotherBrain.LastSoundEffectLibrary3 = SoundEffectLibrary3Sounds.MotherBrainFormThreeFootstep.Value;
+        if (_motherBrainEncounter.MotherBrain?.Form == MotherBrainForm.DrainedByBabyMetroid)
+            _motherBrainEncounter.MotherBrain.LastSoundEffectLibrary3 = SoundEffectLibrary3Sounds.MotherBrainFormThreeFootstep;
     }
 
     /// <summary>Ports <c>$A9:C42D</c>: restarts the body enemy on <paramref name="program"/> with its initial timer.</summary>
@@ -3611,7 +3617,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (!state.DroolGenerationEnabled)
             return;
 
-        ushort parameter = unchecked((ushort)(state.DroolProjectileParameter + 1));
+        int parameter = state.DroolProjectileParameter + 1;
         if (parameter >= 6)
             parameter = 0;
         state.DroolProjectileParameter = parameter;
@@ -3624,7 +3630,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(drool, kind, graphicsIndex: 0);
-        drool.Variable0 = parameter;
+        drool.Variable0 = (ushort)parameter;
 
         // SpawnEnemyProjectile runs initializer C843 immediately. It falls through into
         // the attached pre-instruction, so debugger-visible coordinates are valid before
@@ -3709,9 +3715,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain onion ring ran without its multipart encounter state.");
 
-        if (ring.Variable0 != 0)
+        // The ring stays pinned to the mouth while its attach delay in variable zero runs out.
+        NativeCountdown attachDelay = NativeCountdown.FromRaw(checked((ushort)ring.Variable0));
+        if (!attachDelay.IsZero)
         {
-            ring.Variable0 = unchecked((ushort)(ring.Variable0 - 1));
+            ring.Variable0 = attachDelay.DecrementToZero().RawValue;
             PinMotherBrainOnionRingToMouth(ring, state);
             return;
         }
@@ -3731,7 +3739,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
             if (MotherBrainOnionRingOverlapsBaby(ring, baby))
             {
-                state.PendingBabyCryCount = unchecked((ushort)(state.PendingBabyCryCount + 1));
+                state.PendingBabyCryCount++;
                 _ = baby.ApplyMotherBrainOnionRingHit();
                 // `$86:C399-$C3A5` writes the Baby slot's Enemy.health from this projectile
                 // pass; it must not wait for the Baby's next AI turn to publish it.
@@ -3754,13 +3762,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                     ? (ushort)(80 >> 1)
                     : (ushort)80;
             samus.Health = samus.Health <= damage
-                ? (ushort)0
-                : unchecked((ushort)(samus.Health - damage));
+                ? 0
+                : samus.Health - damage;
             samus.InvincibilityTimer = NativeCountdown.Start(96);
             samus.KnockbackTimer = NativeCountdown.Start(5);
             samus.KnockbackXDirection = unchecked((short)(samus.Position.X.Whole - ringPosition.X)) >= 0
-                ? (ushort)1
-                : (ushort)0;
+                ? KnockbackHorizontalDirection.Right
+                : KnockbackHorizontalDirection.Left;
             ExplodeMotherBrainOnionRing(ring, state, ringPosition);
             return;
         }
@@ -3815,7 +3823,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         // the newborn dust list during the same pass, matching EprojRunOne's original X.
         ring.Clear();
         _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
-        state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion.Value;
+        state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion;
     }
     /// <summary>
     /// Ports the twelve calls to <c>SpawnEprojWithRoomGfx($C17E, A=0..$B)</c> made by
@@ -4011,7 +4019,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         SamusState samus,
         SamusBombProjectileSystem? sharedProjectiles)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(_room.MotherBrainCorpseArtwork);
+        var sequence = new MotherBrainRainbowBeamAttackSequence(_room.MotherBrainCorpseArtwork, _room.Staging);
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
         // Word $0FF2 keeps the fake-death ascent dust's last value; the death explosions
         // start from it. Word $0FF0 then holds a bank-$A9 sub-function pointer, always
@@ -4052,10 +4060,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         {
             var text = state.EscapeTypewriter ?? throw new InvalidOperationException("Mother Brain escape text was not initialized.");
             typewriterFinished = text.Step(_presentation.Vram);
-            if (text.ClickRequested) state.LastSoundEffectLibrary3 = EscapeTypewriterRomData.ZebesClick;
+            if (text.ClickRequested) state.LastSoundEffectLibrary3 = SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EscapeTypewriterRomData.ZebesClick);
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(_room.LoadedBus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext._randomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = _room.Random.Read(), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _roomStatus.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer.RawValue });
-        state.LastRainbowBeamStep = step;
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext._randomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _roomStatus.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer });
+        _frameResults.MotherBrainDeathStep = step;
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
 
@@ -4065,7 +4073,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         MotherBrainRainbowBeamAttackSequence sequence)
     {
         RoomEnemySlot head = state.Head;
-        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyProperties = state.Body.Properties, BodyExtraProperties = state.Body.ExtraProperties, Brain = head.Position.Whole, BrainHealth = head.Health, BrainProperties = head.Properties, BrainExtraProperties = head.ExtraProperties, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovementIndex = state.LowerNeckMovementIndex, UpperNeckMovementIndex = state.UpperNeckMovementIndex, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != 0 });
+        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyProperties = state.Body.Properties, BodyExtraProperties = state.Body.ExtraProperties, Brain = head.Position.Whole, BrainHealth = head.Health, BrainProperties = head.Properties, BrainExtraProperties = head.ExtraProperties, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovementIndex = state.LowerNeckMovementIndex, UpperNeckMovementIndex = state.UpperNeckMovementIndex, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
     }
 
     /// <summary>
@@ -4110,7 +4118,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         // Republish it after every body call so either view observes the exact same counter.
         state.WalkCounter = sequence.Phase3WalkCounter;
         state.NeckAngleDelta = sequence.NeckAngleDelta;
-        state.NeckMovementEnabled = sequence.NeckMovementEnabled != 0;
+        state.NeckMovementEnabled = sequence.NeckMovementEnabled;
         state.LowerNeckMovementIndex = sequence.LowerNeckMovementIndex;
         state.UpperNeckMovementIndex = sequence.UpperNeckMovementIndex;
         if (sequence.Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil &&
@@ -4133,7 +4141,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         // branch meaning. Preserve every nonzero cartridge value; only a translated clear
         // is allowed to collapse it to zero.
         if (!sequence.HitboxesEnabled)
-            state.HitboxesEnabled = 0;
+            state.HitboxesEnabled = MotherBrainHitboxParts.None;
         if (sequence.SmallPurpleBreathGenerationWriteCount != state.RainbowAppliedSmallPurpleBreathWrites)
         {
             state.SmallPurpleBreathGenerationEnabled = sequence.SmallPurpleBreathGenerationEnabled;
@@ -4157,10 +4165,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         ApplyMotherBrainRainbowPalette(state, current);
         // $A9:D1E4 runs after body AI. Its health handler is enabled during revival,
         // but $AD:E3D5 waits until the corpse-state word reaches final-combat state 2.
-        if (sequence.HealthBasedPaletteHandlingEnabled && sequence.Phase2CorpseState >= 2)
+        if (sequence.HealthBasedPaletteHandlingEnabled && sequence.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
             MotherBrainHealthPalette.Apply(_presentation.Cgram, state.Head.Health, _presentation.MotherBrainHealthColors);
         ApplyLiveMotherBrainDeath(state, sequence, current);
-        state.LastRainbowBeamExplosion = current.Explosion;
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
             // stops the same looping voice. Preserve the command selected by the sequence.
@@ -4168,9 +4175,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 ? MotherBrainSoundDefinitions.StartRainbowDrain
                 : MotherBrainSoundDefinitions.StopRainbowDrain;
         if (current.ChargeSoundQueued || current.FinalBeamSoundQueued)
-            state.LastSoundEffect = SoundEffectLibrary2Sounds.CancelAll.Value;
+            state.LastSoundEffect = SoundEffectLibrary2Sounds.CancelAll;
         if (current.Explosion is not null)
-            state.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion.Value;
+            state.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion;
 
         // `$BA0F` seeds the short quake, `$BA27` replaces it with the full drain duration,
         // and `$BA93` clears it when the beam contracts below its minimum width.
@@ -4438,8 +4445,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             int index = RequireLiveMotherBrainRainbowSequence(state).GreyTransitionCounter - 1;
             var installed = _presentation.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's grey transition requires installed palette artwork.");
-            if (draining) installed.ApplyToGrey(_room.LoadedBus, _presentation.Cgram, index);
-            else installed.ApplyFromGrey(_room.LoadedBus, _presentation.Cgram, index);
+            if (draining) installed.ApplyToGrey(_presentation.Cgram, index);
+            else installed.ApplyFromGrey(_presentation.Cgram, index);
             return;
         }
         if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.FinishFiring &&
@@ -4497,7 +4504,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     }
 
     /// <summary>Registers the head-touch reaction for the active body/head pair.</summary>
-    internal void RegisterMotherBrainHeadTouch(EnemyAiTable table)
+    internal static void RegisterMotherBrainHeadTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MotherBrainHeadTouch,
@@ -4507,7 +4514,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 // the head's visible flash length between the cartridge's 13/14-frame
                 // cadence; every other movement type returns without changing either actor.
                 RoomEnemySlot slot = context.Slot;
-                if (context.Samus.PoseMetadata.ReadMovementType(_room.LoadedBus) == SamusMovementType.SpinJumping)
+                if (context.Samus.PoseMetadata.ReadMovementType() == SamusMovementType.SpinJumping)
                     slot.FlashTimer = NativeCountdown.FromRaw(!slot.FlashTimer.IsZero && (slot.FlashTimer.RawValue & 1) != 0
                         ? (ushort)14
                         : (ushort)13);
@@ -4517,10 +4524,43 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     // `$A9:B503` is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and the
     // body callback performs no health, phase, or multipart-state work of its own.
     /// <summary>Registers body bomb reactions in the native AI dispatch table.</summary>
-    internal static void RegisterMotherBrainBodyBombReactions(EnemyAiTable table)
+    internal static void RegisterMotherBrainBodyBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
                                   c.SelectedShotAi == EnemyInteractionCallback.MotherBrainBodyShot,
             static _ => { });
+    }
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindMotherBrainHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    {
+        callback = null;
+        if (!(enemy.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead &&
+            enemy.Definition.Bank == MotherBrainCollisionDefinitions.Bank))
+            return null;
+
+        // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
+        foreach (MotherBrainCollisionComponent component in
+                 MotherBrainCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            ushort componentX = componentOrigin.X;
+            ushort componentY = componentOrigin.Y;
+            foreach (MotherBrainCollisionHitbox hitbox in component.Hitboxes)
+            {
+                ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback
+                    ? MotherBrainHitboxCallbackCodec.ToCallback(hitbox.Shot)
+                    : MotherBrainHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                return true;
+            }
+        }
+        return false;
+    
     }
 }

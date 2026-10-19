@@ -34,10 +34,10 @@ internal static class PowerBombDeathRadiusVerification
             var fixture = CreateEnemyDropFixture(CreateDropTestSamus(), [1]);
             var enemies = fixture.System;
             var higher = Place(enemies.SlotTable.Slots[1], explosionX, killerLethal ? (ushort)1 : (ushort)1000);
-            higher.Properties = killerRespawns ? (ushort)EnemyProperties.RespawnIfKilled : (ushort)0;
+            higher.Properties = EnemyPropertyWord.FromNativeWord((ushort)(killerRespawns ? (ushort)EnemyProperties.RespawnIfKilled : (ushort)0));
             var lower = Place(enemies.SlotTable.Slots[0], unchecked((ushort)(explosionX + lowerXOffset)), 1000);
 
-            enemies.Collision.ResolveOrdinaryPowerBombHits(fixture.Bus, new(explosionX, explosionY), radius);
+            enemies.Collision.ResolveOrdinaryPowerBombHits(new(explosionX, explosionY), radius);
 
             if (killerLethal)
             {
@@ -51,13 +51,12 @@ internal static class PowerBombDeathRadiusVerification
 
         static RoomEnemySlot Place(RoomEnemySlot actor, ushort x, ushort health)
         {
-            actor.EnemyDefinitionPointer = EnemyDefinitionId.Atomic;
-            actor.Definition = RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer);
-            actor.AiBank = actor.Definition.Bank;
+            actor.Bind(EnemyDefinitionId.Atomic, actor.Definition);
+            actor.Bind(actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer));
             actor.Health = health;
             actor.Position = actor.Position.WithWhole(new(x, explosionY));
             actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);
-            actor.Properties = 0;
+            actor.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0));
             return actor;
         }
     }

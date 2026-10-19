@@ -28,7 +28,7 @@ internal static class MagdolliteAnimations
         // $A8:ACB0
         [P.LeftThrow] =
         [
-            Cue(new(K.PlaySoundIfOnScreen, Value: 97)),
+            Cue(new(K.PlaySoundIfOnScreen, Sound: MagdolliteSoundDefinitions.Throw)),
             Cue(new(K.SetAnimationBusy)),
             Cue(new(K.StartCooldown)),
             Show(3, 26),
@@ -106,7 +106,7 @@ internal static class MagdolliteAnimations
         // $A8:AD50
         [P.RightThrow] =
         [
-            Cue(new(K.PlaySoundIfOnScreen, Value: 97)),
+            Cue(new(K.PlaySoundIfOnScreen, Sound: MagdolliteSoundDefinitions.Throw)),
             Cue(new(K.SetAnimationBusy)),
             Cue(new(K.StartCooldown)),
             Show(14, 26),

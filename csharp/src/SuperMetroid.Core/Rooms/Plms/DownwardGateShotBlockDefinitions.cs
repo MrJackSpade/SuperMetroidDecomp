@@ -23,7 +23,7 @@ internal static class DownwardGateShotBlockDefinitions
     /// left and odd i selects right. All three fields independently match the supported
     /// NTSC original tables; no cached records remain. Every other argument is rejected.
     /// </summary>
-    internal static DownwardGateShotBlockDefinition Resolve(ushort roomArgument)
+    internal static DownwardGateShotBlockDefinition Resolve(int roomArgument)
     {
         if ((roomArgument & 1) != 0 || roomArgument > LastRoomArgument)
         {

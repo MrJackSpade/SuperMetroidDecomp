@@ -20,7 +20,7 @@ internal static class MenuShoulderButtonPixelsVerification
         byte[] json = files[MapSpriteFormat.JsonFile];
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), new(128, 128));
         var button = new MenuShoulderButtonArtwork(image);
-        AssertEqual(4, MenuShoulderButtonArtwork.StoredGlyphByteCount, "only two authored letter masks remain");
+        AssertEqual(32, MenuShoulderButtonArtwork.StoredGlyphPixelCount, "only the two authored four-by-four letter drawings remain");
         AssertEqual(0, button.StoredEditCount, "all stock button caps and shadow joins are calculated without retained pixel exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(3360, stock.StoredArtworkByteCount, "button planar tiles absent from retained atlas");

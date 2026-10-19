@@ -17,8 +17,11 @@ internal sealed class IntroMotherBrainSpriteState
             IntroMotherBrainDefinitions.MotherBrain.Program);
     /// <summary>Remaining palette alternations after a missile hit.</summary>
     private NativeCountdown hurtFlashTimer;
-    /// <summary>Frames since the fourth hit began the explosion phase.</summary>
-    private ushort explodingTimer;
+    /// <summary>
+    /// Updates since the fourth hit began the explosion phase: zero at the hit, counted up once per update to the
+    /// 128 that starts the page-two program, after which it is no longer advanced.
+    /// </summary>
+    private int explodingTimer;
     /// <summary>Whether explosion timing has entered the page-two instruction list.</summary>
     private bool pageTwoInstructionStarted;
     /// <summary>Whether the page-two program's pre-instruction has replaced hit flashing.</summary>
@@ -31,18 +34,18 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>OAM palette and attribute bits selected by the discovery cinematic object.</summary>
     public static ushort PaletteBits => IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
 
-    /// <summary>Bank-$8C spritemap selected by the latest timed instruction entry.</summary>
-    public ushort SpriteMapPointer => actor.SpriteMapPointer;
+    /// <summary>The pose Mother Brain's program shows; null before its first frame and after deletion.</summary>
+    public CinematicSpritePose? Pose => actor.Pose;
 
-    /// <summary>Number of missiles consumed by <c>$8B:B786</c>, from zero through four.</summary>
-    public ushort HitCount { get; private set; }
+    /// <summary>Number of missiles consumed by <c>$8B:B786</c>; the fourth starts the explosion.</summary>
+    public int HitCount { get; private set; }
 
     /// <summary>True once the fourth hit switches this actor to <c>$8B:B80F</c>.</summary>
     public bool ExplosionStarted { get; private set; }
 
-    /// <summary>BG1 vertical scroll word toggled by $8B:B877 while Mother Brain explodes.</summary>
-    public ushort BackgroundVerticalScroll { get; private set; } =
-        IntroCinematicState.GameplayFlashbackBg1VerticalScroll;
+    /// <summary>The flashback room's BG1 scroll, shaken vertically by $8B:B877 while Mother Brain explodes.</summary>
+    public Position16<RoomPixels> Background { get; private set; } =
+        new(0, IntroCinematicState.GameplayFlashbackBg1VerticalScroll);
 
     /// <summary>True when $B80F switches the actor to its page-two instruction list.</summary>
     public bool PageTwoRequested { get; private set; }
@@ -128,9 +131,9 @@ internal sealed class IntroMotherBrainSpriteState
         // $8B:B877 adds four on even cinematic frames and subtracts four on odd frames.
         // The inherited $0008 value therefore alternates $000C/$0008; starting this host
         // field at zero would produce $0004/$0000 and shift the whole room down one tile.
-        // The arithmetic deliberately wraps as a 16-bit SNES scroll register would.
-        BackgroundVerticalScroll = (cinematicFrameCounter & 1) == 0
-            ? unchecked((ushort)(BackgroundVerticalScroll + 4))
-            : unchecked((ushort)(BackgroundVerticalScroll - 4));
+        // The scroll wraps at sixteen bits, as every room scroll does.
+        Background += (cinematicFrameCounter & 1) == 0
+            ? new Offset16<RoomPixels>(0, 4)
+            : new Offset16<RoomPixels>(0, -4);
     }
 }

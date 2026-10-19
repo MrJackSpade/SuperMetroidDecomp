@@ -28,12 +28,12 @@ internal static class GrappleEnemyDeathVerification
         const ushort header = 0x9000;
         SeedEnemyDropChancePointer(fixture.Bus, header);
         var enemy = fixture.System.SlotTable.Slots[0];
-        enemy.EnemyDefinitionPointer = (EnemyDefinitionId)header;
-        enemy.Definition = default(RoomEnemyDefinition) with
+        enemy.Bind((EnemyDefinitionId)header, enemy.Definition);
+        enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             GrappleAiPointer = GrappleAiRoutine.Kill,
             DeathAnimation = 4,
-        };
+        });
         enemy.Position = enemy.Position.WithWhole(new(100, 100));
         enemy.Radius = new(8, 8);
         enemy.Health = 500;
@@ -55,9 +55,10 @@ internal static class GrappleEnemyDeathVerification
         for (int frame = 0; frame < 100; frame++)
         {
             fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-            // This focused projectile pass publishes the legacy sound field; the
-            // full enemy-frame adapter forwards it to library two with Max1.
-            heardDeath |= fixture.System.DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 == 9;
+            // This focused projectile pass publishes the death sound field; the
+            // full enemy-frame adapter forwards it to the queue with Max1.
+            heardDeath |= fixture.System.DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 ==
+                new SoundEffectId(SoundEffectLibrary.Library2, 9);
             if (explosion.Variable0 == (ushort)EnemyPickupKind.SmallEnergy * 2)
             {
                 AssertEqual(31, frame, "small explosion uses the cartridge's complete 31-frame animation");
@@ -102,7 +103,7 @@ internal static class GrappleEnemyDeathVerification
         {
             var samus = CreateDropTestSamus();
             samus.Pose = pose;
-            samus.PoseMetadata.RefreshCollisionRadii(retail);
+            samus.PoseMetadata.RefreshCollisionRadii();
             // The logged 51->01 request used the standing-size live radius, retained
             // across a pose handoff; C8C5 branches on that word, not pose metadata.
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(17);
@@ -110,11 +111,11 @@ internal static class GrappleEnemyDeathVerification
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.TileArtwork = InstalledFixtures.EnemyTiles;
             var enemy = fixture.System.SlotTable.Slots[0];
-            enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
-            enemy.Definition = default(RoomEnemyDefinition) with
+            enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
+            enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {
                 GrappleAiPointer = GrappleAiRoutine.Kill,
-            };
+            });
             enemy.Position = enemy.Position.WithWhole(new(100, 100));
             enemy.Radius = new(8, 8);
             enemy.Health = 500;
@@ -124,7 +125,7 @@ internal static class GrappleEnemyDeathVerification
             fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level });
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
             var movementRoom = CreateRoom(new(32, 32), new ushort[32 * 32], new byte[32 * 32]);
-            var result = SamusGrappleMovement.Step(new SamusTerrain { Bus = retail, Level = movementRoom }, samus, 0, 0);
+            var result = SamusGrappleMovement.Step(new SamusTerrain { Level = movementRoom }, samus, 0, 0);
             AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {(int)pose:X2} completes grapple cleanup");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");
             AssertEqual(pose == SamusPoseId.StandingAimDiagonalDownRightPose ? pose : SamusPoseId.FacingRightNormalPose,

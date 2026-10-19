@@ -67,7 +67,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
                 EndingCompletionTextSpritePresentation.Write(output, document);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             var audio = new CartridgeAudioState();
-            var scene = CreateRetailEndingFixture(guard, audio, 0, 0);
+            var scene = CreateRetailEndingFixture(audio, 0, 0);
             scene.BindObjectArtwork(stock);
             for (int frame = 0; frame < 12000 &&
                 scene.Phase != EndingCreditsPhase.OperationSuccessfulText; frame++)

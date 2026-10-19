@@ -23,8 +23,8 @@ internal static class MapCrossViewAudit
         foreach (ushort roomPointer in MapCrossViewAuditDefinitions.RepresentativeRooms)
         {
             CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            comparisonCount += VerifyRoom(bus, room, hasAreaMap: false);
-            comparisonCount += VerifyRoom(bus, room, hasAreaMap: true);
+            comparisonCount += VerifyRoom(room, hasAreaMap: false);
+            comparisonCount += VerifyRoom(room, hasAreaMap: true);
         }
 
         CartridgeRoomHeader reportedRoom = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(
@@ -47,7 +47,6 @@ internal static class MapCrossViewAudit
 
     /// <summary>Compares fifteen HUD map cells and the pause marker for one room and map-acquisition state.</summary>
     private static int VerifyRoom(
-        SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
         bool hasAreaMap)
     {
@@ -62,10 +61,10 @@ internal static class MapCrossViewAudit
             system.SetAreaMapAcquired(room.AreaIndex);
 
         var hud = new HudState();
-        hud.Initialize(bus, HudSnapshot.CeresDebug);
-        hud.UpdateMinimap(bus, system, new MinimapFrame { AreaIndex = room.AreaIndex, RoomMap = room.MapPosition, RoomSize = room.Size.ToRoomBlocks(), Samus = samus.Position.Whole, NmiFrameCounter = 8 });
+        hud.Initialize(HudSnapshot.CeresDebug);
+        hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = room.AreaIndex, RoomMap = room.MapPosition, RoomSize = room.Size.ToRoomBlocks(), Samus = samus.Position.Whole, NmiFrameCounter = 8 });
 
-        var pause = new PauseMenuState(bus, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition });
+        var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition });
         _ = pause.Render();
 
         Position16<OamPixels> expectedMarker = hud.MinimapCenter

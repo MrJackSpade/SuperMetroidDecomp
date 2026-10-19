@@ -20,16 +20,16 @@ internal static class TorizoPaletteShakeVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static int VerifyTorizoPaletteShake()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var cgram = new SnesCgram();
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
-        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         var actor = enemies.SlotTable.Slots[0];
-        actor.EnemyDefinitionPointer = EnemyDefinitionId.BombTorizo;
-        actor.Definition = RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer);
-        var state = new TorizoEnemyState(actor, false);
+        actor.Bind(EnemyDefinitionId.BombTorizo, actor.Definition);
+        actor.Bind(actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer));
+        // The initializer's function words; the build-pinned debugger state below rejects the undefined zero defaults.
+        var state = new TorizoEnemyState(actor, false) { Function = TorizoFunction.Falling, PreInstruction = TorizoPreInstruction.Idle };
         enemies.BombTorizoBehavior._torizoState = state;
         void Execute(TorizoCueKind kind) =>
             AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(

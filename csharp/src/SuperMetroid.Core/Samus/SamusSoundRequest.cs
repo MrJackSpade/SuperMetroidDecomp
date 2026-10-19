@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Samus;
 /// <param name="SoundSuppressed">Queue guard captured by the producer, before any later state changes.</param>
 public readonly record struct SamusSoundRequest(
     SoundEffectId SoundEffect,
-    byte MaximumQueued,
+    int MaximumQueued,
     bool SoundSuppressed = false);

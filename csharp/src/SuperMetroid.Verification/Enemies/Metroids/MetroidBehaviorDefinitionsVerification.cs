@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -31,7 +32,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         for (ushort index = 0; index < 8; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2)),
-                MetroidBehaviorDefinitions.RandomCrySoundEffect(index),
+                MetroidBehaviorDefinitions.RandomCrySoundEffect(index).Value,
                 $"Metroid random cry {index}");
         }
 
@@ -47,16 +48,15 @@ internal static class MetroidBehaviorDefinitionsVerification
         var guarded = NewMetroidBehaviorReadGuard(rom);
         // One system serves every timer: the escape step is static and keeps no per-call state.
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         for (int timer = 0; timer <= ushort.MaxValue; timer++)
         {
-            var slot = new RoomEnemySlot(0)
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0001, 0xffff)),
             };
             var state = new MetroidEnemyState(
-                slot,
                 new RoomSpriteObjectSlot(0),
                 new RoomSpriteObjectSlot(1))
             {
@@ -92,31 +92,31 @@ internal static class MetroidBehaviorDefinitionsVerification
         for (ushort random = 0; random < 8; random++)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             ushort selectedRandom = random;
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => selectedRandom));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
+            slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
             slot.InstructionTimer = NativeCountdown.Start(1);
             // Start at the chasing loop's random-cry cue, after its twenty pulse poses.
-            enemies.MetroidBehavior._metroidStates[0] = new MetroidEnemyState(slot, new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
+            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
             {
                 Program = new AnimationProgramCursor<MetroidProgram>(MetroidProgram.ChasingSamus,
                     MetroidAnimations.Programs.Steps(MetroidProgram.ChasingSamus).ToList().FindIndex(step => step.Kind == AnimationProgramStepKind.Cue)),
-            };
+            });
 
-            enemies.Instructions.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
+            EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
 
-            AssertEqual(MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
-                enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 ?? ushort.MaxValue,
+            AssertEqual((SoundEffectId?)MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
+                enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2,
                 $"production Metroid random cry {random}");
             AssertEqual(16, slot.InstructionTimer.RawValue,
                 $"production Metroid script timer {random}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), slot.SpritemapPointer,
                 $"production Metroid script spritemap {random}");
             AssertEqual(new AnimationProgramCursor<MetroidProgram>(MetroidProgram.ChasingSamus, 1),
-                (enemies.MetroidBehavior._metroidStates[0] ?? throw new InvalidOperationException("The Metroid has no state.")).Program,
+                (enemies.SlotTable.Slots[0].EntityState<MetroidEntity, MetroidEnemyState>() ?? throw new InvalidOperationException("The Metroid has no state.")).Program,
                 $"production Metroid script continuation {random}");
         }
     }

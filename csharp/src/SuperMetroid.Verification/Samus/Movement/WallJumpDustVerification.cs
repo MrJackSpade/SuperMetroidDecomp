@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpExpansionVerification;
 using SuperMetroid.Core.Samus;
@@ -12,7 +13,7 @@ internal static class WallJumpDustVerification
     internal static void VerifyWallJumpDust()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyWallJumpExpansion), () => VerifyWallJumpExpansion(bus));
+        Suite(nameof(VerifyWallJumpExpansion), () => VerifyWallJumpExpansion());
         foreach (bool grapple in new[] { false, true })
         foreach (bool facingRight in new[] { false, true })
         for (int medium = 0; medium < 5; medium++)
@@ -22,16 +23,16 @@ internal static class WallJumpDustVerification
             samus.Pose = grapple
                 ? facingRight ? SamusPoseId.GrappleWallContactRightPose : SamusPoseId.GrappleWallContactLeftPose
                 : facingRight ? SamusPoseId.SpinJumpRightPose : SamusPoseId.SpinJumpLeftPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             var liquid = samus.LiquidPhysics;
             liquid.FxYPosition = medium is 1 or 3 ? (ushort)100 : medium == 4 ? (ushort)114 : ushort.MaxValue;
             liquid.LavaAcidYPosition = medium == 2 ? (ushort)100 : ushort.MaxValue;
-            liquid.LiquidOptions = medium == 3 ? (ushort)4 : (ushort)0;
+            liquid.LiquidOptions = medium == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
             liquid.AtmosphericEffects.SetSlot(3, 1, 2, 7, new(33, 44));
             liquid.AtmosphericEffects.SetSlot(2, 1, 1, 9, new(55, 66));
-            if (grapple) samus.PoseTransitions.ApplyGrappleWallJump(bus);
-            else samus.PoseTransitions.ApplyWallJumpTrigger(bus);
+            if (grapple) samus.PoseTransitions.ApplyGrappleWallJump();
+            else samus.PoseTransitions.ApplyWallJumpTrigger();
 
             bool suppressed = medium is 1 or 2;
             var dust = liquid.AtmosphericEffects.Slots[3];

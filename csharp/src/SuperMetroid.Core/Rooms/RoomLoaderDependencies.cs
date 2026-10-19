@@ -53,6 +53,9 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Enemies.</summary>
     public required RoomEnemySystem Enemies { get; init; }
 
+    /// <summary>The session's BG tilemap staging, which library-background programs fill.</summary>
+    public required Bg2TilemapStaging Bg2TilemapStaging { get; init; }
+
     /// <summary>Enemy room effects.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }
 
@@ -72,7 +75,7 @@ internal sealed record RoomLoaderDependencies
     public required MaridiaElevatubeRoomMainState MaridiaElevatube { get; init; }
 
     /// <summary>Nmi.</summary>
-    public required NmiClock Nmi { get; init; }
+    public required FrameClock Clock { get; init; }
 
     /// <summary>Options.</summary>
     public required GameplayOptions Options { get; init; }
@@ -122,6 +125,4 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Wrecked ship treadmill.</summary>
     public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
 
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
 }

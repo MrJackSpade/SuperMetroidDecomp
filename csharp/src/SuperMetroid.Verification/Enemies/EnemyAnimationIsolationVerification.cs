@@ -12,6 +12,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks that replacing enemy display sequences leaves compiled gameplay timelines intact.</summary>
 internal static class EnemyAnimationIsolationVerification
 {
+    /// <summary>Compiled frames of the six boss projectile/audio attack callbacks.</summary>
+    private static readonly int[] BossAttackCallbackFrames =
+        [24, 30, 36, 42, 48, 54];
+
     /// <summary>Compares stock and edited artwork identities, then runs ordinary and boss behavior fixtures.</summary>
     internal static void VerifyEnemyAnimationIsolation()
     {
@@ -76,14 +80,14 @@ internal static class EnemyAnimationIsolationVerification
                 edited.Torizo ?? throw new InvalidOperationException("Verification requires the edited Torizo state."), $"Golden Torizo attack frame {frame}");
             nativeFrames.Add(stock.Actor.SpritemapPointer);
             heights.Add(stock.Actor.Position.Y.Whole);
-            if (stock.Enemies.BombTorizoBehavior.LastBombTorizoSoundEffect is not null) shotFrames.Add(frame);
+            if (stock.Enemies.Audio.SoundRequests.Count > 0) shotFrames.Add(frame);
             CompareTorizoHitWindows(stock, edited, frame, ref hitSamples, ref missSamples);
             var before = stock.Draw(); var after = edited.Draw();
             AssertEditedAnimationDraw(edited, after, frame);
             if (!before.LowTable.SequenceEqual(after.LowTable) || !before.HighTable.SequenceEqual(after.HighTable)) differentDraws++;
             AssertEnemyAnimationMechanics(stock, edited, frame);
         }
-        AssertTrue(shotFrames.SequenceEqual(new[] { 24, 30, 36, 42, 48, 54 }), "six boss projectile/audio callbacks retain exact compiled attack frames");
+        AssertTrue(shotFrames.SequenceEqual(BossAttackCallbackFrames), "six boss projectile/audio callbacks retain exact compiled attack frames");
         AssertEqual(GoldenTorizoRightOrbFrames().Length, nativeFrames.Count, "attack exercises all six native collision frames");
         AssertTrue(heights.Count > 1, "boss comparison exercises actual terrain movement");
         AssertTrue(hitSamples > 0 && missSamples > 0, "hit-window comparison exercises both physical hits and misses");

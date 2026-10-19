@@ -12,16 +12,10 @@ internal sealed class EnemyProjectileHandlerTable
     private readonly Dictionary<EnemyProjectilePreInstruction, EnemyProjectilePreInstructionHandler> _preInstructions = [];
     /// <summary>Kind-specific pre-instruction hooks evaluated before closed native dispatch.</summary>
     private readonly List<EnemyProjectilePreInstructionInterceptor> _preInstructionInterceptors = [];
-    /// <summary>Kind-specific instruction hooks evaluated before closed native dispatch.</summary>
-    private readonly List<EnemyProjectileInstructionInterceptor> _instructionInterceptors = [];
 
     /// <summary>Adds a pre-instruction interceptor; interceptors run in registration order before the closed decode.</summary>
     internal void InterceptPreInstructions(EnemyProjectilePreInstructionInterceptor interceptor) =>
         _preInstructionInterceptors.Add(Ensure.NotNull(interceptor));
-
-    /// <summary>Adds an instruction interceptor; interceptors run in registration order before the closed decode.</summary>
-    internal void InterceptInstructions(EnemyProjectileInstructionInterceptor interceptor) =>
-        _instructionInterceptors.Add(Ensure.NotNull(interceptor));
 
     /// <summary>Whether an interceptor ran <paramref name="projectile"/>'s pre-instruction.</summary>
     internal bool TryInterceptPreInstruction(RoomEnemyProjectileSlot projectile)
@@ -29,17 +23,6 @@ internal sealed class EnemyProjectileHandlerTable
         foreach (EnemyProjectilePreInstructionInterceptor interceptor in _preInstructionInterceptors)
         {
             if (interceptor(projectile))
-                return true;
-        }
-        return false;
-    }
-
-    /// <summary>Whether an interceptor executed <paramref name="word"/>.</summary>
-    internal bool TryInterceptInstruction(RoomEnemyProjectileSlot projectile, ushort word, ref ushort cursor)
-    {
-        foreach (EnemyProjectileInstructionInterceptor interceptor in _instructionInterceptors)
-        {
-            if (interceptor(projectile, word, ref cursor))
                 return true;
         }
         return false;
@@ -54,38 +37,6 @@ internal sealed class EnemyProjectileHandlerTable
             if (!_preInstructions.TryAdd(id, handler))
                 throw new InvalidOperationException($"Enemy projectile pre-instruction {id} is registered twice.");
         }
-    }
-
-    /// <summary>Ordered species handlers for each native instruction, with optional projectile guards.</summary>
-    private readonly Dictionary<EnemyProjectileInstruction, List<(Func<RoomEnemyProjectileSlot, bool>? Applies, EnemyProjectileInstructionHandler Handler)>> _instructions = [];
-
-    /// <summary>
-    /// Registers a species instruction. Handlers for one instruction are tried in registration order; a guard
-    /// selects the projectile kinds it interprets, and an unguarded handler must be the last for its instruction.
-    /// </summary>
-    internal void RegisterInstruction(EnemyProjectileInstruction id, Func<RoomEnemyProjectileSlot, bool>? applies, EnemyProjectileInstructionHandler handler)
-    {
-        Ensure.NotNull(handler);
-        if (!_instructions.TryGetValue(id, out var entries))
-            _instructions[id] = entries = [];
-        if (entries.Count > 0 && entries[^1].Applies is null)
-            throw new InvalidOperationException($"Enemy projectile instruction {id} already has an unconditional handler.");
-        entries.Add((applies, handler));
-    }
-
-    /// <summary>Runs the first registered handler that applies to <paramref name="projectile"/>.</summary>
-    internal EnemyProjectileInstructionOutcome TryExecuteInstruction(
-        EnemyProjectileInstruction id, RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera,
-        ushort word, ref ushort cursor)
-    {
-        if (!_instructions.TryGetValue(id, out var entries))
-            return EnemyProjectileInstructionOutcome.NotHandled;
-        foreach (var (applies, handler) in entries)
-        {
-            if (applies is null || applies(projectile))
-                return handler(projectile, samus, camera, word, ref cursor);
-        }
-        return EnemyProjectileInstructionOutcome.NotHandled;
     }
 
     /// <summary>Typed animations a shot projectile of each kind starts in place of its native shot list.</summary>
@@ -135,18 +86,18 @@ internal sealed class EnemyProjectileHandlerTable
     }
 
     /// <summary>Carries out <paramref name="cue"/> with its family's registered handler.</summary>
-    internal void PublishCue<TCue>(RoomEnemyProjectileSlot projectile, SamusState? samus, TCue cue)
+    internal void PublishCue<TCue>(EnemyProjectileCueContext context, TCue cue)
     {
         if (!_cues.TryGetValue(typeof(TCue), out Delegate? handler))
             throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}.{cue} has no registered handler.");
-        ((EnemyProjectileCueHandler<TCue>)handler)(projectile, samus, cue);
+        ((EnemyProjectileCueHandler<TCue>)handler)(context, cue);
     }
 
     /// <summary>
     /// Carries out <paramref name="cue"/> of a program animation with its family's registered handler, returning the
     /// program a branching handler redirects to, or null.
     /// </summary>
-    internal TProgram? PublishProgramCue<TProgram, TCue>(RoomEnemyProjectileSlot projectile, SamusState? samus, TCue cue)
+    internal TProgram? PublishProgramCue<TProgram, TCue>(EnemyProjectileCueContext context, TCue cue)
         where TProgram : struct, Enum
     {
         if (!_cues.TryGetValue(typeof(TCue), out Delegate? handler))
@@ -154,9 +105,9 @@ internal sealed class EnemyProjectileHandlerTable
         switch (handler)
         {
             case EnemyProjectileBranchingCueHandler<TProgram, TCue> branching:
-                return branching(projectile, samus, cue);
+                return branching(context, cue);
             case EnemyProjectileCueHandler<TCue> plain:
-                plain(projectile, samus, cue);
+                plain(context, cue);
                 return null;
             default:
                 throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}'s handler does not run {typeof(TProgram).Name} programs.");

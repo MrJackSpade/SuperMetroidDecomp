@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Cartridge definitions for the final assembling Super Metroid icon.</summary>
@@ -6,13 +7,13 @@ internal static class EndingLogoDefinitions
 {
 
     /// <summary>$8B:EF81: upper S, initialized by F18F, moved by F1E7, showing LogoUpperS.</summary>
-    private static EndingLogoActorDefinition UpperS => new(0xf1e7, CinematicSpriteProgram.LogoUpperS);
+    private static EndingLogoActorDefinition UpperS => new(CinematicSpritePreInstruction.SuperMetroidIconTopHalf, CinematicSpriteProgram.LogoUpperS);
     /// <summary>$8B:EF87: lower S, initialized by F1A8, moved by F227, showing LogoLowerS.</summary>
-    private static EndingLogoActorDefinition LowerS => new(0xf227, CinematicSpriteProgram.LogoLowerS);
+    private static EndingLogoActorDefinition LowerS => new(CinematicSpritePreInstruction.SuperMetroidIconBottomHalf, CinematicSpriteProgram.LogoLowerS);
     /// <summary>$8B:EF8D: upper circle, initialized by F1C1, stationary running LogoUpperCircle.</summary>
-    private static EndingLogoActorDefinition UpperCircle => new(EndingRewardActorDefinitions.SharedNoOp, CinematicSpriteProgram.LogoUpperCircle);
+    private static EndingLogoActorDefinition UpperCircle => new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.LogoUpperCircle);
     /// <summary>$8B:EF93: lower circle, initialized by F1D4, stationary running LogoLowerCircle.</summary>
-    private static EndingLogoActorDefinition LowerCircle => new(EndingRewardActorDefinitions.SharedNoOp, CinematicSpriteProgram.LogoLowerCircle);
+    private static EndingLogoActorDefinition LowerCircle => new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.LogoLowerCircle);
 
     /// <summary>Named native actor cases; allocation index is not a sampled numeric curve.</summary>
     public static EndingLogoActorDefinition Actor(int index) => (EndingLogoActorKind)index switch
@@ -50,7 +51,7 @@ internal static class EndingLogoDefinitions
     /// by EndingLogoPaletteFade. This is not an exemption for animation colors.</summary>
     public const int InitialPalette = 0x8cefe9;
     /// <summary>F1E7 spawns the logo's palette-FX object $8D:E200 at landing.</summary>
-    public const ushort LandingPaletteFx = 0xe200;
+    public const PaletteFxObject LandingPaletteFx = PaletteFxObject.PostCreditsSuperMetroidIcon;
     /// <summary>F25E selects the logo BG2 tilemap at VRAM word $5400.</summary>
     public const ushort Tilemap = 0x5400;
     /// <summary>F25E selects logo BG2 characters at VRAM word $6000.</summary>

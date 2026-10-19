@@ -211,8 +211,8 @@ internal static class SamusBodyPlacementDefinitions
                 !art.Spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map)) return false;
             foreach (SamusSpritePart part in map.Parts)
             {
-                int size = (part.X & 0x8000) != 0 ? 16 : 8;
-                var attributes = new Hardware.SnesObjAttributeWord(part.Attributes);
+                int size = part.X.IsLarge ? 16 : 8;
+                var attributes = part.Attributes;
                 if (attributes.TileNumber >= 256) return false;
                 for (int y = 0; y < size; y++)
                 for (int x = 0; x < size; x++)
@@ -229,7 +229,7 @@ internal static class SamusBodyPlacementDefinitions
                         if ((uint)at >= pixels.Length || !defined[at]) return false;
                         opaque |= (pixels[at] & mask) != 0;
                     }
-                    if (opaque) bottom = Math.Max(bottom, unchecked((sbyte)part.Y) + y);
+                    if (opaque) bottom = Math.Max(bottom, part.Y.SignedOffset + y);
                 }
             }
         }

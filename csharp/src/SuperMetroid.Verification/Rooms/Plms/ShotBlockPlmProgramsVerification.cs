@@ -26,9 +26,9 @@ internal static class ShotBlockPlmProgramsVerification
         // was absent from the compiled program. Exercise the actual interpreter
         // against RAM-only memory, not the old import-capable reference guard.
         ShotBlockFixture reported = NewShotBlockFixture(4);
-        reported.Plms.Step(new SuperMetroidAddressSpace(), reported.Level, reported.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        reported.Plms.Step(reported.Level, reported.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x0053,
-            reported.Level.GetCollisionBlockByIndex(27).LevelWord,
+            reported.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
             "reported permanent shot block draws its first break frame without a cartridge read");
 
         // The same timed-record contract owns all eight ordinary shot-block lists.
@@ -38,12 +38,12 @@ internal static class ShotBlockPlmProgramsVerification
         {
             ShotBlockFixture fixture = NewShotBlockFixture(behavior);
             var memory = new SuperMetroidAddressSpace();
-            fixture.Plms.Step(memory, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual((ushort)0x0053,
-                fixture.Level.GetCollisionBlockByIndex(27).LevelWord,
+                fixture.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
                 $"shot-block BTS {behavior} first physical break frame");
             for (int frame = 1; frame < 420; frame++)
-                fixture.Plms.Step(memory, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             ushort expected = behavior switch
             {
                 0 => 0xc052,
@@ -52,7 +52,7 @@ internal static class ShotBlockPlmProgramsVerification
                 3 => 0xc099,
                 _ => 0x00ff,
             };
-            AssertEqual(expected, fixture.Level.GetCollisionBlockByIndex(27).LevelWord,
+            AssertEqual(expected, fixture.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
                 $"shot-block BTS {behavior} restores or permanently clears the native parent");
             AssertEqual(0, fixture.Plms.SlotTable.ActiveCount,
                 $"shot-block BTS {behavior} finishes its compiled program");
@@ -72,6 +72,8 @@ internal static class ShotBlockPlmProgramsVerification
         Suite(nameof(VerifyShotBlockProgramSoundMapping), () => VerifyShotBlockProgramSoundMapping(rom));
         Suite(nameof(VerifyRespawningShotSizeSelection), () => VerifyRespawningShotSizeSelection(rom));
         Suite(nameof(VerifyPermanentShotSizeSelection), () => VerifyPermanentShotSizeSelection(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifyBlockReactionPrograms), () => RoomPlmProgramsVerification.VerifyBlockReactionPrograms(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifyScriptedRoomPrograms), () => RoomPlmProgramsVerification.VerifyScriptedRoomPrograms(rom));
         var forbidden = new HashSet<int>();
         ushort[] nativeDraws = [0xa345,0xa35d,0xa37d,0xa39d,0xa34b,0xa365,0xa385,0xa3ad,
             0xa351,0xa36d,0xa38d,0xa3bd,0xa357,0xa375,0xa395,0xa3cd,0xa47b,0xa483,0xa48b];
@@ -176,15 +178,15 @@ internal static class ShotBlockPlmProgramsVerification
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
             {
-                stock.Plms.Step(rom, stock.Level, stock.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                stock.Plms.Step(stock.Level, stock.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                compiled.Plms.Step(compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(stock.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"shot-block BTS {behavior} active slots at frame {frame}");
                 AssertEqual(stock.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
                     $"shot-block BTS {behavior} sound count at frame {frame}");
                 for (int index = 0; index < 64; index++)
-                    AssertEqual(stock.Level.GetCollisionBlockByIndex(index).LevelWord,
-                        compiled.Level.GetCollisionBlockByIndex(index).LevelWord,
+                    AssertEqual(stock.Level.GetCollisionBlockByIndex(index).PackedWord.Raw,
+                        compiled.Level.GetCollisionBlockByIndex(index).PackedWord.Raw,
                         $"shot-block BTS {behavior} block {index} at frame {frame}");
             }
 
@@ -194,7 +196,7 @@ internal static class ShotBlockPlmProgramsVerification
                 $"shot-block BTS {behavior} completes within the retail timer window");
         }
 
-        Suite(nameof(VerifyShotBlockVisualSeparation), () => VerifyShotBlockVisualSeparation(rom, forbidden));
+        Suite(nameof(VerifyShotBlockVisualSeparation), () => VerifyShotBlockVisualSeparation());
         Suite(nameof(VerifyShotBlockVisualInstallation), () => VerifyShotBlockVisualInstallation(rom));
 
         Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
@@ -206,11 +208,11 @@ internal static class ShotBlockPlmProgramsVerification
         ushort[] fields = [0xd066,0xd06a,0xd06e,0xd072];
         for (int size = 0; size < fields.Length; size++)
             AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
-                RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot native shape selection");
+                RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.RespawningShot(size)), "respawning shot native shape selection");
         for (int size = 4; size <= byte.MaxValue; size++)
-            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot rejects other BTS values without masking");
+            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.RespawningShot(size), "respawning shot rejects other BTS values without masking");
         foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot size domain");
+            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.RespawningShot(size), "respawning shot size domain");
     }
 
     /// <summary>Checks the four permanent shapes after the caller's BTS offset and rejects invalid selector inputs.</summary>
@@ -219,11 +221,11 @@ internal static class ShotBlockPlmProgramsVerification
         ushort[] fields = [0xd076,0xd07a,0xd07e,0xd082];
         for (int size = 0; size < fields.Length; size++)
             AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
-                RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot native shape selection after caller subtracts four");
+                RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.PermanentShot(size)), "permanent shot native shape selection after caller subtracts four");
         for (int size = 4; size <= byte.MaxValue; size++)
-            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot rejects out-of-range size without masking");
+            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.PermanentShot(size), "permanent shot rejects out-of-range size without masking");
         foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot size domain");
+            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.PermanentShot(size), "permanent shot size domain");
     }
 
     /// <summary>Lists the thirteen native timed-list layouts used to derive control and draw operand addresses.</summary>
@@ -348,7 +350,7 @@ internal static class ShotBlockPlmProgramsVerification
 
     /// <summary>Checks that edited shot-block art reaches both immediate and streamed tiles without changing collision bits or compiled mechanics.</summary>
     private static void VerifyShotBlockVisualSeparation(
-        ISnesAddressSpace rom, HashSet<int> forbidden)
+)
     {
         RoomPlmShotBlockVisualCatalog stock = RoomPlmShotBlockVisualCatalog.Stock();
         RoomPlmShotBlockVisualEntry[] editedEntries = RoomPlmShotBlockDrawDefinitions.All
@@ -387,10 +389,10 @@ internal static class ShotBlockPlmProgramsVerification
             var plms = new RoomPlmSystem { Drawing = { ShotBlockVisuals = visuals } };
             AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
                 "visual-only test allocates the production shot-block PLM");
-            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "visual-only edit publishes one immediate PLM tilemap update");
-            return (level.GetCollisionBlockByIndex(block).LevelWord,
+            return (level.GetCollisionBlockByIndex(block).PackedWord.Raw,
                 plms.TilemapUpdates[0].TopRow[0],
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(block, 0).TopRow[0]);
         }

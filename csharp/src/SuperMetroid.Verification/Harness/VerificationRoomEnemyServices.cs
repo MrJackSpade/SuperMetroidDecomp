@@ -56,16 +56,16 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public IMotherBrainRoomEffects MotherBrain => this;
 
     /// <summary>Advances RNG through a case callback or the services installed by room loading.</summary>
-    public ushort Generate() => NextRandom is { } next ? next() : Loaded("generate a random number").Random.Generate();
+    public int Generate() => NextRandom is { } next ? next() : Loaded("generate a random number").Random.Generate();
 
     /// <summary>Samples current RNG without advancing it through the override or loaded services.</summary>
-    public ushort Read() => ReadRandom is { } read ? read() : Loaded("read the random-number word").Random.Read();
+    public int Read() => ReadRandom is { } read ? read() : Loaded("read the random-number word").Random.Read();
 
     /// <summary>Seeds RNG through a case callback or the services installed by room loading.</summary>
-    public void Seed(ushort value)
+    public void Seed(int value)
     {
         if (SeedRandom is { } seed)
-            seed(value);
+            seed(checked((ushort)value));
         else
             Loaded("seed the random-number word").Random.Seed(value);
     }

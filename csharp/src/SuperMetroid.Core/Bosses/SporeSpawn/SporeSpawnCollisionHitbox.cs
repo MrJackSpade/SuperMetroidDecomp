@@ -1,5 +1,11 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Cartridge rectangle and touch/shot callbacks, independent of OAM artwork.</summary>
+/// <summary>One Spore Spawn collision rectangle and its touch and shot reactions, independent of OAM artwork.</summary>
+/// <param name="Left">Left edge, relative to the component origin.</param>
+/// <param name="Top">Top edge, relative to the component origin.</param>
+/// <param name="Right">Right edge, relative to the component origin.</param>
+/// <param name="Bottom">Bottom edge, relative to the component origin.</param>
+/// <param name="Touch">How the rectangle reacts to Samus's touch.</param>
+/// <param name="Shot">How the rectangle reacts to a Samus projectile.</param>
 internal readonly record struct SporeSpawnCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
+    short Left, short Top, short Right, short Bottom, SporeSpawnHitboxTouch Touch, SporeSpawnHitboxShot Shot);

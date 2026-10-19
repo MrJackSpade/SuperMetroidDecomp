@@ -39,15 +39,15 @@ internal static class MaridiaElevatubePlmVerification
         int heardAtFrame = -1;
         for (int frame = 0; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (frame == 0)
                 AssertEqual((ushort)0x8180,
-                    level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+                    level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                     "first elevatube handler pass draws its physical block");
             if (plms.Sounds.SoundRequests.Any(request =>
                     request.SoundEffect == SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2,
-                        MaridiaElevatubePlmDefinitions.SoundId)))
+                        MaridiaElevatubePlmDefinitionsConstants.SoundId)))
                 heardAtFrame = frame;
         }
         AssertEqual(16, heardAtFrame,
@@ -66,8 +66,8 @@ internal static class MaridiaElevatubePlmVerification
         {
             int pointer = SnesAddressMath.OffsetInBank(address);
             return (SnesAddressMath.BankNumber(address)) == 0x84 &&
-                ((pointer >= MaridiaElevatubePlmDefinitions.InstructionList &&
-                  pointer < MaridiaElevatubePlmDefinitions.InstructionList + 9) ||
+                ((pointer >= MaridiaElevatubePlmDefinitionsConstants.InstructionList &&
+                  pointer < MaridiaElevatubePlmDefinitionsConstants.InstructionList + 9) ||
                  (pointer >= MaridiaElevatubePlmDefinitions.DrawPointer &&
                   pointer < MaridiaElevatubePlmDefinitions.DrawPointer + 6));
         }, address => $"Elevatube PLM reread compiled source ${address:X6}.");

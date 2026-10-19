@@ -68,11 +68,11 @@ internal static class GreenHillGateGlitchVerification
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GreenHillZone);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.GreenHillZone);
         RoomPlmSlotSnapshot gate = runtime.Plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual(0x1be4, gate.BlockIndex, "authored Green Hill gate block");
@@ -97,10 +97,10 @@ internal static class GreenHillGateGlitchVerification
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MovingLeftGunExtendedPose;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
-        samus.EquippedItems = (ushort)(
+        samus.EquippedItems = (SamusEquipmentFlags)((ushort)(
             SamusEquipmentFlags.GrappleBeam |
-            SamusEquipmentFlags.SpeedBooster);
-        samus.SelectedHudItem = 4;
+            SamusEquipmentFlags.SpeedBooster));
+        samus.SelectedHudItem = HudItem.Grapple;
         samus.HorizontalSpeed.BaseSpeed = checked((ushort)baseSpeed);
         samus.HorizontalSpeed.BaseSubspeed = 0;
         samus.HorizontalSpeed.ExtraRunSpeed = 4;
@@ -109,8 +109,8 @@ internal static class GreenHillGateGlitchVerification
         samus.HorizontalSpeed.SpeedBoostCounter =
             SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage;
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
 
         int openFrame = -1;
         for (int frame = 0; frame < 21; frame++)

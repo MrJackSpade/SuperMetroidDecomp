@@ -163,7 +163,7 @@ internal static class TitleSequenceRomDataVerification
         WriteRomWord(
             rom,
             TitleSequenceRomData.Sprites.LogoPointerAddress,
-            TitleSequenceRomData.Sprites.SuperMetroidLogo);
+            TitleSequenceRomDataSpritesConstants.SuperMetroidLogo);
         return rom;
     }
 
@@ -176,7 +176,7 @@ internal static class TitleSequenceRomDataVerification
         // Timing/selector identities are typed now. Keep synthetic blank
         // artwork, but provide the complete selector inventory to the extractor.
         int pointer = definition.InstructionAddress;
-        foreach (TitleCardStep step in TitleCardDefinitions.Steps(definition.Phase))
+        foreach (TitleCardStep step in TitleCards.Steps(definition.Phase))
         {
             if (step.Command is { } command)
             {
@@ -184,9 +184,22 @@ internal static class TitleSequenceRomDataVerification
                 AssertEqual(sceneCommand, (ushort)command, "constructed title scene command");
                 break;
             }
-            WriteRomWord(rom, pointer, step.Duration);
-            WriteRomWord(rom, pointer + sizeof(ushort), step.Spritemap);
+            WriteRomWord(rom, pointer, checked((ushort)step.Duration));
+            WriteRomWord(rom, pointer + sizeof(ushort), step.Sprite is { } sprite
+                ? ConstructedSpritemap(sprite) : TitleSequenceRomData.Sprites.Blank);
             pointer += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
         }
+    }
+
+    /// <summary>
+    /// A distinct synthetic spritemap for one card composition in the constructed ROM: consecutive empty words
+    /// after the copyright spritemap, so every composition decodes as blank artwork.
+    /// </summary>
+    private static ushort ConstructedSpritemap(TitleSprite sprite)
+    {
+        int ordinal = TitleSpriteDefinitions.All.ToList().IndexOf(sprite);
+        if (ordinal < 0)
+            throw new ArgumentOutOfRangeException(nameof(sprite), sprite, "Undefined title composition.");
+        return checked((ushort)(TitleSequenceRomData.Sprites.NintendoCopyright + sizeof(ushort) * (1 + ordinal)));
     }
 }

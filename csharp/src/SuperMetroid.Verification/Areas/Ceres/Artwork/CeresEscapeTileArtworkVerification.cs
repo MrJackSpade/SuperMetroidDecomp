@@ -51,16 +51,15 @@ internal static class CeresEscapeTileArtworkVerification
             TileArtwork = stock,
             Presentation = { EscapeTimerArtwork = timer },
         };
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        installed.BindFixtureBus(guarded);
+        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedQueue = new VramWriteQueue();
-        foreach (ushort start in new[]
+        foreach (CeresEscapeTransferCursor start in new[]
                  {
-                     CeresEscapeVramTransferDefinitions.TimerSprites,
-                     CeresEscapeVramTransferDefinitions.TimerBackgrounds,
+                     CeresEscapeTransferCursor.TimerSprites,
+                     CeresEscapeTransferCursor.TimerBackgrounds,
                  })
         {
-            var state = new RidleyEnemyState { CeresEscapeTransferListPointer = start };
+            var state = new RidleyEnemyState { CeresEscapeTransfers = start };
             bool finished;
             do
             {
@@ -70,7 +69,7 @@ internal static class CeresEscapeTileArtworkVerification
         AssertEqual(15, installedQueue.Entries.Count,
             "Ceres escape production queues both complete timer lists");
         var installedVram = new SnesVram();
-        installedQueue.DrainTo(installedVram, ReferenceMutableMemory.From(guarded),
+        installedQueue.DrainTo(installedVram,
             new CeresEscapeArtworkProvider(stock, timer));
 
         var nativeQueue = new VramWriteQueue();
@@ -129,16 +128,20 @@ internal static class CeresEscapeTileArtworkVerification
             TileArtwork = edited,
             Presentation = { EscapeTimerArtwork = timer },
         };
-        editedEnemies.BindFixtureBus(guarded);
+        editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        // The cursor starts at the first warning-text record, part-way through the timer-sprite list.
         var editedState = new RidleyEnemyState
         {
-            CeresEscapeTransferListPointer =
-                CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
+            CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites with
+            {
+                Next = CeresEscapeVramTransferDefinitions.Records.ToList().FindIndex(record =>
+                    record.Pointer == CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer),
+            },
         };
         var editedQueue = new VramWriteQueue();
         _ = editedEnemies.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(editedState, editedQueue);
         var editedVram = new SnesVram();
-        editedQueue.DrainTo(editedVram, ReferenceMutableMemory.From(guarded),
+        editedQueue.DrainTo(editedVram,
             new CeresEscapeArtworkProvider(edited, timer));
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
@@ -164,13 +167,16 @@ internal static class CeresEscapeTileArtworkVerification
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
             Presentation = { EscapeTimerArtwork = timer },
         };
-        missing.BindFixtureBus(guarded);
+        missing.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         try
         {
             missing.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(new RidleyEnemyState
                     {
-                        CeresEscapeTransferListPointer =
-                            CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
+                        CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites with
+            {
+                Next = CeresEscapeVramTransferDefinitions.Records.ToList().FindIndex(record =>
+                    record.Pointer == CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer),
+            },
                     }, new VramWriteQueue());
             throw new InvalidOperationException(
                 "Installed Ceres transfer accepted missing character artwork.");

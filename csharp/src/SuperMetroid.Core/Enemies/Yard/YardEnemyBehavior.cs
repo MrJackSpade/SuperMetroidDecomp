@@ -7,12 +7,19 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>The Yard species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class YardEnemyBehavior : IEnemySpecies
+internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Yard];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new YardEntity(this, slot, common);
+
     /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Runs native surface probes and movement while Yard crawls or falls.</summary>
@@ -48,9 +55,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
                 state.HidingProgram = cue.OptionalTarget;
                 return null;
             case YardCueKind.SetDirection:
-                if (cue.Value >= 8)
-                    throw new InvalidDataException($"Yard animation selected invalid direction {cue.Value}.");
-                state.Direction = cue.Value;
+                if ((uint)cue.Direction >= 8)
+                    throw new InvalidDataException($"Yard animation selected invalid direction {cue.Direction}.");
+                state.Direction = cue.Direction;
                 state.AirborneFacingDirection = YardDirectionDefinitions.ForDirection(state.Direction).AirborneFacingDirection;
                 return null;
             case YardCueKind.MoveBy:
@@ -70,23 +77,18 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         }
     }
 
-
-    /// <summary>Species state indexed by the shared enemy slot and reset at room load.</summary>
-    internal readonly YardEnemyState?[] _yardStates =
-        new YardEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports Yard initialization at $A3:CDE2-$CE56.</summary>
-    internal void InitializeYard(RoomEnemySlot slot)
+    internal static void InitializeYard(RoomEnemySlot slot)
     {
-        ushort direction = slot.CurrentInstruction;
+        ushort direction = checked((ushort)slot.CurrentInstruction);
         if (direction >= 8)
         {
             throw new InvalidDataException(
                 $"Yard initialization direction ${direction:X4} exceeds its eight ROM entries.");
         }
-        ValidateYardSpeedIndex(slot.Parameter1);
+        ValidateYardSpeedIndex(checked((ushort)slot.Parameter1));
 
-        var state = new YardEnemyState(slot)
+        var state = new YardEnemyState
         {
             MovementFunction = YardMovementFunction.InstructionPending,
             // The population word selects the initial lists/velocity signs, but
@@ -97,15 +99,14 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             Behavior = YardBehavior.NormalCrawling,
             IdleCrawlingSpeedIndex = slot.Parameter1,
         };
-        _yardStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
 
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
-        slot.Properties = unchecked((ushort)(
-            slot.Properties | definition.PropertyBits));
+        slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | definition.PropertyBits));
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(slot, state, direction);
@@ -115,10 +116,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     /// Reproduces the sign-pair arithmetic at $A3:CE27. Negative entries are encoded as
     /// <c>$FFFF xor speed, then +1</c>, rather than by a host signed table.
     /// </summary>
-    internal static void SetYardCrawlingVelocities(RoomEnemySlot slot, YardEnemyState state, ushort direction)
+    internal static void SetYardCrawlingVelocities(RoomEnemySlot slot, YardEnemyState state, int direction)
     {
-        ValidateYardSpeedIndex(slot.Parameter1);
-        ushort speed = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
+        ValidateYardSpeedIndex(checked((ushort)slot.Parameter1));
+        ushort speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)slot.Parameter1));
         state.CrawlingVelocity = YardVelocityDefinitions.Apply(speed, direction);
     }
 
@@ -174,12 +175,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Yard function $A3:{(ushort)state.MovementFunction:X4} is not translated.");
+                    $"Yard function {state.MovementFunction?.ToString() ?? "none"} is not translated.");
         }
     }
 
     /// <summary>Ports the look-at/hide test at $A3:CE9A.</summary>
-    private void HandleYardHiding(
+    private static void HandleYardHiding(
         RoomEnemySlot slot,
         YardEnemyState state,
         SamusState samus)
@@ -188,7 +189,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             return;
 
         bool withinVerticalBand = unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= -96;
-        byte samusFacing = samus.PoseMetadata.ReadPoseXDirection(_room.LoadedBus);
+        byte samusFacing = samus.PoseMetadata.ReadPoseXDirection();
         bool samusLookingAtYard = slot.Position.X.Whole < samus.Position.X.Whole
             ? samusFacing == (byte)SamusFacingDirection.Left
             : samusFacing == (byte)SamusFacingDirection.Right;
@@ -199,7 +200,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             if (state.HidingProgram is { } hiding)
             {
                 state.Program = AnimationProgramCursor<YardProgram>.Start(hiding);
-                slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+                slot.Frame = EnemyFrameId.Empty;
                 slot.InstructionTimer = NativeCountdown.Start(1);
                 slot.Timer = NativeCountdown.Start(0);
                 state.Behavior = YardBehavior.Hiding;
@@ -271,7 +272,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             YardMovementFunction.CrawlingUpsideRightMovingDown or
             YardMovementFunction.CrawlingUpsideLeftMovingUp;
         YardTurnDefinition turn = YardTurnDefinitions.ForMovement(
-            state.MovementFunction,
+            state.MovementFunction ?? throw new InvalidOperationException("A turning Yard has no movement function."),
             state.TurnTransitionDisabled);
 
         // The lookahead offset is temporary, but the normal-axis probe movement is not.
@@ -291,8 +292,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
 
         if (!surfaceCollision)
         {
-            state.ConsecutiveTurnCounter = unchecked((ushort)(state.ConsecutiveTurnCounter + 1));
-            if (unchecked((short)(state.ConsecutiveTurnCounter - 4)) >= 0)
+            // The count stays within one through four, so the cartridge's signed word comparison is an ordinary one.
+            state.ConsecutiveTurnCounter++;
+            if (state.ConsecutiveTurnCounter >= 4)
             {
                 DropYard(slot, state);
                 return;
@@ -356,7 +358,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             return;
         }
 
-        ushort next = unchecked((ushort)(state.TurnTransitionDisableCounter + 1));
+        int next = state.TurnTransitionDisableCounter + 1;
         if (next >= 16)
         {
             state.TurnTransitionDisabled = false;
@@ -403,7 +405,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
                 // whole pixel away from a conventional 32-bit negation when low word is 0.
                 state.AirborneVelocity = state.AirborneVelocity.WithX(NegateWordsSeparately(state.AirborneVelocity.X));
                 state.BouncedHorizontally = true;
-                LastYardSoundEffect = EnemySoundEffectDefinitions.YardBounceSound;
+                LastYardSoundEffect = YardBounceSound;
             }
             else
             {
@@ -463,12 +465,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
 
         // Yard deliberately tail-calls the common crawler initializer after landing, but
         // retains its own state and main AI. Reproduce only those shared velocity/sign words.
-        slot.Properties = unchecked((ushort)(
-            (slot.Properties & ~YardPropertyMasks.FacingBits) | state.AirborneFacingDirection));
+        slot.Properties = slot.Properties.WithFamilyData(
+            (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | checked((byte)state.AirborneFacingDirection)));
         // Surface direction can still describe a wall or ceiling. E67A instead uses
         // the new floor-facing property bits for its downward probe and horizontal sign.
-        CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        state.CrawlingVelocity = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot, state.CrawlingVelocity);
+        slot.Frame = EnemyFrameId.Empty;
         state.MovementFunction = YardMovementFunction.InstructionPending;
         state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??
             throw new InvalidDataException("A landing Yard has no hiding animation to resume."));
@@ -513,8 +515,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         state.Direction = YardDirectionDefinitions.ForDirection(state.Direction).OppositeDirection;
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(state.Direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
-        slot.Properties = unchecked((ushort)(
-            (slot.Properties & ~YardPropertyMasks.FacingBits) | definition.PropertyBits));
+        slot.Properties = slot.Properties.WithFamilyData(
+            (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | definition.PropertyBits));
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(slot, state, state.Direction);
@@ -525,7 +527,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     }
 
     /// <summary>Ports the running/airborne kick setup at $A3:D49F.</summary>
-    internal void KickYardIntoAir(
+    internal static void KickYardIntoAir(
         RoomEnemySlot slot,
         YardEnemyState state,
         SamusState samus)
@@ -536,7 +538,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
 
         var horizontal = SnesSignedSixteenSixteen.FromRaw(unchecked((int)samus.AbsoluteMovedLastFrameXFixed));
         (ushort kickFraction, ushort kickWhole) = YardKickDefinitions.ForHorizontalSpeed(horizontal.WholeWord);
-        if ((samus.PoseMetadata.ReadPoseXDirection(_room.LoadedBus) & 4) != 0)
+        if ((samus.PoseMetadata.ReadPoseXDirection() & 4) != 0)
             horizontal = NegateWordsSeparately(horizontal);
         state.AirborneVelocity = new FixedVector<RoomPixels>(
             horizontal,
@@ -544,7 +546,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     }
 
     /// <summary>Ports ordinary-beam launch setup at $A3:D557.</summary>
-    internal void ShootYardIntoAir(
+    internal static void ShootYardIntoAir(
         RoomEnemySlot slot,
         YardEnemyState state,
         SamusState samus)
@@ -554,7 +556,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         SetYardAirborneLists(slot, state);
         // Only the whole words are stored; both fraction words keep their previous values.
         state.AirborneVelocity = state.AirborneVelocity.WithWhole(new Offset16<RoomPixels>(
-            samus.PoseMetadata.ReadPoseXDirection(_room.LoadedBus) == (byte)SamusFacingDirection.Left ? (short)-1 : (short)1,
+            samus.PoseMetadata.ReadPoseXDirection() == (byte)SamusFacingDirection.Left ? (short)-1 : (short)1,
             -1));
     }
 
@@ -585,7 +587,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         if (kickRequested)
         {
             KickYardIntoAir(slot, state, samus);
-            LastYardSoundEffect = EnemySoundEffectDefinitions.YardBounceSound;
+            LastYardSoundEffect = YardBounceSound;
             return;
         }
 
@@ -599,7 +601,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         }
 
         _collision.ResolveNormalEnemyTouch(slot, samus);
-        slot.Parameter1 = state.IdleCrawlingSpeedIndex;
+        slot.Parameter1 = checked((ushort)state.IdleCrawlingSpeedIndex);
         if (state.Behavior != YardBehavior.NormalCrawling)
             TurnYardAround(slot, state);
         state.Behavior = YardBehavior.NormalCrawling;
@@ -629,53 +631,40 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     {
         if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked))
             ShootYardIntoAir(slot, state, samus);
-        LastYardSoundEffect = EnemySoundEffectDefinitions.YardBounceSound;
+        LastYardSoundEffect = YardBounceSound;
     }
-
-    /// <summary>Recombines native whole and fraction velocity words without losing their signed 16.16 bit pattern.</summary>
-    internal static int ComposeSignedFixed(ushort whole, ushort fraction) =>
-        unchecked((int)((SnesSixteenSixteen.FromWhole((uint)whole)) | fraction));
 
     /// <summary>Finds the state paired with a live Yard slot and rejects an uninitialized callback.</summary>
-    private YardEnemyState RequireYardState(RoomEnemySlot slot) =>
-        _yardStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static YardEnemyState RequireYardState(RoomEnemySlot slot) =>
+        slot.SpeciesState<YardEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Yard state.");
 
-    /// <summary>Registers Yard's bank-$A3 initialization callback for Yard definitions.</summary>
-    internal void RegisterYardInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Yard's initialization AI.</summary>
+    internal static void RunYardInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Yard, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeYard(slot);
-        });
+        InitializeYard(slot);
     }
 
-    /// <summary>Registers Yard's main AI for each enemy frame that selects its definition.</summary>
-    internal void RegisterYardMainAi(EnemyAiTable table)
+    /// <summary>Ports Yard's main AI.</summary>
+    internal void RunYardMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Yard, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunYardMain(slot, frame.Samus, frame.Level);
-        });
+        RunYardMain(slot, frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs the Yard's animations as typed programs (#641); its repeat cue resumes at the previous pose.</summary>
-    internal void RegisterYardTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireYardState(slot);
-            AnimationProgramCursor<YardProgram> cursor = state.Program;
-            EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.Spritemap,
-                    (cue, continuation) => ApplyYardCue(slot, state, cue, continuation));
-            state.Program = cursor;
-        });
+    /// <summary>Advances Yard's typed animation.</summary>
+    internal void AdvanceYardTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireYardState(slot);
+        AnimationProgramCursor<YardProgram> cursor = state.Program;
+        EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.ShownFrames.Of,
+                (cue, continuation) => ApplyYardCue(slot, state, cue, continuation));
+        state.Program = cursor;
+    }
 
     /// <summary>Routes Yard shots through its custom launch branch before common vulnerability damage.</summary>
-    internal void RegisterYardShotReactions(EnemyAiTable table)
+    internal void RegisterYardShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.YardShot)
@@ -697,21 +686,24 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     }
 
     /// <summary>Registers Yard's touch callback, including its facing-dependent shell response.</summary>
-    internal void RegisterYardTouch(EnemyAiTable table)
+    internal void RegisterYardTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.YardTouch,
             context => ResolveYardTouch(context.Slot, RequireYardState(context.Slot), context.Samus, context.ControllerInput));
     }
 
+    /// <summary>Library-two sound $70 queued by a Yard shell kick, launch or wall bounce.</summary>
+    private static readonly SoundEffectId YardBounceSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.YardBounceSound);
+
     /// <summary>Last library-two $70 Yard shell kick, launch, or wall-bounce sound this enemy pass, using the Max3 queue entry; cleared before the next pass.</summary>
-    public ushort? LastYardSoundEffect { get; private set; }
+    public SoundEffectId? LastYardSoundEffect { get; private set; }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastYardSoundEffect = null;
-        Array.Clear(_yardStates);
     }
 
     /// <inheritdoc/>
@@ -723,6 +715,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastYardSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 3);
+        if (LastYardSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 3);
     }
 }

@@ -3,69 +3,56 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>
-/// Typed debugger view of all six private words used by the shared bank-$A8 actor.
-/// Keeping this as a view over <see cref="RoomEnemySlot"/> preserves the actual WRAM aliasing
-/// and avoids maintaining a second, subtly divergent copy of the enemy state.
+/// The state of one Fune or Namihe, the two species that share this actor. The function, wake distance, variant,
+/// cooldown and its time are values the cartridge keeps in the enemy's common record, so they are emptied with that
+/// record when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class FuneNamiheEnemyState
 {
-    /// <summary>Physical enemy record whose variables A through F hold the shared actor state.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Creates a typed view without copying Fune or Namihe's native variable words.</summary>
-    internal FuneNamiheEnemyState(RoomEnemySlot slot) => _slot = slot;
-
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<FuneNamiheProgram> Program { get; set; }
 
-    /// <summary>
-    /// Variable A: pointer into the eight-entry table at $A8:96D3, not directly to an
-    /// animation list. Subtracting four selects active art; adding four restores idle art.
-    /// </summary>
-    public ushort InstructionListPointerTableCursor
-    {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
+    /// <summary>Whether the spitting animation is selected rather than the idle one; waking selects it and the spit's finishing cue deselects it.</summary>
+    public bool ShowsActiveAnimation { get; internal set; }
 
-    /// <summary>Variable B: indirect main-AI function.</summary>
-    public FuneNamiheEnemyFunction Function
-    {
-        get => (FuneNamiheEnemyFunction)_slot.VariableB;
-        internal set => _slot.VariableB = (ushort)value;
-    }
+    /// <summary>Whether the right-facing animations are selected, from population parameter one's facing bits.</summary>
+    public bool FacingRight { get; internal set; }
 
-    /// <summary>Variable C: strict vertical wake distance used only by Namihe.</summary>
-    public ushort YProximity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
+    /// <summary>The waiting or spitting behaviour; none once a kill has emptied the record.</summary>
+    public FuneNamiheEnemyFunction? Function { get; internal set; }
+
+    /// <summary>Strict vertical wake distance in pixels used only by Namihe, population parameter two's high byte (0 through 255).</summary>
+    public int YProximity { get; internal set; }
 
     /// <summary>
-    /// Variable D: the complete low nibble of population parameter one. Zero selects Fune;
-    /// every nonzero value selects Namihe, exactly as the native BEQ test does.
+    /// The complete low nibble of population parameter one, 0 through 15. Zero selects Fune; every nonzero value
+    /// selects Namihe, exactly as the native BEQ test does.
     /// </summary>
-    public ushort VariantIndex
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
-    }
+    public int VariantIndex { get; internal set; }
 
-    /// <summary>Variable E: Fune's incrementing cooldown counter.</summary>
-    public ushort CooldownTimer
-    {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
-    }
+    /// <summary>
+    /// Fune's incrementing cooldown count of waiting updates, 0 through 65535, compared with <see cref="CooldownTime"/>
+    /// as a signed word difference and reset to zero when the wait ends; the waiting routine's increment wraps it at
+    /// the word boundary.
+    /// </summary>
+    public int CooldownTimer { get; internal set; }
 
-    /// <summary>Variable F: cooldown target from parameter one's high byte.</summary>
-    public ushort CooldownTime
-    {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
-    }
+    /// <summary>The number of updates Fune waits, initialized from parameter one's high byte.</summary>
+    public int CooldownTime { get; internal set; }
 
     /// <summary>The shared initializer treats any nonzero variant nibble as Namihe.</summary>
     public bool IsNamihe => VariantIndex != 0;
+
+    /// <summary>
+    /// Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record. The
+    /// animation selection is left as it is: nothing selects an animation for an emptied record.
+    /// </summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        YProximity = 0;
+        VariantIndex = 0;
+        CooldownTimer = 0;
+        CooldownTime = 0;
+    }
 }

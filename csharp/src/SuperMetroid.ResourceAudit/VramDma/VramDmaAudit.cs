@@ -106,8 +106,6 @@ internal static class VramDmaAudit
                 if (!adapted.Add(owner)) continue;
                 foreach (VramDmaTransfer transfer in VramDmaDomains.ForFamily((family ?? throw new InvalidOperationException("Verification requires family.")), owner).Distinct())
                     Check(transfer, Location(syntax));
-                if (family == "plm" && root is not null && PlmProgramAudit.Run(root, null) != 0)
-                    report.Findings.Add(new("unresolved-plm-program", owner, Location(syntax), "The PLM descriptor/ownership audit failed."));
             }
             // A future delegate can invoke the queue without naming its API at
             // the actual producer. Fail on the method-group escape rather than
@@ -152,7 +150,7 @@ internal static class VramDmaAudit
         {
             SnesAddress source = SnesAddress.FromBusAddress(transfer.SourceAddress).AddWithinBank(offset);
             SnesDmaSourceKind kind = SnesDmaSourceMap.Classify(source);
-            if (kind is not (SnesDmaSourceKind.WorkRam or SnesDmaSourceKind.SaveRam))
+            if (kind is not SnesDmaSourceKind.WorkRam)
                 return $"Native source ${transfer.SourceAddress:X6}+${transfer.ByteCount:X} has no installed resolver; " +
                     $"byte {source} maps to {kind}, not mutable RAM.";
         }

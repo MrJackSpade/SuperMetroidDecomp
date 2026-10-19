@@ -32,11 +32,14 @@ public sealed class SamusDeathSequenceState
     /// <summary>WRAM `$0A9C`; reused by flash and suit-explosion palette timing.</summary>
     public NativeCountdown AnimationTimer { get; private set; }
 
-    /// <summary>WRAM `$0A9E`; flash selector zero/one, then explosion index zero through nine.</summary>
-    public ushort AnimationIndex { get; private set; }
+    /// <summary>
+    /// Flash palette selector (zero or one) while flashing, then the suit-explosion frame index from zero up to
+    /// <see cref="SamusDeathExplosionTimingDefinitions.RecordCount"/>, where the sequence completes.
+    /// </summary>
+    public int AnimationIndex { get; private set; }
 
-    /// <summary>WRAM `$0AA0`; 60-call flashing counter, then whiteout shade index.</summary>
-    public ushort AnimationCounter { get; private set; }
+    /// <summary>Flashing-call count up to the 60-call flash, then the whiteout shade index, which saturates at 20 and ends at 21.</summary>
+    public int AnimationCounter { get; private set; }
 
     /// <summary>Screen-space position captured by `$9B:B409-$B41A` at death-pose setup.</summary>
     public Position16<ScreenPixels> ScreenPosition { get; private set; }
@@ -52,13 +55,13 @@ public sealed class SamusDeathSequenceState
         return requested;
     }
 
-    /// <summary>Current `$92:808D` spritemap-table index used by `$92:EDBE`, or null.</summary>
-    public ushort? ExplosionSpritemapIndex =>
+    /// <summary>Samus spritemap-table index of the current suit-explosion frame for the captured facing, or null outside the explosion.</summary>
+    public int? ExplosionSpritemapIndex =>
         Phase == SamusDeathSequencePhase.SuitExplosion &&
             AnimationIndex < SamusDeathExplosionTimingDefinitions.RecordCount
-            ? unchecked((ushort)((FacingLeft
+            ? (FacingLeft
                 ? SamusSpecialSequenceRomData.Death.LeftExplosionSpritemap
-                : SamusSpecialSequenceRomData.Death.RightExplosionSpritemap) + AnimationIndex))
+                : SamusSpecialSequenceRomData.Death.RightExplosionSpritemap) + AnimationIndex
             : null;
 
     /// <summary>The facing bit captured before pose metadata is replaced by `$D7/$D8`.</summary>
@@ -70,16 +73,14 @@ public sealed class SamusDeathSequenceState
     /// the music wait are distinct producers and are not guessed here.
     /// </summary>
     public SamusDeathSequenceStartResult Begin(
-        ISnesAddressSpace bus,
         SamusState samus,
         Position16<RoomPixels> layer1)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         if (IsActive)
             throw new InvalidOperationException("Samus death sequence is already owned by bank $9B.");
 
-        SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType();
         var initialFrames =
             SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
         if ((byte)sourceMovementType >= initialFrames.Length)
@@ -88,7 +89,7 @@ public sealed class SamusDeathSequenceState
                 $"Death-pose frame table has no movement type ${(byte)sourceMovementType:X2}.");
         }
 
-        FacingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        FacingLeft = samus.PoseMetadata.IsFacingLeft();
         SamusPoseId deathPose = FacingLeft
             ? SamusPoseId.DeathSequenceLeftPose
             : SamusPoseId.DeathSequenceRightPose;
@@ -98,11 +99,11 @@ public sealed class SamusDeathSequenceState
         // with the movement-type table result. All six delays are two, so the timer produced
         // by frame-zero initialization remains the correct literal value for every start.
         samus.Pose = deathPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
         // Death entry publishes history itself, before overriding the starting
         // animation frame; the ordinary gameplay pose dispatcher is not running.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
         samus.Presentation.SetAnimationFrameFromSpecialHandler(initialFrame, timer: 2);
 
         // The cartridge subtracts layer 1 directly from Samus's live words because its death
@@ -127,19 +128,16 @@ public sealed class SamusDeathSequenceState
     /// complete death characters.
     /// </summary>
     public SamusDeathSequenceStepResult Step(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesCgram cgram,
         SamusDeathPaletteArtworkCatalog? artwork = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         Ensure.NotNull(cgram);
         if (!IsActive)
             throw new InvalidOperationException("Samus death sequence has not begun.");
 
         SamusDeathSequencePhase phaseAtStart = Phase;
-        ushort indexAtStart = AnimationIndex;
         bool paletteChanged = false;
         bool whiteoutChanged = false;
         bool drawPose = false;
@@ -150,7 +148,7 @@ public sealed class SamusDeathSequenceState
             case SamusDeathSequencePhase.PreFlashing:
                 // `$90:8976` advances the `$D7/$D8` delay stream only during state `$16`.
                 // State `$17` freezes that final body frame while its palettes alternate.
-                samus.Presentation.AnimateDeathFrame(bus);
+                samus.Presentation.AnimateDeathFrame();
                 drawPose = true;
                 PreFlashingTimer = PreFlashingTimer.Decrement().Remaining;
                 if (PreFlashingTimer.IsZero || PreFlashingTimer.IsNegative)
@@ -158,7 +156,7 @@ public sealed class SamusDeathSequenceState
                 break;
 
             case SamusDeathSequencePhase.Flashing:
-                AnimationCounter = unchecked((ushort)(AnimationCounter + 1));
+                AnimationCounter++;
                 if (AnimationCounter >= SamusSpecialSequenceRomData.Death.FlashFrameCount)
                 {
                     // `$9B:B498` loads palette pair zero, resets the reused counters, and immediately
@@ -227,18 +225,15 @@ public sealed class SamusDeathSequenceState
     }
 
     /// <summary>Publishes `$92:EDBE`'s one right/left explosion spritemap at captured screen position, bound to the death characters.</summary>
-    public void DrawExplosion(ISnesAddressSpace bus, SpriteFrameBuffer sprites,
+    public void DrawExplosion(SpriteFrameBuffer sprites,
         SamusSpritemapArtworkCatalog? artwork = null, SamusDeathTileAtlas? deathTiles = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sprites);
-        if (ExplosionSpritemapIndex is not ushort spritemap)
+        if (ExplosionSpritemapIndex is not int spritemap)
             return;
         SpriteArtwork explosion = (deathTiles ?? throw new InvalidOperationException(
             "Samus death explosion requires installed death artwork.")).Explosion;
-        sprites.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-            "Samus death spritemap requires WRAM."),
-            spritemap, ScreenPosition, new SamusSpritemapArtwork(artwork ?? throw new InvalidOperationException(
+        sprites.AddSamusSpritemap(spritemap, ScreenPosition, new SamusSpritemapArtwork(artwork ?? throw new InvalidOperationException(
                 "Samus death spritemap requires installed artwork."), explosion, () => explosion),
             new SpriteSource(SpriteSourceKind.SamusDeathExplosion));
     }
@@ -259,7 +254,7 @@ public sealed class SamusDeathSequenceState
         if (!AnimationTimer.IsZero && !AnimationTimer.IsNegative)
             return true;
 
-        AnimationIndex = unchecked((ushort)(AnimationIndex + 1));
+        AnimationIndex++;
         if (AnimationIndex >= SamusDeathExplosionTimingDefinitions.RecordCount)
         {
             // The terminal call writes shade 21 (`$7FFF`) across every non-Samus/non-
@@ -272,7 +267,7 @@ public sealed class SamusDeathSequenceState
 
         AnimationTimer =
             NativeCountdown.FromRaw(SamusDeathExplosionTimingDefinitions.DurationForIndex(AnimationIndex));
-        ushort paletteIndex = (artwork ?? throw new InvalidOperationException(
+        int paletteIndex = (artwork ?? throw new InvalidOperationException(
             "Samus death requires installed palette artwork.")).ExplosionPaletteIndex(AnimationIndex);
         WritePalettePair(samus, cgram, paletteIndex, artwork);
         paletteChanged = true;
@@ -295,7 +290,7 @@ public sealed class SamusDeathSequenceState
         palettes.DeathWhiteoutBetweenSuits.Fill(shade);
 
         if (AnimationCounter < 20)
-            AnimationCounter = unchecked((ushort)(AnimationCounter + 1));
+            AnimationCounter++;
         return true;
     }
 
@@ -303,7 +298,7 @@ public sealed class SamusDeathSequenceState
     private static void WritePalettePair(
         SamusState samus,
         SnesCgram cgram,
-        ushort paletteIndex,
+        int paletteIndex,
         SamusDeathPaletteArtworkCatalog? artwork)
     {
         // SuitPaletteIndex is 0/2/4. Multiplying it by ten skips each twenty-byte pointer

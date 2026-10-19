@@ -15,7 +15,7 @@ internal abstract class PlmAnimation
     /// Runs the program from where it rests until it draws, sleeps or deletes the PLM, as one pass of the native
     /// instruction interpreter does.
     /// </summary>
-    internal abstract void Advance(PlmSlot slot, PlmAnimationContext context);
+    internal abstract void Advance(PlmSlot slot, PlmStepContext context);
 
     /// <summary>Continues at the program the animation linked, as a native wake jumps to the link instruction.</summary>
     internal abstract void WakeAtLink();

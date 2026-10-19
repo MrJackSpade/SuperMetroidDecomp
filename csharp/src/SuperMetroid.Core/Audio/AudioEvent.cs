@@ -15,7 +15,7 @@ public readonly record struct AudioEvent
 {
     /// <summary>Stores one event's fields; use the kind-specific factories.</summary>
     private AudioEvent(AudioEventKind kind, int dspCycleOffset, AudioBank bank, MusicCommand music,
-        SoundEffectId soundEffect, byte ticks, bool soundEffectsPolled)
+        SoundEffectId soundEffect, int ticks, bool soundEffectsPolled)
     {
         Kind = kind;
         DspCycleOffset = dspCycleOffset;
@@ -44,8 +44,8 @@ public readonly record struct AudioEvent
     /// <summary>The sound effect a <see cref="AudioEventKind.StartSoundEffect"/> event starts.</summary>
     public SoundEffectId SoundEffect { get; }
 
-    /// <summary>Elapsed timer periods a <see cref="AudioEventKind.DriverTick"/> event accounts for.</summary>
-    public byte Ticks { get; }
+    /// <summary>Elapsed timer periods a <see cref="AudioEventKind.DriverTick"/> event accounts for; zero for every other kind.</summary>
+    public int Ticks { get; }
 
     /// <summary>Whether a <see cref="AudioEventKind.DriverTick"/> event also services the three sound-effect libraries.</summary>
     public bool SoundEffectsPolled { get; }
@@ -62,7 +62,7 @@ public readonly record struct AudioEvent
     /// <param name="dspCycleOffset">DSP cycles from the frame start.</param>
     /// <param name="ticks">Elapsed timer periods the tick accounts for.</param>
     /// <param name="soundEffectsPolled">Whether the tick services the sound-effect libraries.</param>
-    public static AudioEvent DriverTick(int dspCycleOffset, byte ticks, bool soundEffectsPolled) =>
+    public static AudioEvent DriverTick(int dspCycleOffset, int ticks, bool soundEffectsPolled) =>
         new(AudioEventKind.DriverTick, dspCycleOffset, default, default, default, ticks, soundEffectsPolled);
 
     /// <summary>Starts <paramref name="soundEffect"/> at the sound-effect poll of the tick at <paramref name="dspCycleOffset"/>.</summary>

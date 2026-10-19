@@ -41,8 +41,6 @@ internal sealed class RoomMainRoutines
     private readonly VramWriteQueue _vramWrites;
     /// <summary>Wrecked Ship treadmill animation gated by Phantoon's boss bit.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
-    /// <summary>Memory context supplied to the room animated-tile handlers.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Binds the room, enemy, tile, and memory owners used by room-main callbacks.</summary>
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)
@@ -59,18 +57,17 @@ internal sealed class RoomMainRoutines
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
         _wreckedShipTreadmill = dependencies.WreckedShipTreadmill;
-        _addressSpace = dependencies.AddressSpace;
     }
     /// <summary>The hidden-wall branch of MainASM_CrocomiresRoomShaking at $8F:E8CD/$E942.</summary>
     internal void RunCrocomireComebackRoomMain()
     {
         if (_room.ActiveRoom?.State.MainCallback != RoomMainCallback.CrocomireRoomShaking ||
-            _enemies.CrocomireBehavior.Crocomire is not { } boss ||
+            _enemies.RoomMainHooks.Crocomire is not { } boss ||
             boss.Body.Properties.HasAny(EnemyProperties.Invisible) ||
             boss.DeathSequenceIndex != CrocomireDeathPhase.RumbleHiddenWall)
             return;
 
-        var death = _enemies.CrocomireBehavior.CrocomireDeath ?? throw new InvalidOperationException(
+        var death = _enemies.RoomMainHooks.CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire's comeback room callback has no death state.");
         _backgroundScroll.SetBg1VerticalScrollRegister(unchecked((ushort)(
             _backgroundScroll.Layer1Position.Y + _backgroundScroll.Bg1Offset.Y + death.RumbleYOffset)));
@@ -99,11 +96,10 @@ internal sealed class RoomMainRoutines
     {
         if (_player.Samus?.Xray.AreAnimatedTilesSuspended == true)
             return;
-        _sandAnimatedTiles.Step(_addressSpace, _vram, _vramWrites);
-        _roomSpikes.Step(_addressSpace, _vram, _vramWrites);
+        _sandAnimatedTiles.Step(_vram, _vramWrites);
+        _roomSpikes.Step(_vram, _vramWrites);
         if (_room.ActiveRoom is not null)
-            _roomTreadmills.Step(_addressSpace,
-                _system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss), _vramWrites);
+            _roomTreadmills.Step(_system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss), _vramWrites);
         _tourianStatues.StepTiles();
 
         // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its
@@ -114,7 +110,6 @@ internal sealed class RoomMainRoutines
             AreaId areaIndex = _room.ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
                 "A live Wrecked Ship treadmill animation has no active cartridge room.");
             _wreckedShipTreadmill.Step(
-                _addressSpace,
                 _system.HasAnyBossBits(areaIndex, BossBits.AreaBoss),
                 _vramWrites);
         }
@@ -127,7 +122,7 @@ internal sealed class RoomMainRoutines
     /// flicker. Keeping the predicate named prevents host display cadence (including RDP)
     /// from being mistaken for the cartridge-authored effect.
     /// </summary>
-    internal static bool ShouldDrawSamusOnElevator(ushort nmiFrameCounter) =>
+    internal static bool ShouldDrawSamusOnElevator(int nmiFrameCounter) =>
         (nmiFrameCounter & 1) == 0;
 
     /// <summary>
@@ -138,7 +133,7 @@ internal sealed class RoomMainRoutines
     {
         if (_room.ActiveRoom?.State.MainCallback !=
                 RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris ||
-            _enemies.RidleyEncounter.CeresStatus == 0)
+            _enemies.Ceres.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             return;
 
         // The timer is RoomMainASMVar1, inherited from the shaft's rotation index.
@@ -148,7 +143,7 @@ internal sealed class RoomMainRoutines
             return;
 
         _room.RoomMainScratch.Countdown = NativeCountdown.Start(8);
-        ushort random = _system.RandomNumber;
+        int random = _system.RandomNumber;
         _enemies.Projectiles.SpawnCeresFallingDebris(
             CeresFallingDebrisX(random & 15),
             dark: unchecked((short)random) < 0);

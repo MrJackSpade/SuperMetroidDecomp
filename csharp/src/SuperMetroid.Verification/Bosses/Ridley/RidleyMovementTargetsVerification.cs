@@ -44,8 +44,7 @@ internal static class RidleyMovementTargetsVerification
         var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords, RidleyMovementTargets.HoverDivisorIndexes, 4);
         var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords, RidleyMovementTargets.GrabDivisorIndexes, 4);
         var enemies = new RoomEnemySystem();
-        const BindingFlags instance = BindingFlags.NonPublic | BindingFlags.Instance;
-        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState> beginCarry = RidleyBehavior.BeginNorfairRidleyCarry;
         Func<RidleyEnemyState, int> readDivisor = RidleyBehavior.ReadRidleyHealthMovementDivisorIndex;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, bool> pogo = enemies.RidleyBehavior.TickNorfairRidleyPogo;
@@ -115,7 +114,7 @@ internal static class RidleyMovementTargetsVerification
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
-        enemies.BindFixtureBus(NewRidleyGrabDivisorReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> approach = enemies.RidleyBehavior.TickNorfairRidleyGrabApproach;
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 256)) };
         for (int health = 0; health <= ushort.MaxValue; health++)
@@ -136,12 +135,6 @@ internal static class RidleyMovementTargetsVerification
         Console.WriteLine("Ridley targets: 23 native words, 65536 carry/health cases, 192 side-target motions and 65536 grab approaches pass with migrated reads forbidden.");
     }
 
-    /// <summary>Forbids live reads of the migrated grab health-divisor table.</summary>
-    private static CartridgeReadGuard NewRidleyGrabDivisorReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa6bb4e and < 0xa6bb56,
-                _ => "Unexpected migrated Ridley grab divisor read.")
-            .RejectWrites(_ => "Unexpected Ridley target bus write.");
 
     /// <summary>Runs Ridley target and acceleration comparisons against the cartridge.</summary>
     [VerificationCommand("--ridley-movement-target-fixture")]

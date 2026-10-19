@@ -33,14 +33,14 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
     };
 
     /// <inheritdoc/>
-    private protected override GreyDoorProgram? Publish(GreyDoorCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override GreyDoorProgram? Publish(GreyDoorCue cue, PlmSlot slot, PlmStepContext context)
     {
         switch (cue)
         {
             case GreyDoorCue.BranchIfOpened:
                 if (context.Plms.DoorPlms.IsDoorOpened(slot))
                 {
-                    slot.GreyDoor = null;
+                    slot.Family = null;
                     slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Closed(Variant.Orientation)));
                 }
                 return null;
@@ -48,14 +48,14 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
                 SetLink(GreyDoorProgram.Activate);
                 return null;
             case GreyDoorCue.ArmCondition:
-                slot.PreInstruction = (ushort)GreyDoorPlmProgramDefinitions.UnlockCheckOf(
-                    (slot.GreyDoor ?? throw new InvalidOperationException("A grey cap's program ran without its door state.")).Condition);
+                slot.PreInstruction = GreyDoorPreInstructions.Of(GreyDoorPlmProgramDefinitions.UnlockCheckOf(
+                    ((slot.Family as GreyDoorPlmState) ?? throw new InvalidOperationException("A grey cap's program ran without its door state.")).Condition));
                 return null;
             case GreyDoorCue.LinkHit:
                 SetLink(GreyDoorProgram.Hit);
                 return null;
             case GreyDoorCue.ArmShotWake:
-                slot.PreInstruction = (ushort)GreyDoorPreInstruction.WakeWhenShot;
+                slot.PreInstruction = GreyDoorPreInstructions.Of(GreyDoorPreInstruction.WakeWhenShot);
                 return null;
             case GreyDoorCue.CountHit:
                 return context.Plms.GreyDoors.CountGreyDoorHit(slot) ? GreyDoorProgram.Open : null;
@@ -73,6 +73,6 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
     }
 
     /// <summary>Queues a library-3 door sound under the door sounds' cap.</summary>
-    private static void QueueDoorSound(PlmAnimationContext context, byte sound) =>
-        context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, sound), BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
+    private static void QueueDoorSound(PlmStepContext context, SoundEffectId sound) =>
+        context.QueueSound(sound, BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
 }

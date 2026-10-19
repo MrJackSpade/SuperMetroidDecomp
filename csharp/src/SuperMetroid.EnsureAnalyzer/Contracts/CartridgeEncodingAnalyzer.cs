@@ -1,17 +1,15 @@
-using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
 using SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
 
 namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
-/// Ratchets cartridge encoding in production code (#641): a file may not gain raw hexadecimal
-/// literals, address-valued pointer dispatch or opaque word arrays beyond its reviewed baseline,
-/// and a file absent from the baseline may hold none. Active only in projects given
-/// <c>cartridge-encoding-baseline.txt</c> as an additional file.
+/// Reports cartridge encoding in repository code (#641, #223, #1323, #1324) at every site: raw hexadecimal literals,
+/// address-valued pointer dispatch, opaque word arrays, raw storage-width operations, hand-written countdowns,
+/// [Flags] primitive casts and narrow storage members. There is no baseline; an intrinsic encoded value carries a
+/// same-line '// cartridge-encoding: allow(Class) - reason' review and an encoding owner carries [SnesEncodingOwner].
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
@@ -34,11 +32,11 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     /// <summary>A hand-written wrapping self-decrement of narrow storage (#1324).</summary>
     public const string CountdownSelfDecrementId = "SME6349";
 
-    /// <summary>A file holds fewer occurrences than its baseline: lower the reviewed count.</summary>
-    public const string StaleCountId = "SME6343";
+    /// <summary>A <c>[Flags]</c> enum value cast to its storage primitive in functional code (#1323).</summary>
+    public const string FlagsPrimitiveCastId = "SME6346";
 
-    /// <summary>A baseline entry names a file this project no longer compiles.</summary>
-    public const string StaleFileId = "SME6344";
+    /// <summary>A <c>byte</c> or <c>ushort</c> instance member in functional code (#1323).</summary>
+    public const string NarrowStorageMemberId = "SME6347";
 
     /// <summary>Guidance appended to each encoding diagnostic so users can find the reviewed exception policy.</summary>
     private const string Guide = "see docs/cartridge-encoding.md";
@@ -113,29 +111,31 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         description: "'x = unchecked((ushort)(x - 1))', its byte form and '--' on ushort or byte storage hide the native " +
             "wraparound and leave the branch to a hand-written sign or zero test. The countdown type keeps the exact word.");
 
-    /// <summary>Reports when a file's occurrence count drops below its reviewed baseline allowance.</summary>
-    private static readonly DiagnosticDescriptor StaleCountRule = new(
-        StaleCountId,
-        "Cartridge-encoding baseline is stale",
-        "{0} now holds {1} {2} occurrence(s) but the baseline allows {3}; lower the baseline so the ratchet keeps the gain",
-        "Design",
-        DiagnosticSeverity.Warning,
-        isEnabledByDefault: true);
-
-    /// <summary>Reports baseline entries whose source files are no longer compiled by the project.</summary>
-    private static readonly DiagnosticDescriptor StaleFileRule = new(
-        StaleFileId,
-        "Cartridge-encoding baseline names a missing file",
-        "The baseline lists {0} for {1}, which this project no longer compiles; remove the entry",
+    private static readonly DiagnosticDescriptor FlagsPrimitiveCastRule = new(
+        FlagsPrimitiveCastId,
+        "[Flags] enum cast to a primitive word",
+        "{0}; keep the typed flags and convert only at the encoding boundary, with the type's ToNativeWord ({1})",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        customTags: WellKnownDiagnosticTags.CompilationEnd);
+        description: "Gameplay state holds [Flags] enums as their type. Casting one to ushort or byte moves the bits back " +
+            "into an untyped word; only codecs and [SnesEncodingOwner] types convert to the native word.");
+
+    private static readonly DiagnosticDescriptor NarrowStorageMemberRule = new(
+        NarrowStorageMemberId,
+        "Narrow CPU-word storage in functional code",
+        "{0}; store the domain type (an int quantity, bool, enum, flags, nullable value or logical index) and convert at " +
+            "the codec, or make a load-bearing wrap explicit ({1})",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A byte or ushort field or property stores gameplay state at the cartridge register width. Widen " +
+            "quantities whose wrap does not matter and name the wrap that does (#1323, docs/cartridge-encoding.md).");
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         [RawHexRule, PointerDispatchRule, OpaqueWordArrayRule, RawWidthRule, CountdownSignTestRule, CountdownSelfDecrementRule,
-            StaleCountRule, StaleFileRule];
+            FlagsPrimitiveCastRule, NarrowStorageMemberRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -144,47 +144,27 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterCompilationStartAction(start =>
         {
-            AdditionalText? file = start.Options.AdditionalFiles.FirstOrDefault(additional =>
-                string.Equals(Path.GetFileName(additional.Path), CartridgeEncodingScanner.BaselineFileName,
-                    StringComparison.OrdinalIgnoreCase));
-            if (file is null)
+            if (!InScope(start.Compilation.AssemblyName))
                 return;
-            SourceText content = file.GetText(start.CancellationToken)
-                ?? throw new InvalidOperationException($"{file.Path}: the cartridge-encoding baseline could not be read.");
-            CartridgeEncodingBaseline baseline = CartridgeEncodingBaseline.Parse(file.Path, content.ToString());
-            var compiled = new ConcurrentDictionary<string, bool>(StringComparer.Ordinal);
-
-            start.RegisterSemanticModelAction(model => AnalyzeTree(model, baseline, compiled));
-            start.RegisterCompilationEndAction(end =>
-            {
-                string projectPrefix = $"csharp/src/{end.Compilation.AssemblyName}/";
-                foreach (var entry in baseline.Counts.Keys.Where(key =>
-                             key.Path.StartsWith(projectPrefix, StringComparison.Ordinal) && !compiled.ContainsKey(key.Path)))
-                {
-                    end.ReportDiagnostic(Diagnostic.Create(StaleFileRule, Location.None, entry.Rule, entry.Path));
-                }
-            });
+            start.RegisterSemanticModelAction(AnalyzeTree);
         });
     }
 
-    /// <summary>Scans a compiled source tree, enforces each occurrence budget, and reports baseline counts that should shrink.</summary>
-    private static void AnalyzeTree(
-        SemanticModelAnalysisContext context,
-        CartridgeEncodingBaseline baseline,
-        ConcurrentDictionary<string, bool> compiled)
-    {
-        string filePath = context.SemanticModel.SyntaxTree.FilePath;
-        if (CartridgeEncodingScanner.IsBuildGenerated(filePath))
-            return;
-        string? path = CartridgeEncodingScanner.RepositoryRelative(baseline.RepositoryRoot, filePath);
-        if (path is null)
-            return;
-        compiled[path] = true;
+    /// <summary>
+    /// Every repository assembly is in scope except the analyzer projects, which compile the detector's own rules.
+    /// </summary>
+    internal static bool InScope(string? assemblyName) =>
+        assemblyName is not null && assemblyName.StartsWith(RepositoryOwnership.AssemblyPrefix, StringComparison.Ordinal) &&
+        !assemblyName.StartsWith("SuperMetroid.EnsureAnalyzer", StringComparison.Ordinal);
 
-        var occurrences = CartridgeEncodingScanner.Scan(context.SemanticModel, context.CancellationToken);
-        foreach (var group in occurrences.GroupBy(occurrence => occurrence.Rule))
+    /// <summary>Scans a compiled source tree and reports every encoding occurrence where it is.</summary>
+    private static void AnalyzeTree(SemanticModelAnalysisContext context)
+    {
+        if (CartridgeEncodingScanner.IsBuildGenerated(context.SemanticModel.SyntaxTree.FilePath))
+            return;
+        foreach (CartridgeEncodingOccurrence occurrence in CartridgeEncodingScanner.Scan(context.SemanticModel, context.CancellationToken))
         {
-            DiagnosticDescriptor? descriptor = CartridgeEncodingScanner.RuleId(group.Key) switch
+            DiagnosticDescriptor? descriptor = CartridgeEncodingScanner.RuleId(occurrence.Rule) switch
             {
                 RawHexId => RawHexRule,
                 PointerDispatchId => PointerDispatchRule,
@@ -192,40 +172,14 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
                 RawWidthId => RawWidthRule,
                 CountdownSignTestId => CountdownSignTestRule,
                 CountdownSelfDecrementId => CountdownSelfDecrementRule,
+                FlagsPrimitiveCastId => FlagsPrimitiveCastRule,
+                NarrowStorageMemberId => NarrowStorageMemberRule,
                 null => null,
                 var id => throw new InvalidOperationException($"Unmapped cartridge-encoding rule id {id}."),
             };
-            if (descriptor is null)
-                continue;
-            var found = group.OrderBy(occurrence => occurrence.Location.SourceSpan.Start).ToList();
-            int allowed = baseline.Allowed(path, descriptor.Id);
-            if (allowed == 0)
-            {
-                // A file without a reviewed count is held to none: every occurrence is reported where it is.
-                foreach (var occurrence in found)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(descriptor, occurrence.Location,
-                        $"{occurrence.Class} ({occurrence.Basis})", Guide));
-                }
-            }
-            else if (found.Count > allowed)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(descriptor, found[0].Location,
-                    $"{path} holds {found.Count} occurrences but its reviewed baseline allows {allowed}", Guide));
-            }
-        }
-
-        foreach (string rule in CartridgeEncodingScanner.RatchetedRuleIds)
-        {
-            int allowed = baseline.Allowed(path, rule);
-            if (allowed == 0)
-                continue;
-            int count = occurrences.Count(occurrence => CartridgeEncodingScanner.RuleId(occurrence.Rule) == rule);
-            if (count < allowed)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(StaleCountRule,
-                    Location.Create(context.SemanticModel.SyntaxTree, new TextSpan(0, 0)), path, count, rule, allowed));
-            }
+            if (descriptor is not null)
+                context.ReportDiagnostic(Diagnostic.Create(descriptor, occurrence.Location,
+                    $"{occurrence.Class} ({occurrence.Basis})", Guide));
         }
     }
 }

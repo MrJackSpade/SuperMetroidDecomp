@@ -28,8 +28,11 @@ internal sealed class TourianUnlockBehavior
         _presentation = presentation;
     }
 
-    /// <summary>FX surface used by the native unlocking particles and their splash actors.</summary>
-    internal ushort TourianStatueWaterY { get; set; }
+    /// <summary>How far above the water surface a splash sits.</summary>
+    private static readonly Offset16<RoomPixels> SplashAboveSurface = new(0, -4);
+
+    /// <summary>The water surface the unlocking particles cross and their splashes ride; only its Y axis is meaningful.</summary>
+    internal Position16<RoomPixels> TourianStatueWaterSurface { get; set; }
     /// <summary>Creates four fixed-position dust actors for the descending Tourian statue sequence.</summary>
     internal void SpawnTourianDescentDust()
     {
@@ -78,7 +81,7 @@ internal sealed class TourianUnlockBehavior
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, 0);
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
-            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(TourianStatueWaterY - 4)));
+            projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
         byte angle = unchecked((byte)((_room.Random.Generate() & 63) - 32));
         projectile.Variable0 = (ushort)(angle * 2);
@@ -89,79 +92,43 @@ internal sealed class TourianUnlockBehavior
     /// <summary>Runs native splash, soul, or particle motion and requests deletion at their exit boundaries.</summary>
     internal bool TryStepTourianUnlockEffect(RoomEnemyProjectileSlot projectile)
     {
-        if (!Enum.IsDefined((TourianStatuePreInstruction)projectile.PreInstruction))
+        if (projectile.PreInstruction is not (EnemyProjectilePreInstruction.TourianStatueSplashMotion or
+            EnemyProjectilePreInstruction.TourianStatueParticleMotion or EnemyProjectilePreInstruction.TourianStatueSoulMotion))
             return false;
-        switch ((TourianStatuePreInstruction)projectile.PreInstruction)
+        switch (projectile.PreInstruction)
         {
-            case TourianStatuePreInstruction.SplashMotion:
-                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(TourianStatueWaterY - 4)));
+            case EnemyProjectilePreInstruction.TourianStatueSplashMotion:
+                projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
                 return true;
-            case TourianStatuePreInstruction.SoulMotion:
+            case EnemyProjectilePreInstruction.TourianStatueSoulMotion:
                 projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-                if ((projectile.Position.Y.Whole & 0x100) != 0)
+                // The soul is deleted while its Y lies in an odd 256-pixel screen row. Rising from the statues'
+                // top screen row, that first happens when it wraps above the room's top edge.
+                int soulScreenRow = SnesLittleEndian.HighByte(projectile.Position.Y.Whole);
+                if (soulScreenRow % 2 != 0)
                 {
-                    projectile.InstructionPointer = TourianStatueRomData.DeleteProjectile;
-                    projectile.InstructionTimer = NativeCountdown.Start(1);
+                    projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
                 }
                 projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue - 128))));
                 return true;
-            case TourianStatuePreInstruction.ParticleMotion:
-                ushort before = unchecked((ushort)(TourianStatueWaterY - projectile.Position.Y.Whole));
+            case EnemyProjectilePreInstruction.TourianStatueParticleMotion:
+                // A splash marks the update the particle crosses the surface in either direction: the wrapped
+                // signed distance from the particle down to the surface changes sign.
+                bool submergedBefore = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
                 projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
-                if (((before ^ (TourianStatueWaterY - projectile.Position.Y.Whole)) & 0x8000) != 0)
+                bool submergedAfter = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
+                if (submergedBefore != submergedAfter)
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash);
                 if (SnesLittleEndian.HighByte(projectile.Position.Y.Whole) == 1)
                 {
-                    projectile.InstructionPointer = TourianStatueRomData.DeleteProjectile;
-                    projectile.InstructionTimer = NativeCountdown.Start(1);
+                    projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
                 }
                 else projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + (16)))));
                 return true;
             default:
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(TourianStatuePreInstruction)} {projectile.PreInstruction:X4}.");
+                    $"Undefined Tourian statue pre-instruction {projectile.PreInstruction}.");
         }
-    }
-
-    /// <summary>Handles statue-specific sound, child spawns, earthquake, and vertical-offset instructions.</summary>
-    internal bool TryExecuteTourianUnlockInstruction(RoomEnemyProjectileSlot projectile, ushort code, ref ushort cursor)
-    {
-        if (code == (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6 &&
-            projectile.Kind == RoomEnemyProjectileKind.TourianStatueEyeGlow)
-        {
-            _audio.QueueEnemySound(SoundEffectLibrary2Sounds.TourianStatueRelease, maximumQueued: 6);
-            // This command has a one-byte sound operand, unlike the word operands below.
-            cursor += 3;
-            return true;
-        }
-        if (!Enum.IsDefined((TourianStatueInstruction)code))
-            return false;
-        switch ((TourianStatueInstruction)code)
-        {
-            case TourianStatueInstruction.ResetDustPosition:
-                projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
-                break;
-            case TourianStatueInstruction.SpawnParticle:
-                SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);
-                break;
-            case TourianStatueInstruction.SpawnTail:
-                SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail);
-                break;
-            case TourianStatueInstruction.Earthquake:
-                _earthquake.EarthquakeType = 1;
-                _earthquake.AddTimerBits(0x20);
-                break;
-            case TourianStatueInstruction.AddY:
-                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + (EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(
-                    projectile,
-                    unchecked((ushort)(cursor + 2)))))));
-                cursor += 2;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TourianStatueInstruction)} {code:X4}.");
-        }
-        cursor += 2;
-        return true;
     }
 
     /// <summary>Registers statue-specific pre-instruction and instruction interceptors.</summary>
@@ -169,6 +136,36 @@ internal sealed class TourianUnlockBehavior
     {
         // The Tourian statue effects use words outside the closed bank-$86 sets.
         table.InterceptPreInstructions(TryStepTourianUnlockEffect);
-        table.InterceptInstructions(TryExecuteTourianUnlockInstruction);
+        table.RegisterCue<TourianStatueProjectileCue>((context, cue) =>
+        {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
+            switch (cue.Kind)
+            {
+                case TourianStatueProjectileCueKind.Delete:
+                    projectile.Clear();
+                    break;
+                case TourianStatueProjectileCueKind.PlayReleaseSound:
+                    _audio.QueueEnemySound(SoundEffectLibrary2Sounds.TourianStatueRelease, maximumQueued: 6);
+                    break;
+                case TourianStatueProjectileCueKind.Earthquake:
+                    _earthquake.EarthquakeType = TourianStatueRomData.ReleaseEarthquakeType;
+                    _earthquake.AddTimerBits(TourianStatueRomData.ReleaseEarthquakeTimer);
+                    break;
+                case TourianStatueProjectileCueKind.SpawnParticle:
+                    SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);
+                    break;
+                case TourianStatueProjectileCueKind.SpawnTail:
+                    SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail);
+                    break;
+                case TourianStatueProjectileCueKind.MoveDown:
+                    projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + cue.Pixels)));
+                    break;
+                case TourianStatueProjectileCueKind.StartMoving:
+                    projectile.PreInstruction = cue.Movement;
+                    break;
+                default:
+                    throw new InvalidOperationException($"The Tourian statue projectiles have no {cue.Kind} cue.");
+            }
+        });
     }
 }

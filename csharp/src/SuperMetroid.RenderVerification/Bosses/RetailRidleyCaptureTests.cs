@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -18,13 +19,13 @@ internal static class RetailRidleyCaptureTests
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
         var retained = new List<(RenderFrameSnapshot Packet, Rgba32[] Expected)>();
         foreach (ushort scale in new ushort[] { 128, 240, 256 })
@@ -32,14 +33,14 @@ internal static class RetailRidleyCaptureTests
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
             (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Mode7Active = true;
-            ridley.Mode7MatrixA = scale; ridley.Mode7MatrixD = scale;
-            ridley.Mode7MatrixB = unchecked((ushort)tilt);
-            ridley.Mode7MatrixC = unchecked((ushort)-tilt);
+            ridley.Mode7MatrixA = new SnesSignedEightEight(scale); ridley.Mode7MatrixD = new SnesSignedEightEight(scale);
+            ridley.Mode7MatrixB = SnesSignedEightEight.FromSignedRaw(tilt);
+            ridley.Mode7MatrixC = SnesSignedEightEight.FromSignedRaw(unchecked((short)-tilt));
             ridley.Mode7Center = new Position16<Mode7Pixels>(128, 120);
             ridley.Mode7Offset = new Offset16<Mode7Pixels>(7, unchecked((short)scroll));
             // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
-            runtime.NmiHandler.RunNmi(0, true);
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()).ToArray();
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
+            var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
             var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             if (scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null } mixed ||
                 mixed.HudScanlines != SnesPpuLayout.GameplayHudHeightPixels)

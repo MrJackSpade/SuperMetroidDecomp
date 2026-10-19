@@ -38,8 +38,8 @@ internal static class DragonAnimationDefinitionsVerification
         }
 
         Suite(nameof(VerifyAllDragonAnimationInstalls), () => VerifyAllDragonAnimationInstalls());
-        Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(rom, facingLeft: false));
-        Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(rom, facingLeft: true));
+        Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(facingLeft: false));
+        Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(facingLeft: true));
 
         AssertThrows<InvalidDataException>(
             () => DragonAnimationDefinitions.Program(
@@ -71,15 +71,14 @@ internal static class DragonAnimationDefinitionsVerification
 
     /// <summary>Runs body and wing through idle, rise, and attack transitions for one Samus-facing direction.</summary>
     private static void VerifyLiveDragonAnimationHandoffs(
-        SuperMetroidAddressSpace rom,
         bool facingLeft)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewDragonAnimationReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
-        wing.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
+        body.Bind(EnemyDefinitionId.Dragon, body.Definition);
+        wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
         body.Parameter1 = 0;
         wing.Parameter1 = 1;
         wing.Position = wing.Position.WithWholeX(0x0100);
@@ -130,17 +129,14 @@ internal static class DragonAnimationDefinitionsVerification
     }
 
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>
-    private static RoomEnemySlot NewDragonAnimationSlot(int index) => new(index)
+    private static RoomEnemySlot NewDragonAnimationSlot(int index) => new(index, EnemySlotFixtures.Registry)
     {
         InstructionTimer = NativeCountdown.Start(0x2222),
         Timer = NativeCountdown.Start(0x3333),
     };
 
-    /// <summary>Provides Dragon's per-enemy work arrays for a standalone animation slot.</summary>
-    private static DragonEnemyState NewDragonAnimationState(RoomEnemySlot slot) =>
-        new(slot, new ushort[RoomEnemySystem.MaximumEnemyCount],
-            new ushort[RoomEnemySystem.MaximumEnemyCount],
-            new ushort[RoomEnemySystem.MaximumEnemyCount]);
+    /// <summary>Provides a fresh Dragon state for a standalone animation slot.</summary>
+    private static DragonEnemyState NewDragonAnimationState(RoomEnemySlot slot) => new();
 
     /// <summary>Confirms the requested selector reached state and slot, clearing the previous loop timer.</summary>
     private static void AssertDragonAnimationHandoff(
@@ -162,9 +158,4 @@ internal static class DragonAnimationDefinitionsVerification
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }
 
-    /// <summary>Rejects live access to the migrated Dragon selector pointer table.</summary>
-    private static CartridgeReadGuard NewDragonAnimationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa2e5ef and < 0xa2e5fb,
-                address => $"Dragon attempted migrated animation-selector read ${address:X6}.");
 }

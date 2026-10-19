@@ -1,0 +1,16 @@
+namespace SuperMetroid.Core.Frontend.Title;
+
+/// <summary>Selects the typed steps of the title card a title phase shows.</summary>
+internal static class TitleCards
+{
+    /// <summary>The steps of the card <paramref name="phase"/> shows.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="phase"/> shows no title card.</exception>
+    internal static IReadOnlyList<TitleCardStep> Steps(TitleSequencePhase phase) => phase switch
+    {
+        TitleSequencePhase.YearText => TitleCardDefinitions.Year,
+        TitleSequencePhase.NintendoText => TitleCardDefinitions.Nintendo,
+        TitleSequencePhase.PresentsText => TitleCardDefinitions.Presents,
+        TitleSequencePhase.MetroidThreeText => TitleCardDefinitions.MetroidThree,
+        _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Phase shows no title card."),
+    };
+}

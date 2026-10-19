@@ -22,32 +22,12 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class UnusedCinematicFadePaletteFxColorDefinitions
 {
 
-    /// <summary>The first timed record at <c>$8D:D9D4</c>.</summary>
-    public const ushort FirstFramePointer = 0xd9d4;
-
     /// <summary>The one-shot fade contains eleven timed records.</summary>
     public const int FrameCount = 11;
 
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 36;
-
-    /// <summary>Returns one timed-record pointer.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
-
-    /// <summary>Returns one presentation-owned BGR555 word in a timed record.</summary>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(227, FrameCount, ColorsPerFrame);
 }

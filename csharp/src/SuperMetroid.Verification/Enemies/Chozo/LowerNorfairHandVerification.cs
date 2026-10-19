@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Lower Norfair Chozo hand admission, acid draining, and completed-room re-entry.</summary>
 internal static class LowerNorfairHandVerification
@@ -25,7 +26,7 @@ internal static class LowerNorfairHandVerification
         var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var bus = NewChozoProgramAndDrawReadGuard(source);
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         var handEntries = ChozoStatuePlmDrawDefinitions.All.Select(draw =>
             new RoomPlmChozoStatueVisualEntry(
                 ChozoStatuePlmDrawDefinitions.VisualId(draw.Pointer),
@@ -37,7 +38,7 @@ internal static class LowerNorfairHandVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xb1e5);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AcidStatue);
         runtime.StepFrame(0);
         var level = runtime.Room.LoadedLevelData;
         var hand = level.GetCollisionBlock(new(4, 8));
@@ -46,24 +47,24 @@ internal static class LowerNorfairHandVerification
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         hand = level.GetCollisionBlock(new(4, 8));
         AssertEqual(RoomCollisionType.SpecialBlock, hand.CollisionType, "destroyed cover becomes solid hand");
-        AssertEqual((byte)0x83, hand.Behavior, "Norfair hand activation BTS");
+        AssertEqual((byte)0x83, hand.Bts.Value, "Norfair hand activation BTS");
         var samus = runtime.Player.IntroducedSamus;
         foreach (bool hasSpaceJump in new[] { false, true })
         {
-            samus.CollectedItems = hasSpaceJump ? (ushort)SamusEquipmentFlags.SpaceJump : (ushort)0;
+            samus.CollectedItems = hasSpaceJump ? SamusEquipmentFlags.SpaceJump : (ushort)0;
             samus.PoseId = hasSpaceJump ? SamusPoseId.FacingRightNormalPose : SamusPoseId.MorphBallGroundRightPose;
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
-            var rejected = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
+            var rejected = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = runtime.Plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
             AssertTrue(rejected.Collided, "hand remains solid for ineligible contact");
             AssertTrue(!runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid),
                 "standing or missing Space Jump must not activate statue");
         }
-        samus.CollectedItems |= (ushort)SamusEquipmentFlags.SpaceJump;
+        samus.CollectedItems |= SamusEquipmentFlags.SpaceJump;
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
-        var collision = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
+        var collision = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = runtime.Plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
         // Samus's whole width lies in the hand's block column, so the downward probe's
         // only candidate is the hand block at (4, 8).
         int leftColumn = (samus.Kinematics.Position.X.Whole - samus.Kinematics.Radius.X) >> 4;
@@ -74,7 +75,7 @@ internal static class LowerNorfairHandVerification
         AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
         AssertEqual((ushort)1, runtime.Enemies.SlotTable.Slots[0].Parameter1, "hand wakes statue");
         AssertTrue(!runtime.Player.GroundedSamusMovementEnabled, "statue takes control on hand contact");
-        ushort startingAcidY = runtime.RoomLayer3Fx.BaseYPosition;
+        ushort startingAcidY = runtime.RoomLayer3Fx.BaseY.Whole;
         bool sawAcidDrain = false;
         var displayedHeights = new HashSet<ushort>();
         bool sawStartCommand = false;
@@ -82,38 +83,38 @@ internal static class LowerNorfairHandVerification
         for (int frame = 0; frame < 3000 && !runtime.Player.GroundedSamusMovementEnabled; frame++)
         {
             runtime.StepFrame(0);
-            if (!sawStartCommand && runtime.Enemies.ChozoStatueBehavior.ChozoStatueFxTimer != 0)
+            if (!sawStartCommand && runtime.Enemies.ChozoStatueBehavior.ChozoStatueAcidLoweringStarted)
             {
                 sawStartCommand = true;
                 AssertEqual((ushort)32, runtime.RoomLayer3Fx.Timer.RawValue, "start instruction writes live delay once");
-                AssertEqual((ushort)64, runtime.RoomLayer3Fx.PackedYVelocity, "start instruction writes live 8.8 velocity");
+                AssertEqual((ushort)64, runtime.RoomLayer3Fx.YVelocity.RawValue, "start instruction writes live 8.8 velocity");
             }
-            sawAcidDrain |= runtime.RoomLayer3Fx.BaseYPosition > startingAcidY &&
-                runtime.RoomLayer3Fx.BaseYPosition < 0x2d2;
+            sawAcidDrain |= runtime.RoomLayer3Fx.BaseY.Whole > startingAcidY &&
+                runtime.RoomLayer3Fx.BaseY.Whole < 0x2d2;
             if (!runtime.Player.GroundedSamusMovementEnabled)
             {
-                AssertTrue(runtime.RoomLayer3Fx.BaseYPosition - previousBaseY is 0 or 1,
+                AssertTrue(runtime.RoomLayer3Fx.BaseY.Whole - previousBaseY is 0 or 1,
                     "live acid moves gradually rather than teleporting before release");
                 if (runtime.Display.DisplayedRoomLayer3Fx is { } displayed &&
-                    displayed.CurrentYPosition > startingAcidY && displayed.CurrentYPosition < 0x2d2)
-                    displayedHeights.Add(displayed.CurrentYPosition);
+                    displayed.Surface.Y > startingAcidY && displayed.Surface.Y < 0x2d2)
+                    displayedHeights.Add(displayed.Surface.Y);
             }
-            previousBaseY = runtime.RoomLayer3Fx.BaseYPosition;
+            previousBaseY = runtime.RoomLayer3Fx.BaseY.Whole;
         }
         AssertTrue(runtime.Player.GroundedSamusMovementEnabled, "statue finishes and releases Samus");
         AssertTrue(sawAcidDrain, "acid surface must visibly descend during the live statue sequence");
-        AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseYPosition,
+        AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseY.Whole,
             "statue completes acid lowering before leaving the room");
         AssertTrue(displayedHeights.Count > 50, "accepted display snapshots contain the progressing acid surface");
         // Enemy AI publishes the final base after this frame's FX handler. The next
         // handler updates the surface registers, then the following NMI displays them.
         runtime.StepFrame(0);
-        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
-        AssertEqual((ushort)0x2d2, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires runtime.Display.DisplayedRoomLayer3Fx.")).CurrentYPosition,
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        AssertEqual((ushort)0x2d2, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires runtime.Display.DisplayedRoomLayer3Fx.")).Surface.Y,
             "final drained height reaches display without a room transition");
-        runtime.LoadCartridgeRoomForDebug(0xb1e5);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AcidStatue);
         runtime.StepFrame(0);
-        AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseYPosition, "re-entry restores drained acid");
+        AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseY.Whole, "re-entry restores drained acid");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         AssertTrue(level != runtime.Room.LevelData, "re-entry uses newly loaded room terrain");
         AssertTrue(runtime.Room.LoadedLevelData.GetCollisionBlock(new(4, 8)).CollisionType != RoomCollisionType.SpecialBlock,

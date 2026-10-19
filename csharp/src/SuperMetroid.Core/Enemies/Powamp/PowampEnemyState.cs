@@ -3,54 +3,53 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// Typed view of the six common enemy variables reused by both halves of a Powamp. The ROM
-/// gives the words different meanings according to population parameter one: a nonzero
-/// parameter is the balloon, while zero is the immediately following moving body.
+/// The state of one half of a Powamp: a nonzero population parameter one makes the balloon, while zero is the
+/// immediately following moving body. The cartridge reuses the same record words for different values in each half;
+/// here each half's values have their own members. Every value here is one the cartridge keeps in the enemy's
+/// common record, so it is emptied with that record when the half is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class PowampEnemyState
 {
-    /// <summary>Shared enemy slot holding either the balloon's or the body's reused variable words.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects the live Powamp slot into its typed variable view.</summary>
-    internal PowampEnemyState(RoomEnemySlot slot) => _slot = slot;
-
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<PowampProgram> Program { get; set; }
 
-    /// <summary>Whether population parameter one is nonzero, selecting the balloon interpretation of shared variables; zero selects the immediately following moving body.</summary>
-    public bool IsBalloon => _slot.Parameter1 != 0;
+    /// <summary>Whether this half is the balloon (population parameter one nonzero) rather than the moving body.</summary>
+    public bool IsBalloon { get; internal set; }
 
-    // Body meanings for variables A/B. Together these are a signed 16.16 displacement.
-    /// <summary>Body variable A, the signed high word of vertical pixels-per-AI-update displacement; negative values move upward, and this word aliases <see cref="BalloonSpawn"/>'s X on balloon slots.</summary>
-    public ushort YVelocity { get => _slot.VariableA; internal set => _slot.VariableA = value; }
-    /// <summary>Body variable B, the low word of vertical displacement in 1/65536-pixel units, combined with <see cref="YVelocity"/> as signed 16.16; aliases <see cref="BalloonSpawn"/>'s Y on balloon slots.</summary>
-    public ushort YSubvelocity { get => _slot.VariableB; internal set => _slot.VariableB = value; }
+    /// <summary>The body's vertical displacement per AI update; negative values move upward.</summary>
+    public SnesSignedSixteenSixteen YVelocity { get; internal set; }
 
-    // Balloon meanings for the same physical words.
-    /// <summary>Balloon variables A/B, the original room position: X is both halves' horizontal wiggle center and Y feeds the body's resting and rise-target calculations; aliases body <see cref="YVelocity"/> and <see cref="YSubvelocity"/>.</summary>
-    public Position16<RoomPixels> BalloonSpawn
+    /// <summary>The balloon's original room position: X is both halves' horizontal wiggle center and Y feeds the body's resting and rise-target calculations.</summary>
+    public Position16<RoomPixels> BalloonSpawn { get; internal set; }
+
+    /// <summary>The body's zero-based phase 0 through 11 in the signed three-pixel wiggle wave; phases zero and six are centered.</summary>
+    public int WiggleIndex { get; internal set; }
+
+    /// <summary>The body's AI-update countdown, restarted at five for each horizontal wiggle offset.</summary>
+    public NativeCountdown WiggleTimer { get; internal set; }
+
+    /// <summary>
+    /// The balloon's grappled rise in room pixels, copied from population parameter two (0 through 65535) and
+    /// subtracted from the balloon's spawn Y, wrapping at the room's top edge, to obtain the grappled body's target.
+    /// </summary>
+    public int BalloonGrappleTravelDistance { get; internal set; }
+
+    /// <summary>The body's countdown, decremented once per relevant main-AI invocation; initialized to 60 for rest, ten for inflation/deflation, or 32 for death, and expires at zero or signed underflow.</summary>
+    public NativeCountdown FunctionTimer { get; internal set; }
+
+    /// <summary>The main-AI behaviour; balloons keep the no-op, and none once a kill has emptied the record.</summary>
+    public PowampEnemyFunction? Function { get; internal set; }
+
+    /// <summary>Empties every value, when a kill empties the half's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => new(_slot.VariableA, _slot.VariableB);
-        internal set
-        {
-            _slot.VariableA = value.X;
-            _slot.VariableB = value.Y;
-        }
-    }
-
-    /// <summary>Body variable C, the zero-based index 0-11 into the signed three-pixel wiggle wave; phases zero and six are centered.</summary>
-    public ushort WiggleIndex { get => _slot.VariableC; internal set => _slot.VariableC = value; }
-    /// <summary>Body variable D, an AI-update countdown reset to five for each horizontal wiggle offset; aliases balloon <see cref="BalloonGrappleTravelDistance"/>.</summary>
-    public NativeCountdown WiggleTimer { get => NativeCountdown.FromRaw(_slot.VariableD); internal set => _slot.VariableD = value.RawValue; }
-    /// <summary>Balloon variable D, copied from population parameter two; room-pixel distance subtracted from the balloon's spawn Y to obtain the grappled body target height.</summary>
-    public ushort BalloonGrappleTravelDistance { get => _slot.VariableD; internal set => _slot.VariableD = value; }
-    /// <summary>Body variable E, decremented once per relevant main-AI invocation; initialized to 60 for rest, ten for inflation/deflation, or 32 for death, and expires at zero or signed underflow.</summary>
-    public NativeCountdown FunctionTimer { get => NativeCountdown.FromRaw(_slot.VariableE); internal set => _slot.VariableE = value.RawValue; }
-    /// <summary>Variable F at first-slot WRAM $0FB2, interpreted as the bank-$A8 main-AI function pointer; balloon slots retain the no-op entry.</summary>
-    public PowampEnemyFunction Function
-    {
-        get => (PowampEnemyFunction)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
+        IsBalloon = false;
+        YVelocity = SnesSignedSixteenSixteen.Zero;
+        BalloonSpawn = Position16<RoomPixels>.Zero;
+        WiggleIndex = 0;
+        WiggleTimer = NativeCountdown.Start(0);
+        BalloonGrappleTravelDistance = 0;
+        FunctionTimer = NativeCountdown.Start(0);
+        Function = null;
     }
 }

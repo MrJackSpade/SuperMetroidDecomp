@@ -18,46 +18,50 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 /// <summary>Checks close-range Super Missile damage and native projectile slot traversal in Kraid's mouth.</summary>
 internal static class KraidSuperMissileDamageVerification
 {
     /// <summary>Runs two room shots through damage and deferred link cleanup, or emits the focused collision report.</summary>
     internal static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(0xa59f);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
         var body=runtime.Enemies.SlotTable.Slots[0];
         var state=(KraidEnemyState)(runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.KraidBehavior.Kraid."));
-        body.VariableA=(ushort)KraidAiFunction.MainAttackWithMouthOpen;
-        body.VariableB=0x96f4;body.VariableC=64;
-        (state ?? throw new InvalidOperationException("Verification requires state.")).CurrentHeadTilemap=0xa0c8;state.VulnerableMouthHitbox=0x97a0;state.InvulnerableMouthHitbox=0x97c0;
+        state.Parts[0].Function=KraidAiFunction.MainAttackWithMouthOpen;
+        state.HeadProgram=RoarPastOpenPose;state.Parts[0].HeadTimer=64;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).DisplayedHeadFrame = FullyOpenRoarFrame();
         var words=new ushort[32*64];for(int i=32*32;i<33*32;i++)words[i]=0x8000;
         var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(words, new byte[2048], new ushort[2048]), new byte[8]);
         runtime.Room.LevelData = level;
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
-        samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=2;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);samus.Presentation.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
+        samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=HudItem.SuperMissile;
+        samus.PoseMetadata.RefreshCollisionRadii();samus.Presentation.InitializeAnimation();samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 384));
         game.GameState = SuperMetroidGameState.MainGameplay;
         if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
-        ushort oldHealth=body.Health;
+        // Kraid's arm swipes reach this standing position from its sixth frame; contact knockback would move Samus off
+        // the mouth's height before the second missile. Contact protection keeps the check on the missiles alone.
+        samus.InvincibilityTimer = NativeCountdown.Start(60);
+        int oldHealth=body.Health;
         for(int frame=0;frame<60;frame++)
         {
             var result=game.Step(frame is 0 or 24 ? SnesButton.X : (ushort)0);
             if(body.Health!=oldHealth || frame%8==0)
             {
-                Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} mouth={state.InvulnerableMouthHitbox:X4}");
+                Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} samusHp={samus.Health} pose={samus.Pose} mouth={state.DisplayedHeadFrame?.InvulnerableShape}");
                 foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.SlotIndex} type={shot.Type:X4} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.PreInstruction}");
             }
             if (frame is 8 or 32)
@@ -95,6 +99,12 @@ internal static class KraidSuperMissileDamageVerification
         return 0;
     }
 
+    /// <summary>The roar's fully open head pose, with its two open-mouth collision shapes.</summary>
+    private static KraidHeadFrame FullyOpenRoarFrame() => KraidHeadFrame.Open;
+
+    /// <summary>The roar cursor just past its fully open pose, where the native cursor stands during the open-mouth attack.</summary>
+    private static SuperMetroid.Core.Programs.AnimationProgramCursor<KraidHeadProgram> RoarPastOpenPose { get; } = new(KraidHeadProgram.Roar, 5);
+
     /// <summary>Checks count-bounded traversal, inactive slot handling, scratch-word rejection, and adjacent bomb slots.</summary>
     private static void VerifyKraidCollisionSlotOrder(ISnesAddressSpace bus,
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
@@ -106,10 +116,9 @@ internal static class KraidSuperMissileDamageVerification
             projectiles.SlotTable.ProjectileCounter = count;
             body.Position = body.Position.WithWhole(new(176, 592));
             body.Health = 1000;
-            body.VariableA = (ushort)KraidAiFunction.MainAttackWithMouthOpen;
-            body.VariableB = 0x96f4;
-            state.InvulnerableMouthHitbox = 0x97c0;
-            state.VulnerableMouthHitbox = 0x97a0;
+            state.Parts[0].Function = KraidAiFunction.MainAttackWithMouthOpen;
+            state.HeadProgram = RoarPastOpenPose;
+            state.DisplayedHeadFrame = FullyOpenRoarFrame();
         }
         void Place(int index)
         {
@@ -160,7 +169,7 @@ internal static class KraidSuperMissileDamageVerification
         bomb.Radius = new(8, 8);
         runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
         AssertEqual((ushort)1000, body.Health, "First bomb slot uses Kraid's zero bomb vulnerability");
-        AssertEqual(true, new SamusProjectileDirectionWord(bomb.Direction).HasLowByteLifecycleState,
+        AssertEqual(true, bomb.PackedDirection.HasLowByteLifecycleState,
             "Count five reaches and marks the adjacent physical bomb slot");
         AssertEqual(true, runtime.Enemies.RoomSpriteObjects.Any(sprite =>
             sprite.Kind == RoomSpriteObjectKind.EnemyProjectileDud && sprite.Position.X.Whole == 176 && sprite.Position.Y.Whole == 486),

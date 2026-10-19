@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Owtch.Artwork;
 
 /// <summary>
@@ -7,12 +9,11 @@ namespace SuperMetroid.Core.Enemies.Owtch.Artwork;
 internal static class OwtchFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(OwtchFrame frame) => frame.Pose switch
+    /// <summary>The installed frame each <see cref="OwtchFrame"/> shows.</summary>
+    internal static EnemyFrameTable<OwtchFrame> ShownFrames { get; } = new()
     {
-        0 => 0xa589,
-        1 => 0xa590,
-        2 => 0xa597,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Owtch pose."),
+        { new(Pose: 0), EnemyFrameId.OwtchLeft0 },
+        { new(Pose: 1), EnemyFrameId.OwtchLeft1 },
+        { new(Pose: 2), EnemyFrameId.OwtchLeft2 },
     };
 }

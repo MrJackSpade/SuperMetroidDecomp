@@ -7,8 +7,8 @@ namespace SuperMetroid.DesktopVerification.Audio;
 /// <param name="PowerBeamAcknowledged">Whether the SPC acknowledged that request.</param>
 /// <param name="FirstDoorBegan">Whether the recorded door transition started.</param>
 /// <param name="FirstDoorCompleted">Whether that transition completed during replay or its bounded neutral tail.</param>
-/// <param name="SourceRoom">Room pointer before the first door handoff.</param>
-/// <param name="DestinationRoom">Room pointer after the first door handoff.</param>
+/// <param name="SourceRoom">Room before the first door handoff, or null before gameplay.</param>
+/// <param name="DestinationRoom">Room after the first door handoff, or null before it.</param>
 public readonly record struct AudioInputReplaySmokeTestResult(
     int FramesExecuted,
     bool ProjectileFired,
@@ -16,5 +16,5 @@ public readonly record struct AudioInputReplaySmokeTestResult(
     bool PowerBeamAcknowledged,
     bool FirstDoorBegan,
     bool FirstDoorCompleted,
-    ushort SourceRoom,
-    ushort DestinationRoom);
+    string? SourceRoom,
+    string? DestinationRoom);

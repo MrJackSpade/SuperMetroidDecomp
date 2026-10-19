@@ -51,11 +51,11 @@ internal static class RightFacingGateGlitchVerification
 
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.PinkBrinstarHopper);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.PinkBrinstarHoppers);
 
         RoomLevelData original = runtime.Room.LoadedLevelData;
         var residentGate = runtime.Plms.PopulationSlots.Single(
@@ -89,15 +89,15 @@ internal static class RightFacingGateGlitchVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)x), unchecked((ushort)y))),
                 PoseId = SamusPoseId.FacingRightNormalPose,
-                SelectedHudItem = 2,
+                SelectedHudItem = HudItem.SuperMissile,
                 SuperMissiles = 10,
                 MaxSuperMissiles = 10,
             };
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer(0);
-            plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, populationVram, new Bank80SystemState(), runtime.Room.LoadedRoom.AreaIndex), RoomPlmPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.PlmPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, populationVram, new Bank80SystemState(), runtime.Room.LoadedRoom.AreaIndex), RoomPlmPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.PlmPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             for (int warm = 0; warm < 2; warm++)
-                plms.Step(bus, level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
             plms.Gates.TakeDownwardGateProjectileRequests();
 
             var shots = CreateProjectileFixture();
@@ -105,8 +105,8 @@ internal static class RightFacingGateGlitchVerification
             for (int frame = 0; frame < 30; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-                shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
+                bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+                shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
                 var gate = plms.SinglePopulationSlot(PlmHeaderId.DownwardGate);
                 if (gate.LoopTimer != 0)
                 {
@@ -114,7 +114,7 @@ internal static class RightFacingGateGlitchVerification
                     actual.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
                     break;
                 }
-                plms.Step(bus, level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
             }
         }
 
@@ -165,11 +165,11 @@ internal static class RightFacingGateGlitchVerification
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.EastTunnel);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.EastTunnel);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
         var gate = runtime.Plms.PopulationSlots.Single(
@@ -188,12 +188,12 @@ internal static class RightFacingGateGlitchVerification
         samus.Position = samus.Position.WithWholeX(238);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(8191);
         samus.Position = samus.Position.WithWholeY(139);
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots;
-        samus.EquippedBeams = (ushort)(SamusBeamFlags.Ice | SamusBeamFlags.Wave);
-        samus.SelectedHudItem = 2;
+        samus.EquippedItems = SamusEquipmentFlags.HiJumpBoots;
+        samus.EquippedBeams = (SamusBeamFlags.Ice | SamusBeamFlags.Wave);
+        samus.SelectedHudItem = HudItem.SuperMissile;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(128, 0));
 
         RoomEnemySlot frozen = runtime.Enemies.SlotTable.Slots.First(slot =>
@@ -201,11 +201,11 @@ internal static class RightFacingGateGlitchVerification
         foreach (RoomEnemySlot enemy in runtime.Enemies.SlotTable.Slots)
         {
             if (!ReferenceEquals(enemy, frozen))
-                enemy.EnemyDefinitionPointer = 0;
+                enemy.Bind(0, enemy.Definition);
         }
         frozen.Position = frozen.Position.WithWhole(new(checked((ushort)frozenEnemyX), 139));
         frozen.FrozenTimer = NativeCountdown.Start(1000);
-        frozen.AiHandlerBits |= 4;
+        frozen.AiStates |= EnemyAiStates.Frozen;
 
         // The cartridge continues normal gameplay during pause darkening. The published
         // setup holds right+dash for all 31 accepted samples, introduces jump+dash+angle

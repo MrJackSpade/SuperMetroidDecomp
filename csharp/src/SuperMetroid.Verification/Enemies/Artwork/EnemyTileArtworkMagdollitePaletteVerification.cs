@@ -17,6 +17,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// </summary>
 internal static class EnemyTileArtworkMagdollitePaletteVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>
     /// Compares installed RGB5 colors with the cartridge, then exercises an override through the room enemy draw hook and CGRAM.
     /// </summary>
@@ -42,7 +45,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         byte[] stockJson = File.ReadAllBytes(file);
         MagdollitePaletteCycleDocument document =
             JsonSerializer.Deserialize<MagdollitePaletteCycleDocument>(stockJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Magdollite palette JSON is null.");
         PaletteRgb5 original = document.Frames[1][0];
         document.Frames[1][0] = original with
@@ -72,19 +75,16 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         // Forbid all bus reads: installed artwork must be sufficient on every tick.
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         var cgram = new SnesCgram();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(CartridgeReadGuard.Unbacked()
-                .ForbidAll(address => $"Installed Magdollite palette hook read ROM ${address:X6}.")
-                .RejectWrites(address => $"Installed Magdollite palette hook wrote ROM ${address:X6}."));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.MagdolliteBehavior._magdollitePaletteAnimationInstalled = true;
         enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer = NativeCountdown.Start((ushort)8);
-        enemies.MagdolliteBehavior._magdollitePaletteAnimationIndex = (ushort)0;
-        enemies.MagdolliteBehavior._magdollitePaletteBaseByteOffset = (ushort)0x100;
+        enemies.MagdolliteBehavior._magdollitePaletteFrame = 0;
+        enemies.MagdolliteBehavior._magdollitePaletteBaseColor = 0x80;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
-        const int destination = (0x100 >> 1) + MagdollitePaletteRomData.FirstAnimatedColor;
+        const int destination = 0x80 + MagdollitePaletteRomData.FirstAnimatedColor;
         RoomEnemySlot untouched = enemies.SlotTable.Slots[0];
-        ushort healthBefore = untouched.Health;
+        int healthBefore = untouched.Health;
         ushort xBefore = untouched.Position.X.Whole;
         for (int tick = 0; tick < 32; tick++)
         {

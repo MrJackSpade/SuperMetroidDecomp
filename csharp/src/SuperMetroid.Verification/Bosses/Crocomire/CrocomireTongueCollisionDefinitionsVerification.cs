@@ -18,14 +18,13 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
     /// <summary>Checks that every typed tongue frame has installed art, with all cartridge reads denied.</summary>
     internal static void VerifyInstalledCrocomireTongueVisualSelectors(EnemyTileArtworkCatalog stock)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var denied = NewCrocomireTongueNoReadBus();
         var enemies = new RoomEnemySystem { TileArtwork = stock };
-        enemies.BindFixtureBus(denied);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.CrocomireTongue;
-        slot.Definition = default(RoomEnemyDefinition) with
-        { Bank = CrocomireTongueCollisionDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.CrocomireTongue, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        { Bank = CrocomireTongueCollisionDefinitions.Bank });
         var seen = new HashSet<ushort>();
         foreach (CrocomireTongueFrame frame in Enum.GetValues<CrocomireTongueFrame>())
         {
@@ -89,16 +88,16 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         Suite(nameof(VerifyCrocomireTongueFramePositions), () => VerifyCrocomireTongueFramePositions(rom));
         Suite(nameof(VerifyCrocomireTongueComponentCases), () => VerifyCrocomireTongueComponentCases(rom));
         var denied = NewCrocomireTongueNoReadBus();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var compiled = new RoomEnemySystem();
-        compiled.BindFixtureBus(denied);
-        var nativeSlot = new RoomEnemySlot(0);
+        compiled.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        nativeSlot.Definition = compiledSlot.Definition =
-            default(RoomEnemyDefinition) with
+        var boundDefinition = default(RoomEnemyDefinition) with
             { Bank = CrocomireTongueCollisionDefinitions.Bank };
-        nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
-        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.CrocomireTongue;
+        nativeSlot.Bind(nativeSlot.EnemyDefinitionPointer, boundDefinition);
+        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, boundDefinition);
+        nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
+        compiledSlot.Bind(EnemyDefinitionId.CrocomireTongue, compiledSlot.Definition);
         AssertEqual(9, CrocomireTongueCollisionDefinitions.FrameCount,
             "all selected Crocomire tongue frames have compiled collision");
 

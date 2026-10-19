@@ -105,7 +105,7 @@ internal sealed class SelectedPresentationHash
         foreach (var part in parts)
         {
             Append("x-and-size", part.X.Raw);
-            Append("y", part.Y);
+            Append("y", part.Y.Raw);
             Append("attributes", part.Attributes.Raw);
         }
     }
@@ -118,7 +118,7 @@ internal sealed class SelectedPresentationHash
         {
             var part = parts[index];
             Append("x-and-size", part.X.Raw);
-            Append("y", part.Y);
+            Append("y", part.Y.Raw);
             Append("attributes", part.Attributes.Raw);
         }
     }

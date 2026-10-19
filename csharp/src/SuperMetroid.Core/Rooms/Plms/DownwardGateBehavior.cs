@@ -47,12 +47,11 @@ internal sealed class DownwardGateBehavior
         DownwardGateProjectileRequest request,
         int roomWidthInBlocks)
     {
-        RoomEnemyProjectileKind kind = (RoomEnemyProjectileKind)request.DefinitionPointer;
-        if (kind is not RoomEnemyProjectileKind.DownwardGateMoving and
-            not RoomEnemyProjectileKind.DownwardGateClosed)
+        if (request.Kind is not { } kind ||
+            kind is not RoomEnemyProjectileKind.DownwardGateMoving and not RoomEnemyProjectileKind.DownwardGateClosed)
         {
             throw new InvalidDataException(
-                $"Downward gate requested unsupported projectile definition $86:{request.DefinitionPointer:X4}.");
+                $"Downward gate requested unsupported projectile {request.Kind?.ToString() ?? "(none)"}.");
         }
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -136,13 +135,13 @@ internal sealed class DownwardGateBehavior
         switch (cue.Kind)
         {
             case DownwardGateProjectileCueKind.SetYVelocity:
-                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(cue.Value));
+                projectile.Velocity = projectile.Velocity.WithY(cue.YVelocity);
                 break;
             case DownwardGateProjectileCueKind.SetPreInstruction:
-                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                projectile.PreInstruction = cue.PreInstruction;
                 break;
             case DownwardGateProjectileCueKind.ClearPreInstruction:
-                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
             case DownwardGateProjectileCueKind.Delete:
                 projectile.Clear();
@@ -155,7 +154,7 @@ internal sealed class DownwardGateBehavior
     /// <summary>Connects the bank-$86 moving-gate pre-instruction to the projectile handler table.</summary>
     internal static void RegisterDownwardGateProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterCue<DownwardGateProjectileCue>(ApplyDownwardGateCue);
+        table.RegisterCue<DownwardGateProjectileCue>((context, cue) => ApplyDownwardGateCue(context.Projectile, context.Samus, cue));
         table.RegisterPreInstruction(context =>
         {
             RunDownwardGateProjectileMovement(context.Projectile);

@@ -31,31 +31,31 @@ internal static class RechargeStationAdmissionVerification
             var streamer = level.CreateBackgroundStreamer();
             var samus = new SamusState { Health = 199, MaxHealth = 199, Missiles = 15, MaxMissiles = 15 };
             var plms = new RoomPlmSystem();
-            plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             int accessX = right ? 9 : 7;
-            var behavior = new RoomBlockBehavior(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Behavior);
+            var behavior = new RoomBlockBehavior(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Bts.Value);
             bool Touch() => plms.Stations.TryNotifyStationCollision(level.GetBlockIndex(new(checked((ushort)accessX), 8)), behavior,
                 right ? SamusPoseId.RanIntoWallLeftPose : SamusPoseId.RanIntoWallRightPose,
                 horizontal: true, movingPositive: !right, roomWidthInBlocks: 32);
             AssertTrue(Touch(), "full recharge station remains solid");
             AssertTrue(!samus.InputLocked, "full resource must be rejected before station input lock");
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertTrue(!samus.InputLocked && plms.Stations.StationActivationEvents.Count == 0,
                 "rejected recharge starts no operation and leaves controller enabled");
 
-            if (missile) samus.Missiles = NativeWordCounter.Decrement(samus.Missiles).Value; else samus.Health = NativeWordCounter.Decrement(samus.Health).Value;
+            if (missile) samus.Missiles--; else samus.Health--;
             AssertTrue(Touch() && samus.InputLocked, "needed recharge takes control during collision setup");
             // The first access-list instruction rechecks fullness and explicitly
             // restores movement before deleting an access that no longer needs refill.
             if (missile) samus.Missiles = samus.MaxMissiles; else samus.Health = samus.MaxHealth;
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, plms.Stations.StationActivationEvents.Count, "full-resource access-list exit skips recharge");
             AssertTrue(!samus.InputLocked, "full-resource access-list exit immediately restores controller input");
             AssertTrue(Touch() && !samus.InputLocked, "touching completed station cannot relock input at full resource");
             if (missile) samus.Missiles = 1; else samus.Health = 25;
             AssertTrue(Touch() && samus.InputLocked, "ordinary recharge still accepts depleted resource");
             for (int frame = 0; frame < 120; frame++)
-                plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(missile ? samus.MaxMissiles : samus.MaxHealth,
                 missile ? samus.Missiles : samus.Health, "ordinary recharge restores the depleted resource");
             AssertTrue(!samus.InputLocked, "ordinary recharge unlocks after retraction");

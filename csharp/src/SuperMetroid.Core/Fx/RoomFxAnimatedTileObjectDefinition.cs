@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 public sealed class RoomFxAnimatedTileObjectDefinition
 {
     /// <summary>Arithmetic view of timed records, retaining no presentation source pointers.</summary>
-    private readonly CalculatedFrames frames;
+    internal readonly CalculatedFrames frames;
 
     /// <summary>Binds a bank-$87 object header to its transfer geometry and frame schedule.</summary>
     internal RoomFxAnimatedTileObjectDefinition(
@@ -32,7 +32,7 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     /// verified against NTSC J/U v1.0 and pinned bank_87.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). This view stores parameters only,
     /// never a generated frame table. Index bounds match the former read-only list.</remarks>
-    private sealed class CalculatedFrames(ushort first, int count, ushort duration)
+    internal sealed class CalculatedFrames(ushort first, int count, ushort duration)
         : IReadOnlyList<RoomFxAnimatedTileFrameDefinition>
     {
         /// <summary>Number of timed entries before the terminal goto command.</summary>
@@ -68,41 +68,4 @@ public sealed class RoomFxAnimatedTileObjectDefinition
 
     /// <summary>The timed frame-control records in cartridge execution order.</summary>
     public IReadOnlyList<RoomFxAnimatedTileFrameDefinition> Frames => frames;
-
-    /// <summary>The address of the terminal <c>goto</c> command after the final frame.</summary>
-    public ushort GotoInstructionPointer =>
-        unchecked((ushort)(InstructionPointer + frames.Count * 4));
-
-    /// <summary>
-    /// Reads one immutable mechanics word. Frame source operands are intentionally absent.
-    /// </summary>
-    public bool TryReadMechanicsWord(ushort pointer, out ushort value)
-    {
-        if (pointer == (ushort)ObjectPointer)
-            value = InstructionPointer;
-        else if (pointer == unchecked((ushort)((ushort)ObjectPointer + 2)))
-            value = TransferByteCount;
-        else if (pointer == unchecked((ushort)((ushort)ObjectPointer + 4)))
-            value = EncodedVramDestination;
-        else if (pointer == GotoInstructionPointer)
-            value = (ushort)AnimatedTileInstruction.Goto;
-        else if (pointer == unchecked((ushort)(GotoInstructionPointer + 2)))
-            value = InstructionPointer;
-        else
-        {
-            foreach (RoomFxAnimatedTileFrameDefinition frame in frames)
-            {
-                if (pointer != frame.InstructionPointer)
-                    continue;
-
-                value = frame.Duration;
-                return true;
-            }
-
-            value = 0;
-            return false;
-        }
-
-        return true;
-    }
 }

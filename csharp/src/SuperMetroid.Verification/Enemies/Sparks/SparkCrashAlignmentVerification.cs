@@ -17,10 +17,10 @@ internal static class SparkCrashAlignmentVerification
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(700, 35)) };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x1234);
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Shinespark.FinishCrash(samus, (ushort)5, null);
             AssertEqual((ushort)35, samus.Position.Y.Whole, "Movement queues standing alignment until after animation");
-            SamusShinesparkState.ApplyCrashFinishPose(bus, samus);
+            SamusShinesparkState.ApplyCrashFinishPose(samus);
             AssertEqual((ushort)19, samus.Kinematics.Radius.Y, "Standing alignment does not publish next-frame radius early");
             AssertEqual((ushort)33, samus.Position.Y.Whole, "Native diagonal crash-to-standing feet alignment");
             AssertEqual((ushort)0x1234, samus.Kinematics.Position.Y.Fraction, "Crash alignment preserves current fraction");

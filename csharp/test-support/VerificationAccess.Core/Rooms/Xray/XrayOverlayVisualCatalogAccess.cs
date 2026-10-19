@@ -10,7 +10,7 @@ internal static class XrayOverlayVisualCatalogAccess
     {
         /// <summary>Explicitly partial room overlays for focused fixtures; never an installed catalog.</summary>
         internal static XrayOverlayVisualCatalog FromOverlaysForVerification(IEnumerable<ushort> itemMetatiles,
-            IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms) =>
+            IEnumerable<(XrayRoomOverlayDefinition Overlay, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms) =>
             new XrayOverlayVisualCatalog(itemMetatiles, rooms, false);
     }
 }

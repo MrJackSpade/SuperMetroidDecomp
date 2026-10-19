@@ -32,9 +32,10 @@ internal static class SpeedBoosterStageFiveResidueVerification
         ushort stageFive = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(
             SamusRunningCadenceDefinitions.MaximumSoundQueueSelection);
         int stageFiveQueueOffset = stageFive - SnesAddressMath.OffsetInBank(Mode7TransferQueueLayout.QueueStart);
+        var residue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
         for (int index = 0; index < CadenceBytes; index++)
         {
-            AssertEqual((byte)0, SamusRunningCadenceDefinitions.ReadAnimationByte(bus, stageFive, (ushort)index),
+            AssertEqual((byte)0, SamusRunningCadenceDefinitions.ReadAnimationByte(residue, stageFive, (ushort)index),
                 "stage five reads boot-cleared queue bytes before any Ceres getaway");
         }
 
@@ -44,23 +45,24 @@ internal static class SpeedBoosterStageFiveResidueVerification
         };
         enemies.Presentation._vram = new SnesVram();
         enemies.Presentation._cgram = new SnesCgram();
-        enemies.BindFixtureBus(bus);
-        var state = new RidleyEnemyState { Mode7TableByteIndex = 2 };
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        enemies.Room.Mode7QueueResidue = residue;
+        var state = new RidleyEnemyState { Mode7TableIndex = 1 };
 
         // The first NMI advances both: capsule phase one, then wing frame one.
         enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway(state, null, 0);
         byte[] expected = NativeQueueImage(bus, CeresMode7TransferList.BabyFrame1, CeresMode7TransferList.WingFrame1);
         AssertTrue(SamusAnimationDelayDefinitions.IsCommand(expected[stageFiveQueueOffset]),
             "the wing's fourth descriptor leaves a command byte, not a delay, at $0303");
-        AssertStageFive(bus, stageFive, stageFiveQueueOffset, expected, "after the getaway queues wing frame one");
+        AssertStageFive(residue, stageFive, stageFiveQueueOffset, expected, "after the getaway queues wing frame one");
 
         // Four NMIs later only the capsule queues; the wing residue at $0303 is untouched.
         enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway(state, null, 4);
-        AssertStageFive(bus, stageFive, stageFiveQueueOffset, expected, "after a capsule-only frame");
+        AssertStageFive(residue, stageFive, stageFiveQueueOffset, expected, "after a capsule-only frame");
 
         // Eight NMIs in, capsule phase three (frame one again) and wing frame zero queue together.
         enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway(state, null, 8);
-        AssertStageFive(bus, stageFive, stageFiveQueueOffset,
+        AssertStageFive(residue, stageFive, stageFiveQueueOffset,
             NativeQueueImage(bus, CeresMode7TransferList.BabyFrame1, CeresMode7TransferList.WingFrame0),
             "after the getaway queues wing frame zero");
         Console.WriteLine("  Speed Booster stage five: reads the Ceres getaway's Mode 7 queue residue at $0303 and keeps it across capsule-only frames.");
@@ -93,12 +95,12 @@ internal static class SpeedBoosterStageFiveResidueVerification
     }
 
     /// <summary>Requires the stage-five cadence bytes to equal the native queue residue.</summary>
-    private static void AssertStageFive(ISnesAddressSpace bus, ushort stageFive, int queueOffset, byte[] expected, string context)
+    private static void AssertStageFive(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue residue, ushort stageFive, int queueOffset, byte[] expected, string context)
     {
         for (int index = 0; index < CadenceBytes; index++)
         {
             AssertEqual(expected[queueOffset + index],
-                SamusRunningCadenceDefinitions.ReadAnimationByte(bus, stageFive, (ushort)index),
+                SamusRunningCadenceDefinitions.ReadAnimationByte(residue, stageFive, (ushort)index),
                 $"stage five cadence byte {index} {context}");
         }
     }

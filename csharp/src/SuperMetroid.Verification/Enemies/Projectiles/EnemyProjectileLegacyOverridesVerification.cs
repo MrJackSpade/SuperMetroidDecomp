@@ -45,7 +45,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
                 SpriteVisualPart[] expected = document.Frames.GetValueOrDefault(frame.Name) ?? stockDocument.Frames[frame.Name];
                 AssertParts(expected, merged.Get(frame.Pointer).Span, prefix + frame.Name);
             }
-            foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
+            foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
             {
                 SpriteVisualPart[] expected = document.ProgramFrames?.GetValueOrDefault(frame.Name) ?? (stockDocument.ProgramFrames ?? throw new InvalidOperationException("Verification requires stockDocument.ProgramFrames."))[frame.Name];
                 AssertParts(expected, merged.GetProgramFrame(frame.OperandAddress).Span, prefix + frame.Name);
@@ -87,7 +87,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
             {
                 SpriteVisualPart part = expected[index];
                 AssertEqual(part.OffsetX, actual[index].X.SignedOffset, context + " X");
-                AssertEqual(unchecked((byte)(sbyte)part.OffsetY), actual[index].Y, context + " Y");
+                AssertEqual(part.OffsetY, actual[index].Y.SignedOffset, context + " Y");
                 AssertEqual(part.TileRow * EnemyProjectileSpritemapDefinitions.TileColumns + part.TileColumn,
                     actual[index].Attributes.TileNumber, context + " tile");
                 AssertEqual((part.Palette ?? throw new InvalidOperationException("Verification requires part.Palette.")), actual[index].Attributes.PaletteIndex, context + " palette");
@@ -104,18 +104,18 @@ internal static class EnemyProjectileLegacyOverridesVerification
     private static EnemyProjectilePresentationFrameDefinition[] HistoricalPrograms(EnemyProjectileSpritemapVersion version) => version switch
     {
         EnemyProjectileSpritemapVersion.CeresOnly or EnemyProjectileSpritemapVersion.PreProgramFrames => [],
-        EnemyProjectileSpritemapVersion.FirstProgramFrame => [.. EnemyProjectileFirstProgramFrameManifest.Frames],
-        EnemyProjectileSpritemapVersion.PreAlcoon => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
+        EnemyProjectileSpritemapVersion.FirstProgramFrame => [.. EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames],
+        EnemyProjectileSpritemapVersion.PreAlcoon => EnemyProjectilePresentationFrameSets.PreGoldenTorizo
             .WhereToArray(frame => !AlcoonFireballFrameDefinitions.TryFrame(frame.OperandAddress, out _)),
-        EnemyProjectileSpritemapVersion.PreGoldenTorizo => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray(),
-        EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg.ToArray(),
-        EnemyProjectileSpritemapVersion.PreTorizoEffects => EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects.ToArray(),
-        EnemyProjectileSpritemapVersion.PreGenericEnemyDeath => EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath.ToArray(),
-        EnemyProjectileSpritemapVersion.PreEnvironmentAndAttack => EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack.ToArray(),
-        EnemyProjectileSpritemapVersion.PreMotherBrainAndStatue => EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue.ToArray(),
-        EnemyProjectileSpritemapVersion.PreWorkRobot => EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToArray(),
-        EnemyProjectileSpritemapVersion.PrePolypRock => EnemyProjectilePresentationFrameDefinitions.PrePolypRock.ToArray(),
-        EnemyProjectileSpritemapVersion.Current => EnemyProjectilePresentationFrameDefinitions.All.ToArray(),
+        EnemyProjectileSpritemapVersion.PreGoldenTorizo => EnemyProjectilePresentationFrameSets.PreGoldenTorizo.ToArray(),
+        EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg => EnemyProjectilePresentationFrameSets.PreGoldenTorizoEgg.ToArray(),
+        EnemyProjectileSpritemapVersion.PreTorizoEffects => EnemyProjectilePresentationFrameSets.PreTorizoEffects.ToArray(),
+        EnemyProjectileSpritemapVersion.PreGenericEnemyDeath => EnemyProjectilePresentationFrameSets.PreGenericEnemyDeath.ToArray(),
+        EnemyProjectileSpritemapVersion.PreEnvironmentAndAttack => EnemyProjectilePresentationFrameSets.PreEnvironmentAndAttack.ToArray(),
+        EnemyProjectileSpritemapVersion.PreMotherBrainAndStatue => EnemyProjectilePresentationFrameSets.PreMotherBrainAndStatue.ToArray(),
+        EnemyProjectileSpritemapVersion.PreWorkRobot => EnemyProjectilePresentationFrameSets.PreWorkRobot.ToArray(),
+        EnemyProjectileSpritemapVersion.PrePolypRock => EnemyProjectilePresentationFrameSets.PrePolypRock.ToArray(),
+        EnemyProjectileSpritemapVersion.Current => EnemyProjectilePresentationFrameSets.All.ToArray(),
         _ => throw new InvalidOperationException($"Projectile fixture has no historical schema {version}."),
     };
 }

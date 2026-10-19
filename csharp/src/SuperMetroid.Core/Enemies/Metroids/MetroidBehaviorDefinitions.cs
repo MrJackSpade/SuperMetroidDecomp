@@ -1,14 +1,15 @@
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>Compiled fixed behavior definitions for ordinary Metroids.</summary>
 internal static class MetroidBehaviorDefinitions
 {
     /// <summary>Library-two cry $50, selected by native random slots0/3 at $A3:EAD6/$EADC.</summary>
-    private const ushort FirstCry = 0x0050;
+    private static readonly SoundEffectId FirstCry = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0050);
     /// <summary>Library-two cry $58, selected by native random slots1/4/6 at $A3:EAD8/$EADE/$EAE2.</summary>
-    private const ushort SecondCry = 0x0058;
+    private static readonly SoundEffectId SecondCry = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0058);
     /// <summary>Library-two cry $5A, selected by native random slots2/5/7 at $A3:EADA/$EAE0/$EAE4.</summary>
-    private const ushort ThirdCry = 0x005a;
+    private static readonly SoundEffectId ThirdCry = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005a);
 
     /// <summary><c>BombedOffVelocities</c> at $A3:EA3F: four successive two-pixel cardinal displacements.</summary>
     internal static Offset16<RoomPixels> EscapeDisplacement(ushort countdown)
@@ -19,7 +20,7 @@ internal static class MetroidBehaviorDefinitions
     }
 
     /// <summary><c>Instruction_Metroid_PlayRandomMetroidSFX.SFX</c> at $A3:EAD6 preserves the native2/3/3 choice distribution and order.</summary>
-    internal static ushort RandomCrySoundEffect(ushort random) => (random & 7) switch
+    internal static SoundEffectId RandomCrySoundEffect(int random) => (random & 7) switch
     {
         0 or 3 => FirstCry,
         1 or 4 or 6 => SecondCry,

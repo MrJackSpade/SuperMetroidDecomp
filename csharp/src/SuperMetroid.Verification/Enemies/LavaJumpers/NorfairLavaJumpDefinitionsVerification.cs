@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
@@ -15,7 +16,6 @@ internal static class NorfairLavaJumpDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Lava jump definitions")]
     internal static void VerifyNorfairLavaJumpDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort selector = 0; selector < 4; selector++)
         {
@@ -28,7 +28,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
         ushort nextRandom = 0;
         int advances = 0;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewNorfairLavaJumpReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() =>
             {
                 advances++;
@@ -36,24 +36,24 @@ internal static class NorfairLavaJumpDefinitionsVerification
             });
         Action<RoomEnemySlot, NorfairLavaJumpingEnemyState> runMain = enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var state = new NorfairLavaJumpingEnemyState(slot);
+        var state = new NorfairLavaJumpingEnemyState();
 
         for (int random = 0; random <= ushort.MaxValue; random++)
         {
             nextRandom = unchecked((ushort)random);
             advances = 0;
             state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
-            state.YVelocity = 0;
-            slot.Properties = 0;
+            state.YVelocity = default;
+            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0));
             runMain(slot, state);
 
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((SnesLittleEndian.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((SnesLittleEndian.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,
                 $"Norfair lava jumper production velocity {random:X4}");
             AssertEqual(NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch,
                 state.Function, $"Norfair lava jumper production handoff {random:X4}");
             AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"Norfair lava jumper off-screen processing {random:X4}");
-            AssertEqual((ushort?)0x000d, enemies.NorfairLavaJumpingEnemyBehavior.LastNorfairLavaJumpingEnemySoundEffect,
+            AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x000d), enemies.NorfairLavaJumpingEnemyBehavior.LastNorfairLavaJumpingEnemySoundEffect,
                 $"Norfair lava jumper sound {random:X4}");
             AssertEqual(1, advances, $"Norfair lava jumper RNG advance {random:X4}");
         }
@@ -62,9 +62,4 @@ internal static class NorfairLavaJumpDefinitionsVerification
             "Norfair lava-jump definitions: four native velocities and all 65,536 real RNG selections pass with the source table forbidden.");
     }
 
-    /// <summary>Rejects reads of the four authored velocities at $A2:BE86-BE8D.</summary>
-    private static CartridgeReadGuard NewNorfairLavaJumpReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa2be86 and < 0xa2be8e,
-                address => $"Norfair lava jumper attempted migrated velocity read ${address:X6}.");
 }

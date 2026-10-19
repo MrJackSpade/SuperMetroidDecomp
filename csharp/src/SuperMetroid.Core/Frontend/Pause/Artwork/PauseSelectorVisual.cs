@@ -33,14 +33,14 @@ internal sealed class PauseSelectorVisual
     private static CompiledSpritePart Part(int group, int index)
     {
         if ((uint)index >= (uint)Count(group)) throw new ArgumentOutOfRangeException(nameof(index));
-        if (group == 0) return new(SnesSpritemapXWord.Create(-4, false), unchecked((byte)-4), SnesObjAttributeWord.Create(PauseSelectorDefinitions.CursorCell, 0, 3), true);
+        if (group == 0) return new(SnesSpritemapXWord.Create(-4, false), SnesSpritemapYByte.Create(-4), SnesObjAttributeWord.Create(PauseSelectorDefinitions.CursorCell, 0, 3), true);
         int width = group == 1 ? 6 : 10;
         int cell = group == 1 ? BeamOrder[index] : EquipmentOrder[index];
         int column = cell % width, row = cell / width;
         int x = (group == 1 ? -16 : -36) + 8 * column;
         int tile = column == width - 1 ? (row == 0 ? PauseSelectorDefinitions.GridTopRightCell : PauseSelectorDefinitions.GridRightCell)
             : column == 0 && row == 0 ? PauseSelectorDefinitions.GridTopLeftCell : PauseSelectorDefinitions.GridCell;
-        return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)(-4 + 8 * row)),
+        return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(-4 + 8 * row),
             SnesObjAttributeWord.Create(tile, 0, 3), true);
     }
 
@@ -54,7 +54,7 @@ internal sealed class PauseSelectorVisual
             for (int index = 0; match && index < parts.Length; index++)
             {
                 var basis = Part(group, index); var part = parts[index];
-                match = part is not null && part.OffsetX == basis.X.SignedOffset && part.OffsetY == unchecked((sbyte)basis.Y) &&
+                match = part is not null && part.OffsetX == basis.X.SignedOffset && part.OffsetY == basis.Y.SignedOffset &&
                     part.TileColumn == basis.Attributes.TileNumber % 16 && part.TileRow == basis.Attributes.TileNumber / 16 &&
                     part.Size == 8 && part.Priority == 3 && part.Palette is null && !part.FlipX && !part.FlipY;
             }

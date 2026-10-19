@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Areas.Escape.Artwork;
 /// <summary>Schema and native identities for the two escape-warning text programs.</summary>
 public static class EscapeTypewriterDefinitions
 {
-    /// <summary>The bank-$A6 tilemap source of Ceres's Japanese warning overlay ($A6:C450).</summary>
-    internal const ushort CeresJapaneseText = 0xc450;
     /// <summary>The base character word Ceres's warning typewriter draws with.</summary>
     internal const ushort CeresTileBase = 0x3582;
 

@@ -58,31 +58,34 @@ internal static class AndroidFileImport
 
     /// <summary>Stages and fully validates an installed-game save without a cartridge payload.</summary>
     public static string StageRegularSave(string root, string source) =>
-        StageRegularSaveCore(root, source, SuperMetroidAddressSpace.CreateWithoutCartridge(),
-            new SuperMetroid.AssetExtraction.Installation.GameInstallation(root).LoadMaps());
+        StageRegularSaveCore(root, source, new SuperMetroid.AssetExtraction.Installation.GameInstallation(root).LoadMaps());
 
-    /// <summary>Applies an imported save to a temporary ROM-free bus before publishing a pending file.</summary>
+    /// <summary>Builds the saves an imported file describes before publishing a pending file.</summary>
     private static string StageRegularSaveCore(
         string root,
         string source,
-        SuperMetroidAddressSpace bus, AreaMapPresentationCatalog maps)
+        AreaMapPresentationCatalog maps)
     {
-        // Validate the full schema and its SRAM application before publishing a pending
+        // Validate the full schema and its translation to saves before publishing a pending
         // import. A separate file prevents ongoing gameplay persistence overwriting it.
-        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(source), source), bus, maps);
+        _ = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(File.ReadAllText(source), source), maps);
         ReplaceWithBackup(root, source, PendingPath(root));
         return "Regular save validated and staged for next app launch. Current gameplay is unchanged. Previous save will be backed up before activation.";
     }
 
-    /// <summary>Validates and atomically activates a staged save, retaining a backup of the previous save.</summary>
-    public static void ActivatePendingSave(string root, SuperMetroidAddressSpace bus, string savePath, AreaMapPresentationCatalog maps)
+    /// <summary>
+    /// Validates and atomically activates a staged save, retaining a backup of the previous save.
+    /// </summary>
+    /// <returns>The activated saves, or null when no save is staged.</returns>
+    public static SaveSlotStore? ActivatePendingSave(string root, string savePath, AreaMapPresentationCatalog maps)
     {
         string pending = PendingPath(root);
-        if (!File.Exists(pending)) return;
-        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(pending), pending), bus, maps);
+        if (!File.Exists(pending)) return null;
+        SaveSlotStore saves = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(File.ReadAllText(pending), pending), maps);
         if (File.Exists(savePath)) Backup(root, savePath);
-        GameSaveFileStore.WriteAtomic(bus, savePath, maps);
+        GameSaveFileStore.WriteAtomic(saves, savePath);
         File.Delete(pending);
+        return saves;
     }
 
     /// <summary>Locates the save staged for activation on the next Android launch.</summary>

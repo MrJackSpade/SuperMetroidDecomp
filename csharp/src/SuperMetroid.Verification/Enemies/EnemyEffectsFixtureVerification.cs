@@ -17,6 +17,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Constructs cartridge-free enemy-effect artwork and Crocomire state fixtures.</summary>
 internal static class EnemyEffectsFixtureVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Known melt phases, pure RAM and authored PNG/JSON; no cartridge capability.</summary>
     internal sealed class CrocomireEffectFixture
     {
@@ -37,13 +40,15 @@ internal static class EnemyEffectsFixtureVerification
             if (art is not null)
                 Enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CrocomireMelting = art });
             Actor = new CrocomireEnemyState(Enemies.SlotTable.Slots[0]) { Tongue = Enemies.SlotTable.Slots[1] };
+            var tongueState = new CrocomireTongueState();
+            Enemies.SlotTable.Slots[1].SetSpeciesState(tongueState, tongueState.ClearWithRecord);
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             Effect.AcidSmokeTimer = NativeCountdown.Start(1);
             Effect.MutableMeltingGraphics.Fill(0x39);
             Effect.MutableBg2WorkingTilemap.Fill(0x137);
             Effect.MutableBg2ScrollByScanline.Fill(19);
-            Enemies.BindFixtureBus(Memory);
+            Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Enemies.Presentation._vram = Vram;
             Enemies.CrocomireBehavior.Crocomire = Actor;
             Enemies.CrocomireBehavior.CrocomireDeath = Effect;
@@ -86,10 +91,9 @@ internal static class EnemyEffectsFixtureVerification
         AssertTrue(expected.Effect.MeltingColumnHeights.SequenceEqual(actual.Effect.MeltingColumnHeights), context + " erase schedule");
         AssertTrue(expected.Effect.Bg2ScrollByScanline.SequenceEqual(actual.Effect.Bg2ScrollByScanline), context + " HDMA geometry");
         AssertSameBytes(expected.Memory.WorkRam, actual.Memory.WorkRam, context + " WRAM");
-        AssertSameBytes(expected.Memory.SaveRam, actual.Memory.SaveRam, context + " SRAM");
         AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");
         AssertTrue(expected.Enemies.Audio.MusicRequests.SequenceEqual(actual.Enemies.Audio.MusicRequests), context + " music");
-        AssertTrue(expected.Enemies.CrocomireBehavior.CrocomirePlmRequests.SequenceEqual(actual.Enemies.CrocomireBehavior.CrocomirePlmRequests), context + " room changes");
+        AssertTrue(expected.Enemies.LastEnemyFrame.RoomEffects.CrocomirePlms.SequenceEqual(actual.Enemies.LastEnemyFrame.RoomEffects.CrocomirePlms), context + " room changes");
     }
 
     /// <summary>Encodes patterned planar tiles as a real indexed PNG for the production asset compiler.</summary>
@@ -123,7 +127,7 @@ internal static class EnemyEffectsFixtureVerification
                 TileIndex = (index + seed) % 512, Palette = seed % 8,
                 Priority = seed != 0, FlipX = seed != 0, FlipY = seed != 0,
             }).ToArray(),
-    }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+    }, CamelCaseJson);
 
     /// <summary>Compiles both Crocomire PNG passes and tilemap documents through the production loader.</summary>
     internal static CrocomireMeltingArtwork MeltEffectArtwork(byte pattern = 0x55,

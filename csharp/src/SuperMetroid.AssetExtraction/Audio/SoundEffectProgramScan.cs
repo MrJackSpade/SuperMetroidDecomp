@@ -46,7 +46,7 @@ internal sealed record SoundEffectProgramScan(bool RepeatsForever, IReadOnlyList
                 yield return $"instrument ${instrument:X2} past the {table.Count}-entry table";
                 continue;
             }
-            byte source = table[index].UsesNoise ? (byte)0 : table[index].SourceOrNoiseRate;
+            int source = table[index].UsesNoise ? 0 : table[index].SourceOrNoiseRate;
             if (!samples.Samples.ContainsKey(source))
                 yield return $"instrument ${instrument:X2} source ${source:X2}";
         }

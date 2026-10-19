@@ -20,19 +20,19 @@ internal static class ShutterRidingVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (int slot in new[] { 0, 1 })
         {
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, camera: new Position16<RoomPixels>(0x100, 0));
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope, camera: new Position16<RoomPixels>(0x100, 0));
             var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.SlotTable.Slots[slot];
             var state = runtime.Enemies.VerticalShutterStates[slot];
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.InputLocked = false;
-            samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.EquippedItems |= SamusEquipmentFlags.Bombs;
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             samus.Position = samus.Position.WithWhole(new(platform.Position.X.Whole, (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
             runtime.StepFrame(0);
             // A real Shoot edge plants the bomb. Its explosion activates the shutter
@@ -41,7 +41,7 @@ internal static class ShutterRidingVerification
                 runtime.StepFrame(frame == 0 ? runtime.Options.ControllerBindings.Shoot : (ushort)0);
             AssertEqual(VerticalShutterFunction.PermanentNoOp, (state ?? throw new InvalidOperationException("Verification requires state.")).Function,
                 "bomb-raised shutter remains at native permanent upper stop without a second hit");
-            AssertEqual(state.MinimumYPosition, platform.Position.Y.Whole, "shutter reaches the authored upper Y");
+            AssertEqual(state.UpperEndpoint.Y, platform.Position.Y.Whole, "shutter reaches the authored upper Y");
             AssertEqual(0, platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y,
                 "Morph Ball remains on the stopped shutter, not inside it");
             for (int frame = 0; frame < 30; frame++)

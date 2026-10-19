@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -57,7 +58,7 @@ internal static class ProjectileTrailArtworkVerification
                 DrawNativeTrailFrame(bus, nativeSystem.TrailSlots[0], nativeOam, frozenFrame);
                 OamBuffer authoredOam = SpriteFrameBuffer.DrawnOam(sprites =>
                 {
-                    authoredSystem.AdvanceTrails(NewProjectileCompositionForbiddenBus(), frozenFrame, catalog);
+                    authoredSystem.AdvanceTrails(frozenFrame, catalog);
                     authoredSystem.DrawTrails(sprites, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
                 });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
@@ -75,18 +76,17 @@ internal static class ProjectileTrailArtworkVerification
         {
             if (ProjectileTrailProgramDefinitions.TryRead(address, out _))
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailProgramDefinitions.Read(bus, address), "Compiled trail program preserves every authored mechanics word");
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailProgramDefinitions.Read(address), "Compiled trail program preserves every authored mechanics word");
                 programWords++;
             }
             else
             {
                 int rejectedAddress = address;
-                AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
+                AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
             }
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, 0x91b4c9), "Trail program rejects a wrong-bank alias");
-        Suite(nameof(VerifyTrailMutableAlias), () => VerifyTrailMutableAlias());
+        AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
         int draws = 0;
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
@@ -99,12 +99,12 @@ internal static class ProjectileTrailArtworkVerification
             // The OAM capacity stop is a dropped presentation quirk (#1308); culling and every byte remain.
             OamBuffer native = SpriteFrameBuffer.DrawnOam(sprites =>
             {
-                system.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, null);
+                system.AdvanceTrails(true, null);
                 system.DrawTrails(sprites, Position16<RoomPixels>.Zero, null, InstalledFixtures.ProjectileArtwork());
             });
             OamBuffer authored = SpriteFrameBuffer.DrawnOam(sprites =>
             {
-                system.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, catalog);
+                system.AdvanceTrails(true, catalog);
                 system.DrawTrails(sprites, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
             });
             AssertTrue(native.ImageEquals(authored), "Trail catalog preserves native culling and complete OAM bytes");
@@ -125,19 +125,19 @@ internal static class ProjectileTrailArtworkVerification
         trail.InstructionPointer = first; trail.InstructionTimer = NativeCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>
         {
-            animation.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, edited);
+            animation.AdvanceTrails(true, edited);
             animation.DrawTrails(sprites, Position16<RoomPixels>.Zero, edited, InstalledFixtures.ProjectileArtwork());
         });
         AssertEqual(0, frozen.GetEntry(0).TileNumber, "New frozen trail retains native uninitialized tile rather than starting artwork early");
-        animation.AdvanceTrails(bus, false, catalog);
+        animation.AdvanceTrails(false, catalog);
         OamBuffer original = SpriteFrameBuffer.DrawnOam(sprites =>
         {
-            animation.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, catalog);
+            animation.AdvanceTrails(true, catalog);
             animation.DrawTrails(sprites, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
         });
         OamBuffer changed = SpriteFrameBuffer.DrawnOam(sprites =>
         {
-            animation.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, edited);
+            animation.AdvanceTrails(true, edited);
             animation.DrawTrails(sprites, Position16<RoomPixels>.Zero, edited, InstalledFixtures.ProjectileArtwork());
         });
         AssertTrue(original.GetEntry(0).FlipX != changed.GetEntry(0).FlipX, "Edited trail flip reaches production draw");
@@ -165,7 +165,7 @@ internal static class ProjectileTrailArtworkVerification
             if (side.InstructionTimer.IsZero) continue;
             if (!frozen && (side.InstructionTimer = side.InstructionTimer.Decrement().Remaining).IsZero)
             {
-                ushort cursor = side.InstructionPointer;
+                ushort cursor = checked((ushort)side.InstructionPointer);
                 for (int operations = 0; ; operations++)
                 {
                     AssertTrue(operations < 16, "native trail reaches a timed frame or terminator");
@@ -200,7 +200,7 @@ internal static class ProjectileTrailArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeTrailBinding(ISnesAddressSpace bus, ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
     {
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Freeze.GameplayTimeFrozen = true;
@@ -208,9 +208,8 @@ internal static class ProjectileTrailArtworkVerification
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
         side.InstructionTimer = NativeCountdown.Start(3); side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
         side.Position = side.Position.WithX((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100)).WithY((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100));
-        var game = CreateRetailGameFixture(bus);
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        game.runtime = runtime;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
+        game.Session.runtime = runtime;
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
         InstalledFixtures.BindProjectileArtwork(runtime);
         // Run the gameplay actor draw pass into a fresh OAM frame and capture its low table.
@@ -247,7 +246,7 @@ internal static class ProjectileTrailArtworkVerification
         AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Trail catalogs are excluded from both frontend and runtime snapshots");
         with.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = restored.GameplayRuntime;
+        var restoredRuntime = restored.Session.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.TrailArtwork is null, "Restored trail catalog requires host rebind");
         BindRetailRuntimeFixture(restoredRuntime);
         restored.BindArtwork(restored.Artwork with
@@ -260,51 +259,6 @@ internal static class ProjectileTrailArtworkVerification
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
         AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer.RawValue, "Trail rebind preserves saved timing");
     }
-    /// <summary>Confirms a bank-$90 low-half trail word reads the two corresponding mutable WRAM bytes.</summary>
-    internal static void VerifyTrailMutableAlias()
-    {
-        var mirror = new TrailMutableMirrorBus();
-        AssertEqual((ushort)0x3412, ProjectileTrailProgramDefinitions.Read(mirror, 0x900100),
-            "bank-$90 low-half trail alias reads WRAM through the typed mutable interface");
-        AssertEqual(2, mirror.WorkRamReads, "low-half trail word reads exactly two mutable bytes");
-        Console.WriteLine("Projectile trail low-bank alias: two typed WRAM reads, no generic bus read.");
-    }
-
-    /// <summary>Exposes only two typed WRAM mirror bytes and rejects all unrelated cartridge, SRAM, and write accesses.</summary>
-    [CpuBusBoundary("exact bus test: witnesses that a bank-$90 low-half trail word is read as two typed WRAM mirror bytes")]
-    internal sealed class TrailMutableMirrorBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
-    {
-        /// <summary>Number of typed WRAM byte accesses made by the low-half trail lookup.</summary>
-        public int WorkRamReads { get; private set; }
-
-        /// <summary>Routes an attempted cartridge read to the deliberately failing untyped path.</summary>
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        /// <summary>Fails if the low-bank lookup bypasses the mutable-memory interface.</summary>
-        public static byte ReadByte(int address) =>
-            throw new InvalidOperationException($"Untyped trail read at ${address:X6}.");
-
-        /// <summary>Returns $12/$34 only for the requested mirror word, recording both typed byte reads.</summary>
-        public byte ReadWorkRamByte(int address)
-        {
-            WorkRamReads++;
-            return address switch
-            {
-                0x900100 => 0x12,
-                0x900101 => 0x34,
-                _ => throw new InvalidOperationException($"Unexpected trail WRAM read ${address:X6}."),
-            };
-        }
-
-        /// <summary>Rejects SRAM access during the WRAM alias check.</summary>
-        public byte ReadSaveRamByte(int address) =>
-            throw new InvalidOperationException($"Unexpected trail SRAM read ${address:X6}.");
-
-        /// <summary>Rejects mutations during the read-only trail alias check.</summary>
-        public void WriteByte(int address, byte value) =>
-            throw new InvalidOperationException($"Unexpected trail write ${address:X6}.");
-    }
-
     /// <summary>Runs the cartridge-backed trail art and mechanics comparison from its command-line switch.</summary>
     [VerificationCommand("--projectile-trail-artwork-fixture")]
     internal static int ProjectileTrailArtworkFixtureCommand()
@@ -318,7 +272,6 @@ internal static class ProjectileTrailArtworkVerification
     [VerificationCommand("--trail-mutable-alias")]
     internal static int TrailMutableAliasCommand()
     {
-        Suite(nameof(VerifyTrailMutableAlias), () => VerifyTrailMutableAlias());
         return 0;
     }
 }

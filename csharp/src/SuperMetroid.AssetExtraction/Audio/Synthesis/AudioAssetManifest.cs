@@ -10,5 +10,5 @@ public sealed record AudioAssetManifest(
     IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries)
 {
     /// <summary>Accepted manifest schema version 4, including canonical PCM aliases and decoded, address-stable music/SFX programs.</summary>
-    public const int CurrentFormatVersion = 4;
+    public const int CurrentFormatVersion = 5;
 }

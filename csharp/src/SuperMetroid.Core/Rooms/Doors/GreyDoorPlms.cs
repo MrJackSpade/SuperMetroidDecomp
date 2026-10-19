@@ -7,8 +7,15 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Grey door PLMs: condition identification (boss, mini-boss, Torizo, statue, event), flash and opening.</summary>
-internal sealed class GreyDoorPlms
+internal sealed class GreyDoorPlms : IPlmFamilySource
 {
+    /// <summary>Registers the GreyDoor family, which has no step of its own: its slots take the shared path.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.GreyDoor, static (_, _) => PlmStepOutcome.Shared);
+    }
+
     /// <summary>Room progression and statue state used to evaluate resident-door unlock conditions.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Draws closed-grey and converted-blue tiles into the room level and background streamer.</summary>
@@ -32,16 +39,10 @@ internal sealed class GreyDoorPlms
     /// (setting Zebes awake for the enemy quota), and otherwise plays the dud sound for a shot; once activated, any
     /// shot wakes the cap at its hit. Each consumes the hit word.
     /// </summary>
-    internal void RunGreyDoorPreInstruction(PlmSlot slot, ushort enemyDeaths, byte enemyDeathQuota)
+    internal void RunGreyDoorPreInstruction(PlmSlot slot, GreyDoorPreInstruction preInstruction, int enemyDeaths, int enemyDeathQuota)
     {
-        if (slot.GreyDoor is null)
-            return;
-        GreyDoorPreInstruction preInstruction = ClosedNativeWords.Decode<GreyDoorPreInstruction>(
-            slot.PreInstruction, "grey-door pre-instruction");
         switch (preInstruction)
         {
-            case GreyDoorPreInstruction.None:
-                return;
             case GreyDoorPreInstruction.WakeWhenShot:
                 if (slot.LoopTimer == 0)
                     return;
@@ -86,9 +87,9 @@ internal sealed class GreyDoorPlms
     /// <summary><c>$84:8A91</c>: counts a hit on a grey cap; true when it opens the door.</summary>
     internal bool CountGreyDoorHit(PlmSlot slot)
     {
-        GreyDoorPlmState door = slot.GreyDoor
+        GreyDoorPlmState door = (slot.Family as GreyDoorPlmState)
             ?? throw new InvalidOperationException("A grey cap's hit reached a slot without its door state.");
-        door.HitCounter = unchecked((byte)(door.HitCounter + 1));
+        door.HitCounter++;
         if (door.HitCounter < GreyDoorPlmProgramDefinitions.HitThreshold)
             return false;
         _doors.MarkDoorOpened(slot);
@@ -100,7 +101,7 @@ internal sealed class GreyDoorPlms
         _bindings.System ?? throw new InvalidOperationException("A resident grey door has no progression-state owner.");
 
     /// <summary>Whether the unlock check <paramref name="preInstruction"/> passes.</summary>
-    private bool IsUnlocked(GreyDoorPreInstruction preInstruction, ushort enemyDeaths, byte enemyDeathQuota)
+    private bool IsUnlocked(GreyDoorPreInstruction preInstruction, int enemyDeaths, int enemyDeathQuota)
     {
         Bank80SystemState system = RequireSystem();
         return preInstruction switch
@@ -120,7 +121,7 @@ internal sealed class GreyDoorPlms
     {
         // Setup_GreyDoor and Setup_ColoredDoor share the exact `$C044` collision write.
         // Preserve the authored visual payload while replacing only type and BTS.
-        ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+        ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         level.SetForegroundEntry(blockIndex, new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
         level.SetBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }
@@ -134,7 +135,7 @@ internal sealed class GreyDoorPlms
         PlmSlot slot,
         ColoredDoorOrientation orientation)
     {
-        ushort rawRoomArgument = slot.RoomArgument;
+        int rawRoomArgument = slot.RoomArgument;
         int conditionOffset = GreyDoorRoomArgumentDefinitions.ConditionOffset(rawRoomArgument);
         if ((conditionOffset & 1) != 0 || conditionOffset > 12)
         {
@@ -146,7 +147,7 @@ internal sealed class GreyDoorPlms
         GreyDoorCondition condition = GreyDoorConditions.AtTableIndex(conditionOffset >> 1);
         slot.RoomArgument = GreyDoorRoomArgumentDefinitions.DoorBitArgument(rawRoomArgument);
         ApplyGreyDoorSetup(level, slot.BlockIndex);
-        slot.GreyDoor = new GreyDoorPlmState(condition);
+        slot.Family = new GreyDoorPlmState(condition);
         var variant = new GreyDoorVariant(orientation, BombTorizo: slot.HeaderPointer == PlmHeaderId.BombTorizoGreyDoor);
         slot.StartAnimation(new GreyDoorPlmAnimation(variant, GreyDoorProgram.Waiting));
     }

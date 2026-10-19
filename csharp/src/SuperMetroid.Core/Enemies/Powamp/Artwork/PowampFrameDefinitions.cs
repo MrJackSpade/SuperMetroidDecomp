@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Powamp.Artwork;
 
 /// <summary>
@@ -17,5 +19,16 @@ internal static class PowampFrameDefinitions
         4 => 0xc691,
         5 => 0xc698,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Powamp pose."),
+    };
+
+    /// <summary>The installed frame each <see cref="PowampFrame"/> shows.</summary>
+    internal static EnemyFrameTable<PowampFrame> ShownFrames { get; } = new()
+    {
+        { new(Pose: 0), EnemyFrameId.Powamp00 },
+        { new(Pose: 1), EnemyFrameId.Powamp01 },
+        { new(Pose: 2), EnemyFrameId.Powamp02 },
+        { new(Pose: 3), EnemyFrameId.Powamp03 },
+        { new(Pose: 4), EnemyFrameId.Powamp04 },
+        { new(Pose: 5), EnemyFrameId.Powamp05 },
     };
 }

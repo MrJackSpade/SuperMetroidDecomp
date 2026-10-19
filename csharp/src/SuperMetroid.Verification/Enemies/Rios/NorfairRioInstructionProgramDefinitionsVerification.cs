@@ -29,34 +29,32 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     {
         // Each update shows the next pose; the cues before it place the flames, and a one-shot swoop start ends by
         // telling main AI it has finished.
-        (NorfairRioProgram Entry, int Calls, ushort Offset, bool Signal, string Name)[] programs =
+        (NorfairRioProgram Entry, int Calls, short Offset, bool Signal, string Name)[] programs =
         [
             (NorfairRioProgram.Idle, 5, 8, false, "idle"),
-            (NorfairRioProgram.StartDescending, 7, unchecked((ushort)-16), true, "start descending"),
-            (NorfairRioProgram.Descending, 5, unchecked((ushort)-12), false, "descending"),
+            (NorfairRioProgram.StartDescending, 7, -16, true, "start descending"),
+            (NorfairRioProgram.Descending, 5, -12, false, "descending"),
             (NorfairRioProgram.StartAscending, 9, 12, true, "start ascending"),
             (NorfairRioProgram.Ascending, 5, 12, false, "ascending"),
             (NorfairRioProgram.FlamesAscending, 5, 0, false, "ascending flames"),
             (NorfairRioProgram.FlamesDescending, 5, 0, false, "descending flames"),
         ];
-        foreach ((NorfairRioProgram entry, int calls, ushort offset, bool signal, string name) in programs)
+        foreach ((NorfairRioProgram entry, int calls, short offset, bool signal, string name) in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, NorfairRioEnemyState state) =
-                NewNorfairRioInstructionSystem(rom, entry);
+                NewNorfairRioInstructionSystem(entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
-            RunNorfairRioInstructionFrames(
-                enemies,
-                arguments,
+            RunNorfairRioInstructionFrames(arguments,
                 slot,
                 calls);
-            AssertEqual(offset, state.FollowerYOffset,
+            AssertEqual(new Offset16<RoomPixels>(0, offset), state.FollowerOffset,
                 $"Norfair Rio {name} publishes its final follower offset");
             AssertEqual(signal, state.AnimationSignal,
                 $"Norfair Rio {name} animation signal");
         }
 
-        Suite(nameof(VerifyNorfairRioInitializerSelections), () => VerifyNorfairRioInitializerSelections(rom));
+        Suite(nameof(VerifyNorfairRioInitializerSelections), () => VerifyNorfairRioInitializerSelections());
         Suite(nameof(NorfairRioAnimationsVerification.VerifyNorfairRioAnimations), () => NorfairRioAnimationsVerification.VerifyNorfairRioAnimations(rom));
 
         Console.WriteLine(
@@ -66,26 +64,26 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
 
     /// <summary>Checks that parent and follower initialization choose idle and ascending-flames programs respectively.</summary>
     private static void VerifyNorfairRioInitializerSelections(
-        ISnesAddressSpace bus)
+)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
-        parent.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
-        parent.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
+        parent.Bind(parent.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
         AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.Idle),
-            ((NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates)[0]?.Program,
+            enemies.SlotTable.Slots[0].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Program,
             "Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
-        follower.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
-        follower.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
+        follower.Bind(follower.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         follower.Parameter1 = 0x8000;
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
         AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.FlamesAscending),
-            ((NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates)[1]?.Program,
+            enemies.SlotTable.Slots[1].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Program,
             "Norfair Rio follower initializer selects ascending flames");
     }
 
@@ -94,33 +92,29 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
         NorfairRioEnemyState State) NewNorfairRioInstructionSystem(
-            ISnesAddressSpace bus,
             NorfairRioProgram entry,
             EnemyTileArtworkCatalog? art = null)
     {
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         slot.InstructionTimer = NativeCountdown.Start(1);
-        var state = new NorfairRioEnemyState(slot) { Program = AnimationProgramCursor<NorfairRioProgram>.Start(entry) };
-        var states = (NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates;
-        states[0] = state;
+        var state = new NorfairRioEnemyState { Program = AnimationProgramCursor<NorfairRioProgram>.Start(entry) };
+        slot.SetSpeciesState(state);
         return (enemies, slot, state);
     }
 
     /// <summary>Processes the selected instruction entry on each requested actor update.</summary>
-    internal static void RunNorfairRioInstructionFrames(
-        RoomEnemySystem enemies,
-        object?[] arguments,
+    internal static void RunNorfairRioInstructionFrames(object?[] arguments,
         RoomEnemySlot slot,
         int count)
     {
         for (int call = 0; call < count; call++)
         {
             slot.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
         }
     }
 

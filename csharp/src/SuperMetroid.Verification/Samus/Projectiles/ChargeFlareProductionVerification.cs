@@ -30,7 +30,6 @@ internal static class ChargeFlareProductionVerification
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var placement = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
         var guarded = NewChargeFlareCompositionGuard(bus);
         int ticks = 0;
@@ -39,23 +38,23 @@ internal static class ChargeFlareProductionVerification
             SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
             SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
         })
-        foreach (ushort hyper in new ushort[] { 0, 1 })
+        foreach (bool hyper in new[] { false, true })
         {
-            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeam = hyper };
+            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeamEnabled = hyper };
             samus.Presentation.TileTransfers.BindArtwork(body);
             SamusProjectileSystem native = Create(), compiled = Create(), changed = Create();
             for (int tick = 0; tick < 160 && native.Charge.FlareCounter != 0; tick++)
             {
-                OamBuffer a = native.ChargeFlareOam(bus, samus, new(0, 0), placement, stock);
-                OamBuffer b = compiled.ChargeFlareOam(guarded, samus, new(0, 0), placement, stock);
-                OamBuffer c = changed.ChargeFlareOam(guarded, samus, new(0, 0), placement, edited);
+                OamBuffer a = native.ChargeFlareOam(samus, new(0, 0), placement, stock);
+                OamBuffer b = compiled.ChargeFlareOam(samus, new(0, 0), placement, stock);
+                OamBuffer c = changed.ChargeFlareOam(samus, new(0, 0), placement, edited);
                 AssertTrue(a.ImageEquals(b), "Normal/Hyper flare producer preserves complete native sprite output");
                 AssertEqual(a.LastFinalizedSpriteCount, b.LastFinalizedSpriteCount, "Flare producer preserves its sprite count");
                 AssertEqual(a.LastFinalizedSpriteCount, c.LastFinalizedSpriteCount, "Edited flare producer preserves component count");
                 for (int i = 0; i < a.LastFinalizedSpriteCount; i++)
                 {
-                    AssertEqual((a.GetEntry(i).X + 7) & 511, c.GetEntry(i).X, "All emitted normal/Hyper components consume edited composition");
-                    AssertEqual(a.GetEntry(i).Y, c.GetEntry(i).Y, "Composition X edit preserves emitted Y");
+                    AssertEqual((a.GetEntry(i).Position.X + 7) & 511, c.GetEntry(i).Position.X, "All emitted normal/Hyper components consume edited composition");
+                    AssertEqual(a.GetEntry(i).Position.Y, c.GetEntry(i).Position.Y, "Composition X edit preserves emitted Y");
                 }
                 AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(compiled)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "All projectile, flare-counter and animation state remains identical after visual replacement");
                 ticks++;
@@ -70,12 +69,13 @@ internal static class ChargeFlareProductionVerification
             Array.Fill(invalidSelector.Charge._flareFrames, outOfTableFrame);
             var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             subject.Presentation.TileTransfers.BindArtwork(body);
-            OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(guarded, subject, new(0, 0), placement, stock);
+            OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(subject, new(0, 0), placement, stock);
             AssertEqual(0, outOfTableOam.LastFinalizedSpriteCount,
                 $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
         }
 
-        var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes) { Artwork = { MapPresentation = maps } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes);
+        runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.ChargeFlarePlacement = placement;
         runtime.Artwork.ChargeFlareCompositions = stock;
@@ -83,12 +83,12 @@ internal static class ChargeFlareProductionVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(bus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics(bus);
+        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
-        var game = new SuperMetroidGame(bus);
-        game.runtime = runtime;
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        game.Session.runtime = runtime;
         byte[] baseline = Draw(runtime);
         game.BindArtwork(game.Artwork with
         {
@@ -113,7 +113,7 @@ internal static class ChargeFlareProductionVerification
         AssertTrue(unbound.SequenceEqual(System.Security.Cryptography.SHA256.HashData(bound)), "Charge-flare compositions are excluded from saved frontend/runtime graphs");
         using var stream = new MemoryStream(bound);
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = restored.GameplayRuntime;
+        var restoredRuntime = restored.Session.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ChargeFlareCompositions is null, "Saved state does not retain old composition content");
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;

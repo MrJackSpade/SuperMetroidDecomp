@@ -33,16 +33,16 @@ internal static class DoorEntryShotBindingVerification
         };
         foreach ((SnesButton held, bool cancels) in new[] { (SnesButton.X, true), (SnesButton.Y, false) })
         {
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.Options.ControllerBindings = lowc;
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = true;
-            var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-            game.runtime = runtime;
-            game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+            game.Session.runtime = runtime;
+            game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
             game.GameState = SuperMetroidGameState.MainGameplay;
 
             var level = runtime.Room.LoadedLevelData;
@@ -52,7 +52,7 @@ internal static class DoorEntryShotBindingVerification
             {
                 var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                 if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-                level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
+                level.ResolveDoorCollision(block.Bts.Value, samus.Pose, true);
                 selected = true;
             }
             AssertTrue(selected, "the Ceres start room has an exit");

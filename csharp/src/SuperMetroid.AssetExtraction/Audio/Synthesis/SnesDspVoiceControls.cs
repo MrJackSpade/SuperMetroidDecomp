@@ -9,7 +9,7 @@ internal readonly struct SnesDspVoiceControls
     /// <summary>DSP register file receiving writes for the selected voice.</summary>
     private readonly ManagedSnesDsp dsp;
     /// <summary>Sixteen-byte base address of this voice's register block.</summary>
-    private readonly byte block;
+    private readonly int block;
 
     /// <summary>Binds voice <paramref name="index"/> (0-7).</summary>
     public SnesDspVoiceControls(ManagedSnesDsp dsp, int index)
@@ -17,7 +17,7 @@ internal readonly struct SnesDspVoiceControls
         this.dsp = Ensure.NotNull(dsp);
         if ((uint)index > SnesDspRegisterLayout.VoiceIndexMask)
             throw new ArgumentOutOfRangeException(nameof(index), index, "The S-DSP has eight voices.");
-        block = unchecked((byte)(index * SnesDspRegisterLayout.VoiceStride));
+        block = index * SnesDspRegisterLayout.VoiceStride;
     }
 
     /// <summary>VxVOLL ($x0) / VxVOLR ($x1): signed voice volume.</summary>
@@ -32,18 +32,18 @@ internal readonly struct SnesDspVoiceControls
     }
 
     /// <summary>VxSRCN ($x4): the sample directory entry the voice plays.</summary>
-    public void WriteSource(byte source) => Write(DspVoiceRegister.SourceNumber, source);
+    public void WriteSource(int source) => Write(DspVoiceRegister.SourceNumber, checked((byte)source));
 
     /// <summary>VxADSR1 ($x5) then VxADSR2 ($x6): the envelope configuration, first byte first.</summary>
-    public void WriteAdsr(byte adsr1, byte adsr2)
+    public void WriteAdsr(int adsr1, int adsr2)
     {
-        Write(DspVoiceRegister.Adsr1, adsr1);
-        Write(DspVoiceRegister.Adsr2, adsr2);
+        Write(DspVoiceRegister.Adsr1, checked((byte)adsr1));
+        Write(DspVoiceRegister.Adsr2, checked((byte)adsr2));
     }
 
     /// <summary>VxGAIN ($x7): the gain mode and value used when ADSR is disabled.</summary>
-    public void WriteGain(byte gain) => Write(DspVoiceRegister.Gain, gain);
+    public void WriteGain(int gain) => Write(DspVoiceRegister.Gain, checked((byte)gain));
 
     /// <summary>Offsets a typed voice register from this voice's sixteen-byte block.</summary>
-    private void Write(DspVoiceRegister register, byte value) => dsp.WriteRegister(unchecked((byte)(block + (int)register)), value);
+    private void Write(DspVoiceRegister register, byte value) => dsp.WriteRegister((byte)(block + (int)register), value);
 }

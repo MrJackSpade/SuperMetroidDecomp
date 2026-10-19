@@ -49,8 +49,7 @@ internal static class MotherBrainCorpseArtworkVerification
 
         // Only the oracle/import above receives cartridge bytes. Production transfers and
         // staging run against the same cartridge-incapable memory type as installed games.
-        SnesVram stockVram = TransferMotherBrainCorpsePages(stock,
-            SuperMetroidAddressSpace.CreateWithoutCartridge());
+        SnesVram stockVram = TransferMotherBrainCorpsePages(stock);
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
             int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSource(page) -
@@ -64,31 +63,31 @@ internal static class MotherBrainCorpseArtworkVerification
                 $"installed Mother Brain corpse VRAM page {page} matches the native transfer");
         }
 
-        var nativeBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var installedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var nativeStaging = new EnemyStagingSurfaces();
+        var installedStaging = new EnemyStagingSurfaces();
         // Independent $A9:E08B oracle: copy each right-hand frame's seven-tile row,
         // omitting the transparent last tile in the first four rows. No runtime fallback.
-        WorkRamByteTable nativeTiles = MotherBrainCorpseTiles(nativeBus);
+        StagingByteView nativeTiles = nativeStaging.MotherBrainCorpseTiles;
         for (int row = 0; row < 6; row++)
         {
             ReadOnlySpan<byte> rowBytes = native.AsSpan(row * 0x200 + 0xc0, row < 4 ? 0xc0 : 0xe0);
             for (int offset = 0; offset < rowBytes.Length; offset++)
                 nativeTiles[row * 0xe0 + offset] = rowBytes[offset];
         }
-        CorpseRotTable nativeRotTable = new EnemyScratchMemory(nativeBus).MotherBrainRotTable;
+        CorpseRotTable nativeRotTable = nativeStaging.MotherBrainRotTable;
         for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
         {
             nativeRotTable.SetYOffset(index, (ushort)(47 - index));
             nativeRotTable.SetDelay(index, (ushort)(index * 2));
         }
-        new MotherBrainCorpseRottingState().Initialize(installedBus, artwork);
-        AssertMotherBrainCorpseBufferParity(nativeBus, installedBus);
+        new MotherBrainCorpseRottingState().Initialize(installedStaging, artwork);
+        AssertMotherBrainCorpseBufferParity(nativeStaging, installedStaging);
 
         // The phase-three state machine owns a separate corpse processor. Verify
         // its explicit setup route as well as the room-entry processor above.
-        var sequenceBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        new MotherBrainRainbowBeamAttackSequence(artwork).InitializeCorpseRotting(sequenceBus);
-        AssertMotherBrainCorpseBufferParity(nativeBus, sequenceBus);
+        var sequenceStaging = new EnemyStagingSurfaces();
+        new MotherBrainRainbowBeamAttackSequence(artwork, sequenceStaging).InitializeCorpseRotting();
+        AssertMotherBrainCorpseBufferParity(nativeStaging, sequenceStaging);
 
         string fileName = MotherBrainCorpseArtworkDefinitions.FileName;
         using var input = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
@@ -106,29 +105,28 @@ internal static class MotherBrainCorpseArtworkVerification
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-        SnesVram editedVram = TransferMotherBrainCorpsePages(edited,
-            SuperMetroidAddressSpace.CreateWithoutCartridge());
+        SnesVram editedVram = TransferMotherBrainCorpsePages(edited);
         int editedVramOffset = MotherBrainCorpseArtworkDefinitions.VramPageDestination(0) * 2 +
             6 * RoomCharacterAtlasFormat.BytesPerTile;
         AssertEqual((byte)(stockVram.ReadByte(editedVramOffset) ^ 0x80),
             editedVram.ReadByte(editedVramOffset),
             "Mother Brain corpse PNG edit changes live sprite VRAM");
-        var editedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        new MotherBrainCorpseRottingState().Initialize(editedBus, (edited.MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires edited.MotherBrainCorpse.")));
-        WorkRamByteTable installedTiles = MotherBrainCorpseTiles(installedBus);
-        WorkRamByteTable editedTiles = MotherBrainCorpseTiles(editedBus);
+        var editedStaging = new EnemyStagingSurfaces();
+        new MotherBrainCorpseRottingState().Initialize(editedStaging, (edited.MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires edited.MotherBrainCorpse.")));
+        StagingByteView installedTiles = installedStaging.MotherBrainCorpseTiles;
+        StagingByteView editedTiles = editedStaging.MotherBrainCorpseTiles;
         AssertEqual((byte)(installedTiles[0] ^ 0x80),
             editedTiles[0],
-            "Mother Brain corpse PNG pixel edit changes live WRAM staging");
+            "Mother Brain corpse PNG pixel edit changes the corpse staging");
         for (int offset = 1; offset < MotherBrainCorpseRottingState.GraphicsBufferSize; offset++)
             AssertEqual(installedTiles[offset],
                 editedTiles[offset],
                 "Mother Brain corpse PNG edit leaves other staged pixels unchanged");
-        var reloadedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var reloadedStaging = new EnemyStagingSurfaces();
         RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
             .MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainCorpse."));
-        new MotherBrainCorpseRottingState().Initialize(reloadedBus, (reloaded ?? throw new InvalidOperationException("Verification requires reloaded.")));
-        AssertEqual(editedTiles[0], MotherBrainCorpseTiles(reloadedBus)[0],
+        new MotherBrainCorpseRottingState().Initialize(reloadedStaging, (reloaded ?? throw new InvalidOperationException("Verification requires reloaded.")));
+        AssertEqual(editedTiles[0], reloadedStaging.MotherBrainCorpseTiles[0],
             "Mother Brain corpse override survives catalog reload");
 
         File.WriteAllBytes(overridePath, [0]);
@@ -141,12 +139,11 @@ internal static class MotherBrainCorpseArtworkVerification
 
     /// <summary>Routes all corpse page requests through the production encounter into cartridge-free VRAM.</summary>
     private static SnesVram TransferMotherBrainCorpsePages(
-        EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus)
+        EnemyTileArtworkCatalog artwork)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
@@ -160,16 +157,12 @@ internal static class MotherBrainCorpseArtworkVerification
         return vram;
     }
 
-    /// <summary>Exposes the corpse tile staging range in enemy scratch WRAM for byte comparisons.</summary>
-    private static WorkRamByteTable MotherBrainCorpseTiles(ISnesMemoryBus bus) =>
-        new EnemyScratchMemory(bus).MotherBrainCorpseTiles;
-
     /// <summary>Compares the staged graphics buffer and all rotting-table entries with an independent native copy.</summary>
     private static void AssertMotherBrainCorpseBufferParity(
-        SuperMetroidAddressSpace expected, SuperMetroidAddressSpace actual)
+        EnemyStagingSurfaces expected, EnemyStagingSurfaces actual)
     {
-        WorkRamByteTable expectedTiles = MotherBrainCorpseTiles(expected);
-        WorkRamByteTable actualTiles = MotherBrainCorpseTiles(actual);
+        StagingByteView expectedTiles = expected.MotherBrainCorpseTiles;
+        StagingByteView actualTiles = actual.MotherBrainCorpseTiles;
         for (int offset = 0; offset < MotherBrainCorpseRottingState.GraphicsBufferSize; offset++)
             AssertEqual(expectedTiles[offset], actualTiles[offset],
                 "installed Mother Brain corpse staging agrees with cartridge");

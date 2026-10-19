@@ -25,7 +25,7 @@ internal static class RoomPlmPopulationImporter
         {
             PlmHeaderId header = (PlmHeaderId)Word(0x8f, cursor);
             if (header == 0)
-                return new RoomPlmPopulationDefinition(pointer, records);
+                return new RoomPlmPopulationDefinition($"$8F:{pointer:X4}", records);
             var metadata = new RoomPlmHeaderDefinition(header,
                 Word(0x84, (ushort)header), Word(0x84, unchecked((ushort)(header + 2))));
             ushort argument = Word(0x8f, unchecked((ushort)(cursor + 4)));
@@ -48,7 +48,7 @@ internal static class RoomPlmPopulationImporter
             }
             records.Add(new RoomPlmPlacement(metadata,
                 new(Byte(0x8f, unchecked((ushort)(cursor + 2))), Byte(0x8f, unchecked((ushort)(cursor + 3)))), argument, scroll, graphic));
-            cursor = unchecked((ushort)(cursor + RoomPlmPopulationFormat.RecordByteCount));
+            cursor = unchecked((ushort)(cursor + RoomPlmPopulationFormatConstants.RecordByteCount));
         }
         // Preserve the loader's bounded parser: a terminator beyond record 256
         // is not accepted merely because the importer could keep reading.

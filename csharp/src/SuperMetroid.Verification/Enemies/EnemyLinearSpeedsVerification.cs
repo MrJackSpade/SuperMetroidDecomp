@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Enemies.Owtch;
+using SuperMetroid.Core.Enemies.Cacatac;
+using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Ripper;
@@ -33,11 +36,11 @@ internal static class EnemyLinearSpeedsVerification
         var enemies = new RoomEnemySystem();
         // Only family-specific distance/timer data can be read. No speed bytes
         // are present; Stoke and Ripper do not need any bus for their speed setup.
-        enemies.BindFixtureBus(new TestAddressSpace());
-        var cacatac = new Action<RoomEnemySlot>(enemies.CacatacBehavior.InitializeCacatac);
-        var owtch = new Action<RoomEnemySlot>(enemies.OwtchBehavior.InitializeOwtch);
-        var stoke = new Action<RoomEnemySlot>(enemies.StokeBehavior.InitializeStoke);
-        Action<RoomEnemySlot, bool> ripper = RipperBehavior.LoadRipperVelocity;
+        enemies.BindFixtureDefinitions(new TestAddressSpace());
+        var cacatac = new Action<RoomEnemySlot>(CacatacBehavior.InitializeCacatac);
+        var owtch = new Action<RoomEnemySlot>(OwtchBehavior.InitializeOwtch);
+        var stoke = new Action<RoomEnemySlot>(StokeBehavior.InitializeStoke);
+        Action<RipperEnemyState, bool> ripper = RipperBehavior.LoadRipperVelocity;
         var slot = enemies.SlotTable.Slots[0];
         for (int index = 0; index < 65; index++)
         {
@@ -46,21 +49,24 @@ internal static class EnemyLinearSpeedsVerification
             var expected = (right, rightFraction, left, leftFraction);
             slot.Parameter1 = 0;
             slot.Parameter2 = SnesLittleEndian.Word(0, unchecked((byte)index));
+            slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
             cacatac(slot);
             var c = enemies.CacatacStates[0];
-            AssertEqual(expected, ((c ?? throw new InvalidOperationException("Verification requires c.")).RightVelocity, c.RightSubvelocity, c.LeftVelocity, c.LeftSubvelocity), "Cacatac native speed setup");
+            AssertEqual(expected, ((c ?? throw new InvalidOperationException("Verification requires c.")).RightVelocity.WholeWord, c.RightVelocity.Fraction, c.LeftVelocity.WholeWord, c.LeftVelocity.Fraction), "Cacatac native speed setup");
             slot.Parameter2 = (ushort)index;
+            slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             owtch(slot);
             var o = enemies.OwtchStates[0];
-            AssertEqual(expected, ((o ?? throw new InvalidOperationException("Verification requires o.")).RightVelocity, o.RightSubvelocity, o.LeftVelocity, o.LeftSubvelocity), "Owtch native speed setup");
+            AssertEqual(expected, ((o ?? throw new InvalidOperationException("Verification requires o.")).RightVelocity.WholeWord, o.RightVelocity.Fraction, o.LeftVelocity.WholeWord, o.LeftVelocity.Fraction), "Owtch native speed setup");
+            slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
             stoke(slot);
             var s = enemies.StokeStates[0];
-            AssertEqual(expected, ((s ?? throw new InvalidOperationException("Verification requires s.")).RightVelocity, s.RightSubvelocity, s.LeftVelocity, s.LeftSubvelocity), "Stoke native speed setup");
-            slot.VariableE = (ushort)(index * 8);
-            ripper(slot, true);
-            AssertEqual((right, rightFraction), (slot.VariableD, slot.VariableC), "Ripper right speed");
-            ripper(slot, false);
-            AssertEqual((left, leftFraction), (slot.VariableD, slot.VariableC), "Ripper reversal speed");
+            AssertEqual(expected, ((s ?? throw new InvalidOperationException("Verification requires s.")).RightVelocity.WholeWord, s.RightVelocity.Fraction, s.LeftVelocity.WholeWord, s.LeftVelocity.Fraction), "Stoke native speed setup");
+            var ripperState = new RipperEnemyState(new RipperExtensionWords()) { SpeedTableByteOffset = index * 8 };
+            ripper(ripperState, true);
+            AssertEqual((right, rightFraction), (ripperState.XVelocity.WholeWord, ripperState.XVelocity.Fraction), "Ripper right speed");
+            ripper(ripperState, false);
+            AssertEqual((left, leftFraction), (ripperState.XVelocity.WholeWord, ripperState.XVelocity.Fraction), "Ripper reversal speed");
         }
         Console.WriteLine("Compiled linear speeds: 517 byte windows, bank mirror and all 65 speeds in four direct family callers match the cartridge without speed-table ROM reads.");
     }

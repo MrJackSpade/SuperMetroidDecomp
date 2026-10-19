@@ -24,7 +24,7 @@ internal sealed class IntroDiscoverySprite
         CinematicSpriteProgram program)
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
-        PaletteBits = paletteBits;
+        Attributes = new(paletteBits);
         Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
     }
 
@@ -41,14 +41,14 @@ internal sealed class IntroDiscoverySprite
         set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
     }
 
-    /// <summary>Native OBJ attribute bits applied to the current spritemap's tiles.</summary>
-    public ushort PaletteBits { get; private set; }
+    /// <summary>The OBJ palette, priority and flips applied to the current pose's tiles where a part does not set its own.</summary>
+    public SnesObjAttributeWord Attributes { get; private set; }
 
-    /// <summary>Applies a cinematic callback's native OBJ palette/attribute write.</summary>
-    public void SetAttributes(SnesObjAttributeWord attributes) => PaletteBits = attributes.Raw;
+    /// <summary>Applies a cinematic callback's OBJ palette/attribute write.</summary>
+    public void SetAttributes(SnesObjAttributeWord attributes) => Attributes = attributes;
 
-    /// <summary>Frame pointer most recently published by a timed instruction.</summary>
-    public ushort SpriteMapPointer { get; private set; }
+    /// <summary>The pose the program most recently showed; null before its first frame and after deletion.</summary>
+    internal CinematicSpritePose? Pose { get; private set; }
 
     /// <summary>Where the actor's program resumes, in place of <c>CinematicSpriteObject_InstListPointers</c>.</summary>
     internal AnimationProgramCursor<CinematicSpriteProgram> Program { get; private set; }
@@ -57,7 +57,11 @@ internal sealed class IntroDiscoverySprite
     internal CinematicSpriteProgram CurrentProgram => CinematicSpriteAnimations.Programs.ResidentProgram(Program);
 
     /// <summary>The actor scratch word used by timer and motion opcodes.</summary>
-    public ushort GeneralTimer { get; set; }
+    public int GeneralTimer
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// <see cref="GeneralTimer"/> read as the loop countdown of the set-timer and decrement-timer-and-goto
@@ -69,8 +73,8 @@ internal sealed class IntroDiscoverySprite
         set => GeneralTimer = value.RawValue;
     }
 
-    /// <summary>The selected native pre-instruction address, when the list changes it.</summary>
-    public ushort PreInstructionPointer { get; private set; }
+    /// <summary>The pre-instruction the actor runs, or none.</summary>
+    internal CinematicSpritePreInstruction? PreInstruction { get; private set; }
 
     /// <summary>The pre-instruction the actor's program installed, until an owner installs its own.</summary>
     internal CinematicSpritePreInstruction? ListPreInstruction { get; private set; }
@@ -93,21 +97,17 @@ internal sealed class IntroDiscoverySprite
     /// opcodes $94C3/$94D6; conflating the two makes a delayed actor interpret its first
     /// frame immediately while merely changing an unrelated loop counter.
     /// </remarks>
-    public void DelayFirstInstruction(ushort frames)
+    public void DelayFirstInstruction(int frames)
     {
         if (frames == 0)
             throw new ArgumentOutOfRangeException(nameof(frames), "A native instruction delay must be nonzero.");
-        instructionTimer = NativeCountdown.FromRaw(frames);
+        instructionTimer = NativeCountdown.Start(frames);
     }
 
-    /// <summary>
-    /// Applies a pre-instruction transition owned by this one translated scene. Keeping the
-    /// setter named and internal prevents unrelated code from treating the native address as
-    /// an arbitrary public state field.
-    /// </summary>
-    public void PreInstructionPointerForDiscovery(ushort pointer)
+    /// <summary>Installs the pre-instruction the actor's owner selects, or none.</summary>
+    internal void InstallPreInstruction(CinematicSpritePreInstruction? preInstruction)
     {
-        PreInstructionPointer = pointer;
+        PreInstruction = preInstruction;
         ListPreInstruction = null;
     }
 
@@ -115,7 +115,7 @@ internal sealed class IntroDiscoverySprite
     public void Delete()
     {
         IsActive = false;
-        SpriteMapPointer = 0;
+        Pose = null;
     }
 
     /// <summary>
@@ -135,7 +135,7 @@ internal sealed class IntroDiscoverySprite
         AnimationProgramCursor<CinematicSpriteProgram> cursor = Program;
         // Counter steps count the actor's goto-timer word, as the native timer-load and countdown opcodes do. Only a
         // counter step changes it, so an owner's own use of the word between steps survives.
-        ushort timerBefore = GeneralTimer;
+        ushort timerBefore = checked((ushort)GeneralTimer);
         NativeCountdown counter = InstructionLoopCountdown;
         AnimationProgramAdvance<CinematicSpritePose> advance = CinematicSpriteAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, _) =>
@@ -150,7 +150,7 @@ internal sealed class IntroDiscoverySprite
         {
             case AnimationProgramAdvanceKind.Show:
                 instructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                SpriteMapPointer = CinematicSpritePoseDefinitions.Spritemap(advance.Frame);
+                Pose = advance.Frame;
                 return;
             case AnimationProgramAdvanceKind.Hold:
                 return;
@@ -167,7 +167,7 @@ internal sealed class IntroDiscoverySprite
     {
         if (cue.Kind == CinematicSpriteCueKind.SetPreInstruction)
         {
-            PreInstructionPointer = (ushort)cue.PreInstruction;
+            PreInstruction = cue.PreInstruction;
             ListPreInstruction = cue.PreInstruction;
             return;
         }
@@ -179,7 +179,11 @@ internal sealed class IntroDiscoverySprite
     public void Draw(OamBuffer oam, Offset16<ScreenPixels> scroll = default,
         IIntroCinematicSpritePresentation? installedArt = null)
     {
-        if (!IsActive || SpriteMapPointer == 0)
+        if (!IsActive || Pose is not { } pose)
+            return;
+        // The blank pose's spritemap draws nothing.
+        ushort spritemap = CinematicSpritePoseDefinitions.Spritemap(pose);
+        if (spritemap == 0)
             return;
         Position16<ScreenPixels> origin = Position.Whole - scroll;
         ushort y = origin.Y;
@@ -192,6 +196,6 @@ internal sealed class IntroDiscoverySprite
             ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(SpriteMapPointer, oam, origin.ToOam(), PaletteBits, originIsOnScreen);
+            .Draw(spritemap, oam, origin.ToOam(), Attributes.Raw, originIsOnScreen);
     }
 }

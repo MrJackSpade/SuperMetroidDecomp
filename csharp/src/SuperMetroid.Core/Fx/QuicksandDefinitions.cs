@@ -7,11 +7,12 @@ public static class QuicksandDefinitions
 {
     /// <summary>
     /// `$84:B48B-$84:B495`, suit-indexed moving displacement, stationary
-    /// displacement, and upward-speed-limit words used by the surface reaction.
-    /// Gravity equipment selects one of two named scalar cases. Words are unsigned 8.8:
-    /// airborne displacement is 2 for either suit, grounded displacement is 1.125/1,
-    /// and the NTSC upward cap is 2.5/3.5 without/with Gravity. Consumers shift by eight
-    /// for 16.16 displacement and compare the middle word of upward velocity.
+    /// displacement, and upward-speed-limit values used by the surface reaction.
+    /// Gravity equipment selects one of two named scalar cases. Moving displacement is
+    /// 2 pixels per frame for either suit, stationary displacement is 1.125/1, and the
+    /// NTSC upward cap is 2.5/3.5 pixels per frame without/with Gravity. The cartridge
+    /// stores them as unsigned 8.8 words; they are held here as the 16.16 values its
+    /// consumers widen them to.
     /// </summary>
     public static QuicksandSurfacePhysics SurfacePhysics(bool gravitySuit) =>
         gravitySuit ? withGravitySuit : withoutGravitySuit;
@@ -59,11 +60,15 @@ public static class QuicksandDefinitions
                 header,
                 "Quicksand reaction header must be one of the eight bank-$84 sand entries.");
 
-    /// <summary>Unsuit-adjusted surface displacement and 2.5-pixel upward speed cap in unsigned 8.8 units.</summary>
+    /// <summary>Without Gravity: 2-pixel moving and 1.125-pixel stationary displacement, 2.5-pixel upward speed cap (fractions in 1/65536 pixel).</summary>
     private static readonly QuicksandSurfacePhysics withoutGravitySuit =
-        new(0x0200, 0x0120, 0x0280);
+        new(SnesSignedSixteenSixteen.FromParts(wholePixels: 2, fraction: 0),
+            SnesSignedSixteenSixteen.FromParts(wholePixels: 1, fraction: 8192),
+            SnesSignedSixteenSixteen.FromParts(wholePixels: 2, fraction: 32768));
 
-    /// <summary>Gravity-suit surface displacement and 3.5-pixel upward speed cap in unsigned 8.8 units.</summary>
+    /// <summary>With Gravity: 2-pixel moving and 1-pixel stationary displacement, 3.5-pixel upward speed cap (fractions in 1/65536 pixel).</summary>
     private static readonly QuicksandSurfacePhysics withGravitySuit =
-        new(0x0200, 0x0100, 0x0380);
+        new(SnesSignedSixteenSixteen.FromParts(wholePixels: 2, fraction: 0),
+            SnesSignedSixteenSixteen.FromParts(wholePixels: 1, fraction: 0),
+            SnesSignedSixteenSixteen.FromParts(wholePixels: 3, fraction: 32768));
 }

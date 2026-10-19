@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 /// <summary>Checks open-door contact during pause fade while Samus remains in a horizontal shinespark.</summary>
 internal static class PauseDoorShinesparkVerification
 {
@@ -22,17 +23,16 @@ internal static class PauseDoorShinesparkVerification
     {
         foreach (var scenario in new[] { (Brightening: false, Terminal: false), (Brightening: false, Terminal: true), (Brightening: true, Terminal: false), (Brightening: true, Terminal: true) })
         {
-            const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
             var installation=RepositoryInstallation.Installation;
             var bus=installation.OpenRuntimeAddressSpace();
-            var game=new SuperMetroidGame(bus);
+            var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
             InstalledFixtures.BindGame(game);
-            game.CreateGameplayRuntime(false);
-            var runtime=game.runtime;
+            game.Session.CreateGameplayRuntime(false);
+            var runtime=game.Session.runtime;
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(EventNumber.ZebesAwake);
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.ParlorAndAlcatraz);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
             foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
             var words = new ushort[32 * 16];
             var bts = new byte[words.Length];
@@ -42,18 +42,18 @@ internal static class PauseDoorShinesparkVerification
                 bts[row * 32 + 10] = 3;
                 words[row * 32 + 12] = 0x8000;
             }
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, bts, new ushort[512]), new byte[8], doorListPointer: 0xdad5);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, bts, new ushort[512]), new byte[8], doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
             runtime.Room.LevelData = level;
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.Health = 999;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             samus.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
             samus.Shinespark.BeginWindup(samus);
-            samus.Shinespark.BeginDirectionalLaunch(bus, samus, SamusPoseId.ShinesparkHorizontalRightPose);
-            samus.CommitPoseHistory(bus);
+            samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
+            samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWhole(new(128, 128));
             game.GameState = SuperMetroidGameState.MainGameplay;
             game.Step(SnesButton.Start);
@@ -61,8 +61,8 @@ internal static class PauseDoorShinesparkVerification
             AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "initial Start frame is short of the door");
             if (scenario.Brightening)
                 game.GameState = SuperMetroidGameState.Unpausing;
-            game.pauseBrightness = (byte)(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15));
-            game.screenFade.Counter = 0;
+            game.Session.pauseBrightness = (byte)(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15));
+            game.Session.screenFade.Counter = 0;
             // Put the leading edge immediately before the door for the next real mover call.
             samus.Position = samus.Position.WithWholeX((ushort)(160 - samus.Kinematics.Radius.X - 1));
             game.Step(0);

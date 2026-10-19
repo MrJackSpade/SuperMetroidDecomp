@@ -20,6 +20,7 @@ internal static class KraidGrowthCommandCursorVerification
     internal static void VerifyKraidGrowthCommandCursor()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
         var guard = new KraidHeadProgramReadGuard(rom);
         var referenceArt = new EnemyIdentityFixture().Build().KraidBackground;
         var head = KraidHeadTilemapAtlas.Load(new MemoryStream(KraidHeadTilemapAtlas.Encode(
@@ -30,41 +31,43 @@ internal static class KraidGrowthCommandCursorVerification
                     new Dictionary<ushort, KraidHeadTilemapAtlas> { [0x9dc8] = head }, referenceArt.RoomBackgroundTiles) }),
         };
         var state = new KraidEnemyState();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = new SnesVram();
         enemies.KraidBehavior.Kraid = state;
         Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.ExecuteKraidHeadInstruction;
         Action<RoomEnemySlot, ushort> footMain = enemies.KraidBehavior.RunKraidFootMain;
         var body = enemies.SlotTable.Slots[0];
         var foot = enemies.SlotTable.Slots[5];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
+        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         state.InitialHealth = 1000;
         body.Health = 874;
-        body.VariableB = 0x96e2;
+        state.HeadProgram = native.CursorAt(0x96e2);
         execute(body, state);
-        AssertEqual((ushort)0x96ea, body.VariableB, "head interpreter leaves the next cursor on the roar command");
-        ushort displayed = state.CurrentHeadTilemap;
-        foot.VariableA = (ushort)KraidAiFunction.FootPrepareFirstPhaseLunge;
+        AssertEqual(native.CursorAt(0x96ea), state.HeadProgram, "head interpreter leaves the next cursor on the roar command");
+        KraidHeadFrame? displayed = state.DisplayedHeadFrame;
+        state.Parts[5].Function = KraidAiFunction.FootPrepareFirstPhaseLunge;
         footMain(foot, 0);
-        AssertEqual((ushort)0x96f4, body.VariableB, "native command-cursor growth resumes at the closing-mouth frame");
-        AssertEqual((ushort)64, body.VariableC, "native quick-kill growth delay is preserved");
-        AssertEqual(displayed, state.CurrentHeadTilemap, "growth selection does not advance the displayed head");
+        AssertEqual(native.CursorAt(0x96f4), state.HeadProgram, "native command-cursor growth resumes at the closing-mouth frame");
+        AssertEqual((ushort)64, state.Parts[0].HeadTimer, "native quick-kill growth delay is preserved");
+        AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
         AssertEqual(KraidAiFunction.GrowReleaseCamera, state.Parts[0].NextFunction, "growth schedules camera release");
-        AssertEqual((ushort)180, body.VariableF, "growth function timer");
-        AssertEqual((ushort)KraidAiFunction.NoOperation, foot.VariableA, "growth stops the foot lunge");
+        AssertEqual((ushort)180, state.Parts[0].FunctionTimer, "growth function timer");
+        AssertEqual(KraidAiFunction.NoOperation, state.Parts[5].Function, "growth stops the foot lunge");
         AssertEqual(0, guard.ForbiddenReadAttempts, "growth selection does not read compiled cartridge programs");
 
-        // Confirm this offset-two conversion for every declared command form,
-        // including sound words and terminal words adjacent to the next list.
-        foreach (var definition in KraidHeadInstructionDefinitions.All)
+        // Confirm the growth resume for every cursor form, including cries and list ends adjacent to the next list:
+        // the cartridge selects it from the word two bytes past the cursor.
+        foreach (KraidHeadNativeRecord record in native.Records)
         {
-            int address = 0xa70000 | (definition.Pointer + 2);
-            ushort expected = (ushort)(SnesLittleEndian.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1)));
-            AssertEqual(expected, KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(guard, definition.Pointer),
-                $"native growth selection word at ${definition.Pointer:X4}");
+            int address = 0xa70000 | (record.Pointer + 2);
+            ushort word = (ushort)(SnesLittleEndian.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1)));
+            (ushort pointer, ushort timer) = KraidContourCaseMappingsVerification.NativeKraidGrowthResume(rom, word);
+            KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(record.Cursor).Growth;
+            AssertEqual(native.CursorAt(pointer), KraidHeadAnimations.GrowthResumeCursor(resume),
+                $"native growth resume cursor from ${record.Pointer:X4}");
+            AssertEqual((int)timer, KraidHeadAnimations.GrowthResumeDelay(resume), $"native growth resume delay from ${record.Pointer:X4}");
         }
-        Console.WriteLine("Kraid growth command cursor: reported foot-lunge transition, native 64-frame delay, retained display, and offset-two words for all declared commands pass.");
+        Console.WriteLine("Kraid growth command cursor: reported foot-lunge transition, native 64-frame delay, retained display, and the growth resume of every native cursor pass.");
     }
 
     /// <summary>Reads one native command byte as an independent growth-selection oracle.</summary>

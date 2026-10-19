@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Frontend.GameOver;
 
-/// <summary>Checks game-over Baby animation records, cry commands, and pointer domain against native data.</summary>
+/// <summary>Checks game-over Baby animation steps, cry commands, and step domain against native data.</summary>
 internal static class GameOverBabyAnimationVerification
 {
     /// <summary>Traverses the serialized stream independently and compares 60 frame records and library-three sound handoffs.</summary>
@@ -38,18 +38,21 @@ internal static class GameOverBabyAnimationVerification
         }
         AssertEqual(60, original.Count, "original Baby frame record count");
         AssertEqual(original.Count, GameOverBabyAnimationDefinitions.InstructionCount, "Baby count contract");
-        GameOverBabyInstruction[] enumerated = GameOverBabyAnimationDefinitions.All.ToArray();
+        AssertEqual(original.Count, GameOverBabyAnimation.StepCount, "Baby step count");
+        AssertEqual(original[0].Pointer, GameOverBabyAnimationDefinitions.FirstPointer, "extraction walk starts at the first native record");
+        GameOverBabyInstruction[] enumerated = GameOverBabyAnimation.All.ToArray();
         AssertEqual(original.Count, enumerated.Length, "Baby enumeration count");
         for (int index = 0; index < original.Count; index++)
         {
             var expected = original[index];
-            GameOverBabyInstruction actual = GameOverBabyAnimationDefinitions.Get(expected.Pointer);
-            AssertEqual(expected.Duration, actual.Duration, "Baby duration field");
+            // The native stream's record order is the step identity: record N of the walk is step N.
+            GameOverBabyInstruction actual = GameOverBabyAnimation.Get(index);
+            AssertEqual(index, actual.Step, "Baby step identity follows native record order");
+            AssertEqual((int)expected.Duration, actual.Duration, "Baby duration field");
             AssertEqual(expected.Sprite, GameOverBabyAnimationDefinitions.NativeSpritemap(actual.Frame), "Baby frame field");
             AssertEqual(expected.Palette, GameOverBabyAnimationDefinitions.NativePalettePointer(actual.Palette), "Baby palette field");
-            AssertEqual(expected.Next, actual.NextPointer, "Baby successor field");
+            AssertEqual(original.FindIndex(row => row.Pointer == expected.Next), actual.NextStep, "Baby successor step");
             AssertEqual(expected.Restart, actual.RestartAfter, "Baby restart field");
-            AssertEqual(expected.Pointer, actual.Pointer, "Baby pointer identity");
             if (expected.Sound == 0)
                 AssertEqual(GameOverBabySound.None, actual.SoundAfter, "Baby silent handoff");
             else
@@ -65,13 +68,8 @@ internal static class GameOverBabyAnimationVerification
             }
             AssertEqual(actual, enumerated[index], "Baby lazy enumeration order");
         }
-        var valid = original.Select(row => row.Pointer).ToHashSet();
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-        {
-            ushort candidate = (ushort)raw;
-            if (!valid.Contains(candidate))
-                AssertThrows<InvalidDataException>(() => GameOverBabyAnimationDefinitions.Get(candidate), "unsupported Baby pointer");
-        }
+        foreach (int invalid in new[] { int.MinValue, -1, original.Count, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOverBabyAnimation.Get(invalid), "unsupported Baby step");
     }
 
     /// <summary>Reads one native animation byte solely as the game-over Baby oracle.</summary>

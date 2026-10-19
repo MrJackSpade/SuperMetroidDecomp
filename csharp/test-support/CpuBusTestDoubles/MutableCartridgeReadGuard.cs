@@ -15,11 +15,4 @@ internal sealed class MutableCartridgeReadGuard(ISnesAddressSpace source) : Cart
         Check(address);
         return base.ReadWorkRamByte(address);
     }
-
-    /// <inheritdoc />
-    public override byte ReadSaveRamByte(int address)
-    {
-        Check(address);
-        return base.ReadSaveRamByte(address);
-    }
 }

@@ -57,8 +57,8 @@ internal static class FrontendRomFreeVerification
             () => guardedBus.ReadByte(TitleSequenceRomData.Assets.Mode7CharactersAddress),
             "startup ROM guard rejects an otherwise valid title graphics source");
 
-        var native = CreateRetailGameFixture(nativeBus);
-        var installed = new SuperMetroidGame(guardedBus);
+        var native = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
+        var installed = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         Action<SuperMetroidGame, bool> bindInstalled = PrepareRomFreeBindings(installation);
         bindInstalled(installed, true);
         bool titleStartSent = false;
@@ -66,7 +66,7 @@ internal static class FrontendRomFreeVerification
         var visited = new HashSet<SuperMetroidGameState>();
         for (int frame = 0; frame < 3500; frame++)
         {
-            FrontendFrame before = installed.CurrentFrameMetadata;
+            FrontendFrame before = installed.CurrentFrame;
             SnesButton input = 0;
             if (before.GameState == SuperMetroidGameState.OpeningCinematic &&
                 before.Phase == nameof(TitleSequencePhase.TitleScreen) && !titleStartSent)
@@ -83,6 +83,7 @@ internal static class FrontendRomFreeVerification
 
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
+            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             visited.Add(actual.GameState);
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed startup game state at frame {frame}");
@@ -90,7 +91,7 @@ internal static class FrontendRomFreeVerification
                 $"installed startup native phase at frame {frame}");
             if (frame % 37 == 0 || visited.Count == 1 ||
                 actual.GameState != before.GameState)
-                AssertTrue(actual.Pixels.SequenceEqual(expected.Pixels),
+                AssertTrue(actualPixels.SequenceEqual(expectedPixels),
                     $"installed startup native pixels at frame {frame}, {actual.Phase}");
 
             if (actual.GameState == SuperMetroidGameState.GameOptionsMenu &&
@@ -241,7 +242,7 @@ internal static class FrontendRomFreeVerification
         int motherBrainFrame = -1;
         for (int frame = 0; frame < 9000; frame++)
         {
-            FrontendFrame before = installed.CurrentFrameMetadata;
+            FrontendFrame before = installed.CurrentFrame;
             // Advance the narrator at a repeatable cadence; the original short
             // fixture ended before its first bank-$93 projectile animation frame.
             SnesButton input = !startSent ? SnesButton.Start :
@@ -249,11 +250,12 @@ internal static class FrontendRomFreeVerification
             startSent = true;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
+            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed intro game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed intro native phase at frame {frame}");
-            AssertTrue(actual.Pixels.SequenceEqual(expected.Pixels),
+            AssertTrue(actualPixels.SequenceEqual(expectedPixels),
                 $"installed intro native pixels at frame {frame}, {actual.Phase}");
             if (before.GameState == SuperMetroidGameState.IntroCinematic &&
                 actual.GameState != SuperMetroidGameState.IntroCinematic)
@@ -265,48 +267,49 @@ internal static class FrontendRomFreeVerification
                 {
                     FrontendFrame expectedGameplay = native.Step(0);
                     FrontendFrame actualGameplay = installed.Step(0);
+                    Rgba32[] expectedGameplayPixels = native.PublishedPixels(), actualGameplayPixels = installed.PublishedPixels();
                     AssertEqual(expectedGameplay.GameState, actualGameplay.GameState,
                         $"installed post-intro game state frame {gameplayFrame}");
                     AssertEqual(expectedGameplay.Phase, actualGameplay.Phase,
                         $"installed post-intro phase frame {gameplayFrame}");
-                    AssertTrue(actualGameplay.Pixels.SequenceEqual(expectedGameplay.Pixels),
+                    AssertTrue(actualGameplayPixels.SequenceEqual(expectedGameplayPixels),
                         $"installed post-intro pixels frame {gameplayFrame}");
                 }
                 VerifyFrontendRomFreeRestoredKraidHud(native, installed, bindInstalled);
                 if (roomCensus)
                     VerifyFrontendRomFreeRoomCensus(native, installed, bindInstalled);
                 VerifyFrontendRomFreeCeresInput(native, installed);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.CeresRidleyRoom, RoomName = "Ceres Ridley" });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.LandingSite, RoomName = "Landing Site" });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.ParlorAndAlcatraz, RoomName = "Parlor" });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.WestOcean, RoomName = "West Ocean" });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.NorfairRoom1E, RoomName = "Norfair room 1E" });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GreenBrinstarMainShaft, RoomName = "Green Brinstar main shaft" });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.BlueBrinstarElevatorRoom, RoomName = "Blue Brinstar elevator" });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.EastTunnel, RoomName = "Maridia east tunnel" });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointersTooling.CrateriaSaveStation, RoomName = "Crateria save station" });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.LowerNorfairMainHall, RoomName = "Lower Norfair main hall" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.CeresRidley, RoomName = "Ceres Ridley" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.LandingSite, RoomName = "Landing Site" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.Parlor, RoomName = "Parlor" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.WestOcean, RoomName = "West Ocean" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.DoubleChamber, RoomName = "Norfair room 1E" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GreenBrinstarMainShaft, RoomName = "Green Brinstar main shaft" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.ElevToBlueBrinstar, RoomName = "Blue Brinstar elevator" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.EastTunnel, RoomName = "Maridia east tunnel" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.CrateriaSave, RoomName = "Crateria save station" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.MainHall, RoomName = "Lower Norfair main hall" });
                 // Kraid's arm switches to its rising/sinking extended frame at
                 // neutral frame 654. A short room-entry check misses that draw.
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.Kraid, RoomName = "Kraid arm rising/sinking" }, frameCount: 700);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.Phantoon, RoomName = "Phantoon" });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GauntletEast, RoomName = "Gauntlet east Yapping Maw" }, frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.PreMoat, RoomName = "pre-moat KiHunter" }, frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.CrabMaze, RoomName = "Crab Maze Sciser" }, frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.Flyway, RoomName = "Flyway shared fly family" }, frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.CrateriaKagoRoom, RoomName = "Crateria Kago" }, frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.CrateriaFaceBlockRoom, RoomName = "Crateria face block" }, frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.CrateriaMorphBallEyeRoom, RoomName = "Crateria Morph Ball eye" }, frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointersTooling.BrinstarShutterRoom, RoomName = "Brinstar shutters" }, frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.TourianMetroidRoom, RoomName = "Tourian ordinary Metroids" }, frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.DeadTorizoCorpse, RoomName = "Tourian dead-Torizo corpse" }, frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.MotherBrainChamber, RoomName = "Mother Brain chamber" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.Kraid, RoomName = "Kraid arm rising/sinking" }, frameCount: 700);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.Phantoon, RoomName = "Phantoon" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GauntletEntrance, RoomName = "Gauntlet east Yapping Maw" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.CrateriaKihunter, RoomName = "pre-moat KiHunter" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.CrabMaze, RoomName = "Crab Maze Sciser" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.Flyway, RoomName = "Flyway shared fly family" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.LowerMushrooms, RoomName = "Crateria Kago" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.FinalMissileBombway, RoomName = "Crateria face block" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.FinalMissile, RoomName = "Crateria Morph Ball eye" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.XrayScope, RoomName = "Brinstar shutters" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.Metroids1, RoomName = "Tourian ordinary Metroids" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.DustTorizo, RoomName = "Tourian dead-Torizo corpse" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.MotherBrain, RoomName = "Mother Brain chamber" }, frameCount: 90);
                 // The long neutral Draygon fight can fatally damage Samus;
                 // all shorter room checks must execute while gameplay is live.
                 BlockFrontendExtendedBg2Streams(blockedBg2Bytes, nativeBus,
                     DraygonBg2FrameDefinitions.Bank,
                     DraygonBg2FrameDefinitions.Frames);
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.Draygon, RoomName = "Draygon room entry, dance and fight handoff" }, frameCount: 2600, setup: (nativeRoom, installedRoom) =>
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.Draygon, RoomName = "Draygon room entry, dance and fight handoff" }, frameCount: 2600, setup: (nativeRoom, installedRoom) =>
                     {
                         // Keep the fight actor alive through the long neutral
                         // comparison without letting damage switch the frontend
@@ -318,7 +321,7 @@ internal static class FrontendRomFreeVerification
                 // Cross the wake/combat handoff into the first linked walking
                 // lists. The older 700-frame low-health check reached Game Over
                 // and its trailing pixel matches did not exercise the room.
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo wake and right-facing attacks" }, frameCount: 850, setup: (nativeRoom, installedRoom) =>
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = "Golden Torizo wake and right-facing attacks" }, frameCount: 850, setup: (nativeRoom, installedRoom) =>
                     {
                         // Enter the authored lower-right wake rectangle on both
                         // independently stepped games, without crossing a door.
@@ -332,7 +335,7 @@ internal static class FrontendRomFreeVerification
                         nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
                         installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
                     });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo left-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = "Golden Torizo left-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
@@ -343,7 +346,7 @@ internal static class FrontendRomFreeVerification
                             boss.InstructionTimer = NativeCountdown.Start(1);
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = TorizoBodyProgram.GoldenSonicBoomsFacingRightLeftFootFwd0 });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo right-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = "Golden Torizo right-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
@@ -354,7 +357,7 @@ internal static class FrontendRomFreeVerification
                             boss.InstructionTimer = NativeCountdown.Start(1);
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = TorizoBodyProgram.GoldenSonicBoomsFacingRightRightFootFwd0 });
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo stunned tile loop" }, frameCount: 80, setup: (nativeRoom, installedRoom) =>
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = "Golden Torizo stunned tile loop" }, frameCount: 80, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
@@ -371,7 +374,7 @@ internal static class FrontendRomFreeVerification
                     }, golden: new GoldenTorizoForcing { ForcedGoldenStun = true });
                 foreach (TorizoBodyProgram leftTurnStart in new[] { TorizoBodyProgram.GoldenDodgeTurningLeft, TorizoBodyProgram.GoldenTurningLeft })
                 {
-                    VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = $"Golden Torizo left turn {leftTurnStart}" }, frameCount: leftTurnStart ==
+                    VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = $"Golden Torizo left turn {leftTurnStart}" }, frameCount: leftTurnStart ==
                             TorizoBodyProgram.GoldenDodgeTurningLeft
                                 ? 120 : 8, setup: (nativeRoom, installedRoom) =>
                             ForceGoldenTorizoLeftTurn(nativeRoom, installedRoom,
@@ -379,7 +382,7 @@ internal static class FrontendRomFreeVerification
                 }
                 // The left-foot-forward Chozo-orb attack is RNG-selected; start it directly
                 // rather than waiting on an incidental AI trajectory to reach it.
-                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo left-foot Chozo orb" }, frameCount: 80, setup: (nativeRoom, installedRoom) =>
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = "Golden Torizo left-foot Chozo orb" }, frameCount: 80, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
@@ -403,7 +406,7 @@ internal static class FrontendRomFreeVerification
                 motherBrainFrame = frame;
         }
         throw new InvalidOperationException(
-            $"ROM-free frontend fixture did not complete the opening cinematic in {introFrames} cinematic frames; final phase {installed.CurrentFrameMetadata.Phase}.");
+            $"ROM-free frontend fixture did not complete the opening cinematic in {introFrames} cinematic frames; final phase {installed.CurrentFrame.Phase}.");
     }
 
     /// <summary>
@@ -427,8 +430,8 @@ internal static class FrontendRomFreeVerification
             DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(installedSnapshot);
         bindInstalled(nativeRoom, false);
         bindInstalled(installedRoom, false);
-        nativeRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
-        installedRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
+        nativeRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
+        installedRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
         AssertEqual(RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord,
             installedRoom.GameplayRuntimeForVerification.Display.GameplayHudCharacterBaseWord,
             "restored Kraid room selects the relocated HUD character base");
@@ -439,10 +442,11 @@ internal static class FrontendRomFreeVerification
             "restored Kraid BG2 pages match before the first accepted NMI");
         FrontendFrame expected = nativeRoom.Step(0);
         FrontendFrame actual = installedRoom.Step(0);
+        Rgba32[] expectedPixels = nativeRoom.PublishedPixels(), actualPixels = installedRoom.PublishedPixels();
         AssertTrue(nativeRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
                 .SequenceEqual(installedRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
             "restored Kraid BG2 pages remain intact after the deferred HUD refresh");
-        AssertTrue(actual.Pixels.SequenceEqual(expected.Pixels),
+        AssertTrue(actualPixels.SequenceEqual(expectedPixels),
             "restored Kraid first frame matches native pixels after HUD artwork rebind");
         Console.WriteLine("Frontend ROM-free Kraid restore: relocated HUD refresh preserves both BG2 pages and stock pixels.");
     }
@@ -460,7 +464,7 @@ internal static class FrontendRomFreeVerification
         AssertTrue(installed.GameplayMovementEnabled,
             "ROM-free input fixture enables Samus movement");
         ushort initialX = installed.GameplaySamusX;
-        ushort? initialRoom = installed.GameplayActiveRoomPointer;
+        RoomHeaderDefinition? initialRoom = installed.GameplayActiveRoom;
         bool fired = false;
         bool firedDuringSustainedInput = false;
         int verifiedFrames = 0;
@@ -472,14 +476,15 @@ internal static class FrontendRomFreeVerification
                 frame >= 60 ? (SnesButton.Right | SnesButton.X) : (ushort)0;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
+            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed Ceres input state frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed Ceres input phase frame {frame}");
-            if (!actual.Pixels.SequenceEqual(expected.Pixels))
+            if (!actualPixels.SequenceEqual(expectedPixels))
             {
                 int first = 0;
-                while (actual.Pixels[first].Equals(expected.Pixels[first]))
+                while (actualPixels[first].Equals(expectedPixels[first]))
                     first++;
                 var nativeSamus = native.GameplayRuntimeForVerification.Player.IntroducedSamus;
                 var installedSamus = installed.GameplayRuntimeForVerification.Player.IntroducedSamus;
@@ -496,7 +501,7 @@ internal static class FrontendRomFreeVerification
                 throw new InvalidOperationException(
                     $"Installed Ceres input pixels differ at frame {frame}, pixel " +
                     $"({first % FrontendFrame.Width},{first / FrontendFrame.Width}): " +
-                    $"native={expected.Pixels[first]}, installed={actual.Pixels[first]}; " +
+                    $"native={expectedPixels[first]}, installed={actualPixels[first]}; " +
                     $"Samus native=({native.GameplaySamusX},{native.GameplaySamusY}) " +
                     $"pose ${(int)native.GameplaySamusPose:X2}/frame {nativeSamus.AnimationFrame}/" +
                     $"top {nativeSamus.Presentation.TopSpritemapIndex}/bottom {nativeSamus.Presentation.BottomSpritemapIndex}, installed=" +
@@ -512,7 +517,7 @@ internal static class FrontendRomFreeVerification
             // Keep this controller fixture within the first room boundary. A
             // later room belongs to its own focused installed-runtime check.
             if (initialRoom is not null &&
-                installed.GameplayActiveRoomPointer is ushort currentRoom &&
+                installed.GameplayActiveRoom is { } currentRoom &&
                 currentRoom != initialRoom)
                 break;
         }
@@ -534,9 +539,9 @@ internal static class FrontendRomFreeVerification
     internal static void VerifyFrontendRomFreeRoom(SuperMetroidGame native, SuperMetroidGame installed, RomFreeRoom room, int frameCount = 90, Action<SuperMetroidGame, SuperMetroidGame>? setup = null, GoldenTorizoForcing golden = default, SnesButton heldInput = SnesButton.None)
     {
         native.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(
-            room.RoomPointer);
+            room.Room);
         installed.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(
-            room.RoomPointer);
+            room.Room);
         AssertEqual(SuperMetroidGameState.MainGameplay, native.GameState,
             $"native {room.RoomName} fixture begins in active gameplay");
         AssertEqual(SuperMetroidGameState.MainGameplay, installed.GameState,
@@ -549,12 +554,12 @@ internal static class FrontendRomFreeVerification
         installed.GameplayRuntimeForVerification.Player.IntroducedSamus.MaxHealth = 1499;
         installed.GameplayRuntimeForVerification.Player.IntroducedSamus.Health = 1499;
         setup?.Invoke(native, installed);
-        RoomEnemySlot? awakenedGoldenTorizo = room.RoomPointer == RoomHeaderPointers.GoldenTorizo &&
+        RoomEnemySlot? awakenedGoldenTorizo = room.Room == RoomHeaderDefinitions.GoldenTorizo &&
             setup is not null
             ? installed.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.FirstOrDefault(slot =>
                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo)
             : null;
-        if (room.RoomPointer == RoomHeaderPointers.GoldenTorizo && setup is not null)
+        if (room.Room == RoomHeaderDefinitions.GoldenTorizo && setup is not null)
         {
             AssertTrue(awakenedGoldenTorizo is not null,
                 "Golden Torizo wake-up fixture loaded its live boss slot");
@@ -590,8 +595,9 @@ internal static class FrontendRomFreeVerification
                 throw new InvalidOperationException(
                     $"Installed {room.RoomName} failed at neutral frame {frame}.", error);
             }
-            AssertEqual(room.RoomPointer,
-                installed.GameplayActiveRoomPointer,
+            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
+            AssertEqual(room.Room,
+                installed.GameplayActiveRoom,
                 $"installed {room.RoomName} fixture remains in one room at frame {frame}");
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed {room.RoomName} game state at frame {frame}");
@@ -622,7 +628,7 @@ internal static class FrontendRomFreeVerification
             // The stun's ClearAnimationLock and its return path's UnmarkStunned release the
             // boss; later attacks may lock again, so observe the release, not the last frame.
             else if (forcedGoldenStunObserved && !forcedGoldenStunReleased &&
-                     (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).ShotGuard == 0 &&
+                     (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).AnimationLocked == false &&
                      ((awakenedGoldenTorizo ?? throw new InvalidOperationException("Verification requires awakenedGoldenTorizo.")).Parameter2 & (ushort)TorizoBehaviorFlags.Stunned) == 0)
                 forcedGoldenStunReleased = true;
             if (awakenedGoldenTorizo is not null &&
@@ -636,7 +642,7 @@ internal static class FrontendRomFreeVerification
                 forcedGoldenFallingLeftObserved = true;
             if (GoldenRuns(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd1))
                 goldenLeftFootOrbProgramObserved = true;
-            if (!actual.Pixels.SequenceEqual(expected.Pixels))
+            if (!actualPixels.SequenceEqual(expectedPixels))
             {
                 int first = -1;
                 int count = 0;
@@ -644,9 +650,9 @@ internal static class FrontendRomFreeVerification
                 int minY = FrontendFrame.Height;
                 int maxX = -1;
                 int maxY = -1;
-                for (int pixel = 0; pixel < actual.Pixels.Length; pixel++)
+                for (int pixel = 0; pixel < actualPixels.Length; pixel++)
                 {
-                    if (actual.Pixels[pixel].Equals(expected.Pixels[pixel]))
+                    if (actualPixels[pixel].Equals(expectedPixels[pixel]))
                         continue;
                     if (first < 0) first = pixel;
                     count++;
@@ -680,13 +686,13 @@ internal static class FrontendRomFreeVerification
                     $"Installed {room.RoomName} pixels differ at frame {frame}: " +
                     $"{count} pixels, bounds ({minX},{minY})..({maxX},{maxY}), " +
                     $"first ({first % FrontendFrame.Width},{first / FrontendFrame.Width}) " +
-                    $"native={expected.Pixels[first]}, installed={actual.Pixels[first]}; " +
+                    $"native={expectedPixels[first]}, installed={actualPixels[first]}; " +
                     $"first loaded VRAM difference byte ${firstLoadVram:X4}, " +
                     $"first displayed VRAM difference byte ${firstVram:X4}; " +
                     $"VRAM pages=[{string.Join(", ", changedVramPages)}], " +
                     $"CGRAM changed colors={changedColors}.");
             }
-            if (room.RoomPointer == RoomHeaderPointers.Draygon && frame == 0)
+            if (room.Room == RoomHeaderDefinitions.Draygon && frame == 0)
             {
                 ReadOnlySpan<byte> nativeEvir = native.GameplayRuntimeForVerification.Vram.Bytes
                     .Slice(DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,

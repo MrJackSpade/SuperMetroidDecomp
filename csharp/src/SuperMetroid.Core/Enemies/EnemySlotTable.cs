@@ -13,14 +13,28 @@ internal sealed class EnemySlotTable
     public IReadOnlyList<RoomEnemySlot> Slots => _slots;
 
     /// <summary>Converts an aligned native byte offset to a physical slot and rejects out-of-range or unaligned indexes.</summary>
-    internal RoomEnemySlot SlotFromNativeIndex(ushort nativeIndex)
+    internal RoomEnemySlot SlotFromNativeIndex(int nativeIndex)
     {
         if ((nativeIndex & (RoomEnemySystem.NativeSlotSize - 1)) != 0 || nativeIndex >= RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize)
             throw new ArgumentOutOfRangeException(nameof(nativeIndex));
         return _slots[nativeIndex / RoomEnemySystem.NativeSlotSize];
     }
-    /// <summary>Native byte offset marking the allocation frontier, not a zero-based slot number; nonempty population load sets it to record count times $40 and an empty load retains its previous value.</summary>
-    public ushort FirstFreeEnemyIndex { get; internal set; }
-    /// <summary>Number of population records installed at room load, including multipart records; zero for an empty population, not a live count of surviving actors.</summary>
-    public ushort EnemyCount { get; internal set; }
+    /// <summary>
+    /// Native byte offset marking the allocation frontier, not a zero-based slot number; nonempty population load sets it
+    /// to record count times the slot size and an empty load retains its previous value. It never exceeds every slot's
+    /// size together, since no producer installs more than <see cref="RoomEnemySystem.MaximumEnemyCount"/> slots, and the
+    /// setter rejects any value outside that range.
+    /// </summary>
+    public int FirstFreeEnemyIndex
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize, value);
+    }
+
+    /// <summary>
+    /// Number of population records installed at room load, including multipart records; zero for an empty population,
+    /// not a live count of surviving actors. It never exceeds <see cref="RoomEnemySystem.MaximumEnemyCount"/>, and the
+    /// setter rejects any value outside that range.
+    /// </summary>
+    public int EnemyCount { get; internal set => field = Ensure.BetweenInclusive(0, RoomEnemySystem.MaximumEnemyCount, value); }
 }

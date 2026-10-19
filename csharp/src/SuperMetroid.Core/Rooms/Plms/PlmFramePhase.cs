@@ -48,8 +48,7 @@ internal sealed class PlmFramePhase
     private readonly SnesVram _vram;
     /// <summary>Queues PLM tile transfers and collected-beam character uploads.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Address space used by PLM instructions and bank-$85 message setup.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
+
 
     /// <summary>Binds the shared PLM handler to live runtime state and its presentation effects.</summary>
     internal PlmFramePhase(PlmFramePhaseDependencies dependencies)
@@ -70,7 +69,7 @@ internal sealed class PlmFramePhase
         _suitPickup = dependencies.SuitPickup;
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
-        _addressSpace = dependencies.AddressSpace;
+
     }
     /// <summary>
     /// Executes the explicit <c>PLM_Handler</c> call made by the door coroutine at
@@ -100,9 +99,9 @@ internal sealed class PlmFramePhase
                 "A door-transition PLM handler unexpectedly published a player interaction.");
         }
         foreach (MotherBrainGlassProjectileRequest request in _plms.MotherBrainGlass.MotherBrainGlassProjectileRequests)
-            _enemies.MotherBrainBehavior.SpawnMotherBrainGlassProjectile(request);
+            _enemies.PlmSpawns.SpawnMotherBrainGlassProjectile(request);
         foreach (BombTorizoStatueProjectileRequest request in _plms.BombTorizoHand.BombTorizoStatueProjectileRequests)
-            _enemies.BombTorizoBehavior.SpawnBombTorizoStatueBreakingProjectile(request);
+            _enemies.PlmSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
     }
 
     /// <summary>
@@ -118,7 +117,7 @@ internal sealed class PlmFramePhase
                 "The PLM handler requires an active room, camera, and Samus.");
         }
 
-        IReadOnlyList<PlmTilemapUpdate> updates = _plms.Step(_addressSpace, _room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = _enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = _enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status });
+        IReadOnlyList<PlmTilemapUpdate> updates = _plms.Step(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = _enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = _enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status });
         foreach (PlmTilemapUpdate update in updates)
             update.ExecuteTo(_vram);
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests();
@@ -126,7 +125,7 @@ internal sealed class PlmFramePhase
         foreach (PlmVramWriteRequest request in _plms.BombTorizoHand.VramWriteRequests)
         {
             _vramWrites.Enqueue(
-                request.SizeInBytes,
+                checked((ushort)request.SizeInBytes),
                 request.SourceAddress,
                 request.Destination);
         }
@@ -159,11 +158,7 @@ internal sealed class PlmFramePhase
                     InWorldCollectibleKind.SpazerBeam or
                     InWorldCollectibleKind.PlasmaBeam)
                 {
-                    // The projectile pages bind the new beam's characters; only its palette is loaded.
-                    SamusProjectileSystem.LoadBeamPalette(
-                        _addressSpace,
-                        _cgram,
-                        samus.EquippedBeams, _artwork.BeamArtwork?.Palettes);
+                    _artwork.UpdateBeamTilesAndPalette(_cgram, samus.EquippedBeams);
                 }
                 else if (pickup.Kind is
                          InWorldCollectibleKind.VariaSuit or
@@ -185,7 +180,7 @@ internal sealed class PlmFramePhase
                         "Multiple permanent items attempted to enter the synchronous " +
                         "bank-$85 message routine during one PLM pass.");
                 }
-                _messageBox.Begin(_addressSpace, pickup.MessageBoxIndex, _controller1.Current);
+                _messageBox.Begin(pickup.MessageBoxIndex, _controller1.Current);
             }
             foreach (StationActivationEvent station in _plms.Stations.StationActivationEvents)
             {
@@ -201,9 +196,7 @@ internal sealed class PlmFramePhase
                                 "A save station attempted to replace an active PLM message owner.");
                         }
                         _messageBoxes._pendingSaveStation = station;
-                        _messageBox.Begin(
-                            _addressSpace,
-                            GameplayMessageIds.SaveConfirmation,
+                        _messageBox.Begin(GameplayMessageIds.SaveConfirmation,
                             _controller1.Current);
                         continue;
                     }
@@ -217,7 +210,7 @@ internal sealed class PlmFramePhase
                                 "A completed save station attempted to replace an active message owner.");
                         }
                         _messageBoxes._pendingSaveStationCompletion = station;
-                        _messageBox.Begin(_addressSpace, GameplayMessageIds.SaveCompleted, _controller1.Current);
+                        _messageBox.Begin(GameplayMessageIds.SaveCompleted, _controller1.Current);
                         continue;
                     }
                     throw new InvalidDataException(
@@ -229,17 +222,17 @@ internal sealed class PlmFramePhase
                         "Multiple PLMs attempted to enter the synchronous bank-$85 " +
                         "message routine during one handler pass.");
                 }
-                _messageBox.Begin(_addressSpace, station.MessageBoxIndex, _controller1.Current);
+                _messageBox.Begin(station.MessageBoxIndex, _controller1.Current);
             }
             foreach (MotherBrainGlassProjectileRequest request in
                      _plms.MotherBrainGlass.MotherBrainGlassProjectileRequests)
             {
-                _enemies.MotherBrainBehavior.SpawnMotherBrainGlassProjectile(request);
+                _enemies.PlmSpawns.SpawnMotherBrainGlassProjectile(request);
             }
             foreach (BombTorizoStatueProjectileRequest request in
                      _plms.BombTorizoHand.BombTorizoStatueProjectileRequests)
             {
-                _enemies.BombTorizoBehavior.SpawnBombTorizoStatueBreakingProjectile(request);
+                _enemies.PlmSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
             }
         }
     }

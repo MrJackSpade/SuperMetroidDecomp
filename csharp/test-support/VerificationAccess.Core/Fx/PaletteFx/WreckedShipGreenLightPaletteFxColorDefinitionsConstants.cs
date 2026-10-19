@@ -19,4 +19,6 @@ internal static class WreckedShipGreenLightPaletteFxColorDefinitionsConstants
     }
     /// <summary>The first powered-light destination byte in CGRAM.</summary>
     public const ushort ColorByteIndex = 0x0098;
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => WreckedShipGreenLightPaletteFxColorDefinitions.Rows.Color(frame, color);
 }

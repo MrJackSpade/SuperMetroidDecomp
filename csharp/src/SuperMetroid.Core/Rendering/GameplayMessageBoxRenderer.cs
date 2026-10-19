@@ -3,40 +3,40 @@ using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Composites bank-$85's temporary BG3 message tilemap over a gameplay frame.</summary>
+/// <summary>Composites bank-$85's message text layer over a gameplay frame.</summary>
 public static class GameplayMessageBoxRenderer
 {
-    /// <summary>Width of the gameplay raster receiving the BG3 message overlay.</summary>
+    /// <summary>Width of the gameplay raster receiving the message overlay.</summary>
     internal const int ScreenWidth = SnesGameplayFrameRenderer.Width;
     /// <summary>Height of the gameplay raster used for centered message clipping.</summary>
     internal const int ScreenHeight = SnesGameplayFrameRenderer.Height;
 
-    /// <summary>Copies the currently exposed message; inactive/zero-radius messages emit no overlay.</summary>
-    public static MessageBoxRenderLayer? Capture(GameplayMessageBoxState messageBox)
+    /// <summary>Publishes the currently exposed message over the HUD characters; inactive or zero-radius messages emit none.</summary>
+    /// <param name="messageBox">The message box state.</param>
+    /// <param name="hudCharacters">The installed BG3 characters; required while a message is exposed.</param>
+    /// <exception cref="InvalidOperationException">A message is exposed but no HUD characters are bound.</exception>
+    public static MessageBoxRenderLayer? Capture(GameplayMessageBoxState messageBox, BgArtwork? hudCharacters)
     {
         Ensure.NotNull(messageBox);
-        return messageBox.IsActive && messageBox.RadiusPixels != 0
-            ? new(messageBox.Tilemap, messageBox.RadiusPixels) : null;
+        if (!messageBox.IsActive || messageBox.RadiusPixels == 0)
+            return null;
+        return MessageBoxRenderLayer.FromTilemap(messageBox.Tilemap, messageBox.RadiusPixels, hudCharacters
+            ?? throw new InvalidOperationException("An exposed message box requires the installed HUD characters."));
     }
 
-    /// <summary>Draws from owned display data without consulting the live message state.</summary>
-    public static void Composite(Span<Rgba32> frame, MessageBoxRenderLayer layer, SnesVram vram, SnesCgram cgram)
+    /// <summary>
+    /// Paints the message text over <paramref name="frame"/>. Bank $85 overwrites only CGRAM $19/$1A while the box is
+    /// open, so the text sees the gameplay palette with those two temporary colors.
+    /// </summary>
+    /// <param name="frame">The gameplay frame.</param>
+    /// <param name="layer">The message layer.</param>
+    /// <param name="cgram">The displayed palette.</param>
+    [PpuLayoutBoundary("backend: software message-box palette from the displayed CGRAM")]
+    public static void Composite(Span<Rgba32> frame, MessageBoxRenderLayer layer, SnesCgram cgram)
     {
         Ensure.NotNull(layer);
-        CompositeTilemap(frame, layer.Tilemap, layer.RowCount, layer.RadiusPixels, vram, cgram);
-    }
-
-    /// <summary>Draws the centered 2bpp message rows through a radius-limited scanline band with temporary message colors.</summary>
-    [PpuLayoutBoundary("backend: software PPU BG3 message-box rasterizer")]
-    internal static void CompositeTilemap(Span<Rgba32> frame, ReadOnlySpan<ushort> tilemap,
-        int rowCount, int radiusPixels, SnesVram vram, SnesCgram cgram)
-    {
-        Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
         Ensure.LengthEqual<Rgba32>(frame, ScreenWidth * ScreenHeight);
-        // InitializePpuForMessageBoxes overwrites only CGRAM $19/$1A, then
-        // RestorePpuForMessageBox restores the gameplay palette: the box sees CGRAM
-        // with those two temporary colors applied.
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         for (int index = 0; index < palette.Length; index++)
             palette[index] = cgram.GetRgba(index);
@@ -44,76 +44,6 @@ public static class GameplayMessageBoxRenderer
             GameplayMessageRomData.Palette.TemporaryLightColor.ToRgba32();
         palette[GameplayMessageRomData.Palette.TemporaryDarkIndex] =
             GameplayMessageRomData.Palette.TemporaryDarkColor.ToRgba32();
-        // The ROM builder accepts a variable number of content rows. In particular,
-        // message $14 uses three content rows plus two small-border rows (five total),
-        // so validating only the common 3-row and 6-row shapes rejects retail data.
-        // The fixed 24-pixel half-window can expose at most six 8-pixel rows.
-        if (rowCount < GameplayMessageRomData.Layout.MinimumRows ||
-            rowCount > GameplayMessageRomData.Layout.MaximumRows ||
-            tilemap.Length != rowCount * GameplayMessageRomData.Layout.TilemapWidth)
-        {
-            throw new InvalidDataException(
-                $"Active message box has invalid {rowCount}x" +
-                $"{GameplayMessageRomData.Layout.TilemapWidth} tilemap.");
-        }
-
-        int artTop = GameplayMessageRomData.Layout.WindowCenterY -
-            rowCount * GameplayMessageRomData.Layout.TilePixels / 2;
-        int clipTop = GameplayMessageRomData.Layout.WindowCenterY - radiusPixels;
-        int clipBottomExclusive =
-            GameplayMessageRomData.Layout.WindowCenterY + radiusPixels;
-
-        for (int tileY = 0; tileY < rowCount; tileY++)
-        {
-            for (int tileX = 0; tileX < GameplayMessageRomData.Layout.TilemapWidth; tileX++)
-            {
-                SnesBgTilemapWord entry = tilemap[
-                    tileY * GameplayMessageRomData.Layout.TilemapWidth + tileX];
-                int characterByteAddress =
-                    ((GameplayMessageRomData.Layout.CharacterBaseWord +
-                        entry.CharacterIndex * GameplayMessageRomData.Layout.TilePixels) &
-                        GameplayMessageRomData.Layout.VramWordMask) * 2;
-
-                for (int outputY = 0;
-                    outputY < GameplayMessageRomData.Layout.TilePixels;
-                    outputY++)
-                {
-                    int screenY = artTop +
-                        tileY * GameplayMessageRomData.Layout.TilePixels + outputY;
-                    if (screenY < clipTop || screenY >= clipBottomExclusive ||
-                        (uint)screenY >= ScreenHeight)
-                    {
-                        continue;
-                    }
-
-                    int sourceY = entry.FlipVertically
-                        ? GameplayMessageRomData.Layout.TilePixels - 1 - outputY
-                        : outputY;
-                    int planes = characterByteAddress + sourceY * 2;
-                    byte plane0 = vram.ReadByte(planes);
-                    byte plane1 = vram.ReadByte(planes + 1);
-                    for (int outputX = 0;
-                        outputX < GameplayMessageRomData.Layout.TilePixels;
-                        outputX++)
-                    {
-                        int sourceX = entry.FlipHorizontally
-                            ? GameplayMessageRomData.Layout.TilePixels - 1 - outputX
-                            : outputX;
-                        int mask = 1 << (
-                            GameplayMessageRomData.Layout.TilePixels - 1 - sourceX);
-                        int color = ((plane0 & mask) != 0 ? 1 : 0)
-                                  | ((plane1 & mask) != 0 ? 2 : 0);
-                        if (color == 0)
-                            continue;
-
-                        int paletteIndex = entry.PaletteIndex * 4 + color;
-                        Rgba32 rgba = palette[paletteIndex];
-                        int screenX =
-                            tileX * GameplayMessageRomData.Layout.TilePixels + outputX;
-                        frame[screenY * ScreenWidth + screenX] = rgba;
-                    }
-                }
-            }
-        }
+        BgLayerRenderer.Composite(frame, ScreenWidth, layer.Text, palette);
     }
 }

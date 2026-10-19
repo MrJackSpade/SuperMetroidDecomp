@@ -48,7 +48,7 @@ internal sealed class SpcAudioClipRenderer
     internal void WriteMusicPort(byte value) => pending.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, value));
 
     /// <summary>Queues a sound-effect request on <paramref name="library"/>'s port for the next frame; the port keeps the value until rewritten.</summary>
-    internal void WriteSoundEffectPort(SoundEffectLibrary library, byte command) =>
+    internal void WriteSoundEffectPort(SoundEffectLibrary library, int command) =>
         pending.Add(CartridgeAudioCommand.WritePort(
             library switch
             {

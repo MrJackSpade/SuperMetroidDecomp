@@ -36,21 +36,13 @@ internal sealed class NoobTubePlms
     }
 
     /// <summary>Runs either of the two callbacks that can own the sleeping tube actor.</summary>
-    internal void RunNoobTubePreInstruction(PlmSlot slot, SnesButton controllerNewInput)
+    internal void RunNoobTubePreInstruction(PlmSlot slot, NoobTubePlmPreInstruction preInstruction, SnesButton controllerNewInput)
     {
-        if (slot.HeaderPointer != PlmHeaderId.NoobTube || slot.PreInstruction == 0)
-            return;
-
-        NoobTubePlmPreInstruction preInstruction = ClosedNativeWords.Decode<NoobTubePlmPreInstruction>(
-            slot.PreInstruction, "n00b-tube pre-instruction");
         switch (preInstruction)
         {
-            case NoobTubePlmPreInstruction.Inactive:
-                return;
-
             case NoobTubePlmPreInstruction.WakeOnPowerBomb:
                 SamusProjectileFamily projectileFamily =
-                    new SamusProjectileTypeWord(slot.LoopTimer).Family;
+                    new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
                 if (projectileFamily == SamusProjectileFamily.PowerBomb)
                 {
                     slot.WakeAtLink();

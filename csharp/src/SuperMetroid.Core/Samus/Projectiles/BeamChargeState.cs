@@ -4,11 +4,19 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal sealed class BeamChargeState
 {
 
-    /// <summary>WRAM <c>$0CD0</c>; 60 frames arms a charged shot, 120 is the SBA clamp.</summary>
-    public ushort FlareCounter { get; internal set; }
+    /// <summary>WRAM <c>$0CD0</c>, 0 through 65535; 60 frames arms a charged shot, 120 is the SBA clamp.</summary>
+    public int FlareCounter
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>WRAM <c>$0DC2</c>; sampled before the current charge-input update.</summary>
-    public ushort PreviousBeamChargeCounter { get; internal set; }
+    /// <summary>WRAM <c>$0DC2</c>, 0 through 65535; sampled before the current charge-input update.</summary>
+    public int PreviousBeamChargeCounter
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// WRAM <c>$0B18</c>. Ordinary charged shots use values four through zero for three
@@ -19,9 +27,14 @@ internal sealed class BeamChargeState
 
     /// <summary>
     /// WRAM <c>$0B62</c>, a byte offset into the active six-word charge-palette list.
-    /// Native values are exactly 0, 2, 4, 6, 8, and 10; the sixth call wraps to zero.
+    /// Native values are exactly 0, 2, 4, 6, 8, and 10; the sixth call wraps to zero. An imported value is 0 through
+    /// 65535.
     /// </summary>
-    public ushort SamusChargePaletteIndex { get; internal set; }
+    public int SamusChargePaletteIndex
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Current animation frame for each of the three flare components.</summary>
     internal readonly ushort[] _flareFrames = new ushort[3];

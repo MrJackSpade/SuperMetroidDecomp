@@ -16,17 +16,15 @@ internal static class KraidFootCollisionDefinitionsVerification
     /// <summary>Probes all walking frames at normal and wrapping origins with boundary points around each rectangle.</summary>
     internal static void VerifyKraidFootCollisionDefinitions()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewKraidFootCollisionNoReadBus();
         var installed = new RoomEnemySystem();
-        installed.BindFixtureBus(denied);
+        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot installedFoot = installed.SlotTable.Slots[0];
-        installedFoot.Definition =
-            default(RoomEnemyDefinition) with { Bank = 0xa7 };
-        installedFoot.EnemyDefinitionPointer = EnemyDefinitionId.KraidFoot;
+        installedFoot.Bind(installedFoot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });
+        installedFoot.Bind(EnemyDefinitionId.KraidFoot, installedFoot.Definition);
         AssertEqual(35, KraidFootCollisionDefinitions.FrameCount,
             "Kraid foot walking extended-frame count");
         ushort[] frames =
@@ -49,11 +47,12 @@ internal static class KraidFootCollisionDefinitionsVerification
                 $"Kraid foot frame $A7:{selectedFrame:X4} is a compiled physical frame");
 
         KraidFootHitboxSequence hitboxes =
-            KraidFootCollisionDefinitions.HitboxesAt(KraidFootCollisionDefinitions.HitboxList);
+            KraidFootCollisionDefinitionsConstants.HitboxesAt(KraidFootCollisionDefinitionsConstants.HitboxList);
         KraidFootCollisionHitbox box = hitboxes[0];
 
         int probes = 0;
-        foreach (ushort frame in frames)
+        // A foot shows only installed frames; the catalog's stride also spans $8F35, which no composition shows.
+        foreach (ushort frame in frames.Where(frame => RoomEnemySlotFrameAccess.Shows(0xa7, frame)))
         foreach ((ushort originX, ushort originY) in
                  new (ushort, ushort)[]
                  {
@@ -88,7 +87,7 @@ internal static class KraidFootCollisionDefinitionsVerification
         AssertTrue(!KraidFootCollisionDefinitions.TryGetComponents(0x8000, out _),
             "uncompiled Kraid foot frame is rejected");
         AssertThrows<InvalidDataException>(
-            () => KraidFootCollisionDefinitions.HitboxesAt(0x8000).ToArray(),
+            () => KraidFootCollisionDefinitionsConstants.HitboxesAt(0x8000).ToArray(),
             "uncompiled Kraid foot hitbox list fails loudly");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "all installed Kraid foot collision probes read no cartridge data");

@@ -26,7 +26,6 @@ internal static class ElevatorInputDefinitionsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));
         var bodyArtwork = SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null);
         const int inputTable = 0xa394e2;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort direction = 0; direction < 2; direction++)
         {
@@ -34,19 +33,20 @@ internal static class ElevatorInputDefinitionsVerification
             SnesButton native = (SnesButton)CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewElevatorInputReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
             Action<RoomEnemySlot, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
             Action<RoomEnemySlot, ElevatorEnemyState, SamusState, SnesButton,
                     SamusProjectileSystem?> wait = enemies.ElevatorBehavior.WaitForElevatorDirectionInput;
 
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
             slot.Parameter1 = direction;
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0180));
             var samus = new SamusState();
             samus.Presentation.TileTransfers.BindArtwork(bodyArtwork);
             initialize(slot, samus);
-            AssertEqual(tableByteOffset, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")).DirectionTableByteOffset,
+            AssertEqual((int)tableByteOffset, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")).DirectionTableByteOffset,
                 $"elevator doubled direction offset {direction}");
 
             SnesButton opposite = (SnesButton)(SnesLittleEndian.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));
@@ -59,7 +59,7 @@ internal static class ElevatorInputDefinitionsVerification
             wait(slot, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")), samus, native, null);
             AssertEqual(ElevatorActorStatus.Departing, enemies.ElevatorBehavior.ElevatorStatus,
                 $"elevator departure input {direction}");
-            AssertEqual(ElevatorFrameEvent.DepartureStarted, enemies.ElevatorBehavior.LastElevatorEvent,
+            AssertEqual(ElevatorFrameEvent.DepartureStarted, enemies.LastEnemyFrame.Elevator,
                 $"elevator departure event {direction}");
             AssertEqual(true, samus.InputLocked, $"elevator Samus input lock {direction}");
             AssertEqual(2, enemies.Audio.SoundRequests.Count, $"elevator departure sounds {direction}");
@@ -82,9 +82,5 @@ internal static class ElevatorInputDefinitionsVerification
         foreach (ushort offset in new ushort[] { 1, 3, 4, 5, 0x100, 0x102, 0xfffe, 0xffff })
             AssertThrows<InvalidDataException>(() => ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator invalid full-word direction offset");
     }
-    /// <summary>Allows fixture cartridge access except for the elevator input table now owned by compiled definitions.</summary>
-    private static CartridgeReadGuard NewElevatorInputReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa394e2 and < 0xa394e6,
-                address => $"Elevator actor attempted migrated input-mask read ${address:X6}.");
+
 }

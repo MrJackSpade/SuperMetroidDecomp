@@ -10,6 +10,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks the explosion program selected when a Super Missile kills enemies with different death headers.</summary>
 internal static class SuperMissileDeathAnimationVerification
@@ -33,20 +35,20 @@ internal static class SuperMissileDeathAnimationVerification
     private static EnemyDeathProjectileProgram SuperMissileKillProgram(EnemyDefinitionId enemyDefinition)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xafa3);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RisingTide);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = true;
         RoomEnemySlot enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == enemyDefinition);
         enemy.Health = 1;
         enemy.InvincibilityTimer = NativeCountdown.Start(0);
-        // A surfaced Dragon shows $E80C, as at native update 40203; the room loads it
-        // submerged on the empty map, which the shot pass skips. Sova's first frame is kept.
-        if (enemy.SpritemapPointer == 0x804d)
-            enemy.SpritemapPointer = 0xe80c;
+        // The room loads both on the empty map, which the shot pass skips. The Dragon shows its surfaced frame ($E80C,
+        // as at native update 40203) and the Sova a shared crawler surface frame.
+        if (enemy.Frame == EnemyFrameId.Empty)
+            enemy.Frame = enemyDefinition == EnemyDefinitionId.Dragon ? EnemyFrameId.DragonBodyIdleLeft : EnemyFrameId.HzoomerUpsideUp0;
         enemy.InstructionTimer = NativeCountdown.Start(0x7fff);
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(enemy.Position.Whole);
 
@@ -55,7 +57,7 @@ internal static class SuperMissileDeathAnimationVerification
         shot.Position = shot.Position.WithWhole(enemy.Position.Whole);
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: enemy.NativeIndex);
 
         RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles

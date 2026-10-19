@@ -20,7 +20,7 @@ internal static class AerialSpreadTransitionVerification
         foreach (bool left in new[] { false, true })
         for (int timingCase = 0; timingCase < BombSpreadTransitionScenario.TimingCaseCount(wallRoute); timingCase++)
         {
-            var scenario = new BombSpreadTransitionScenario(CreateRetailRuntimeFixture(bus), bus, left, timingCase, wallRoute);
+            var scenario = new BombSpreadTransitionScenario(CreateRetailRuntimeFixture(), left, timingCase, wallRoute);
             var runtime = scenario.Runtime;
             var samus = scenario.Samus;
             for (int frame = 0; frame < scenario.FrameCount; frame++)

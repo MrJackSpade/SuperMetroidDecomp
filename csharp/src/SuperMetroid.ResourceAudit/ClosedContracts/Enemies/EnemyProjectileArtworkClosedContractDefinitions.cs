@@ -11,7 +11,7 @@ internal static class EnemyProjectileArtworkClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectilePresentationFrameDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileFirstProgramFrameManifest.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectilePresentationFrameSets.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainEffectFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Projectiles/Artwork/MiscDustProjectileFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Deaths/Artwork/EnemyDeathProjectileFrameDefinitions.cs"),

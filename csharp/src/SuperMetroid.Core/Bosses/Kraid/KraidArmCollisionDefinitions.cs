@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -95,25 +93,24 @@ internal static class KraidArmCollisionDefinitions
     /// <summary>First compiled rectangle from $A7:9411, Hitbox_KraidArm_10, using normal background touch.</summary>
     private const int FirstBackgroundRectangle = 17;
 
-    /// <summary>Selects arm pushback/lint activation for active shapes, normal touch for background/lunge shapes.</summary>
+    /// <summary>Selects the arm pushback/lint reaction for active shapes, ordinary touch for background/lunge shapes.</summary>
     /// <remarks>Independently reviewed for #1165 against all selected bank_A7 native
     /// rectangles. The selected lists through Hitbox_KraidArm_F use arm touch;
     /// Hitbox_KraidArm_10..12 and both dying/lunge lists use background touch.</remarks>
-    internal static ushort TouchCallback(int rectangle)
+    internal static KraidHitboxTouch TouchCallback(int rectangle)
     {
         if ((uint)rectangle >= RectangleCount) throw new IndexOutOfRangeException();
-        return rectangle < FirstBackgroundRectangle ? EnemyAiCodePointers.BankA7.KraidArmTouch
-            : EnemyAiCodePointers.BankA7.KraidBackgroundTouch;
+        return rectangle < FirstBackgroundRectangle ? KraidHitboxTouch.Arm : KraidHitboxTouch.Background;
     }
 
-    /// <summary>Every selected arm rectangle uses $A7:94B6, EnemyShot_KraidArm.</summary>
-    internal static ushort ShotCallback(int rectangle)
+    /// <summary>Every selected arm rectangle uses the arm's shot reaction (EnemyShot_KraidArm).</summary>
+    internal static KraidHitboxShot ShotCallback(int rectangle)
     {
         if ((uint)rectangle >= RectangleCount) throw new IndexOutOfRangeException();
-        return EnemyAiCodePointers.BankA7.KraidArmShot;
+        return KraidHitboxShot.Arm;
     }
 
-    /// <summary>Combines one indexed rectangle's bounds with its arm/background touch and arm-shot callbacks.</summary>
+    /// <summary>Combines one indexed rectangle's bounds with its arm/background touch and arm-shot reactions.</summary>
     internal static KraidArmCollisionHitbox Rectangle(int index)
     {
         if ((uint)index >= RectangleCount) throw new IndexOutOfRangeException();
@@ -164,14 +161,14 @@ internal static class KraidArmCollisionDefinitions
         return (ushort)(FirstArticulatedShape + 40 * (shape / 2) + 26 * (shape % 2));
     }
 
-    /// <summary>Constructs one physical component with its calculated hitbox selector.</summary>
+    /// <summary>Constructs one physical component with the rectangles its calculated hitbox selector names.</summary>
     /// <remarks>Component2 in the twenty general/rising frames and both final
     /// single-component records are anchored at the enemy origin. All22 native
     /// zero-coordinate pairs are independently confirmed for #1165; the remaining
     /// articulated positions have separate, unfinished review scope.</remarks>
     internal static KraidArmCollisionComponent Component(int pose, int component)
     {
-        ushort hitbox = ComponentHitbox(pose, component);
+        KraidArmHitboxSequence hitbox = HitboxesAt(ComponentHitbox(pose, component));
         // The central body component and both single-component poses are anchored
         // at the enemy origin. Only the four articulated positions are stored.
         if (pose >= 10 || component == 2) return new(Offset16<RoomPixels>.Zero, hitbox);

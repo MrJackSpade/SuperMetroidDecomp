@@ -8,21 +8,23 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks compiled projectile damage and special beam mechanics against native data and guarded production initialization.</summary>
 internal static class ProjectileDamageVerification
 {
+    /// <summary>Bank-$93 projectile headers after the 24 evenly spaced beam headers.</summary>
+    private static readonly int[] LaterProjectileHeaders =
+        [0x938641, 0x938657, 0x93866d, 0x938671, 0x938675, 0x938679, 0x93867d, 0x938681, 0x938685, 0x938689,
+        0x93868d, 0x938691, 0x938695, 0x9386ab, 0x9386c1, 0x9386d7];
+
     /// <summary>Exercises beam, missile, bomb, hyper, and combo initializers with cartridge damage reads forbidden.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile damage")]
     internal static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
         Suite(nameof(VerifyComboMechanicsDefinitions), () => VerifyComboMechanicsDefinitions(rom, Word));
-        int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(new[]
-        {
-            0x938641, 0x938657, 0x93866d, 0x938671, 0x938675, 0x938679, 0x93867d, 0x938681,
-            0x938685, 0x938689, 0x93868d, 0x938691, 0x938695, 0x9386ab, 0x9386c1, 0x9386d7,
-        }).ToArray();
+        int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(LaterProjectileHeaders).ToArray();
         var bus = NewProjectileDamageReadGuard(rom);
         foreach (int address in headers)
             AssertEqual(Word(address), SamusProjectileDamageDefinitions.Read(address), "Compiled native damage header");
@@ -53,37 +55,37 @@ internal static class ProjectileDamageVerification
         foreach (bool charged in new[] { false, true })
         {
             var system = new SamusProjectileSystem();
-            var samus = Samus(); samus.EquippedBeams = beam;
-            system.Firing.TryFireBeam(bus, room, samus, SnesButton.X, new SamusBombProjectileSystem(), null, charged);
+            var samus = Samus(); samus.EquippedBeams = (SamusBeamFlags)beam;
+            system.Firing.TryFireBeam(room, samus, SnesButton.X, new SamusBombProjectileSystem(), null, charged);
             var slot = system.Slots[0];
             int table = charged ? SamusProjectileRomData.Beams.ChargedDataPointers : SamusProjectileRomData.Beams.UnchargedDataPointers;
             Check(slot, table, beam, slot.Direction & 15);
-            system.EnemyImpacts.ReflectFromEnemy(bus, 0);
+            system.EnemyImpacts.ReflectFromEnemy(samus, 0);
             Check(slot, table, beam, slot.Direction & 15);
         }
         foreach (ushort item in new ushort[] { 1, 2 })
         {
-            var system = new SamusProjectileSystem(); var samus = Samus(); samus.SelectedHudItem = item;
-            var result = system.Firing.TryFireMissile(bus, samus, SnesButton.X, 0, new SamusBombProjectileSystem());
+            var system = new SamusProjectileSystem(); var samus = Samus(); samus.SelectedHudItem = HudItems.Decode(item);
+            var result = system.Firing.TryFireMissile(samus, SnesButton.X, 0, new SamusBombProjectileSystem());
             AssertEqual((int?)0, result.Slot, "Missile allocation succeeds");
             Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
-            system.EnemyImpacts.ReflectFromEnemy(bus, 0);
+            system.EnemyImpacts.ReflectFromEnemy(samus, 0);
             Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
             if (item == 2)
             {
-                system.Motion.SpawnSuperMissileLink(bus, samus, system.Slots[0]);
+                system.Motion.SpawnSuperMissileLink(samus, system.Slots[0]);
                 AssertEqual((ushort)300, system.Slots[1].Damage, "Invisible link remains occupied/nonzero damage");
                 AssertEqual((ushort)300, system.Slots[0].Damage, "Link allocation does not replace its owner");
             }
         }
         var hyper = new SamusProjectileSystem();
-        hyper.Firing.TryFireHyperBeam(bus, room, Samus(), new SamusBombProjectileSystem(), null);
+        hyper.Firing.TryFireHyperBeam(room, Samus(), new SamusBombProjectileSystem(), null);
         AssertEqual((ushort)1000, hyper.Slots[0].Damage, "Hyper retains its post-initialization damage override");
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
             var system = new SamusProjectileSystem(); var samus = Samus();
-            samus.EquippedBeams = beam; samus.SelectedHudItem = 3; samus.PowerBombs = 10;
-            AssertTrue(system.Combos.TryActivateCombo(bus, samus, new SamusBombProjectileSystem(), out _), "Combo initializes with damage ROM reads forbidden");
+            samus.EquippedBeams = (SamusBeamFlags)beam; samus.SelectedHudItem = HudItem.PowerBomb; samus.PowerBombs = 10;
+            AssertTrue(system.Combos.TryActivateCombo(samus, new SamusBombProjectileSystem(), out _), "Combo initializes with damage ROM reads forbidden");
             foreach (var slot in system.Slots.Take(4))
                 AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.Damage, "SBA/ordinary Ice/Spazer trail damage");
         }
@@ -188,12 +190,12 @@ internal static class ProjectileDamageVerification
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                EquippedBeams = beam,
-                SelectedHudItem = 3,
+                EquippedBeams = (SamusBeamFlags)beam,
+                SelectedHudItem = HudItem.PowerBomb,
                 PowerBombs = 10,
             };
             AssertTrue(projectiles.Combos.TryActivateCombo(
-                    guarded, samus, shared, out _),
+                    samus, shared, out _),
                 $"beam {beam:X} activates with cost/angle ROM reads forbidden");
             AssertEqual((ushort)9, samus.PowerBombs,
                 $"beam {beam:X} consumes its compiled one-Power-Bomb cost");
@@ -207,14 +209,14 @@ internal static class ProjectileDamageVerification
             if (beam == 1)
                 continue;
             SamusProjectileSlot first = projectiles.Slots[0];
-            ushort angle = first.Variable;
+            ushort angle = checked((ushort)first.Variable);
             ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.Velocity.X.SignedRawValue);
             (ushort X, ushort Y) offset = SamusComboMechanicsDefinitions.GetSineOffset(
                 angle, amplitude);
             if (beam == 2)
-                projectiles.Combos.StepIceCombo(guarded, samus, first, shared, Position16<RoomPixels>.Zero);
+                projectiles.Combos.StepIceCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             else if (beam == 4)
-                projectiles.Combos.StepSpazerCombo(guarded, samus, first, shared, 0);
+                projectiles.Combos.StepSpazerCombo(samus, first, shared, 0);
             else
                 projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             AssertEqual(unchecked((ushort)(samus.Position.X.Whole + offset.X)), first.Position.X.Whole,
@@ -225,6 +227,47 @@ internal static class ProjectileDamageVerification
 
         Console.WriteLine(
             "  Special beam mechanics: twelve costs, four origin angles and 65,536 sine offsets match cartridge data; all four producers avoid those ROM tables.");
+    }
+
+    /// <summary>
+    /// Checks that the Plasma special attack's angle step keeps each slot's angle on the 256-step circle in both
+    /// turning directions: a right-facing attack steps angle 254 to 2, and a left-facing one steps 2 to 254.
+    /// </summary>
+    private static void VerifyComboAngleStepWrapsAtTheByteBoundary()
+    {
+        foreach ((SamusPoseId pose, int step, ushort from, ushort to) in new (SamusPoseId, int, ushort, ushort)[]
+        {
+            (SamusPoseId.FacingRightNormalPose, 4, 254, 2),
+            (SamusPoseId.FacingLeftNormalPose, -4, 2, 254),
+        })
+        {
+            var projectiles = new SamusProjectileSystem();
+            var shared = new SamusBombProjectileSystem();
+            var samus = new SamusState
+            {
+                Pose = pose,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+                EquippedBeams = SamusBeamFlags.Plasma,
+                SelectedHudItem = HudItem.PowerBomb,
+                PowerBombs = 10,
+            };
+            AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
+                $"{pose} Plasma special attack activates");
+            AssertEqual(step, projectiles.Combos.ComboState, $"{pose} Plasma special attack angle step");
+            SamusProjectileSlot first = projectiles.Slots[0];
+            first.Variable = from;
+            projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
+            AssertEqual(to, first.Variable, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
+        }
+        Console.WriteLine("Special beam angle step: right- and left-facing Plasma attacks wrap the slot angle at the byte boundary.");
+    }
+
+    /// <summary>Runs the special-attack angle-step wrap check, which needs no cartridge.</summary>
+    [VerificationCommand("--special-beam-angle-step")]
+    internal static int SpecialBeamAngleStepCommand()
+    {
+        Suite(nameof(VerifyComboAngleStepWrapsAtTheByteBoundary), () => VerifyComboAngleStepWrapsAtTheByteBoundary());
+        return 0;
     }
 
     /// <summary>Rejects native damage-header and selection-table reads during projectile initialization.</summary>

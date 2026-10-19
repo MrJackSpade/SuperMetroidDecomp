@@ -5,10 +5,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// transfers to VRAM itself, but the queued descriptor bytes stay in WRAM after the NMI handler
 /// (<c>HandleMode7Transfers</c>, $80:8BBA) clears only the first control word, and running-cadence stage five
 /// later reads them as its delay list at <c>$91:0303</c> (#1338). This view writes exactly the bytes
-/// <c>QueueMode7Transfers</c> leaves behind.
+/// <c>QueueMode7Transfers</c> leaves behind, into the session's <see cref="Mode7TransferQueueResidue"/>.
 /// </summary>
-[CpuBusBoundary("domain view: the native Mode 7 transfer queue, whose residue running cadence stage five reads")]
-internal struct Mode7TransferQueue(ISnesAddressSpace bus)
+internal struct Mode7TransferQueue(Mode7TransferQueueResidue residue)
 {
     /// <summary><c>Mode7Stack</c> ($0334): the byte offset of the next free descriptor in this frame's queue.</summary>
     private int _stack;
@@ -39,12 +38,11 @@ internal struct Mode7TransferQueue(ISnesAddressSpace bus)
     {
         if (_stack == 0)
             return;
-        bus.WriteByte(Mode7TransferQueueLayout.QueueStart, 0);
-        bus.WriteByte(Mode7TransferQueueLayout.QueueStart + 1, 0);
+        residue._bytes[0] = 0;
+        residue._bytes[1] = 0;
         _stack = 0;
     }
 
     /// <summary>Writes one byte at <paramref name="offset"/> past the current descriptor.</summary>
-    private readonly void Write(int offset, byte value) =>
-        bus.WriteByte(Mode7TransferQueueLayout.QueueStart + _stack + offset, value);
+    private readonly void Write(int offset, byte value) => residue._bytes[_stack + offset] = value;
 }

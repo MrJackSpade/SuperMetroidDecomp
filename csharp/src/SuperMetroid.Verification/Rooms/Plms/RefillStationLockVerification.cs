@@ -12,17 +12,17 @@ internal static class RefillStationLockVerification
     internal static void VerifyRefillStationLock()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         for (int frame = 0; frame < 8; frame++)
             runtime.StepFrame(0);
 
-        (ushort Frame, ushort Timer) Animation() => (samus.AnimationFrame, samus.AnimationFrameTimer.RawValue);
+        (int Frame, ushort Timer) Animation() => (samus.AnimationFrame, samus.AnimationFrameTimer.RawValue);
         var unlocked = Animation();
         runtime.StepFrame(0);
         AssertTrue(Animation() != unlocked, "the normal beta advances Samus's animation");

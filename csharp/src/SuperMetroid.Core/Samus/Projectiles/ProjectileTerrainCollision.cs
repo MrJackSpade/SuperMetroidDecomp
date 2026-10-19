@@ -295,7 +295,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
         {
-            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
+            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
             return true;
         }
 
@@ -304,7 +304,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
-            NotifyResidentProjectileHit(roomPlms, block, slot.Type);
+            NotifyResidentProjectileHit(roomPlms, block, slot.PackedType.Raw);
             return true;
         }
 
@@ -315,7 +315,7 @@ internal sealed class ProjectileTerrainCollision
                 // Gate setup ends the caller's span and forces its collision counter.
                 // A full PLM pool skips setup entirely, so it must not end the scan.
                 endSpan = roomPlms?.BlockReactions.TrySpawnProjectileShotBlock(
-                    level, block.Index, block.Bts, slot.Type,
+                    level, block.Index, block.Bts, slot.PackedType.Raw,
                     block.CollisionType == RoomCollisionType.ShootableBlock) == true;
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
@@ -409,7 +409,7 @@ internal sealed class ProjectileTerrainCollision
         // after generic trigger $C83E publishes the projectile word.
         if (block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
-            NotifyResidentProjectileHit(roomPlms, block, slot.Type);
+            NotifyResidentProjectileHit(roomPlms, block, slot.PackedType.Raw);
             return;
         }
 
@@ -424,7 +424,7 @@ internal sealed class ProjectileTerrainCollision
                 level,
                 block.Index,
                 block.Bts,
-                slot.Type);
+                slot.PackedType.Raw);
             return;
         }
 
@@ -444,7 +444,7 @@ internal sealed class ProjectileTerrainCollision
                 level,
                 block.Index,
                 block.Bts,
-                slot.Type,
+                slot.PackedType.Raw,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }
     }
@@ -489,7 +489,7 @@ internal sealed class ProjectileTerrainCollision
     {
         // `$90:AE3A` moves the explosion anchor to the leading edge before bank $93 swaps
         // the instruction list. Diagonals adjust both axes in their respective signs.
-        byte direction = slot.PackedDirection.DirectionIndex;
+        int direction = slot.PackedDirection.DirectionIndex;
         if (direction is 1 or 2 or 3)
             slot.Position += new Offset16<RoomPixels>(unchecked((short)slot.Radius.X), 0);
         else if (direction is 6 or 7 or 8)
@@ -578,10 +578,10 @@ internal sealed class ProjectileTerrainCollision
                 {
                     if (index + 1 >= level.ForegroundEntries.Length)
                         throw new NotSupportedException("Odd Wave collision read crosses the modeled level-data allocation.");
-                    ushort next = level.GetCollisionBlockByIndex(index + 1).LevelWord;
+                    ushort next = level.GetCollisionBlockByIndex(index + 1).PackedWord.Raw;
                     // Dispatch consumes the unaligned word; BTS and PLM setup
                     // still use floor(byteOffset / 2), including aligned writes.
-                    block = block with { LevelWord = SnesLittleEndian.Word(SnesLittleEndian.HighByte(block.LevelWord), unchecked((byte)next)) };
+                    block = block with { PackedWord = SnesLittleEndian.Word(SnesLittleEndian.HighByte(block.PackedWord.Raw), unchecked((byte)next)) };
                 }
                 RunShotReaction(level, slot, block, roomPlms, new ShotSpan(span, remaining, targetX), out bool endSpan);
                 // Wave discards collision carry, but still honors PLM scan termination.

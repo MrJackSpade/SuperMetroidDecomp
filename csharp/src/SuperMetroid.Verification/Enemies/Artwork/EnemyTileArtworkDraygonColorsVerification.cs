@@ -17,6 +17,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Draygon palette bands against retail colors and edited intro, hurt, flash, and health CGRAM paths.</summary>
 internal static class EnemyTileArtworkDraygonColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares 105 RGB5 words with ROM, edits selected palette cells, and checks production Draygon color writes under a source-read guard.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon palette bands")]
@@ -44,7 +47,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         string file = Path.Combine(stockDirectory, DraygonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         DraygonColorDocument visual = JsonSerializer.Deserialize<DraygonColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Draygon color JSON is null.");
         visual.Intro[1] = ChangeRed(visual.Intro[1]);
         visual.Background[1] = ChangeRed(visual.Background[1]);
@@ -94,12 +97,12 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.Presentation._vram = new SnesVram();
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         enemies.DraygonBehavior.InitializeDraygonBody(body);
         DraygonEnemyState state = enemies.DraygonBehavior.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");
@@ -108,7 +111,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         AssertBand(DraygonColorRomData.IntroDestination,
             DraygonColorRomData.IntroCount, colors.ResolveIntro, "intro CGRAM");
 
-        state.HealthPaletteTableByteIndex = 2;
+        state.HealthPaletteBand = 1;
         enemies.DraygonBehavior.ApplyDraygonHurt(body, state, null);
         for (int color = 0; color < DraygonColorRomData.BackgroundCount; color++)
         {
@@ -132,7 +135,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             "white hurt sprite CGRAM");
         for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
         {
-            state.HealthPaletteTableByteIndex = unchecked((ushort)(band * sizeof(ushort)));
+            state.HealthPaletteBand = band;
             enemies.DraygonBehavior.CopyDraygonHealthColors(state);
             for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),
@@ -141,9 +144,9 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         }
         AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
             "visual health-band checks leave Draygon AI unchanged");
-        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram, 1),
-            "odd Draygon health-band index fails loudly");
-        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram, 16),
+        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram, -1),
+            "negative Draygon health band fails loudly");
+        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram, 8),
             "out-of-range Draygon health-band index fails loudly");
 
         File.WriteAllBytes(overrideFile, [0]);

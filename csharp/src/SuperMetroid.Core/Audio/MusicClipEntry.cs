@@ -10,12 +10,10 @@ namespace SuperMetroid.Core.Audio;
 /// <param name="Track">The track number written to the music port.</param>
 /// <param name="Clip">The rendered clip.</param>
 /// <param name="LoopStart">The loop's first frame, or null for a track that ends.</param>
-/// <param name="StartTempoPhase">The driver's tempo accumulator when the track started.</param>
 /// <param name="TempoSegments">The tempo in force from each frame on, in frame order, starting at frame zero.</param>
 public sealed record MusicClipEntry(
     AudioBank Bank,
     int Track,
     AudioClipFile Clip,
     long? LoopStart,
-    byte StartTempoPhase,
     IReadOnlyList<MusicTempoSegment> TempoSegments);

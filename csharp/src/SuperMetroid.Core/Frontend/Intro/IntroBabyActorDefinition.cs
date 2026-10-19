@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// OBJ attributes written by its initialization callback.
 /// </summary>
 internal readonly record struct IntroBabyActorDefinition(
-    ushort PreInstruction,
+    CinematicSpritePreInstruction PreInstruction,
     CinematicSpriteProgram Program,
     Position16<ScreenPixels> Position,
     ushort PaletteBits);

@@ -51,31 +51,32 @@ public sealed class SamusShinesparkState
     /// <summary>WRAM <c>$0A6A</c>: 180 stored, 60 windup, and 15 during active motion.</summary>
     public NativeCountdown ShineTimer { get; private set; }
 
-    /// <summary>WRAM <c>$0ACE</c>, retained as native even byte offsets 0/2/4/….</summary>
-    public ushort PaletteFrameOffset { get; private set; }
+    /// <summary>
+    /// Byte offset of the next shine palette phase, an even value below twelve for the stored shine and below eight
+    /// while sparking: each palette call advances it by two and returns it to zero at that limit.
+    /// </summary>
+    public int PaletteFrameOffset { get; private set; }
 
     /// <summary>WRAM <c>$0A64</c>, the shared 30-frame windup/crash countdown.</summary>
     public NativeCountdown StartStopTimer { get; internal set; }
 
     /// <summary>
-    /// Whole word of vertical spark acceleration. Native aliases it to <c>substate</c> and
-    /// seeds it to 7.0000 at <c>$90:CFFA</c>.
+    /// The upward spark's 16.16 acceleration in pixels per frame per frame: 7.0 when windup begins, raised by
+    /// Samus's vertical acceleration on every vertical or diagonal spark call, and cleared when the crash finishes.
+    /// Its storage is shared with the suit pickup's scratch, which can replace it (see
+    /// <see cref="ApplySuitPickupScratch"/>); the adds wrap at 32 bits exactly as the cartridge's word pair does.
     /// </summary>
-    public ushort VerticalAccelerationSpeed { get; private set; }
-
-    /// <summary>Fractional word paired with <see cref="VerticalAccelerationSpeed"/>.</summary>
-    public ushort VerticalAccelerationSubspeed { get; private set; }
+    public SnesSignedSixteenSixteen VerticalAcceleration { get; private set; }
 
     /// <summary>
     /// Mirrors suit HDMA writes to shared WRAM $0DEC/$0DEE (substate/light-beam
     /// position), which $90:D1FF later reads as the spark acceleration pair.
     /// A suspended windup must not retain its pre-pickup 7.0000 initializer.
     /// </summary>
-    internal void ApplySuitPickupScratch(ushort substate, ushort lightBeamPosition)
-    {
-        VerticalAccelerationSpeed = substate;
-        VerticalAccelerationSubspeed = lightBeamPosition;
-    }
+    /// <param name="substate">The suit pickup's stage number, which becomes the acceleration's whole word.</param>
+    /// <param name="lightBeamPosition">The suit pickup's light-beam word, which becomes the acceleration's fraction.</param>
+    internal void ApplySuitPickupScratch(ushort substate, ushort lightBeamPosition) =>
+        VerticalAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)substate), lightBeamPosition);
 
     /// <summary>Debugger-readable replacement for the installed bank-$90 handler pointer.</summary>
     public ShinesparkPhase Phase { get; internal set; }
@@ -160,11 +161,17 @@ public sealed class SamusShinesparkState
     [field: NonSerialized]
     public bool ChargeCancellationSoundSuppressed { get; private set; }
 
-    /// <summary>High byte of native `$0AAE` while the two crash echoes orbit Samus.</summary>
-    public byte CrashSubphase { get; private set; }
+    /// <summary>
+    /// The stage of the crash echoes' orbit: expanding at crash entry, orbiting once the radius reaches sixteen,
+    /// and contracting once the angular travel reaches 128.
+    /// </summary>
+    public ShinesparkCrashOrbitStage CrashOrbitStage { get; private set; }
 
-    /// <summary>Low byte of native `$0AAE`, expanded/separated/contracted in steps of four.</summary>
-    public byte CrashRadius { get; private set; }
+    /// <summary>
+    /// Distance of the two crash echoes from Samus in pixels, 0 through 16: zero at crash entry, raised by four per
+    /// expanding call until it reaches sixteen and lowered by four per contracting call until it reaches zero.
+    /// </summary>
+    public int CrashRadius { get; private set; }
 
     /// <summary>First byte-angle formerly stored in speed-echo X speed slot zero.</summary>
     public SnesAngle FirstCrashEchoAngle { get; private set; }
@@ -173,13 +180,31 @@ public sealed class SamusShinesparkState
     public SnesAngle SecondCrashEchoAngle { get; private set; }
 
     /// <summary>
-    /// WRAM $0ABC: crash angular travel and released projectile-slot-three echo Y share
-    /// one word. Native crash entry retains it; only an actual echo write/clear replaces it.
+    /// The crash echoes' angular travel, 0 through <see cref="LargestCrashAngularTravel"/>. Its storage is the
+    /// released slot-three echo's Y coordinate: crash entry does not reset it, so a preceding echo or crash leaves a
+    /// value the orbit starts from. It advances only through <see cref="AdvanceCrashAngularTravel"/>, which wraps
+    /// past the largest value to zero, and the orbit ends on the sign of its distance from 128.
     /// </summary>
-    public ushort CrashAngularTravel
+    public int CrashAngularTravel
     {
         get => _firstReleasedCrashEcho.Position.Y;
-        private set => _firstReleasedCrashEcho.Position = _firstReleasedCrashEcho.Position.WithY(value);
+        private set => _firstReleasedCrashEcho.Position = _firstReleasedCrashEcho.Position.WithY(checked((ushort)value));
+    }
+
+    /// <summary>The largest angular travel the shared echo coordinate holds; one more step wraps past it to zero.</summary>
+    internal const int LargestCrashAngularTravel = ushort.MaxValue;
+
+    /// <summary>Angular travel added on each orbiting call.</summary>
+    private const int CrashAngularTravelStep = 4;
+
+    /// <summary>
+    /// Adds one orbiting call's travel, wrapping past <see cref="LargestCrashAngularTravel"/> to zero as the shared
+    /// echo coordinate does. A seeded travel near the largest value therefore restarts from zero and orbits longer.
+    /// </summary>
+    private void AdvanceCrashAngularTravel()
+    {
+        int advanced = CrashAngularTravel + CrashAngularTravelStep;
+        CrashAngularTravel = advanced > LargestCrashAngularTravel ? advanced - (LargestCrashAngularTravel + 1) : advanced;
     }
 
     /// <summary>
@@ -194,12 +219,6 @@ public sealed class SamusShinesparkState
     /// slot three, even though it is initialized second.
     /// </summary>
     public ShinesparkReleasedEcho SecondReleasedCrashEcho => _secondReleasedCrashEcho.Snapshot;
-
-    /// <summary>
-    /// Most recent viewport deletion, retained only as a debugger witness after native slot
-    /// storage has been zeroed. It does not participate in movement or drawing.
-    /// </summary>
-    public ShinesparkReleasedEchoClear? LastReleasedCrashEchoClear { get; private set; }
 
     /// <summary>Fixed slot-three echo storage whose position aliases crash angular words.</summary>
     internal readonly ReleasedEchoSlot _firstReleasedCrashEcho = new();
@@ -229,8 +248,8 @@ public sealed class SamusShinesparkState
         _firstReleasedCrashEcho.Clear();
         _secondReleasedCrashEcho.Clear();
         FirstCrashEchoAngle = SecondCrashEchoAngle = SnesAngle.Zero;
-        CrashSubphase = CrashRadius = 0;
-        LastReleasedCrashEchoClear = null;
+        CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
+        CrashRadius = 0;
     }
 
     /// <summary>
@@ -265,10 +284,10 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>DemoSetFunc_5/6 call the native windup initializer without a stored shine.</summary>
-    internal void BeginDemoLaunch(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose)
+    internal void BeginDemoLaunch(SamusState samus, SamusPoseId targetPose)
     {
         InitializeWindup(samus);
-        BeginDirectionalLaunch(bus, samus, targetPose);
+        BeginDirectionalLaunch(samus, targetPose);
     }
 
     /// <summary>Cancels beam charge and installs the native 30-frame spark windup, palette and boost state.</summary>
@@ -279,7 +298,7 @@ public sealed class SamusShinesparkState
         // charges are still torn down without a sound call. The live projectile owner
         // contains the flare layers and previous-counter word, while Samus mirrors $0CD0
         // for movement decisions. Keep both views synchronized at this native seam.
-        ushort cancelledCharge = samus.ProjectileFlareCounter;
+        int cancelledCharge = samus.ProjectileFlareCounter;
         if (cancelledCharge != 0)
         {
             _projectiles?.Firing.CancelChargeForShinespark();
@@ -304,7 +323,7 @@ public sealed class SamusShinesparkState
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
-        samus.KnockbackDirection = 0;
+        samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.HorizontalSpeed.SpeedBoostCounter =
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter;
@@ -314,8 +333,7 @@ public sealed class SamusShinesparkState
         samus.HorizontalSpeed.BaseSubspeed = 0;
         samus.BombJumpDirection = 0;
 
-        VerticalAccelerationSpeed = 7;
-        VerticalAccelerationSubspeed = 0;
+        VerticalAcceleration = SnesSignedSixteenSixteen.FromParts(7, 0);
         StartStopTimer = NativeCountdown.Start(30);
         ShineTimer = NativeCountdown.Start(60);
         PaletteType = SamusSpecialPaletteType.Shinesparking;
@@ -330,10 +348,9 @@ public sealed class SamusShinesparkState
     /// Installs the handler selected by <c>SamusFunc_F468_Shinespark</c> at
     /// <c>$91:F80F</c> for poses `$C9-$CE`.
     /// </summary>
-    public void BeginDirectionalLaunch(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose,
+    public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose,
         bool deferPoseChange = false)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         // `$91:FACA` installs the launch handler over whatever handler is current. A windup
         // whose handler normal movement replaced (a knockback ending in `$C7/$C8`) keeps its
@@ -356,18 +373,18 @@ public sealed class SamusShinesparkState
         samus.InputSnapshot.ShinesparkPoseInputLocked = true;
         samus.InputSnapshot.AutoJumpInputPending = false;
         if (!deferPoseChange)
-            ApplyDirectionalLaunchPose(bus, samus, targetPose);
+            ApplyDirectionalLaunchPose(samus, targetPose);
         samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
         LaunchSoundRequested = true;
         LaunchSoundSuppressed = _audioPowerBomb?.IsActive == true;
     }
 
     /// <summary>Commits the interrupted launch pose after the current frame's animation.</summary>
-    internal static void ApplyDirectionalLaunchPose(ISnesAddressSpace bus, SamusState samus, SamusPoseId pose)
+    internal static void ApplyDirectionalLaunchPose(SamusState samus, SamusPoseId pose)
     {
         samus.Pose = pose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>Runs one installed special-handler frame from <c>$90:D068-$D2B9</c>.</summary>
@@ -376,7 +393,7 @@ public sealed class SamusShinesparkState
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</param>
     public ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
     {
-        Ensure.NotNull(terrain.Bus);
+
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
 
@@ -390,10 +407,10 @@ public sealed class SamusShinesparkState
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
-                SamusPoseId verticalPose = samus.PoseMetadata.IsFacingLeft(terrain.Bus)
+                SamusPoseId verticalPose = samus.PoseMetadata.IsFacingLeft()
                     ? SamusPoseId.ShinesparkVerticalLeftPose
                     : SamusPoseId.ShinesparkVerticalRightPose;
-                BeginDirectionalLaunch(terrain.Bus, samus, verticalPose, frame.DeferTimeoutPoseChange);
+                BeginDirectionalLaunch(samus, verticalPose, frame.DeferTimeoutPoseChange);
                 if (frame.DeferTimeoutPoseChange)
                     pendingLaunchPose = verticalPose;
             }
@@ -412,6 +429,7 @@ timedOut,                 PendingLaunchPose: pendingLaunchPose);
             if (Phase == ShinesparkPhase.CrashFinish)
                 return FinishCrash(samus, frame.Projectiles?.SlotTable.ProjectileCounter ?? frame.ProjectileCounter, frame.Projectiles);
 
+
             // Stored/inactive states are not installed special movement handlers. Returning
             // an empty snapshot is defensive; runtime normally never dispatches them here.
             return new ShinesparkMovementResult(
@@ -423,7 +441,7 @@ false);
 
         // Each active handler samples echoes before motion. Runtime suppresses its ordinary
         // post-motion producer while this special handler owns the frame.
-        samus.HorizontalSpeed.CaptureSpeedEchoPosition(frame.GameTimeFrames, samus.Position.Whole);
+        samus.HorizontalSpeed.CaptureSpeedEchoPosition(checked((ushort)frame.GameTimeFrames), samus.Position.Whole);
 
         BlockMoveResult? horizontal = null;
         BlockMoveResult? vertical = null;
@@ -431,13 +449,13 @@ false);
         // Samus. Only a camera reads that word; fixtures without one pass no checkpoint.
         if (Phase is ShinesparkPhase.Horizontal or ShinesparkPhase.Diagonal)
         {
-            horizontal = MoveX(terrain.Bus, terrain.Level, samus, terrain.Plms);
+            horizontal = MoveX(terrain.Level, samus, terrain.Plms);
             if (frame.PreviousCheckpoint is { } checkpoint)
                 CapPreviousX(samus, checkpoint);
         }
         if (Phase is ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal)
         {
-            vertical = MoveY(terrain.Bus, terrain.Level, samus, frame.NmiFrameCounter, terrain.Plms);
+            vertical = MoveY(terrain.Level, samus, frame.NmiFrameCounter, terrain.Plms);
             if (frame.PreviousCheckpoint is { } checkpoint)
                 CapPreviousY(samus, checkpoint);
         }
@@ -449,11 +467,10 @@ false);
         bool collided = vertical?.Collided ?? horizontal?.Collided ?? false;
         // The host cheat bypasses only the energy exit. Terrain/enemy collision still
         // terminates all three launch directions through the ordinary crash handler.
-        bool hasNativeEnergy = unchecked((short)(samus.Health -
-            SamusSpecialSequenceRomData.Shinespark.MinimumSustainingEnergy)) >= 0;
+        bool hasNativeEnergy = samus.Health >= SamusSpecialSequenceRomData.Shinespark.MinimumSustainingEnergy;
         bool lowEnergy = !frame.PlayerInvincibilityEnabled && !hasNativeEnergy;
         if (collided || lowEnergy)
-            BeginCrash(terrain.Bus, samus);
+            BeginCrash(samus);
 
         // At exactly 30 energy, this frame still moves and drains to 29. The following
         // frame moves once more before EndSuperJump observes that 29 is below the threshold.
@@ -463,7 +480,7 @@ false);
             ? samus.Health > 1
             : hasNativeEnergy;
         if (drained)
-            samus.Health = NativeWordCounter.Decrement(samus.Health).Value;
+            samus.Health = SamusQuantity.DecrementPositive(samus.Health);
 
         return new ShinesparkMovementResult(
 false);
@@ -473,11 +490,10 @@ false);
     /// Runs palette handler one or six from <c>$91:D6F7</c>, including normal restoration
     /// when its signed countdown expires.
     /// </summary>
-    public bool UpdatePalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
+    public bool UpdatePalette(SnesCgram cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null,
         SamusFullBodyCycleColorCatalog? cycleColors = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
             return false;
@@ -502,26 +518,28 @@ false);
         }
 
         ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
+        ushort phaseOffset = checked((ushort)PaletteFrameOffset);
         bool catalogued = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine
             ? SamusPaletteRomData.FullBodyCycles.TryStoredShinePalettePointer(
-                suitOffset, PaletteFrameOffset, out ushort palettePointer)
+                suitOffset, phaseOffset, out ushort palettePointer)
             : SamusPaletteRomData.FullBodyCycles.TryActiveShinesparkPalettePointer(
-                suitOffset, PaletteFrameOffset, out palettePointer);
+                suitOffset, phaseOffset, out palettePointer);
         if (!catalogued)
             throw new InvalidDataException(
                 $"Shinespark palette type {(int)PaletteType} offset {PaletteFrameOffset} is not compiled.");
         (cycleColors ?? throw new InvalidOperationException(
             "Shinespark palette requires installed color assets.")).Apply(cgram, palettePointer);
 
-        ushort exclusiveLimit = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine ? (ushort)12 : (ushort)8;
-        PaletteFrameOffset = unchecked((ushort)(PaletteFrameOffset + 2));
+        int exclusiveLimit = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine ? 12 : 8;
+        // The offset is always below its limit before this advance, so it never approaches a wrap.
+        PaletteFrameOffset += 2;
         if (PaletteFrameOffset >= exclusiveLimit)
             PaletteFrameOffset = 0;
         return true;
     }
 
     /// <summary>Stops translational spark motion, seeds paired orbit angles and installs the crash handler without clearing aliased angular travel.</summary>
-    private void BeginCrash(ISnesAddressSpace bus, SamusState samus)
+    private void BeginCrash(SamusState samus)
     {
         // `$90:D2BA-$D345` kills translational velocity before installing the crash handler.
         samus.Kinematics.YSpeed = 0;
@@ -533,12 +551,12 @@ false);
         // EndSuperJump retains this frame's contact damage. The shared frame
         // prologue clears it before the newly installed crash handler runs next.
         samus.HurtFlashCounter = 0;
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         FirstCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
         SecondCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
         CrashAngularDelta = facingLeft ? (short)4 : (short)-4;
         _firstReleasedCrashEcho.DisableDrawing();
-        CrashSubphase = 0;
+        CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
         // The native entry does not initialize the aliased angular-travel/echo-Y
         // word. A preceding echo or crash can therefore shorten this orbit.
@@ -566,34 +584,36 @@ false);
         SamusState samus)
     {
         ShineTimer = NativeCountdown.Start(15);
-        switch (CrashSubphase)
+        switch (CrashOrbitStage)
         {
-            case 0:
+            case ShinesparkCrashOrbitStage.Expanding:
             {
                 // `$90:D383` tests the old radius against twelve, after calculating +4.
-                // The transition frame therefore publishes radius sixteen and subphase one.
-                byte oldRadius = CrashRadius;
-                CrashRadius = unchecked((byte)(CrashRadius + 4));
+                // The transition frame therefore publishes radius sixteen and the orbiting stage.
+                int oldRadius = CrashRadius;
+                CrashRadius += 4;
                 if (oldRadius >= 12)
-                    CrashSubphase = 1;
+                    CrashOrbitStage = ShinesparkCrashOrbitStage.Orbiting;
                 break;
             }
 
-            case 1:
+            case ShinesparkCrashOrbitStage.Orbiting:
                 FirstCrashEchoAngle = FirstCrashEchoAngle.AddTableUnits(CrashAngularDelta);
                 SecondCrashEchoAngle = SecondCrashEchoAngle.AddTableUnits(CrashAngularDelta);
-                CrashAngularTravel = unchecked((ushort)(CrashAngularTravel + 4));
+                AdvanceCrashAngularTravel();
+                // The sign of the sixteen-bit distance from 128 decides, so a travel that wrapped to
+                // zero, or one seeded far above 128, keeps orbiting until it climbs back to 128.
                 if (unchecked((short)(CrashAngularTravel - 128)) >= 0)
-                    CrashSubphase = 2;
+                    CrashOrbitStage = ShinesparkCrashOrbitStage.Contracting;
                 break;
 
-            case 2:
-                CrashRadius = unchecked((byte)(CrashRadius - 4));
+            case ShinesparkCrashOrbitStage.Contracting:
+                CrashRadius -= 4;
                 if (CrashRadius == 0)
                 {
                     Phase = ShinesparkPhase.CrashEchoCircle;
                     StartStopTimer = NativeCountdown.Start(30);
-                    CrashSubphase = 0;
+                    CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
                     FirstCrashEchoAngle = SnesAngle.Zero;
                     SecondCrashEchoAngle = SnesAngle.Zero;
                 }
@@ -601,21 +621,37 @@ false);
 
             default:
                 throw new InvalidOperationException(
-                    $"Native shinespark crash subphase {CrashSubphase} is outside 0..2.");
+                    $"Shinespark crash orbit stage {CrashOrbitStage} is undefined.");
         }
 
         // Projectile_SinLookup consumes a byte angle/radius and returns wrapped 16-bit
         // offsets. Both additions below deliberately retain that unsigned WRAM wrapping.
-        Offset16<RoomPixels> firstOffset = ProjectileSinLookup(FirstCrashEchoAngle, CrashRadius);
-        Offset16<RoomPixels> secondOffset = ProjectileSinLookup(SecondCrashEchoAngle, CrashRadius);
-        ushort encodedIndex = unchecked((ushort)(SnesLittleEndian.Word(CrashRadius, CrashSubphase)));
+        byte orbitRadius = checked((byte)CrashRadius);
+        Offset16<RoomPixels> firstOffset = ProjectileSinLookup(FirstCrashEchoAngle, orbitRadius);
+        Offset16<RoomPixels> secondOffset = ProjectileSinLookup(SecondCrashEchoAngle, orbitRadius);
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
-            encodedIndex,
+            CrashEchoIndexWord(),
             samus.Position.Whole + firstOffset,
             samus.Position.Whole + secondOffset);
 
         return new ShinesparkMovementResult(
 false);
+    }
+
+    /// <summary>
+    /// The speed-echo index word the crash shares with the speed echoes: the orbit radius in its low byte and the
+    /// orbit stage number, 0 through 2, in its high byte. The echo drawer and the next boost read that word.
+    /// </summary>
+    private ushort CrashEchoIndexWord()
+    {
+        byte stageNumber = CrashOrbitStage switch
+        {
+            ShinesparkCrashOrbitStage.Expanding => (byte)0,
+            ShinesparkCrashOrbitStage.Orbiting => (byte)1,
+            ShinesparkCrashOrbitStage.Contracting => (byte)2,
+            _ => throw new InvalidOperationException($"Shinespark crash orbit stage {CrashOrbitStage} is undefined."),
+        };
+        return SnesLittleEndian.Word(checked((byte)CrashRadius), stageNumber);
     }
 
     /// <summary>Ports the 30-frame center echo hold at `$90:D3F3`.</summary>
@@ -636,7 +672,7 @@ false);
     /// </summary>
     internal ShinesparkMovementResult FinishCrash(
         SamusState samus,
-        ushort projectileCounter,
+        int projectileCounter,
         SamusProjectileSystem? projectiles)
     {
         // Resolve the crash axis before publishing the standing pose.
@@ -648,7 +684,6 @@ false);
         // or above. The runtime supplies the ordinary projectile count, not bomb count.
         // Capacity failure does not clear existing echo words or slots. In particular,
         // retaining slot three's Y also retains the next crash's angular-travel seed.
-        LastReleasedCrashEchoClear = null;
         if (unchecked((short)(projectileCounter - 5)) < 0)
         {
             if (unchecked((short)(projectileCounter - 4)) < 0)
@@ -662,21 +697,20 @@ false);
         }
 
         ShineTimer = NativeCountdown.Start(1);
-        VerticalAccelerationSpeed = 0;
-        VerticalAccelerationSubspeed = 0;
+        VerticalAcceleration = SnesSignedSixteenSixteen.Zero;
         Phase = ShinesparkPhase.Inactive;
         return new ShinesparkMovementResult(
 false,             CrashSequenceFinished: true);
     }
 
     /// <summary>Commits the crash's transitional standing pose after this frame's animation.</summary>
-    public static void ApplyCrashFinishPose(ISnesAddressSpace bus, SamusState samus)
+    public static void ApplyCrashFinishPose(SamusState samus)
     {
         // Transitional command two restores the normal input handler as well as beta. That
         // replaces a drained pose's movement word too: a Samus drained mid-crash is free.
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.Drained.RelinquishMovementHandler();
-        SamusPoseId standingPose = samus.PoseMetadata.IsFacingLeft(bus)
+        SamusPoseId standingPose = samus.PoseMetadata.IsFacingLeft()
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
         ushort previousRadius = samus.Kinematics.Radius.Y;
@@ -685,7 +719,7 @@ false,             CrashSequenceFinished: true);
         // aligns the standing body's bottom with the old crash body. Alpha alone
         // publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>
@@ -711,7 +745,7 @@ false,             CrashSequenceFinished: true);
     }
 
     /// <summary>Expands an echo around live Samus position and clears its drawing words when either viewport axis rejects it.</summary>
-    internal bool StepReleasedCrashEcho(
+    internal static bool StepReleasedCrashEcho(
         SamusState samus,
         Position16<RoomPixels> layer1,
         ReleasedEchoSlot slot,
@@ -723,7 +757,7 @@ false,             CrashSequenceFinished: true);
         // `$90:D4D2` increments the complete word but passes only its low byte as radius.
         // The point is recalculated from the *current* Samus position on every frame; these
         // are expanding radial copies, not ordinary projectiles with independent velocity.
-        slot.Radius = unchecked((ushort)(slot.Radius + 8));
+        slot.ExpandRadius();
         Offset16<RoomPixels> offset = ProjectileSinLookup(slot.Angle, unchecked((byte)slot.Radius));
         Position16<RoomPixels> point = samus.Position.Whole + offset;
         slot.Position = slot.Position.WithX(point.X);
@@ -734,7 +768,6 @@ false,             CrashSequenceFinished: true);
         short screenX = unchecked((short)(slot.Position.X - layer1.X));
         if (screenX is < 0 or >= 256)
         {
-            LastReleasedCrashEchoClear = new();
             slot.Clear();
             return false;
         }
@@ -743,7 +776,6 @@ false,             CrashSequenceFinished: true);
         short screenY = unchecked((short)(slot.Position.Y - layer1.Y));
         if (screenY is < 0 or >= 256)
         {
-            LastReleasedCrashEchoClear = new();
             slot.Clear();
             return false;
         }
@@ -804,7 +836,7 @@ false,             CrashSequenceFinished: true);
 
     /// <summary>Accelerates horizontal spark speed up to fifteen pixels per frame and probes breakable room blocks.</summary>
     private BlockMoveResult MoveX(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         RoomPlmSystem? plms)
@@ -823,26 +855,23 @@ false,             CrashSequenceFinished: true);
             samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         }
 
-        var displacement = SamusHorizontalDisplacement.Toward(samus.PoseMetadata.IsFacingLeft(bus), samus, baseSpeed: 0);
-        return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
+        var displacement = SamusHorizontalDisplacement.Toward(samus.PoseMetadata.IsFacingLeft(), samus, baseSpeed: 0);
+        return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
     /// <summary>Accumulates upward spark acceleration while capping only the temporary collision displacement and probing solid enemies first.</summary>
     private BlockMoveResult MoveY(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms)
     {
         ShineTimer = NativeCountdown.Start(15);
-        uint acceleration = unchecked(SnesSixteenSixteen.Compose(
-            VerticalAccelerationSpeed,
-            VerticalAccelerationSubspeed) + SnesSixteenSixteen.Compose(
-                samus.Kinematics.YAcceleration,
-                samus.Kinematics.YSubacceleration));
-        VerticalAccelerationSpeed = SnesFixedPosition.WholeOf(unchecked((int)acceleration));
-        VerticalAccelerationSubspeed = unchecked((ushort)acceleration);
+        VerticalAcceleration += SnesSignedSixteenSixteen.FromRaw(unchecked((int)SnesSixteenSixteen.Compose(
+            samus.Kinematics.YAcceleration,
+            samus.Kinematics.YSubacceleration)));
+        uint acceleration = unchecked((uint)VerticalAcceleration.RawValue);
 
         uint speed = unchecked(SnesSixteenSixteen.Compose(
             samus.Kinematics.YSpeed,
@@ -882,7 +911,7 @@ false,             CrashSequenceFinished: true);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);
 
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
     }
 
     /// <summary>
@@ -895,8 +924,25 @@ false,             CrashSequenceFinished: true);
         public bool Active { get; private set; }
         /// <summary>Byte-angle used to place the departing echo around Samus.</summary>
         public SnesAngle Angle { get; set; }
-        /// <summary>Expanding radius retained in the projectile's X velocity word.</summary>
-        public ushort Radius { get; set; }
+        /// <summary>
+        /// Expanding radius in pixels, 0 through <see cref="LargestRadius"/>, retained in the owning projectile's X
+        /// velocity word: zero when the echo departs and raised only by <see cref="ExpandRadius"/>. The sine lookup
+        /// places the echo with the radius taken modulo 256.
+        /// </summary>
+        public int Radius { get; set; }
+
+        /// <summary>The largest radius the projectile velocity word holds; one more expansion wraps past it to zero.</summary>
+        internal const int LargestRadius = ushort.MaxValue;
+
+        /// <summary>Pixels the radius grows on each departing call.</summary>
+        private const int RadiusStep = 8;
+
+        /// <summary>Grows the radius by one departing call's step, wrapping past <see cref="LargestRadius"/> to zero.</summary>
+        public void ExpandRadius()
+        {
+            int expanded = Radius + RadiusStep;
+            Radius = expanded > LargestRadius ? expanded - (LargestRadius + 1) : expanded;
+        }
         /// <summary>Last rendered room position, including the slot-three crash aliases.</summary>
         public Position16<RoomPixels> Position { get; set; }
 

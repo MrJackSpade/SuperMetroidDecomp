@@ -3,5 +3,5 @@
 /// <summary>Observable call to one of the cartridge's three queued-sound libraries.</summary>
 public readonly record struct PlmSoundRequest(
     SoundEffectId SoundEffect,
-    byte MaximumQueued,
+    int MaximumQueued,
     bool SoundSuppressed = false);

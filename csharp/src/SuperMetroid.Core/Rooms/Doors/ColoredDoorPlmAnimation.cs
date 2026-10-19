@@ -35,7 +35,7 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
     };
 
     /// <inheritdoc/>
-    private protected override ColoredDoorProgram? Publish(ColoredDoorCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override ColoredDoorProgram? Publish(ColoredDoorCue cue, PlmSlot slot, PlmStepContext context)
     {
         DoorPlms doors = context.Plms.DoorPlms;
         switch (cue)
@@ -43,7 +43,7 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
             case ColoredDoorCue.BranchIfOpened:
                 if (doors.IsDoorOpened(slot))
                 {
-                    slot.ColoredDoor = null;
+                    slot.Family = null;
                     slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Closed(Orientation)));
                 }
                 return null;
@@ -51,7 +51,7 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
                 SetLink(ColoredDoorProgram.Hit);
                 return null;
             case ColoredDoorCue.ArmWake:
-                slot.PreInstruction = (ushort)ColoredDoorPlmProgramDefinitions.WakeOf(Color);
+                slot.PreInstruction = ColoredDoorPreInstructions.Of(ColoredDoorPlmProgramDefinitions.WakeOf(Color));
                 return null;
             case ColoredDoorCue.CountHit:
                 return doors.CountColoredDoorHit(slot) ? ColoredDoorProgram.Open : null;
@@ -70,6 +70,6 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
     }
 
     /// <summary>Queues a library-3 door sound under the door sounds' cap.</summary>
-    private static void QueueDoorSound(PlmAnimationContext context, byte sound) =>
-        context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, sound), BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
+    private static void QueueDoorSound(PlmStepContext context, SoundEffectId sound) =>
+        context.QueueSound(sound, BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
 }

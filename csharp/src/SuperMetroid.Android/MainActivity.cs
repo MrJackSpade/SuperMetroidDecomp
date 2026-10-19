@@ -455,7 +455,7 @@ public sealed class MainActivity : Activity
                     using var intent = new Intent(Intent.ActionOpenDocument);
                     intent.AddCategory(Intent.CategoryOpenable);
                     intent.SetType("*/*");
-#pragma warning disable CS0618
+#pragma warning disable CS0618 // Plain Activity host without AndroidX; OnActivityResult handles the document result.
                     StartActivityForResult(intent, (int)(state ? AndroidDocumentRequest.StateImport : AndroidDocumentRequest.SaveImport));
 #pragma warning restore CS0618
                 }
@@ -507,7 +507,7 @@ public sealed class MainActivity : Activity
                 using var intent = new Intent(Intent.ActionOpenDocument);
                 intent.AddCategory(Intent.CategoryOpenable);
                 intent.SetType("*/*");
-#pragma warning disable CS0618
+#pragma warning disable CS0618 // Plain Activity host without AndroidX; OnActivityResult handles the document result.
                 StartActivityForResult(intent, (int)AndroidDocumentRequest.RomImport);
 #pragma warning restore CS0618
             }

@@ -20,9 +20,9 @@ internal static class GrappleDemoTrajectoryVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var scene = SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 4);
-        AssertEqual(AttractDemoRomDataInputObjects.GrappleBeam, (scene ?? throw new InvalidOperationException("Verification requires scene.")).InputObject,
+        AssertEqual(DemoInputObjectDefinitions.AttractGrappleBeam, (scene ?? throw new InvalidOperationException("Verification requires scene.")).InputObject,
             "retail basic grapple demo identity");
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.AttractDemo.InitializeAttractDemo(scene);
         var samus = runtime.Player.IntroducedSamus;
         var level = runtime.Room.LoadedLevelData;
@@ -38,7 +38,7 @@ internal static class GrappleDemoTrajectoryVerification
         GrapplePhase previousPhase = GrapplePhase.Inactive;
         for (int frame = 0; frame < scene.Duration; frame++)
         {
-            input.Step(SuperMetroidGameState.PlayingDemo, samus.PoseMetadata.ReadMovementType(bus));
+            input.Step(SuperMetroidGameState.PlayingDemo, samus.PoseMetadata.ReadMovementType());
             if ((input.Script.NewlyPressed & (ushort)SnesButton.X) != 0) scriptedShots++;
             runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false } });
             if (frame == 164)
@@ -47,7 +47,7 @@ internal static class GrappleDemoTrajectoryVerification
             if (frame == 168)
             {
                 AssertEqual(GrapplePhase.Firing, samus.Grapple.Phase, "second scripted grapple fires");
-                AssertEqual((byte)SamusProjectileDirection.UpRight, samus.Grapple.FireDirection,
+                AssertEqual(SamusProjectileDirection.UpRight, samus.Grapple.FireDirection,
                     "second grapple aims up at the next ceiling anchor, not horizontally");
             }
             if (samus.Grapple.Phase == GrapplePhase.ConnectedSwinging &&

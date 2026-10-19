@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Verification.Rooms.Scrolling;
@@ -17,18 +18,24 @@ internal static class ImplicitScrollResidueVerification
     /// </summary>
     internal static void VerifyImplicitScrollResidue()
     {
-        var bus = new TestAddressSpace();
-        CartridgeRoomHeader previous = CartridgeRoomHeader.LoadUsingCompiledSelection(0xa7de);
-        CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(0xa7b3);
+        var storage = new RoomScrollStorage();
+        CartridgeRoomHeader previous = CartridgeRoomHeader.LoadUsingCompiledSelection(RoomHeaderDefinitions.BusinessCenter);
+        CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(RoomHeaderDefinitions.CathedralEntrance);
         AssertTrue(unchecked((short)room.State.ScrollPointer) >= 0, "$A7B3 uses an implicit scroll table");
 
-        RoomScrollGrid before = RoomScrollDefinitions.CreateGrid(bus, previous.State.ScrollPointer, previous.Size);
-        RoomScrollGrid grid = RoomScrollDefinitions.CreateGrid(bus, room.State.ScrollPointer, room.Size);
+        RoomScrollGrid before = RoomScrollGrid.FromDefinition(storage, previous.State.Scroll, previous.Size);
+        byte[] previousTail = before.Storage.ToArray();
+        RoomScrollGrid grid = RoomScrollGrid.FromDefinition(storage, room.State.Scroll, room.Size);
 
         AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");
+        // #1336: past the 50 cells the scroll reads land in the saved explored-map planes, which read as zero.
+        AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadNativeStorage(RoomScrollGrid.StorageByteCount),
+            "index $32 reads the explored-map byte as the cartridge's zero");
+        AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadNativeStorage(ushort.MaxValue),
+            "the last index a 16-bit register selects reads zero too");
         AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadNativeState(3), "the bottom row is blue");
         for (int index = grid.LogicalCellCount; index < RoomScrollGrid.StorageByteCount; index++)
-            AssertEqual(before.ReadStorage(index), grid.ReadStorage(index), $"scroll byte {index} keeps the previous room's value");
+            AssertEqual(previousTail[index], grid.ReadStorage(index), $"scroll byte {index} keeps the previous room's value");
         AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadNativeState(3 + room.Size.X),
             "the cell below the bottom row is $A7DE's blue, not red");
         Console.WriteLine("  Implicit scroll residue: $A7B3 keeps $A7DE's bytes past its six cells.");

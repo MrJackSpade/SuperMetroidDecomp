@@ -1,4 +1,7 @@
-﻿using SuperMetroid.Core.Areas.Tourian.Artwork;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -7,8 +10,14 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The Tourian entrance statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
+internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, slot, common);
+
     /// <summary>Provides installed statue colors and room-owned state.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates the three fixed statue decoration actors in native reverse-slot order.</summary>
@@ -33,22 +42,25 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
     public short TourianEntranceStatueVerticalOffset { get; internal set; }
 
     /// <summary>
-    /// Native <c>tourian_entrance_statue_animstate</c>. Its producers live in the palette-
-    /// FX/HDMA unlocking sequence; zero is the retail room-load state.
+    /// The statues' shared animation state, set and cleared by the statue tile programs and the descent;
+    /// <see cref="TourianStatueAnimationState.None"/> is the room-load state.
     /// </summary>
-    public ushort TourianEntranceStatueAnimationState { get; internal set; }
+    public TourianStatueAnimationState TourianEntranceStatueAnimationState { get; internal set; }
 
     /// <summary>Clears the completion, palette-animation, and BG2 displacement latches on room load.</summary>
     internal void ResetTourianEntranceStatueRoomState()
     {
         TourianEntranceStatueFinished = false;
-        TourianEntranceStatueAnimationState = 0;
+        TourianEntranceStatueAnimationState = TourianStatueAnimationState.None;
         TourianEntranceStatueVerticalOffset = 0;
     }
 
-    /// <summary>Each statue record's typed animation (#641), indexed by enemy slot; every one deletes its record at once.</summary>
-    internal readonly AnimationProgramCursor<TourianEntranceStatueProgram>?[] _statuePrograms =
-        new AnimationProgramCursor<TourianEntranceStatueProgram>?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across TourianEntranceStatue occupants for the current room.</summary>
+    internal readonly TourianEntranceStatueExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static TourianEntranceStatueExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new TourianEntranceStatueExtensionWords())];
 
     /// <summary>Installs one of three animations and lets only the first statue record spawn the fixed decorative actors.</summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
@@ -63,8 +75,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         statue.PaletteIndex = 0;
         statue.InstructionTimer = NativeCountdown.Start(1);
         statue.Timer = NativeCountdown.Start(0);
-        _statuePrograms[statue.SlotIndex] = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
-            TourianEntranceStatueAnimationDefinitions.InitialProgram(statue.Parameter1));
+        _extensions[statue.SlotIndex].Program = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
+            TourianEntranceStatueAnimationDefinitions.InitialProgram(checked((ushort)statue.Parameter1)));
 
         // Only the first of the three enemy records creates the fixed screen actors. The
         // native allocator searches from slot $22 down, so this exact call order gives the
@@ -108,15 +120,13 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
     /// <summary>Tracks the BG2 statue's vertical displacement and publishes the base decoration's completion latch.</summary>
     internal void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
     {
-        if (ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(
-                projectile.PreInstruction, "enemy-projectile pre-instruction") ==
-                EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess &&
-            TourianEntranceStatueAnimationState == 0)
+        if (projectile.PreInstruction == EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess &&
+            TourianEntranceStatueAnimationState == TourianStatueAnimationState.None)
         {
             TourianEntranceStatueFinished = true;
         }
 
-        projectile.Position = projectile.Position.WithWholeX(projectile.Variable0);
+        projectile.Position = projectile.Position.WithWholeX(checked((ushort)projectile.Variable0));
 
         // $86:BA42 adds layer1_y_pos and subtracts HDMA's layer1_y_pos + displacement.
         // The camera terms cancel here; ordinary OBJ drawing subtracts the camera once.
@@ -133,48 +143,35 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess, EnemyProjectilePreInstruction.TourianStatue_Ridley_Phantoon_BaseDecor);
     }
 
-    /// <summary>Runs the statue records' animations as typed programs (#641).</summary>
-    internal void RegisterTourianEntranceStatueTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            AnimationProgramCursor<TourianEntranceStatueProgram> cursor = _statuePrograms[slot.SlotIndex] ??
-                throw new InvalidOperationException($"Tourian entrance statue slot {slot.SlotIndex} has no animation.");
-            EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.Spritemap);
-            _statuePrograms[slot.SlotIndex] = cursor;
-        });
-
-    /// <summary>Registers statue initialization only for the Tourian entrance enemy definition.</summary>
-    internal void RegisterTourianEntranceStatueInitializationAi(EnemyAiTable table)
+    /// <summary>Advances TourianEntranceStatue's typed animation.</summary>
+    internal void AdvanceTourianEntranceStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        AnimationProgramCursor<TourianEntranceStatueProgram> cursor = _extensions[slot.SlotIndex].Program ??
+            throw new InvalidOperationException($"Tourian entrance statue slot {slot.SlotIndex} has no animation.");
+        EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.ShownFrames.Of);
+        _extensions[slot.SlotIndex].Program = cursor;
+    }
 
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_TourianStatue, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeTourianEntranceStatue(slot);
-        });
+    /// <summary>Ports TourianEntranceStatue's initialization AI.</summary>
+    internal void RunTourianEntranceStatueInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeTourianEntranceStatue(slot);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_statuePrograms);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new TourianEntranceStatueExtensionWords();
         ResetTourianEntranceStatueRoomState();
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
+    /// <summary>Ports TourianEntranceStatue's main AI.</summary>
+    internal static void RunTourianEntranceStatueMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
     {
-    }
-
-
-    /// <summary>Registers the native do-nothing main AI while statue animation remains instruction driven.</summary>
-    internal static void RegisterTourianStatueMainAi(EnemyAiTable table)
-    {
-        table.RegisterMain(EnemyAiRoutine.MainAI_TourianStatue, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue, (slot, frame, nmiFrameCounter8) =>
-        {
-            // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
-            // three enemy records animate exclusively through their ROM lists.
-        });
+        // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
+        // three enemy records animate exclusively through their ROM lists.
     }
 }

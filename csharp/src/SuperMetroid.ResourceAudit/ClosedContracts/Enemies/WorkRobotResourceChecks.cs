@@ -18,14 +18,14 @@ internal static class WorkRobotResourceChecks
         // frame clock or player input is needed to expose a missing installed binding.
         var frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(
             frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
-        var programs = EnemyProjectilePresentationFrameDefinitions.All.ToDictionary(
+        var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(
             frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
         for (int index = 0; index < WorkRobotLaserFrameDefinitions.PoseCount; index++)
         {
-            ushort operand = WorkRobotLaserFrameDefinitions.PresentationKey(new(index));
-            Require(EnemyProjectilePresentationFrameDefinitions.Contains(operand),
+            ushort operand = EnemyProjectileFrames.ProgramFrameKey(WorkRobotLaserFrameDefinitions.ShownProjectileFrames[new(index)]);
+            Require(EnemyProjectilePresentationFrameSetsTooling.Contains(operand),
                 $"Work Robot laser operand {operand:X4} must be included in the production extraction catalog");
-            string name = EnemyProjectilePresentationFrameDefinitions.All
+            string name = EnemyProjectilePresentationFrameSets.All
                 .Single(frame => frame.OperandAddress == operand).Name;
             programs[name] = [new SpriteVisualPart
             {
@@ -41,17 +41,17 @@ internal static class WorkRobotResourceChecks
         EnemyProjectileSpritemapCatalog stock = Load(document);
         for (int index = 0; index < WorkRobotLaserFrameDefinitions.PoseCount; index++)
         {
-            ushort operand = WorkRobotLaserFrameDefinitions.PresentationKey(new(index));
+            ushort operand = EnemyProjectileFrames.ProgramFrameKey(WorkRobotLaserFrameDefinitions.ShownProjectileFrames[new(index)]);
             Require(stock.GetProgramFrame(operand).Span.Length == 1 &&
                 stock.GetProgramFrame(operand).Span[0].X.SignedOffset == index,
                 $"installed Work Robot frame {operand:X4} must preserve its actual draw composition");
         }
-        var legacyPrograms = EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToDictionary(
+        var legacyPrograms = EnemyProjectilePresentationFrameSets.PreWorkRobot.ToDictionary(
             frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
         // The Work Robot's own schema generation is the one before the Polyp rock's: compare it, not the current one.
-        Require(EnemyProjectilePresentationFrameDefinitions.PrePolypRock.Length - legacyPrograms.Count == WorkRobotLaserFrameDefinitions.PoseCount,
+        Require(EnemyProjectilePresentationFrameSets.PrePolypRock.Length - legacyPrograms.Count == WorkRobotLaserFrameDefinitions.PoseCount,
             "the schema change must add only the seven identified Work Robot bindings");
-        EnemyProjectilePresentationFrameDefinition edited = EnemyProjectilePresentationFrameDefinitions.PreWorkRobot[0];
+        EnemyProjectilePresentationFrameDefinition edited = EnemyProjectilePresentationFrameSets.PreWorkRobot[0];
         legacyPrograms[edited.Name] = [new SpriteVisualPart
         {
             OffsetX = -1, OffsetY = 0, Size = 8, Priority = 2, Palette = 0,
@@ -67,7 +67,7 @@ internal static class WorkRobotResourceChecks
             "a schema-11 override must retain its edited existing composition");
         for (int index = 0; index < WorkRobotLaserFrameDefinitions.PoseCount; index++)
         {
-            ushort operand = WorkRobotLaserFrameDefinitions.PresentationKey(new(index));
+            ushort operand = EnemyProjectileFrames.ProgramFrameKey(WorkRobotLaserFrameDefinitions.ShownProjectileFrames[new(index)]);
             Require(merged.GetProgramFrame(operand).Span[0].X.SignedOffset == index,
                 "a schema-11 override must inherit each newly required laser composition from stock");
         }

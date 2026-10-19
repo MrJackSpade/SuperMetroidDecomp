@@ -42,7 +42,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             var installedBus = NewSporeSpawnInstructionReadGuard(rom);
             var nativeTrace = ReadReferenceSporeSpawnProgram(rom, pointer, frames, allNativeSelectors);
             var installedTrace = new List<SporeSpawnProgramFrame>(frames);
-            RunSporeSpawnProgram(installedBus, program, frames, stock,
+            RunSporeSpawnProgram(program, frames, stock,
                 afterFrame: (system, slot) =>
                     installedTrace.Add(CaptureSporeSpawnProgramFrame(system, slot, steps)));
             AssertEqual(nativeTrace.Count, installedTrace.Count,
@@ -143,8 +143,8 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         return new SporeSpawnProgramFrame(
             NativeBodyInstruction(steps, state), slot.InstructionTimer.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,
-            slot.Health, slot.Properties, slot.ExtraProperties,
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.Angle, state.MaximumXRadius,
+            checked((ushort)slot.Health), slot.Properties.ToNativeWord(), slot.ExtraProperties.ToNativeWord(),
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.Angle.TableIndex, checked((ushort)state.MaximumXRadius),
             state.DeathStarted, state.DeathDropRequested);
     }
 
@@ -178,10 +178,10 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             var remappedBus = NewSporeSpawnInstructionReadGuard(rom);
             var stockTrace = new List<SporeSpawnProgramFrame>(frames);
             var remappedTrace = new List<SporeSpawnProgramFrame>(frames);
-            RunSporeSpawnProgram(stockBus, program, frames, stock,
+            RunSporeSpawnProgram(program, frames, stock,
                 afterFrame: (system, slot) =>
                     stockTrace.Add(CaptureSporeSpawnProgramFrame(system, slot, steps)));
-            RunSporeSpawnProgram(remappedBus, program, frames, remapped,
+            RunSporeSpawnProgram(program, frames, remapped,
                 afterFrame: (system, slot) =>
                     remappedTrace.Add(CaptureSporeSpawnProgramFrame(system, slot, steps)));
             AssertEqual(stockTrace.Count, remappedTrace.Count,

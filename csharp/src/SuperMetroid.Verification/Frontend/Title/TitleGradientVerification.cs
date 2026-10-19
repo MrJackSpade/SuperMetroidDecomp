@@ -16,17 +16,22 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks extracted title graphics, palettes, and HDMA gradient through installed presentation and retail oracles.</summary>
 internal static class TitleGradientVerification
 {
+    /// <summary>The title's upper CGADSUB setting: subtract the fixed color from BG1 and the backdrop.</summary>
+    private const ColorMathControlFlags SubtractFromBackground = ColorMathControlFlags.Subtract | ColorMathControlFlags.Backdrop | ColorMathControlFlags.Bg1;
+    /// <summary>The title's lower CGADSUB setting: add the fixed color to BG1, the backdrop and the OBJs.</summary>
+    private const ColorMathControlFlags AddToBackgroundAndObjects = ColorMathControlFlags.Backdrop | ColorMathControlFlags.Obj | ColorMathControlFlags.Bg1;
+
     /// <summary>Creates the production title owner with selected installed graphics, palette, and gradient overrides.</summary>
-    private static TitleSequenceState CreateTitlePresentationFixture(ISnesAddressSpace bus,
-        TitleGradientPresentation? titleGradientPresentation = null,
+    private static TitleSequenceState CreateTitlePresentationFixture(TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null)
  =>
-        InstalledFixtures.CreateTitle(bus, titleGradientPresentation: titleGradientPresentation,
+        InstalledFixtures.CreateTitle(titleGradientPresentation: titleGradientPresentation,
             titlePalettePresentation: titlePalettePresentation, titleGraphicsPresentation: titleGraphicsPresentation);
     /// <summary>Checks native gradient band boundaries and all 256 zoom selections after artwork and schema suites.</summary>
     internal static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
@@ -37,20 +42,20 @@ internal static class TitleGradientVerification
         Suite(nameof(VerifyExtractedTitleGradient), () => VerifyExtractedTitleGradient(bus));
         // Independently transcribed boundaries from $8C:BC7D and $88:EB95.
         var lines = TitleGradientDecoder.Decode(bus, 0);
-        AssertEqual(new TitleGradientLine(15, 15, 15, 0xa1), lines[0], "title gradient starts subtracting fifteen");
-        AssertEqual(new TitleGradientLine(14, 14, 14, 0xa1), lines[4], "title gradient advances after four scanlines");
-        AssertEqual(new TitleGradientLine(0, 0, 0, 0xa1), lines[121], "last subtractive title line");
-        AssertEqual(new TitleGradientLine(0, 0, 0, 0x31), lines[122], "first additive title line");
-        AssertEqual(new TitleGradientLine(0, 1, 1, 0x31), lines[132], "lower title cyan band begins");
-        AssertEqual(new TitleGradientLine(0, 2, 2, 0x31), lines[144], "second lower cyan band begins");
+        AssertEqual(new TitleGradientLine(15, 15, 15, SubtractFromBackground), lines[0], "title gradient starts subtracting fifteen");
+        AssertEqual(new TitleGradientLine(14, 14, 14, SubtractFromBackground), lines[4], "title gradient advances after four scanlines");
+        AssertEqual(new TitleGradientLine(0, 0, 0, SubtractFromBackground), lines[121], "last subtractive title line");
+        AssertEqual(new TitleGradientLine(0, 0, 0, AddToBackgroundAndObjects), lines[122], "first additive title line");
+        AssertEqual(new TitleGradientLine(0, 1, 1, AddToBackgroundAndObjects), lines[132], "lower title cyan band begins");
+        AssertEqual(new TitleGradientLine(0, 2, 2, AddToBackgroundAndObjects), lines[144], "second lower cyan band begins");
         for (ushort zoom = 0; zoom < 256; zoom++)
         {
             var actual = TitleGradientDecoder.Decode(bus, zoom);
             var nibble = TitleGradientDecoder.Decode(bus, (ushort)(zoom & 0xf0));
             if (!actual.SequenceEqual(nibble))
                 throw new InvalidDataException("Title gradient index used low zoom bits.");
-            AssertEqual((byte)0xa1, actual[121].Control, "zoom preserves subtractive boundary");
-            AssertEqual((byte)0x31, actual[122].Control, "zoom preserves additive boundary");
+            AssertEqual(SubtractFromBackground, actual[121].Control, "zoom preserves subtractive boundary");
+            AssertEqual(AddToBackgroundAndObjects, actual[122].Control, "zoom preserves additive boundary");
         }
         Console.WriteLine("  Title gradient: 256 zoom selections, native cyan bands and subtract/add boundary agree.");
     }
@@ -88,9 +93,8 @@ internal static class TitleGradientVerification
         var guardedBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
         TitleGradientPresentation gradient = TitleGradientPresentation.Load(
             new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
-        var stock = CreateTitlePresentationFixture(bus, titleGradientPresentation: gradient);
-        var installed = CreateTitlePresentationFixture(guardedBus,
-            titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
+        var stock = CreateTitlePresentationFixture(titleGradientPresentation: gradient);
+        var installed = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 140; frame++)
         {
             stock.Step(0);
@@ -126,25 +130,28 @@ internal static class TitleGradientVerification
             "title extraction covers all cartridge-selected OBJ frames");
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSequenceRomData.TextSequences.Year.InstructionAddress + 6);
+        IReadOnlyDictionary<TitleSprite, ushort> spritemaps =
+            SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus);
+        AssertEqual(yearPointer, spritemaps[TitleSprite.YearReveal1], "the year's first letter is the year card's first listed spritemap");
         // Independent native OBJ records retain the cartridge reference now that both
         // scene owners require installed graphics rather than a ROM-backed draw path.
         foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
         {
             var nativeOam = new OamBuffer(); var installedOam = new OamBuffer();
-            int address = ((int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, checked((ushort)frame.Pointer)));
+            int address = ((int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, spritemaps[frame.Sprite]));
             ushort Word(int at) => (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, at), CpuBusRegionRead.Read(bus, at + 1)));
             int count = Word(address);
             for (int part = 0; part < count; part++)
             {
                 int record = address + 2 + part * 5;
                 nativeOam.AddOnScreenSpritePart(new SnesSpritemapXWord(Word(record)),
-                    CpuBusRegionRead.Read(bus, record + 2), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
+                    new SnesSpritemapYByte(CpuBusRegionRead.Read(bus, record + 2)), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
                     new Position16<OamPixels>(128, 112));
             }
-            presentation.DrawSprite(checked((ushort)frame.Pointer), installedOam, new(128, 112), 0);
+            presentation.DrawSprite(frame.Sprite, installedOam, new(128, 112), 0);
             AssertTrue(nativeOam.ImageEquals(installedOam), "Title composition matches independent native OBJ records");
         }
-        TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Pointer == yearPointer);
+        TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Sprite == TitleSprite.YearReveal1);
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { OffsetX = originalPart.OffsetX + 8 };
         byte[] editedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
@@ -153,10 +160,8 @@ internal static class TitleGradientVerification
             new MemoryStream(editedMap),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
-        var originalTitle = CreateTitlePresentationFixture(bus,
-            titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
-        var editedTitle = CreateTitlePresentationFixture(bus,
-            titleGradientPresentation: gradient, titleGraphicsPresentation: editedPresentation);
+        var originalTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
+        var editedTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: editedPresentation);
         bool editVisible = false;
         bool pixelChanged = false;
         for (int frame = 0; frame < 100; frame++)
@@ -176,8 +181,7 @@ internal static class TitleGradientVerification
             throw new InvalidDataException("Editing the Year composition did not alter production OAM.");
         if (!pixelChanged)
             throw new InvalidDataException("Editing the Year composition did not alter visible title pixels.");
-        var reboundTitle = CreateTitlePresentationFixture(bus,
-            titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
+        var reboundTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 64; frame++) reboundTitle.Step(0);
         byte[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Memory.Oam.ToArray();
         reboundTitle.BindTitleGraphics(editedPresentation);
@@ -243,15 +247,15 @@ internal static class TitleGradientVerification
             TitleSequenceRomData.Assets.PaletteAddress,
             CgramPalettes.ByteCount).ToHashSet();
         var guardedBus = NewTitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
-        var title = CreateTitlePresentationFixture(guardedBus, titlePalettePresentation: presentation);
+        var title = CreateTitlePresentationFixture(titlePalettePresentation: presentation);
         if (!title.PaletteColors.SequenceEqual(presentation.Colors) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
             throw new InvalidDataException(
                 "Production title initialization did not use the installed palette exclusively.");
         }
-        var nativeSkip = CreateTitlePresentationFixture(bus);
-        var installedSkip = CreateTitlePresentationFixture(bus, titlePalettePresentation: presentation);
+        var nativeSkip = CreateTitlePresentationFixture();
+        var installedSkip = CreateTitlePresentationFixture(titlePalettePresentation: presentation);
         nativeSkip.Step(SnesButton.Start);
         installedSkip.Step(SnesButton.Start);
         for (int frame = 0; frame < 18; frame++)
@@ -311,8 +315,8 @@ internal static class TitleGradientVerification
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
-            native.SpawnDefinition(bus, definition.DefinitionPointer, 0);
-            installed.SpawnDefinition(guardedBus, definition.DefinitionPointer, 0);
+            native.SpawnDefinition(definition.DefinitionPointer, 0);
+            installed.SpawnDefinition(definition.DefinitionPointer, 0);
         }
 
         var nativeCgram = new SnesCgram();
@@ -321,8 +325,8 @@ internal static class TitleGradientVerification
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            installed.Step(guardedBus, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             if (!new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)))
             {
                 throw new InvalidDataException(
@@ -424,7 +428,7 @@ internal static class TitleGradientVerification
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.BabyTilesFile]));
         (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(
-            guardedBus, presentation, palette, graphics);
+            presentation, palette, graphics);
         if (!rendered.SequenceEqual(presentation.Resolve(selectedZoom)) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
@@ -477,12 +481,11 @@ internal static class TitleGradientVerification
 
     /// <summary>Steps the installed title through Start's skip fade and captures the first visible gradient and Mode 7 zoom.</summary>
     internal static (TitleGradientLine[] Lines, ushort Zoom) CaptureInstalledTitleGradient(
-        ISnesAddressSpace bus,
         TitleGradientPresentation presentation,
         TitlePalettePresentation palette,
         TitleGraphicsPresentation graphics)
     {
-        var title = CreateTitlePresentationFixture(bus, titleGradientPresentation: presentation,
+        var title = CreateTitlePresentationFixture(titleGradientPresentation: presentation,
             titlePalettePresentation: palette, titleGraphicsPresentation: graphics);
         title.Step(SnesButton.Start);
         for (int frame = 0; frame < 16; frame++)
@@ -509,23 +512,23 @@ internal static class TitleGradientVerification
         var priorities = new byte[pixels.Length];
         var palettes = new byte[pixels.Length];
         var color = new Rgba32(0, 0, 0, 255);
-        var additive = new TitleGradientLine(0, 1, 1, 0x31);
+        var additive = new TitleGradientLine(0, 1, 1, AddToBackgroundAndObjects);
         for (byte palette = 0; palette < 8; palette++)
         {
             oam.BeginFrame();
             oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)(palette << 9));
             oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)((7 - palette) << 9));
             oam.FinalizeFrame();
-            SnesObjRenderer.RenderResolved(ObjSpriteImage.OamOnly(oam), vram, cgram, 0, new ObjRasterTargets(pixels, priorities, palettes));
+            SnesObjRenderer.RenderResolved(ObjSpriteImageConstants.OamOnly(oam), vram, cgram, 0, new ObjRasterTargets(pixels, priorities, palettes));
             AssertEqual(palette, palettes[0], "winning OBJ palette survives equal-color overlap");
             AssertEqual(byte.MaxValue, palettes[8], "transparent pixel has no palette owner");
             AssertEqual(palette < 4 ? color : new Rgba32(0, 8, 8, 255),
                 TitleGradientColorMath.Apply(color, additive, palettes[0]), "title OBJ palette eligibility");
-            AssertEqual(color, TitleGradientColorMath.Apply(color, new(15, 15, 15, 0xa1), palette),
+            AssertEqual(color, TitleGradientColorMath.Apply(color, new(15, 15, 15, SubtractFromBackground), palette),
                 "upper title subtraction excludes every OBJ palette");
         }
         AssertEqual(new Rgba32(247, 247, 247, 255),
-            TitleGradientColorMath.Apply(new(255, 255, 255, 255), new(1, 1, 1, 0xa1)), "native five-bit subtraction");
+            TitleGradientColorMath.Apply(new(255, 255, 255, 255), new(1, 1, 1, SubtractFromBackground)), "native five-bit subtraction");
     }
 
     /// <summary>Records title source addresses during extraction or forbids those addresses during installed rendering.</summary>

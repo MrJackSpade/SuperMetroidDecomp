@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Recording;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.DesktopVerification.Audio;
 
@@ -37,8 +38,7 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
-        recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var game = new SuperMetroidGame(SuperMetroid.Core.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioClips());
 
         int framesExecuted = 0;
@@ -47,8 +47,8 @@ public static class AudioInputReplaySmokeTest
         bool powerBeamAcknowledged = false;
         bool firstDoorBegan = false;
         bool firstDoorCompleted = false;
-        ushort sourceRoom = 0;
-        ushort destinationRoom = 0;
+        RoomHeaderDefinition? sourceRoom = null;
+        RoomHeaderDefinition? destinationRoom = null;
         Rgba32[]? firstSourceFrame = null;
         Rgba32[]? lastSourceGameplayFrame = null;
         Rgba32[]? completedDestinationFrame = null;
@@ -66,18 +66,18 @@ public static class AudioInputReplaySmokeTest
             CartridgeAudioAcknowledgements acknowledgements = game.AudioAcknowledgementsForVerification;
             framesExecuted++;
 
-            ushort? activeRoom = game.GameplayActiveRoomPointer;
-            if (sourceRoom == 0 && activeRoom is { } firstRoom)
+            RoomHeaderDefinition? activeRoom = game.GameplayActiveRoom;
+            if (sourceRoom is null && activeRoom is { } firstRoom)
                 sourceRoom = firstRoom;
-            if (sourceRoom != 0 &&
+            if (sourceRoom is not null &&
                 activeRoom == sourceRoom &&
                 game.GameState == SuperMetroidGameState.MainGameplay)
             {
                 // Clone because SuperMetroidGame may replace or reuse its current frame on
                 // the following call. These are diagnostics only; replay state never reads
                 // pixels back and therefore remains independent of an optional output path.
-                firstSourceFrame ??= frame.Pixels.ToArray();
-                lastSourceGameplayFrame = frame.Pixels.ToArray();
+                firstSourceFrame ??= game.PublishedPixels();
+                lastSourceGameplayFrame = game.PublishedPixels();
             }
 
             projectileFired |= game.GameplayLastFiredProjectileSlot is not null;
@@ -90,11 +90,11 @@ public static class AudioInputReplaySmokeTest
                 firstDoorBegan = true;
             if (firstDoorBegan && activeRoom is { } room && room != sourceRoom)
                 destinationRoom = room;
-            if (destinationRoom != 0 &&
+            if (destinationRoom is not null &&
                 game.GameState == SuperMetroidGameState.MainGameplay)
             {
                 firstDoorCompleted = true;
-                completedDestinationFrame = frame.Pixels.ToArray();
+                completedDestinationFrame = game.PublishedPixels();
                 break;
             }
         }
@@ -110,7 +110,7 @@ public static class AudioInputReplaySmokeTest
         {
             throw new InvalidDataException(
                 $"Replay did not complete its first ordinary door: began={firstDoorBegan}, " +
-                $"source=${sourceRoom:X4}, destination=${destinationRoom:X4}, " +
+                $"source={sourceRoom?.Name}, destination={destinationRoom?.Name}, " +
                 $"state=${(ushort)game.GameState:X2} ({game.GameState}).");
         }
 
@@ -130,8 +130,8 @@ public static class AudioInputReplaySmokeTest
             powerBeamAcknowledged,
             firstDoorBegan,
             firstDoorCompleted,
-            sourceRoom,
-            destinationRoom);
+            sourceRoom?.Name,
+            destinationRoom?.Name);
     }
 
     /// <summary>
@@ -150,8 +150,7 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
-        recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var game = new SuperMetroidGame(SuperMetroid.Core.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioClips());
         for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)
         {
@@ -164,7 +163,7 @@ public static class AudioInputReplaySmokeTest
                 throw new InvalidDataException(
                     $"Replay with managed audio failed on recorded call {frameIndex}, " +
                     $"state=${(ushort)game.GameState:X2}, " +
-                    $"room=$8F:{game.GameplayActiveRoomPointer.GetValueOrDefault():X4}.",
+                    $"room={game.GameplayActiveRoom?.Name}.",
                     exception);
             }
         }
@@ -192,8 +191,7 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
-        recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var game = new SuperMetroidGame(SuperMetroid.Core.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioClips());
         var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         var completed = new List<RecordedPauseAudioResult>();
@@ -211,7 +209,7 @@ public static class AudioInputReplaySmokeTest
             {
                 active = new PauseAccumulator(
                     frameIndex,
-                    game.GameplayActiveRoomPointer.GetValueOrDefault());
+                    game.GameplayActiveRoom?.Name ?? throw new InvalidDataException("Pause began without an active room."));
             }
             if (active is { } pause)
             {
@@ -254,16 +252,16 @@ public static class AudioInputReplaySmokeTest
         private readonly List<string> commandTrace = [];
 
         /// <summary>Starts a pause interval at its recorded entry frame and room.</summary>
-        public PauseAccumulator(int entryFrame, ushort roomPointer)
+        public PauseAccumulator(int entryFrame, string room)
         {
             EntryFrame = entryFrame;
-            RoomPointer = roomPointer;
+            Room = room;
         }
 
         /// <summary>Recorded update at which this pause began.</summary>
         public int EntryFrame { get; }
-        /// <summary>Room pointer retained across this pause interval.</summary>
-        public ushort RoomPointer { get; }
+        /// <summary>Room retained across this pause interval.</summary>
+        public string Room { get; }
         /// <summary>Count of frontend updates owned by pause states, including transitions.</summary>
         public int PauseOwnedFrames { get; set; }
         /// <summary>Number of bank loads, music commands and sound-effect starts during pause ownership.</summary>
@@ -299,7 +297,7 @@ public static class AudioInputReplaySmokeTest
             return new RecordedPauseAudioResult(
                 EntryFrame,
                 resumeFrame,
-                RoomPointer,
+                Room,
                 PauseOwnedFrames,
                 minimumRms,
                 maximumRms,

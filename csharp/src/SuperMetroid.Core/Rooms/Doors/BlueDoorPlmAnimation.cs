@@ -29,17 +29,15 @@ internal sealed class BlueDoorPlmAnimation(BlueDoorProgram program)
     };
 
     /// <inheritdoc/>
-    private protected override BlueDoorProgram? Publish(BlueDoorCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override BlueDoorProgram? Publish(BlueDoorCue cue, PlmSlot slot, PlmStepContext context)
     {
         switch (cue)
         {
             case BlueDoorCue.QueueOpenSound:
-                context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, BlueDoorPlmProgramDefinitions.OpenSound),
-                    BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
+                context.QueueSound(BlueDoorPlmProgramDefinitions.OpenSound, BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
                 break;
             case BlueDoorCue.QueueCloseSound:
-                context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, BlueDoorPlmProgramDefinitions.CloseSound),
-                    BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
+                context.QueueSound(BlueDoorPlmProgramDefinitions.CloseSound, BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
                 break;
             case BlueDoorCue.RestoreBlueBts:
                 context.Level.SetBehavior(slot.BlockIndex,

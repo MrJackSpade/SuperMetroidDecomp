@@ -23,8 +23,8 @@ internal static class KiHunterAcidSpitBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, KiHunterAcidSpitNativeListAddresses.Extent, "Ki-Hunter acid");
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
-        var body = new RoomEnemySlot(0)
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             VramTilesIndex = 512,

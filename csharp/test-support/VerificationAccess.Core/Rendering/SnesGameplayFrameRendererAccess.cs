@@ -64,7 +64,7 @@ internal static class SnesGameplayFrameRendererAccess
                     .CopyTo(output.AsSpan(screenY * SnesGameplayFrameRenderer.Width, SnesGameplayFrameRenderer.Width));
             }
 
-            SnesGameplayFrameRenderer.DrawHudAndObjects((Rgba32[])(output), (SnesVram)(vram), (SnesCgram)(cgram), sprites, (byte)(obsel));
+            SnesGameplayFrameRendererConstants.DrawHudAndObjects((Rgba32[])(output), (SnesVram)(vram), (SnesCgram)(cgram), sprites, (byte)(obsel));
             return output;
         }
 
@@ -102,8 +102,8 @@ internal static class SnesGameplayFrameRendererAccess
                 return;
             }
 
-            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection(bus) == 4;
-            SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
+            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection() == 4;
+            SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
 
             // `$88:88B8-$88F3` anchors the ray three pixels in front of Samus. Standing and
             // turning bodies place it sixteen pixels above the center; only stable movement
@@ -113,7 +113,7 @@ internal static class SnesGameplayFrameRendererAccess
             int originY = samusOnScreen.Y -
                 (movementType == SamusMovementType.Crouching ? 12 : 16);
             int centerAngle = xray.Angle.TableIndex;
-            int angularWidth = SnesLittleEndian.LowByte(xray.AngularWidth);
+            int angularWidth = xray.AngularWidth;
             int leftEdgeAngle = unchecked((byte)(centerAngle - angularWidth));
             int rightEdgeAngle = unchecked((byte)(centerAngle + angularWidth));
 

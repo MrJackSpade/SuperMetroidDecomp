@@ -13,33 +13,33 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 /// <summary>Checks the four-statues room's special water FX in live physics and displayed BG3 composition.</summary>
 internal static class TourianStatueWaterVerification
 {
     /// <summary>Drives the retail room through water motion, freeze, and independent statue descent.</summary>
     internal static int VerifyTourianStatueWater()
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(0xa66a);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
         AssertEqual(RoomFxType.TourianEntranceStatue, runtime.RoomLayer3Fx.Type, "Actual four-statues room owns special FX 26");
-        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.BaseYPosition, "Retail statues water begins at Y=B0");
+        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.BaseY.Whole, "Retail statues water begins at Y=B0");
         AssertEqual(true, runtime.RoomLayer3Fx.IsRenderable, "Statue special FX must supply its water plane");
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 120));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
-        samus.CommitPoseHistory(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        samus.CommitPoseHistory();
         samus.InputLocked = false;
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0));
         game.GameState = SuperMetroidGameState.MainGameplay;
@@ -64,13 +64,13 @@ internal static class TourianStatueWaterVerification
         AssertTrue(Enumerable.Range(176 * 256, (224 - 176) * 256).Any(index => dryPixels[index] != wetPixels[index]),
             "Actual water artwork visibly changes submerged room pixels");
         var direct = dryPixels.ToArray();
-        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(direct, runtime.Vram, runtime.Cgram, displayed);
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(direct, runtime.Vram, runtime.Cgram, displayed);
         AssertTrue(direct.SequenceEqual(wetPixels), "Immediate and captured composition agree for the actual water room");
         AssertEqual<ushort[]?>(null, SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(displayed, new Position16<Bg2Pixels>(0, 0)),
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
         runtime.TourianStatues.descent = 64 << 16;
         runtime.TourianStatues.LatchDisplay();
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(unchecked((ushort)(runtime.Display.DisplayedGameplayPpu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)),
             descending.Registers.Bg2Scroll.Y, "Statue descent retains its independent BG2 vertical scroll");
@@ -79,17 +79,17 @@ internal static class TourianStatueWaterVerification
         runtime.RoomLayer3Fx.ApplyCartridgeMotionWrites(targetYPosition: 0xb4,
             packedYVelocity: 0x0100, timer: 1);
         game.Step(0);
-        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.CurrentYPosition, "Water motion first arms its native wait");
+        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.Surface.Y, "Water motion first arms its native wait");
         game.Step(0);
-        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.CurrentYPosition, "Water wait expires before movement");
+        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.Surface.Y, "Water wait expires before movement");
         game.Step(0);
-        AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.CurrentYPosition, "Special water follows the native one-pixel velocity");
+        AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.Surface.Y, "Special water follows the native one-pixel velocity");
         AssertEqual((ushort)0xb1, samus.LiquidPhysics.FxYPosition, "The moved water surface reaches live Samus physics");
         AssertEqual<RoomFxEarthquakeRequest?>(null, runtime.RoomLayer3Fx.EarthquakeRequest,
             "Water motion does not invoke the lava/acid earthquake branch");
         AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
-        runtime.RoomLayer3Fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
-        AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.CurrentYPosition, "Frozen HDMA retains the current water surface");
+        runtime.RoomLayer3Fx.Step(runtime.Vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
+        AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.Surface.Y, "Frozen HDMA retains the current water surface");
         Console.WriteLine("Four-statues water: actual FX, liquid publication, visible BG3 pixels and independent statue descent verified.");
         return 0;
     }

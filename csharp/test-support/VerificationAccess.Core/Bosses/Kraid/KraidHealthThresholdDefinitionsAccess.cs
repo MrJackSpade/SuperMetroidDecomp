@@ -8,10 +8,10 @@ internal static class KraidHealthThresholdDefinitionsAccess
     extension(KraidHealthThresholdDefinitions)
     {
         /// <summary>$A7:AA23-AA43: truncate health/4, then accumulate four multiples.</summary>
-        internal static ushort Quarter(ushort initialHealth, int index)
+        internal static int Quarter(int initialHealth, int index)
         {
             if ((uint)index >= 4) throw new IndexOutOfRangeException();
-            return (ushort)((initialHealth >> 2) * (index + 1));
+            return (initialHealth >> 2) * (index + 1);
         }
     }
 }

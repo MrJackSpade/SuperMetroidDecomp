@@ -11,20 +11,22 @@ internal static class SamusSpeedBoosterPalette
     /// overrun pointers instead copy their operand-driven bus words through the 15-bit
     /// CGRAM port, preserving the unrolled cartridge read behavior.
     /// </summary>
-    internal static void Apply(ISnesAddressSpace bus, SnesCgram cgram, ushort pointer,
-        SamusFullBodyCycleColorCatalog? colors)
+    internal static void Apply(SnesCgram cgram, ushort pointer,
+        SamusFullBodyCycleColorCatalog? colors, SamusOverreadCatalog? overreads)
     {
         if (Enum.IsDefined((SpeedBoosterPaletteOverrun)pointer))
         {
             var overrun = (SpeedBoosterPaletteOverrun)pointer;
             for (int index = 0; index < SamusPaletteRomData.Common.ColorsPerObjPalette; index++)
             {
-                // The native unrolled copy uses LDA $0000..001E,X. Preserve its
-                // operand-driven bus value for expansion reads, not a generic zero fallback.
+                // The native unrolled copy uses LDA $0000..001E,X; the expansion window's open
+                // bus returns the operand's high byte for every word.
                 ushort word = overrun switch
                 {
-                    SpeedBoosterPaletteOverrun.Expansion => new SamusOverreadMemory(bus).SpeedBoosterExpansionWord(index, pointer),
-                    SpeedBoosterPaletteOverrun.GrappleCode => SpeedBoosterPaletteOverrunDefinitions.GrappleInstructionWord(index),
+                    SpeedBoosterPaletteOverrun.Expansion => SpeedBoosterPaletteOverrunDefinitions.ExpansionOpenBusWord,
+                    SpeedBoosterPaletteOverrun.GrappleCode => (overreads ?? throw new InvalidOperationException(
+                            "The Speed Booster grapple-code overrun needs the installed Samus overread catalog."))
+                        .SpeedBoosterGrappleCodeWord(index),
                     _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterPaletteOverrun)} {(int)overrun}."),
                 };
                 // Arbitrary bus words reach CGRAM through its fifteen-bit data port.

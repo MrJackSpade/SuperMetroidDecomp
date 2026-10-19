@@ -1,44 +1,39 @@
-# Cartridge encoding in production code (#641)
+# Cartridge encoding in production code
 
-Gameplay code should describe what the game does: a facing, an animation frame and its duration,
-a collision shape, a state transition, a published event. It should not interpret instruction
-pointers, synthesize ROM words, or carry unexplained hexadecimal. This note covers the guard that
-keeps new encoding out, the inventory of what remains, and the pattern subsystem migrations follow.
+Gameplay code describes what the game does: a facing, an animation frame and its duration, a collision
+shape, a state transition, a published event. It does not interpret instruction pointers, synthesize ROM
+words, carry hexadecimal, or identify anything by an address. This note covers how encoded values are
+classified and the pattern subsystem migrations follow. The standard it serves is in `manifesto.md`: code a
+reviewer could read without learning it was ported from a cartridge.
 
-## The ratchet
+## The rules
 
-`SuperMetroid.EnsureAnalyzer/CartridgeEncodingAnalyzer.cs` runs at error severity in every production
-project (Core, AssetExtraction, Diagnostics, Desktop, Rendering.Direct3D11, Game, Android): each
-carries `csharp/cartridge-encoding-baseline.txt` as an additional file. A file may only lose
-occurrences, and a file absent from the baseline may hold none.
+`SuperMetroid.EnsureAnalyzer/Contracts/CartridgeEncodingAnalyzer.cs` runs at error severity in every repository
+project except the analyzer projects. Every occurrence is reported where it is; there is no baseline, count or
+allowlist. Each finding is fixed, or carries its own reviewed justification at its site.
 
 | Rule | Reports |
 | --- | --- |
-| SME6340 | A hexadecimal literal in functional code. Files named as definition catalogs (`*Definitions.cs`, `*Definition.cs`, `*Catalog.cs`, `*CodePointers.cs`, ...) own their data and are exempt, as is an enum member's value: an enum is a named definition set wherever its file lives. |
+| SME6340 | A hexadecimal literal in functional code. Files named as definition catalogs (`*Definitions.cs`, `*Definition.cs`, `*Catalog.cs`, `*CodePointers.cs`, ...) own their data and are exempt, as is an enum member's value: an enum is a named definition set wherever its file lives. The exemption is for data. A catalog-named file that contains `if`, `switch`, loops or decisions is functional code hiding behind its name; the logic moves out, and the file is never renamed to gain the exemption. |
 | SME6341 | A primitive compared with, offset from or switched over an address-valued code or instruction constant: runtime interpretation of cartridge pointers, catalogs included. |
 | SME6342 | An integral array or collection literal of four or more elements holding hexadecimal words: opaque instruction or packed-table data, catalogs included. |
 | SME6345 | A shift by a byte, word or bank width, or a byte/word/bank mask, in functional code (#223). |
 | SME6348 | A hand-written sign-bit test on a countdown-named primitive (#1324): `& 0x8000`, `& 0x80`, a comparison with `0x8000` or `0x80`, or `(short)t < 0`/`(sbyte)t >= 0` where the operand is one member or local whose name ends in a timer, counter, delay, cooldown, countdown, ticks or frames word (`FunctionTimer`, not `TargetCounterClockwiseAngle`). The constant must be the operand's own sign bit: `0x80` for a byte, `0x8000` for a word (a word compared with `0x80` is a threshold). Signed comparisons of differences, velocities and packed flags are not timer idioms. |
-| SME6349 | A wrapping self-decrement of narrow storage (#1324): `x = unchecked((ushort)(x - 1))`, its `byte` form, or `--`/`-= 1` on a `ushort` or `byte` field, property or element. |
-| SME6343 | A file now holds fewer occurrences than its baseline: lower the count so the gain is kept. |
-| SME6344 | The baseline names a file the project no longer compiles: remove the entry. |
+| SME6349 | A wrapping self-decrement of narrow storage: `x = unchecked((ushort)(x - 1))`, its `byte` form, or `--`/`-= 1` on a `ushort` or `byte` field, property or element. |
+| SME6346 | A value of a `[Flags]` enum cast to an integral primitive in functional code: the flags leave their type before the encoding boundary. Codecs convert with the type's `ToNativeWord`; a catalog, `[SnesEncodingOwner]` type or reviewed allowance is exempt. |
+| SME6347 | A `byte` or `ushort` (or nullable) instance field, property or positional record parameter in functional code: gameplay state stored at the cartridge register width. Constants, statics, locals, parameters and arrays are not counted; catalogs, `[SnesEncodingOwner]` types and reviewed allowances are exempt. |
 
-An intrinsic encoded value in functional code (an exact hardware mask, a hash, a wire-format
-constant) carries a reviewed same-line allowance naming its class and a reason:
+An intrinsic encoded value in functional code (an exact hardware mask, a hash, a wire-format constant) carries a
+reviewed same-line allowance naming its class and a reason:
 
 ```csharp
 int nibble = value & 0x0f; // cartridge-encoding: allow(Mask) - BCD digit extraction
 ```
 
-The existing `// magic-number-audit: allow(Category) - reason` marker is accepted as the same review.
+The `// magic-number-audit: allow(Category) - reason` marker is accepted as the same review. A type that owns and
+documents an encoding carries `[SnesEncodingOwner]`: its literals and width operations are definitions.
 
-After a migration, regenerate the baseline and the inventory from the same scanner the build runs:
-
-```
-dotnet run --project csharp/src/SuperMetroid.CartridgeEncodingAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write
-```
-
-## Countdowns (#1324)
+## Countdowns
 
 `Core/Hardware/NativeWordCounter.cs` owns the 65C816 timer idioms. A timer that gameplay starts,
 decrements and tests is stored as `NativeCountdown`, which keeps the exact native word: a timer that
@@ -54,35 +49,49 @@ keeps the branch the cartridge takes:
 | 8-bit `DEC` of a low byte beside independent high-byte state | `NativeWordCounter.DecrementLowByte(word)` |
 
 A site that also reads the timer as a number (a table index, a threshold other than zero or the sign)
-reads `RawValue` explicitly. A timer view over an enemy slot word returns `NativeCountdown.FromRaw(...)`
-and stores `RawValue`; the slot word stays the storage.
+reads `RawValue` explicitly. A countdown is stored as `NativeCountdown` by the state that owns it. A timer
+view over an enemy slot word (`NativeCountdown.FromRaw(...)` on read, `RawValue` on write) is scaffolding for a
+family whose state still lives in multipurpose slot words; the destination is per-family typed state holding
+the countdown directly, and no new timer is added as a slot-word view.
 
-## The inventory
+## Widened gameplay quantities
 
-`docs/cartridge-encoding-inventory.json` lists every audited file grouped into independently
-migratable subsystems. For each file and subsystem it counts the ratcheted rules, the catalog-owned
-and reviewed literals, the proposed audit class of every literal, and the members that keep a
-cartridge storage width (`byte`/`ushort`) outside catalogs. Each subsystem also lists its
-address-interpreting types: the owners of its SME6341 dispatch.
+A non-spatial gameplay quantity may be stored as `int` instead of its native word when all of these hold, and the
+widening commit records the result for each field:
 
-The six audit classes are proposed by the scanner from syntax (array element, address range, enum or
-`[Flags]` member, switch arm, bitwise operand, pointer-named context, equality or arithmetic). A
-subsystem migration confirms or corrects each:
+1. Every producer keeps the value inside a stated range, normally `[0, 0x7FFF]`.
+2. Every wrapping write is immediately clamped or rejected, so `int` arithmetic followed by the same clamp is equivalent.
+3. Signed word comparisons become ordinary comparisons only while both operands stay in that range.
+4. Nothing reads the word through another name, an overlapping offset or a native projection, or that projection
+   converts exactly.
+5. A decrement that could wrap from zero is guarded by its caller; the conversion goes through a named operation that
+   fails when the guard is violated (`SamusQuantity.DecrementPositive`), never through storage width.
+
+Words exist only at the boundaries (SRAM, JSON saves, native snapshot import and word-level parity checks), which
+convert through a named codec that rejects out-of-range words (`SamusQuantity.Decode`/`Encode`). A wrap that is part
+of the behavior stays explicit: `NativeWordCounter` for counters, or a named operation on the owning type.
+`SubunitHealth` stays a word because its borrow into `Health` is load-bearing.
+
+## Classifying an encoded value
+
+A subsystem migration decides what each raw value means:
 
 1. **Numeric quantity**: use decimal and an ordinary or unit type.
 2. **Domain identity**: an enum once the whole domain is proven.
 3. **Composable bits**: `[Flags]` only where the cartridge composes them.
 4. **Structured instruction**: a typed record, timeline or state transition.
-5. **Cartridge address or encoded boundary value**: a typed catalog or decoder.
+5. **Cartridge address or encoded boundary value**: decoded once by the import or extraction codec into a
+   semantic identity or a typed definition. The address does not enter the simulation. A typed address catalog
+   inside the simulation is a step on the way out, never the classification's destination.
 6. **Unknown**: kept at the boundary under an explicit unresolved name until its meaning is established.
 
 ## Migrating an instruction program
 
 Botwoon is the reference migration:
 
-- `Core/Game/AnimationTimeline.cs` models an animation as steps: show a frame for a duration, publish
+- `Core/Programs/AnimationTimeline.cs` models an animation as steps: show a frame for a duration, publish
   a cue, hold, or loop. It is generic over the frame and cue types.
-- `Core/Game/BotwoonAnimations.cs` states Botwoon's semantics with no addresses:
+- `Core/Bosses/Botwoon/BotwoonAnimations.cs` states Botwoon's semantics with no addresses:
   - facings and head and segment programs;
   - frames and cues (`ApplyFacingRadius`, `QueueSpitSound`, `ReachSpitFrame`);
   - the exact timelines, including the cartridge's longer open mouth when spitting left;
@@ -94,12 +103,11 @@ Botwoon is the reference migration:
 - A native program installed later (a shot or touch redirect, or a landed segment's shared
   explosion) goes through `RoomEnemyProjectileSlot.StartNativeProgram`. That call ends the typed
   animation structurally.
-- `Core/Assets/BotwoonVisualDefinitions.cs` is the only place that knows the cartridge identities
-  of the frames:
-  - the head's bank-$B3 spritemaps;
-  - the bank-$86 operands that name projectile artwork in installed content, which is immutable.
+- The frames are named semantically in the simulation. The one place that knows which cartridge spritemap
+  or artwork operand a frame came from is the extraction that produces the installed artwork; a definitions
+  file in Core that still names frames by bank and address is scaffolding left from the migration, not the
+  pattern to copy.
 - Verification is a ROM oracle: a minimal reader walks the cartridge's own lists, and the typed
-  animation must match it every update (timers, frames, radius, cues, new-frame flag). See
-  `Program.BotwoonAnimations.cs`.
-- Delete the word synthesizer, its opcode enum, its tooling catalog and its calculated selectors,
-  then regenerate the baseline.
+  animation must match it every update (timers, frames, radius, cues, new-frame flag).
+- Delete the word synthesizer, its opcode enum, its tooling catalog and its calculated selectors in the same
+  change that lands the typed program. Nothing is kept beside its replacement.

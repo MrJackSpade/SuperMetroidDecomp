@@ -1,12 +1,21 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Owtch.Artwork;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class OwtchBehavior : IEnemySpecies
+internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new OwtchEntity(this, slot, common);
+
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;
 
@@ -34,14 +43,10 @@ internal sealed class OwtchBehavior : IEnemySpecies
     }
 
     /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
-    private const ushort OwtchMaximumBurialDepth = 16;
-
-    /// <summary>Per-slot movement, burial, and velocity state for room Owtches.</summary>
-    internal readonly OwtchEnemyState?[] _owtchStates =
-        new OwtchEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    private const int OwtchMaximumBurialDepth = 16;
 
     /// <summary>Ports <c>InitAI_Owtch</c> at $A2:A3F9.</summary>
-    internal void InitializeOwtch(RoomEnemySlot slot)
+    internal static void InitializeOwtch(RoomEnemySlot slot)
     {
         int initialState = SnesLittleEndian.LowByte(slot.Parameter1);
         int undergroundTimerIndex = SnesLittleEndian.HighByte(slot.Parameter1);
@@ -71,26 +76,24 @@ internal sealed class OwtchBehavior : IEnemySpecies
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
         var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
-        var state = new OwtchEnemyState(slot)
+        var state = new OwtchEnemyState
         {
-            RightVelocity = unchecked((ushort)right.Whole),
-            RightSubvelocity = right.Fraction,
-            LeftVelocity = unchecked((ushort)left.Whole),
-            LeftSubvelocity = left.Fraction,
+            RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
+            LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
             Behavior = (OwtchBehaviorState)initialState,
-            SinkYOffset = 0,
+            BurialDepth = 0,
             UndergroundTimer = NativeCountdown.FromRaw(undergroundTimer),
-            MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - travelDistance)),
-            MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + travelDistance)),
+            MinimumPosition = new(unchecked((ushort)(slot.Position.X.Whole - travelDistance)), 0),
+            MaximumPosition = new(unchecked((ushort)(slot.Position.X.Whole + travelDistance)), 0),
         };
-        _owtchStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         SetOwtchProgram(slot, state, initialProgram);
 
         // State two is the cartridge's special initially-buried form. It moves only the
         // whole coordinate and records the same sixteen-pixel depth used by normal sinking.
         if (state.Behavior == OwtchBehaviorState.Underground)
         {
-            state.SinkYOffset = OwtchMaximumBurialDepth;
+            state.BurialDepth = OwtchMaximumBurialDepth;
             slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + OwtchMaximumBurialDepth)));
         }
     }
@@ -118,8 +121,10 @@ internal sealed class OwtchBehavior : IEnemySpecies
 
             case OwtchBehaviorState.Sinking:
                 slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
-                state.SinkYOffset = unchecked((ushort)(state.SinkYOffset + 1));
-                if (unchecked((short)(state.SinkYOffset - OwtchMaximumBurialDepth)) >= 0)
+                // Sinking starts from zero, so the depth stays within one through sixteen and the cartridge's signed
+                // word comparison is an ordinary one.
+                state.BurialDepth++;
+                if (state.BurialDepth >= OwtchMaximumBurialDepth)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
                     state.UndergroundTimer = NativeCountdown.FromRaw(OwtchMovementDefinitions.UndergroundTimer(
@@ -129,13 +134,12 @@ internal sealed class OwtchBehavior : IEnemySpecies
 
             case OwtchBehaviorState.Rising:
                 slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 1)));
-                state.SinkYOffset = NativeWordCounter.Decrement(state.SinkYOffset).Value;
-                if (state.SinkYOffset == 0)
+                if (state.RiseOnePixel())
                 {
                     // $A2:A549 samples RandomNumberSeed+1 without advancing the RNG. The
                     // gameplay runtime supplies that read seam; isolated callers without it
                     // retain the established advancing fallback used by other translated AI.
-                    ushort random = _room.Random.Read();
+                    int random = _room.Random.Read();
                     state.Behavior = (random & OwtchMovementDefinitions.BehaviorRandomBit) == 0
                         ? OwtchBehaviorState.MovingLeft
                         : OwtchBehaviorState.MovingRight;
@@ -161,26 +165,13 @@ internal sealed class OwtchBehavior : IEnemySpecies
         OwtchEnemyState state,
         bool movingRight)
     {
-        ushort subvelocity = movingRight
-            ? state.RightSubvelocity
-            : state.LeftSubvelocity;
-        ushort velocity = movingRight
-            ? state.RightVelocity
-            : state.LeftVelocity;
-
-        uint fractionalSum = (uint)slot.Position.X.Fraction + subvelocity;
-        slot.Position = slot.Position.WithFractionX(unchecked((ushort)fractionalSum));
-        if (fractionalSum > ushort.MaxValue)
-            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + 1)));
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + velocity)));
+        // The fraction's carry and the whole pixels' wraparound match the cartridge's paired additions.
+        slot.Position = slot.Position.AdvanceX(movingRight ? state.RightVelocity : state.LeftVelocity);
 
         if (!movingRight)
         {
-            if (!EnemyMath.IsNegative16(unchecked((ushort)(
-                    slot.Position.X.Whole - state.MinimumXPosition))))
-            {
+            if ((slot.Position.Whole - state.MinimumPosition).X >= 0)
                 return;
-            }
 
             // This DEC is an original-game bug. Zero wraps to $FFFF; main AI then indexes
             // the preceding initializer pointer rather than a declared function entry.
@@ -188,17 +179,14 @@ internal sealed class OwtchBehavior : IEnemySpecies
             return;
         }
 
-        if (!EnemyMath.IsNegative16(unchecked((ushort)(
-                slot.Position.X.Whole - state.MaximumXPosition))))
-        {
+        if ((slot.Position.Whole - state.MaximumPosition).X >= 0)
             state.Behavior = OwtchBehaviorState.MovingLeft;
-        }
     }
 
     /// <summary>Ports Owtch's six-in-256 per-frame burial gate at $A2:A553.</summary>
     private void MaybeMakeOwtchSink(RoomEnemySlot slot, OwtchEnemyState state)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         byte decision = unchecked((byte)((byte)random + (byte)slot.FrameCounter));
         if (decision < 6)
             state.Behavior = OwtchBehaviorState.Sinking;
@@ -228,12 +216,12 @@ internal sealed class OwtchBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects Owtch AI or collision callbacks before slot initialization.</summary>
-    private OwtchEnemyState RequireOwtchState(RoomEnemySlot slot) =>
-        _owtchStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static OwtchEnemyState RequireOwtchState(RoomEnemySlot slot) =>
+        slot.SpeciesState<OwtchEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Owtch state.");
 
     /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>
-    internal void RegisterOwtchBombReactions(EnemyAiTable table)
+    internal static void RegisterOwtchBombReactions(EnemySharedReactions table)
     {
         // Owtch's shell accepts common damage only during its vulnerable state zero.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
@@ -243,42 +231,32 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Connects the Owtch definition to its parameter-driven native initializer.</summary>
-    internal void RegisterOwtchInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Owtch's initialization AI.</summary>
+    internal static void RunOwtchInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Owtch, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeOwtch(slot);
-        });
+        InitializeOwtch(slot);
     }
 
-    /// <summary>Dispatches each Owtch frame through movement, sinking, burial, and rising.</summary>
-    internal void RegisterOwtchMainAi(EnemyAiTable table)
+    /// <summary>Ports Owtch's main AI.</summary>
+    internal void RunOwtchMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Owtch, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunOwtchMain(slot, RequireOwtchState(slot));
-        });
+        RunOwtchMain(slot, RequireOwtchState(slot));
     }
 
-    /// <summary>Runs Owtch's shell-cycling animations as typed programs (#641).</summary>
-    internal void RegisterOwtchTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireOwtchState(slot);
-            AnimationProgramCursor<OwtchProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, OwtchAnimations.Programs, ref cursor, OwtchFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyOwtchCue(state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Owtch's typed animation.</summary>
+    internal static void AdvanceOwtchTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireOwtchState(slot);
+        AnimationProgramCursor<OwtchProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, OwtchAnimations.Programs, ref cursor, OwtchFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyOwtchCue(state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
-    internal void RegisterOwtchShotReactions(EnemyAiTable table)
+    internal static void RegisterOwtchShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.OwtchShot)
@@ -296,16 +274,5 @@ internal sealed class OwtchBehavior : IEnemySpecies
                 return true;
             },
         });
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        Array.Clear(_owtchStates);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

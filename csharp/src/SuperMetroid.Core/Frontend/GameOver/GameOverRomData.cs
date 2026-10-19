@@ -44,11 +44,11 @@ public static class GameOverRomData
         /// <summary>Selects one native text element; unsupported selectors retain span-style rejection.</summary>
         public static GameOverTextStream Get(GameOverTextElement element) => element switch
         {
-            GameOverTextElement.Title => new(0x0156, 0x92dc, "GAME OVER"),
-            GameOverTextElement.Objective => new(0x038a, 0x9304, "FIND THE METROID LARVA"),
-            GameOverTextElement.Prompt => new(0x0414, 0x9334, "TRY AGAIN"),
-            GameOverTextElement.ReturnToGame => new(0x04ce, 0x934c, "YES - RETURN TO GAME"),
-            GameOverTextElement.ReturnToTitle => new(0x05ce, 0x93a0, "NO - GO TO TITLE"),
+            GameOverTextElement.Title => new(element, 0x0156, "GAME OVER"),
+            GameOverTextElement.Objective => new(element, 0x038a, "FIND THE METROID LARVA"),
+            GameOverTextElement.Prompt => new(element, 0x0414, "TRY AGAIN"),
+            GameOverTextElement.ReturnToGame => new(element, 0x04ce, "YES - RETURN TO GAME"),
+            GameOverTextElement.ReturnToTitle => new(element, 0x05ce, "NO - GO TO TITLE"),
             _ => throw new IndexOutOfRangeException(),
         };
 
@@ -75,10 +75,6 @@ public static class GameOverRomData
         public const ushort AcceptedAnswerHoldDuration = 180;
         /// <summary>Native $FFFF animation sentinel, which restarts the stream at $82:BC27 rather than deleting the Baby or drawing a frame.</summary>
         public const ushort End = 0xffff;
-        /// <summary>First Baby frame, ID $65 in the bounded $65+frame sequence.</summary>
-        /// <remarks>Issues #625 and #971: GameOverBabyAnimationDefinitions.NativeSpritemap
-        /// documents all 60 native frame records and the three spritemap pointers.</remarks>
-        public const ushort InitialSpritemap = 0x65;
         /// <summary>CGRAM color-entry index $C0, the start of OBJ palette four; each Baby frame copies sixteen colors here at $82:BBA9.</summary>
         public const int PaletteDestinationIndex = 0xc0;
         /// <summary>Sixteen colors per game-over Baby palette source.</summary>

@@ -1037,7 +1037,7 @@ public static class ProjectileSpriteDefinitions
                 }
                 int tile = vertical ? SuperMissileVerticalGlyph + index : SuperMissileHorizontalGlyph - index;
                 var flips = reflected ? (vertical ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.Horizontal) : 0;
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(tile, FixedProjectilePalette, SuperMissilePriority, flips), false);
             }
         }
@@ -1063,7 +1063,7 @@ public static class ProjectileSpriteDefinitions
                 int tile = PowerTile + 2 - Math.Abs(2 - (phase & 3));
                 var flips = (phase is >= 3 and <= 5 ? SnesTileFlipFlags.Horizontal : 0) |
                     (phase >= 4 ? SnesTileFlipFlags.Vertical : 0);
-                return new(SnesSpritemapXWord.Create(-8 / 2, false), unchecked((byte)(-8 / 2)),
+                return new(SnesSpritemapXWord.Create(-8 / 2, false), SnesSpritemapYByte.Create(-8 / 2),
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
@@ -1091,7 +1091,7 @@ public static class ProjectileSpriteDefinitions
                 int tile = ChargedBeamTile + (ice ? phase % 2 : phase / 8);
                 var flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
                     (row == 0 ? SnesTileFlipFlags.Vertical : 0);
-                return new(SnesSpritemapXWord.Create(-column * 8, false), unchecked((byte)(-row * 8)),
+                return new(SnesSpritemapXWord.Create(-column * 8, false), SnesSpritemapYByte.Create(-row * 8),
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
@@ -1174,7 +1174,7 @@ public static class ProjectileSpriteDefinitions
                     y += dy * distance;
                     tile += (step + 1) / 2;
                 }
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, 0), false);
             }
         }
@@ -1212,7 +1212,7 @@ public static class ProjectileSpriteDefinitions
                 int tile = ChargedBeamTile + (phase < 2 ? 1 - phase : (phase + lobe) % 2);
                 var flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
                     (row == 0 ? SnesTileFlipFlags.Vertical : 0);
-                return new(SnesSpritemapXWord.Create(-column * 8, false), unchecked((byte)(centerY - row * 8)),
+                return new(SnesSpritemapXWord.Create(-column * 8, false), SnesSpritemapYByte.Create(centerY - row * 8),
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
@@ -1266,7 +1266,7 @@ public static class ProjectileSpriteDefinitions
                 if (flipY) y = -8 - y;
                 int tile = (super ? SuperMissileDiagonalGlyph : MissileDiagonalGlyph) + 2 - corner;
                 var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(tile, FixedProjectilePalette, SuperMissilePriority, flips), false);
             }
         }
@@ -1307,7 +1307,7 @@ public static class ProjectileSpriteDefinitions
                 int tile = (quad ? BeamExplosionQuadGlyphStart : BombGlyphStart) + phase;
                 var flips = quad ? (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
                     (row == 0 ? SnesTileFlipFlags.Vertical : 0) : 0;
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(tile, quad ? BeamExplosionPalette : BombPalette, EffectPriority, flips), false);
             }
         }
@@ -1345,7 +1345,7 @@ public static class ProjectileSpriteDefinitions
                 int tile = ChargedBeamTile + 1 - (phase + lobe) % 2;
                 var flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
                     (row == 0 ? SnesTileFlipFlags.Vertical : 0);
-                return new(SnesSpritemapXWord.Create(centerX - column * 8, false), unchecked((byte)(-row * 8)),
+                return new(SnesSpritemapXWord.Create(centerX - column * 8, false), SnesSpritemapYByte.Create(-row * 8),
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
@@ -1431,7 +1431,7 @@ public static class ProjectileSpriteDefinitions
                     tile = vertical ? SpazerVerticalGlyph : SpazerHorizontalGlyph;
                 }
                 var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
@@ -1472,7 +1472,7 @@ public static class ProjectileSpriteDefinitions
                 int dx = direction * distance * (pose >= 2 ? -1 : 1);
                 int dy = direction * distance * (pose is 1 or 2 ? -1 : 1);
                 return new(SnesSpritemapXWord.Create(seed.X.SignedOffset + dx, seed.X.IsLarge),
-                    unchecked((byte)((sbyte)seed.Y + dy)), seed.Attributes, seed.InheritPalette);
+                    SnesSpritemapYByte.Create(seed.Y.SignedOffset + dy), seed.Attributes, seed.InheritPalette);
             }
         }
         /// <summary>Yields all three diagonal lanes in native order.</summary>
@@ -1526,7 +1526,7 @@ public static class ProjectileSpriteDefinitions
                 }
                 var seed = new SpazerSeedParts(pose)[seedIndex];
                 return new(SnesSpritemapXWord.Create(seed.X.SignedOffset + (vertical ? lane * distance : 0), seed.X.IsLarge),
-                    unchecked((byte)((sbyte)seed.Y + (vertical ? 0 : lane * distance))), seed.Attributes, seed.InheritPalette);
+                    SnesSpritemapYByte.Create(seed.Y.SignedOffset + (vertical ? 0 : lane * distance)), seed.Attributes, seed.InheritPalette);
             }
         }
         /// <summary>Yields all six axial spread cells in native traversal order.</summary>
@@ -1564,7 +1564,7 @@ public static class ProjectileSpriteDefinitions
                 int size = SpazerCompositionGeometryDefinitions.TileSize;
                 int x = (ChargedSpazerHorizontalCells / 2 - 1 - index % ChargedSpazerHorizontalCells) * size;
                 int y = SpazerCompositionGeometryDefinitions.HorizontalStripOriginY + direction * distance;
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(ChargedSpazerHorizontalGlyph, PowerPalette, PowerPriority, 0), false);
             }
         }
@@ -1597,7 +1597,7 @@ public static class ProjectileSpriteDefinitions
                 int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase);
                 int x = lane == 0 ? distance : lane == 1 ? -size - distance : -size / 2;
                 int y = (ChargedSpazerVerticalCells / 2 - 1 - index % ChargedSpazerVerticalCells) * size;
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(ChargedSpazerVerticalGlyph, PowerPalette, PowerPriority, 0), false);
             }
         }
@@ -1641,7 +1641,7 @@ public static class ProjectileSpriteDefinitions
                     ? (vertical ? ChargedSpazerVerticalGlyph : ChargedSpazerHorizontalGlyph)
                     : (vertical ? SpazerVerticalGlyph : SpazerHorizontalGlyph);
                 var flips = reflected ? (vertical ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.Horizontal) : 0;
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(glyph, PowerPalette, PowerPriority, flips), false);
             }
         }
@@ -1682,7 +1682,7 @@ public static class ProjectileSpriteDefinitions
                 if (!flipX) x = -size - x;
                 if (flipY) y = -size - y;
                 var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(SpazerDiagonalGlyph - index % 2, PowerPalette, PowerPriority, flips), false);
             }
         }
@@ -1753,7 +1753,7 @@ public static class ProjectileSpriteDefinitions
                 if (reflected) x = -size - x;
                 var flips = (rotated != reflected ? SnesTileFlipFlags.Horizontal : 0) |
                     (rotated ? SnesTileFlipFlags.Vertical : 0);
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
             }
         }
@@ -1784,7 +1784,7 @@ public static class ProjectileSpriteDefinitions
                 bool reflected = orientation == 3;
                 int x = -index * size;
                 if (reflected) x = -size - x;
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)(-size / 2)),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(-size / 2),
                     SnesObjAttributeWord.Create(SpazerDiagonalGlyph - index, PowerPalette, PowerPriority,
                         reflected ? SnesTileFlipFlags.Horizontal : 0), false);
             }
@@ -1822,7 +1822,7 @@ public static class ProjectileSpriteDefinitions
                 int x = (PlasmaWaveShortCells / 2 - 1 - index % PlasmaWaveShortCells) * size;
                 int direction = phase == 0 ? 0 : index < PlasmaWaveShortCells ? 1 : -1;
                 int y = -size / 2 + (phase == 0 ? 0 : direction * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase - 1));
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                     SnesObjAttributeWord.Create(SpazerHorizontalGlyph, PowerPalette, PowerPriority, 0), false);
             }
         }

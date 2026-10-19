@@ -131,7 +131,7 @@ public sealed class GameplayMessagePanelPresentation
                 if ((column < GameplayMessagePanelDefinitions.OuterLeftColumns ||
                      column >= GameplayMessageRomData.Layout.TilemapWidth -
                          GameplayMessagePanelDefinitions.OuterRightColumns) &&
-                    value.Template[column].Raw != GameplayMessageTitleDefinitions.TransparentWord)
+                    value.Template[column].Word.Raw != GameplayMessageTitleDefinitions.TransparentWord)
                 {
                     throw new InvalidDataException(
                         $"Gameplay-message panel {id} title row has a nontransparent outer cell at {column}.");
@@ -139,10 +139,10 @@ public sealed class GameplayMessagePanelPresentation
             }
 
             compiled.Add(id, new(value.Title, value.Palette, value.Column,
-                value.Template.Select(static cell => cell.Raw).ToArray()));
+                value.Template.Select(static cell => cell.Word.Raw).ToArray()));
         }
 
-        return new(compiled, document.Border.Select(static cell => cell.Raw).ToArray(),
+        return new(compiled, document.Border.Select(static cell => cell.Word.Raw).ToArray(),
             Convert.ToHexString(SHA256.HashData(source)));
     }
 

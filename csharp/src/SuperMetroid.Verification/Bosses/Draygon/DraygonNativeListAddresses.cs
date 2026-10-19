@@ -107,8 +107,8 @@ internal static class DraygonNativeListAddresses
         0xc47b => new DraygonCue.SetEyeFunction(ClosedNativeWords.Decode<DraygonEyeFunction>(operands[0], "Draygon eye function")),
         0x9736 => new DraygonCue.SetOwnEyeFunction(ClosedNativeWords.Decode<DraygonEyeFunction>(operands[0], "Draygon eye function")),
         0x9e0a => new DraygonCue.DisplaceBodyGraphics(new(unchecked((short)operands[0]), unchecked((short)operands[1]))),
-        0x9f60 => new DraygonCue.QueueSound(SoundEffectLibrary.Library2, operands[0]),
-        0x9f6e => new DraygonCue.QueueSound(SoundEffectLibrary.Library3, operands[0]),
+        0x9f60 => new DraygonCue.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operands[0])),
+        0x9f6e => new DraygonCue.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, operands[0])),
         0x973f => new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DustCloud),
         0x9752 => new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.SporeSpawnDyingExplosion),
         0x9765 => new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.BotwoonLargeExplosion),
@@ -139,10 +139,10 @@ internal static class DraygonNativeListAddresses
     /// <summary>The bank-$86 callbacks the projectile lists use and the cue each must become.</summary>
     internal static readonly Dictionary<ushort, DraygonProjectileCue> ProjectileCallbacks = new()
     {
-        [(ushort)EnemyProjectileInstruction.DraygonGoop_SamusCollision] = DraygonProjectileCue.StickToSamus,
-        [(ushort)EnemyProjectileInstruction.SpawnEnemyDropsWithDraygonEyeChances] = DraygonProjectileCue.SpawnDrops,
-        [(ushort)EnemyProjectileInstruction.Delete] = DraygonProjectileCue.Delete,
-        [(ushort)EnemyProjectileInstruction.SetPreInst_DraygonsWallTurretProjectile_Fired] = DraygonProjectileCue.Fire,
+        [(ushort)NativeEnemyProjectileInstruction.DraygonGoop_SamusCollision] = DraygonProjectileCue.StickToSamus,
+        [(ushort)NativeEnemyProjectileInstruction.SpawnEnemyDropsWithDraygonEyeChances] = DraygonProjectileCue.SpawnDrops,
+        [(ushort)NativeEnemyProjectileInstruction.Delete] = DraygonProjectileCue.Delete,
+        [(ushort)NativeEnemyProjectileInstruction.SetPreInst_DraygonsWallTurretProjectile_Fired] = DraygonProjectileCue.Fire,
     };
 
     /// <summary>The projectile program whose native list starts at <paramref name="address"/>, if one does.</summary>
@@ -153,5 +153,5 @@ internal static class DraygonNativeListAddresses
     internal static bool IsProjectileGoTo(ushort word) => ProjectileGoTo.Contains(word);
 
     /// <summary>The projectile goto opcode.</summary>
-    private static readonly HashSet<ushort> ProjectileGoTo = [(ushort)EnemyProjectileInstruction.GotoY];
+    private static readonly HashSet<ushort> ProjectileGoTo = [(ushort)NativeEnemyProjectileInstruction.GotoY];
 }

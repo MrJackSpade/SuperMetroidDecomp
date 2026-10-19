@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -28,19 +29,19 @@ internal static class RetailElevatorReturnTests
     private static void RunUpward(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = RepositoryInstallation.CreateRuntime(bus);
+        var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         var samus = runtime.Player.IntroducedSamus;
-        samus.CollectedItems |= (ushort)SamusEquipmentFlags.MorphBall;
-        samus.EquippedItems |= (ushort)SamusEquipmentFlags.MorphBall;
+        samus.CollectedItems |= SamusEquipmentFlags.MorphBall;
+        samus.EquippedItems |= SamusEquipmentFlags.MorphBall;
         samus.MaxMissiles = samus.Missiles = 5;
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MorphBall);
         // This persistent native word is carried from the preceding downward ride.
         // Stage only that source state; the door coroutine and destination actor run normally.
-        runtime.ElevatorStatus = (ushort)ElevatorActorStatus.Departing;
-        RetailDoorCaptureTests.PublishDoor(runtime, bus, DoorPointers.BlueBrinstarElevatorFromMorphBall);
+        runtime.Enemies.ElevatorBehavior.SetElevatorStatusForDebugging((ushort)ElevatorActorStatus.Departing);
+        RetailDoorCaptureTests.PublishDoor(runtime, DoorPointers.BlueBrinstarElevatorFromMorphBall);
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
@@ -49,7 +50,7 @@ internal static class RetailElevatorReturnTests
         var actorPositions = new HashSet<ushort>();
         void Compare(string phase)
         {
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+            var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var capture = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())
                 ?? throw new InvalidOperationException("Elevator return omitted its display capture.");
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples), capture);
@@ -64,7 +65,7 @@ internal static class RetailElevatorReturnTests
             Compare(transition.Phase.ToString());
         }
         if (transition.IsActive || scrolling < 12 ||
-            runtime.Room.ActiveRoom?.Pointer != RoomHeaderPointers.BlueBrinstarElevatorRoom)
+            runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.ElevToBlueBrinstar)
             throw new InvalidOperationException("Elevator fixture missed its vertical door transition.");
         while (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive && arrivalFrames < 1200)
         {

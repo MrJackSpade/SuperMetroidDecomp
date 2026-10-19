@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// The canonical 16-bit cartridge reads for asset import and verification (#223), the cartridge
-/// counterpart of <see cref="SnesWordReads"/>. The SNES stores words
+/// counterpart of <c>SnesWordReads</c>. The SNES stores words
 /// little-endian: the low byte at the word's address, the high byte at the next address. Each operation
 /// reads exactly two bytes, low then high, once each, and propagates the source's failures unchanged.
 /// </summary>

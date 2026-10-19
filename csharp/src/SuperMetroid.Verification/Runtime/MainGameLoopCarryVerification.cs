@@ -16,7 +16,7 @@ internal static class MainGameLoopCarryVerification
     internal static void VerifyMainGameLoopCarry()
     {
         var bus = new TestAddressSpace();
-        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         AssertTrue(saveRam.DetermineBootMainLoopCarry(), "blank SRAM: the third LoadFromSRAM's carry survives");
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot());
         saveRam.SetGameCompleted(false);
@@ -24,7 +24,6 @@ internal static class MainGameLoopCarryVerification
         saveRam.SetGameCompleted(true);
         AssertTrue(saveRam.DetermineBootMainLoopCarry(), "the full marker leaves the final comparison's carry set");
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (bool carry in new[] { true, false })
         {
             var state = new RoomLayer3FxState();

@@ -25,13 +25,14 @@ internal static class SaveLoadRandomAudit
             {
                 Area = (ushort)AreaId.Tourian, SaveStation = 0,
                 Health = 399, MaxHealth = 399,
-                EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit),
-                CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit),
+                EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit),
+                CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit),
                 PowerBombs = 5, MaxPowerBombs = 5,
                 Missiles = 10, MaxMissiles = 10, SuperMissiles = 10, MaxSuperMissiles = 10,
             };
-            new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(0, save);
-            var game = new SuperMetroidGame(bus);
+            var saves = new SaveSlotStore(SaveMapPresentationFixture.Create(bus));
+            saves.SaveSlot(0, save);
+            var game = new SuperMetroidGame(saves);
             bindPresentation(game);
             bool insertedWait = false;
             long sequence = 0;

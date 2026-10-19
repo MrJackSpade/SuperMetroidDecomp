@@ -13,5 +13,5 @@ internal static class ShaktoolAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params ShaktoolProgram[] programs) =>
         programs.SelectMany(program => ShaktoolAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => ShaktoolFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => ShaktoolFrameToolingDefinitions.Spritemap(step.Frame));
 }

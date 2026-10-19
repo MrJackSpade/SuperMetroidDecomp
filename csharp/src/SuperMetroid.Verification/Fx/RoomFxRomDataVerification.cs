@@ -16,6 +16,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks typed room-FX records, blend dispatch and renderable BG3 effects against native definitions.</summary>
 internal static class RoomFxRomDataVerification
@@ -26,7 +27,7 @@ internal static class RoomFxRomDataVerification
     /// </summary>
     internal static void VerifyRoomFxRomData()
     {
-        AssertEqual(16, RoomFxRomData.Record.ByteCount, "room FX record width");
+        AssertEqual(16, RoomFxToolingRomData.Record.ByteCount, "room FX record width");
         AssertEqual(9, RoomFxRomDataRecordTooling.TypeOffset, "room FX type field");
         AssertEqual(11, RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
             "room FX layer-three blend field");
@@ -158,7 +159,7 @@ internal static class RoomFxRomDataVerification
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
         const ushort record = 0x9400;
-        SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordTooling.DoorPointerOffset, 0);
+        SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordToolingConstants.DoorPointerOffset, 0);
         SeedSyntheticRoomFxByte(bus, record,
             RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
             (byte)LayerBlendingConfiguration.NormalGameplay);
@@ -223,7 +224,7 @@ internal static class RoomFxRomDataVerification
             SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.LiquidOptionsOffset,
                 type == RoomFxType.Water
                     ? (byte)3
-                    : (byte)RoomFxRomData.LavaAcid.VerticalBg2WaveOption);
+                    : (byte)RoomFxRomDataLavaAcidConstants.VerticalBg2WaveOption);
             SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordTooling.BaseYPositionOffset, surfaceY);
             LoadSyntheticRoomFx(state, bus, vram, cgram, record);
             state.PrimeViewport(new Position16<RoomPixels>(0x0100, 0));
@@ -240,9 +241,10 @@ internal static class RoomFxRomDataVerification
         {
             AssertEqual(100, snapshot.WaterSurfaceScreenY,
                 $"{type} surface retains room-relative scanline");
-            ushort expectedOptions = type == RoomFxType.Water
-                ? (ushort)3
-                : RoomFxRomData.LavaAcid.VerticalBg2WaveOption;
+            // The seeded records select a drifting, BG2-waving water surface and lava/acid's vertical heat wave.
+            RoomLiquidOptions expectedOptions = type == RoomFxType.Water
+                ? RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.Bg2Wave
+                : RoomLiquidOptions.Bg2Wave;
             AssertEqual(expectedOptions, snapshot.LiquidOptions,
                 $"{type} render snapshot retains its wave options");
             AssertEqual((ushort)0x009b, snapshot.Scroll.Y,
@@ -294,7 +296,7 @@ internal static class RoomFxRomDataVerification
         // though both resolve to additive BG3 pixels, so neither pairing may be substituted.
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
             frame, vram, cgram, snapshot);
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -310,13 +312,13 @@ internal static class RoomFxRomDataVerification
             // assertion would fail if the signed boundary check regressed; an empty
             // fixture could otherwise make a broken compositor look correct by accident.
             var hiddenSurfaceFrame = new Rgba32[frame.Length];
-            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 hiddenSurfaceFrame,
                 vram,
                 cgram,
                 snapshot with
                 {
-                    CurrentYPosition = ushort.MaxValue,
+                    Surface = new(0, ushort.MaxValue),
                     WaterSurfaceScreenY = -1,
                 });
             AssertTrue(hiddenSurfaceFrame.All(pixel => pixel == default),
@@ -351,11 +353,11 @@ internal static class RoomFxRomDataVerification
                      frameNumber < RoomFxRomData.LavaAcid.VerticalWavePhaseDuration - 1;
                      frameNumber++)
                 {
-                    state.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+                    state.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
                     AssertEqual(0, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
                         $"{type} heat wave retains phase before frame four");
                 }
-                state.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+                state.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
                 AssertEqual(15, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
                     $"{type} heat wave rotates backward on frame four");
             }
@@ -368,7 +370,7 @@ internal static class RoomFxRomDataVerification
                 $"{type} samples the $5C00 effect page instead of the $5800 HUD page");
 
             var wrappedFrame = new Rgba32[frame.Length];
-            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 wrappedFrame,
                 vram,
                 cgram,
@@ -386,7 +388,7 @@ internal static class RoomFxRomDataVerification
             _ => LayerBlendingConfiguration.Rain,
         };
         AssertThrows<InvalidDataException>(
-            () => SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            () => SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 frame,
                 vram,
                 cgram,
@@ -397,7 +399,7 @@ internal static class RoomFxRomDataVerification
     /// <summary>Decodes a literal synthetic sixteen-byte record independently of the compiled catalog before production FX initialization.</summary>
     internal static void LoadSyntheticRoomFx(RoomLayer3FxState state, TestAddressSpace bus,
         SnesVram vram, SnesCgram cgram, ushort pointer) =>
-        state.LoadDefinition(bus, vram, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
+        state.LoadDefinition(vram, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
 
     /// <summary>Reads all sixteen bank-$83 record bytes in native word/byte order for the independent fixture oracle.</summary>
     [CpuBusBoundary("exact bus test: decodes the synthetic sixteen-byte bank-$83 room FX record")]
@@ -406,8 +408,9 @@ internal static class RoomFxRomDataVerification
         int address = 0x830000 | pointer;
         byte Byte(int offset) => bus.ReadByte(address + offset);
         ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
-        return new RoomFxRecordDefinition(pointer,
-            Word(0), Word(2), Word(4), Word(6), Byte(8), Byte(9), Byte(10), Byte(11),
+        ushort door = Word(0);
+        return new RoomFxRecordDefinition(
+            door is 0 or ushort.MaxValue ? null : DoorDefinitions.Get(door), door == ushort.MaxValue, Word(2), Word(4), Word(6), Byte(8), Byte(9), Byte(10), Byte(11),
             Byte(12), Byte(13), Byte(14), Byte(15));
     }
 

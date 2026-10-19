@@ -68,10 +68,10 @@ internal static class MapLandmarksVerification
         {
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(area); system.SetBossBits(area, (BossBits)1);
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-            var marker = new FileSelectStationMarker(bus, area, 0, original.SaveMarkers);
-            var native = new FileSelectRoomMapGraphics(bus, system, area,
+            var marker = new FileSelectStationMarker(area, 0, original.SaveMarkers);
+            var native = new FileSelectRoomMapGraphics(system, area,
                 mapPresentation: original);
-            var room = new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original);
+            var room = new FileSelectRoomMapGraphics(system, area, mapPresentation: original);
             var before = native.Render(new(0, 0), marker);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "full file-select landmark stock pixel parity");
             room.BindMapPresentation(edited);
@@ -81,8 +81,8 @@ internal static class MapLandmarksVerification
             room.BindMapPresentation(original);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "restored file-select uses current landmark content");
             if (area != AreaId.WreckedShip) continue;
-            var pauseNative = new PauseMenuState(bus, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original });
-            var pause = new PauseMenuState(guard, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original });
+            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original });
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause stock boss pixels with ROM coordinates blocked");
             pause.BindMapPresentation(edited);

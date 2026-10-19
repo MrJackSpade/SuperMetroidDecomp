@@ -38,8 +38,7 @@ internal static class DmaArtworkBoundaryVerification
         EnemyTileArtworkCatalog art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem { TileArtwork = art, Presentation = { HudTileArtwork = maps.HudTiles } };
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(memory);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var background = new SnesVram();
         enemies.Presentation._vram = background;
         Action upload = new Action(enemies.KraidBehavior.UploadKraidRoomBackgroundTiles);
@@ -62,6 +61,7 @@ internal static class DmaArtworkBoundaryVerification
             var actual = new SnesVram(); expected = new SnesVram();
             enemies.Presentation._vram = actual;
             var state = new KraidEnemyState(); var writes = new VramWriteQueue();
+            enemies.KraidBehavior.Kraid = state;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount; quarter++)
             {
@@ -71,7 +71,7 @@ internal static class DmaArtworkBoundaryVerification
                     AssertEqual(1, writes.Entries.Count, "Kraid quarter produces one NMI record");
                     AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                         writes.Entries[0].AssetId, "Kraid restoration queues a typed installed resource");
-                    writes.DrainTo(actual, memory, maps);
+                    writes.DrainTo(actual, maps);
                 }
                 ImportedVramOracle.ExecuteQueued(expected, reference,
                     KraidBackgroundRomData.StandardBg3TilesAddress + quarter * KraidBackgroundRomData.StandardBg3TransferBytes,
@@ -80,7 +80,7 @@ internal static class DmaArtworkBoundaryVerification
                 AssertTrue(actual.ImageEquals(expected),
                     $"Kraid BG3 quarter {quarter} matches the native reference, queued={queued}");
                 AssertEqual(quarter + 1, state.DeathBg3TransferCount, "Kraid retains the four-frame restoration cadence");
-                AssertEqual((ushort)KraidAiFunction.DeathFadeInBackground, body.VariableA,
+                AssertEqual(KraidAiFunction.DeathFadeInBackground, state.Parts[0].Function,
                     "artwork transfer preserves the death coroutine successor");
             }
         }
@@ -90,8 +90,8 @@ internal static class DmaArtworkBoundaryVerification
             "Kraid death restoration requires installed HUD art even when queued");
 
         var animation = new RoomFxAnimatedTilesState();
-        animation.LoadDefinition(memory, AnimatedTileObject.Lava);
-        AssertThrows<InvalidOperationException>(() => animation.Step(memory, new SnesVram()),
+        animation.LoadDefinition(AnimatedTileObject.Lava);
+        AssertThrows<InvalidOperationException>(() => animation.Step(new SnesVram()),
             "direct animated characters require installed art, not a bus reader");
         Console.WriteLine("DMA artwork boundary: typed memory/asset ports, mixed queues, Kraid background, eight BG3 transfer cases and missing-artwork rejection pass.");
     }

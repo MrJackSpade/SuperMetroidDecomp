@@ -25,7 +25,7 @@ internal static class LookupHorizontalHeatWaveVerification
         {
             var fx = new RoomLayer3FxRenderSnapshot(RoomFxType.Lava,
                 LayerBlendingConfiguration.WaterSubtractive, new Position16<Bg3Pixels>(baseScroll, 0),
-                CurrentYPosition: 100, LiquidOptions: RoomFxRomData.LavaAcid.HorizontalBg2WaveOption)
+                Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave)
                 { LavaAcidBg2WavePhase = phase };
             ushort[] scrolls = (SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(fx,
                 new Position16<Bg2Pixels>(baseScroll, (ushort)cameraPhase)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(fx, new Position16<Bg2Pixel...."));

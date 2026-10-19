@@ -3,9 +3,9 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 /// <summary>Schema, dimensions, filenames, and validation limits for editable title graphics.</summary>
 public static class TitleGraphicsFormat
 {
-    /// <summary>Current title-graphics document schema version.</summary>
-    public const int Version = 2;
-    /// <summary>Number of cartridge-selected title sprite frames.</summary>
+    /// <summary>Current title-graphics document schema version; version three keys sprite frames by composition name.</summary>
+    public const int Version = 3;
+    /// <summary>Number of title sprite frames, one per <see cref="TitleSprite"/>.</summary>
     public const int SpriteFrameCount = 31;
     /// <summary>Maximum OBJ parts accepted in one title sprite frame.</summary>
     public const int MaximumSpriteParts = 128;

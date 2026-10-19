@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Samus;
 
@@ -18,8 +19,8 @@ internal sealed class SamusFrameState
 {
     /// <summary>Remaining native load-appearance updates before ordinary Samus drawing resumes.</summary>
     internal NativeCountdown _samusLoadAppearanceFramesRemaining;
-    /// <summary>Palette-FX definition selected while Samus's load appearance is active.</summary>
-    internal ushort _samusLoadAppearancePaletteFxDefinition;
+    /// <summary>Palette-FX object selected while Samus's load appearance is active.</summary>
+    internal PaletteFxObject? _samusLoadAppearancePaletteFxObject;
 
     /// <summary>
     /// Normal-gameplay Samus rendering state. Null means the current scenario has not
@@ -45,8 +46,6 @@ internal sealed class SamusFrameState
     /// </summary>
     public SamusPoseId? ProspectiveSamusWallCollisionPose { get; internal set; }
 
-    /// <summary>The optional one-pixel block probe responsible for the native arm-pump bug.</summary>
-    public BlockMoveResult? LastRanIntoWallProbe { get; internal set; }
 
     /// <summary>
     /// No-button fallback selected by <c>Samus_Pose_CancelGrapple</c> at $91:82D9. This is
@@ -84,8 +83,6 @@ internal sealed class SamusFrameState
     /// <summary>Most recent special knockback-handler result, exposed for debugger watches.</summary>
     public KnockbackMovementResult? LastKnockbackMovement { get; internal set; }
 
-    /// <summary>Most recent Ceres Ridley scripted ejection-handler result.</summary>
-    public CeresRidleyEjectionResult? LastCeresRidleyEjection { get; internal set; }
 
     /// <summary>Most recent bank-$9B connected-grapple function result.</summary>
     public GrappleMovementResult? LastGrappleMovement { get; internal set; }
@@ -96,25 +93,14 @@ internal sealed class SamusFrameState
     /// <summary>Most recent Crystal Flash start, ammo-drain, or finish handler result.</summary>
     public CrystalFlashMovementResult? LastCrystalFlashMovement { get; internal set; }
 
-    /// <summary>Most recent call of X-ray's dedicated bank-$91 pose-input handler.</summary>
-    public XrayPoseInputResult? LastXrayPoseInput { get; internal set; }
 
     /// <summary>Most recent call of X-ray's bank-$88 setup/beam/deactivation state.</summary>
     public XrayBeamStepResult? LastXrayBeamStep { get; internal set; }
 
-    /// <summary>
-    /// Angle-selected `$90:E94F` art frame; null while X-ray's type-`$0E` turn handler is RTS.
-    /// </summary>
-    public ushort? LastXrayAnimationFrame { get; internal set; }
 
     /// <summary>Most recent game-state-owned fatal-damage animation/palette/VRAM call.</summary>
     public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; internal set; }
 
-    /// <summary>
-    /// Most recent global bank-$8D Hyper Beam palette-object call. Unlike Samus's body
-    /// palette handler, this owns OBJ palette six and runs before the Samus state handler.
-    /// </summary>
-    public HyperBeamPaletteFxStepResult? LastHyperBeamPaletteFxStep { get; internal set; }
 
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; internal set; }

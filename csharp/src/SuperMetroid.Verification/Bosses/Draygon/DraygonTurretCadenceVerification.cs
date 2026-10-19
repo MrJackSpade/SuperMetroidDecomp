@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Draygon turret timing, goop speed and bomb behavior, and dead-body reactions.</summary>
 internal static class DraygonTurretCadenceVerification
@@ -20,11 +21,11 @@ internal static class DraygonTurretCadenceVerification
     internal static void VerifyDraygonTurretCadence()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         var boss = runtime.Enemies.DraygonBehavior.Draygon;
         AssertEqual(DraygonAiFunction.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Function, "fight intro waits before the dance");
 
@@ -42,14 +43,13 @@ internal static class DraygonTurretCadenceVerification
 
         // #1269: both goop instructions pass A=2 to $86:8027, which stores it as the speed
         // parameter. A prior turret spawn (speed 3) must not change the goop's velocity.
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         (ushort X, ushort XSub, ushort Y, ushort YSub, ushort Angle) SpawnGoop()
         {
             runtime.System.SetRandomNumber(0x1234);
             runtime.Enemies.DraygonBehavior.SpawnDraygonGoop(boss, false);
             RoomEnemyProjectileSlot goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
-            var velocity = (goop.Velocity.X.RawValue, goop.Variable0, goop.Velocity.Y.RawValue, goop.Variable1, goop.DirectionParameter);
+            var velocity = (goop.Velocity.X.RawValue, checked((ushort)goop.Variable0), goop.Velocity.Y.RawValue, checked((ushort)goop.Variable1), checked((ushort)goop.DirectionParameter));
             goop.Clear();
             return velocity;
         }
@@ -68,7 +68,7 @@ internal static class DraygonTurretCadenceVerification
             p.Kind == RoomEnemyProjectileKind.DraygonGoop);
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Spawn(bombed.Position.Whole);
-        explosion.ExplosionRadius = (ushort)0x2000;
+        explosion.ExplosionRadius = PowerBombRadius.FromRaw(0x2000);
         runtime.Enemies.Audio.PowerBomb = explosion;
         runtime.Player.IntroducedSamus.XSpeedDivisor = 3;
         ushort bombedX = bombed.Position.X.Whole;

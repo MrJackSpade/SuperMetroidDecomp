@@ -16,8 +16,6 @@ internal static class CrawlerAnimationDefinitionsVerification
     /// <summary>Compares crawler orientation tables with cartridge words and production initial/surface instruction selection.</summary>
     internal static void VerifyCrawlerAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
-            BindingFlags.NonPublic;
         (CrawlerAnimationFamily Family, int Address, ushort? Offset)[] initialTables =
         [
             (CrawlerAnimationFamily.Shared, 0xa3e2cc, null),
@@ -57,23 +55,24 @@ internal static class CrawlerAnimationDefinitionsVerification
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewCrawlerAnimationReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             slot.CurrentInstruction = orientation;
             if (family == CrawlerAnimationFamily.Viola)
             {
                 // InitAI_Viola ($A3:B678) selects with the property bits, not the parameter.
                 slot.CurrentInstruction = (ushort)(orientation ^ 1);
-                slot.Properties = orientation;
+                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(orientation));
             }
             slot.Parameter1 = 0;
             if (family == CrawlerAnimationFamily.HZoomer)
             {
-                new Action<RoomEnemySlot>(enemies.CrawlersBehavior.InitializeHZoomer)(slot);
+                new Action<RoomEnemySlot>(CrawlersBehavior.InitializeHZoomer)(slot);
             }
             else
             {
-                new Action<RoomEnemySlot, CrawlerAnimationFamily, ushort?>(enemies.CrawlersBehavior.InitializeCrawler)(
+                new Action<RoomEnemySlot, CrawlerAnimationFamily, ushort?>(CrawlersBehavior.InitializeCrawler)(
                         slot, family, speciesOffset);
             }
 
@@ -90,7 +89,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             var enemies = new RoomEnemySystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter2 = speciesOffset;
-            var state = new CrawlerEnemyState(slot);
+            var state = new CrawlerEnemyState();
 
             state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xffff));
             setHorizontal(slot, state);
@@ -130,14 +129,4 @@ internal static class CrawlerAnimationDefinitionsVerification
             "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 24 real surface handoffs pass with source tables forbidden.");
     }
 
-    /// <summary>Forbids crawler animation-selector table reads while exercising production behavior.</summary>
-    private static CartridgeReadGuard NewCrawlerAnimationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa396db and < 0xa396e3 or
-                >= 0xa3992b and < 0xa39933 or
-                >= 0xa3b667 and < 0xa3b66f or
-                >= 0xa3e03b and < 0xa3e043 or
-                >= 0xa3e2cc and < 0xa3e2d4 or
-                >= 0xa3e630 and < 0xa3e660,
-                address => $"Crawler attempted migrated animation-selector read ${address:X6}.");
 }

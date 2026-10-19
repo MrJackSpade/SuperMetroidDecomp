@@ -60,7 +60,7 @@ internal static class PoseInputDefinitionsVerification
                         : native[match].Target == (ushort)pose ? new(null, false)
                         : new(new SamusPoseTransition((SamusPoseId)native[match].Target), false);
                 }
-                AssertEqual(expected, SamusPoseTransitionTable.Lookup(forbidden, pose, input, edges),
+                AssertEqual(expected, SamusPoseTransitionTable.Lookup(pose, input, edges),
                     "Compiled input graph preserves native first-match, self-match and fallback result");
                 comparisons++;
             }
@@ -74,11 +74,11 @@ internal static class PoseInputDefinitionsVerification
             SamusPoseId invalidPose = (SamusPoseId)pose;
             AssertTrue(!SamusPoseInputDefinitions.TryGetPointer(invalidPose, out _), "Trailing pose indexes have no authored graph");
             AssertThrows<InvalidDataException>(
-                () => SamusPoseTransitionTable.Lookup(forbidden, invalidPose, (SnesButton)1, (SnesButton)1),
+                () => SamusPoseTransitionTable.Lookup(invalidPose, (SnesButton)1, (SnesButton)1),
                 "Non-authored pose graph rejects adjacent code");
             AssertEqual(
                 new SamusPoseTransitionLookup(null, true),
-                SamusPoseTransitionTable.Lookup(forbidden, invalidPose, 0, 0),
+                SamusPoseTransitionTable.Lookup(invalidPose, 0, 0),
                 "Raw zero input returns before the cartridge would inspect a pose graph");
         }
 
@@ -89,7 +89,6 @@ internal static class PoseInputDefinitionsVerification
         AssertEqual(
             SamusPoseId.TurningRightToLeftPose,
             (SamusPoseTransitionTable.Lookup(
-                forbidden,
                 SamusPoseId.FacingRightNormalPose,
                 leftRight,
                 leftRight).Transition ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Lookup( forbidden, SamusPoseId.FacingRightNormalPose, leftRigh....")).ProspectivePose,
@@ -97,7 +96,6 @@ internal static class PoseInputDefinitionsVerification
         AssertEqual(
             SamusPoseId.TurningLeftToRightPose,
             (SamusPoseTransitionTable.Lookup(
-                forbidden,
                 SamusPoseId.FacingLeftNormalPose,
                 leftRight,
                 leftRight).Transition ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Lookup( forbidden, SamusPoseId.FacingLeftNormalPose, leftRight....")).ProspectivePose,
@@ -106,7 +104,7 @@ internal static class PoseInputDefinitionsVerification
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
         int accepted = 0;
         for (int i = 0; i < 65536; i++)
-            if (SamusPoseTransitionTable.Lookup(forbidden, (SamusPoseId)(i % 253), (SnesButton)(ushort)i, (SnesButton)(ushort)~i).Transition.HasValue) accepted++;
+            if (SamusPoseTransitionTable.Lookup((SamusPoseId)(i % 253), (SnesButton)(ushort)i, (SnesButton)(ushort)~i).Transition.HasValue) accepted++;
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");
         AssertEqual(0L, allocated, "Warmed production lookup allocates no per-frame graph or records");

@@ -156,7 +156,7 @@ internal static class DesktopSmokeAuditCommands
                 args.Length == 4 ? args[3] : null);
             Console.WriteLine(
                 $"Audio replay passed in {result.FramesExecuted} frames: projectile/SFX acknowledged; " +
-                $"first door ${result.SourceRoom:X4} -> ${result.DestinationRoom:X4} completed.");
+                $"first door {result.SourceRoom} -> {result.DestinationRoom} completed.");
             return true;
         }
 
@@ -191,7 +191,7 @@ internal static class DesktopSmokeAuditCommands
             {
                 Console.WriteLine(
                     $"Recorded pause {pause.EntryFrame}-{pause.ResumeFrame} in " +
-                    $"$8F:{pause.RoomPointer:X4}: {pause.PauseOwnedFrames} pause frames, " +
+                    $"{pause.Room}: {pause.PauseOwnedFrames} pause frames, " +
                     $"RMS {pause.MinimumPausedRms:F1}-{pause.MaximumPausedRms:F1} " +
                     $"(mean {pause.MeanPausedRms:F1}), {pause.AudioEvents} audio events; " +
                     $"{pause.CommandTrace}.");

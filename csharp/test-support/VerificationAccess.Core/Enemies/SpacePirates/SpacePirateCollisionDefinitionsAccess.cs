@@ -1,24 +1,34 @@
-namespace SuperMetroid.Core.Enemies.SpacePirates;
-using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
-/// <summary>Verification access to <see cref="SpacePirateCollisionDefinitions"/> members production does not use.</summary>
+namespace SuperMetroid.Core.Enemies.SpacePirates;
+
+/// <summary>Verification's native view of <see cref="SpacePirateCollisionDefinitions"/>: frames by bank-$B2 address.</summary>
 internal static class SpacePirateCollisionDefinitionsAccess
 {
-    /// <summary>Indexes Space Pirate collision frames and hitbox lists with their native pointers.</summary>
+    /// <summary>Native views of the catalog.</summary>
     extension(SpacePirateCollisionDefinitions)
     {
         /// <summary>Number of compiled Space Pirate collision component frames.</summary>
-        internal static int FrameCount => SpacePirateCollisionDefinitions.Frames.Count;
+        internal static int FrameCount => SpacePirateCollisionDefinitions.Frames.Count();
 
         /// <summary>Number of compiled Space Pirate hitbox lists.</summary>
-        internal static int ListCount => SpacePirateCollisionDefinitions.Lists.Count;
+        internal static int ListCount => SpacePirateCollisionDefinitions.HitboxLists.Length;
 
-        /// <summary>Pairs a native frame pointer with its compiled component record.</summary>
-        internal static SpacePirateCollisionFrame Frame(int index) =>
-            new(SpacePirateCollisionDefinitions.Frames.PointerAt(index), SpacePirateCollisionDefinitions.Frames.RecordAt(index));
+        /// <summary>The <paramref name="index"/>th compiled frame, in native order, with its native address.</summary>
+        internal static SpacePirateCollisionFrame Frame(int index)
+        {
+            KeyValuePair<EnemyFrameId, SpacePirateCollisionComponent[]> frame = SpacePirateCollisionDefinitions.Frames.ElementAt(index);
+            return new(EnemyFrames.Spritemap(frame.Key), frame.Value);
+        }
 
-        /// <summary>Pairs a native list pointer with its compiled hitbox record.</summary>
-        internal static SpacePirateCollisionList List(int index) =>
-            new(SpacePirateCollisionDefinitions.Lists.PointerAt(index), SpacePirateCollisionDefinitions.Lists.RecordAt(index));
+        /// <summary>The components of the frame at native address <paramref name="pointer"/>.</summary>
+        internal static ReadOnlySpan<SpacePirateCollisionComponent> ComponentsAt(ushort pointer) =>
+            pointer == CommonEnemyEmptyExtendedFrameDefinitions.Frame || RoomEnemySlotFrameAccess.Shows(SpacePiratesBank, pointer)
+                ? SpacePirateCollisionDefinitions.Frames.Of(RoomEnemySlotFrameAccess.FrameAt(SpacePiratesBank, pointer))
+                : throw new InvalidDataException($"Space Pirate collision frame $B2:{pointer:X4} is not compiled.");
     }
+
+    /// <summary>$B2, the bank holding the Pirates' frames.</summary>
+    private const byte SpacePiratesBank = 0xb2;
 }

@@ -26,7 +26,7 @@ public static class GameplayHudPresentationExtractor
             int count = width * 2;
             icons.Add(GameplayHudDefinitions.IconName(item), new()
             {
-                Anchor = Point(GameplayHudDefinitions.ItemByteOffset(item) / sizeof(ushort)),
+                Anchor = Point(GameplayHudDefinitions.ItemCell(item)),
                 Cells = ReadCells(bus, GameplayHudDefinitions.IconTableAddress + sourceWord * sizeof(ushort), count),
             });
             sourceWord += count;
@@ -46,7 +46,7 @@ public static class GameplayHudPresentationExtractor
             EnergyTanks = new()
             {
                 Anchors = Enumerable.Range(0, GameplayHudDefinitions.EnergyTankCount)
-                    .Select(tank => Point(GameplayHudDefinitions.EnergyTankByteOffset(tank) / sizeof(ushort))).ToArray(),
+                    .Select(tank => Point(GameplayHudDefinitions.EnergyTankCell(tank))).ToArray(),
                 Filled = Cell(GameplayHudDefinitions.FilledEnergyTankWord),
                 Empty = Cell(GameplayHudDefinitions.EmptyEnergyTankWord),
             },

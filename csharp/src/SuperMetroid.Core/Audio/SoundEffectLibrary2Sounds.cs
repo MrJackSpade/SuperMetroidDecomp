@@ -21,6 +21,21 @@ public static class SoundEffectLibrary2Sounds
     /// <summary>$A9:B52B queues library-two $6E (Max6) when a missile or Super Missile hits Mother Brain's glass.</summary>
     public static readonly SoundEffectId MotherBrainGlassHit = new(SoundEffectLibrary.Library2, 0x6e); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
+    /// <summary>Library-two $01: a collected small energy drop.</summary>
+    public static readonly SoundEffectId SmallEnergyPickup = new(SoundEffectLibrary.Library2, 0x01); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>Library-two $02: a collected big energy drop.</summary>
+    public static readonly SoundEffectId BigEnergyPickup = new(SoundEffectLibrary.Library2, 0x02); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>Library-two $03: a collected missile drop.</summary>
+    public static readonly SoundEffectId MissilePickup = new(SoundEffectLibrary.Library2, 0x03); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>Library-two $04: a collected Super Missile drop.</summary>
+    public static readonly SoundEffectId SuperMissilePickup = new(SoundEffectLibrary.Library2, 0x04); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>Library-two $05: a collected Power Bomb drop.</summary>
+    public static readonly SoundEffectId PowerBombPickup = new(SoundEffectLibrary.Library2, 0x05); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$93:80EF KillProjectileInner: beam impact explosion, library two $0C, Max6.</summary>
     public static readonly SoundEffectId BeamImpact = new(SoundEffectLibrary.Library2, 0x0c); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

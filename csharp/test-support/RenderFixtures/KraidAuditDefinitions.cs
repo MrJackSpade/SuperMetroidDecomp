@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.TestSupport.RenderFixtures;
 
 /// <summary>
@@ -69,11 +71,11 @@ internal static class KraidAuditDefinitions
     public const ushort LeftExitDoor = 0x91ce;
 
     /// <summary>Destination room <c>$8F:A56B</c> of Kraid's left exit.</summary>
-    public const ushort LeftExitDestination = 0xa56b;
+    public static RoomHeaderDefinition LeftExitDestination => RoomHeaderDefinitions.KraidEyeDoor;
 
     /// <summary>Kraid-room door <c>$83:91DA</c>, which exits right after the fight.</summary>
     public const ushort RightExitDoor = 0x91da;
 
     /// <summary>Destination room <c>$8F:A6E2</c> of Kraid's right exit.</summary>
-    public const ushort RightExitDestination = 0xa6e2;
+    public static RoomHeaderDefinition RightExitDestination => RoomHeaderDefinitions.VariaSuit;
 }

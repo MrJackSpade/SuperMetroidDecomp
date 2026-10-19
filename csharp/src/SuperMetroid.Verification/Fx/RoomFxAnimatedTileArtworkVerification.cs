@@ -43,8 +43,8 @@ internal static class RoomFxAnimatedTileArtworkVerification
             var directVram = new SnesVram();
             var queuedVram = new SnesVram();
             var writes = new VramWriteQueue();
-            direct.LoadDefinition(guarded, definition.ObjectPointer);
-            queued.LoadDefinition(guarded, definition.ObjectPointer);
+            direct.LoadDefinition(definition.ObjectPointer);
+            queued.LoadDefinition(definition.ObjectPointer);
             for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
             {
                 RoomFxAnimatedTileFrameDefinition frame = definition.Frames[frameIndex];
@@ -58,8 +58,8 @@ internal static class RoomFxAnimatedTileArtworkVerification
                 int ticksUntilFrame = frameIndex == 0 ? 1 : definition.Frames[frameIndex - 1].Duration;
                 for (int tick = 0; tick < ticksUntilFrame; tick++)
                 {
-                    direct.Step(guarded, directVram, artwork: atlas);
-                    queued.Step(guarded, queuedVram, writes);
+                    direct.Step(directVram, artwork: atlas);
+                    queued.Step(queuedVram, writes);
                 }
                 AssertEqual(source, direct.LastSourceAddress,
                     $"room-FX frame $87:{frame.InstructionPointer:X4} selects its compiled art source");
@@ -67,7 +67,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
                     $"queued room-FX frame $87:{frame.InstructionPointer:X4} selects its compiled art source");
                 AssertEqual(1, writes.Entries.Count,
                     $"room-FX frame $87:{frame.InstructionPointer:X4} queues exactly one native DMA");
-                writes.DrainTo(queuedVram, ReferenceMutableMemory.From(guarded), provider);
+                writes.DrainTo(queuedVram, provider);
                 int destination = definition.EncodedVramDestination * 2;
                 for (int index = 0; index < native.Length; index++)
                 {
@@ -86,8 +86,8 @@ internal static class RoomFxAnimatedTileArtworkVerification
             var treadmill = new WreckedShipTreadmillAnimatedTilesState();
             var treadmillVram = new SnesVram();
             var treadmillWrites = new VramWriteQueue();
-            treadmill.Start(guarded, direction);
-            treadmill.Step(guarded, areaBossDefeated: false, treadmillWrites);
+            treadmill.Start(direction);
+            treadmill.Step(areaBossDefeated: false, treadmillWrites);
             AssertEqual(0, treadmillWrites.Entries.Count,
                 $"{direction} waits for Phantoon's area-boss bit before presenting art");
             for (int frame = 0; frame < RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount;
@@ -102,12 +102,12 @@ internal static class RoomFxAnimatedTileArtworkVerification
                         out ReadOnlyMemory<byte> installed) &&
                     installed.Span.SequenceEqual(native),
                     $"{direction} treadmill frame {frame} preserves every cartridge pixel byte");
-                treadmill.Step(guarded, areaBossDefeated: true, treadmillWrites);
+                treadmill.Step(areaBossDefeated: true, treadmillWrites);
                 AssertEqual(source, treadmill.LastSourceAddress,
                     $"{direction} frame {frame} selects the compiled artwork identity");
                 AssertEqual(1, treadmillWrites.Entries.Count,
                     $"{direction} frame {frame} queues exactly one native DMA");
-                treadmillWrites.DrainTo(treadmillVram, ReferenceMutableMemory.From(guarded), provider);
+                treadmillWrites.DrainTo(treadmillVram, provider);
                 int destination = WreckedShipTreadmillRomData.EncodedVramDestination * 2;
                 for (int index = 0; index < native.Length; index++)
                     AssertEqual(native[index], treadmillVram.ReadByte(destination + index),
@@ -157,8 +157,8 @@ internal static class RoomFxAnimatedTileArtworkVerification
         var state = new RoomFxAnimatedTilesState();
         var vram = new SnesVram();
         var guarded = NewRoomFxArtworkForbiddenBus(rom);
-        state.LoadDefinition(guarded, AnimatedTileObject.MaridiaSandCeiling);
-        state.Step(guarded, vram, artwork: changed.RoomFxAnimatedTiles);
+        state.LoadDefinition(AnimatedTileObject.MaridiaSandCeiling);
+        state.Step(vram, artwork: changed.RoomFxAnimatedTiles);
         AssertEqual(edited.Span[0], vram.ReadByte(0x1000 * 2),
             "edited room-FX pixel reaches the active animation transfer");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "edited room-FX transfer remains ROM-free");
@@ -173,12 +173,12 @@ internal static class RoomFxAnimatedTileArtworkVerification
             "stock room-FX atlas resolves the Wrecked Ship treadmill frame");
         AssertTrue(!editedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
             "edited treadmill pixels compile to a distinct installed NMI frame");
-        var runtime = new SuperMetroidRuntime(guarded, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = changed } };
-        runtime.WreckedShipTreadmill.Start(guarded,
-            WreckedShipTreadmillDirection.Rightwards);
-        runtime.WreckedShipTreadmill.Step(guarded, areaBossDefeated: true,
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        runtime.Artwork.MapPresentation = changed;
+        runtime.WreckedShipTreadmill.Start(WreckedShipTreadmillDirection.Rightwards);
+        runtime.WreckedShipTreadmill.Step(areaBossDefeated: true,
             runtime.VramWrites);
-        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime.Artwork);
+        runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
         AssertEqual(editedTreadmill.Span[0], runtime.Vram.ReadByte(
                 WreckedShipTreadmillRomData.EncodedVramDestination * 2),
             "edited treadmill pixel reaches the production runtime NMI destination");
@@ -195,7 +195,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         var statueVram = new SnesVram();
         var statueWrites = new VramWriteQueue();
         statueWrites.Enqueue(0x80, statueSource, VramDmaDestination.FromNative(0x7800));
-        statueWrites.DrainTo(statueVram, ReferenceMutableMemory.From(guarded),
+        statueWrites.DrainTo(statueVram,
             new RoomFxArtworkTestProvider(changed.RoomFxAnimatedTiles));
         AssertEqual(editedStatue.Span[0], statueVram.ReadByte(0x7800 * 2),
             "edited Tourian statue pixel reaches the native NMI destination");

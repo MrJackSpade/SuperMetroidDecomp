@@ -25,7 +25,7 @@ internal sealed class SpeedBoosterBlockPlmAnimation(SpeedBoosterBlockProgram pro
     };
 
     /// <inheritdoc/>
-    private protected override void Draw(SpeedBoosterBlockFrame frame, PlmSlot slot, PlmAnimationContext context)
+    private protected override void Draw(SpeedBoosterBlockFrame frame, PlmSlot slot, PlmStepContext context)
     {
         if (frame == SpeedBoosterBlockFrame.RestoredBlock)
             context.DrawRestoredBlock(slot);
@@ -34,7 +34,7 @@ internal sealed class SpeedBoosterBlockPlmAnimation(SpeedBoosterBlockProgram pro
     }
 
     /// <inheritdoc/>
-    private protected override SpeedBoosterBlockProgram? Publish(SpeedBoosterBlockCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override SpeedBoosterBlockProgram? Publish(SpeedBoosterBlockCue cue, PlmSlot slot, PlmStepContext context)
     {
         if (cue != SpeedBoosterBlockCue.QueueBreakSound)
             throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterBlockCue)} {cue}.");

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Kago;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Kago;
 internal static class KagoBugProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, KagoBugProjectileAnimations.Programs, KagoBugProjectileFrameDefinitions.PresentationKey, KagoBugProjectileCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, KagoBugProjectileAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(KagoBugProjectileFrameDefinitions.ShownProjectileFrames[frame])), KagoBugProjectileCueRules.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyKagoBugProjectileAnimations(SuperMetroidAddressSpace rom)

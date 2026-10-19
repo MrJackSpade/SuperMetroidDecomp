@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Metroid death explosion and special-drop ordering for fresh and already-marked missiles.</summary>
 internal static class MetroidDeathDropsVerification
@@ -24,11 +25,11 @@ internal static class MetroidDeathDropsVerification
     private static void VerifyMetroidDeathDrops(bool alreadyMarked)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.TourianMetroids1);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Metroids1);
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = true;
         RoomEnemySlot metroid = runtime.Enemies.SlotTable.Slots.First(slot =>
@@ -46,7 +47,7 @@ internal static class MetroidDeathDropsVerification
         shot.Position = shot.Position.WithWhole(metroid.Position.Whole);
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus);
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus);
         AssertEqual((ushort)0, metroid.Health, $"the missile kills the frozen Metroid (already marked: {alreadyMarked})");
 
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;

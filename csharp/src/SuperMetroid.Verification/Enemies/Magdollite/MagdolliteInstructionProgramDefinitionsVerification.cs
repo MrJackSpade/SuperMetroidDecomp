@@ -75,7 +75,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             state.ThrowOrigin = slot.Position.Whole;
             Install(slot, state, program);
             RunFrames(enemies, slot, 80);
-            AssertEqual((ushort)0x0061, (enemies.MagdolliteBehavior.LastMagdolliteSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteBehavior.LastMagdolliteSoundEffect.")),
+            AssertEqual(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0061), (enemies.MagdolliteBehavior.LastMagdolliteSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteBehavior.LastMagdolliteSoundEffect.")),
                 $"Magdollite {direction} throw sound");
             AssertEqual(3,
                 enemies.Projectiles.EnemyProjectiles.Count(projectile =>
@@ -132,13 +132,13 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             MagdollitePart selectedPart)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
             for (int index = 0; index < 3; index++)
             {
                 RoomEnemySlot member = enemies.SlotTable.Slots[index];
-                member.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
-                member.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
+                member.Bind(member.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
                 member.Parameter1 = (ushort)index;
                 member.Parameter2 = 0;
                 member.Position = member.Position.WithWhole(new(0x0080, 0x0080));
@@ -160,7 +160,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         {
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
         }
     }
 

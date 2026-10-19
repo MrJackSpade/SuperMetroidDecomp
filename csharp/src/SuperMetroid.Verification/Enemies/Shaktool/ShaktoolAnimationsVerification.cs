@@ -14,7 +14,7 @@ internal static class ShaktoolAnimationsVerification
     internal static void VerifyShaktoolAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, ShaktoolAnimations.Programs,
-            ShaktoolFrameDefinitions.Spritemap,
+            ShaktoolFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

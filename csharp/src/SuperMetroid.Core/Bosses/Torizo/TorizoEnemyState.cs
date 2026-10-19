@@ -41,22 +41,27 @@ public sealed class TorizoEnemyState
     public NativeCountdown AirTransitionTimer { get; internal set; }
 
     /// <summary>
-    /// Native <c>toriz_var_04</c>. Nonzero frames reject shots before common damage AI.
-    /// The awakening list writes the cartridge sentinel $7777 and later clears it.
+    /// Native <c>toriz_var_04</c>, held as whether the body's animation is locked: the awakening list locks it and
+    /// later unlocks it. While it is locked Bomb Torizo rejects shots before common damage, and Golden Torizo sends
+    /// them to common damage without its catches or its stun. The cartridge marks the lock with a nonzero word that
+    /// nothing reads; every test is locked versus unlocked.
     /// </summary>
-    public ushort ShotGuard { get; internal set; }
+    public bool AnimationLocked { get; internal set; }
 
-    /// <summary>Native <c>toriz_var_09</c>: animation/decision repetition counter.</summary>
-    public ushort DecisionCounter { get; internal set; }
-
-    /// <summary>Native <c>toriz_var_05</c>: last missile-family word seen by Golden Torizo.</summary>
-    public ushort CapturedProjectileFamily { get; internal set; }
+    /// <summary>
+    /// Native <c>toriz_var_09</c>: stepping cues counted since a decision last reset it, from zero to
+    /// <see cref="LargestCount"/>. Golden Torizo's repeated-jump branch fires once it reaches eight.
+    /// </summary>
+    public int DecisionCounter { get; internal set; }
 
     /// <summary>Whether Golden Torizo's eye beams explode on impact; its eye-beam list enables them.</summary>
     public bool EyeBeamExplosionsEnabled { get; internal set; }
 
-    /// <summary>Native <c>toriz_var_07</c>: consecutive frames Samus has space-jumped.</summary>
-    public ushort SamusSpaceJumpFrames { get; internal set; }
+    /// <summary>
+    /// Native <c>toriz_var_07</c>: consecutive frames Samus has space-jumped, from zero to <see cref="LargestCount"/>.
+    /// Past 360 it lets Golden Torizo's forward leap fire without its input and random gates.
+    /// </summary>
+    public int SamusSpaceJumpFrames { get; internal set; }
 
     /// <summary>
     /// Signed 8.8 jump velocity words. The walking instructions reuse the native X word for a
@@ -64,8 +69,11 @@ public sealed class TorizoEnemyState
     /// </summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Signed 8.8 vertical acceleration.</summary>
-    public ushort VerticalAcceleration { get; internal set; }
+    /// <summary>
+    /// Signed 8.8 acceleration a jump adds to <see cref="Velocity"/> every frame until it lands. Only the Y axis is
+    /// meaningful; X stays zero, so adding the whole vector leaves the horizontal velocity unchanged.
+    /// </summary>
+    public EightEightVector<RoomPixels> JumpAcceleration { get; internal set; }
 
     /// <summary>Native <c>toriz_var_E</c> main-function dispatcher pointer.</summary>
     public TorizoFunction Function { get; internal set; }
@@ -81,4 +89,19 @@ public sealed class TorizoEnemyState
     public bool BossBitSet { get; internal set; }
     /// <summary>Host latch recording the death instruction's 16-pickup scatter request in the variant's arena; does not mean those pickups were collected.</summary>
     public bool ItemDropRequested { get; internal set; }
+
+    /// <summary>
+    /// The largest value <see cref="DecisionCounter"/> and <see cref="SamusSpaceJumpFrames"/> reach: counting one more
+    /// wraps either to zero, as the cartridge's counters do.
+    /// </summary>
+    internal const int LargestCount = 65535;
+
+    /// <summary>Counts one stepping cue, wrapping from <see cref="LargestCount"/> to zero.</summary>
+    internal void CountDecisionStep() => DecisionCounter = NextCount(DecisionCounter);
+
+    /// <summary>Counts one more consecutive space-jumping frame, wrapping from <see cref="LargestCount"/> to zero.</summary>
+    internal void CountSamusSpaceJumpFrame() => SamusSpaceJumpFrames = NextCount(SamusSpaceJumpFrames);
+
+    /// <summary>The count after <paramref name="count"/>, wrapping from <see cref="LargestCount"/> to zero.</summary>
+    private static int NextCount(int count) => count == LargestCount ? 0 : count + 1;
 }

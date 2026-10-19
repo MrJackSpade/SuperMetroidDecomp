@@ -70,14 +70,14 @@ public static class GameplayMessageNoticeDefinitions
                 int column = 0;
                 while (column < width)
                 {
-                    if (!IsText(template[row * width + column].Raw)) { column++; continue; }
+                    if (!IsText(template[row * width + column].Word.Raw)) { column++; continue; }
                     int start = column++;
                     while (column < width)
                     {
-                        ushort word = template[row * width + column].Raw;
+                        ushort word = template[row * width + column].Word.Raw;
                         if (IsText(word)) { column++; continue; }
                         if ((GameplayMessageTitleGlyph)(word & 0x03ff) == GameplayMessageTitleGlyph.Space &&
-                            column + 1 < width && IsText(template[row * width + column + 1].Raw))
+                            column + 1 < width && IsText(template[row * width + column + 1].Word.Raw))
                         {
                             column += 2;
                             continue;

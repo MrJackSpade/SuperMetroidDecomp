@@ -71,11 +71,10 @@ internal static class KraidSinkScheduleVerification
     {
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(NewKraidSinkGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.ProcessKraidSinkTable;
-        var requests = (List<KraidPlmRequest>)enemies.KraidBehavior._kraidPlmRequests;
+        var requests = enemies.FrameResults.KraidPlms;
         foreach (var entry in callbacks.DistinctBy(entry => entry.Value))
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Clear();
@@ -122,11 +121,10 @@ internal static class KraidSinkScheduleVerification
         }
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(NewKraidSinkGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.ProcessKraidSinkTable;
-        var requests = (List<KraidPlmRequest>)enemies.KraidBehavior._kraidPlmRequests;
+        var requests = enemies.FrameResults.KraidPlms;
         var body = enemies.SlotTable.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -151,9 +149,4 @@ internal static class KraidSinkScheduleVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink schedule")]
     private static byte KraidSinkScheduleRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Rejects runtime reads of the migrated sink table and unexpected bus writes.</summary>
-    private static CartridgeReadGuard NewKraidSinkGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa7c5e7 and <= 0xa7c690, _ => "Unexpected migrated Kraid sink schedule read.")
-            .RejectWrites(_ => "Unexpected sink bus write.");
 }

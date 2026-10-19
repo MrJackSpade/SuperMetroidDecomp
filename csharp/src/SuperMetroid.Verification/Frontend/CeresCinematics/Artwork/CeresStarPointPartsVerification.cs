@@ -28,7 +28,7 @@ internal static class CeresStarPointPartsVerification
                 var part = edited[index];
                 edited[index] = part with { Attributes = part.Attributes with { Raw = (ushort)(part.Attributes.Raw ^ 0x1000) } };
                 AssertTrue(ReferenceEquals(edited, CeresStarPointParts.CalculateIfMatching(edited, reflected)), "independent priority edit stays supplied");
-                edited[index] = part with { Y = unchecked((byte)(part.Y + 1)) };
+                edited[index] = part with { Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) };
                 var translated = CeresStarPointParts.CalculateIfMatching(edited, reflected);
                 AssertTrue(!ReferenceEquals(edited, translated) && edited.SequenceEqual(translated), "point edits preserve calculated attributes");
             }

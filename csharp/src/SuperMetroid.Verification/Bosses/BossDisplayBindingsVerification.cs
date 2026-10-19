@@ -89,7 +89,6 @@ internal static class BossDisplayBindingsVerification
         AssertAnimationValues(baseline.Actor, edited.Actor, context);
         AssertAnimationValues(baseline.Enemies, edited.Enemies, context);
         AssertSameBytes(baseline.Memory.WorkRam, edited.Memory.WorkRam, context + " preserves all WRAM");
-        AssertSameBytes(baseline.Memory.SaveRam, edited.Memory.SaveRam, context + " preserves all SRAM");
         AssertTrue(baseline.Enemies.Audio.SoundRequests.SequenceEqual(edited.Enemies.Audio.SoundRequests), context + " preserves audio callbacks");
         AssertTrue(baseline.Enemies.Audio.MusicRequests.SequenceEqual(edited.Enemies.Audio.MusicRequests), context + " preserves music callbacks");
     }

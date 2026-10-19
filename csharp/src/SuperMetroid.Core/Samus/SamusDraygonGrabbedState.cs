@@ -33,11 +33,26 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>Preserves grab gamma while a newer movement callback replaces RTS.</summary>
     internal void RelinquishMovementHandler() => MovementHandlerReplaced = true;
 
-    /// <summary>WRAM <c>DraygonEscapeButtonCounter</c>.</summary>
-    public ushort EscapeButtonCounter { get; private set; }
+    /// <summary>
+    /// D-pad presses counted toward escaping, 0 through 65535. The counter shares one storage word with Crystal
+    /// Flash's ammo countdown and the suit pickup's stage number, which mirror their writes into it, so it holds any
+    /// value those owners leave, including a wrapped countdown. It advances as a sixteen-bit counter and the release
+    /// test is the cartridge's signed comparison against the target; other values are rejected.
+    /// </summary>
+    public int EscapeButtonCounter { get; private set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
-    /// <summary>Mirrors Crystal Flash's writes to the shared WRAM $0DEC countdown.</summary>
-    internal void SetSharedEscapeCounter(ushort value) => EscapeButtonCounter = value;
+    /// <summary>Mirrors another owner's write to the shared counter word: Crystal Flash's countdown or a suit pickup stage.</summary>
+    internal void SetSharedEscapeCounter(int value) => EscapeButtonCounter = value;
+
+    /// <summary>The counter after one counted press: the shared word advances with sixteen-bit wraparound.</summary>
+    private static int CountPress(int counter) => unchecked((ushort)(counter + 1));
+
+    /// <summary>
+    /// Whether a counted press reached the target. The cartridge compares the shared word with a signed subtraction,
+    /// so a word of 32828 or more, left by another owner, reads as below it.
+    /// </summary>
+    private static bool ReachedEscapeTarget(int counter) =>
+        unchecked((short)(counter - EscapeButtonCounterTarget)) >= 0;
 
     /// <summary>
     /// WRAM <c>DraygonEscapePreviousDpadInput</c>. Native stores the entire masked D-pad
@@ -60,16 +75,15 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>
     /// Ports <c>SetSamusIntoTheGrabbedByDraygonPose</c> at `$90:E23B`.
     /// </summary>
-    public void Begin(ISnesAddressSpace bus, SamusState samus, bool draygonFacingRight)
+    public void Begin(SamusState samus, bool draygonFacingRight)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         samus.Pose = draygonFacingRight
             ? SamusPoseId.DraygonGrabbedNeutralRightPose
             : SamusPoseId.DraygonGrabbedNeutralLeftPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
 
         IsActive = true;
         MovementHandlerReplaced = false;
@@ -82,7 +96,7 @@ public sealed class SamusDraygonGrabbedState
         ReleasePublishedToOwner = false;
         OwnerFacingRight = draygonFacingRight;
         // Forced grab owns its history shift; no ordinary input slot is consumed.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
         // `$90:E289-$E295` empties every prospective-pose slot. The super-special one is Samus's;
         // the runtime clears the others after EnemyMain (EnemyRoomStatus publishes the grab).
         samus.PendingTransitionalPose = null;
@@ -127,8 +141,7 @@ public sealed class SamusDraygonGrabbedState
         Ensure.NotNull(samus);
         EnsureGrabbedPose(samus);
 
-        ushort previousResult = samus.SolidVerticalCollisionResult;
-        samus.SolidVerticalCollisionResult = 0;
+        samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
         return new DraygonGrabbedMovementResult();
     }
 
@@ -138,12 +151,10 @@ public sealed class SamusDraygonGrabbedState
     /// nonzero and different from the last counted pattern.
     /// </summary>
     public DraygonEscapeResult StepEscapeHandler(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton newlyPressedInput,
         bool grappleLockedInPlace)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         EnsureActiveGrabbedPose();
 
@@ -153,16 +164,16 @@ public sealed class SamusDraygonGrabbedState
         if (dpad != SnesButton.None && dpad != PreviousDpadInput)
         {
             PreviousDpadInput = dpad;
-            EscapeButtonCounter = unchecked((ushort)(EscapeButtonCounter + 1));
+            EscapeButtonCounter = CountPress(EscapeButtonCounter);
             samus.CrystalFlash.SetSharedAmmoCounter(EscapeButtonCounter);
             counted = true;
         }
 
         // Native tests the signed difference only on a newly counted D-pad edge.
-        bool released = counted && unchecked((short)(EscapeButtonCounter - EscapeButtonCounterTarget)) >= 0;
+        bool released = counted && ReachedEscapeTarget(EscapeButtonCounter);
         SamusPoseId poseBeforeRelease = samus.Pose;
         if (released)
-            Release(bus, samus);
+            Release(samus);
 
         return new DraygonEscapeResult(
             grappleLockedInPlace,
@@ -173,18 +184,17 @@ public sealed class SamusDraygonGrabbedState
     /// Ports `$90:E2DE-$E359`. The release keeps extra run speed exactly as native does,
     /// but clears base X speed, all vertical velocity, bounce state, and acceleration mode.
     /// </summary>
-    public void Release(ISnesAddressSpace bus, SamusState samus)
+    public void Release(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         samus.Pose = facingLeft
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         if (samus.Pose != samus.PoseHistory.PreviousPose)
-            samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+            samus.Presentation.InitializeAnimation(initialFrame: 0);
         // Death calls this even when Samus was never grabbed. Installing normal
         // movement interrupts a spark without resetting its independent boost/palette.
         samus.Shinespark.RelinquishMovementHandler();
@@ -192,7 +202,7 @@ public sealed class SamusDraygonGrabbedState
 
         // Release clears pending input transitions, so commit here rather than
         // relying on the normal pose dispatcher to observe the standing pose.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
 
         samus.HorizontalSpeed.BaseSpeed = 0;
         samus.HorizontalSpeed.BaseSubspeed = 0;

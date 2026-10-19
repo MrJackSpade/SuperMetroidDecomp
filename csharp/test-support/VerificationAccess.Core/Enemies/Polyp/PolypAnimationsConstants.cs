@@ -12,5 +12,5 @@ internal static class PolypAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params PolypProgram[] programs) =>
         programs.SelectMany(program => PolypAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => PolypFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => PolypFrameToolingDefinitions.Spritemap(step.Frame));
 }

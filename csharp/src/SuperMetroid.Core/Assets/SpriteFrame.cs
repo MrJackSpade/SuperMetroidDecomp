@@ -21,7 +21,7 @@ public sealed class SpriteFrame
         {
             if (part.Size.X is not (8 or 16 or 32 or 64) || part.Size.Y is not (8 or 16 or 32 or 64))
                 throw new ArgumentException($"Sprite frame {name} has a {part.Size.X}x{part.Size.Y} part; sizes are 8, 16, 32 or 64.", nameof(parts));
-            if (part.Character < 0 || part.Palette > 7 || part.Priority > 3)
+            if (part.Character < 0 || part.Palette is < 0 or > 7 || part.Priority is < 0 or > 3)
                 throw new ArgumentException($"Sprite frame {name} has a part with an invalid character, palette or priority.", nameof(parts));
         }
         Name = name;

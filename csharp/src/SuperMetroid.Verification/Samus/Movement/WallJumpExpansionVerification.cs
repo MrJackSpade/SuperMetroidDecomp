@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Samus.Movement;
 internal static class WallJumpExpansionVerification
 {
     /// <summary>Exercises both facings with and without a ceiling, including center correction and fractional Y.</summary>
-    internal static void VerifyWallJumpExpansion(ISnesAddressSpace bus)
+    internal static void VerifyWallJumpExpansion()
     {
         foreach (bool ceiling in new[] { false, true })
         foreach (bool left in new[] { false, true })
@@ -22,10 +22,10 @@ internal static class WallJumpExpansionVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(left ? (ushort)119 : (ushort)137, 127)),
             };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x1000);
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             ushort beforeX = samus.Position.X.Whole;
-            samus.PoseTransitions.ApplyWallJumpTrigger(bus, room);
+            samus.PoseTransitions.ApplyWallJumpTrigger(room);
             AssertEqual(left ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose,
                 samus.Pose, "walljump expansion selects facing-preserving pose");
             AssertEqual(beforeX, samus.Position.X.Whole, "vertical expansion preserves X");

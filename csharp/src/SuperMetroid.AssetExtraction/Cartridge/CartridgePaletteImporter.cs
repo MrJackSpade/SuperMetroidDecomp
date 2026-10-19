@@ -35,8 +35,6 @@ public static class CartridgePaletteImporter
             SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(bus).ReadCartridgeByte((int)address),
             SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Import palette transfer requires WRAM.")).ReadWorkRamByte((int)address),
-            SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Import palette transfer requires SRAM.")).ReadSaveRamByte((int)address),
             _ => throw new InvalidOperationException($"Import palette source {address} is unmapped."),
         };
         for (int color = 0; color < colorCount; color++)

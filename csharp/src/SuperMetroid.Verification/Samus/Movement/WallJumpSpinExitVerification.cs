@@ -25,11 +25,11 @@ internal static class WallJumpSpinExitVerification
         static void Confirm(SamusEquipmentFlags items, bool speedKept)
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = CreateRetailRuntimeFixture(bus);
+            var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
             var level = runtime.Room.LoadedLevelData;
             for (int y = 16; y < 36; y++)
             for (int x = 16; x < 48; x++)
@@ -40,11 +40,11 @@ internal static class WallJumpSpinExitVerification
             }
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
-            samus.EquippedItems = (ushort)items;
+            samus.EquippedItems = (SamusEquipmentFlags)((ushort)items);
             samus.Pose = SamusPoseId.WallJumpRightPose;
             samus.Position = samus.Position.WithWhole(new(512, 400));
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = 3;
             samus.HorizontalSpeed.BaseSpeed = 1;

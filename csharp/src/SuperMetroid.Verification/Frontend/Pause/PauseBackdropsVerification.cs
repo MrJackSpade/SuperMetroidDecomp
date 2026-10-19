@@ -111,13 +111,13 @@ internal static class PauseBackdropsVerification
         }
         // The native invalid-beam selection deliberately leaves an overlong label
         // in equipment VRAM. A full inventory rebuild during content rebind loses it.
-        var samus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300, CollectedBeams = 0x100f, EquippedBeams = 4 };
-        var glitch = new PauseMenuState(guard, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var samus = new SamusState { CollectedItems = (SamusEquipmentFlags)0x3300, EquippedItems = (SamusEquipmentFlags)0x3300, CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
+        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);
         AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
         glitch.Step(0, (SnesButton.Left | SnesButton.A));
-        AssertEqual((ushort)12, samus.EquippedBeams, "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
+        AssertEqual((ushort)12, samus.EquippedBeams.ToNativeWord(), "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
         byte[] glitchPage = glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
         AssertEqual((ushort)0x0900, BinaryPrimitives.ReadUInt16LittleEndian(glitchPage.AsSpan(0x514)), "fixture retains native VAR overrun beyond ordinary Plasma label");
         glitch.BindMapPresentation(edited);
@@ -166,7 +166,7 @@ internal static class PauseBackdropsVerification
             // pause map draws elevator destinations for acquired maps, which Ceres does not have.
             var system = new Bank80SystemState();
             if (area != AreaId.Ceres) system.SetAreaMapAcquired(area);
-            return new(addressSpace, new PauseMenuEntry { Samus = new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge, EquippedBeams = (ushort)SamusBeamFlags.Charge }, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = catalog });
+            return new(new PauseMenuEntry { Samus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge }, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = catalog });
         }
     }
 

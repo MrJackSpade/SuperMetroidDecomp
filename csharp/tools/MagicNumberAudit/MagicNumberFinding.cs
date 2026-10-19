@@ -1,40 +1,13 @@
-using System.Security.Cryptography;
-using System.Text;
-
 namespace SuperMetroid.SourceAudit;
 
-/// <summary>One classified source occurrence with a stable signature independent of line movement.</summary>
+/// <summary>One classified source occurrence.</summary>
 internal sealed record MagicNumberFinding(
     string RelativePath,
     int LineNumber,
     string Literal,
     MagicNumberCategory Category,
-    string Source,
-    string Signature)
+    string Source)
 {
-    /// <summary>First 64 SHA-256 bits used for membership in the compact reviewed baseline.</summary>
-    public string BaselineFingerprint => Signature[..16];
-
-    /// <summary>Hashes the owning type, category, literal, and expression to identify a reviewed occurrence wherever its file lives.</summary>
-    public static MagicNumberFinding Create(
-        string relativePath,
-        string owner,
-        int lineNumber,
-        string literal,
-        MagicNumberCategory category,
-        string source)
-    {
-        string fingerprintSource = $"{owner}|{category}|{literal.ToLowerInvariant()}|{source}";
-        string signature = Convert.ToHexString(
-            SHA256.HashData(Encoding.UTF8.GetBytes(fingerprintSource))).ToLowerInvariant();
-        return new MagicNumberFinding(
-            relativePath,
-            lineNumber,
-            literal,
-            category,
-            source,
-            signature);
-    }
 
     /// <summary>Actionable source location and expected named owner for this raw value.</summary>
     public string Diagnostic =>

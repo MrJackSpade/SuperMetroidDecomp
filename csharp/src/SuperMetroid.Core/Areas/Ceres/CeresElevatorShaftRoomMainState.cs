@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -61,9 +60,8 @@ public sealed class CeresElevatorShaftRoomMainState
     }
 
     /// <summary>Executes one call to room main <c>$89:ACC3</c>.</summary>
-    /// <param name="bus">Pose data used only when admitting Samus to the departure trigger.</param>
     /// <param name="samus">Live Samus state inspected by the elevator trigger.</param>
-    /// <param name="ceresStatus">Bank-$A6 Ceres status word at native WRAM <c>$093F</c>.</param>
+    /// <param name="elevatorDoorDestroyed">Whether the Ceres elevator door's destruction has released the rotation.</param>
     /// <param name="allowDeparture">
     /// True only when the outer dispatcher is state eight. States $20/$21 still call the
     /// ordinary gameplay body, but the native room main explicitly rejects their game-state
@@ -71,20 +69,18 @@ public sealed class CeresElevatorShaftRoomMainState
     /// </param>
     /// <param name="scratch">Shared mutable room-main scratch: Var1 supplies and receives the encoded forward/reverse rotation index inherited by subsequent room owners; the countdown remains in this state's <see cref="RotationTimer"/>.</param>
     public CeresElevatorShaftRoomMainResult Step(
-        ISnesAddressSpace bus,
         SamusState? samus,
-        ushort ceresStatus,
+        bool elevatorDoorDestroyed,
         bool allowDeparture,
         RoomMainScratchState scratch)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(scratch);
         DepartureRequestedThisFrame = false;
 
         // The room code is entirely dormant until the Ceres door's destruction publishes
         // its escape status. In particular, the initial elevator descent retains door ASM's identity
         // matrix instead of prematurely consuming the rotation table.
-        if (!IsActive || (ceresStatus & CeresStatusDefinitions.DoorEscaped) == 0)
+        if (!IsActive || !elevatorDoorDestroyed)
             return Snapshot(matrixChanged: false);
 
         if (allowDeparture &&
@@ -96,12 +92,12 @@ public sealed class CeresElevatorShaftRoomMainState
             // cartridge x-direction metadata, refreshes pose radii/animation, seeds the
             // 60-frame state-$20 hold, then installs SamusCode_00's input lock. The hold is
             // owned by the frontend dispatcher; everything Samus-visible remains here.
-            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection(bus) == 4;
+            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection() == 4;
             samus.Pose = facingLeft
                 ? SamusPoseId.FacingLeftNormalPose
                 : SamusPoseId.FacingRightNormalPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
-            samus.Presentation.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
+            samus.Presentation.InitializeAnimation();
             samus.InputLocked = true;
             DepartureRequested = true;
             DepartureRequestedThisFrame = true;
@@ -118,15 +114,15 @@ public sealed class CeresElevatorShaftRoomMainState
         // Native computes `(uint16)(6 * index) >> 1`, not a conventional array index.
         // The encoded phase $8044 relies on the multiplication wrapping before the shift,
         // mapping back into the tail of this very table during the reverse sweep.
-        ushort rotationIndex = scratch.Var1;
+        ushort rotationIndex = checked((ushort)scratch.Var1);
         var record = CeresShaftRotationDefinitions.Read(rotationIndex);
         RotationTimer = NativeCountdown.FromRaw(record.Timer);
         ushort sine = record.Sine;
         ushort cosine = record.Cosine;
         Transform = new SamusMode7Transform(
-            MatrixA: cosine,
-            MatrixB: sine,
-            MatrixC: unchecked((ushort)-sine),
+            MatrixA: unchecked((short)cosine),
+            MatrixB: unchecked((short)sine),
+            MatrixC: unchecked((short)-sine),
             Center: CeresShaftMode7Center);
 
         // Values 0..67 sweep forward. The comparison occurs after INC, so 67 becomes the
@@ -168,7 +164,7 @@ public sealed class CeresElevatorShaftRoomMainState
 
     /// <summary>Starts the shaft at the door ASM's identity matrix and fixed rotation center.</summary>
     private static SamusMode7Transform CreateInitialTransform() => new(
-        MatrixA: (ushort)SnesEightEight.FromWhole(1),
+        MatrixA: (short)SnesEightEight.FromWhole(1),
         MatrixB: 0,
         MatrixC: 0,
         Center: CeresShaftMode7Center);

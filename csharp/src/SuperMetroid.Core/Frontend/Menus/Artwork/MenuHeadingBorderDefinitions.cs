@@ -116,7 +116,7 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
                 : column == Columns - 1 ? CornerStrip + (row == 0 ? 2 : 4) : CornerStrip + 1
                 : VerticalEdge;
             return new(SnesSpritemapXWord.Create(-Columns * 8 / 2 + column * 8, false),
-                unchecked((byte)(-Rows * 8 / 2 + row * 8)),
+                SnesSpritemapYByte.Create(-Rows * 8 / 2 + row * 8),
                 SnesObjAttributeWord.Create(tile, 0, 3, default), true);
         }
     }

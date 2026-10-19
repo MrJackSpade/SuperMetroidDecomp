@@ -114,27 +114,27 @@ internal static class DownwardGatePlmsVerification
         for (int row = 0; row < DownwardGatePlmRomData.GateHeightInBlocks; row++)
         {
             AssertEqual(DownwardGatePlmRomData.ClosedGateBts,
-                level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Behavior,
+                level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Bts.Value,
                 $"gate setup writes BTS $10 to row {row}");
         }
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(gateBlockIndex - 1).CollisionType,
             "left trigger table installs a shootable block");
         AssertEqual((int)DownwardGateTriggerBehavior.BlueLeft,
-            level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
+            level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts.Value,
             "argument zero installs retail blue-left BTS $46");
 
         DownwardGateProjectileRequest request = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Spawn, request.Operation,
             "closed gate setup publishes one spawn");
-        AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateClosed,
-            request.DefinitionPointer, "closed gate setup uses definition $E659");
+        AssertEqual((RoomEnemyProjectileKind?)RoomEnemyProjectileKind.DownwardGateClosed,
+            request.Kind, "closed gate setup spawns the initially closed gate projectile");
 
         // The production room loader consumes this request after Enemies.Load has cleared
         // the shared projectile pool. Recreate that exact boundary and inspect initializer E.
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem();
-        enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)) { Level = level, Samus = new SamusState() });
+        enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)) { Level = level, Samus = new SamusState() });
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(request, level.Size.X);
         RoomEnemyProjectileSlot actor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,
@@ -151,10 +151,10 @@ internal static class DownwardGatePlmsVerification
         // The closed resident list first draws its collision state and then sleeps under
         // $BB6B. The Green Hill Zone fixture uses room argument zero, so an ordinary beam
         // must wake its blue-left gate exactly as it does in room $8F:9E52.
-        StepDownwardGatePlm(plms, bus, level, streamer);
-        StepDownwardGatePlm(plms, bus, level, streamer);
+        StepDownwardGatePlm(plms, level, streamer);
+        StepDownwardGatePlm(plms, level, streamer);
         AssertEqual((ushort)0xc0ff,
-            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).LevelWord,
+            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).PackedWord.Raw,
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(
                 level,
@@ -162,7 +162,7 @@ internal static class DownwardGatePlmsVerification
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts,
                 0x0004),
             "power beam reaches the sleeping blue gate");
-        StepDownwardGatePlm(plms, bus, level, streamer);
+        StepDownwardGatePlm(plms, level, streamer);
         DownwardGateProjectileRequest wake = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,
             "closed gate publishes a wake request");
@@ -177,13 +177,13 @@ internal static class DownwardGatePlmsVerification
         // This exercises all four 16-pixel movement segments and the list's final goto.
         for (int frame = 0; frame < 96; frame++)
         {
-            StepDownwardGatePlm(plms, bus, level, streamer);
+            StepDownwardGatePlm(plms, level, streamer);
             enemies.StepEnemyProjectiles(level, samus: null);
         }
         AssertEqual(0, enemies.ActiveEnemyProjectileCount,
             "opened gate actor retracts four tiles and deletes");
         AssertEqual((ushort)0x00ff,
-            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).LevelWord,
+            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).PackedWord.Raw,
             "compiled final open draw clears the second column collision word");
         RoomPlmSlotSnapshot openedGate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -199,12 +199,12 @@ internal static class DownwardGatePlmsVerification
         // The open-state collision image remains for sixteen frames before $BBE1 spawns
         // the downward-moving actor, exactly as list $BC13 specifies.
         for (int frame = 0; frame < 17; frame++)
-            StepDownwardGatePlm(plms, bus, level, streamer);
+            StepDownwardGatePlm(plms, level, streamer);
         DownwardGateProjectileRequest close = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Spawn, close.Operation,
             "open gate publishes a moving close actor");
-        AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateMoving,
-            close.DefinitionPointer, "close request uses definition $E64B");
+        AssertEqual((RoomEnemyProjectileKind?)RoomEnemyProjectileKind.DownwardGateMoving,
+            close.Kind, "close request spawns the moving gate projectile");
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(close, level.Size.X);
         for (int frame = 0; frame < 80; frame++)
             enemies.StepEnemyProjectiles(level, samus: null);
@@ -232,14 +232,14 @@ internal static class DownwardGatePlmsVerification
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual(accepted ? 1 : 0, gate.LoopTimer,
             $"{trigger} projectile ${projectile:X4} acceptance matches cartridge");
-        StepDownwardGatePlm(plms, bus, level, streamer);
-        StepDownwardGatePlm(plms, bus, level, streamer);
+        StepDownwardGatePlm(plms, level, streamer);
+        StepDownwardGatePlm(plms, level, streamer);
         int color = ((byte)trigger - (byte)DownwardGateTriggerBehavior.BlueLeft) / 2;
         ushort expectedTriggerWord = ((byte)trigger & 1) == 0
             ? checked((ushort)(0xc0db - color))
             : checked((ushort)(0xc4db - color));
         AssertEqual(expectedTriggerWord,
-            level.GetCollisionBlockByIndex(triggerBlockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(triggerBlockIndex).PackedWord.Raw,
             $"{trigger} compiled shot-trigger draw installs its physical block word");
         AssertTrue(plms.PopulationSlots.All(slot =>
                 slot.HeaderPointer != PlmHeaderId.DownwardGateShotBlock),
@@ -260,7 +260,7 @@ internal static class DownwardGatePlmsVerification
         ushort argument = unchecked((ushort)(((byte)trigger - 0x46) * 2));
         // Supply imported placements directly. Cartridge header reads belong to import;
         // the guard below prohibits them only while the production runtime sets up slots.
-        var population = new RoomPlmPopulationDefinition(populationPointer,
+        var population = new RoomPlmPopulationDefinition($"$8F:{populationPointer:X4}",
         [
             new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGate),
                 new(gateX, gateY), 0),
@@ -281,25 +281,18 @@ internal static class DownwardGatePlmsVerification
             blockDefinitions: blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { Drawing = { DownwardGateVisuals = visuals } };
-        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(NewDownwardGateHeaderReadGuard(bus), level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }
 
-    /// <summary>Forbids runtime rereads of the two compiled gate-header instruction words.</summary>
-    private static CartridgeReadGuard NewDownwardGateHeaderReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            // The resident and shot-block gate headers' first-instruction words.
-            .Forbid(address => address is >= 0x84c82c and <= 0x84c82d or >= 0x84c838 and <= 0x84c839,
-                address => $"Gate population read compiled header word ${address:X6}.");
 
     /// <summary>Advances one gate PLM frame with stationary view and no scroll, enemy-death, or controller events.</summary>
     internal static void StepDownwardGatePlm(
         RoomPlmSystem plms,
-        TestAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer) =>
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     /// <summary>Seeds exact bank-$86 closed/moving actor definitions and their shared movement instruction span.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the downward-gate enemy projectile definitions and list")]

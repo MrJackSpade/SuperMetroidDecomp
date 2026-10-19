@@ -28,19 +28,20 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
     /// <summary>The program set this animation runs.</summary>
     private protected abstract AnimationProgramSet<TProgram, TFrame, TCue> Programs { get; }
 
-    /// <summary>How <paramref name="frame"/> is drawn.</summary>
-    private protected abstract EnemyProjectileFramePresentation Present(TFrame frame);
+    /// <summary>The projectile frame <paramref name="frame"/> shows.</summary>
+    private protected abstract EnemyProjectileFrameId Present(TFrame frame);
 
     /// <summary>Runs the program, publishing each cue to the family's registered handler.</summary>
     private protected sealed override bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out EnemyProjectileFramePresentation presentation)
+        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFrameId frame)
     {
+        RoomEnemyProjectileSlot projectile = context.Projectile;
         AnimationProgramCursor<TProgram> cursor = Cursor;
         // Counter steps use the projectile's general timer, as the native TimerInY and DecrementTimer_GotoYIfNonZero do.
-        ushort timerBefore = projectile.GeneralTimer;
+        ushort timerBefore = checked((ushort)projectile.GeneralTimer);
         NativeCountdown counter = NativeCountdown.FromRaw(timerBefore);
         AnimationProgramAdvance<TFrame> advance = Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => handlers.PublishProgramCue<TProgram, TCue>(projectile, samus, cue));
+            (cue, continuation) => handlers.PublishProgramCue<TProgram, TCue>(context, cue));
         Cursor = cursor;
         // Only a counter step changes the counter; a deleted projectile keeps its cleared timer.
         if (projectile.Animation == this && counter.RawValue != timerBefore)
@@ -49,10 +50,10 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
         switch (advance.Kind)
         {
             case AnimationProgramAdvanceKind.Show:
-                presentation = Present(advance.Frame);
+                frame = Present(advance.Frame);
                 return true;
             case AnimationProgramAdvanceKind.Hold:
-                presentation = default;
+                frame = default;
                 return false;
             default:
                 throw new InvalidOperationException($"A projectile program ended an update with {advance.Kind}.");

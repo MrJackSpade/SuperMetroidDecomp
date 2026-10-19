@@ -11,6 +11,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks enemy-projectile drawing under room earthquake displacement.</summary>
 internal static class ProjectileQuakeVerification
@@ -21,11 +22,11 @@ internal static class ProjectileQuakeVerification
     internal static void VerifyProjectileQuake()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xa66a);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
         var enemies = runtime.Enemies;
         enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
         var actor = enemies.Projectiles.EnemyProjectiles.First(p => p.Kind == RoomEnemyProjectileKind.TourianStatueRidley);
@@ -56,7 +57,7 @@ internal static class ProjectileQuakeVerification
             // Independent native $86:83D6 origin culling and spritemap dispatch.
             if (((x + 128) & 0xfe00) == 0 && ((y + 128) & 0xfe00) == 0)
                 DrawImportedEnemyProjectileSpritemap(bus, expected, nativeSpritemap, new(x, y),
-                    actor.GraphicsIndex, originYIsOnScreen: (SnesLittleEndian.HighByte(y)) == 0);
+                    checked((ushort)actor.GraphicsIndex), originYIsOnScreen: (SnesLittleEndian.HighByte(y)) == 0);
             expected.FinalizeFrame();
             var actual = new OamBuffer();
             actual.BeginFrame();

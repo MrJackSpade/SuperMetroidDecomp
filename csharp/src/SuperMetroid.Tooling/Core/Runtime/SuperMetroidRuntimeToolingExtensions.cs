@@ -8,6 +8,19 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Development-tool instance members of <see cref="SuperMetroidRuntime"/>.</summary>
 internal static class SuperMetroidRuntimeToolingExtensions
 {
+    /// <summary>Creates runtimes for hosts that run one runtime without a frontend session.</summary>
+    extension(SuperMetroidRuntime)
+    {
+        /// <summary>Creates the frame-steppable runtime with its own frame clock and Mode 7 queue residue.</summary>
+        /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime (#633).</param>
+        /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
+        internal static SuperMetroidRuntime Create(
+            SuperMetroid.Core.Gameplay.HostGameplayOverrides overrides,
+            SuperMetroid.Core.Assets.GameplayBasePaletteCatalog? initialPaletteArt = null) =>
+            new(overrides, initialPaletteArt, new SuperMetroid.Core.Gameplay.FrameClock(),
+                new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue());
+    }
+
     /// <summary>Provides direct room-loading seams for ROM-backed debug and extraction hosts.</summary>
     extension(SuperMetroidRuntime self)
     {
@@ -19,19 +32,19 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// in a late room without duplicating several minutes of controller input.
         /// </summary>
         internal InitialViewportResult LoadCartridgeRoomForDebug(
-            ushort roomPointer,
+            RoomHeaderDefinition definition,
             Position16<RoomPixels> camera = default)
         {
             if (self.Player.Samus is null)
                 throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
 
-            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(roomPointer);
+            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(definition);
             // The debug seam intentionally supplies an inert synthetic door. Any room whose
             // correctness depends on setup code must instead be audited through its real door;
             // Ceres Ridley's ordinary mode-nine room has no incoming setup routine dependency.
             var door = new CartridgeDoorHeader(
-                Pointer: 0,
-                DestinationRoomPointer: roomPointer,
+                Name: "debug room entry",
+                DestinationRoom: definition,
                 Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
                 PlmBlock: default,
                 DestinationScreen: camera.ToRoomScreen(),
@@ -46,8 +59,8 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 camera,
                 RoomViewportLoadMode.DisplayInitialViewport);
             self.Player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
-            self.Player.Samus.PoseMetadata.RefreshCollisionRadii(self._addressSpace);
-            self.Player.Samus.Presentation.PrimeGraphics(self._addressSpace);
+            self.Player.Samus.PoseMetadata.RefreshCollisionRadii();
+            self.Player.Samus.Presentation.PrimeGraphics();
             self.Player.GroundedSamusMovementEnabled = true;
             return viewport;
         }
@@ -63,7 +76,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             if (self.Player.Samus is null)
                 throw new InvalidOperationException("Door verification requires initialized Samus state.");
 
-            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(door.DestinationRoomPointer);
+            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(door.DestinationRoom);
             return self.RoomLoader.LoadCartridgeRoom(
                 door,
                 room,

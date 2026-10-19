@@ -1,14 +1,23 @@
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>The Ripper species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class RipperBehavior : IEnemySpecies
+internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.GRipper, EnemyDefinitionId.Ripper, EnemyDefinitionId.Ripper2];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new RipperEntity(this, slot, common);
+
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>
     private readonly EnemyTerrain _terrain;
 
@@ -18,45 +27,36 @@ internal sealed class RipperBehavior : IEnemySpecies
         _terrain = terrain;
     }
 
-    /// <summary>GRipper's population-defined left patrol endpoint, indexed by enemy slot.</summary>
-    private readonly ushort[] _ripperVariantMinimumXPositions =
-        new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>GRipper's population-defined right patrol endpoint, indexed by enemy slot.</summary>
-    private readonly ushort[] _ripperVariantMaximumXPositions =
-        new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot speed and patrol state for GRipper and Ripper II.</summary>
-    private readonly RipperVariantEnemyState?[] _ripperVariantStates =
-        new RipperVariantEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Ripper occupants for the current room.</summary>
+    internal readonly RipperExtensionWords[] _extensions = NewExtensions();
 
-    /// <summary>Each Ripper-family slot's typed flying loop (#641), indexed by enemy slot.</summary>
-    internal readonly AnimationProgramCursor<RipperProgram>[] _ripperPrograms =
-        new AnimationProgramCursor<RipperProgram>[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static RipperExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new RipperExtensionWords())];
 
     /// <summary>Clears variant patrol endpoints, AI state and loops before loading another room.</summary>
     internal void ResetRipperVariantRoomState()
     {
-        Array.Clear(_ripperVariantMinimumXPositions);
-        Array.Clear(_ripperVariantMaximumXPositions);
-        Array.Clear(_ripperVariantStates);
-        Array.Clear(_ripperPrograms);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new RipperExtensionWords();
     }
 
     /// <summary>Ports <c>InitAI_GRipper</c> at $A2:E1D3.</summary>
     internal void InitializeGRipper(RoomEnemySlot slot)
     {
-        var state = CreateRipperVariantState(slot);
+        var state = CreateRipperState(slot);
 
         // GRipper overloads the population's initialization-list word as a packed speed
         // selector. Only its low byte reaches the eight-byte speed-table multiplication.
         // The peculiar BIT #$FEFF direction test is preserved literally: every retail word
         // with a nonzero speed field selects the positive pair, even when bit eight is set.
-        ushort packedSelector = slot.CurrentInstruction;
+        ushort packedSelector = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableByteOffset = unchecked((ushort)((SnesLittleEndian.LowByte(packedSelector)) * 8));
         bool selectsPositiveVelocity = (packedSelector & RipperMasks.VelocitySelectorBits) != 0;
-        LoadRipperVelocity(slot, selectsPositiveVelocity);
+        LoadRipperVelocity(state, selectsPositiveVelocity);
         SetRipperProgram(
             slot,
-            unchecked((short)state.XVelocity) < 0 ? RipperProgram.GRipperMovingLeft : RipperProgram.GRipperMovingRight);
+            state.XVelocity.WholePixels < 0 ? RipperProgram.GRipperMovingLeft : RipperProgram.GRipperMovingRight);
 
         // Unlike the wall-collision helper, patrol-bound reversal does not clamp the actor
         // back to either endpoint. The one-frame fractional overshoot is native and becomes
@@ -68,20 +68,20 @@ internal sealed class RipperBehavior : IEnemySpecies
     /// <summary>Ports <c>MainAI_GRipper</c> at $A2:E221.</summary>
     private void RunGRipperMain(
         RoomEnemySlot slot,
-        RipperVariantEnemyState state,
+        RipperEnemyState state,
         RoomLevelData? level)
     {
         RequireRipperTerrain(level, "GRipper");
-        int displacement = unchecked((SnesSixteenSixteen.FromWhole((short)state.XVelocity)) | state.XSubvelocity);
+        int displacement = state.XVelocity.RawValue;
         bool reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             slot,
             displacement);
-        if (!reverse && unchecked((short)state.XVelocity) < 0)
+        if (!reverse && state.XVelocity.WholePixels < 0)
         {
             reverse = unchecked((short)(slot.Position.X.Whole - state.MinimumXPosition)) < 0;
         }
-        if (!reverse && unchecked((short)state.XVelocity) >= 0)
+        if (!reverse && state.XVelocity.WholePixels >= 0)
         {
             reverse = unchecked((short)(slot.Position.X.Whole - state.MaximumXPosition)) >= 0;
         }
@@ -97,7 +97,7 @@ internal sealed class RipperBehavior : IEnemySpecies
     /// <summary>Ports <c>InitAI_Ripper2</c> at $A2:E318.</summary>
     internal void InitializeRipper2(RoomEnemySlot slot)
     {
-        RipperVariantEnemyState state = CreateRipperVariantState(slot);
+        RipperEnemyState state = CreateRipperState(slot);
         state.SpeedTableByteOffset = unchecked((ushort)(slot.Parameter1 * 8));
 
         // Ripper II's list labels appear inverted relative to the displayed shared maps.
@@ -105,15 +105,15 @@ internal sealed class RipperBehavior : IEnemySpecies
         // negative speed pair with the moving-right list, while nonzero uses positive speed
         // with the moving-left list.
         bool movingPositive = slot.Parameter2 != 0;
-        LoadRipperVelocity(slot, movingPositive);
+        LoadRipperVelocity(state, movingPositive);
         SetRipperProgram(slot, movingPositive ? RipperProgram.Ripper2MovingLeft : RipperProgram.Ripper2MovingRight);
     }
 
     /// <summary>Ports <c>MainAI_Ripper2</c> at $A2:E353.</summary>
-    private void RunRipper2Main(RoomEnemySlot slot, RoomLevelData? level)
+    private void RunRipper2Main(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper II");
-        int displacement = unchecked((int)SnesSixteenSixteen.Compose(slot.VariableD, slot.VariableC));
+        int displacement = state.XVelocity.RawValue;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
@@ -131,15 +131,16 @@ internal sealed class RipperBehavior : IEnemySpecies
         // negative pair and left-facing list. Unlike a reversal, initialization keeps the
         // population's instruction timer.
         bool movingRight = slot.Parameter2 != 0;
-        _ripperPrograms[slot.SlotIndex] = AnimationProgramCursor<RipperProgram>.Start(
+        _extensions[slot.SlotIndex].Program = AnimationProgramCursor<RipperProgram>.Start(
             movingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
 
         // Each logical speed occupies eight bytes in the common table:
         //   +0 signed pixel velocity, +2 subpixel velocity,
         //   +4 negated pixel velocity, +6 negated subpixel velocity.
-        // Variable E retains the byte offset because the reversal routine reuses it.
-        slot.VariableE = unchecked((ushort)(slot.Parameter1 * 8));
-        LoadRipperVelocity(slot, movingRight);
+        // The state retains the byte offset because the reversal routine reuses it.
+        RipperEnemyState state = CreateRipperState(slot);
+        state.SpeedTableByteOffset = unchecked((ushort)(slot.Parameter1 * 8));
+        LoadRipperVelocity(state, movingRight);
     }
 
     /// <summary>Ports <c>Ripper_Main</c> at $A2:E4DA.</summary>
@@ -147,25 +148,27 @@ internal sealed class RipperBehavior : IEnemySpecies
     {
         RequireRipperTerrain(level, "Ripper");
 
-        // $A0:C6AB consumes a signed 16.16 displacement whose high and low words are kept
-        // in Variables D/C. On collision the native helper aligns the actor flush with the
-        // wall before Ripper swaps direction and animation.
-        int displacement = unchecked((int)SnesSixteenSixteen.Compose(slot.VariableD, slot.VariableC));
+        // $A0:C6AB consumes the signed 16.16 velocity as a displacement. On collision the
+        // native helper aligns the actor flush with the wall before Ripper swaps direction
+        // and animation.
+        RipperEnemyState state = RequireRipperState(slot);
+        int displacement = state.XVelocity.RawValue;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
-        bool wasMovingLeft = (short)slot.VariableD < 0;
+        bool wasMovingLeft = state.XVelocity.WholePixels < 0;
         bool nowMovingRight = wasMovingLeft;
-        LoadRipperVelocity(slot, nowMovingRight);
+        LoadRipperVelocity(state, nowMovingRight);
         SetRipperProgram(slot, nowMovingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
     }
 
-    /// <summary>Loads the signed whole and fractional velocity pair from the shared eight-byte speed record.</summary>
-    internal static void LoadRipperVelocity(RoomEnemySlot slot, bool movingRight)
+    /// <summary>Loads a Ripper-family enemy's velocity from its shared eight-byte speed record.</summary>
+    /// <param name="state">The enemy's state, whose speed record is read.</param>
+    /// <param name="movingRight">Whether the record's positive half is loaded rather than its negative half.</param>
+    internal static void LoadRipperVelocity(RipperEnemyState state, bool movingRight)
     {
-        var velocity = EnemyLinearSpeedDefinitions.Read(slot.VariableE + (movingRight ? 0 : 4));
-        slot.VariableD = unchecked((ushort)velocity.Whole);
-        slot.VariableC = velocity.Fraction;
+        (short whole, ushort fraction) = EnemyLinearSpeedDefinitions.Read(state.SpeedTableByteOffset + (movingRight ? 0 : 4));
+        state.XVelocity = SnesSignedSixteenSixteen.FromParts(whole, fraction);
     }
 
     /// <summary>
@@ -177,19 +180,16 @@ internal sealed class RipperBehavior : IEnemySpecies
     {
         if (slot.FrozenTimer.IsZero)
             return;
-        slot.SpritemapPointer = unchecked((short)slot.VariableD) < 0
-            ? RipperFrameDefinitions.FrozenFacingLeftSpritemap
-            : RipperFrameDefinitions.FrozenFacingRightSpritemap;
+        slot.Frame = RequireRipperState(slot).XVelocity.WholePixels < 0
+            ? EnemyFrameId.RipperSharedFrozenLeft
+            : EnemyFrameId.RipperSharedFrozenRight;
     }
 
-    /// <summary>Binds a variant slot to its per-room patrol arrays and retains its AI state.</summary>
-    private RipperVariantEnemyState CreateRipperVariantState(RoomEnemySlot slot)
+    /// <summary>Binds a Ripper-family slot to its per-room words and retains its AI state.</summary>
+    private RipperEnemyState CreateRipperState(RoomEnemySlot slot)
     {
-        var state = new RipperVariantEnemyState(
-            slot,
-            _ripperVariantMinimumXPositions,
-            _ripperVariantMaximumXPositions);
-        _ripperVariantStates[slot.SlotIndex] = state;
+        var state = new RipperEnemyState(_extensions[slot.SlotIndex]);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }
 
@@ -209,39 +209,37 @@ internal sealed class RipperBehavior : IEnemySpecies
         RipperProgram positiveProgram,
         RipperProgram negativeProgram)
     {
-        bool wasMovingNegative = unchecked((short)slot.VariableD) < 0;
-        LoadRipperVelocity(slot, movingRight: wasMovingNegative);
+        RipperEnemyState state = RequireRipperState(slot);
+        bool wasMovingNegative = state.XVelocity.WholePixels < 0;
+        LoadRipperVelocity(state, movingRight: wasMovingNegative);
         SetRipperProgram(slot, wasMovingNegative ? positiveProgram : negativeProgram);
     }
 
     /// <summary>Installs a flying loop from its first step on the next enemy frame.</summary>
     private void SetRipperProgram(RoomEnemySlot slot, RipperProgram program)
     {
-        _ripperPrograms[slot.SlotIndex] = AnimationProgramCursor<RipperProgram>.Start(program);
+        _extensions[slot.SlotIndex].Program = AnimationProgramCursor<RipperProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Runs every Ripper variant's flying loop as a typed program (#641).</summary>
-    internal void RegisterRipperTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(
-            slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or EnemyDefinitionId.Ripper,
-            (slot, _) =>
-            {
-                if (!EnemyProgramAnimation.Expire(slot))
-                    return;
-                AnimationProgramCursor<RipperProgram> cursor = _ripperPrograms[slot.SlotIndex];
-                EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.Spritemap);
-                _ripperPrograms[slot.SlotIndex] = cursor;
-            });
+    /// <summary>Advances Ripper's typed animation.</summary>
+    internal void AdvanceRipperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        AnimationProgramCursor<RipperProgram> cursor = _extensions[slot.SlotIndex].Program;
+        EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.ShownFrames.Of);
+        _extensions[slot.SlotIndex].Program = cursor;
+    }
 
     /// <summary>Requires variant initialization before dispatching GRipper or Ripper II main AI.</summary>
-    private RipperVariantEnemyState RequireRipperVariantState(RoomEnemySlot slot) =>
-        _ripperVariantStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static RipperEnemyState RequireRipperState(RoomEnemySlot slot) =>
+        slot.SpeciesState<RipperEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized GRipper/Ripper II state.");
 
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>
-    internal static void RegisterRipperBombReactions(EnemyAiTable table)
+    internal static void RegisterRipperBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.GRipperRipper2Shot)
@@ -250,48 +248,44 @@ internal sealed class RipperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Connects each Ripper definition to its own native initialization routine.</summary>
-    internal void RegisterRipperInitializationAi(EnemyAiTable table)
+    /// <summary>Ports GRipper's initialization AI.</summary>
+    internal void RunGRipperInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_GRipper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GRipper, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeGRipper(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Ripper2, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper2, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeRipper2(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Ripper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeRipper(slot);
-        });
+        InitializeGRipper(slot);
     }
 
-    /// <summary>Dispatches each Ripper variant's frame to its movement and reversal logic.</summary>
-    internal void RegisterRipperMainAi(EnemyAiTable table)
+    /// <summary>Ports Ripper2's initialization AI.</summary>
+    internal void RunRipper2InitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeRipper2(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_GRipper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GRipper, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunGRipperMain(slot, RequireRipperVariantState(slot), frame.Level);
-        });
+    /// <summary>Ports Ripper's initialization AI.</summary>
+    internal void RunRipperInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeRipper(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Ripper2, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper2, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunRipper2Main(slot, frame.Level);
-        });
+    /// <summary>Ports GRipper's main AI.</summary>
+    internal void RunGRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunGRipperMain(slot, RequireRipperState(slot), frame.Level);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Ripper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunRipperMain(slot, frame.Level);
-        });
+    /// <summary>Ports Ripper2's main AI.</summary>
+    internal void RunRipper2MainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunRipper2Main(slot, RequireRipperState(slot), frame.Level);
+    }
+
+    /// <summary>Ports Ripper's main AI.</summary>
+    internal void RunRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunRipperMain(slot, frame.Level);
     }
 
     /// <summary>Pins GRipper and Ripper II frozen visuals after accepted shot reactions.</summary>
-    internal static void RegisterRipperShotReactions(EnemyAiTable table)
+    internal static void RegisterRipperShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.GRipperRipper2Shot)
@@ -304,10 +298,5 @@ internal sealed class RipperBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         ResetRipperVariantRoomState();
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

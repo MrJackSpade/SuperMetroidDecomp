@@ -16,6 +16,6 @@ internal sealed class RoomPlmSharedAnimation(RoomPlmSharedProgram program)
         throw new InvalidOperationException($"The shared PLM programs never draw; got {frame}.");
 
     /// <inheritdoc/>
-    private protected override RoomPlmSharedProgram? Publish(PlmNoCue cue, PlmSlot slot, PlmAnimationContext context) =>
+    private protected override RoomPlmSharedProgram? Publish(PlmNoCue cue, PlmSlot slot, PlmStepContext context) =>
         throw new InvalidOperationException($"The shared PLM programs publish no cues; got {cue}.");
 }

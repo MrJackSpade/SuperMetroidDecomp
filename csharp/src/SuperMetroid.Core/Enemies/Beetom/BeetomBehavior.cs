@@ -10,8 +10,14 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>The Beetom species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class BeetomBehavior : IEnemySpecies
+internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BeetomEntity(this, slot, common);
+
     /// <summary>Supplies the shared RNG seed and generation used by Beetom action choice.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves Beetom ledge, wall, and landing collisions.</summary>
@@ -58,25 +64,13 @@ internal sealed class BeetomBehavior : IEnemySpecies
     private const ushort BeetomProximityDistance = 96;
     /// <summary>Input changes required to dislodge an attached draining Beetom.</summary>
     private const ushort BeetomMashCount = 64;
-    /// <summary>Final quadratic speed-table index used in falling phases.</summary>
-    private const ushort BeetomMaximumYSpeedIndex = 64;
 
-    /// <summary>Per-slot speed indices for the short hop's target height.</summary>
-    internal readonly ushort[] _beetomInitialShortLeapYSpeedIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot speed indices for the long hop's target height.</summary>
-    internal readonly ushort[] _beetomInitialLongLeapYSpeedIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot speed indices for the lunge arc.</summary>
-    internal readonly ushort[] _beetomInitialLungeYSpeedIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Native rising/falling phase flags for active Beetom arcs.</summary>
-    internal readonly ushort[] _beetomFallingFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Native flags indicating which Beetoms currently drain Samus.</summary>
-    internal readonly ushort[] _beetomAttachedToSamusFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot travel directions, also used for post-drain throws.</summary>
-    internal readonly ushort[] _beetomDirections = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot offset captured when Beetom first attaches to Samus.</summary>
-    internal readonly Offset16<RoomPixels>[] _beetomInitialAttachmentOffsets = new Offset16<RoomPixels>[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Typed Beetom state indexed by physical enemy slot.</summary>
-    internal readonly BeetomEnemyState?[] _beetomStates = new BeetomEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Beetom occupants for the current room.</summary>
+    private readonly BeetomExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static BeetomExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new BeetomExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, SnesButton controllerInput)
@@ -84,20 +78,19 @@ internal sealed class BeetomBehavior : IEnemySpecies
         if (samus is null)
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
 
-        var state = new BeetomEnemyState(slot, new BeetomSharedTables { InitialShortLeapYSpeedIndexes = _beetomInitialShortLeapYSpeedIndexes, InitialLongLeapYSpeedIndexes = _beetomInitialLongLeapYSpeedIndexes, InitialLungeYSpeedIndexes = _beetomInitialLungeYSpeedIndexes, FallingFlags = _beetomFallingFlags, AttachedFlags = _beetomAttachedToSamusFlags, Directions = _beetomDirections, InitialAttachmentOffsets = _beetomInitialAttachmentOffsets });
-        _beetomStates[slot.SlotIndex] = state;
+        var state = new BeetomEnemyState(_extensions[slot.SlotIndex]);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.FunctionTimer = NativeCountdown.Start(0);
-        state.Function = 0;
+        state.Function = null;
         state.Falling = false;
         state.AttachedToSamus = false;
-        slot.VariableA = 0;
         state.ButtonCounter = NativeCountdown.Start(BeetomMashCount);
         state.PreviousController1Input = controllerInput;
 
         // Every Beetom initializer writes the global seed, even when several Beetoms share
         // a room. This is observable cartridge behavior, not a per-actor random stream.
-        Action<ushort> setRandomNumber = _room.Random.Seed;
+        Action<int> setRandomNumber = _room.Random.Seed;
         setRandomNumber(23);
 
         state.InitialShortLeapYSpeedIndex = CalculateInitialBeetomYSpeedIndex(12288, 4);
@@ -230,14 +223,14 @@ internal sealed class BeetomBehavior : IEnemySpecies
                 RunFlungBeetom(slot, state, level);
                 return;
             default:
-                throw new InvalidDataException($"Beetom function $A8:{(ushort)state.Function:X4} is not translated.");
+                throw new InvalidDataException($"Beetom function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
     /// <summary>Uses the shared native RNG's low three bits to choose an idle or hop branch.</summary>
     internal void ChooseDistantBeetomAction(BeetomEnemyState state)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         state.Function = (random & 7) switch
         {
             0 or 1 => BeetomEnemyFunction.StartIdling,
@@ -246,7 +239,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
             5 => BeetomEnemyFunction.StartShortHopRight,
             _ => BeetomEnemyFunction.StartLongHopLeft,
         };
-        state.Direction = unchecked((ushort)(random & 1));
+        state.FacingRight = (random & 1) != 0;
     }
 
     /// <summary>Starts side-specific crawl AI and animation.</summary>
@@ -265,7 +258,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
     internal static void StartBeetomHop(
         RoomEnemySlot slot,
         BeetomEnemyState state,
-        ushort initialYSpeedIndex,
+        int initialYSpeedIndex,
         bool left,
         bool longHop)
     {
@@ -291,7 +284,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
     {
         bool left = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
         state.YSpeedTableIndex = state.InitialLungeYSpeedIndex;
-        state.Direction = left ? (ushort)0 : (ushort)1;
+        state.FacingRight = !left;
         state.Function = left ? BeetomEnemyFunction.LungeLeft : BeetomEnemyFunction.LungeRight;
         state.Falling = false;
         SetBeetomInstructionList(
@@ -320,9 +313,9 @@ internal sealed class BeetomBehavior : IEnemySpecies
         SetBeetomInstructionList(
             slot,
             state,
-            state.Direction == 0
-                ? BeetomProgram.CrawlingLeft
-                : BeetomProgram.CrawlingRight);
+            state.FacingRight
+                ? BeetomProgram.CrawlingRight
+                : BeetomProgram.CrawlingLeft);
         state.Falling = false;
         state.Function = BeetomEnemyFunction.Dropping;
     }
@@ -378,7 +371,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
-        state.Direction ^= 1;
+        state.FacingRight = !state.FacingRight;
         state.Function = BeetomEnemyFunction.StartDropping;
     }
 
@@ -398,12 +391,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
                 return;
             }
 
-            state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex - risingDelta));
-            if (unchecked((short)state.YSpeedTableIndex) >= 0)
-                return;
-
-            state.YSpeedTableIndex = 0;
-            state.Falling = true;
+            state.StepRisingSpeed(risingDelta);
             return;
         }
 
@@ -413,9 +401,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
             return;
         }
 
-        state.YSpeedTableIndex = unchecked((ushort)Math.Min(
-            BeetomMaximumYSpeedIndex,
-            state.YSpeedTableIndex + fallingDelta));
+        state.StepFallingSpeed(fallingDelta);
     }
 
     /// <summary>Follows Samus until enough input changes occur, then throws Beetom clear of terrain.</summary>
@@ -444,7 +430,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
         int initialDisplacement = left ? 16 << 16 : -(16 << 16);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, initialDisplacement))
         {
-            state.Direction = left ? (ushort)1 : (ushort)0;
+            state.FacingRight = left;
             int reflectedDisplacement = left ? -(32 << 16) : 32 << 16;
             _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, reflectedDisplacement);
         }
@@ -457,9 +443,9 @@ internal sealed class BeetomBehavior : IEnemySpecies
     {
         if (!_terrain.MoveEnemyVertically(level, slot, 3 << 16))
             return;
-        state.Function = state.Direction == 0
-            ? BeetomEnemyFunction.StartCrawlingLeft
-            : BeetomEnemyFunction.StartCrawlingRight;
+        state.Function = state.FacingRight
+            ? BeetomEnemyFunction.StartCrawlingRight
+            : BeetomEnemyFunction.StartCrawlingLeft;
     }
 
     /// <summary>Moves opposite the pre-escape facing until a floor or wall selects its next action.</summary>
@@ -468,14 +454,14 @@ internal sealed class BeetomBehavior : IEnemySpecies
         if (_terrain.MoveEnemyVertically(level, slot, EnemyMath.ReadQuadraticEnemySpeed(state.YSpeedTableIndex, negative: false)))
             state.Function = BeetomEnemyFunction.DecideAction;
         else
-            state.YSpeedTableIndex = unchecked((ushort)Math.Min(BeetomMaximumYSpeedIndex, state.YSpeedTableIndex + 1));
+            state.StepFallingSpeed(1);
 
-        // Direction describes the pre-escape facing. The throw deliberately travels in the
-        // opposite direction: zero moves right and one moves left.
-        int horizontal = state.Direction == 0 ? 2 << 16 : -(2 << 16);
+        // The facing is the pre-escape facing. The throw deliberately travels in the
+        // opposite direction: facing left moves right and facing right moves left.
+        int horizontal = state.FacingRight ? -(2 << 16) : 2 << 16;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontal))
             return;
-        state.Direction ^= 1;
+        state.FacingRight = !state.FacingRight;
         state.Function = BeetomEnemyFunction.StartDropping;
     }
 
@@ -505,9 +491,9 @@ internal sealed class BeetomBehavior : IEnemySpecies
     {
         if (!state.AttachedToSamus)
         {
-            state.Function = state.Direction == 0
-                ? BeetomEnemyFunction.StartDrainingLeft
-                : BeetomEnemyFunction.StartDrainingRight;
+            state.Function = state.FacingRight
+                ? BeetomEnemyFunction.StartDrainingRight
+                : BeetomEnemyFunction.StartDrainingLeft;
             state.AttachedToSamus = true;
             state.ButtonCounter = NativeCountdown.Start(BeetomMashCount);
             slot.Layer = 2;
@@ -536,8 +522,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
                 ? unchecked((ushort)(slot.Definition.Damage >> 1))
                 : slot.Definition.Damage;
         samus.Health = samus.Health <= damage
-            ? (ushort)0
-            : unchecked((ushort)(samus.Health - damage));
+            ? 0
+            : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.Start(0);
         samus.KnockbackTimer = NativeCountdown.Start(0);
     }
@@ -579,12 +565,12 @@ internal sealed class BeetomBehavior : IEnemySpecies
     }
 
     /// <summary>Requires an initialized Beetom extension for a physical slot.</summary>
-    private BeetomEnemyState RequireBeetomState(RoomEnemySlot slot) =>
-        _beetomStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static BeetomEnemyState RequireBeetomState(RoomEnemySlot slot) =>
+        slot.SpeciesState<BeetomEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Beetom state.");
 
     /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
-    internal void RegisterBeetomBombReactions(EnemyAiTable table)
+    internal static void RegisterBeetomBombReactions(EnemySharedReactions table)
     {
         // Common damage can clear a lethally hit slot before this private tail runs. Bank $A8 still clears Beetom's
         // separate attached flag after returning from common shot AI, so the identity is matched before dispatch.
@@ -596,42 +582,32 @@ internal sealed class BeetomBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Routes Beetom initialization, including its shared RNG reseed.</summary>
-    internal void RegisterBeetomInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Beetom's initialization AI.</summary>
+    internal void RunBeetomInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton controllerInput, ushort _1)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Beetom, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBeetom(slot, samus, controllerInput);
-        });
+        InitializeBeetom(slot, samus, controllerInput);
     }
 
-    /// <summary>Dispatches idle, hop, crawl, drain, and flung phases each enemy frame.</summary>
-    internal void RegisterBeetomMainAi(EnemyAiTable table)
+    /// <summary>Ports Beetom's main AI.</summary>
+    internal void RunBeetomMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Beetom, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunBeetomMain(slot, RequireBeetomState(slot), frame.Samus, frame.Level, frame.ControllerInput);
-        });
+        RunBeetomMain(slot, RequireBeetomState(slot), frame.Samus, frame.Level, frame.ControllerInput);
     }
 
-    /// <summary>Runs the Beetom's crawl, hop and drain animations as typed programs (#641).</summary>
-    internal void RegisterBeetomTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireBeetomState(slot);
-            AnimationProgramCursor<BeetomProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, BeetomAnimations.Programs, ref cursor, BeetomFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyBeetomCue(slot, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Beetom's typed animation.</summary>
+    internal static void AdvanceBeetomTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireBeetomState(slot);
+        AnimationProgramCursor<BeetomProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, BeetomAnimations.Programs, ref cursor, BeetomFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyBeetomCue(slot, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
-    internal void RegisterBeetomShotReactions(EnemyAiTable table)
+    internal static void RegisterBeetomShotReactions(EnemySharedReactions table)
     {
         // Beetom's private tail runs after common shot AI for every accepted hit, including immune/zero-damage
         // vulnerability results.
@@ -643,7 +619,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
     }
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact callback.</summary>
-    internal void RegisterBeetomTouch(EnemyAiTable table)
+    internal void RegisterBeetomTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BeetomTouch,
@@ -653,18 +629,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_beetomStates);
-        Array.Clear(_beetomInitialShortLeapYSpeedIndexes);
-        Array.Clear(_beetomInitialLongLeapYSpeedIndexes);
-        Array.Clear(_beetomInitialLungeYSpeedIndexes);
-        Array.Clear(_beetomFallingFlags);
-        Array.Clear(_beetomAttachedToSamusFlags);
-        Array.Clear(_beetomDirections);
-        Array.Clear(_beetomInitialAttachmentOffsets);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new BeetomExtensionWords();
     }
 }

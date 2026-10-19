@@ -17,7 +17,14 @@ namespace SuperMetroid.ReachabilityAudit.Removal;
 internal sealed record RelocationStyle(string MembersWord, string ExtensionsWord, bool BeforeCatalogSuffix, bool KeepsProjectDirectory,
     string MembersSummary, string ExtensionsSummary, string ExtensionBlockSummary)
 {
-    /// <summary>File-name suffixes the cartridge-encoding analyzer reads as definition catalogs.</summary>
+    /// <summary>
+    /// Owner attributes that classify a whole type for the analyzers (the CPU-bus primitive layer and its
+    /// boundaries). A member moved to an adapter keeps its classification, so the adapter carries them.
+    /// </summary>
+    public static IReadOnlySet<string> CarriedAttributes { get; } =
+        new HashSet<string>(StringComparer.Ordinal) { "CpuBusAccessAttribute", "CpuBusBoundaryAttribute" };
+
+    /// <summary>File-name suffixes that name definition catalogs.</summary>
     private static readonly string[] CatalogSuffixes =
         ["Addresses", "Catalog", "CodePointers", "Codes", "Constants", "Definitions", "Definition", "Flags", "InstructionLists",
          "Layout", "Masks", "Pointers", "RomData", "Tables", "Values", "Words"];

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using SuperMetroid.Core.Samus;
@@ -25,13 +26,13 @@ internal static class SamusVerticalDefinitionsVerification
             bool high = (equipment & 1) != 0;
             bool gravity = (equipment & 2) != 0;
             bool boost = (equipment & 4) != 0;
-            samus.EquippedItems = (ushort)(
-                (high ? (ushort)SamusEquipmentFlags.HiJumpBoots : 0) |
-                (gravity ? (ushort)SamusEquipmentFlags.GravitySuit : 0) |
-                (boost ? (ushort)SamusEquipmentFlags.SpeedBooster : 0));
+            samus.EquippedItems = (SamusEquipmentFlags)((ushort)(
+                (high ? SamusEquipmentFlags.HiJumpBoots : 0) |
+                (gravity ? SamusEquipmentFlags.GravitySuit : 0) |
+                (boost ? SamusEquipmentFlags.SpeedBooster : 0)));
             samus.LiquidPhysics.FxYPosition = environment is 1 or 3 ? (ushort)0 : ushort.MaxValue;
             samus.LiquidPhysics.LavaAcidYPosition = environment == 2 ? (ushort)0 : ushort.MaxValue;
-            samus.LiquidPhysics.LiquidOptions = environment == 3 ? (ushort)4 : (ushort)0;
+            samus.LiquidPhysics.LiquidOptions = environment == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
             int medium = launch == 2 || gravity || environment == 3 ? 0 : environment;
             int address = launch == 2 ? 0x909eb9 : launch == 1
                 ? high ? 0x909edd : 0x909ed1
@@ -45,8 +46,8 @@ internal static class SamusVerticalDefinitionsVerification
                 samus.Kinematics.YAcceleration = 999;
                 samus.Kinematics.YSubacceleration = 999;
                 if (launch == 2) SamusAerialMovement.InitializeDryAirJump(guard, samus);
-                else if (launch == 1) SamusAerialMovement.InitializeWallJump(guard, samus);
-                else SamusAerialMovement.InitializeJump(guard, samus);
+                else if (launch == 1) SamusAerialMovement.InitializeWallJump(samus);
+                else SamusAerialMovement.InitializeJump(samus);
                 AssertEqual(unchecked((ushort)(whole + (boost ? raw >> 1 : 0))), samus.Kinematics.YSpeed, "Native independent whole launch addition");
                 AssertEqual(unchecked((ushort)(fraction + (boost ? raw : 0))), samus.Kinematics.YSubspeed, "Native fractional overflow does not carry");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea7 + medium * 2)), samus.Kinematics.YAcceleration, "Native gravity whole word");

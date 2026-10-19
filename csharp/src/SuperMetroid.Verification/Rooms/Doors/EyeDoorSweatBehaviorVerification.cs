@@ -25,7 +25,7 @@ internal static class EyeDoorSweatBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, EyeDoorSweatNativeListAddresses.Extent, "eye-door sweat");
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         const int roomWidth = 16;
         var foreground = new ushort[roomWidth * 16];
         foreground[5 * roomWidth + 6] = (ushort)((int)RoomCollisionType.SolidBlock << 12);
@@ -40,7 +40,7 @@ internal static class EyeDoorSweatBehaviorVerification
 
         EyeDoorBehavior.RunEyeDoorSweatPreInstruction(sweat, level);
         AssertTrue(sweat.Animation is EyeDoorSweatAnimation { Cursor.Program: EyeDoorSweatProgram.HitFloor }, "the floor collision starts the splash");
-        AssertEqual((ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction, sweat.PreInstruction,
+        AssertEqual(EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction, sweat.PreInstruction,
             "the splash stops the drop with the native inert pre-instruction");
         AssertEqual((ushort)76, sweat.Position.Y.Whole, "the splash applies the native four-pixel floor correction");
         (deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, sweat,

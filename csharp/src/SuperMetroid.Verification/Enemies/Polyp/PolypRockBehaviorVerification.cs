@@ -24,8 +24,8 @@ internal static class PolypRockBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, PolypRockNativeListAddresses.Extent, "Polyp-rock");
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
-        var source = new RoomEnemySlot(0)
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             VramTilesIndex = 512,
@@ -40,9 +40,9 @@ internal static class PolypRockBehaviorVerification
         rock.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(rock, null, Position16<RoomPixels>.Zero);
         AssertTrue(!rock.IsActive, "the shared shot list still deletes the rock");
-        AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, PolypRockFrameDefinitions.PresentationKey(new(0)), out ushort selected),
+        AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileFrames.ProgramFrameKey(PolypRockFrameDefinitions.ShownProjectileFrames[new(0)]), out ushort selected),
             "the rock's frame has a selector");
-        AssertEqual(PolypRockFrameDefinitions.Spritemap(new(0)), selected, "the rock's selector is its native spritemap");
+        AssertEqual(PolypRockFrameToolingDefinitions.Spritemap(new(0)), selected, "the rock's selector is its native spritemap");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the rock's native list bytes");
         Console.WriteLine("  Polyp rock behavior: the rock shows its frame and sleeps as its native list does; its selector matches.");
     }

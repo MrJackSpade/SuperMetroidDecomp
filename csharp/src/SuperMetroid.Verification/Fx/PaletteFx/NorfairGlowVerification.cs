@@ -26,13 +26,13 @@ internal static class NorfairGlowVerification
         {
             var fx = new RoomPaletteFxSystem();
             var colors = new SnesCgram();
-            fx.SpawnDefinition(bus, stream.Definition, 0);
+            fx.SpawnDefinition(stream.Definition, 0);
             ushort[] ramp = stream.Definition == 0xf791 ? red : orange;
             for (int cycle = 0; cycle < 3; cycle++)
             for (int phase = 0; phase < holds.Length; phase++)
             for (int tick = 0; tick < holds[phase]; tick++)
             {
-                fx.Step(bus, colors, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.Step(colors, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 int rampIndex = phase < 8 ? phase : 15 - phase;
                 AssertEqual(ramp[rampIndex], colors.Colors[stream.Destination / 2],
                     $"Norfair glow {stream.Definition:X4} cycle {cycle} phase {phase} tick {tick}");

@@ -3,65 +3,74 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
-/// Typed view of Owtch's six ordinary enemy words and three extended WRAM words. Keeping
-/// the native split velocities visible makes debugger watches directly comparable with
-/// <c>$0FA8-$0FB2</c> and the extended <c>$7E:7800-$7804</c> record.
+/// The state of an Owtch, with its three extended WRAM words <c>$7E:7800-$7804</c>. The values the cartridge keeps in
+/// the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class OwtchEnemyState
 {
-    /// <summary>Ordinary enemy record supplying Owtch's common velocity, state, and burial words.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Attaches the typed Owtch view to its physical enemy slot.</summary>
-    internal OwtchEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<OwtchProgram> Program { get; set; }
 
-    /// <summary>Native <c>$0FA8,x</c>, fractional half of positive 16.16 speed.</summary>
-    public ushort RightSubvelocity { get; internal set; }
+    /// <summary>
+    /// The signed 16.16 rightward patrol speed in pixels per update, taken from the shared linear-speed table. A kill
+    /// empties only its whole pixels; its fraction lives outside the record and survives.
+    /// </summary>
+    public SnesSignedSixteenSixteen RightVelocity { get; internal set; }
 
-    /// <summary>Native <c>$0FAA,x</c>, whole half of positive 16.16 speed.</summary>
-    public ushort RightVelocity
+    /// <summary>
+    /// The signed 16.16 leftward patrol speed in pixels per update, the negative half of the same linear-speed record.
+    /// </summary>
+    public SnesSignedSixteenSixteen LeftVelocity { get; internal set; }
+
+    /// <summary>The patrol state, which also indexes the state table.</summary>
+    public OwtchBehaviorState Behavior { get; internal set; }
+
+    /// <summary>
+    /// How many pixels the Owtch has sunk below its walking height, zero through sixteen while it sinks; set directly
+    /// by initialization and the sinking steps. Rising counts it down through <see cref="RiseOnePixel"/>, which can
+    /// wrap it.
+    /// </summary>
+    public int BurialDepth
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
+        get;
+        internal set => field = checked((ushort)value);
     }
 
-    /// <summary>Native <c>$0FAC,x</c>, fractional half of negative 16.16 speed.</summary>
-    public ushort LeftSubvelocity
+    /// <summary>
+    /// Counts one rising pixel off the burial depth and reports whether it reached zero (<c>DEC</c>, <c>BNE</c>). An
+    /// Owtch that starts rising unburied wraps to 65535, as the cartridge's decrement does, and keeps rising that many
+    /// more updates.
+    /// </summary>
+    internal bool RiseOnePixel()
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
-
-    /// <summary>Native <c>$0FAE,x</c>, whole half of negative 16.16 speed.</summary>
-    public ushort LeftVelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Native <c>$0FB0,x</c> state/table index.</summary>
-    public OwtchBehaviorState Behavior
-    {
-        get => (OwtchBehaviorState)_slot.VariableD;
-        internal set => _slot.VariableD = (ushort)value;
-    }
-
-    /// <summary>Native <c>$0FB2,x</c>, current zero-to-sixteen burial depth.</summary>
-    public ushort SinkYOffset
-    {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        NativeWordCounterStep step = NativeWordCounter.Decrement(checked((ushort)BurialDepth));
+        BurialDepth = step.Value;
+        return step.IsZero;
     }
 
     /// <summary>Native extended word <c>$7E:7800,x</c>.</summary>
     public NativeCountdown UndergroundTimer { get; internal set; }
 
-    /// <summary>Native extended word <c>$7E:7802,x</c>.</summary>
-    public ushort MinimumXPosition { get; internal set; }
+    /// <summary>
+    /// Native extended word <c>$7E:7802,x</c>: the left end of the patrol, the spawn X less the travel distance with
+    /// room-coordinate wraparound; only its X is meaningful. Positions compare with it by the wrapped spatial
+    /// difference.
+    /// </summary>
+    public Position16<RoomPixels> MinimumPosition { get; internal set; }
 
-    /// <summary>Native extended word <c>$7E:7804,x</c>.</summary>
-    public ushort MaximumXPosition { get; internal set; }
+    /// <summary>
+    /// Native extended word <c>$7E:7804,x</c>: the right end of the patrol, the spawn X plus the travel distance with
+    /// room-coordinate wraparound; only its X is meaningful. Positions compare with it by the wrapped spatial
+    /// difference.
+    /// </summary>
+    public Position16<RoomPixels> MaximumPosition { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        RightVelocity = RightVelocity.WithWholePixels(0);
+        LeftVelocity = SnesSignedSixteenSixteen.Zero;
+        Behavior = default;
+        BurialDepth = 0;
+    }
 }

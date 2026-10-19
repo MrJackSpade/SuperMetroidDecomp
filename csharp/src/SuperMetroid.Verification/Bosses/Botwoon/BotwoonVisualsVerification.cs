@@ -13,6 +13,9 @@ namespace SuperMetroid.Verification.Bosses.Botwoon;
 /// <summary>Checks installed Botwoon head frames and compatibility of older enemy artwork overrides.</summary>
 internal static class BotwoonVisualsVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Compares sixteen installed head frames to native OAM and confirms pre-Botwoon edits survive schema upgrade.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledBotwoonVisuals(
@@ -32,7 +35,7 @@ internal static class BotwoonVisualsVerification
                 $"Botwoon head frame $B3:{installedPointer:X4} is editable");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = BotwoonVisualDefinitions.Bank, Pointer = native, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = BotwoonVisualDefinitions.Bank, Pointer = native, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
@@ -64,7 +67,7 @@ internal static class BotwoonVisualsVerification
                 Version = (int)EnemySpritemapSchema.PreBotwoon,
                 Frames = previousFrames,
                 DisplayFrames = previousBindings,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            }, CamelCaseJson));
         EnemySpritemapCatalog upgraded = EnemySpritemapCatalog.Load(
             previousJson, stock.Spritemaps);
         foreach (EnemySpritemapDefinition frame in BotwoonVisualDefinitions.Frames())

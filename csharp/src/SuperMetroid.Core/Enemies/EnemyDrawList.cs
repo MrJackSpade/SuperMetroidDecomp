@@ -46,18 +46,18 @@ internal sealed class EnemyDrawList
         _slotTable = dependencies.SlotTable;
     }
     /// <summary>Native enemy indices grouped into the eight ordered drawing layers.</summary>
-    internal readonly List<ushort>[] _drawQueues =
-        Enumerable.Range(0, 8).Select(_ => new List<ushort>()).ToArray();
+    internal readonly List<int>[] _drawQueues =
+        Enumerable.Range(0, 8).Select(_ => new List<int>()).ToArray();
 
     /// <summary>Empties every layer queue before the enemy pass rebuilds them.</summary>
     internal void Clear()
     {
-        foreach (List<ushort> queue in _drawQueues)
+        foreach (List<int> queue in _drawQueues)
             queue.Clear();
     }
 
     /// <summary>Queues an enemy, by native index, for its draw layer.</summary>
-    internal void Enqueue(int layer, ushort nativeIndex) => _drawQueues[layer].Add(nativeIndex);
+    internal void Enqueue(int layer, int nativeIndex) => _drawQueues[layer].Add(nativeIndex);
 
     /// <summary>The draws <see cref="AdvanceLayers"/> prepared for the layer range <see cref="DrawLayers"/> publishes next.</summary>
     [NonSerialized] private List<PreparedEnemyDraw>? _prepared;
@@ -82,7 +82,7 @@ internal sealed class EnemyDrawList
         var prepared = new List<PreparedEnemyDraw>();
         foreach (int layer in Enumerable.Range(firstLayer, lastLayer - firstLayer + 1))
         {
-            foreach (ushort nativeIndex in _drawQueues[layer])
+            foreach (int nativeIndex in _drawQueues[layer])
             {
                 RoomEnemySlot slot = _slotTable.SlotFromNativeIndex(nativeIndex);
                 // Power-bomb damage runs after queue construction and can clear a
@@ -111,27 +111,34 @@ internal sealed class EnemyDrawList
                 ushort drawPaletteIndex = SelectCommonEnemyDrawPalette(slot);
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, null));
+                    EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
+                        $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} draws before showing a frame.");
+                    // Only the enemy banks carrying the shared empty record can show the common empty frame.
+                    if (frame == EnemyFrameId.Empty &&
+                        !CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(slot.Definition.Bank, EnemyFrames.Spritemap(frame)))
+                        throw new InvalidDataException(
+                            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} in bank ${slot.Definition.Bank:X2} has no common empty frame.");
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, frame, null));
                     continue;
                 }
 
                 if (_room.Artwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
-                        slot.SpritemapPointer,
+                        EnemyFrames.Spritemap(slot.Frame),
                         out ReadOnlyMemory<EnemyExtendedDrawComponent> installed) == true)
                 {
                     // Resolve both halves through one presentation binding. Validate
                     // the composition before any BG2 side effects; physical selectors
                     // continue to belong to compiled animation and collision programs.
                     ushort selected = _room.Artwork.ExtendedFrames.GetDisplayPointer(
-                        slot.Definition.Bank, slot.SpritemapPointer);
+                        slot.Definition.Bank, EnemyFrames.Spritemap(slot.Frame));
                     _instructions.ApplyInstalledEnemyBg2Frame(slot, selected);
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, installed));
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, null, installed));
                     continue;
                 }
 
                 throw new InvalidDataException(
                     $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} extended frame " +
-                    $"${slot.Definition.Bank:X2}:{slot.SpritemapPointer:X4} has no installed presentation.");
+                    $"${slot.Definition.Bank:X2}:{slot.Frame} has no installed presentation.");
             }
         }
         _prepared = prepared;
@@ -140,10 +147,10 @@ internal sealed class EnemyDrawList
 
     /// <summary>
     /// Publishes the draws <see cref="AdvanceLayers"/> prepared for the same layer range, in native slot order, as
-    /// whole-frame entries over the gameplay OBJ page. Ridley's supplemental sprites and the layer-five boss hooks still
-    /// write OAM between them, in the cartridge's order.
+    /// whole-frame entries over the gameplay OBJ page. An occupant's supplemental sprites and the layer-five boss hooks
+    /// still write OAM between them, in the cartridge's order.
     /// </summary>
-    /// <param name="sprites">The frame's sprite description; the boss hooks write its OAM.</param>
+    /// <param name="sprites">The frame's sprite description; the occupant and boss hooks write its OAM.</param>
     /// <param name="objects">The gameplay OBJ character page.</param>
     /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="firstLayer">First native draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
@@ -170,19 +177,16 @@ internal sealed class EnemyDrawList
                 PreparedEnemyDraw draw = prepared[next];
                 RoomEnemySlot slot = draw.Slot;
                 var source = new SpriteSource(SpriteSourceKind.Enemy, draw.NativeIndex / RoomEnemySystem.NativeSlotSize);
-                if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer))
-                {
-                    // Both Ridley mains call DrawRidleyTail/DrawRidleyWings before the
-                    // common WriteEnemyOams pass emits the extended body. Appending these
-                    // here preserves both that OAM order and the enemy's normal layer queue.
-                    _ceresRidleyBehavior.DrawRidleySupplementalSprites(sprites.Oam, slot, camera);
-                }
-                if (draw.Components is not { } components)
+                // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
+                // and wings), preserving both that OAM order and the enemy's normal layer queue.
+                if (slot.Entity is IEnemyDrawHooks drawHooks)
+                    drawHooks.DrawBeforeBody(sprites.Oam, camera);
+                if (draw.Frame is { } frame)
                 {
                     _presentation.PublishEnemySpritemap(sprites, objects, source, new EnemySpritemapDraw
                     {
-                        Bank = slot.Definition.Bank, Pointer = slot.SpritemapPointer, Origin = draw.Origin.ToOam(),
-                        PaletteBits = draw.PaletteBits, BaseTileIndex = slot.VramTilesIndex,
+                        Frame = frame, Origin = draw.Origin.ToOam(), PaletteBits = draw.PaletteBits,
+                        BaseTileIndex = checked((ushort)slot.VramTilesIndex),
                     });
                     continue;
                 }
@@ -190,15 +194,16 @@ internal sealed class EnemyDrawList
                 // This installed frame owns only the composite's visual offsets and parts.
                 // Collision still uses the original engine-owned extended hitbox records,
                 // never the editable JSON geometry.
-                foreach (EnemyExtendedDrawComponent component in components.Span)
+                foreach (EnemyExtendedDrawComponent component in (draw.Components ?? throw new InvalidOperationException(
+                             "An extended enemy draw was prepared without its components.")).Span)
                 {
                     Position16<OamPixels> componentOrigin = draw.Origin.ToOam() + component.Offset;
                     if (((componentOrigin.X + 128) & EnemyDrawMasks.OffscreenBits) != 0 ||
                         ((componentOrigin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
                         continue;
                     EnemyPresentation.PublishParts(sprites, objects, source,
-                        EnemySpriteFrames.Frame(component.Parts, slot.VramTilesIndex, draw.PaletteBits),
-                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), draw.PaletteBits);
+                        EnemySpriteFrames.Frame(component.Parts, checked((ushort)slot.VramTilesIndex), checked((ushort)draw.PaletteBits)),
+                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), checked((ushort)draw.PaletteBits));
                 }
             }
 
@@ -220,9 +225,10 @@ internal sealed class EnemyDrawList
     /// <param name="NativeIndex">The enemy's native index.</param>
     /// <param name="Origin">Its shaken screen origin.</param>
     /// <param name="PaletteBits">The common draw palette selected for this frame.</param>
-    /// <param name="Components">An extended enemy's installed components; null for an ordinary spritemap.</param>
-    private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot, ushort NativeIndex,
-        Position16<ScreenPixels> Origin, ushort PaletteBits, ReadOnlyMemory<EnemyExtendedDrawComponent>? Components);
+    /// <param name="Frame">An ordinary enemy's frame; null for an extended enemy.</param>
+    /// <param name="Components">An extended enemy's installed components; null for an ordinary enemy.</param>
+    private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot, int NativeIndex,
+        Position16<ScreenPixels> Origin, int PaletteBits, EnemyFrameId? Frame, ReadOnlyMemory<EnemyExtendedDrawComponent>? Components);
 
     /// <summary>
     /// Ports the palette selection at <c>$A0:9473-$A0:949A</c>, immediately before
@@ -240,8 +246,8 @@ internal sealed class EnemyDrawList
     /// </remarks>
     private ushort SelectCommonEnemyDrawPalette(RoomEnemySlot slot)
     {
-        if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) && _ridleyEncounter.Ridley is not null)
-            return _ridleyEncounter.Ridley.CommonDrawPaletteIndex;
+        if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawPaletteIndex() is { } owned)
+            return owned;
 
         if (!slot.FlashTimer.IsZero && (_frameContext._randomEnemyCounter & 2) != 0)
             return 0;
@@ -252,6 +258,6 @@ internal sealed class EnemyDrawList
             return EnemyFrozenPaletteDefinitions.PaletteBits;
         }
 
-        return slot.PaletteIndex;
+        return checked((ushort)slot.PaletteIndex);
     }
 }

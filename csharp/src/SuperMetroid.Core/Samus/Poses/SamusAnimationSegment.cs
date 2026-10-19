@@ -1,20 +1,20 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>One run of animation frame delays at its native bank-$91 address, ended by one control command.</summary>
+/// <summary>One run of animation frame delays at its offset in the pose delay streams, ended by one control command.</summary>
 /// <remarks>Command operands are semantic: back distances derive from the repeat target and pose bytes are pose identities.</remarks>
 internal sealed class SamusAnimationSegment
 {
     /// <summary>Authored frame durations preceding this segment's terminal command.</summary>
     private readonly byte[] delays;
 
-    /// <summary>Captures native placement and semantic operands for one contiguous delay run.</summary>
-    internal SamusAnimationSegment(ushort address, byte[] delays, SamusAnimationCommand command, SamusAnimationTransition transition)
+    /// <summary>Captures the stream placement and semantic operands for one contiguous delay run.</summary>
+    internal SamusAnimationSegment(int offset, byte[] delays, SamusAnimationCommand command, SamusAnimationTransition transition)
     {
         WordPose = transition.WordPose;
-        Address = address;
+        Offset = Ensure.AtLeastZero(offset);
         this.delays = delays;
         Command = command;
-        RepeatTarget = transition.RepeatTarget;
+        RepeatOffset = transition.RepeatOffset;
         Item = transition.Item;
         UnequippedGrounded = transition.UnequippedGrounded;
         UnequippedAirborne = transition.UnequippedAirborne;
@@ -22,13 +22,13 @@ internal sealed class SamusAnimationSegment
         EquippedAirborne = transition.EquippedAirborne;
     }
 
-    /// <summary>Bank-$91 address of this run's first duration byte.</summary>
-    internal ushort Address { get; }
+    /// <summary>Byte offset of this run's first duration byte from the start of the pose delay streams.</summary>
+    internal int Offset { get; }
     /// <summary>Terminal control opcode following the authored durations.</summary>
     internal SamusAnimationCommand Command { get; }
 
-    /// <summary>Address of the frame selected by <see cref="SamusAnimationCommand.RepeatFrom"/>.</summary>
-    internal ushort RepeatTarget { get; }
+    /// <summary>Stream offset of the frame selected by <see cref="SamusAnimationCommand.RepeatFrom"/>.</summary>
+    internal int RepeatOffset { get; }
 
     /// <summary>Equipment tested by the item-selected transitions.</summary>
     internal SamusEquipmentFlags Item { get; }
@@ -48,8 +48,8 @@ internal sealed class SamusAnimationSegment
     /// </summary>
     internal bool WordPose { get; }
 
-    /// <summary>Bank-$91 address immediately after this run's duration bytes.</summary>
-    internal ushort CommandAddress => (ushort)(Address + delays.Length);
+    /// <summary>Stream offset immediately after this run's duration bytes, where its control command sits.</summary>
+    internal int CommandOffset => Offset + delays.Length;
 
     /// <summary>Number of encoded duration, opcode, and operand bytes in this segment.</summary>
     internal int Length => delays.Length + 1 + Command switch
@@ -73,7 +73,7 @@ internal sealed class SamusAnimationSegment
         if (operand == 0) return (byte)Command;
         return Command switch
         {
-            SamusAnimationCommand.RepeatFrom => (byte)(CommandAddress - RepeatTarget),
+            SamusAnimationCommand.RepeatFrom => (byte)(CommandOffset - RepeatOffset),
             SamusAnimationCommand.TurnTransition or SamusAnimationCommand.Transition =>
                 operand == 1 ? (byte)UnequippedGrounded : (byte)0,
             SamusAnimationCommand.Hold or SamusAnimationCommand.LoopUnlessLowEnergy or
@@ -81,8 +81,8 @@ internal sealed class SamusAnimationSegment
                 SamusAnimationCommand.WallJumpSelect or SamusAnimationCommand.ItemTransition or
                 SamusAnimationCommand.Loop => operand switch
             {
-                1 => unchecked((byte)Item),
-                2 => SnesLittleEndian.HighByte((ushort)Item),
+                1 => unchecked((byte)Item.ToNativeWord()),
+                2 => SnesLittleEndian.HighByte(Item.ToNativeWord()),
                 3 => (byte)UnequippedGrounded,
                 // $FC's equipped pose immediately follows its unequipped pose.
                 4 => (byte)(Command == SamusAnimationCommand.ItemTransition ? EquippedGrounded : UnequippedAirborne),

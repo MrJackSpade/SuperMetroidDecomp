@@ -31,7 +31,7 @@ internal static class RipperBehaviorVerification
             AssertEqual(definition, EnemyDefinitionIds.FromHeaderPointer(CartridgeImportSource.Require(rom).ReadCartridgeWord(record)),
                 $"retail Ripper population ${record:X6} definition");
             ushort extra = CartridgeImportSource.Require(rom).ReadCartridgeWord(record + 10);
-            AssertTrue(!extra.HasAny(EnemyExtraProperties.UsesExtendedSpritemap),
+            AssertTrue(!EnemyExtraPropertyWord.FromNativeWord(extra).HasAny(EnemyExtraProperties.UsesExtendedSpritemap),
                 $"retail Ripper population ${record:X6} uses ordinary OAM");
         }
 
@@ -93,7 +93,7 @@ internal static class RipperBehaviorVerification
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             return enemies;
         }
 
@@ -109,7 +109,7 @@ internal static class RipperBehaviorVerification
             List<(int Update, ushort Spritemap)> shown = [];
             for (int update = 0; update < 31; update++)
             {
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
                 if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
                 {
                     shown.Add((update, slot.SpritemapPointer));
@@ -126,8 +126,8 @@ internal static class RipperBehaviorVerification
     private static RoomEnemySlot NewSlot(RoomEnemySystem enemies, EnemyDefinitionId definition)
     {
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = definition;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = RipperFrameToolingDefinitions.Bank };
+        slot.Bind(definition, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = RipperFrameToolingDefinitions.Bank });
         return slot;
     }
 

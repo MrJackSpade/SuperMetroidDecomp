@@ -1,21 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>Typed projection of one dead sidehopper's extended bank-$A9 WRAM.</summary>
+/// <summary>
+/// One dead sidehopper's corpse state: its silhouette, rot table and schedule, hop, palette and contact progress. The
+/// values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// cref="ClearWithRecord"/>).
+/// </summary>
 public sealed class DeadSidehopperEnemyState
 {
-    /// <summary>Captures one corpse's native configuration and row-processor identities.</summary>
-    internal DeadSidehopperEnemyState(RoomEnemySlot slot, ushort graphicsVariant, ushort configurationPointer, CorpseRottingProgram rotting)
+    /// <summary>Captures one corpse's silhouette and rot schedule.</summary>
+    internal DeadSidehopperEnemyState(RoomEnemySlot slot, ushort graphicsVariant, CorpseRottingProgram rotting)
     {
         Slot = slot;
         GraphicsVariant = graphicsVariant;
-        ConfigurationPointer = configurationPointer;
-        TablePointer = rotting.TablePointer;
-        VramTablePointer = rotting.VramTablePointer;
-        CopyFunction = rotting.CopyFunction;
-        MoveFunction = rotting.MoveFunction;
-        RotationTablePointer = rotting.RotationTablePointer;
-        FinishFunction = rotting.FinishFunction;
-        EntryCount = rotting.EntryCount;
         YLimit = rotting.YLimit;
         LateMoveEntryIndex = rotting.LateMoveEntryIndex;
         WrapOffset = rotting.WrapOffset;
@@ -23,63 +19,59 @@ public sealed class DeadSidehopperEnemyState
 
     /// <summary>The physical enemy slot owning this corpse's positions, native AI words, collision properties, and instruction list.</summary>
     public RoomEnemySlot Slot { get; }
-    /// <summary>Native population variant 0 for the initially living Shitroid victim or 2 for the already dead Tourian corpse, selecting initial graphics and row-copy column layouts.</summary>
-    public ushort GraphicsVariant { get; }
-    /// <summary>Bank-$A9 rotting configuration identity: $DD68 for variant 0 or $DD78 for variant 2, describing table, callbacks, height, and uploads.</summary>
-    public ushort ConfigurationPointer { get; }
-    /// <summary>Bank-$7E offset of the mutable four-byte (signed pixel Y, delay) row entries: $9000 for variant 0 or $90A0 for variant 2.</summary>
-    public ushort TablePointer { get; }
-    /// <summary>Bank-$A9 VRAM-transfer definition identity: $E0E0 for variant 0 or $E10A for variant 2, submitting modified corpse tile data after each rotting call.</summary>
-    public ushort VramTablePointer { get; }
-    /// <summary>Native non-destructive pixel-row copy callback identity, $A9:E4F5 for variant 0 or $A9:E5F6 for variant 2; the host translates its work directly.</summary>
-    public ushort CopyFunction { get; }
-    /// <summary>Native destructive pixel-row move callback identity, $A9:E468 for variant 0 or $A9:E564 for variant 2, copying the row downward and clearing its source.</summary>
-    public ushort MoveFunction { get; }
-    /// <summary>Bank-$A9 tile-data row-offset table $E240, shared by both variants; despite the host name, it addresses 8-pixel tile rows rather than a rotation angle.</summary>
-    public ushort RotationTablePointer { get; }
-    /// <summary>Native completed-row callback $A9:DC08, the normal corpse dust-spawn and periodic library-two sound hook.</summary>
-    public ushort FinishFunction { get; }
-    /// <summary>Forty staggered rotting entries, matching the native corpse sprite height of $0028 pixels.</summary>
-    public ushort EntryCount { get; }
-    /// <summary>Native sprite-height-minus-one value, 39: a moved pixel row completes when its next Y reaches this boundary; also identifies the final entry.</summary>
-    public ushort YLimit { get; }
-    /// <summary>Native sprite-height-minus-two value, 38: this entry and the final entry use destructive moves even during the last three delay ticks.</summary>
-    public ushort LateMoveEntryIndex { get; }
-    /// <summary>Native inter-tile byte adjustment $0094 added to the pixel-row source offset for rows 6 and 7, wrapping their two-pixel downward destination into the next tile row.</summary>
-    public ushort WrapOffset { get; }
+    /// <summary>Silhouette selected by the population parameter: 0 for the initially living Shitroid victim or 2 for the already dead Tourian corpse, selecting initial graphics and row-copy column layouts.</summary>
+    public int GraphicsVariant { get; }
+    /// <summary>The corpse's (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row.</summary>
+    internal CorpseRotTable RotTable { get; init; }
+    /// <summary>The corpse tile uploads submitted after every rotting call, including the call that finishes the corpse.</summary>
+    internal DeadMonsterRottingDefinitions.TransferRows VramTransfers { get; init; }
+    /// <summary>Sprite height less one, 39: a moved pixel row completes when its next Y reaches this boundary; also identifies the final entry.</summary>
+    public int YLimit { get; }
+    /// <summary>Sprite height less two, 38: this entry and the final entry use destructive moves even during the last three delay calls.</summary>
+    public int LateMoveEntryIndex { get; }
+    /// <summary>Byte displacement, 148, added to the destination of pixel rows 6 and 7 so their two-pixel fall lands in the next tile row.</summary>
+    public int WrapOffset { get; }
 
-    /// <summary>Native variable A ($0FA8 plus the slot byte index), holding the current bank-$A9 dead-sidehopper AI function pointer.</summary>
-    public DeadSidehopperAiFunction Function
-    {
-        get => (DeadSidehopperAiFunction)Slot.VariableA;
-        internal set => Slot.VariableA = (ushort)value;
-    }
+    /// <summary>
+    /// Holding the current bank-$A9 dead-sidehopper AI function pointer; none once a kill has emptied the record.
+    /// </summary>
+    public DeadSidehopperAiFunction? Function { get; internal set; }
 
-    /// <summary>Native extended word 06, selecting one of four jump velocity pairs.</summary>
-    public ushort JumpPhase { get; internal set; }
+    /// <summary>Position 0..3 in the four-hop launch cycle, selecting the next launch velocity; each landing advances it modulo four.</summary>
+    public int JumpPhase { get; internal set; }
 
-    /// <summary>Native extended word 07, the eight-frame palette divider.</summary>
-    public ushort PaletteFrameCounter { get; internal set; }
+    /// <summary>Draining AI calls since the palette last advanced, 0..7; the eighth call advances the palette and resets it.</summary>
+    public int PaletteFrameCounter { get; internal set; }
 
-    /// <summary>Native extended word 08, written to one by Shitroid after feeding.</summary>
-    public ushort PaletteStage { get; internal set; }
+    /// <summary>
+    /// Drained-palette progress: 0 before Shitroid feeds, 1..7 while draining, 8 once transformed, and
+    /// <see cref="DeadSidehopperCorpseDefinitions.NoPaletteStage"/> for a corpse placed already dead. A stage of 8 or more
+    /// lets a shot, touch or Power Bomb start rotting.
+    /// </summary>
+    public int PaletteStage { get; internal set; }
 
     /// <summary>Native signed 8.8 velocity: horizontal word 0A and vertical word 0B.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Native AI variable B, deliberately retained across repeated corpse contacts.</summary>
-    public ushort PreRotDelayCounter
+    /// <summary>
+    /// Pre-rot AI calls counted, deliberately retained across repeated corpse contacts: the sixteenth call starts
+    /// rotting. Every later contact counts on from the retained value, so the count can reach <see
+    /// cref="LargestPreRotDelayCount"/> and wrap to zero, restoring the full sixteen-call delay.
+    /// </summary>
+    public int PreRotDelayCounter
     {
-        get => Slot.VariableB;
-        internal set => Slot.VariableB = value;
+        get;
+        internal set => field = checked((ushort)value);
     }
 
-    /// <summary>Native AI variable F initialized to $0040 for the post-landing pause; expiry requires decrementing through zero to $FFFF, giving 65 delay-state calls.</summary>
-    public NativeCountdown StateTimer
-    {
-        get => NativeCountdown.FromRaw(Slot.VariableF);
-        internal set => Slot.VariableF = value.RawValue;
-    }
+    /// <summary>The largest pre-rot count; the next call counts zero.</summary>
+    internal const int LargestPreRotDelayCount = 65535;
+
+    /// <summary>
+    /// The countdown initialized to $0040 for the post-landing pause; expiry requires decrementing through zero
+    /// to $FFFF, giving 65 delay-state calls.
+    /// </summary>
+    public NativeCountdown StateTimer { get; internal set; }
 
     /// <summary>Host diagnostic count of shared rotting-processor calls for this slot since initialization, including the call that completes the final entry.</summary>
     public uint ProcessCallCount { get; internal set; }
@@ -87,6 +79,16 @@ public sealed class DeadSidehopperEnemyState
     public uint FinishedEntryCount { get; internal set; }
     /// <summary>Host diagnostic count of dust effects requested by completed corpse entries; increments once per completion hook invocation.</summary>
     public uint DustSpawnCount { get; internal set; }
-    /// <summary>Most recently completed zero-based rotting entry index, or $FFFF before any entry has completed; retained as host diagnostic state.</summary>
-    public ushort LastFinishedEntryIndex { get; internal set; } = ushort.MaxValue;
+
+    /// <summary>Counts one pre-rot AI call, wrapping from <see cref="LargestPreRotDelayCount"/> to zero.</summary>
+    internal void CountPreRotDelayCall() =>
+        PreRotDelayCounter = PreRotDelayCounter == LargestPreRotDelayCount ? 0 : PreRotDelayCounter + 1;
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        PreRotDelayCounter = 0;
+        StateTimer = NativeCountdown.Start(0);
+    }
 }

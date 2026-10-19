@@ -122,7 +122,7 @@ internal static void VerifyMode7Rendering()
     splitVram.ExecuteWordTransfer([0x0001], destinationWord: 0x4800 + 26 * 32, wordIncrement: 1);
     splitVram.LoadBytes((0x6000 + 16) * 2, [0xff, 0x00]);
 
-    Rgba32[] split = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(splitVram, splitCgram, emptySprites, new Mode7RenderRegisters { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(0, 0), Bg2CharacterBaseWord = 0x6000 });
+    Rgba32[] split = SnesGameplayFrameRendererConstants.RenderHudCeresRidleyGetawayAndObjs(splitVram, splitCgram, emptySprites, new Mode7RenderRegisters { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(0, 0), Bg2CharacterBaseWord = 0x6000 });
     AssertEqual(splitCgram.GetRgba(2), split[207 * 256],
         "Ceres Ridley scanline 207 remains Mode 7");
     AssertEqual(splitCgram.GetRgba(1), split[208 * 256],
@@ -267,7 +267,8 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(addressSpace));
     var fixturePresentation = AreaMapPresentationCatalog.Load(
         RepositoryInstallation.Installation.MapDirectory, overrideRoot);
-    var menu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
+    var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
+    var menu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation);
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap;
 
     // Native empty-slot origins are energy-field X plus one $40-byte row: rows 6, 11,
@@ -301,8 +302,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
 
     // `$8B:C100` saves area six/station zero through the ordinary `$81:8000` encoder.
     // Verify both redundant checksum directories, the decoded player/checkpoint data, and
-    // the menu's subsequent ENERGY + HH:MM path against one shared physical SRAM image.
-    var saveRam = new SuperMetroidSaveRam(addressSpace, RetailPresentationFixture());
+    // the menu's subsequent ENERGY + HH:MM path against one shared save store.
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {
         Health = 99,
@@ -326,7 +326,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(0x80, saved.ExploredMapBytes[0x07], "unpacked explored-map first exported byte");
     AssertEqual(0x04, saved.ExploredMapBytes[0x84], "unpacked explored-map sparse byte");
 
-    var savedMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
+    var savedMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation);
     ReadOnlySpan<ushort> savedTilemap = savedMenu.BackgroundTilemap;
     AssertEqual(0x209d, savedTilemap[0x15c / 2], "saved slot ENERGY first tile");
     AssertEqual(0x2069, savedTilemap[(0x15c + 0x42) / 2], "saved slot energy tens");
@@ -341,7 +341,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
 
     // Drive the real newly-pressed latch and fade states into COPY. Slot zero is the only
     // nonempty source, destination one is the first native choice, and YES is the default.
-    var copyMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
+    var copyMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation);
     AdvanceFileSelectToMain(copyMenu);
     PulseFileSelect(copyMenu, SnesButton.Down);
     PulseFileSelect(copyMenu, SnesButton.Down);
@@ -367,7 +367,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     // Re-enter the main screen from the copied SRAM image and clear slot A. This exercises
     // the actual confirmation default and the native four-directory invalidation, not a
     // host-only hidden flag.
-    var clearMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
+    var clearMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation);
     AdvanceFileSelectToMain(clearMenu);
     for (int move = 0; move < 4; move++)
         PulseFileSelect(clearMenu, SnesButton.Down);
@@ -404,8 +404,10 @@ internal static void VerifyFileSelectFreshSaveTilemap()
 
     saveRam.SelectSlot(2);
     AssertEqual(2, saveRam.ReadSelectedSlot(), "SRAM selected-slot word and complement");
-    addressSpace.SaveRam[0x0010 + 0x20] ^= 1;
-    AssertTrue(saveRam.ReadSlot(0) is null, "SRAM payload corruption invalidates both directories");
+    byte[] image = SuperMetroid.Core.Saves.SaveRamCodec.Encode(saveRam, RetailPresentationFixture());
+    image[SuperMetroid.Core.Saves.SaveRamLayout.SlotOffset(1) + SuperMetroid.Core.Saves.SaveRamLayout.HealthOffset] ^= 1;
+    AssertTrue(SuperMetroid.Core.Saves.SaveRamCodec.Decode(image, RetailPresentationFixture()).ReadSlot(1) is null,
+        "SRAM payload corruption invalidates both directories");
 
     Console.WriteLine("  SRAM/file select: slots, COPY/CLEAR, checksums, NO DATA, ENERGY, and TIME agree.");
 }
@@ -450,7 +452,7 @@ internal static void VerifySavedGameLoadAppearance()
     }
 
     var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-    var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+    var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {
         Health = 99,
@@ -461,7 +463,7 @@ internal static void VerifySavedGameLoadAppearance()
     SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
         ?? throw new InvalidOperationException("Synthetic Crateria save did not validate.");
 
-    var runtime = CreateRetailRuntimeFixture(bus);
+    var runtime = CreateRetailRuntimeFixture();
     runtime.HudSetup.InitializeHud(new HudSnapshot(
         slot.Health,
         slot.MaxHealth,
@@ -475,7 +477,7 @@ internal static void VerifySavedGameLoadAppearance()
         slot.HudItem,
         slot.ReserveEnergy,
         slot.ReserveMode));
-    runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+    runtime.FrameBoundary.BeginAcceptedFrame(0);
     runtime.RoomLoader.InitializeSavedGame(slot);
 
     AssertTrue(runtime.SamusLoadAppearanceActive,
@@ -491,7 +493,7 @@ internal static void VerifySavedGameLoadAppearance()
 
     var appearanceHistory = runtime.Player.IntroducedSamus.PoseHistory;
     SamusPoseId appearancePose = appearanceHistory.PreviousPose;
-    ushort appearanceMetadata = appearanceHistory.PreviousDirectionAndMovement;
+    int appearanceMetadata = appearanceHistory.PreviousDirectionAndMovement;
     // Distinct older sample exposes the otherwise invisible same-pose shift.
     appearanceHistory.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
     appearanceHistory.LastDifferentDirectionAndMovement = 0x0308;
@@ -505,7 +507,7 @@ internal static void VerifySavedGameLoadAppearance()
     AssertEqual(appearancePose, appearanceHistory.LastDifferentPose, "appearance completion shifts prior pose");
     AssertEqual(appearanceMetadata, appearanceHistory.LastDifferentDirectionAndMovement, "appearance completion shifts prior metadata");
     AssertEqual(runtime.Player.IntroducedSamus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
-    AssertEqual(SnesLittleEndian.Word(runtime.Player.IntroducedSamus.PoseMetadata.ReadPoseXDirection(bus), (byte)runtime.Player.IntroducedSamus.PoseMetadata.ReadMovementType(bus)),
+    AssertEqual(SnesLittleEndian.Word(runtime.Player.IntroducedSamus.PoseMetadata.ReadPoseXDirection(), (byte)runtime.Player.IntroducedSamus.PoseMetadata.ReadMovementType()),
         appearanceHistory.PreviousDirectionAndMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
         runtime.Player.Samus is { InputLocked: false },
@@ -528,7 +530,7 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
         "intro gameplay flashback inherited BG1 vertical scroll");
 
     var motherBrain = new IntroMotherBrainSpriteState();
-    AssertEqual(8, motherBrain.BackgroundVerticalScroll,
+    AssertEqual(8, motherBrain.Background.Y,
         "intro Mother Brain starts from inherited BG1 vertical scroll");
 
     // Four impacts select `$8B:B80F`. Its `$8B:B877` shake adds four on an even frame and
@@ -538,11 +540,12 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     var cgram = new SnesCgram();
     var introPalette = new ushort[SnesCgram.ColorCount];
     motherBrain.RunPreInstruction(cgram, ToColors(introPalette), cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
-    AssertEqual(12, motherBrain.BackgroundVerticalScroll,
+    AssertEqual(12, motherBrain.Background.Y,
         "intro Mother Brain even-frame shake adds four to inherited scroll");
     motherBrain.RunPreInstruction(cgram, ToColors(introPalette), cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
-    AssertEqual(8, motherBrain.BackgroundVerticalScroll,
+    AssertEqual(8, motherBrain.Background.Y,
         "intro Mother Brain odd-frame shake returns to inherited scroll");
+    AssertEqual(0, motherBrain.Background.X, "intro Mother Brain shake leaves BG1 horizontal scroll at zero");
 
     Console.WriteLine("  Intro: Mother Brain and SR388 BG1 retain the native eight-pixel vertical scroll.");
 }
@@ -559,28 +562,29 @@ internal static void VerifyCinematicPaletteFader()
     var fader = new CinematicPaletteFader(ToColors(target));
 
     // $8B:B018 clears incoming range $28/$03. Because X is a byte offset, the first
-    // affected entry is color $14 rather than color $28.
-    fader.Clear(0x0028, 3);
+    // affected entry is color 20; the span names that color directly.
+    var color20 = new IntroPaletteSpan(20, 1);
+    fader.Clear(new IntroPaletteSpan(20, 3));
     fader.ComposeInto(cgram);
-    AssertEqual(0x0000, cgram.Colors[20], "cinematic clear uses byte-offset color index");
+    AssertEqual(0x0000, cgram.Colors[20], "cinematic clear starts at the span's first color");
 
     // One retail step adds component four << 3 = $0020. Compose takes the high byte,
     // so the first seven calls remain black and the eighth produces component one.
     for (int step = 0; step < 7; step++)
-        fader.FadeIn(0x0028, 1);
+        fader.FadeIn(color20);
     fader.ComposeInto(cgram);
     AssertEqual(0x0000, cgram.Colors[20], "8.8 cinematic fade preserves early rounding");
-    fader.FadeIn(0x0028, 1);
+    fader.FadeIn(color20);
     fader.ComposeInto(cgram);
     AssertEqual(0x0421, cgram.Colors[20], "eighth fade step reaches BGR component one");
 
     for (int step = 8; step < 32; step++)
-        fader.FadeIn(0x0028, 1);
+        fader.FadeIn(color20);
     fader.ComposeInto(cgram);
     AssertEqual(0x1084, cgram.Colors[20], "32 fade-in calls reach exact target");
 
     for (int step = 0; step < 32; step++)
-        fader.FadeOut(0x0028, 1);
+        fader.FadeOut(color20);
     fader.ComposeInto(cgram);
     AssertEqual(0x0000, cgram.Colors[20], "32 fade-out calls reach exact black");
 }
@@ -591,7 +595,7 @@ internal static void VerifyDemoInputObject()
     var demo = new DemoInputState();
     demo.Clear();
     demo.Enable();
-    demo.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback, initializationParameter: 0);
+    demo.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback);
 
     // The first six records at $91:8694. The two one-frame X edges are separated by held-X
     // records; normal projectile cooldown/motion code, not this program, decides each shot.

@@ -7,4 +7,4 @@ public readonly record struct MotherBrainCorpseDustRequest(
     Position16<RoomPixels> Position,
     MiscDustAnimation Animation,
     bool SoundEffectQueued,
-    ushort SoundEffect);
+    SoundEffectId SoundEffect);

@@ -40,14 +40,14 @@ internal sealed class BombSpreadTransitionScenario
     internal static int TimingCaseCount(bool wallRoute) => wallRoute ? 14 : 10;
 
     /// <summary>Clears a bounded Landing Site fixture and equips Samus for an input-earned charged spread.</summary>
-    internal BombSpreadTransitionScenario(SuperMetroidRuntime runtime, ISnesAddressSpace bus, bool left, int timingCase, bool wallRoute)
+    internal BombSpreadTransitionScenario(SuperMetroidRuntime runtime, bool left, int timingCase, bool wallRoute)
     {
         (Runtime, Left, TimingCase, WallRoute) = (runtime, left, timingCase, wallRoute);
         Delay = timingCase < 10 ? timingCase : timingCase + 30;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         var level = runtime.Room.LoadedLevelData;
         // Match the grounded technique clearing, extending it upward for the jump.
         for (int y = 16; y < 36; y++)
@@ -61,11 +61,11 @@ internal sealed class BombSpreadTransitionScenario
         var samus = Samus;
         samus.InputLocked = false;
         samus.Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
-        samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
-        samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
+        samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
+        samus.EquippedBeams = SamusBeamFlags.Charge;
         samus.Position = samus.Position.WithWhole(new(512, 490));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
     }
 
     /// <summary>Controller word for <paramref name="frame"/>.</summary>

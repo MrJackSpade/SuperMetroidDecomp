@@ -205,16 +205,15 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         static (RoomEnemySystem, SnesCgram, RoomEnemySlot, RidleyEnemyState) Create(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemy = new RoomEnemySystem { TileArtwork = artwork };
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
-            enemy.BindFixtureBus(source);
+            enemy.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemy.Presentation._cgram = cgram;
             enemy.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
+            slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
             enemy.RidleyBehavior.InitializeNorfairRidley(slot);
             RidleyEnemyState state = enemy.RidleyEncounter.Ridley ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
@@ -226,7 +225,6 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         // Executes one production arena-reveal callback.
         static void Tick(RoomEnemySystem enemy, RoomEnemySlot slot, RidleyEnemyState state)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             enemy.RidleyBehavior.TickNorfairRidleyArenaReveal(slot, state);
         }
     }

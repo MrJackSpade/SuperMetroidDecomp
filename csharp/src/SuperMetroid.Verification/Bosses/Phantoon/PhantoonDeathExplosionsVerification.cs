@@ -29,14 +29,15 @@ internal static class PhantoonDeathExplosionsVerification
         foreach (bool full in new[] { false, true })
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewPhantoonDeathReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var body = enemies.SlotTable.Slots[0];
             var tentacles = enemies.SlotTable.Slots[2];
             var state = new PhantoonEnemyState(body) { Tentacles = tentacles };
+            enemies.PhantoonBehavior.Phantoon = state;
             Action<RoomEnemySlot, PhantoonEnemyState> step = enemies.PhantoonBehavior.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
-            body.VariableE = 15;
-            body.VariableF = (ushort)PhantoonAiFunction.DyingExplosions;
+            state.Parts[body.SlotIndex].FunctionTimer = 15;
+            state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingExplosions;
             if (full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
             int index = 0, passes = 0, timer = 15, requests = 0;
             for (int frame = 0; passes < 3; frame++)
@@ -53,15 +54,15 @@ internal static class PhantoonDeathExplosionsVerification
                     if (++index == 13) { index = 5; passes++; }
                 }
                 step(body, state);
-                AssertEqual((ushort)timer, body.VariableE, "Exact death explosion frame timer");
-                AssertEqual((ushort)index, tentacles.VariableF, "Exact death record cursor and repeat");
-                AssertEqual((ushort)passes, body.VariableA, "Exact death repeat counter");
+                AssertEqual((ushort)timer, state.Parts[body.SlotIndex].FunctionTimer, "Exact death explosion frame timer");
+                AssertEqual((ushort)index, state.Parts[tentacles.SlotIndex].ExplosionIndex, "Exact death record cursor and repeat");
+                AssertEqual((ushort)passes, state.Parts[body.SlotIndex].ExplosionPass, "Exact death repeat counter");
                 AssertEqual(requests, state.DeathExplosionRequests, "Exact death request frame");
                 AssertEqual(full ? 0 : requests, state.DeathExplosionsSpawned, "Allocation pressure does not alter schedule");
-                AssertEqual((ushort)(passes == 3 ? PhantoonAiFunction.BeginFinalWavyDeath : PhantoonAiFunction.DyingExplosions), body.VariableF, "Exact final death phase handoff");
+                AssertEqual((passes == 3 ? PhantoonAiFunction.BeginFinalWavyDeath : PhantoonAiFunction.DyingExplosions), state.Parts[body.SlotIndex].Function, "Exact final death phase handoff");
                 if (due)
                 {
-                    AssertEqual((ushort?)(type == 0x1d ? 0x24 : 0x2b), state.LastCombatSoundEffect, "Death sound choice survives pool exhaustion");
+                    AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, type == 0x1d ? (ushort)0x24 : (ushort)0x2b), state.LastCombatSoundEffect, "Death sound choice survives pool exhaustion");
                     if (!full)
                     {
                         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
@@ -79,10 +80,4 @@ internal static class PhantoonDeathExplosionsVerification
         Console.WriteLine("Phantoon death: 52 native bytes and six frame-exact 29-request sequences preserve timing, positions, animation and full-pool behavior with schedule reads forbidden.");
     }
 
-    /// <summary>Rejects migrated death-schedule reads and all writes during production verification.</summary>
-    private static CartridgeReadGuard NewPhantoonDeathReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa7da1d and < 0xa7da51,
-                _ => "Unexpected migrated death schedule read.")
-            .RejectWrites(_ => "Unexpected death schedule bus write.");
 }

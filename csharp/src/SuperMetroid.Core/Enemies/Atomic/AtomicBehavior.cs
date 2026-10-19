@@ -1,4 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Atomic.Artwork;
 using SuperMetroid.Core.Samus;
@@ -6,36 +8,25 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>The Atomic species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class AtomicBehavior : IEnemySpecies
+internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
-    /// <summary>Per-slot typed views of Atomic's common and extended motion words.</summary>
-    internal readonly AtomicEnemyState?[] _atomicStates =
-        new AtomicEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Positive 16.16 speed fractions indexed by physical enemy slot.</summary>
-    internal readonly ushort[] _atomicSpeedFractions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Positive 16.16 speed whole words indexed by physical enemy slot.</summary>
-    internal readonly ushort[] _atomicSpeedWholes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Native negative-speed fractions retained separately to preserve subpixel arithmetic.</summary>
-    internal readonly ushort[] _atomicNegativeSpeedFractions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Native negative-speed whole words retained separately from positive speed.</summary>
-    internal readonly ushort[] _atomicNegativeSpeedWholes = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AtomicEntity(this, slot, common);
+
 
     /// <summary>Ports <c>InitAI_Atomic</c> at <c>$A8:E388</c>.</summary>
     internal void InitializeAtomic(RoomEnemySlot slot)
     {
-        var state = new AtomicEnemyState(
-            slot,
-            _atomicSpeedFractions,
-            _atomicSpeedWholes,
-            _atomicNegativeSpeedFractions,
-            _atomicNegativeSpeedWholes);
-        _atomicStates[slot.SlotIndex] = state;
+        var state = new AtomicEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
-        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicMovementDefinitions.InitialProgram(slot.Parameter1));
+        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicMovementDefinitions.InitialProgram(checked((ushort)slot.Parameter1)));
 
         // Parameter two is an index into the shared eight-byte linear-speed record:
         // positive whole/fraction followed by its ROM-generated negative whole/fraction.
@@ -46,10 +37,8 @@ internal sealed class AtomicBehavior : IEnemySpecies
             EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         (short negativeWhole, ushort negativeFraction) =
             EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
-        state.SpeedWhole = unchecked((ushort)positiveWhole);
-        state.SpeedFraction = positiveFraction;
-        state.NegativeSpeedWhole = unchecked((ushort)negativeWhole);
-        state.NegativeSpeedFraction = negativeFraction;
+        state.Speed = SnesSignedSixteenSixteen.FromParts(positiveWhole, positiveFraction);
+        state.NegativeSpeed = SnesSignedSixteenSixteen.FromParts(negativeWhole, negativeFraction);
     }
 
     /// <summary>
@@ -77,43 +66,31 @@ internal sealed class AtomicBehavior : IEnemySpecies
         switch (state.VerticalMovement)
         {
             case AtomicVerticalMovement.MoveUp:
-                slot.Position = slot.Position.WithY(AddAtomicVelocity(
-                    slot.Position.Y,
-                    state.NegativeSpeedWhole,
-                    state.NegativeSpeedFraction));
+                slot.Position = slot.Position.WithY(AddAtomicVelocity(slot.Position.Y, state.NegativeSpeed));
                 break;
 
             case AtomicVerticalMovement.MoveDown:
-                slot.Position = slot.Position.WithY(AddAtomicVelocity(
-                    slot.Position.Y,
-                    state.SpeedWhole,
-                    state.SpeedFraction));
+                slot.Position = slot.Position.WithY(AddAtomicVelocity(slot.Position.Y, state.Speed));
                 break;
 
             default:
                 throw new InvalidDataException(
-                    $"Atomic vertical function $A8:{(ushort)state.VerticalMovement:X4} is not translated.");
+                    $"Atomic vertical movement {state.VerticalMovement?.ToString() ?? "none"} is not translated.");
         }
 
         switch (state.HorizontalMovement)
         {
             case AtomicHorizontalMovement.MoveLeft:
-                slot.Position = slot.Position.WithX(AddAtomicVelocity(
-                    slot.Position.X,
-                    state.NegativeSpeedWhole,
-                    state.NegativeSpeedFraction));
+                slot.Position = slot.Position.WithX(AddAtomicVelocity(slot.Position.X, state.NegativeSpeed));
                 break;
 
             case AtomicHorizontalMovement.MoveRight:
-                slot.Position = slot.Position.WithX(AddAtomicVelocity(
-                    slot.Position.X,
-                    state.SpeedWhole,
-                    state.SpeedFraction));
+                slot.Position = slot.Position.WithX(AddAtomicVelocity(slot.Position.X, state.Speed));
                 break;
 
             default:
                 throw new InvalidDataException(
-                    $"Atomic horizontal function $A8:{(ushort)state.HorizontalMovement:X4} is not translated.");
+                    $"Atomic horizontal movement {state.HorizontalMovement?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -123,65 +100,46 @@ internal sealed class AtomicBehavior : IEnemySpecies
     /// </summary>
     private static SnesFixedPosition AddAtomicVelocity(
         SnesFixedPosition position,
-        ushort wholeVelocity,
-        ushort fractionalVelocity)
+        SnesSignedSixteenSixteen velocity)
     {
-        ushort whole = unchecked((ushort)(position.Whole + wholeVelocity));
-        uint fractionalSum = (uint)position.Fraction + fractionalVelocity;
+        ushort whole = unchecked((ushort)(position.Whole + velocity.WholeWord));
+        uint fractionalSum = (uint)position.Fraction + velocity.Fraction;
         if (fractionalSum > ushort.MaxValue)
             whole = unchecked((ushort)(whole + 1));
         return new(whole, unchecked((ushort)fractionalSum));
     }
 
     /// <summary>Requires initialized Atomic state for a physical enemy slot before main AI runs.</summary>
-    private AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>
-        _atomicStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>
+        slot.SpeciesState<AtomicEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Atomic state.");
 
-    /// <summary>Runs Atomic's spinning animations as typed programs (#641).</summary>
-    internal void RegisterAtomicTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireAtomicState(slot);
-            AnimationProgramCursor<AtomicProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, AtomicAnimations.Programs, ref cursor, AtomicFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Registers the bank-$A8 Atomic initializer for its enemy definition.</summary>
-    internal void RegisterAtomicInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Atomic's typed animation.</summary>
+    internal static void AdvanceAtomicTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Atomic, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeAtomic(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireAtomicState(slot);
+        AnimationProgramCursor<AtomicProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, AtomicAnimations.Programs, ref cursor, AtomicFrameDefinitions.ShownFrames.Of);
+        state.Program = cursor;
     }
 
-    /// <summary>Registers the bank-$A8 Atomic pursuit dispatcher for each enemy update.</summary>
-    internal void RegisterAtomicMainAi(EnemyAiTable table)
+    /// <summary>Ports Atomic's initialization AI.</summary>
+    internal void RunAtomicInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeAtomic(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Atomic, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunAtomicMain(slot, RequireAtomicState(slot), frame.Samus);
-        });
+    /// <summary>Ports Atomic's main AI.</summary>
+    internal static void RunAtomicMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    {
+        RunAtomicMain(slot, RequireAtomicState(slot), frame.Samus);
     }
 
     /// <inheritdoc/>
+    /// <remarks>Each Atomic's initializer creates its state, so a room load has nothing to reset.</remarks>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        Array.Clear(_atomicStates);
-        Array.Clear(_atomicSpeedFractions);
-        Array.Clear(_atomicSpeedWholes);
-        Array.Clear(_atomicNegativeSpeedFractions);
-        Array.Clear(_atomicNegativeSpeedWholes);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
     }
 }

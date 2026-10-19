@@ -27,11 +27,11 @@ internal static class SuitPickupPeriodicDamageVerification
     internal static void VerifySuitPickupPeriodicDamage()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
 
         SamusState samus = runtime.Player.IntroducedSamus;
@@ -39,10 +39,10 @@ internal static class SuitPickupPeriodicDamageVerification
         samus.Health = 299;
         samus.SubunitHealth = 0;
         // `$84:88F3` equips the suit before the message box and the pickup routine.
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit;
+        samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         samus.LiquidPhysics.PeriodicSubDamage = 0;
         samus.LiquidPhysics.PeriodicDamage = 0;
-        runtime.SuitPickup.Begin(bus, samus, runtime.Room.LoadedCamera.PixelPosition, SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Begin(samus, runtime.Room.LoadedCamera.PixelPosition, SamusSuitPickupKind.Varia);
 
         // Reference ledger: the same producer calls, consumed once by the $90:E9CE port
         // after the transformation.
@@ -59,8 +59,8 @@ internal static class SuitPickupPeriodicDamageVerification
             AssertTrue(pickupFrames < 4096, "the suit transformation finishes");
             samus.LiquidPhysics.AccumulatePeriodicDamage(PaletteFxHeatData.SubdamagePerFrame, wholeDamage: 0);
             reference.LiquidPhysics.AccumulatePeriodicDamage(PaletteFxHeatData.SubdamagePerFrame, wholeDamage: 0);
-            ushort healthBefore = samus.Health;
-            ushort subunitBefore = samus.SubunitHealth;
+            int healthBefore = samus.Health;
+            int subunitBefore = samus.SubunitHealth;
             runtime.StepFrame(0);
             if (!runtime.SuitPickup.IsActive)
                 break;

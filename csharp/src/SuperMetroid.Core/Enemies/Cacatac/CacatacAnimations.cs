@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Cacatac.CacatacCueKind;
 using P = SuperMetroid.Core.Enemies.Cacatac.CacatacProgram;
+using D = SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Fx;
 
@@ -38,11 +39,11 @@ internal static class CacatacAnimations
             Show(9, 21),
             Show(8, 5),
             Cue(new(K.PlaySpikeSound)),
-            Cue(new(K.SpawnSpike, Value: 0)),
-            Cue(new(K.SpawnSpike, Value: 12)),
-            Cue(new(K.SpawnSpike, Value: 2)),
-            Cue(new(K.SpawnSpike, Value: 14)),
-            Cue(new(K.SpawnSpike, Value: 4)),
+            Cue(new(K.SpawnSpike, Direction: D.LeftFacingUp)),
+            Cue(new(K.SpawnSpike, Direction: D.UpLeft)),
+            Cue(new(K.SpawnSpike, Direction: D.Up)),
+            Cue(new(K.SpawnSpike, Direction: D.UpRight)),
+            Cue(new(K.SpawnSpike, Direction: D.RightFacingUp)),
             GoTo(P.UpsideUpIdle),
         ],
         // $A2:9EDA
@@ -72,11 +73,11 @@ internal static class CacatacAnimations
             Show(19, 21),
             Show(18, 5),
             Cue(new(K.PlaySpikeSound)),
-            Cue(new(K.SpawnSpike, Value: 6)),
-            Cue(new(K.SpawnSpike, Value: 16)),
-            Cue(new(K.SpawnSpike, Value: 8)),
-            Cue(new(K.SpawnSpike, Value: 18)),
-            Cue(new(K.SpawnSpike, Value: 10)),
+            Cue(new(K.SpawnSpike, Direction: D.LeftFacingDown)),
+            Cue(new(K.SpawnSpike, Direction: D.DownLeft)),
+            Cue(new(K.SpawnSpike, Direction: D.Down)),
+            Cue(new(K.SpawnSpike, Direction: D.DownRight)),
+            Cue(new(K.SpawnSpike, Direction: D.RightFacingDown)),
             GoTo(P.UpsideDownIdle),
         ],
     });

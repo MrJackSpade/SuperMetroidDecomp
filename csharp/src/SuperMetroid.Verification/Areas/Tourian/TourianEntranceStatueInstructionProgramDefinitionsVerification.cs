@@ -36,19 +36,19 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._cgram = new SnesCgram();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.TourianStatue;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xaa };
+            slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xaa });
             slot.Parameter1 = parameter;
             enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
                 AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
-                enemies.TourianEntranceStatueBehavior._statuePrograms[slot.SlotIndex],
+                enemies.TourianEntranceStatueBehavior._extensions[slot.SlotIndex].Program,
                 $"Tourian entrance-statue initializer parameter {parameter}");
 
-            enemies.Instructions.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
+            EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
             AssertTrue(slot.Properties.HasAny(EnemyProperties.Deleted),
                 $"Tourian entrance-statue parameter {parameter} executes native delete");
         }

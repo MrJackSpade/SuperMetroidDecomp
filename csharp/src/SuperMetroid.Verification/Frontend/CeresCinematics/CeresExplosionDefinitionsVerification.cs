@@ -9,6 +9,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks compiled Ceres destruction actors, placement, timing, and spawn schedules.</summary>
 internal static class CeresExplosionDefinitionsVerification
@@ -49,7 +50,7 @@ internal static class CeresExplosionDefinitionsVerification
             "final explosion definition boundary");
 
         var guard = NewCeresExplosionDefinitionReadGuard(retail);
-        var state = CreateRetailDestructionFixture(guard);
+        var state = CreateRetailDestructionFixture();
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
             state.Step();
         AssertTrue(state.Finished, "Ceres destruction completes through production actor paths");
@@ -67,7 +68,7 @@ internal static class CeresExplosionDefinitionsVerification
         {
             // The six-byte header's first word (initialization callback) has no compiled owner.
             int address = CeresExplosionDefinitions.NativeBank | definitionPointer;
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), definition.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), definition.PreInstruction.NativeAddress,
                 $"{name} pre-instruction callback");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(definition.Program),
                 $"{name} instruction list");
@@ -85,7 +86,7 @@ internal static class CeresExplosionDefinitionsVerification
                 $"repeating explosion {index} X offset");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4ed + index * 4)), unchecked((ushort)placement.Offset.Y),
                 $"repeating explosion {index} Y offset");
-            AssertEqual((ushort)1, placement.DelayFrames,
+            AssertEqual(1, placement.DelayFrames,
                 $"repeating explosion {index} initial instruction delay");
         }
 

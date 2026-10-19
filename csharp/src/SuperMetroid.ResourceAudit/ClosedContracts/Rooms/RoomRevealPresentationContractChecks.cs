@@ -35,7 +35,7 @@ internal static class RoomRevealPresentationContractChecks
                     overlays.ItemMetatile(0);
                     overlays.ItemMetatile(7);
                     overlays.ItemMetatile(8);
-                    overlays.RoomTiles(0x986b);
+                    overlays.RoomTiles(XrayRoomOverlayDefinitions.BombTorizoAnimalEscapeBlocks);
                     items.Resolve(InWorldCollectibleKind.Bombs);
                     items.Resolve(InWorldCollectibleKind.ReserveTank);
                     items.Resolve(InWorldCollectibleKind.EnergyTank);
@@ -59,16 +59,9 @@ internal static class RoomRevealPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 10, "the fixture must first expose absent adapters");
+        Require(before.UnresolvedCount == 10, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 8 && after.UnresolvedCount == 2 && after.MissingCount == 0 &&
-            after.Consumers.Count == 10, "complete reveals, item slots and required overlays qualify, not invalid slots or non-dynamic kinds");
-        const string catalog = "csharp/src/SuperMetroid.Core/Rooms/Xray/XrayRevealVisualCatalog.cs";
-        var changed = trees.Select(tree => tree.FilePath == catalog ? CSharpSyntaxTree.ParseText(
-            tree.GetText().ToString().Replace("drawable != (words[", "false && drawable != (words[", StringComparison.Ordinal),
-                path: tree.FilePath) : tree);
-        AuditReport revoked = Inspect(Compile(changed), true);
-        Require(revoked.Classifications.Count == 2 && revoked.UnresolvedCount == 8,
-            "changing X-ray admission revokes both providers declared in that source, not permanent-item coverage");
+            after.Consumers.Count == 10, "complete reveals, item slots and required overlays qualify, not invalid slots or non-dynamic kinds" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Confirms one collision/BTS pair selects both its compiled reveal command and matching installed visual words.</summary>

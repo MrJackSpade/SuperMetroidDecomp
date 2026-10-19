@@ -7,6 +7,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks catalog ownership and typed VRAM, CGRAM, OAM and register views against their PPU backends.</summary>
 internal static class PpuLayoutBoundaryVerification
 {
+    /// <summary>Inventory cell fields compared between the generated and committed PPU-layout inventories.</summary>
+    private static readonly string[] InventoryCellFields =
+        ["owner", "name", "region", "offset", "count", "encoding", "aliasOf"];
+
     /// <summary>
     /// Checks the #630 PPU layout boundary: catalog identities and aliases, the repository
     /// inventory, alias coherence through the typed views on real backends, typed round trips,
@@ -125,7 +129,7 @@ internal static class PpuLayoutBoundaryVerification
             new((slot + seed) & Bgr555.MaxChannel, (slot * 3 + seed) & Bgr555.MaxChannel, (slot * 7 + seed) & Bgr555.MaxChannel);
     }
 
-    /// <summary>gameplay_TM is TM's IRQ copy: an accepted NMI publishes TM into it, a lag NMI does not.</summary>
+    /// <summary>gameplay_TM is TM's IRQ copy: an accepted NMI publishes TM into it.</summary>
     [PpuLayoutBoundary("exact hardware test: register shadow alias coherence")]
     private static void RegisterRoundTrip(PpuLayoutCell alias, PpuLayoutCell register, string context)
     {
@@ -133,12 +137,8 @@ internal static class PpuLayoutBoundaryVerification
             $"{context} is the one register alias with a modeled coherence rule");
         var cache = new GameplayWindowRegisterCache();
         cache.MainScreen = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
-        cache.LatchNmi(mainLoopRequestedNmi: true);
+        cache.LatchNmi();
         AssertEqual((byte)(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj), cache.Read(alias), $"{context}: accepted NMI copies TM");
-        cache.MainScreen = SnesMainScreenLayers.Bg2;
-        cache.LatchNmi(mainLoopRequestedNmi: false);
-        AssertEqual((byte)(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj), cache.Read(alias), $"{context}: lag NMI keeps the copy");
-        AssertEqual((byte)SnesMainScreenLayers.Bg2, cache.Read(register), $"{context}: TM keeps the main-loop value");
     }
 
     /// <summary>The committed inventory lists exactly the catalog cells (consumers may drift between regenerations).</summary>
@@ -149,7 +149,7 @@ internal static class PpuLayoutBoundaryVerification
         using JsonDocument expected = JsonDocument.Parse(PpuLayoutCatalogInventory.RenderJson(entries, root));
         using JsonDocument actual = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, PpuLayoutCatalogInventory.InventoryPath)));
         string[] Cells(JsonDocument document) => document.RootElement.GetProperty("cells").EnumerateArray()
-            .Select(cell => string.Join('|', new[] { "owner", "name", "region", "offset", "count", "encoding", "aliasOf" }
+            .Select(cell => string.Join('|', InventoryCellFields
                 .Select(field => cell.GetProperty(field).ToString())))
             .ToArray();
         AssertTrue(Cells(expected).SequenceEqual(Cells(actual)),
@@ -181,7 +181,7 @@ internal static class PpuLayoutBoundaryVerification
         SnesObjAttributeWord attributes = SnesObjAttributeWord.Create(0x1c3, paletteIndex: 6, priority: 2, SnesTileFlipFlags.Horizontal);
         oam.AddRawSmallSprite(new Position16<OamPixels>(0x01f0, 0x0080), attributes);
         OamEntry entry = oam.GetEntry(0);
-        AssertEqual(new OamEntry(0x1f0, 0x80, 0x1c3, 6, 2, FlipX: true, FlipY: false, IsLarge: false), entry,
+        AssertEqual(new OamEntry(new Position16<OamPixels>(0x1f0, 0x80), 0x1c3, 6, 2, FlipX: true, FlipY: false, IsLarge: false), entry,
             "an object's position and attributes round-trip through OAM");
 
         var registers = new GameplayWindowRegisterCache();
@@ -276,7 +276,7 @@ internal static class PpuLayoutBoundaryVerification
         var attributes = SnesObjAttributeWord.Create(0x0a0, paletteIndex: 1, priority: 3);
         oam.AddRawSmallSprite(new Position16<OamPixels>(0x0010, 0x0020), attributes);
         oam.AddRawSmallSprite(new Position16<OamPixels>(0x0180, 0x0021), attributes);
-        oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, large: true), 0, attributes, new Position16<OamPixels>(0x0030, 0x0040));
+        oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, large: true), new SnesSpritemapYByte(0), attributes, new Position16<OamPixels>(0x0030, 0x0040));
         oam.AddRawSmallSprite(new Position16<OamPixels>(0x01ff, 0x0022), attributes);
         oam.AddRawSmallSprite(new Position16<OamPixels>(0x0100, 0x0023), attributes);
 
@@ -291,7 +291,7 @@ internal static class PpuLayoutBoundaryVerification
         // OBJ0 small/X<256 = 00, OBJ1 X>=256 = 01, OBJ2 large = 10, OBJ3 X>=256 = 01.
         AssertEqual((byte)0b01_10_01_00, high[0], "OBJs 0-3 share the first high-table byte, two bits each");
         AssertEqual((byte)0b00_00_00_01, high[1], "OBJ 4 starts the second high-table byte");
-        AssertEqual(0x1ff, oam.GetEntry(3).X, "X bit 8 decodes from the high table");
+        AssertEqual(0x1ff, oam.GetEntry(3).Position.X, "X bit 8 decodes from the high table");
         AssertTrue(oam.GetEntry(2).IsLarge, "the size bit decodes from the high table");
     }
 

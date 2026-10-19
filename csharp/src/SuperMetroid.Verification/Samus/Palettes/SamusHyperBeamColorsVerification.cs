@@ -19,6 +19,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Retail and installed-artwork checks for Samus's ten-frame Hyper Beam rainbow palette.</summary>
 internal static class SamusHyperBeamColorsVerification
@@ -349,13 +350,13 @@ internal static class SamusHyperBeamColorsVerification
                     "Shot edits cannot mutate the separate full-body asset");
             }
         }
-        var shotSamus = new SamusState { HyperBeam = 0x8000, Presentation = { ChargeColors = shot } };
+        var shotSamus = new SamusState { HyperBeamEnabled = true, Presentation = { ChargeColors = shot } };
         var projectiles = new SamusProjectileSystem();
         projectiles.Charge.ChargedShotGlowTimer = NativeCountdown.Start((ushort)0x8014);
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 20; call++)
         {
-            var step = projectiles.UpdateBeamChargePalette(shotGuard, shotCgram, shotSamus);
+            var step = projectiles.UpdateBeamChargePalette(shotCgram, shotSamus);
             AssertEqual((call & 1) == 0 ? SamusBeamChargePaletteAction.HyperPalette : SamusBeamChargePaletteAction.HyperHold,
                 step.Action, "Original Hyper-shot alternating paint/hold cadence");
             ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * (call / 2));
@@ -371,7 +372,7 @@ internal static class SamusHyperBeamColorsVerification
         var guarded = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 22; call++)
         {
-            AssertTrue(installedSamus.Drained.UpdatePalette(guarded, installedCgram, 0),
+            AssertTrue(installedSamus.Drained.UpdatePalette(installedCgram, 0),
                 $"Hyper Beam call {call} owns palette");
             // Original91D96F copies the selected row before DEC; EnableRainbow's
             // timer/reload are1, so every call advances and wraps at native limit10.
@@ -413,13 +414,11 @@ internal static class SamusHyperBeamColorsVerification
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Hyper Beam color override changes installed content identity");
 
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
-        {
-            Artwork = { MapPresentation = edited },
-        };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         SamusState samus = runtime.Player.Samus ??
@@ -430,7 +429,7 @@ internal static class SamusHyperBeamColorsVerification
         var cgram = new SnesCgram();
         var guarded = NewForbiddenHyperBeamColorBus(rom);
         for (int frame = 0; frame <= 4; frame++)
-            AssertTrue(samus.Drained.UpdatePalette(guarded, cgram, samus.EquippedItems),
+            AssertTrue(samus.Drained.UpdatePalette(cgram, samus.EquippedItems),
                 $"edited Hyper Beam frame {frame} writes colors");
         AssertEqual(edited.SamusHyperBeamColors.Resolve(4, 7), cgram.Colors[199],
             "edited Hyper Beam color reaches CGRAM on its selected frame");

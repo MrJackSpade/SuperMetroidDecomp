@@ -9,6 +9,6 @@
 public readonly record struct CollectiblePlmSnapshot(
     PlmHeaderId Header,
     int BlockIndex,
-    ushort RoomArgument,
+    int RoomArgument,
     InWorldCollectibleKind Kind,
     int GraphicsSlot);

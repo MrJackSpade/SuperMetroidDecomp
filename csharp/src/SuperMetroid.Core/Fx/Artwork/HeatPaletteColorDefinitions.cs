@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Calculated repeated-row aliases for the three native Samus heat palettes.</summary>
-/// <remarks>Original $8D:E468/E694/E8C0 streams have sixteen fifteen-color frames.
+/// <remarks>Each suit's program has sixteen fifteen-color phases.
 /// Interior phase p selects row (min(p,15-p)+1)/2. Row zero first occurs at phase0;
 /// row r=1..4 first occurs at phase2*r-1. Phase15 returns to row1 for Power and
 /// row0 for protected suits. Full original rows independently agree with this mirrored
@@ -16,92 +16,107 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// review. Custom colors differing from the calculated alias remain explicit overrides.</remarks>
 internal static class HeatPaletteColorDefinitions
 {
-    /// <summary>$8D:E46E: the base heat color supplying <see cref="HeatPaletteEndpoint.Red"/>'s unselected channels.</summary>
-    internal const ushort RedEndpointBase = 0xe46e;
+    /// <summary>Power phase zero, color three: the base heat color supplying <see cref="HeatPaletteEndpoint.Red"/>'s unselected channels.</summary>
+    internal static PaletteFxColorKey RedEndpointBase => Rows(PaletteFxHeatSuit.Power).Color(0, 3);
 
-    /// <summary>$8D:E470: the base heat color supplying <see cref="HeatPaletteEndpoint.Mixed"/>'s blue.</summary>
-    internal const ushort MixedEndpointBase = 0xe470;
+    /// <summary>Power phase zero, color four: the base heat color supplying <see cref="HeatPaletteEndpoint.Mixed"/>'s blue.</summary>
+    internal static PaletteFxColorKey MixedEndpointBase => Rows(PaletteFxHeatSuit.Power).Color(0, 4);
 
-    /// <summary>Maps repeated heat-frame words in any suit to their first equivalent paint row.</summary>
-    internal static bool TryCanonicalPointer(ushort pointer, out ushort canonical)
-        => TrySuit(pointer, PaletteFxHeatSuit.Power, out canonical) ||
-           TrySuit(pointer, PaletteFxHeatSuit.Varia, out canonical) ||
-           TrySuit(pointer, PaletteFxHeatSuit.Gravity, out canonical);
+    /// <summary>The heat palette color <paramref name="endpoint"/> names.</summary>
+    internal static PaletteFxColorKey Key(HeatPaletteEndpoint endpoint) => endpoint switch
+    {
+        HeatPaletteEndpoint.Red => Rows(PaletteFxHeatSuit.Power).Color(7, 3),
+        HeatPaletteEndpoint.Mixed => Rows(PaletteFxHeatSuit.Power).Color(7, 4),
+        _ => throw new ArgumentOutOfRangeException(nameof(endpoint), endpoint, "Not a heat palette endpoint."),
+    };
+
+    /// <summary>The sixteen phases of <paramref name="suit"/>'s heat program.</summary>
+    internal static PaletteFxColorRows Rows(PaletteFxHeatSuit suit) => suit switch
+    {
+        PaletteFxHeatSuit.Power => PaletteFxHeatProgramMechanicsDefinitions.All[0].Rows,
+        PaletteFxHeatSuit.Varia => PaletteFxHeatProgramMechanicsDefinitions.All[1].Rows,
+        PaletteFxHeatSuit.Gravity => PaletteFxHeatProgramMechanicsDefinitions.All[2].Rows,
+        _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit."),
+    };
+
+    /// <summary>Maps repeated heat-frame colors in any suit to their first equivalent paint row.</summary>
+    internal static bool TryCanonical(PaletteFxColorKey key, out PaletteFxColorKey canonical)
+        => TrySuit(key, PaletteFxHeatSuit.Power, out canonical) ||
+           TrySuit(key, PaletteFxHeatSuit.Varia, out canonical) ||
+           TrySuit(key, PaletteFxHeatSuit.Gravity, out canonical);
 
     /// <summary>Canonicalizes one suit's mirrored phases, shared Power slots, and constant color columns.</summary>
-    private static bool TrySuit(ushort pointer, PaletteFxHeatSuit suit, out ushort canonical)
+    private static bool TrySuit(PaletteFxColorKey key, PaletteFxHeatSuit suit, out PaletteFxColorKey canonical)
     {
-        int first = PaletteFxHeatInstructionListDefinitions.Resolve(suit, 0) + 2;
-        int offset = pointer - first;
-        if ((uint)offset >= 16 * 34 || (offset & 1) != 0 || offset % 34 >= 30) { canonical = 0; return false; }
-        int phase = offset / 34;
+        PaletteFxColorRows rows = Rows(suit);
+        if (!rows.TryLocate(key, out int phase, out int color)) { canonical = default; return false; }
         int row = phase == 15 ? (suit == PaletteFxHeatSuit.Power ? 1 : 0) :
             (Math.Min(phase, 15 - phase) + 1) / 2;
         int firstPhase = row == 0 ? 0 : 2 * row - 1;
-        int color = offset % 34 / 2;
         bool sharedWithPower = suit != PaletteFxHeatSuit.Power && color is not (1 or 9 or 10) &&
             !(suit == PaletteFxHeatSuit.Gravity && row == 0 && color == 11);
-        if (sharedWithPower) first = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 2;
+        if (sharedWithPower) rows = Rows(PaletteFxHeatSuit.Power);
         if (color == 5 || (suit != PaletteFxHeatSuit.Power && color == 1)) firstPhase = 0;
-        canonical = (ushort)(first + firstPhase * 34 + offset % 34);
+        canonical = rows.Color(firstPhase, color);
         return true;
-
     }
+
     /// <summary>Tries loading-palette aliases and proven heating ramps before retaining supplied paint.</summary>
-    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value) =>
-        TryBaseColor(pointer, colors, out value) || TryHighlightEndpoint(pointer, colors, out value) || TryRedRamp(pointer, colors, out value) || TrySecondaryRedRamp(pointer, colors, out value) ||
-        TryMixedRamp(pointer, colors, out value) || TrySharedRed(pointer, colors, out value);
+    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value) =>
+        TryBaseColor(key, colors, out value) || TryHighlightEndpoint(key, colors, out value) || TryRedRamp(key, colors, out value) || TrySecondaryRedRamp(key, colors, out value) ||
+        TryMixedRamp(key, colors, out value) || TrySharedRed(key, colors, out value);
 
     /// <summary>Maps heat row-zero colors to the corresponding normal suit-loading colors.</summary>
-    /// <remarks>The fifteen colors at $8D:E468/E694/E8C0 equal colors1..15 in the
-    /// initial loading palettes at $8D:DB6B/DCD1/DE37, and independently equal normal
-    /// suit palettes $9B:9402/9522/9802. Heat omits the transparent index zero.
-    /// Native program layout and every original color were independently checked.
-    /// This aliases identical suit artwork; it does not classify the source artwork
-    /// as irreducible. Differing heat edits retain their own installed value.</remarks>
-    internal static bool TryBasePalettePointer(ushort pointer, out ushort source)
+    /// <remarks>Each suit's phase-zero colors 0..14 equal colors 1..15 of the initial row of the same suit's
+    /// loading palette, and independently equal normal suit palettes $9B:9402/9522/9802. Heat omits the
+    /// transparent index zero. Native program layout and every original color were independently checked.
+    /// This aliases identical suit artwork; it does not classify the source artwork as irreducible. Differing
+    /// heat edits retain their own installed value.</remarks>
+    internal static bool TryBasePalette(PaletteFxColorKey key, out PaletteFxColorKey source)
     {
-        int first;
-        int loading;
-        if (pointer is >= 0xe468 and < 0xe486) { first = 0xe468; loading = 0xdb6d; }
-        else if (pointer is >= 0xe694 and < 0xe6b2) { first = 0xe694; loading = 0xdcd3; }
-        else if (pointer is >= 0xe8c0 and < 0xe8de) { first = 0xe8c0; loading = 0xde39; }
-        else { source = 0; return false; }
-        if (((pointer - first) & 1) != 0) { source = 0; return false; }
-        source = (ushort)(loading + pointer - first);
-        return true;
+        foreach (PaletteFxHeatSuit suit in (ReadOnlySpan<PaletteFxHeatSuit>)[PaletteFxHeatSuit.Power, PaletteFxHeatSuit.Varia, PaletteFxHeatSuit.Gravity])
+        {
+            if (Rows(suit).TryLocate(key, out int phase, out int color) && phase == 0)
+            {
+                source = LoadingPaletteColorDefinitions.Rows(suit).Color(0, color + 1);
+                return true;
+            }
+        }
+        source = default;
+        return false;
     }
 
     /// <summary>Resolves heat row zero through the matching initial suit-loading palette color.</summary>
-    private static bool TryBaseColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+    private static bool TryBaseColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
     {
         value = Bgr555.Black;
-        return TryBasePalettePointer(pointer, out ushort source) &&
+        return TryBasePalette(key, out PaletteFxColorKey source) &&
             LoadingPaletteColorDefinitions.TryReadColor(source, colors, out value);
     }
 
     /// <summary>Prefers a supplied color, then tries a base-palette alias or calculated highlight endpoint.</summary>
-    private static bool TryInputColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value) =>
-        colors.TryGetValue(pointer, out value) || TryBaseColor(pointer, colors, out value) ||
-        TryHighlightEndpoint(pointer, colors, out value);
+    private static bool TryInputColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value) =>
+        colors.TryGetValue(key, out value) || TryBaseColor(key, colors, out value) ||
+        TryHighlightEndpoint(key, colors, out value);
 
     /// <summary>Bright red highlights move halfway toward saturated red, rounding upward.</summary>
     /// <remarks>Original Power slots1/8 rise from29/27 to30/29; Varia slot9 rises
     /// from30 to31. Each endpoint is ceil((baseRed+31)/2), preserving green/blue.
-    /// Sources: $8D:E558/E566/E794 and their corresponding row-zero colors. This
+    /// Sources: phase seven of Power colors 1 and 8 and Varia color 9, from the same colors at phase zero. This
     /// shared highlight rule uses no stored endpoint or fitted per-slot coefficients.
     /// Player endpoints differing from the result remain explicit installed overrides.</remarks>
-    internal static bool TryHighlightEndpoint(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+    internal static bool TryHighlightEndpoint(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
     {
-        ushort source = pointer switch
-        {
-            0xe558 => 0xe46a,
-            0xe566 => 0xe478,
-            0xe794 => 0xe6a6,
-            _ => 0,
-        };
         value = Bgr555.Black;
-        if (source == 0 || !(colors.TryGetValue(source, out Bgr555 start) || TryBaseColor(source, colors, out start))) return false;
+        PaletteFxHeatSuit suit;
+        if (Rows(PaletteFxHeatSuit.Power).TryLocate(key, out int phase, out int color) && phase == 7 && color is 1 or 8)
+            suit = PaletteFxHeatSuit.Power;
+        else if (Rows(PaletteFxHeatSuit.Varia).TryLocate(key, out phase, out color) && phase == 7 && color == 9)
+            suit = PaletteFxHeatSuit.Varia;
+        else
+            return false;
+        PaletteFxColorKey source = Rows(suit).Color(0, color);
+        if (!(colors.TryGetValue(source, out Bgr555 start) || TryBaseColor(source, colors, out start))) return false;
         value = start.WithRed((start.Red + 32) / 2);
         return true;
     }
@@ -114,55 +129,53 @@ internal static class HeatPaletteColorDefinitions
     /// floor((startRed*(4-r)+endRed*r)/4), with the initial green/blue. Integer
     /// weighted sums also give defined, bounded RGB5 results for edited endpoints.
     /// This is the sampled linear heating gradient, not a fit with corrections.</remarks>
-    internal static bool TryRedRamp(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
-        => TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 3, 0, out value);
+    internal static bool TryRedRamp(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        => TryEndpointRed(key, colors, PaletteFxHeatSuit.Power, 3, 0, out value);
 
     /// <summary>Calculates the remaining single-channel red gradients from their endpoints.</summary>
     /// <remarks>Original Power slot1 reds29,29,30,30,30 and slot8 reds27,28,28,29,29
     /// are nearest-rounded quarter steps, ties upward. Varia slot9 reds30,30,30,30,31
     /// are floor-rounded quarter steps. All retain initial green/blue. Supported
-    /// NTSC J/U v1.0 words at $8D:E46A/E478/E6A6 plus the native phase strides
+    /// NTSC J/U v1.0 phase-zero words of those colors plus the native phase rows
     /// independently establish all five samples. These exact conventional interpolation
     /// rules make no claim about the historical authoring software. Endpoints remain
     /// editable inputs; differing intermediate colors remain explicit overrides.</remarks>
-    internal static bool TrySecondaryRedRamp(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value) =>
-        TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 1, 2, out value) ||
-        TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 8, 2, out value) ||
-        TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Varia, 9, 0, out value);
+    internal static bool TrySecondaryRedRamp(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value) =>
+        TryEndpointRed(key, colors, PaletteFxHeatSuit.Power, 1, 2, out value) ||
+        TryEndpointRed(key, colors, PaletteFxHeatSuit.Power, 8, 2, out value) ||
+        TryEndpointRed(key, colors, PaletteFxHeatSuit.Varia, 9, 0, out value);
 
     /// <summary>Interpolates an interior red level between editable endpoints using the selected rounding bias.</summary>
-    private static bool TryEndpointRed(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors,
+    private static bool TryEndpointRed(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors,
         PaletteFxHeatSuit suit, int colorIndex, int roundingBias, out Bgr555 value)
     {
         value = Bgr555.Black;
-        int first = PaletteFxHeatInstructionListDefinitions.Resolve(suit, 0) + 2 + 2 * colorIndex;
-        int offset = pointer - first;
-        if (offset is not (34 or 102 or 170)) return false;
-        if (!TryInputColor((ushort)first, colors, out Bgr555 start) ||
-            !TryInputColor((ushort)(first + 7 * 34), colors, out Bgr555 end)) return false;
-        int row = (offset / 34 + 1) / 2;
+        PaletteFxColorRows rows = Rows(suit);
+        if (!rows.TryLocate(key, out int phase, out int color) || color != colorIndex || phase is not (1 or 3 or 5)) return false;
+        if (!TryInputColor(rows.Color(0, colorIndex), colors, out Bgr555 start) ||
+            !TryInputColor(rows.Color(7, colorIndex), colors, out Bgr555 end)) return false;
+        int row = (phase + 1) / 2;
         int red = (start.Red * (4 - row) + end.Red * row + roundingBias) / 4;
         value = start.WithRed(red);
         return true;
     }
 
     /// <summary>Calculates the shared slot4 gradient's interior RGB colors.</summary>
-    /// <remarks>Original rows at $8D:E470 plus phases0,1,3,5,7 have red8,10,12,14,15;
+    /// <remarks>Original Power color 4 at phases0,1,3,5,7 has red8,10,12,14,15;
     /// green13,14,14,15,16; blue8,9,9,10,11. Red is upward-rounded endpoint
     /// interpolation. Green is nearest-even endpoint interpolation; blue shares its
     /// change, preserving the initial green/blue difference. Each rule matches the
     /// complete original channel independently. This exact bounded representation
     /// does not assert historical tooling. Edited blue results outside RGB5 decline
     /// calculation so their explicit supplied values survive; no clamping is added.</remarks>
-    internal static bool TryMixedRamp(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+    internal static bool TryMixedRamp(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
     {
         value = Bgr555.Black;
-        int first = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 10;
-        int offset = pointer - first;
-        if (offset is not (34 or 102 or 170)) return false;
-        if (!TryInputColor((ushort)first, colors, out Bgr555 start) ||
-            !TryInputColor((ushort)(first + 7 * 34), colors, out Bgr555 end)) return false;
-        int row = (offset / 34 + 1) / 2;
+        PaletteFxColorRows rows = Rows(PaletteFxHeatSuit.Power);
+        if (!rows.TryLocate(key, out int phase, out int color) || color != 4 || phase is not (1 or 3 or 5)) return false;
+        if (!TryInputColor(rows.Color(0, 4), colors, out Bgr555 start) ||
+            !TryInputColor(rows.Color(7, 4), colors, out Bgr555 end)) return false;
+        int row = (phase + 1) / 2;
         int red = (start.Red * (4 - row) + end.Red * row + 3) / 4;
         int initialGreen = start.Green;
         int greenSum = initialGreen * (4 - row) + end.Green * row;
@@ -182,35 +195,36 @@ internal static class HeatPaletteColorDefinitions
     /// slot3 samples are calculated by TryRedRamp when no edited override exists. Only canonical
     /// noninitial rows qualify. Nonrepresentable edited deltas return false so the
     /// loader keeps the supplied independent RGB5 color instead of clamping it.</remarks>
-    internal static bool TrySharedRed(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+    internal static bool TrySharedRed(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
     {
         value = Bgr555.Black;
-        if (!TryCanonicalPointer(pointer, out ushort canonical) || pointer != canonical) return false;
-        int powerFirst = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 2;
-        int first;
-        int index;
-        if (pointer >= powerFirst && pointer < powerFirst + 16 * 34)
+        if (!TryCanonical(key, out PaletteFxColorKey canonical) || key != canonical) return false;
+        PaletteFxColorRows power = Rows(PaletteFxHeatSuit.Power);
+        PaletteFxColorRows rows;
+        int phase, index;
+        if (power.TryLocate(key, out phase, out index))
         {
-            first = powerFirst;
-            index = (pointer - first) % 34 / 2;
+            rows = power;
             if (index is not (0 or 2 or 6 or 7 or 9 or 10 or 11 or 12 or 13 or 14)) return false;
+        }
+        else if (Rows(PaletteFxHeatSuit.Varia).TryLocate(key, out phase, out index))
+        {
+            rows = Rows(PaletteFxHeatSuit.Varia);
+            if (index != 10) return false;
         }
         else
         {
-            int variaFirst = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Varia, 0) + 2;
-            first = pointer < variaFirst + 16 * 34 ? variaFirst :
-                PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Gravity, 0) + 2;
-            index = (pointer - first) % 34 / 2;
-            if (first == variaFirst ? index != 10 : index is not (9 or 10)) return false;
+            rows = Rows(PaletteFxHeatSuit.Gravity);
+            if (!rows.TryLocate(key, out phase, out index) || index is not (9 or 10)) return false;
         }
-        int phase = (pointer - first) / 34;
         if (phase == 0) return false;
-        if (!TryInputColor((ushort)(first + index * 2), colors, out Bgr555 original) ||
-            !TryInputColor((ushort)(powerFirst + 6), colors, out Bgr555 baseline) ||
-            !(colors.TryGetValue((ushort)(powerFirst + phase * 34 + 6), out Bgr555 heated) ||
-              TryRedRamp((ushort)(powerFirst + phase * 34 + 6), colors, out heated))) return false;
+        if (!TryInputColor(rows.Color(0, index), colors, out Bgr555 original) ||
+            !TryInputColor(power.Color(0, 3), colors, out Bgr555 baseline) ||
+            !(colors.TryGetValue(power.Color(phase, 3), out Bgr555 heated) ||
+              TryRedRamp(power.Color(phase, 3), colors, out heated))) return false;
         int red = original.Red + heated.Red - baseline.Red;
         if ((uint)red > 31) return false;
         value = original.WithRed(red);
         return true;
-    }}
+    }
+}

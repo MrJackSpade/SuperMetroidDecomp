@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -57,6 +58,18 @@ public static class CartridgeRoomHeaderImporter
         }
         throw new InvalidDataException("Native room selector exceeds its bounded command count.");
     }
+    /// <summary>Evaluates the native selector program following the room header at <paramref name="roomPointer"/>, independently of compiled gameplay branches.</summary>
+    /// <param name="bus">Address space providing the import-only cartridge source.</param>
+    /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
+    /// <param name="selection">Event, boss, and equipment conditions the selector program tests.</param>
+    /// <returns>The bank-$8F pointer of the first matching state, or of the inline default state.</returns>
+    public static ushort SelectStatePointer(ISnesAddressSpace bus, ushort roomPointer,
+        RoomStateSelectionContext selection = default)
+    {
+        Ensure.NotNull(bus);
+        return SelectImportedState(bus, unchecked((ushort)(roomPointer + 11)), selection);
+    }
+
     /// <summary>Decodes a native bank-$8F room header and evaluates its bounded state-selection command list independently of compiled gameplay definitions.</summary>
     /// <param name="bus">Address space providing the import-only cartridge source.</param>
     /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
@@ -68,11 +81,9 @@ public static class CartridgeRoomHeaderImporter
         Ensure.NotNull(bus);
         int address = 0x8f0000 | roomPointer;
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
-        ushort doorList = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus), address + 9);
-        ushort statePointer = SelectImportedState(bus, unchecked((ushort)(roomPointer + 11)), selection);
-        return new CartridgeRoomHeader(roomPointer, Byte(0), (AreaId)Byte(1),
-            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7), Byte(8),
-            doorList, CartridgeRoomStateImporter.Load(bus, statePointer));
+        ushort statePointer = SelectStatePointer(bus, roomPointer, selection);
+        var definition = new RoomHeaderDefinition(RoomHeaderDefinitions.Get(roomPointer).Name, Byte(0), (AreaId)Byte(1),
+            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7), Byte(8));
+        return new CartridgeRoomHeader(definition, CartridgeRoomStateImporter.Load(bus, statePointer));
     }
 }

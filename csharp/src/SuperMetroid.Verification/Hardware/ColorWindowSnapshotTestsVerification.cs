@@ -30,7 +30,7 @@ internal static class ColorWindowSnapshotTestsVerification
         foreach (bool dead in new[] { false, true })
         {
             Rgba32[] expected = baseline.ToArray();
-            SnesGameplayFrameRenderer.ApplyCeresHaze(expected, dead);
+            SnesGameplayFrameRendererConstants.ApplyCeresHaze(expected, dead);
             Compare(expected, SnesGameplayFrameRenderer.CaptureCeresHaze(dead));
         }
 
@@ -39,21 +39,21 @@ internal static class ColorWindowSnapshotTestsVerification
             var pickup = new SamusSuitPickupState();
             AssertTrue(SamusSuitPickupRenderer.Capture(pickup.Flash) is null, "inactive suit emits no operation");
             var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
-            pickup.Begin(bus, samus, new(0, 0), kind);
-            var phases = new HashSet<byte>();
+            pickup.Begin(samus, new(0, 0), kind);
+            var phases = new HashSet<SamusSuitPickupStage>();
             for (int tick = 0; tick < 2000 && pickup.IsActive; tick++)
             {
-                bool sample = phases.Add(pickup.Substate) || tick % 7 == 0;
+                bool sample = phases.Add(pickup.Stage) || tick % 7 == 0;
                 ScanlineColorAddRenderLayer? retained = null;
                 Rgba32[]? expected = null;
                 if (sample)
                 {
                     expected = baseline.ToArray();
-                    SamusSuitPickupRenderer.Composite(expected, pickup.Flash);
+                    SamusSuitPickupRendererConstants.Composite(expected, pickup.Flash);
                     retained = SamusSuitPickupRenderer.Capture(pickup.Flash);
                     Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
                 }
-                pickup.Step(bus, samus, new SnesCgram());
+                pickup.Step(samus, new SnesCgram());
                 if (retained is not null) Compare((expected ?? throw new InvalidOperationException("Verification requires expected.")), retained);
             }
             AssertTrue(!pickup.IsActive, "suit window fixture completes");
@@ -74,11 +74,11 @@ internal static class ColorWindowSnapshotTestsVerification
                 if (sample)
                 {
                     expected = baseline.ToArray();
-                    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(expected, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+                    SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(expected, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
                     retained = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
                     Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
                 }
-                explosion.StepFrame(bus);
+                explosion.StepFrame();
                 if (retained is not null) Compare((expected ?? throw new InvalidOperationException("Verification requires expected.")), retained);
             }
             AssertTrue(!explosion.IsActive && phases.Contains(PowerBombExplosionPhase.Afterglow),

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>
-/// Super Metroid's 50-byte room scroll-zone buffer at WRAM <c>$7E:CD20-$7E:CD51</c>.
+/// One room's view of Super Metroid's 50-byte room scroll-zone allocation (<see cref="RoomScrollStorage"/>).
 /// </summary>
 /// <remarks>
 /// Logical cells are screen-sized (256x256 pixels), not 16x16 room blocks. Values zero,
@@ -14,15 +14,13 @@ public sealed class RoomScrollGrid
     /// <summary>Size in bytes of the fixed native room scroll-zone allocation.</summary>
     public const int StorageByteCount = 50;
 
-    /// <summary>Owned copy of the fixed WRAM scroll allocation, including bytes past logical room cells.</summary>
-    internal readonly byte[] _cells = new byte[StorageByteCount];
-    /// <summary>Live WRAM bus used for native-relative reads and script writes.</summary>
-    private readonly ISnesMemoryBus _bus;
+    /// <summary>The session's allocation, including bytes past this room's logical cells.</summary>
+    internal readonly RoomScrollStorage _storage;
 
     /// <summary>Validates screen-cell dimensions within the 50-byte native allocation.</summary>
-    private RoomScrollGrid(ISnesMemoryBus bus, Extent16<RoomScreens> size)
+    private RoomScrollGrid(RoomScrollStorage storage, Extent16<RoomScreens> size)
     {
-        _bus = Ensure.NotNull(bus);
+        _storage = Ensure.NotNull(storage);
         if (size.X == 0 || size.Y == 0 || size.X * size.Y > StorageByteCount)
             throw new ArgumentOutOfRangeException(nameof(size));
 
@@ -34,26 +32,25 @@ public sealed class RoomScrollGrid
     /// <summary>Gets the number of logical room cells within the fixed storage allocation.</summary>
     public int LogicalCellCount => Size.X * Size.Y;
 
-    /// <summary>Installs an application-owned copy of the native 50-byte scroll allocation.</summary>
+    /// <summary>Copies a compiled 50-byte allocation into the session's scroll storage, as <c>$82:E878</c> does.</summary>
     public static RoomScrollGrid LoadCompiled(
-        ISnesAddressSpace bus,
-        ReadOnlySpan<byte> storage,
+        RoomScrollStorage storage,
+        ReadOnlySpan<byte> compiled,
         Extent16<RoomScreens> size)
     {
-        Ensure.NotNull(bus);
-        Ensure.LengthEqual(storage, StorageByteCount);
-
-        var grid = new RoomScrollGrid(
-            SnesMemoryBusRequirement.Require(bus, "Room scroll storage requires live WRAM."), size);
-        WorkRamByteTable zones = grid.Memory.Zones;
-        for (int index = 0; index < StorageByteCount; index++)
-        {
-            byte value = storage[index];
-            grid._cells[index] = value;
-            zones[index] = value;
-        }
-
+        Ensure.LengthEqual(compiled, StorageByteCount);
+        var grid = new RoomScrollGrid(storage, size);
+        compiled.CopyTo(storage._bytes);
         return grid;
+    }
+
+    /// <summary>Creates the scroll allocation <paramref name="scroll"/> selects over <paramref name="storage"/>.</summary>
+    public static RoomScrollGrid FromDefinition(RoomScrollStorage storage, RoomScrollDefinition scroll, Extent16<RoomScreens> size)
+    {
+        Ensure.NotNull(scroll);
+        return scroll.ImplicitBottomRow is { } bottomRow
+            ? CreateImplicit(storage, size, bottomRow)
+            : LoadCompiled(storage, scroll.Storage.Span, size);
     }
 
     /// <summary>
@@ -62,44 +59,32 @@ public sealed class RoomScrollGrid
     /// <remarks>
     /// This is the literal nested loop at $82:E88D: every row begins as green value two,
     /// while the final row receives <paramref name="lastRowState" />. The loop writes only
-    /// the room's width x height cells; the rest of the 50-byte WRAM allocation keeps what
-    /// the previous room left there, and the scroll routines read it at the room's edges.
+    /// the room's width x height cells; the rest of the 50-byte allocation keeps what the
+    /// previous room left there, and the scroll routines read it at the room's edges.
     /// </remarks>
     public static RoomScrollGrid CreateImplicit(
-        ISnesAddressSpace bus,
+        RoomScrollStorage storage,
         Extent16<RoomScreens> size,
         RoomScrollState lastRowState)
     {
-        Ensure.NotNull(bus);
         RoomScrollStates.Validate(lastRowState, nameof(lastRowState));
-        var grid = new RoomScrollGrid(SnesMemoryBusRequirement.Require(bus,
-            "Implicit scroll storage keeps the previous room's bytes past its cells; it requires WRAM."), size);
-        WorkRamByteTable zones = grid.Memory.Zones;
-        for (int index = 0; index < StorageByteCount; index++)
-        {
-            if (index >= grid.LogicalCellCount)
-            {
-                grid._cells[index] = zones[index];
-                continue;
-            }
-            byte value = (byte)(index / size.X == size.Y - 1
+        var grid = new RoomScrollGrid(storage, size);
+        for (int index = 0; index < grid.LogicalCellCount; index++)
+            storage._bytes[index] = (byte)(index / size.X == size.Y - 1
                 ? lastRowState
                 : RoomScrollState.Green);
-            grid._cells[index] = value;
-            zones[index] = value;
-        }
         return grid;
     }
 
-    /// <summary>Reads one raw WRAM index used by the assembly's multiplication arithmetic.</summary>
+    /// <summary>Reads one raw allocation index used by the assembly's multiplication arithmetic.</summary>
     public byte ReadStorage(int index)
     {
         if ((uint)index >= StorageByteCount)
-            throw new ArgumentOutOfRangeException(nameof(index), index, "Scroll routine indexed outside the 50-byte WRAM buffer.");
-        return _cells[index];
+            throw new ArgumentOutOfRangeException(nameof(index), index, "Scroll routine indexed outside the 50-byte allocation.");
+        return _storage._bytes[index];
     }
 
-    /// <summary>Typed view of one byte inside the owned 50-byte scroll allocation.</summary>
+    /// <summary>Typed view of one byte inside the 50-byte scroll allocation.</summary>
     public RoomScrollState ReadState(int index) => (RoomScrollState)ReadStorage(index);
 
     /// <summary>
@@ -115,13 +100,8 @@ public sealed class RoomScrollGrid
     {
         if ((uint)index > ushort.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return index < StorageByteCount
-            ? _cells[index]
-            : Memory.ReadIndexed(index);
+        return index < StorageByteCount ? _storage._bytes[index] : RoomScrollDefinitions.ExploredMapOverreadByte;
     }
-
-    /// <summary>Adapts the live bus to the native scroll-zone and adjacent-WRAM view.</summary>
-    private RoomScrollMemory Memory => new(_bus);
 
     /// <summary>
     /// Typed view of a native-relative read, including legal adjacent-WRAM reads. Enum casts
@@ -140,9 +120,7 @@ public sealed class RoomScrollGrid
         if ((uint)index >= StorageByteCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         RoomScrollStates.Validate(state, nameof(state));
-        _cells[index] = (byte)state;
-        WorkRamByteTable zones = Memory.Zones;
-        zones[index] = (byte)state;
+        _storage._bytes[index] = (byte)state;
     }
 
     /// <summary>Updates a logical cell as a scroll PLM would.</summary>
@@ -151,9 +129,6 @@ public sealed class RoomScrollGrid
         if (screen.X >= Size.X || screen.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(screen));
         RoomScrollStates.Validate(state, nameof(state));
-        int index = screen.Y * Size.X + screen.X;
-        _cells[index] = (byte)state;
-        WorkRamByteTable zones = Memory.Zones;
-        zones[index] = (byte)state;
+        _storage._bytes[screen.Y * Size.X + screen.X] = (byte)state;
     }
 }

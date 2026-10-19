@@ -102,6 +102,22 @@ internal static class BotwoonAnimationsVerification
             aimHead(spitEnemies, spitHead, spitState, samus);
             AssertEqual(new BotwoonHeadProgram(BotwoonHeadProgramKind.Spitting, BotwoonAnimations.FacingOfOctant(octant)),
                 spitState.HeadProgram, $"spitting head toward octant {octant}");
+            // Outside a hidden spit the aim fires a three-shot volley at once. The spit angle is a quarter turn minus
+            // the aim and the volley spreads a sixteenth of a turn either side of it, all wrapping around the turn.
+            (RoomEnemySystem volleyEnemies, RoomEnemySlot volleyHead, BotwoonEnemyState volleyState) = NewBotwoonHead();
+            volleyHead.Position = volleyHead.Position.WithWhole(new(1000, 1000));
+            aimHead(volleyEnemies, volleyHead, volleyState, samus);
+            byte aim = EnemyMath.CalculateCartridgeAngle(new(dx, dy));
+            byte spitAngle = unchecked((byte)(64 - aim));
+            AssertEqual(SnesAngle.FromTableIndex(spitAngle), volleyState.SpitAngle, $"spit angle toward octant {octant} wraps around the turn");
+            int[] expectedDirections = [unchecked((byte)(spitAngle - 16)), spitAngle, unchecked((byte)(spitAngle + 16))];
+            int[] actualDirections = volleyEnemies.Projectiles.EnemyProjectiles
+                .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.BotwoonSpit)
+                .Select(projectile => projectile.DirectionParameter)
+                .Order()
+                .ToArray();
+            AssertTrue(expectedDirections.Order().SequenceEqual(actualDirections),
+                $"volley toward octant {octant} spreads around the wrapped spit angle");
         }
 
         // Travelling inside the wall hides the head; an unchanged program keeps its timer.
@@ -150,11 +166,11 @@ internal static class BotwoonAnimationsVerification
         spawnSpit(enemies.SlotTable.Slots[0], 0x40, 0x0180);
         RoomEnemyProjectileSlot spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
         AssertTrue(spit.Animation is BotwoonProjectileAnimation { Segment: null }, "the real spit producer starts the typed spit animation");
-        AssertEqual((ushort)0, spit.InstructionPointer, "a typed spit keeps no native instruction pointer");
+        AssertTrue(spit.Animation is not null, "a typed spit keeps no native instruction pointer");
         CompareBotwoonProjectile(rom, BotwoonSpitList, spit, Pass, "spit");
 
         // A changed selector restarts the segment; an unchanged one keeps running.
-        Action<RoomEnemyProjectileSlot, byte> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
+        Action<RoomEnemyProjectileSlot, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
         var segment = new RoomEnemyProjectileSlot(1) { Kind = RoomEnemyProjectileKind.BotwoonBody, DirectionParameter = 0 };
         segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentProgram.FromSelector(0)));
         Pass(segment);
@@ -165,14 +181,14 @@ internal static class BotwoonAnimationsVerification
         animate(segment, 0);
         AssertEqual((ushort)1, segment.InstructionTimer.RawValue, "a changed Botwoon segment program restarts");
         Pass(segment);
-        AssertEqual(BotwoonVisualDefinitions.ProjectilePresentationKey(new(BotwoonProjectileFrameKind.Body, BotwoonFacing.UpRight, 0)),
+        AssertEqual(EnemyProjectileFrames.ProgramFrameKey(BotwoonVisualDefinitions.ShownProjectileFrames[new(BotwoonProjectileFrameKind.Body, BotwoonFacing.UpRight, 0)]),
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
         Action<RoomEnemySlot, BotwoonEnemyState, ushort> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
-        Action<RoomEnemyProjectileSlot, byte> runBody = enemies.BotwoonBehavior.RunBotwoonBodyPreInstruction;
+        Action<RoomEnemyProjectileSlot, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyPreInstruction;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        var state = new BotwoonEnemyState(head);
+        var state = new BotwoonEnemyState();
         enemies.BotwoonBehavior._botwoonState = state;
         spawnBody(head, state, 2);
         RoomEnemyProjectileSlot body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
@@ -194,8 +210,8 @@ internal static class BotwoonAnimationsVerification
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        head.EnemyDefinitionPointer = EnemyDefinitionId.Botwoon;
-        var state = new BotwoonEnemyState(head);
+        head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
+        var state = new BotwoonEnemyState();
         enemies.BotwoonBehavior._botwoonState = state;
         return (enemies, head, state);
     }
@@ -219,7 +235,7 @@ internal static class BotwoonAnimationsVerification
         for (int update = 0; update < 70; update++)
         {
             enemies.BotwoonBehavior.LastBotwoonSoundEffect = null;
-            enemies.Instructions.ProcessInstructions(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyInstructionInterpreter.ProcessInstructions(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
             AssertEqual(native.Timer, head.InstructionTimer.RawValue, $"{at}: timer");
@@ -229,7 +245,7 @@ internal static class BotwoonAnimationsVerification
             AssertEqual(native.Radius, head.Radius, $"{at}: radius");
             AssertEqual(native.NewFrame, head.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(native.SpitFrame, state.SpitFrameReached, $"{at}: spit frame");
-            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : (ushort?)null, enemies.BotwoonBehavior.LastBotwoonSoundEffect, $"{at}: spit sound");
+            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : (SoundEffectId?)null, enemies.BotwoonBehavior.LastBotwoonSoundEffect, $"{at}: spit sound");
         }
     }
 
@@ -255,12 +271,12 @@ internal static class BotwoonAnimationsVerification
                         cursor = unchecked((ushort)(cursor + 4));
                         break;
                     }
-                    if (word == (ushort)EnemyProjectileInstruction.GotoY)
+                    if (word == (ushort)NativeEnemyProjectileInstruction.GotoY)
                     {
                         cursor = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | unchecked((ushort)(cursor + 2))));
                         continue;
                     }
-                    AssertEqual((ushort)EnemyProjectileInstruction.Sleep, word, $"Botwoon {label}: native list uses only frames, goto and sleep");
+                    AssertEqual((ushort)NativeEnemyProjectileInstruction.Sleep, word, $"Botwoon {label}: native list uses only frames, goto and sleep");
                     timer = 0;
                     break;
                 }

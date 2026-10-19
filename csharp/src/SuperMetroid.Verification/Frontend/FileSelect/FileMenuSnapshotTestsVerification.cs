@@ -20,14 +20,14 @@ internal static class FileMenuSnapshotTestsVerification
     internal static void VerifyFileMenuRenderSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
         int comparisons = 0;
 
-        // Use private in-memory SRAM. Copy/clear validation must never edit player saves.
+        // Use private in-memory saves. Copy/clear validation must never edit player saves.
         foreach (bool clear in new[] { false, true })
         {
-            var menu = new FileSelectMenuState(bus, mapPresentation: RetailPresentationFixture());
+            var menu = new FileSelectMenuState(saveRam, mapPresentation: RetailPresentationFixture());
             void Tick(SnesButton input = SnesButton.None) => Check(menu.Render, menu.CaptureRenderSnapshot, () => menu.Step(input));
             void Press(SnesButton input) { Tick(); Tick(input); }
             void Until(FileSelectPhase phase)
@@ -49,7 +49,7 @@ internal static class FileMenuSnapshotTestsVerification
             Tick();
         }
 
-        var options = new GameOptionsMenuState(bus, mapPresentation: RetailPresentationFixture());
+        var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture());
         void OptionTick(SnesButton input = 0) => Check(options.Render, options.CaptureRenderSnapshot,
             () => options.Step(input));
         void OptionPress(SnesButton input) { OptionTick(); OptionTick(input); }

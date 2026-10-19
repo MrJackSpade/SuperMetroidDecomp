@@ -3,18 +3,12 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// Typed projection of Lower Norfair Rio's C/D/F variables and three family-extra words.
-/// This variant shares the physical parent/follower layout with $D2FF but deliberately uses
-/// different common velocity words and interprets extra word $02 as a visibility switch.
+/// The state of the Lower Norfair Rio. This variant shares the physical parent/follower layout with $D2FF but uses
+/// extra word $02 as a visibility switch. Its velocity, behaviour and follower selection are values the cartridge
+/// keeps in the enemy's common record, so a kill empties them with that record (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class LowerNorfairRioEnemyState
 {
-    /// <summary>Physical Rio slot whose common C/D/F words carry velocity and indirect AI dispatch.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects the Lower Norfair Rio state from an existing enemy slot without duplicating WRAM variables.</summary>
-    internal LowerNorfairRioEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<LowerNorfairRioProgram> Program { get; set; }
 
@@ -30,24 +24,23 @@ public sealed class LowerNorfairRioEnemyState
     /// </summary>
     public bool FollowerVisible { get; internal set; }
 
-    /// <summary>Signed 8.8 velocity: X stored in common variable D, Y in common variable C.</summary>
-    public EightEightVector<RoomPixels> Velocity
-    {
-        get => new(new SnesSignedEightEight(_slot.VariableD), new SnesSignedEightEight(_slot.VariableC));
-        internal set
-        {
-            _slot.VariableC = value.Y.RawValue;
-            _slot.VariableD = value.X.RawValue;
-        }
-    }
+    /// <summary>Signed 8.8 velocity in room pixels per update.</summary>
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Current indirect bank-$A2 AI address backed by the owning slot's variable F at native <c>$0FB2,x</c>; parent and flame follower dispatch through this same word.</summary>
-    public LowerNorfairRioEnemyFunction Function
-    {
-        get => (LowerNorfairRioEnemyFunction)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
-    }
+    /// <summary>The current behaviour, shared by parent and flame follower dispatch; none once a kill has emptied the record.</summary>
+    public LowerNorfairRioEnemyFunction? Function { get; internal set; }
 
     /// <summary>Whether population parameter 1's sign bit selects the lower flame follower instead of the parent; a follower must immediately follow a parent of the same enemy definition.</summary>
-    public bool IsFollower => (_slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0;
+    public bool IsFollower { get; internal set; }
+
+    /// <summary>
+    /// Empties the values the cartridge keeps in the enemy's common record: no velocity, no behaviour, and the parent
+    /// selection of the cleared parameter. The animation signal and follower visibility outlive the kill.
+    /// </summary>
+    internal void ClearWithRecord()
+    {
+        Velocity = default;
+        Function = null;
+        IsFollower = false;
+    }
 }

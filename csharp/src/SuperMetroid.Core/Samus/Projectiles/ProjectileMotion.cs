@@ -26,7 +26,6 @@ internal sealed class ProjectileMotion
     }
     /// <summary>Accelerates a non-Wave beam, emits its old-position trail, and resolves directional block collision.</summary>
     internal bool RunNoWaveBeamPreInstruction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
@@ -46,7 +45,7 @@ internal sealed class ProjectileMotion
         if (slot.TrailTimer.IsZero)
         {
             slot.TrailTimer = NativeCountdown.Start(4);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
 
         int directionOffset = slot.PackedDirection.DirectionIndex * 2;
@@ -90,7 +89,6 @@ internal sealed class ProjectileMotion
 
     /// <summary>Updates Wave's three- or four-frame trail cadence before its block-transparent movement.</summary>
     internal void RunWaveBeamPreInstruction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
@@ -113,7 +111,7 @@ internal sealed class ProjectileMotion
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
                     ? (ushort)3
                     : (ushort)4);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
 
         RunWaveBeamShared(level, slot, layer1, roomPlms);
@@ -174,8 +172,8 @@ internal sealed class ProjectileMotion
 
     /// <summary>Handles ordinary missile ignition, acceleration, trail, point collision, and post-impact deletion.</summary>
     internal bool RunMissilePreInstruction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
+        SamusState samus,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
         SamusBombProjectileSystem sharedProjectiles,
@@ -191,7 +189,7 @@ internal sealed class ProjectileMotion
         if (slot.TrailTimer.IsZero)
         {
             slot.TrailTimer = NativeCountdown.Start(4);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
 
         int direction = slot.PackedDirection.DirectionIndex;
@@ -213,7 +211,7 @@ internal sealed class ProjectileMotion
             // crosses on its first alpha pass: one pixel/frame plus native inheritance.
             slot.Variable = unchecked((ushort)(slot.Variable + 256));
             if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) != 0)
-                BeamFiring.InitializeDirectionalVelocity(bus, slot, unchecked((short)slot.Variable));
+                BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, unchecked((short)slot.Variable));
         }
         else
         {
@@ -246,7 +244,6 @@ internal sealed class ProjectileMotion
 
     /// <summary>Ignites a Super Missile with its invisible link and updates both point reactions after each movement axis.</summary>
     internal bool RunSuperMissilePreInstruction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SamusProjectileSlot slot,
@@ -268,7 +265,7 @@ internal sealed class ProjectileMotion
         if (slot.TrailTimer.IsZero)
         {
             slot.TrailTimer = NativeCountdown.Start(2);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
 
         int direction = slot.PackedDirection.DirectionIndex;
@@ -280,8 +277,8 @@ internal sealed class ProjectileMotion
             slot.Variable = unchecked((ushort)(slot.Variable + 256));
             if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) != 0)
             {
-                BeamFiring.InitializeDirectionalVelocity(bus, slot, unchecked((short)slot.Variable));
-                SpawnSuperMissileLink(bus, samus, slot);
+                BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, unchecked((short)slot.Variable));
+                SpawnSuperMissileLink(samus, slot);
             }
         }
         else
@@ -349,7 +346,6 @@ internal sealed class ProjectileMotion
 
     /// <summary>Allocates the invisible collision link at ignition and records its native byte index in the owner.</summary>
     internal void SpawnSuperMissileLink(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusProjectileSlot owner)
     {
@@ -365,7 +361,7 @@ internal sealed class ProjectileMotion
         // `$90:BF78` deliberately calls the ordinary muzzle initializer again after copying
         // the owner's coordinates. At ignition both positions are equivalent; retaining the
         // call matters for moving/transition poses whose cartridge origin tables can change.
-        BeamFiring.InitializePosition(bus, samus, link);
+        BeamFiring.InitializePosition(samus, link);
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers + 4);
         link.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
@@ -516,7 +512,7 @@ internal sealed class ProjectileMotion
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
         {
-            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
+            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
             return true;
         }
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)

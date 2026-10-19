@@ -182,12 +182,12 @@ public sealed class ScrollBoundaryCamera
         }
 
         // This XOR is a compact but exact projection of $90:95B7-$90:95E5. Knockback,
-        // moonwalk movement type $10, or acceleration mode one reverses which facing target
-        // applies; pose X direction four is the ROM's right-facing value.
-        bool backwards = context.KnockbackDirection != 0
+        // moonwalking, or a turn that keeps the old momentum reverses which facing target
+        // applies; every facing but left selects the right-facing target.
+        bool backwards = context.KnockedBack
             || context.MovementType == SamusMovementType.Moonwalking
-            || context.XAccelerationMode == 1;
-        bool useFacingRightTarget = backwards ^ (context.PoseXDirection != 4);
+            || context.TurningAgainstMomentum;
+        bool useFacingRightTarget = backwards ^ !context.FacesLeft;
         ushort targetOffset = HorizontalCameraTargetDefinitions.Offset(context.CameraDistanceIndex, useFacingRightTarget);
         IdealPosition = IdealPosition.WithX(unchecked((ushort)(current.X.Whole - targetOffset)));
 
@@ -263,7 +263,7 @@ public sealed class ScrollBoundaryCamera
         // Samus Y direction one means upward. The apparently reversed scroller choice is
         // literal $90:9666-$90:9681: upward motion subtracts down_scroller, all else
         // subtracts up_scroller.
-        ushort targetOffset = context.YDirection == SamusVerticalDirection.Up ? context.DownScroller : context.UpScroller;
+        int targetOffset = context.YDirection == SamusVerticalDirection.Up ? context.DownScroller : context.UpScroller;
         IdealPosition = IdealPosition.WithY(unchecked((ushort)(current.Y.Whole - targetOffset)));
 
         if (IdealPosition.Y == Position.Y.Whole)

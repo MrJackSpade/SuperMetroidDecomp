@@ -21,12 +21,12 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     /// the left or right activates the block, which then holds the neutral pose for 48 updates and its two turning poses
     /// for 16 each before holding the last. The exported frames are the poses those programs show.
     /// </summary>
-    internal static void VerifyBlueBrinstarFaceBlockBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyBlueBrinstarFaceBlockBehavior()
     {
-        (RoomEnemySystem enemies, RoomEnemySlot slot, BlueBrinstarFaceBlockEnemyState state) = Create(rom, parameter2: 0);
+        (RoomEnemySystem enemies, RoomEnemySlot slot, BlueBrinstarFaceBlockEnemyState state) = Create(parameter2: 0);
         AssertEqual(AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(BlueBrinstarFaceBlockProgram.Initial), state.Program, "face block starts neutral");
         ushort neutral = BlueBrinstarFaceBlockAnimations.Spritemaps(BlueBrinstarFaceBlockProgram.Initial).Single();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral, neutral], [1, 1]), EnemyInstructionRunner.ShownFrames(enemies, slot, 3), "face block neutral pose");
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral, neutral], [1, 1]), EnemyInstructionRunner.ShownFrames(slot, 3), "face block neutral pose");
 
         foreach ((ushort parameter2, int samusX, BlueBrinstarFaceBlockProgram program) in new[]
                  {
@@ -34,10 +34,10 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
                      ((ushort)1, 32, BlueBrinstarFaceBlockProgram.SamusRight),
                  })
         {
-            (enemies, slot, state) = Create(rom, parameter2);
+            (enemies, slot, state) = Create(parameter2);
             var samus = new SamusState
             {
-                CollectedItems = BlueBrinstarFaceBlockNativeValues.MorphBallItem,
+                CollectedItems = (SamusEquipmentFlags)BlueBrinstarFaceBlockNativeValues.MorphBallItem,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(slot.Position.X.Whole + samusX)), slot.Position.Y.Whole)),
             };
             enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(slot, state, samus);
@@ -45,7 +45,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
             AssertEqual(AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(program), state.Program, $"face block {program} selection");
             int[] holds = [48, 16, 16];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(BlueBrinstarFaceBlockAnimations.Spritemaps(program), holds),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, holds.Sum() + 1), $"face block {program} poses");
+                EnemyInstructionRunner.ShownFrames(slot, holds.Sum() + 1), $"face block {program} poses");
         }
 
         AssertEqual(5, BlueBrinstarFaceBlockVisualDefinitions.Frames().Select(frame => frame.Pointer).Distinct().Count(), "five distinct face-block poses");
@@ -56,13 +56,13 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     }
 
     /// <summary>A face block initialized at (256, 256) with a 64-pixel trigger range.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, BlueBrinstarFaceBlockEnemyState State) Create(SuperMetroidAddressSpace rom, ushort parameter2)
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, BlueBrinstarFaceBlockEnemyState State) Create(ushort parameter2)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.FaceBlock;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = BlueBrinstarFaceBlockFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BlueBrinstarFaceBlockFrameToolingDefinitions.Bank });
         slot.Parameter1 = 64;
         slot.Parameter2 = parameter2;
         slot.Position = slot.Position.WithWhole(new(256, 256));
@@ -75,7 +75,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     internal static int LookupFaceBlockProgramsCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyBlueBrinstarFaceBlockBehavior), () => VerifyBlueBrinstarFaceBlockBehavior(rom));
+        Suite(nameof(VerifyBlueBrinstarFaceBlockBehavior), () => VerifyBlueBrinstarFaceBlockBehavior());
         Suite(nameof(BlueBrinstarFaceBlockAnimationsVerification.VerifyBlueBrinstarFaceBlockAnimations), () => BlueBrinstarFaceBlockAnimationsVerification.VerifyBlueBrinstarFaceBlockAnimations(rom));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;

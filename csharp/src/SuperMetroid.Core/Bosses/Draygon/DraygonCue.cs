@@ -25,7 +25,7 @@ internal abstract record DraygonCue
     internal sealed record DisplaceBodyGraphics(Offset16<Bg2Pixels> Offset) : DraygonCue;
 
     /// <summary>Queues a sound effect with a six-entry admission limit.</summary>
-    internal sealed record QueueSound(SoundEffectLibrary Library, ushort Sound) : DraygonCue;
+    internal sealed record QueueSound(SoundEffectId Sound) : DraygonCue;
 
     /// <summary>Spawns a dying-Draygon sprite object at a random point of the body.</summary>
     internal sealed record SpawnDyingObject(RoomSpriteObjectKind Kind) : DraygonCue;

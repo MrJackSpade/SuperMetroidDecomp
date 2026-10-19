@@ -819,7 +819,7 @@ internal static class SamusProjectileRecordDefinitions
 
     /// <summary>Every record's bank-$93 address in address order: the frames installed bindings name.</summary>
     internal static IReadOnlyList<ushort> TimedRecordAddresses { get; } =
-        Array.AsReadOnly(Records.Select(record => record.Address).Order().ToArray());
+        Array.AsReadOnly(Records.Select(record => checked((ushort)record.Address)).Order().ToArray());
 
     /// <summary>The record <paramref name="frame"/> shows.</summary>
     internal static SamusProjectileRecord Get(SamusProjectileFrame frame) => Records[frame.Record];

@@ -26,11 +26,11 @@ internal sealed class ShaktoolPlms
         {
             PlmSlot slot = _slotTable._slots[index];
             if (slot.Active) continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = PlmHeaderId.ShaktoolsRoom;
             slot.BlockIndex = 0;
-            slot.InstructionPointer = ShaktoolRoomPlmRomData.InstructionList;
+            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ShaktoolRoomController));
             slot.InstructionTimer = NativeCountdown.Start(1);
             for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
                 scrolls.SetStorage(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);
@@ -43,9 +43,8 @@ internal sealed class ShaktoolPlms
     /// <summary>Opens all scroll cells during a power bomb and retires the controller after Samus passes the cleared-path boundary.</summary>
     /// <remarks>The full explosion status word admits a pending or time-frozen blast; retiring clears the PLM ID but leaves its instruction words in RAM.</remarks>
     internal void RunShaktoolRoomPreInstruction(PlmSlot slot, RoomScrollGrid? scrolls,
-        ushort powerBombExplosionStatus)
+        int powerBombExplosionStatus)
     {
-        if (slot.PreInstruction != ShaktoolRoomPlmRomData.PreInstruction) return;
         if (scrolls is null || _bindings.Samus?.Current is not { } samus || _bindings.Events is null)
             throw new InvalidOperationException("Shaktool room controller requires scroll, Samus, and event owners.");
         // The cartridge tests the entire status word, not just its active high bit.

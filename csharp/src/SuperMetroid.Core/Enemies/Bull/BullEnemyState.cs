@@ -3,143 +3,170 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
-/// Debugger-visible view of Bull's six common words and its bank-$7E extension words. Raw
-/// 16-bit values are intentional: speed and acceleration are unsigned 8.8 magnitudes, while
-/// angle arithmetic and the native independently-negated 16.16 movement components wrap.
+/// The state of a Bull, with its per-slot extension words. Speed and acceleration stay the exact words the cartridge
+/// keeps, because a deceleration that overshoots leaves a wrapped word that the next update reads by its sign; they
+/// change only through <see cref="Accelerate"/> and <see cref="Decelerate"/>. The values the cartridge keeps in the
+/// enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class BullEnemyState
 {
-    /// <summary>Common slot words carrying Bull's dispatcher, flight speed, acceleration, and timers.</summary>
-    private readonly RoomEnemySlot _slot;
-    /// <summary>Per-slot speed thresholds selected by Bull's population parameter.</summary>
-    private readonly ushort[] _maxSpeeds;
-    /// <summary>Latest measured angles toward Samus, used to decide when a flight has gone off target.</summary>
-    private readonly ushort[] _anglesToSamus;
-    /// <summary>Captured flight angles used to project speed into X and Y movement.</summary>
-    private readonly ushort[] _angles;
-    /// <summary>Per-slot flags suppressing repeated immune-shot kicks during cooldown.</summary>
-    private readonly ushort[] _shotReactionDisableFlags;
-    /// <summary>Configured acceleration countdown reload values.</summary>
-    private readonly ushort[] _accelerationTimerResets;
-    /// <summary>Configured deceleration countdown reload values.</summary>
-    private readonly ushort[] _decelerationTimerResets;
-    /// <summary>Remaining immune-shot cooldown ticks for each slot.</summary>
-    private readonly ushort[] _shotReactionDisableTimers;
-    /// <summary>Health captured before projectile contact to distinguish a no-damage hit.</summary>
-    private readonly ushort[] _previousHealth;
+    /// <summary>The slot's words that outlive the occupant.</summary>
+    private readonly BullExtensionWords _words;
 
-    /// <summary>Exposes one Bull slot's common words and shared parallel extension arrays without copying state.</summary>
-    internal BullEnemyState(RoomEnemySlot slot, BullSharedTables tables)
+    /// <summary>Creates the state over one Bull slot's extension words.</summary>
+    internal BullEnemyState(BullExtensionWords words)
     {
-        _slot = slot;
-        _maxSpeeds = tables.MaxSpeeds;
-        _anglesToSamus = tables.AnglesToSamus;
-        _angles = tables.Angles;
-        _shotReactionDisableFlags = tables.ShotReactionDisableFlags;
-        _accelerationTimerResets = tables.AccelerationTimerResets;
-        _decelerationTimerResets = tables.DecelerationTimerResets;
-        _shotReactionDisableTimers = tables.ShotReactionDisableTimers;
-        _previousHealth = tables.PreviousHealth;
+        _words = words;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<BullProgram> Program { get; set; }
 
-    /// <summary>Native variable A ($0FA8 plus slot byte index): the current bank-$A8 delay, target, acceleration, or deceleration dispatcher pointer.</summary>
-    public BullEnemyFunction Function
+    /// <summary>
+    /// The current bank-$A8 delay, target, acceleration, or deceleration dispatcher pointer; none once a kill has
+    /// emptied the record.
+    /// </summary>
+    public BullEnemyFunction? Function { get; internal set; }
+
+    /// <summary>
+    /// The speed change applied at each interval expiry, in 256ths of a pixel per update, as the exact word the
+    /// cartridge keeps (0 through 65535). It grows or shrinks by <see cref="AccelerationDelta"/> through <see
+    /// cref="Accelerate"/> and <see cref="Decelerate"/>; a word with its sign bit set reads as below zero.
+    /// </summary>
+    public int Acceleration
     {
-        get => (BullEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
+        get;
+        internal set => field = checked((ushort)value);
     }
 
-    /// <summary>Native variable B: wrapping unsigned 8.8 speed-change magnitude, increased or decreased by AccelerationDelta and then added to or subtracted from Speed at interval expiry.</summary>
-    public ushort Acceleration
+    /// <summary>
+    /// The change in <see cref="Acceleration"/> at each interval expiry, 24 (a 256th of a pixel per update each) while
+    /// flying and zero once the flight cycle stops.
+    /// </summary>
+    public int AccelerationDelta
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get;
+        internal set => field = checked((ushort)value);
     }
 
-    /// <summary>Native variable C: second-order increment $0018 applied to the 8.8 acceleration magnitude at each configured interval expiry; cleared when the flight cycle stops.</summary>
-    public ushort AccelerationDelta
+    /// <summary>
+    /// The flight speed in 256ths of a pixel per update, projected through the sine table into the X and Y
+    /// displacements, as the exact word the cartridge keeps (0 through 65535). A deceleration that overshoots leaves a
+    /// word with its sign bit set, which the next decelerating update reads as stopped (<see cref="HasStopped"/>).
+    /// </summary>
+    public int Speed
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        get;
+        internal set => field = checked((ushort)value);
     }
 
-    /// <summary>Native variable D: unsigned 8.8 flight-speed magnitude in pixels per AI update, projected through the sine table into wrapped 16.16 X/Y displacements.</summary>
-    public ushort Speed
+    /// <summary>
+    /// Whether flight is still below <see cref="MaxSpeed"/>, compared by the sign of the word difference as the
+    /// cartridge does; an overshooting update is not clamped.
+    /// </summary>
+    internal bool IsBelowMaximumSpeed => EnemyMath.IsNegative16(Speed - MaxSpeed);
+
+    /// <summary>Whether a decelerating update stops the flight: the speed or the acceleration is zero or has gone below zero.</summary>
+    internal bool HasStopped =>
+        Speed == 0 || EnemyMath.IsNegative16(Speed) || Acceleration == 0 || EnemyMath.IsNegative16(Acceleration);
+
+    /// <summary>
+    /// An accelerating interval expiry: the acceleration grows by its delta, then the speed grows by the acceleration.
+    /// Both are word additions that wrap as the cartridge's do.
+    /// </summary>
+    internal void Accelerate()
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        Acceleration = unchecked((ushort)(Acceleration + AccelerationDelta));
+        Speed = unchecked((ushort)(Speed + Acceleration));
     }
 
-    /// <summary>Native variable E: wrapping movement-delay counter initialized/reloaded to $0010, with targeting selected when its decrement reaches exactly zero.</summary>
-    public NativeCountdown ActivationTimer
+    /// <summary>
+    /// A decelerating interval expiry: the acceleration shrinks by its delta, then the speed shrinks by the
+    /// acceleration. Both are word subtractions that wrap as the cartridge's do, so an overshoot leaves a word that
+    /// reads as below zero.
+    /// </summary>
+    internal void Decelerate()
     {
-        get => NativeCountdown.FromRaw(_slot.VariableE);
-        internal set => _slot.VariableE = value.RawValue;
+        Acceleration = unchecked((ushort)(Acceleration - AccelerationDelta));
+        Speed = unchecked((ushort)(Speed - Acceleration));
     }
 
-    /// <summary>Native variable F: shared acceleration/deceleration interval countdown, decremented on eligible speed-update calls and reloaded from the current phase's reset value on exact-zero expiry.</summary>
-    public NativeCountdown AccelerationIntervalTimer
+    /// <summary>
+    /// Wrapping movement-delay counter initialized/reloaded to $0010, with targeting selected when its decrement
+    /// reaches exactly zero.
+    /// </summary>
+    public NativeCountdown ActivationTimer { get; internal set; }
+
+    /// <summary>
+    /// Shared acceleration/deceleration interval countdown, decremented on eligible speed-update calls and reloaded
+    /// from the current phase's reset value on exact-zero expiry.
+    /// </summary>
+    public NativeCountdown AccelerationIntervalTimer { get; internal set; }
+
+    /// <summary>Native extension offset $00: maximum-speed threshold in 256ths of a pixel per update, 1023 through 2815, selected by population parameter two; prevents further acceleration when reached but does not clamp an overshooting update.</summary>
+    public int MaxSpeed
     {
-        get => NativeCountdown.FromRaw(_slot.VariableF);
-        internal set => _slot.VariableF = value.RawValue;
+        get => _words.MaxSpeed;
+        internal set => _words.MaxSpeed = value;
     }
 
-    /// <summary>Native extension offset $00: unsigned 8.8 maximum-speed threshold selected by population parameter two; prevents further acceleration when reached but does not clamp an overshooting update.</summary>
-    public ushort MaxSpeed
+    /// <summary>Native extension offset $02: latest bearing toward Samus with zero pointing right; compared with the captured flight angle rather than continuously steering it.</summary>
+    public SnesAngle AngleToSamus
     {
-        get => _maxSpeeds[_slot.SlotIndex];
-        internal set => _maxSpeeds[_slot.SlotIndex] = value;
+        get => _words.AngleToSamus;
+        internal set => _words.AngleToSamus = value;
     }
 
-    /// <summary>Native extension offset $02: latest byte-wrapped angle toward Samus, 256 units per turn with zero pointing right; compared with the captured flight angle rather than continuously steering it.</summary>
-    public ushort AngleToSamus
+    /// <summary>Native extension offset $04: captured movement angle in 256ths of a turn (0 through 255 as the game writes it), zero right and 64 down, set when targeting Samus or replaced from projectile direction by an immune-shot kick. Movement steers by its low byte.</summary>
+    public int Angle
     {
-        get => _anglesToSamus[_slot.SlotIndex];
-        internal set => _anglesToSamus[_slot.SlotIndex] = value;
-    }
-
-    /// <summary>Native extension offset $04: captured movement angle in 1/256-turn units, zero right and $40 down, set when targeting Samus or replaced from projectile direction by an immune-shot kick.</summary>
-    public ushort Angle
-    {
-        get => _angles[_slot.SlotIndex];
-        internal set => _angles[_slot.SlotIndex] = value;
+        get => _words.Angle;
+        internal set => _words.Angle = value;
     }
 
     /// <summary>Native extension offset $06 flag suppressing repeated no-damage projectile kicks during the shot-reaction cooldown; it does not disable ordinary health processing.</summary>
     public bool ShotReactionDisabled
     {
-        get => _shotReactionDisableFlags[_slot.SlotIndex] != 0;
-        internal set => _shotReactionDisableFlags[_slot.SlotIndex] = value ? (ushort)1 : (ushort)0;
+        get => _words.ShotReactionDisableFlag != 0;
+        internal set => _words.ShotReactionDisableFlag = value ? (ushort)1 : (ushort)0;
     }
 
-    /// <summary>Native extension offset $0A: acceleration interval in eligible AI calls, selected by population parameter one and also copied into the initial live interval timer.</summary>
-    public ushort AccelerationIntervalTimerReset
+    /// <summary>Native extension offset $0A: acceleration interval in eligible AI calls, 3 through 15, selected by population parameter one and also copied into the initial live interval timer.</summary>
+    public int AccelerationIntervalTimerReset
     {
-        get => _accelerationTimerResets[_slot.SlotIndex];
-        internal set => _accelerationTimerResets[_slot.SlotIndex] = value;
+        get => _words.AccelerationTimerReset;
+        internal set => _words.AccelerationTimerReset = value;
     }
 
-    /// <summary>Native extension offset $0C: deceleration interval selected alongside the acceleration interval; used to reload the shared timer after a deceleration expiry.</summary>
-    public ushort DecelerationIntervalTimerReset
+    /// <summary>Native extension offset $0C: deceleration interval in eligible AI calls, 1 through 7, selected alongside the acceleration interval; used to reload the shared timer after a deceleration expiry.</summary>
+    public int DecelerationIntervalTimerReset
     {
-        get => _decelerationTimerResets[_slot.SlotIndex];
-        internal set => _decelerationTimerResets[_slot.SlotIndex] = value;
+        get => _words.DecelerationTimerReset;
+        internal set => _words.DecelerationTimerReset = value;
     }
 
     /// <summary>Native extension offset $0E: wrapping guard timer set to $0030 by an immune-shot kick and decremented each main-AI call; reaching zero clears the flag and pins the timer to one, while an initial zero first wraps to $FFFF.</summary>
     public NativeCountdown ShotReactionDisableTimer
     {
-        get => NativeCountdown.FromRaw(_shotReactionDisableTimers[_slot.SlotIndex]);
-        internal set => _shotReactionDisableTimers[_slot.SlotIndex] = value.RawValue;
+        get => NativeCountdown.FromRaw(_words.ShotReactionDisableTimer);
+        internal set => _words.ShotReactionDisableTimer = value.RawValue;
     }
 
     /// <summary>Native parallel $7E:8800 health snapshot taken before projectile damage, retained so unchanged health can select the actor's immune-shot kick instead of treating it as ordinary damage.</summary>
-    public ushort PreviousHealth
+    public int PreviousHealth
     {
-        get => _previousHealth[_slot.SlotIndex];
-        internal set => _previousHealth[_slot.SlotIndex] = value;
+        get => _words.PreviousHealth;
+        internal set => _words.PreviousHealth = value;
+    }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        Acceleration = 0;
+        AccelerationDelta = 0;
+        Speed = 0;
+        ActivationTimer = NativeCountdown.Start(0);
+        AccelerationIntervalTimer = NativeCountdown.Start(0);
     }
 }

@@ -71,13 +71,12 @@ internal static class KraidArmPhysicalFrameMappingsVerification
             for (int index = 0; index < compiled.Length; index++)
             {
                 ushort record = (ushort)(pointer + 2 + 8 * index);
-                var expected = new KraidArmCollisionComponent(
-                    new(unchecked((short)ReadKraidArmInstructionWord(rom, record)),
-                        unchecked((short)ReadKraidArmInstructionWord(rom, (ushort)(record + 2)))),
-                    ReadKraidArmInstructionWord(rom, (ushort)(record + 6)));
+                var expectedOffset = new Offset16<RoomPixels>(
+                    unchecked((short)ReadKraidArmInstructionWord(rom, record)),
+                    unchecked((short)ReadKraidArmInstructionWord(rom, (ushort)(record + 2))));
                 if (compiled.Length != 1 && index != 2)
-                    AssertEqual(expected.Offset, compiled[index].Offset, "Native arm frame selects exact ordered articulated positions");
-                hitboxPointers.Add(expected.HitboxPointer);
+                    AssertEqual(expectedOffset, compiled[index].Offset, "Native arm frame selects exact ordered articulated positions");
+                hitboxPointers.Add(ReadKraidArmInstructionWord(rom, (ushort)(record + 6)));
             }
         }
         return hitboxPointers;

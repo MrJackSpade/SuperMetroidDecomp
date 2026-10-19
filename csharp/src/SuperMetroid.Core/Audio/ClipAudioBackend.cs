@@ -68,7 +68,7 @@ public sealed class ClipAudioBackend
                     break;
                 case AudioEventKind.WriteMusicPort:
                     RequireBeforeTicks(ticked, audioEvent);
-                    State.MusicLatch = unchecked((byte)audioEvent.Music.RawValue);
+                    State.MusicLatch = LatchedMusicCommand(audioEvent.Music);
                     break;
                 case AudioEventKind.DriverTick:
                     if (audioEvent.DspCycleOffset < cursor || audioEvent.DspCycleOffset >= FramesPerUpdate)
@@ -100,7 +100,7 @@ public sealed class ClipAudioBackend
         ReleaseMusic(now);
         State.Music = null;
         State.MusicPort = 0;
-        State.MusicLatch = SpcPortDefinitions.MusicLatchEmpty;
+        State.MusicLatch = null;
         State.Context = bank == AudioAssetCatalogDefinitions.Common.Bank ? null : bank;
         for (int index = 0; index < State.Libraries.Length; index++)
         {
@@ -121,7 +121,7 @@ public sealed class ClipAudioBackend
     }
 
     /// <summary>Services one driver tick: sound logical ends at a poll, then the tempo timer and, on a carry, the music latch.</summary>
-    private void Tick(long now, byte ticks, bool polled)
+    private void Tick(long now, int ticks, bool polled)
     {
         if (polled)
         {
@@ -131,7 +131,7 @@ public sealed class ClipAudioBackend
                 if (library.Active && library.Sound?.ActiveFrames is long active && now - library.Start > active)
                 {
                     library.Active = false;
-                    library.Priority = 0;
+                    library.HighPriority = false;
                 }
             }
         }
@@ -144,18 +144,17 @@ public sealed class ClipAudioBackend
             State.MusicPort = 0;
         }
 
-        int accumulated = State.TempoAccumulator + ticks * CurrentTempo(now);
-        State.TempoAccumulator = unchecked((byte)accumulated);
-        if (accumulated > byte.MaxValue)
+        (State.TempoAccumulator, bool musicTick) = State.TempoAccumulator.Advance(ticks * CurrentTempo(now));
+        if (musicTick)
             MusicTick(now);
     }
 
     /// <summary>Consumes the latched music command at a music tick.</summary>
     private void MusicTick(long now)
     {
-        byte command = State.MusicLatch;
-        State.MusicLatch = SpcPortDefinitions.MusicLatchEmpty;
-        if (command == SpcPortDefinitions.MusicLatchEmpty || command == State.MusicPort)
+        int? latched = State.MusicLatch;
+        State.MusicLatch = null;
+        if (latched is not int command || command == State.MusicPort)
             return;
         if (State.Music is MusicClipEntry playing)
             State.Tempo = TempoAt(playing, now - State.MusicStart);
@@ -178,8 +177,8 @@ public sealed class ClipAudioBackend
         ClipLibraryState library = State.Libraries[index];
         SoundEffectClipPolicy policy = catalog.GetPolicy(soundEffect.Library, soundEffect.Value);
         bool rejected =
-            (!policy.IgnoresLowHealthMode && library.LowHealthMode == SpcPortDefinitions.LowHealthMode) ||
-            (!policy.IgnoresPriority && library.Priority != 0);
+            (!policy.IgnoresLowHealthMode && library.InLowHealthMode) ||
+            (!policy.IgnoresPriority && library.HighPriority);
         if (rejected)
             return;
 
@@ -188,24 +187,24 @@ public sealed class ClipAudioBackend
         {
             ReleaseSound(library, now);
             if (library.Active)
-                library.Priority = 0;
+                library.HighPriority = false;
         }
         library.Sound = sound;
         library.Start = now;
         library.Active = true;
         library.SilencedUntil = new long[sound.Layers.Count];
-        library.Priority = policy.Priority switch
+        library.HighPriority = policy.Priority switch
         {
-            SoundEffectPriorityEffect.Low => 0,
-            SoundEffectPriorityEffect.High => 1,
-            SoundEffectPriorityEffect.Unchanged => library.Priority,
+            SoundEffectPriorityEffect.Low => false,
+            SoundEffectPriorityEffect.High => true,
+            SoundEffectPriorityEffect.Unchanged => library.HighPriority,
             _ => throw new InvalidDataException($"Unknown priority effect {policy.Priority}."),
         };
-        library.LowHealthMode = policy.LowHealthMode switch
+        library.InLowHealthMode = policy.LowHealthMode switch
         {
-            LowHealthModeEffect.Unchanged => library.LowHealthMode,
-            LowHealthModeEffect.Clear => 0,
-            LowHealthModeEffect.Enter => SpcPortDefinitions.LowHealthMode,
+            LowHealthModeEffect.Unchanged => library.InLowHealthMode,
+            LowHealthModeEffect.Clear => false,
+            LowHealthModeEffect.Enter => true,
             _ => throw new InvalidDataException($"Unknown low-health mode effect {policy.LowHealthMode}."),
         };
     }
@@ -310,7 +309,7 @@ public sealed class ClipAudioBackend
     }
 
     /// <summary>The tempo at a driver tick: the playing clip's tempo before this tick, or the held tempo.</summary>
-    private byte CurrentTempo(long now) =>
+    private int CurrentTempo(long now) =>
         State.Music is MusicClipEntry music ? TempoAt(music, now - State.MusicStart) : State.Tempo;
 
     /// <summary>
@@ -319,10 +318,10 @@ public sealed class ClipAudioBackend
     /// equals the state at the clip's end, so the same lookup holds in every pass. Before the
     /// clip's first change the held tempo applies.
     /// </summary>
-    private byte TempoAt(MusicClipEntry music, long position)
+    private int TempoAt(MusicClipEntry music, long position)
     {
         long frame = Position(music.Clip.Frames, music.LoopStart, position) ?? music.Clip.Frames;
-        byte tempo = State.Tempo;
+        int tempo = State.Tempo;
         foreach (MusicTempoSegment segment in music.TempoSegments)
         {
             if (segment.Frame >= frame)
@@ -338,6 +337,16 @@ public sealed class ClipAudioBackend
         if (!samples.TryGetValue(clip, out short[]? pcm))
             samples[clip] = pcm = catalog.ReadClip(clip);
         return pcm;
+    }
+
+    /// <summary>
+    /// The value a music-port write leaves in the driver's latch: the port carries the command's low byte,
+    /// and the driver's empty marker in that byte means no command is pending.
+    /// </summary>
+    private static int? LatchedMusicCommand(MusicCommand command)
+    {
+        int written = command.DataIndex;
+        return written == SpcPortDefinitions.MusicLatchEmpty ? null : written;
     }
 
     /// <summary>Bank loads and music commands precede the update's ticks; one after a tick is malformed.</summary>

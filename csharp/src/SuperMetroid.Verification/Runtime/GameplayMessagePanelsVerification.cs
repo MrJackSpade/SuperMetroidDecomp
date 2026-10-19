@@ -28,7 +28,7 @@ internal static class GameplayMessagePanelsVerification
         {
             var installed = new GameplayMessageBoxState();
             installed.BindPresentation(null, stock);
-            installed.Begin(NewForbiddenGameplayMessageBus(), id, 0,
+            installed.Begin(id, 0,
                 shootBinding: SnesButton.B,
                 runBinding: SnesButton.Y);
             AssertEqual(GameplayMessagePanelDefinitions.TilemapWords, installed.Tilemap.Length,
@@ -46,7 +46,7 @@ internal static class GameplayMessagePanelsVerification
 
         var active = new GameplayMessageBoxState();
         active.BindPresentation(null, stock);
-        active.Begin(NewForbiddenGameplayMessageBus(), GameplayMessageId.MissileTank, 0,
+        active.Begin(GameplayMessageId.MissileTank, 0,
             shootBinding: SnesButton.B);
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
@@ -98,7 +98,7 @@ internal static class GameplayMessagePanelsVerification
             stockDirectory, overrideDirectory);
         var state = new GameplayMessageBoxState();
         state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels);
-        state.Begin(NewForbiddenGameplayMessageBus(), GameplayMessageId.GrappleBeam, 0);
+        state.Begin(GameplayMessageId.GrappleBeam, 0);
         AssertTrue(!stockCatalog.GameplayMessagePanels.Build(GameplayMessageId.GrappleBeam)
                 .SequenceEqual(state.Tilemap),
             "catalog override changes installed large-message title");

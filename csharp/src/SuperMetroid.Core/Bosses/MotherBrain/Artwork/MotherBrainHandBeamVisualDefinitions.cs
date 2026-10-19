@@ -1,34 +1,39 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// The presentation boundary of the red hand beam (#641): the installed artwork key of every typed frame, the
-/// bank-$86 address of the spritemap operand that drew it.
+/// The presentation boundary of the red hand beam (#641): the projectile frame every typed
+/// frame shows.
 /// </summary>
 internal static class MotherBrainHandBeamVisualDefinitions
 {
-    /// <summary>Distinct frames: seven in each of three stages.</summary>
-    internal const int ProjectileFrameCount = MotherBrainHandBeamAnimations.StageCount * MotherBrainHandBeamAnimations.FramesPerStage;
 
-    /// <summary>The program's list at $86:C796.</summary>
-    private const ushort Program = 0xc796;
-    /// <summary>Bytes in each stage: seven frames and the five-byte external call after the first.</summary>
-    private const int StageBytes = 33;
-    /// <summary>The external call's five bytes, between a stage's first and second frames.</summary>
-    private const int CallBytes = 5;
-    /// <summary>A frame's spritemap operand follows its two-byte duration.</summary>
-    private const int OperandOffset = 2;
-    /// <summary>Each timed frame is a duration and an operand.</summary>
-    private const int FrameBytes = 4;
-
-    /// <summary>Every frame in installed-artwork order: the stages in turn.</summary>
-    internal static IReadOnlyList<MotherBrainHandBeamFrame> ProjectileFrames { get; } =
-    [
-        .. Enumerable.Range(0, MotherBrainHandBeamAnimations.StageCount).SelectMany(stage =>
-            Enumerable.Range(0, MotherBrainHandBeamAnimations.FramesPerStage).Select(phase => new MotherBrainHandBeamFrame(stage, phase))),
-    ];
-
-    /// <summary>The installed presentation key of <paramref name="frame"/>.</summary>
-    internal static ushort PresentationKey(MotherBrainHandBeamFrame frame) => unchecked((ushort)(
-        Program + StageBytes * frame.Stage + FrameBytes * frame.Phase + (frame.Phase == 0 ? 0 : CallBytes) + OperandOffset));
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<MotherBrainHandBeamFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<MotherBrainHandBeamFrame, EnemyProjectileFrameId>
+        {
+            [new(0, 0)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame00,
+            [new(0, 1)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame01,
+            [new(0, 2)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame02,
+            [new(0, 3)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame03,
+            [new(0, 4)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame04,
+            [new(0, 5)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame05,
+            [new(0, 6)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame06,
+            [new(1, 0)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame07,
+            [new(1, 1)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame08,
+            [new(1, 2)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame09,
+            [new(1, 3)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame10,
+            [new(1, 4)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame11,
+            [new(1, 5)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame12,
+            [new(1, 6)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame13,
+            [new(2, 0)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame14,
+            [new(2, 1)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame15,
+            [new(2, 2)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame16,
+            [new(2, 3)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame17,
+            [new(2, 4)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame18,
+            [new(2, 5)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame19,
+            [new(2, 6)] = EnemyProjectileFrameId.MotherBrainHandBeamFrame20,
+        };
 }

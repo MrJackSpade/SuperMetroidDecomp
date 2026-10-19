@@ -33,8 +33,6 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
     internal const int TubeFirstColor = 42, TubeLastColor = 45;
     /// <summary>$8D:C864: the adjacent display material slots end at CGRAM47.</summary>
     internal const int DisplayLastColor = 47;
-    /// <summary>$8D:C7FA, InstList_PaletteFXObject_TitleScreenBabyMetroidTubeLight_0.</summary>
-    internal const ushort TubeProgram = 0xc7fa;
     /// <summary>$8D:E1A0 / $C7FA: the eight-frame baby-Metroid tube light.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition TubeLight { get; } =
         new(TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight);

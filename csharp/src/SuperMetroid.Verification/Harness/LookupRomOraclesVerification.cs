@@ -16,16 +16,16 @@ internal static class LookupRomOraclesVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the intro narration pages' bank-$8C begin callbacks")]
     internal static void VerifyIntroNarrationNativePages(CartridgeImportAddressSpace rom)
     {
-        var narrationSources = IntroNarrationDefinitions.Pages.ToArray();
+        var narrationSources = IntroNarrationScriptSources.Pages.ToArray();
         AssertEqual(6, narrationSources.Length, "narration native registry has six pages");
         byte[] narrationJson = IntroNarrationExtractor.Extract(rom);
         var narration = IntroNarrationPresentation.Load(new MemoryStream(narrationJson, writable: false));
         for (int page = 0; page < narrationSources.Length; page++)
         {
-            IntroNarrationNativePage source = narrationSources[page];
+            IntroNarrationScriptPage source = narrationSources[page];
             AssertEqual((IntroNarrationPageId)(page + 1), source.Id, "narration native registry order");
             int address = 0x8c0000 | source.InstructionPointer;
-            AssertEqual(source.BeginOpcode, rom.ReadCartridgeWord(address), "narration native begin callback");
+            AssertEqual(source.BeginOpcode, (int)rom.ReadCartridgeWord(address), "narration native begin callback");
             AssertTrue(narration.Compile(source.Id).Length > 0, "native narration extracts and compiles every page through finish callback");
         }
     }
@@ -59,8 +59,8 @@ internal static class LookupRomOraclesVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             VerifyIntroNarrationNativePages(rom);
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationDefinitions.NativePage((IntroNarrationPageId)0), "narration registry lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationDefinitions.NativePage((IntroNarrationPageId)7), "narration registry upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSources.Page((IntroNarrationPageId)0), "narration registry lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSources.Page((IntroNarrationPageId)7), "narration registry upper bound");
         Console.WriteLine("Narration registry: six native page boundaries, extraction, compilation, order and bounds pass.");
         return 0;
     }
@@ -71,7 +71,7 @@ internal static class LookupRomOraclesVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         VerifyMochtroidShakeOffsets(rom);
-        Suite(nameof(MochtroidBehaviorVerification.VerifyMochtroidBehavior), () => MochtroidBehaviorVerification.VerifyMochtroidBehavior(rom));
+        Suite(nameof(MochtroidBehaviorVerification.VerifyMochtroidBehavior), () => MochtroidBehaviorVerification.VerifyMochtroidBehavior());
         Console.WriteLine("Mochtroid shake: sixteen native masked-timer comparisons pass; amplitude remains required.");
         return 0;
     }

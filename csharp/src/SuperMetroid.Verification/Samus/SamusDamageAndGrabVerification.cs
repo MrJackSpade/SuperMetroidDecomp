@@ -18,6 +18,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Constructed cartridge checks for Samus draining, solid-enemy probes, and Draygon grab control.</summary>
 internal static class SamusDamageAndGrabVerification
@@ -100,20 +101,20 @@ internal static void VerifySamusDrainedController()
         foreground[6 * width + x] = 0x8000; // Solid floor begins at whole Y 96.
     RoomLevelData level = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
 
-    VerifyDrainedPoseHistory(bus);
+    VerifyDrainedPoseHistory();
     var right = new SamusState
     {
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    right.PoseMetadata.RefreshCollisionRadii(bus);
-    right.Presentation.InitializeAnimation(bus);
+    right.PoseMetadata.RefreshCollisionRadii();
+    right.Presentation.InitializeAnimation();
     right.HorizontalSpeed.BaseSpeed = 3;
     right.HorizontalSpeed.BaseSubspeed = 0x4444;
     right.Kinematics.YSpeed = 2;
     right.Kinematics.YSubspeed = 0x2222;
 
-    right.Drained.LetFall(bus, right);
+    right.Drained.LetFall(right);
     AssertEqual(SamusPoseId.DrainedCrouchingRightPose, right.Pose,
         "drained controller zero selects right pose");
     AssertEqual(70, right.Position.Y.Whole,
@@ -121,7 +122,7 @@ internal static void VerifySamusDrainedController()
     AssertEqual(2, right.AnimationFrame, "drained fall begins at byte index two");
     AssertEqual(0, right.Kinematics.YSpeed, "drained fall clears whole Y speed");
     AssertEqual(SamusVerticalDirection.Down, right.Kinematics.YDirection, "drained fall selects down direction");
-    AssertTrue(right.Drained.UpdatePalette(bus, drainedCgram, right.EquippedItems, suitColors),
+    AssertTrue(right.Drained.UpdatePalette(drainedCgram, right.EquippedItems, suitColors),
         "drained controller zero restores selected suit palette");
     AssertEqual(0x300f, drainedCgram.Colors[207],
         "drained controller zero copies all sixteen suit colors");
@@ -129,9 +130,7 @@ internal static void VerifySamusDrainedController()
     // Index two lasts two ticks; index three lasts sixteen. Expiration reaches `$F7` at
     // index four, which installs the handler and advances again to index five's delay one.
     for (int tick = 0; tick < 18; tick++)
-        right.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf7, (right.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires right.LastAnimationDelayCommand.")),
-        "drained animation reaches F7");
+        right.Presentation.AnimateNoFx(new SamusAnimationStep());
     AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
         "F7 installs drained movement handler");
     AssertEqual(5, right.AnimationFrame, "F7 performs its second frame increment");
@@ -141,7 +140,7 @@ internal static void VerifySamusDrainedController()
     right.Kinematics.YSubacceleration = 0x4000;
     ushort firstHandlerY = right.Position.Y.Whole;
     ushort firstHandlerYSubposition = right.Kinematics.Position.Y.Fraction;
-    right.Drained.StepFalling(bus, level, right, 0);
+    right.Drained.StepFalling(level, right, 0);
     AssertEqual(firstHandlerYSubposition, right.Kinematics.Position.Y.Fraction,
         "first drained handler call uses old zero speed");
     AssertEqual(firstHandlerY, right.Position.Y.Whole, "first drained handler frame is stationary");
@@ -152,7 +151,7 @@ internal static void VerifySamusDrainedController()
     StepUntil(
         () => landing.Landed,
         frame => landing = right.Drained.StepFalling(
-            bus, level, right, unchecked((ushort)(frame + 1))),
+level, right, unchecked((ushort)(frame + 1))),
         maximumFrames: 99,
         context: "drained handler block-floor landing");
     AssertEqual(75, right.Position.Y.Whole, "drained body rests at floor minus radius");
@@ -163,20 +162,20 @@ internal static void VerifySamusDrainedController()
     AssertTrue(landing.ImpactYSpeed != 0 || landing.ImpactYSubspeed != 0,
         "drained landing preserves pre-clear impact magnitude");
 
-    right.Drained.PutStanding(bus, right);
+    right.Drained.PutStanding(right);
     AssertEqual(SamusPoseId.DrainedStandingRightPose, right.Pose,
         "controller one selects standing right");
     AssertEqual(0, right.AnimationFrame, "standing drained starts index zero");
     AssertEqual(16, right.AnimationFrameTimer.RawValue, "standing drained timer is literal sixteen");
 
-    right.Drained.Release(bus, right);
+    right.Drained.Release(right);
     AssertEqual(4, right.AnimationFrame, "standing release writes byte index four");
     AssertEqual(1, right.AnimationFrameTimer.RawValue, "standing release writes timer one");
     for (int tick = 0; tick < 8 && right.PendingTransitionalPose is null; tick++)
-        right.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
+        right.Presentation.AnimateNoFx(new SamusAnimationStep());
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, right.PendingTransitionalPose,
         "standing drained release reaches ROM FD operand");
-    AssertTrue(right.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus),
+    AssertTrue(right.PoseTransitions.ApplyPendingVerifiedAnimationTransition(),
         "right drained release applies standing transition");
     AssertEqual(DrainedSamusPhase.Inactive, right.Drained.Phase,
         "right drained release clears host handler marker");
@@ -186,27 +185,27 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    left.PoseMetadata.RefreshCollisionRadii(bus);
-    left.Presentation.InitializeAnimation(bus);
-    left.Drained.PutCrouchingOrFalling(bus, left);
+    left.PoseMetadata.RefreshCollisionRadii();
+    left.Presentation.InitializeAnimation();
+    left.Drained.PutCrouchingOrFalling(left);
     AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, left.Pose,
         "controller four selects left crouching/falling pose");
     AssertEqual(8, left.AnimationFrame, "controller four writes byte index eight");
     AssertEqual(16, left.AnimationFrameTimer.RawValue, "controller four writes timer sixteen");
-    left.Drained.Release(bus, left);
+    left.Drained.Release(left);
     AssertEqual(13, left.AnimationFrame,
         "crouched release preserves literal operand-adjacent byte index thirteen");
     for (int tick = 0; tick < 64 && left.PendingTransitionalPose is null; tick++)
-        left.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
+        left.Presentation.AnimateNoFx(new SamusAnimationStep());
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingLeftNormalPose, left.PendingTransitionalPose,
         "left crouched release reaches asymmetric FD operand");
-    AssertTrue(left.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus),
+    AssertTrue(left.PoseTransitions.ApplyPendingVerifiedAnimationTransition(),
         "left drained release applies standing transition");
 
     left.Drained.EnableHyperBeam(left);
-    AssertEqual(0x1009, left.EquippedBeams,
+    AssertEqual(0x1009, left.EquippedBeams.ToNativeWord(),
         "controller three installs exact hyper beam equipment word");
-    AssertEqual(0x8000, left.HyperBeam,
+    AssertTrue(left.HyperBeamEnabled,
         "controller three sets hyper beam flag");
     AssertTrue(left.Drained.HyperBeamPaletteFxRequested,
         "controller three spawns Hyper Beam palette-FX object");
@@ -225,7 +224,7 @@ internal static void VerifySamusDrainedController()
     {
         // `$8D:C552` writes a palette record only when its pre-decrement timer is one.
         bool paletteWritten = left.Drained.HyperBeamPaletteFx.InstructionTimer.RawValue == 1;
-        left.Drained.HyperBeamPaletteFx.Step(hyperBeamGuard, drainedCgram, projectileColors);
+        left.Drained.HyperBeamPaletteFx.Step(drainedCgram, projectileColors);
         int expectedFrame = (call / 2) % HyperBeamPaletteFxState.FrameCount;
         AssertEqual(expectedFrame, left.Drained.HyperBeamPaletteFx.CurrentFrameIndex,
             $"Hyper Beam palette-FX call {call + 1} frame index");
@@ -255,9 +254,9 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    able.PoseMetadata.RefreshCollisionRadii(bus);
-    able.Presentation.InitializeAnimation(bus);
-    able.Drained.SetupForRainbowBeamAbleToStand(bus, able);
+    able.PoseMetadata.RefreshCollisionRadii();
+    able.Presentation.InitializeAnimation();
+    able.Drained.SetupForRainbowBeamAbleToStand(able);
     AssertEqual(SamusPoseId.KnockbackLeftPose, able.Pose,
         "rainbow command five unconditionally selects left knockback pose $54");
     AssertEqual(DrainedSamusPhase.RainbowBeamLocked, able.Drained.Phase,
@@ -267,7 +266,7 @@ internal static void VerifySamusDrainedController()
 
     // The handler survives the later controller-four pose change. It accepts Up only from
     // left drained `$E9` at frame >=8, writes 13/1, and replaces itself with RTS.
-    able.Drained.PutCrouchingOrFalling(bus, able);
+    able.Drained.PutCrouchingOrFalling(able);
     AssertTrue(!able.Drained.StepGetUpHandler(able, newlyPressedInput: 0),
         "able timer handler ignores absent Up edge");
     AssertTrue(able.Drained.StepGetUpHandler(able, newlyPressedInput: SnesButton.Up),
@@ -282,10 +281,10 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    unable.PoseMetadata.RefreshCollisionRadii(bus);
-    unable.Presentation.InitializeAnimation(bus);
-    unable.Drained.SetupForRainbowBeamUnableToStand(bus, unable);
-    unable.Drained.PutCrouchingOrFalling(bus, unable);
+    unable.PoseMetadata.RefreshCollisionRadii();
+    unable.Presentation.InitializeAnimation();
+    unable.Drained.SetupForRainbowBeamUnableToStand(unable);
+    unable.Drained.PutCrouchingOrFalling(unable);
     AssertEqual(DrainedGetUpHandler.UnableToStand, unable.Drained.GetUpHandler,
         "rainbow command $18 installs failed-stand timer handler");
     AssertTrue(unable.Drained.StepGetUpHandler(unable, newlyPressedInput: SnesButton.Up),
@@ -304,31 +303,31 @@ internal static void VerifySamusDrainedController()
     // advancing. Each call loads before decrementing, matching `$91:D96F-$D997` ordering.
     unable.Drained.PresentationColors = rainbowColors;
     unable.Drained.EnableRainbow(unable);
-    AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors),
+    AssertTrue(unable.Drained.UpdatePalette(drainedCgram, unable.EquippedItems, suitColors),
         "rainbow handler owns palette dispatcher");
     AssertEqual(0x1000, drainedCgram.Colors[192],
         "rainbow first call loads Hyper Beam palette zero");
     AssertEqual(1, unable.Drained.ChargePaletteIndex,
         "one-call rainbow cadence advances immediately");
     unable.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
-    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors);
+    unable.Drained.UpdatePalette(drainedCgram, unable.EquippedItems, suitColors);
     AssertEqual(2, unable.Drained.CommonPaletteTimer.RawValue,
         "Baby-raised rainbow delay reloads two");
     AssertEqual(2, unable.Drained.ChargePaletteIndex,
         "rainbow second palette advances into delayed index");
-    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors);
+    unable.Drained.UpdatePalette(drainedCgram, unable.EquippedItems, suitColors);
     AssertEqual(0x1040, drainedCgram.Colors[192],
         "rainbow delayed index loads before timer decrement");
     AssertEqual(2, unable.Drained.ChargePaletteIndex,
         "rainbow delay holds palette index for first call");
-    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors);
+    unable.Drained.UpdatePalette(drainedCgram, unable.EquippedItems, suitColors);
     AssertEqual(3, unable.Drained.ChargePaletteIndex,
         "rainbow delay advances on second call");
 
     unable.Drained.DisableRainbowAndStartStandingAnimation(unable);
     AssertEqual(13, unable.AnimationFrame, "command $17 resumes standing animation at frame thirteen");
     AssertEqual(1, unable.AnimationFrameTimer.RawValue, "command $17 resume timer");
-    AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors),
+    AssertTrue(unable.Drained.UpdatePalette(drainedCgram, unable.EquippedItems, suitColors),
         "command $17 restores selected suit palette");
     AssertEqual(0x3000, drainedCgram.Colors[192],
         "command $17 replaces rainbow palette immediately");
@@ -367,7 +366,7 @@ static (ushort X, ushort Y) ObserveSolidEnemyProbeTarget(
             };
             var enemy = new SolidEnemyCollisionBody(
                 Index: 0x0040, Position: new(unchecked((ushort)enemyX), unchecked((ushort)enemyY)),
-                Radius: new(1, 1), FreezeTimer: 0, Properties: 0x8000);
+                Radius: new(1, 1), Frozen: false, Properties: EnemyPropertyWord.FromNativeWord((ushort)(0x8000)));
             if (!SamusSolidEnemyCollision.Probe(
                     probeState, [enemy], direction, distance, distanceSubposition).Collided)
                 continue;
@@ -458,7 +457,7 @@ internal static void VerifySamusSolidEnemyCollision()
     };
     var frozenRinka = new SolidEnemyCollisionBody(
         Index: 0x00c0, Position: new(0x00c8, 0x00a3), Radius: new(8, 8),
-        FreezeTimer: 69, Properties: 0x2800);
+        Frozen: true, Properties: EnemyPropertyWord.FromNativeWord((ushort)(0x2800)));
     SolidEnemyCollisionResult landing = SamusSolidEnemyCollision.Probe(
         falling, [frozenRinka], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
     AssertTrue(landing.Collided, "a falling Samus lands on the frozen Rinka");
@@ -467,7 +466,7 @@ internal static void VerifySamusSolidEnemyCollision()
     samus.Position = samus.Position.WithFractionX(0).WithFractionY(0x7777);
     var decorative = new SolidEnemyCollisionBody(
         Index: 0x0040, Position: new(110, 100), Radius: new(5, 5),
-        FreezeTimer: 0, Properties: 0);
+        Frozen: false, Properties: EnemyPropertyWord.FromNativeWord((ushort)(0)));
     SolidEnemyCollisionResult ignored = SamusSolidEnemyCollision.Probe(
         samus, [decorative], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
     AssertTrue(!ignored.Collided, "non-solid unfrozen enemy is ignored");
@@ -478,7 +477,7 @@ internal static void VerifySamusSolidEnemyCollision()
     {
         Index = 0x0080,
         Position = decorative.Position.WithX(111),
-        FreezeTimer = 1,
+        Frozen = true,
     };
     SolidEnemyCollisionResult frozenHit = SamusSolidEnemyCollision.Probe(
         samus, [frozen], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
@@ -493,7 +492,7 @@ internal static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionBody solidTouch = decorative with
     {
         Index = 0x00c0,
-        Properties = 0x8000,
+        Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x8000)),
     };
     SolidEnemyCollisionResult touching = SamusSolidEnemyCollision.Probe(
         samus, [solidTouch], SamusCollisionDirection.Right, distance: 1, distanceSubposition: 0);
@@ -560,7 +559,7 @@ internal static void VerifySamusSolidEnemyCollision()
         Radius = new(5, 10),
         InteractiveEnemies = [frozen],
     };
-    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = new TestAddressSpace(), Level = airRoom }, integrated, new HorizontalBlockMove { Displacement = 2 << 16 });
+    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = airRoom }, integrated, new HorizontalBlockMove { Displacement = 2 << 16 });
     AssertTrue(integratedHorizontal.Collided, "ordinary horizontal mover reports enemy collision");
     AssertEqual(101, integrated.Position.X.Whole, "ordinary horizontal mover clips to enemy gap");
     AssertTrue(integratedHorizontal.EnemyCollision is not null,
@@ -572,7 +571,7 @@ internal static void VerifySamusSolidEnemyCollision()
 
     integrated.Position = integrated.Position.WithWholeY(100);
     integrated.InteractiveEnemies = [below];
-    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = new TestAddressSpace(), Level = airRoom }, integrated, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true });
+    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = airRoom }, integrated, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true });
     AssertTrue(integratedVertical.Collided, "ordinary vertical mover reports enemy collision");
     AssertEqual(101, integrated.Position.Y.Whole, "ordinary vertical mover clips to enemy gap");
     AssertEqual(0x01c0, integratedVertical.EnemyCollision?.EnemyIndex,
@@ -583,7 +582,7 @@ internal static void VerifySamusSolidEnemyCollision()
     integrated.Position = integrated.Position.WithWholeX(100).WithWholeY(100).WithFractionY(0x4321);
     integrated.InteractiveEnemies = [solidTouch];
     BlockMoveResult wallProbe = SamusBlockCollision.ProbeWallHorizontal(
-        new TestAddressSpace(), airRoom, integrated, signedDistance: 1 << 16);
+airRoom, integrated, signedDistance: 1 << 16);
     AssertTrue(wallProbe.EnemyCollision is { WasTouching: true },
         "wall probe detects touching enemy before blocks");
     AssertEqual(100, integrated.Position.X.Whole, "wall probe does not commit X motion");
@@ -694,15 +693,15 @@ internal static void VerifySamusGrabbedByDraygon()
         history.LastDifferentDirectionAndMovement = 0x1404;
         SamusPoseId grabbedPose = facingRight ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose;
         ushort grabbedMetadata = (ushort)(facingRight ? 0x1a08 : 0x1a04);
-        historySamus.DraygonGrabbed.Begin(bus, historySamus, facingRight);
+        historySamus.DraygonGrabbed.Begin(historySamus, facingRight);
         AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "Draygon grab shifts previous pose");
         AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "Draygon grab shifts previous metadata");
         AssertEqual(grabbedPose, history.PreviousPose, "Draygon grab commits grabbed pose");
         AssertEqual(grabbedMetadata, history.PreviousDirectionAndMovement, "Draygon grab commits grabbed metadata");
-        historySamus.DraygonGrabbed.Begin(bus, historySamus, facingRight);
+        historySamus.DraygonGrabbed.Begin(historySamus, facingRight);
         AssertEqual(grabbedPose, history.LastDifferentPose, "repeated Draygon grab still shifts history");
         AssertEqual(grabbedMetadata, history.LastDifferentDirectionAndMovement, "repeated grab shifts metadata");
-        historySamus.DraygonGrabbed.Release(bus, historySamus);
+        historySamus.DraygonGrabbed.Release(historySamus);
         AssertEqual(grabbedPose, history.LastDifferentPose, "Draygon release retains prior grabbed pose");
         AssertEqual(grabbedMetadata, history.LastDifferentDirectionAndMovement, "Draygon release retains prior grabbed metadata");
         AssertEqual(historySamus.Pose, history.PreviousPose, "Draygon release commits standing pose");
@@ -711,7 +710,7 @@ internal static void VerifySamusGrabbedByDraygon()
     }
 
     var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) };
-    samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
+    samus.DraygonGrabbed.Begin(samus, draygonFacingRight: true);
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose, samus.Pose,
         "right-facing Draygon entry selects $EC");
     AssertEqual(21, samus.Kinematics.Radius.Y, "Draygon entry loads radius 21");
@@ -723,9 +722,9 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(0x0108, samus.Position.X.Whole, "right-facing owner placement X");
     AssertEqual(0x01a8, samus.Position.Y.Whole, "owner placement Y is body plus $28");
 
-    samus.SolidVerticalCollisionResult = 5;
+    samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
     SamusDraygonGrabbedState.StepMovement(samus);
-    AssertEqual(0, samus.SolidVerticalCollisionResult,
+    AssertEqual(SamusVerticalCollisionResult.None, samus.SolidVerticalCollisionResult,
         "type-$1A performs its sole STZ side effect on the stale vertical collision word");
     AssertEqual(0x0108, samus.Position.X.Whole, "type-$1A does not move X");
     AssertEqual(0x01a8, samus.Position.Y.Whole, "type-$1A does not move Y");
@@ -733,34 +732,33 @@ internal static void VerifySamusGrabbedByDraygon()
     // The larger right+up+shoot chord must select the first `$AE56` record (`$ED`), not
     // the later generic shoot record (`$EE`), proving ROM priority rather than host rules.
     SamusPoseTransition rightUpShoot = (SamusPoseTransitionTable.Find(
-        bus, samus.Pose, canonicalHeldInput: SnesButton.Up | SnesButton.Right | SnesButton.X, canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNe...."));
+        samus.Pose, canonicalHeldInput: SnesButton.Up | SnesButton.Right | SnesButton.X, canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNe...."));
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose,
         rightUpShoot.ProspectivePose, "right grabbed transition priority");
-    samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(bus, rightUpShoot.ProspectivePose);
+    samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(rightUpShoot.ProspectivePose);
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose, samus.Pose,
         "right grabbed aim transition applies");
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose,
-        samus.PoseMetadata.ReadNoInputFallbackPose(bus), "right grabbed aim fallback is $EC");
-    samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(bus, samus.PoseMetadata.ReadNoInputFallbackPose(bus));
+        samus.PoseMetadata.ReadNoInputFallbackPose(), "right grabbed aim fallback is $EC");
+    samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(samus.PoseMetadata.ReadNoInputFallbackPose());
     AssertThrows<InvalidOperationException>(
         () => samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(
-            bus,
             SamusPoseId.DraygonGrabbedNeutralLeftPose),
         "Draygon input table cannot cross owner-controlled facing families");
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose, samus.Pose,
         "rejected cross-family Draygon input retains current pose");
 
     DraygonEscapeResult locked = samus.DraygonGrabbed.StepEscapeHandler(
-        bus, samus, newlyPressedInput: 0, grappleLockedInPlace: true);
+        samus, newlyPressedInput: 0, grappleLockedInPlace: true);
     AssertTrue(locked.SuppressProspectivePose, "locked grapple suppresses grabbed pose transition");
     AssertEqual(0, samus.DraygonGrabbed.EscapeButtonCounter, "no D-pad edge does not count");
 
     samus.DraygonGrabbed.StepEscapeHandler(
-        bus, samus, newlyPressedInput: SnesButton.Up, grappleLockedInPlace: false);
+        samus, newlyPressedInput: SnesButton.Up, grappleLockedInPlace: false);
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "first Up edge increments escape counter");
     DraygonEscapeResult repeatedUp = samus.DraygonGrabbed.StepEscapeHandler(
-        bus, samus, newlyPressedInput: SnesButton.Up, grappleLockedInPlace: false);
+        samus, newlyPressedInput: SnesButton.Up, grappleLockedInPlace: false);
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "repeated D-pad pattern is rejected and leaves escape counter unchanged");
 
@@ -779,7 +777,7 @@ internal static void VerifySamusGrabbedByDraygon()
     {
         SnesButton direction = (inputNumber & 1) != 0 ? SnesButton.Down : SnesButton.Up;
         release = samus.DraygonGrabbed.StepEscapeHandler(
-            bus, samus, direction, grappleLockedInPlace: false);
+            samus, direction, grappleLockedInPlace: false);
     }
     AssertTrue(release.Released, "sixtieth alternating D-pad input releases Samus");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose,
@@ -802,13 +800,13 @@ internal static void VerifySamusGrabbedByDraygon()
         "owner release bit is one-shot");
 
     // Mirror the entry/owner/release direction without repeating the 60-input route.
-    samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: false);
+    samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
     samus.DraygonGrabbed.ApplyOwnerPosition(
         samus, ownerPosition: new(0x0100, 0x0180), draygonFacingRight: false);
     AssertEqual(-8, samus.Position.X.Whole - samus.DraygonGrabbed.OwnerPosition.X,
         "left-facing claw offset is -8");
     AssertEqual(0x00f8, samus.Position.X.Whole, "left-facing owner placement X");
-    samus.DraygonGrabbed.Release(bus, samus);
+    samus.DraygonGrabbed.Release(samus);
     AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose,
         "left grabbed family releases to pose $02");
 

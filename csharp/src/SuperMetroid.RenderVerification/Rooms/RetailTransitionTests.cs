@@ -18,7 +18,7 @@ internal static class RetailTransitionTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var destruction = RenderRetailFixture.CreateDestruction(bus);
+        var destruction = RenderRetailFixture.CreateDestruction();
         var phases = new HashSet<CeresDestructionPhase>();
         bool mode1 = false, mode7 = false;
         int cinematicCount = 0, menuCount = 0;
@@ -43,7 +43,7 @@ internal static class RetailTransitionTests
         foreach (bool chooseNo in new[] { false, true })
         {
             var audio = new CartridgeAudioState();
-            var menu = new GameOverMenuState(bus, audio, RenderRetailFixture.Maps);
+            var menu = new GameOverMenuState(audio, RenderRetailFixture.Maps);
             bool toggled = false, released = false;
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {

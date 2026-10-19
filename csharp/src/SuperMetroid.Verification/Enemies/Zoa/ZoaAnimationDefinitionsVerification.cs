@@ -35,8 +35,8 @@ internal static class ZoaAnimationDefinitionsVerification
             return;
         }
         Suite(nameof(VerifyAllZoaAnimationHandoffs), () => VerifyAllZoaAnimationHandoffs());
-        Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(rom, facingRight: false));
-        Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(rom, facingRight: true));
+        Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(facingRight: false));
+        Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(facingRight: true));
 
         AssertThrows<InvalidDataException>(
             () => ZoaAnimationDefinitions.Program((ZoaAnimationSelector)4),
@@ -52,7 +52,7 @@ internal static class ZoaAnimationDefinitionsVerification
         {
             var selector = (ZoaAnimationSelector)index;
             var slot = NewZoaAnimationSlot();
-            var state = new ZoaEnemyState(slot)
+            var state = new ZoaEnemyState()
             {
                 InstructionListTableIndex = selector,
                 PreviousInstructionListTableIndex = selector == ZoaAnimationSelector.None
@@ -66,15 +66,15 @@ internal static class ZoaAnimationDefinitionsVerification
 
     /// <summary>Drives Zoa from waiting through rising to shooting for one facing direction.</summary>
     private static void VerifyLiveZoaAnimationHandoffs(
-        SuperMetroidAddressSpace rom,
         bool facingRight)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewZoaAnimationReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
-        enemies.ZoaBehavior.InitializeZoa(slot);
+        slot.Bind(EnemyDefinitionId.Zoa, slot.Definition);
+        ZoaBehavior.InitializeZoa(slot);
         ZoaEnemyState state = (enemies.ZoaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ZoaStates[0]."));
 
         var samus = new SamusState
@@ -101,7 +101,7 @@ internal static class ZoaAnimationDefinitionsVerification
     }
 
     /// <summary>Seeds nondefault list and timer values so animation handoff writes are visible.</summary>
-    private static RoomEnemySlot NewZoaAnimationSlot() => new(0)
+    private static RoomEnemySlot NewZoaAnimationSlot() => new(0, EnemySlotFixtures.Registry)
     {
         CurrentInstruction = 0x7777,
         InstructionTimer = NativeCountdown.Start(0x2222),
@@ -126,8 +126,4 @@ internal static class ZoaAnimationDefinitionsVerification
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }
 
-    /// <summary>Forbids live reads of the compiled Zoa animation pointer table.</summary>
-    private static CartridgeReadGuard NewZoaAnimationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3b40d and < 0xa3b415,
-            address => $"Zoa attempted migrated animation-selector read ${address:X6}.");
 }

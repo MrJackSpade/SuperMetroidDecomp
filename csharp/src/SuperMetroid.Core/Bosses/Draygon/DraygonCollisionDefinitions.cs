@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -14,40 +13,35 @@ internal static class DraygonCollisionDefinitions
     private const ushort FirstLeftBodyFrame = 0xa31b;
     /// <summary>$A5:A643, ExtendedSpritemap_Draygon_3A: first right-facing BG2 body frame.</summary>
     private const ushort FirstRightBodyFrame = 0xa643;
-    /// <summary>Left-facing body rectangles: one shootable center and three touch-only regions.</summary>
+    /// <summary>Left-facing body rectangles: one shootable eye and three touch-only regions.</summary>
     private static readonly DraygonCollisionHitbox[] FirstBodyHitboxes =
     [
-        new(-17, -16, 18, 30, EnemyAiCodePointers.BankA0.NoOp,
-            EnemyAiCodePointers.BankA5.DraygonShot),
-        new(-59, -66, 3, -30, EnemyAiCodePointers.BankA5.DraygonTouch,
-            EnemyAiCodePointers.BankA0.DudShot),
-        new(16, 1, 60, 53, EnemyAiCodePointers.BankA5.DraygonTouch,
-            EnemyAiCodePointers.BankA0.DudShot),
-        new(-28, -37, 61, -10, EnemyAiCodePointers.BankA5.DraygonTouch,
-            EnemyAiCodePointers.BankA0.DudShot),
+        new(-17, -16, 18, 30, DraygonHitboxTouch.Harmless, DraygonHitboxShot.Eye),
+        new(-59, -66, 3, -30, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
+        new(16, 1, 60, 53, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
+        new(-28, -37, 61, -10, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
     ];
 
-    /// <summary>Mirrored right-facing body rectangles with the same shootable-center rule.</summary>
+    /// <summary>Mirrored right-facing body rectangles with the same shootable-eye rule.</summary>
     private static readonly DraygonCollisionHitbox[] SecondBodyHitboxes =
     [
-        new(-18, -7, 18, 30, EnemyAiCodePointers.BankA0.NoOp,
-            EnemyAiCodePointers.BankA5.DraygonShot),
-        new(-10, -63, 62, -26, EnemyAiCodePointers.BankA5.DraygonTouch,
-            EnemyAiCodePointers.BankA0.DudShot),
-        new(-55, 0, -21, 57, EnemyAiCodePointers.BankA5.DraygonTouch,
-            EnemyAiCodePointers.BankA0.DudShot),
-        new(-62, -33, 15, -5, EnemyAiCodePointers.BankA5.DraygonTouch,
-            EnemyAiCodePointers.BankA0.DudShot),
+        new(-18, -7, 18, 30, DraygonHitboxTouch.Harmless, DraygonHitboxShot.Eye),
+        new(-10, -63, 62, -26, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
+        new(-55, 0, -21, 57, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
+        new(-62, -33, 15, -5, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
     ];
 
+    /// <summary>The empty list of the BG2 frames in which the body cannot be hit or touched.</summary>
+    private static readonly DraygonCollisionHitbox[] EmptyHitboxes = [];
+
     /// <summary>A BG2 frame's single zero-offset collision component, or no component for ordinary OAM art.</summary>
-    internal readonly record struct ComponentSequence(bool HasComponent, DraygonHitboxList HitboxPointer)
+    internal readonly record struct ComponentSequence(bool HasComponent, IReadOnlyList<DraygonCollisionHitbox> Hitboxes)
         : IEnumerable<DraygonCollisionComponent>
     {
         /// <summary>Yields one body component only when the BG2 frame owns a hitbox list.</summary>
         public IEnumerator<DraygonCollisionComponent> GetEnumerator()
         {
-            if (HasComponent) yield return new(Offset16<RoomPixels>.Zero, HitboxPointer);
+            if (HasComponent) yield return new(Offset16<RoomPixels>.Zero, Hitboxes);
         }
         /// <summary>Exposes the same optional component through the non-generic interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
@@ -63,25 +57,15 @@ internal static class DraygonCollisionDefinitions
         if (!DraygonBg2FrameDefinitions.IsFrame(pointer))
         {
             _ = OamComponentsAt(pointer);
-            return new(false, default);
+            return new(false, EmptyHitboxes);
         }
 
         bool right = pointer >= FirstRightBodyFrame;
         int phase = (pointer - (right ? FirstRightBodyFrame : FirstLeftBodyFrame)) / 10;
-        DraygonHitboxList hitboxes = phase is < 8 or 16
-            ? right ? DraygonHitboxList.SecondBody : DraygonHitboxList.FirstBody : DraygonHitboxList.Empty;
+        DraygonCollisionHitbox[] hitboxes = phase is < 8 or 16
+            ? right ? SecondBodyHitboxes : FirstBodyHitboxes : EmptyHitboxes;
         return new(true, hitboxes);
     }
-
-    /// <summary>Finds the left/right body rectangles or either empty list by native pointer.</summary>
-    internal static ReadOnlySpan<DraygonCollisionHitbox> HitboxesAt(
-        DraygonHitboxList pointer) => pointer switch
-    {
-        DraygonHitboxList.FirstBody => FirstBodyHitboxes,
-        DraygonHitboxList.Empty or DraygonHitboxList.OtherEmpty => [],
-        DraygonHitboxList.SecondBody => SecondBodyHitboxes,
-        _ => throw new InvalidOperationException($"Undefined DraygonHitboxList {pointer}."),
-    };
 
     /// <summary><c>ExtendedSpritemap_Draygon_4</c> at $A5:A2DF: first of six one-component frames.</summary>
     private const ushort LeftSingleFrames = 0xa2df;

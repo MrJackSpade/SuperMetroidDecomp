@@ -32,8 +32,6 @@ public sealed class GameplayMessageBoxState
     [NonSerialized] private GameplayMessageNoticePresentation? noticePresentation;
     /// <summary>Preserves controller edges across the message routine's own input polls.</summary>
     private readonly ControllerInputState _controller = new();
-    /// <summary>Address space retained until the gunship save can open its completion notice.</summary>
-    private ISnesAddressSpace? _activeBus;
     /// <summary>Radius to publish on the next opening frame, after the current frame's window is drawn.</summary>
     private int _nextOpeningRadiusPixels;
     /// <summary>Radius to publish on the next closing frame.</summary>
@@ -144,7 +142,6 @@ public sealed class GameplayMessageBoxState
     /// Bindings are parameters because the options menu may remap them; their defaults are
     /// the words installed by <c>NewSaveFile</c>.
     /// </summary>
-    /// <param name="bus">Runtime address space retained while this coroutine owns gameplay, including the gunship's completion-notice reopen.</param>
     /// <param name="messageId">One-based native message identity 1..26 or gunship save confirmation 28; requires installed title, panel, or notice artwork.</param>
     /// <param name="controllerRead">
     /// The controller held at the dispatch's last ReadControllerInput. During the box the
@@ -154,14 +151,12 @@ public sealed class GameplayMessageBoxState
     /// <param name="runBinding">Current native controller-bit binding for Run, used to substitute the corresponding button glyph in applicable item panels.</param>
     /// <param name="sourceContext">Caller identity included in unsupported-message diagnostics; does not affect message timing or presentation.</param>
     public void Begin(
-        ISnesAddressSpace bus,
         GameplayMessageId messageId,
         SnesButton controllerRead,
         SnesButton shootBinding = SnesButton.X,
         SnesButton runBinding = SnesButton.B,
         string sourceContext = nameof(GameplayMessageBoxState))
     {
-        Ensure.NotNull(bus);
         byte rawMessageId = (byte)messageId;
         if (messageId is (< GameplayMessageId.EnergyTank or > GameplayMessageId.GravitySuit) and
             not GameplayMessageId.GunshipSaveConfirmation)
@@ -190,7 +185,6 @@ public sealed class GameplayMessageBoxState
                 $"Gameplay message {messageId} requires installed presentation assets.");
 
         MessageId = messageId;
-        _activeBus = bus;
         RadiusPixels = 0;
         MinimumDisplayFramesRemaining = 0;
         _nextOpeningRadiusPixels = 0;
@@ -354,10 +348,8 @@ public sealed class GameplayMessageBoxState
                 {
                     // $85:80D9 opens the ordinary completion notice only after the
                     // saving sound's synchronous wait. Preserve YES across that message.
-                    ISnesAddressSpace bus = _activeBus ?? throw new InvalidOperationException(
-                        "The gunship saving sound runs only inside an open message box.");
                     Phase = GameplayMessageBoxPhase.Inactive;
-                    Begin(bus, GameplayMessageIds.SaveCompleted, _controller.Current);
+                    Begin(GameplayMessageIds.SaveCompleted, _controller.Current);
                     // The second box skips Initialise_PPU_for_MessageBoxes and the clear,
                     // which preceded the saving sound.
                     BeginPreparing(GameplayMessageRomData.Timing.ReopenLagFrames);
@@ -415,7 +407,6 @@ public sealed class GameplayMessageBoxState
         MinimumDisplayFramesRemaining = 0;
         RadiusPixels = 0;
         _tilemap = [];
-        _activeBus = null;
     }
 
     /// <summary>

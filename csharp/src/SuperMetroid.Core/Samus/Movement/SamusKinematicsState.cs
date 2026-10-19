@@ -127,10 +127,18 @@ public sealed class SamusKinematicsState
     public Extent16<RoomPixels> Radius { get; set; } = new(5, 0);
 
     /// <summary>Whole vertical speed used to suppress grounded horizontal slope scaling.</summary>
-    public ushort YSpeed { get; set; }
+    public int YSpeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Fractional vertical speed used to suppress grounded horizontal slope scaling.</summary>
-    public ushort YSubspeed { get; set; }
+    public int YSubspeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// Vertical direction at WRAM <c>$0B36</c>: zero is none, one is upward, and two is
@@ -144,47 +152,65 @@ public sealed class SamusKinematicsState
     public AreaId SandCollisionArea { get; set; }
 
     /// <summary>Whole gravity word at WRAM <c>$0B34</c>.</summary>
-    public ushort YAcceleration { get; set; }
+    public int YAcceleration
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Fractional gravity word at WRAM <c>$0B32</c>.</summary>
-    public ushort YSubacceleration { get; set; }
+    public int YSubacceleration
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Native <c>enable_horiz_slope_coll</c>; bit 1 enables post-X Y alignment.</summary>
-    public ushort HorizontalSlopeCollisionEnable { get; set; } = 3;
+    public int HorizontalSlopeCollisionEnable
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    } = 3;
 
     /// <summary>Native flag set when square collision or non-square alignment changes Y.</summary>
     public bool PositionAdjustedBySlope { get; set; }
 
     /// <summary>Current vertical speed as an unsigned native high/low pair.</summary>
-    public uint VerticalSpeedFixed => (SnesSixteenSixteen.FromWhole((uint)YSpeed)) | YSubspeed;
+    public uint VerticalSpeedFixed => SnesSixteenSixteen.Compose(YSpeed, YSubspeed);
 
     /// <summary>
-    /// Whole-pixel top collision boundary returned by <c>Get_Samus_Top_Boundary</c>.
-    /// Liquid and wall-jump code deliberately samples this separately from Samus's feet.
+    /// Top-centre point of the collision box: Samus's whole X and her whole-pixel top
+    /// boundary, wrapping in room space. Liquid code deliberately samples this separately
+    /// from Samus's feet.
     /// </summary>
-    public ushort TopBoundary => unchecked((ushort)(Position.Y.Whole - Radius.Y));
+    public Position16<RoomPixels> TopBoundary =>
+        new(Position.X.Whole, unchecked((ushort)(Position.Y.Whole - Radius.Y)));
 
     /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
     /// <c>$90:EC3E</c>, this does not subtract one. The native addition wraps at 16 bits.
     /// </summary>
-    public ushort BottomBoundary => unchecked((ushort)(Position.Y.Whole + Radius.Y));
+    public int BottomBoundary => unchecked((ushort)(Position.Y.Whole + Radius.Y));
 
-    /// <summary>Inclusive bottom pixel, matching $90:EC3E when radius reflects the current pose.</summary>
-    public ushort BottomPixel => unchecked((ushort)(BottomBoundary - 1));
+    /// <summary>
+    /// Bottom-centre occupied point: Samus's whole X and the last pixel row her collision box
+    /// covers, one above the exclusive bottom boundary, wrapping in room space.
+    /// </summary>
+    public Position16<RoomPixels> BottomPixel =>
+        new(Position.X.Whole, unchecked((ushort)(BottomBoundary - 1)));
 
     /// <summary>Publishes the result of one directional bank-$A0 solid-enemy probe.</summary>
     internal void RecordSolidEnemyCollision(
         SamusCollisionDirection direction,
-        ushort? nativeEnemyIndex)
+        int? nativeEnemyIndex)
     {
         if ((uint)direction > (uint)SamusCollisionDirection.Down)
             throw new ArgumentOutOfRangeException(nameof(direction));
-        _solidEnemyCollisionIndexes[(int)direction] = nativeEnemyIndex ?? ushort.MaxValue;
+        _solidEnemyCollisionIndexes[(int)direction] = checked((ushort)(nativeEnemyIndex ?? ushort.MaxValue));
     }
 
     /// <summary>Tests the four collision words exactly as dead-monster wait AI does.</summary>
-    internal bool DidCollideWithSolidEnemy(ushort nativeEnemyIndex)
+    internal bool DidCollideWithSolidEnemy(int nativeEnemyIndex)
     {
         foreach (ushort index in _solidEnemyCollisionIndexes)
         {

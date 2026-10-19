@@ -24,11 +24,11 @@ internal static class SpringBallEquipmentJumpVerification
         foreach (bool left in new[] { false, true })
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var game = new SuperMetroidGame(memory, new SuperMetroidGameOptions { Invincibility = true }, renderGameplayFrames: false);
+            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions { Invincibility = true }, renderGameplayFrames: false);
             PrepareRomFreeBindings(installation)(game, false);
             game.InitializeDirectRoomVerification();
             var runtime = game.GameplayRuntimeForVerification;
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.WestOcean);
             // A bounded underwater fixture retains the retail FX but removes terrain/enemies,
             // isolating the reported pause/equipment/launch contract from room obstacles.
             foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
@@ -36,14 +36,14 @@ internal static class SpringBallEquipmentJumpVerification
             for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             { level.SetForegroundEntry(block, 0); level.SetBehavior(block, 0); }
             var samus = runtime.Player.IntroducedSamus;
-            samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
-            samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.SpringBall);
-            samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomLayer3Fx.CurrentYPosition + 96)));
+            samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
+            samus.CollectedItems = (SamusEquipmentFlags)((ushort)(samus.EquippedItems | SamusEquipmentFlags.SpringBall));
+            samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomLayer3Fx.Surface.Y + 96)));
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
-            samus.PoseMetadata.RefreshCollisionRadii(memory);
+            samus.PoseMetadata.RefreshCollisionRadii();
             runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
             AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
-            samus.Presentation.InitializeAnimation(memory, 3);
+            samus.Presentation.InitializeAnimation(3);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = 1;
             samus.Kinematics.YSubspeed = 0x8000;
@@ -72,10 +72,10 @@ internal static class SpringBallEquipmentJumpVerification
 
             void Resume(bool equipped)
             {
-                ushort y = samus.Position.Y.Whole, speed = samus.Kinematics.YSpeed, sub = samus.Kinematics.YSubspeed;
+                int y = samus.Position.Y.Whole, speed = samus.Kinematics.YSpeed, sub = samus.Kinematics.YSubspeed;
                 SamusVerticalDirection direction = samus.Kinematics.YDirection;
-                if (equipped) samus.EquippedItems |= (ushort)SamusEquipmentFlags.SpringBall;
-                else samus.EquippedItems &= unchecked((ushort)~(ushort)SamusEquipmentFlags.SpringBall);
+                if (equipped) samus.EquippedItems |= SamusEquipmentFlags.SpringBall;
+                else samus.EquippedItems &= ~SamusEquipmentFlags.SpringBall;
                 // The equipment screen writes this live word. Exercise its real forced-blank
                 // teardown, where cartridge command $0C must reconcile the pose.
                 game.GameState = SuperMetroidGameState.UnpausingB;

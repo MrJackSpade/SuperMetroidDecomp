@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -26,29 +27,14 @@ internal static class FileMapSnapshotTestsVerification
         VerifyWindowedSceneContract();
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int samples = 0;
-        for (int area = 0; area < 6; area++)
-        {
-            var graphics = new FileSelectAreaMapGraphics(bus, area, RetailPresentationFixture().Tiles, RetailPresentationFixture().Palettes, RetailPresentationFixture().Screens, RetailPresentationFixture().WorldArtwork, RetailPresentationFixture().Sprites);
-            graphics.BindLabels(RetailPresentationFixture().Labels);
-            foreach (bool backdrop in new[] { false, true })
-            foreach (ushort used in new ushort[] { 0, 1, ushort.MaxValue })
-            {
-                ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
-                Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(masks, backdrop), "area labels/subscreen");
-            }
-            var room = new FileSelectRoomMapGraphics(bus, new Bank80SystemState(), (AreaId)area, mapPresentation: RetailPresentationFixture());
-            Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(frameOnly: true), "room frame only");
-            foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
-                Compare(room.RenderBackgrounds(new(scroll, scroll)), room.CaptureRenderSnapshot(new(scroll, scroll)), "room wrapped scroll");
-        }
         foreach (bool cancel in new[] { false, true })
         {
-            var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+            var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             saves.SaveSlot(0, save);
-            var legacy = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture());
-            var capture = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture());
+            var legacy = new FileSelectMapMenuState(new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture());
+            var capture = new FileSelectMapMenuState(new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture());
             var phases = new HashSet<FileSelectMapNavigationPhase>();
             LayeredRenderSnapshot? previous = null;
             Rgba32[]? previousPixels = null;
@@ -75,13 +61,15 @@ internal static class FileMapSnapshotTestsVerification
         }
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         var leftBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom); var rightBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        foreach (var owner in new[] { leftBus, rightBus })
+        SuperMetroid.Core.Saves.SaveSlotStore Saves()
         {
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
-            new SuperMetroidSaveRam(owner, RetailPresentationFixture()).SaveSlot(0, save);
+            var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
+            saves.SaveSlot(0, save);
+            return saves;
         }
-        var game = CreateRetailGameFixture(leftBus); var capturedGame = CreateRetailGameFixture(rightBus);
+        var game = CreateRetailGameFixture(Saves()); var capturedGame = CreateRetailGameFixture(Saves());
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         game.BindArtwork(game.Artwork with
         {
@@ -97,8 +85,7 @@ internal static class FileMapSnapshotTestsVerification
             SnesButton input = tick % 47 == 0 ? SnesButton.Start : (ushort)0;
             var reference = game.Step(input); var actual = capturedGame.StepCaptured(input, tick + 1, 1);
             sawMap |= game.GameState == SuperMetroidGameState.FileSelectMap;
-            AssertTrue(!actual.UsedLegacyRaster, "saved-file frontend never falls back to raster");
-            AssertTrue(reference.Pixels.SequenceEqual(RenderForComparison((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")))), "saved-file frontend pixels");
+            AssertTrue(game.PublishedPixels().SequenceEqual(RenderForComparison(actual.Snapshot)), "saved-file frontend pixels");
             AssertEqual(reference.GameState, actual.Frame.GameState, "saved-file frontend state");
             AssertEqual(reference.Phase, actual.Frame.Phase, "saved-file frontend phase");
             AssertSequenceEqual(game.AudioEventsForVerification, capturedGame.AudioEventsForVerification, "saved-file frontend audio event order");

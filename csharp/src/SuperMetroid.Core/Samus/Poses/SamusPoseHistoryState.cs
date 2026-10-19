@@ -10,14 +10,22 @@ public sealed class SamusPoseHistoryState
     /// <summary>WRAM $0A20: pose sampled at the preceding committed transition.</summary>
     public SamusPoseId PreviousPose { get; set; }
 
-    /// <summary>WRAM $0A22: previous direction byte followed by movement-type byte.</summary>
-    public ushort PreviousDirectionAndMovement { get; set; }
+    /// <summary>WRAM $0A22, 0 through 65535: previous direction byte followed by movement-type byte.</summary>
+    public int PreviousDirectionAndMovement
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>WRAM $0A24: previous pose before the latest transition-history shift.</summary>
     public SamusPoseId LastDifferentPose { get; set; }
 
-    /// <summary>WRAM $0A26: older direction byte followed by movement-type byte.</summary>
-    public ushort LastDifferentDirectionAndMovement { get; set; }
+    /// <summary>WRAM $0A26, 0 through 65535: older direction byte followed by movement-type byte.</summary>
+    public int LastDifferentDirectionAndMovement
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// $90:9D35 admits only older spinjump/walljump movement. The cartridge name
@@ -29,7 +37,7 @@ public sealed class SamusPoseHistoryState
         {
             // $90:9D35 compares the raw movement byte, so a byte outside the movement-type
             // domain is simply not one of the two admitted movements.
-            byte movement = SnesLittleEndian.HighByte(LastDifferentDirectionAndMovement);
+            byte movement = SnesLittleEndian.HighByte(checked((ushort)LastDifferentDirectionAndMovement));
             return Enum.IsDefined((SamusMovementType)movement) &&
                 (SamusMovementType)movement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
         }

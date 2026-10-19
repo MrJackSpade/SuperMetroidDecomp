@@ -8,14 +8,9 @@ internal static class DeadSidehopperCorpseDefinitions
     /// used by the initially living Shitroid victim.
     /// </summary>
     internal static readonly DeadSidehopperCorpseDefinition InitiallyAlive = new(
-        ConfigurationPointer: 0xdd68,
         RottingTablePointer: 0x9000,
         VramTransferPointer: 0xe0e0,
-        CopyFunction: 0xe4f5,
-        MoveFunction: 0xe468,
         EntryCount: 0x0028,
-        RotationTablePointer: 0xe240,
-        FinishFunction: 0xdc08,
         WrapOffset: 0x0094);
 
     /// <summary>
@@ -23,14 +18,9 @@ internal static class DeadSidehopperCorpseDefinitions
     /// used by the already dead Tourian sidehopper.
     /// </summary>
     internal static readonly DeadSidehopperCorpseDefinition InitiallyDead = new(
-        ConfigurationPointer: 0xdd78,
         RottingTablePointer: 0x90a0,
         VramTransferPointer: 0xe10a,
-        CopyFunction: 0xe5f6,
-        MoveFunction: 0xe564,
         EntryCount: 0x0028,
-        RotationTablePointer: 0xe240,
-        FinishFunction: 0xdc08,
         WrapOffset: 0x0094);
 
     /// <summary>The palette stage of a corpse that has not started its palette sequence.</summary>

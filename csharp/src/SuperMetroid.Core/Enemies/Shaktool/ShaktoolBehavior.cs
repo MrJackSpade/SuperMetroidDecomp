@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Shaktool.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -7,8 +9,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>The Shaktool species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ShaktoolBehavior : IEnemySpecies
+internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ShaktoolEntity(this, slot, common);
+
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates the linked Shaktool attack circles.</summary>
@@ -30,16 +38,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     /// <summary>Head, five middle segments, and tail occupy consecutive enemy slots.</summary>
     private const int ShaktoolSegmentCount = 7;
 
-    /// <summary>Initialized segment extensions indexed by physical enemy slot.</summary>
-    internal readonly ShaktoolSegmentState?[] _shaktoolSegments =
-        new ShaktoolSegmentState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Discards all segment extensions when the room population changes.</summary>
-    internal void ResetShaktoolRoomState() => Array.Clear(_shaktoolSegments);
+    internal void ResetShaktoolRoomState() =>
+        Array.ForEach(_slotTable._slots, cleared => cleared.SetSpeciesState<ShaktoolSegmentState>(null));
 
     /// <summary>The whole table step half a turn from <paramref name="angle"/>, its fraction cleared.</summary>
-    private static ushort OppositeOrbitStep(ushort angle) =>
-        SnesAngle.FromTableIndex(SnesAngle.FromRaw(angle).AddRaw(SnesAngle.HalfTurn.RawValue).TableIndex).RawValue;
+    private static SnesAngle OppositeOrbitStep(SnesAngle angle) =>
+        SnesAngle.FromTableIndex(angle.AddRaw(SnesAngle.HalfTurn.RawValue).TableIndex);
 
     /// <summary>Ports <c>Shaktool_Init</c> at <c>$AA:DE43</c>, establishing the segment's orbit and owner-slot offset.</summary>
     internal void InitializeShaktool(RoomEnemySlot slot)
@@ -52,21 +57,23 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
 
         int segmentIndex = slot.Parameter2 >> 1;
         ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.ForIndex(segmentIndex);
-        var state = new ShaktoolSegmentState(slot);
-        _shaktoolSegments[slot.SlotIndex] = state;
+        var state = new ShaktoolSegmentState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
+        // The population's first parameter holds the chain's initial motion flags; the chain then writes its flags
+        // to every segment together.
+        state.MotionFlags = (ShaktoolMotionFlags)slot.Parameter1;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        state.TargetAngle = 0;
-        state.OrientationAndAcceleration = 0;
-        slot.Properties = unchecked((ushort)(slot.Properties | definition.PropertyMask));
-        state.OwnerNativeIndex = unchecked((ushort)(slot.NativeIndex -
-            definition.OwnerNativeOffset));
+        state.TargetAngle = SnesAngle.Zero;
+        state.ResetOrientation();
+        slot.Properties = slot.Properties.With(definition.PropertyMask);
+        state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerNativeOffset / RoomEnemySystem.NativeSlotSize;
         state.PreInstruction = definition.PreInstruction;
         // Native initialization subtracts the parallel all-zero table; synchronization
         // uses the same authored velocity directly.
         state.AngularVelocity = definition.AngularVelocity;
-        state.OrbitAngle = definition.InitialOrbitAngle;
+        state.OrbitAngle = SnesAngle.FromRaw(definition.InitialOrbitAngle);
 
         // The second half of $DEB1 is a parallel list-pointer table. Parameter two is
         // already a byte offset, so +14+p2 selects exactly entries seven through thirteen;
@@ -112,7 +119,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
 
             default:
                 throw new InvalidDataException(
-                    $"Shaktool pre-instruction $AA:{(ushort)state.PreInstruction:X4} " +
+                    $"Shaktool pre-instruction {state.PreInstruction?.ToString() ?? "none"} " +
                     "is not translated.");
         }
     }
@@ -132,7 +139,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         // prebuilt active list. Their final orbit uses the cleared coordinates.
 
         (int xDisplacement, int yDisplacement) = ShaktoolOrbitTables.Displacement(
-            SnesAngle.FromRaw(state.OrbitAngle).TableIndex);
+            state.OrbitAngle.TableIndex);
         slot.Position = previous.Position.Advance(new(
             SnesSignedSixteenSixteen.FromRaw(xDisplacement),
             SnesSignedSixteenSixteen.FromRaw(yDisplacement)));
@@ -142,11 +149,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     private void AdvanceShaktoolOrbit(RoomEnemySlot slot, ShaktoolSegmentState state)
     {
         PositionShaktoolAroundPreviousSegment(slot, state);
-        ShaktoolMotionFlags flags = (ShaktoolMotionFlags)slot.Parameter1;
-        ushort increment;
+        ShaktoolMotionFlags flags = state.MotionFlags;
+        int increment;
         if ((flags & ShaktoolMotionFlags.Straightening) != 0)
         {
-            state.TargetAngle = unchecked((ushort)(state.TargetAngle + ShaktoolOrbitDefinitions.TableStep));
+            state.TargetAngle = state.TargetAngle.AddRaw(ShaktoolOrbitDefinitions.TableStep);
             increment = ShaktoolOrbitDefinitions.TableStep;
         }
         else
@@ -155,8 +162,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         }
 
         state.OrbitAngle = (flags & ShaktoolMotionFlags.Clockwise) != 0
-            ? unchecked((ushort)(state.OrbitAngle - increment))
-            : unchecked((ushort)(state.OrbitAngle + increment));
+            ? state.OrbitAngle.AddRaw(-increment)
+            : state.OrbitAngle.AddRaw(increment);
     }
 
     /// <summary>Ports middle-segment orientation selection at <c>$AA:DCD7</c>.</summary>
@@ -168,15 +175,14 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         RoomEnemySlot nextSlot = GetNextShaktoolSegment(slot);
         ShaktoolSegmentState next = RequireShaktoolState(nextSlot);
 
-        ushort oppositeAngle = unchecked((ushort)(state.OrbitAngle ^ SnesAngle.HalfTurn.RawValue));
+        ushort oppositeAngle = unchecked((ushort)(state.OrbitAngle.RawValue ^ SnesAngle.HalfTurn.RawValue));
         ushort midpoint = unchecked((ushort)(oppositeAngle +
-            (unchecked((ushort)(next.OrbitAngle - oppositeAngle)) >> 1)));
-        if ((state.OrientationAndAcceleration & ShaktoolOrbitDefinitions.ReversedOrientationBit) != 0)
+            (unchecked((ushort)(next.OrbitAngle.RawValue - oppositeAngle)) >> 1)));
+        if (state.OrientationReversed)
             midpoint ^= SnesAngle.HalfTurn.RawValue;
 
         ushort directionBucket = unchecked((ushort)(((SnesLittleEndian.HighByte(midpoint)) + 8) & ShaktoolOrbitDefinitions.DirectionBucketMask));
-        state.OrientationAndAcceleration = unchecked((ushort)(
-            (SnesLittleEndian.HighByteInPlace(state.OrientationAndAcceleration)) | directionBucket));
+        state.OrientationBucket = directionBucket;
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
             ShaktoolInstructionDefinitions.ForOrientationBucket(directionBucket));
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -215,32 +221,31 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         }
 
         slot.Position = slot.Position.WithWhole(candidate);
-        ShaktoolMotionFlags flags = (ShaktoolMotionFlags)slot.Parameter1;
+        ShaktoolMotionFlags flags = state.MotionFlags;
         if ((flags & ShaktoolMotionFlags.Straightening) != 0)
         {
             // DD25 deliberately adds a second $0100 after DCAC's first increment.
-            state.TargetAngle = unchecked((ushort)(state.TargetAngle + ShaktoolOrbitDefinitions.TableStep));
+            state.TargetAngle = state.TargetAngle.AddRaw(ShaktoolOrbitDefinitions.TableStep);
             return;
         }
 
-        if (SnesAngle.FromRaw(state.TargetAngle).TableIndex == SnesAngle.FromRaw(state.OrbitAngle).TableIndex)
+        if (state.TargetAngle.TableIndex == state.OrbitAngle.TableIndex)
         {
             SynchronizeShaktoolOrbitTargets(slot, state.TargetAngle);
-            state.OrientationAndAcceleration = ShaktoolOrbitDefinitions.StraighteningStart;
+            // The cartridge keeps only the high byte of the restarted progress, which is already whole.
+            state.CurlProgress = ShaktoolOrbitDefinitions.StraighteningStart;
             SetShaktoolGroupMotionFlags(
                 slot,
-                (ShaktoolMotionFlags)slot.Parameter1 & ~ShaktoolMotionFlags.ReversedOnce);
-            state.OrientationAndAcceleration = unchecked((ushort)(
-                SnesLittleEndian.HighByteInPlace(state.OrientationAndAcceleration)));
+                state.MotionFlags & ~ShaktoolMotionFlags.ReversedOnce);
         }
 
-        state.OrientationAndAcceleration = unchecked((ushort)(
-            state.OrientationAndAcceleration + state.AngularVelocity));
-        if (state.OrientationAndAcceleration >= ShaktoolOrbitDefinitions.StraighteningThreshold)
+        // Accumulation stops once the chain straightens, at most one increment past the threshold.
+        state.CurlProgress += state.AngularVelocity;
+        if (state.CurlProgress >= ShaktoolOrbitDefinitions.StraighteningThreshold)
         {
             SetShaktoolGroupMotionFlags(
                 slot,
-                (ShaktoolMotionFlags)slot.Parameter1 | ShaktoolMotionFlags.Straightening);
+                state.MotionFlags | ShaktoolMotionFlags.Straightening);
         }
     }
 
@@ -250,7 +255,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         ShaktoolSegmentState state,
         Position16<RoomPixels> previous)
     {
-        ShaktoolMotionFlags flags = (ShaktoolMotionFlags)slot.Parameter1;
+        ShaktoolMotionFlags flags = state.MotionFlags;
         if ((flags & ShaktoolMotionFlags.ReversedOnce) != 0)
         {
             SetShaktoolGroupMotionFlags(
@@ -268,17 +273,17 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             SetShaktoolGroupMotionFlags(slot, flags | ShaktoolMotionFlags.ReversedOnce);
             SetShaktoolGroupMotionFlags(
                 slot,
-                (ShaktoolMotionFlags)slot.Parameter1 & ~ShaktoolMotionFlags.Straightening);
+                state.MotionFlags & ~ShaktoolMotionFlags.Straightening);
         }
 
-        state.OrientationAndAcceleration = 0;
-        RoomEnemySlot owner = _slotTable.SlotFromNativeIndex(state.OwnerNativeIndex);
+        state.ResetOrientation();
+        RoomEnemySlot owner = OwnerSlot(state);
         byte angle = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(slot.Position.X.Whole - owner.Position.X.Whole)), unchecked((short)(slot.Position.Y.Whole - owner.Position.Y.Whole))));
-        ushort target = SnesAngle.FromTableIndex(angle).RawValue;
-        target = ((ShaktoolMotionFlags)slot.Parameter1 & ShaktoolMotionFlags.Clockwise) != 0
-            ? unchecked((ushort)(target - SnesAngle.QuarterTurn.RawValue))
-            : unchecked((ushort)(target + SnesAngle.QuarterTurn.RawValue));
+        SnesAngle target = SnesAngle.FromTableIndex(angle);
+        target = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != 0
+            ? target.AddRaw(-SnesAngle.QuarterTurn.RawValue)
+            : target.AddRaw(SnesAngle.QuarterTurn.RawValue);
         SetShaktoolGroupTargetAngle(slot, target);
 
         RoomEnemySlot[] group = GetShaktoolGroup(slot);
@@ -286,7 +291,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         {
             RoomEnemySlot segment = group[index];
             ShaktoolSegmentState segmentState = RequireShaktoolState(segment);
-            CalculateShaktoolAngularVelocity(segment, segmentState);
+            CalculateShaktoolAngularVelocity(segmentState);
             segmentState.PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
             segmentState.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
                 ShaktoolInstructionDefinitions.CollisionForSegment(index));
@@ -298,7 +303,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     private void ReverseShaktoolChainEndpoints(RoomEnemySlot anySegment)
     {
         RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
-        RequireShaktoolState(group[3]).OrientationAndAcceleration ^= ShaktoolOrbitDefinitions.ReversedOrientationBit;
+        ShaktoolSegmentState center = RequireShaktoolState(group[3]);
+        center.OrientationReversed = !center.OrientationReversed;
 
         SwapMirroredShaktoolAngles(group[6], group[1]);
         SwapMirroredShaktoolAngles(group[5], group[2]);
@@ -315,29 +321,26 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     }
 
     /// <summary>Swaps two segment orbit angles after rotating each by half a turn.</summary>
-    private void SwapMirroredShaktoolAngles(RoomEnemySlot left, RoomEnemySlot right)
+    private static void SwapMirroredShaktoolAngles(RoomEnemySlot left, RoomEnemySlot right)
     {
         ShaktoolSegmentState leftState = RequireShaktoolState(left);
         ShaktoolSegmentState rightState = RequireShaktoolState(right);
-        ushort saved = leftState.OrbitAngle;
+        SnesAngle saved = leftState.OrbitAngle;
         leftState.OrbitAngle = OppositeOrbitStep(rightState.OrbitAngle);
         rightState.OrbitAngle = OppositeOrbitStep(saved);
     }
 
-    /// <summary>Ports the per-segment convergence speed calculation at <c>$AA:DC07</c>.</summary>
-    private static void CalculateShaktoolAngularVelocity(
-        RoomEnemySlot slot,
-        ShaktoolSegmentState state)
+    /// <summary>Ports the per-segment convergence speed calculation at <c>$AA:DC07</c>: four raw angle units per whole table step left to the target in the orbit direction.</summary>
+    private static void CalculateShaktoolAngularVelocity(ShaktoolSegmentState state)
     {
-        ushort difference = ((ShaktoolMotionFlags)slot.Parameter1 &
-            ShaktoolMotionFlags.Clockwise) != 0
-            ? unchecked((ushort)(state.OrbitAngle - state.TargetAngle))
-            : unchecked((ushort)(state.TargetAngle - state.OrbitAngle));
-        state.AngularVelocity = unchecked((ushort)(4 * (SnesLittleEndian.HighByte(difference))));
+        ushort difference = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != 0
+            ? unchecked((ushort)(state.OrbitAngle.RawValue - state.TargetAngle.RawValue))
+            : unchecked((ushort)(state.TargetAngle.RawValue - state.OrbitAngle.RawValue));
+        state.AngularVelocity = 4 * SnesLittleEndian.HighByte(difference);
     }
 
     /// <summary>Ports group synchronization at <c>$AA:DC6F</c>.</summary>
-    private void SynchronizeShaktoolOrbitTargets(RoomEnemySlot anySegment, ushort target)
+    private void SynchronizeShaktoolOrbitTargets(RoomEnemySlot anySegment, SnesAngle target)
     {
         RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
         for (int index = 0; index < ShaktoolSegmentCount; index++)
@@ -349,31 +352,39 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     }
 
     /// <summary>Publishes a shared convergence target to all seven initialized segments.</summary>
-    private void SetShaktoolGroupTargetAngle(RoomEnemySlot anySegment, ushort target)
+    private void SetShaktoolGroupTargetAngle(RoomEnemySlot anySegment, SnesAngle target)
     {
         foreach (RoomEnemySlot segment in GetShaktoolGroup(anySegment))
             RequireShaktoolState(segment).TargetAngle = target;
     }
 
-    /// <summary>Writes the native parameter-one motion flags to the entire chain.</summary>
+    /// <summary>Writes the motion flags to the entire chain.</summary>
     private void SetShaktoolGroupMotionFlags(
         RoomEnemySlot anySegment,
         ShaktoolMotionFlags flags)
     {
         foreach (RoomEnemySlot segment in GetShaktoolGroup(anySegment))
-            segment.Parameter1 = (ushort)flags;
+            RequireShaktoolState(segment).MotionFlags = flags;
     }
 
-    /// <summary>Resolves and validates seven consecutive slots from a segment's native owner index.</summary>
+    /// <summary>The slot of the chain's first segment, which must be one of the room's enemy slots.</summary>
+    private RoomEnemySlot OwnerSlot(ShaktoolSegmentState state)
+    {
+        if (state.OwnerSlotIndex < 0 || state.OwnerSlotIndex >= RoomEnemySystem.MaximumEnemyCount)
+            throw new ArgumentOutOfRangeException(nameof(state), $"Shaktool owner slot {state.OwnerSlotIndex} is not an enemy slot.");
+        return _slotTable._slots[state.OwnerSlotIndex];
+    }
+
+    /// <summary>Resolves and validates seven consecutive slots from a segment's owner slot.</summary>
     private RoomEnemySlot[] GetShaktoolGroup(RoomEnemySlot anySegment)
     {
         ShaktoolSegmentState state = RequireShaktoolState(anySegment);
-        int ownerSlotIndex = state.OwnerNativeIndex / RoomEnemySystem.NativeSlotSize;
-        if (state.OwnerNativeIndex % RoomEnemySystem.NativeSlotSize != 0 ||
+        int ownerSlotIndex = state.OwnerSlotIndex;
+        if (ownerSlotIndex < 0 ||
             ownerSlotIndex + ShaktoolSegmentCount > _slotTable._slots.Length)
         {
             throw new InvalidDataException(
-                $"Shaktool owner native index ${state.OwnerNativeIndex:X4} is invalid.");
+                $"Shaktool owner slot {ownerSlotIndex} is invalid.");
         }
 
         var group = new RoomEnemySlot[ShaktoolSegmentCount];
@@ -381,9 +392,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         {
             RoomEnemySlot segment = _slotTable._slots[ownerSlotIndex + index];
             // Group helpers also run during the remainder of the lethal frame.
-            // The initialized view survives common-slot clearing and continues to
-            // expose its native words; a cleared header is not a missing record.
-            if (_shaktoolSegments[segment.SlotIndex] is null)
+            // The segment's state survives common-slot clearing with its record
+            // values emptied; a cleared header is not a missing record.
+            if (segment.SpeciesState<ShaktoolSegmentState>() is null)
             {
                 throw new InvalidDataException(
                     $"Shaktool group rooted at slot {ownerSlotIndex} is missing segment {index}.");
@@ -405,8 +416,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     }
 
     /// <summary>Requires an initialized extension for the given physical segment slot.</summary>
-    private ShaktoolSegmentState RequireShaktoolState(RoomEnemySlot slot) =>
-        _shaktoolSegments[slot.SlotIndex] is { } state
+    private static ShaktoolSegmentState RequireShaktoolState(RoomEnemySlot slot) =>
+        slot.SpeciesState<ShaktoolSegmentState>() is { } state
             ? state
             : throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} has no initialized Shaktool state.");
@@ -420,8 +431,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             case ShaktoolCueKind.RaiseTowardCenter:
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
-                byte centerDirection = unchecked((byte)RequireShaktoolState(group[3])
-                    .OrientationAndAcceleration);
+                byte centerDirection = checked((byte)RequireShaktoolState(group[3])
+                    .OrientationBucket);
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.LowerAwayFromCenter
@@ -433,7 +444,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             case ShaktoolCueKind.Lower:
             case ShaktoolCueKind.Raise:
             {
-                byte targetDirection = SnesAngle.FromRaw(state.TargetAngle).TableIndex;
+                byte targetDirection = state.TargetAngle.TableIndex;
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.Lower
@@ -488,21 +499,20 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     {
         if (struckSegment.Health != 0)
             return;
-        // $A0:A3AF clears the entire common slot, including VariableE. $AA:DF40
+        // $A0:A3AF clears the entire common slot, which empties the segment's owner. $AA:DF40
         // reads that now-zero owner and writes properties without checking headers.
-        // Do not recover the old group from cached state: native also targets slots
+        // Do not recover the old group from before the kill: native also targets slots
         // 0..6 when Shaktool was placed later in a constructed population.
-        ushort ownerNativeIndex = struckSegment.VariableE;
-        int ownerSlotIndex = ownerNativeIndex / RoomEnemySystem.NativeSlotSize;
-        if (ownerNativeIndex % RoomEnemySystem.NativeSlotSize != 0 ||
+        int ownerSlotIndex = RequireShaktoolState(struckSegment).OwnerSlotIndex;
+        if (ownerSlotIndex < 0 ||
             ownerSlotIndex + ShaktoolSegmentCount > _slotTable._slots.Length)
-            throw new InvalidDataException($"Shaktool post-shot owner ${ownerNativeIndex:X4} is invalid.");
+            throw new InvalidDataException($"Shaktool post-shot owner slot {ownerSlotIndex} is invalid.");
         for (int index = 0; index < ShaktoolSegmentCount; index++)
-            _slotTable._slots[ownerSlotIndex + index].Properties = (ushort)EnemyProperties.Deleted;
+            _slotTable._slots[ownerSlotIndex + index].Properties = new EnemyPropertyWord(EnemyProperties.Deleted);
     }
 
     /// <summary>Runs the native post-common lethal-shot tail for bomb hits.</summary>
-    internal void RegisterShaktoolBombReactions(EnemyAiTable table)
+    internal void RegisterShaktoolBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.ShaktoolShot)
@@ -525,42 +535,32 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving);
     }
 
-    /// <summary>Routes the Shaktool definition to seven-segment initialization.</summary>
-    internal void RegisterShaktoolInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Shaktool's initialization AI.</summary>
+    internal void RunShaktoolInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Shaktool, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeShaktool(slot);
-        });
+        InitializeShaktool(slot);
     }
 
-    /// <summary>Routes each segment's frame through its orbit and collision AI.</summary>
-    internal void RegisterShaktoolMainAi(EnemyAiTable table)
+    /// <summary>Ports Shaktool's main AI.</summary>
+    internal void RunShaktoolMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_HurtAI_Shaktool, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunShaktoolMain(slot, RequireShaktoolState(slot), frame.Level);
-        });
+        RunShaktoolMain(slot, RequireShaktoolState(slot), frame.Level);
     }
 
-    /// <summary>Runs the Shaktool segments' animations as typed programs (#641).</summary>
-    internal void RegisterShaktoolTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireShaktoolState(slot);
-            AnimationProgramCursor<ShaktoolProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, ShaktoolAnimations.Programs, ref cursor, ShaktoolFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyShaktoolCue(slot, state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Shaktool's typed animation.</summary>
+    internal void AdvanceShaktoolTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireShaktoolState(slot);
+        AnimationProgramCursor<ShaktoolProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, ShaktoolAnimations.Programs, ref cursor, ShaktoolFrameDefinitions.ShownFrames.Of,
+                (cue, _) => ApplyShaktoolCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>`$AA:DF2F`: Shaktool contact is the common normal-enemy touch, death animation included.</summary>
-    internal void RegisterShaktoolTouch(EnemyAiTable table)
+    internal void RegisterShaktoolTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ShaktoolTouch,
@@ -568,7 +568,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     }
 
     /// <summary>Runs the native post-common lethal-shot tail for regular projectile hits.</summary>
-    internal void RegisterShaktoolShotReactions(EnemyAiTable table)
+    internal void RegisterShaktoolShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShaktoolShot)
@@ -593,7 +593,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        ushort ownerNativeIndex = projectile.Variable0;
+        ushort ownerNativeIndex = checked((ushort)projectile.Variable0);
         if ((ownerNativeIndex & 1) != 0 ||
             ownerNativeIndex >= _projectiles.EnemyProjectiles.Count * 2 ||
             !_projectiles.EnemyProjectiles[ownerNativeIndex >> 1].IsActive)
@@ -610,10 +610,5 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         ResetShaktoolRoomState();
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

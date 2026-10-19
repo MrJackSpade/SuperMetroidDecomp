@@ -19,19 +19,19 @@ internal static class BoostFloorScrollVerification
     internal static void VerifyBoostFloorScroll()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarRoom08, camera: new Position16<RoomPixels>(1024, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Dachora, camera: new Position16<RoomPixels>(1024, 0));
         var level = runtime.Room.LevelData;
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.SpeedBooster;
+        samus.EquippedItems = SamusEquipmentFlags.SpeedBooster;
         samus.Position = samus.Position.WithWhole(new(1040, 171));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
         // Seed an already established boost at the reported floor, avoiding the
         // unrelated bomb-tunnel approach. All subsequent movement/contacts are live.
         samus.HorizontalSpeed.HasRunningMomentum = true;
@@ -51,7 +51,7 @@ internal static class BoostFloorScrollVerification
             if (tick % 100 == 0)
                 Console.WriteLine($"frame={tick} Samus={samus.Position.X.Whole}/{samus.Position.Y.Whole} camera={runtime.Room.LoadedCamera.PixelPosition.X}/{runtime.Room.LoadedCamera.PixelPosition.Y}");
         }
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var frame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
 
         AssertTrue(samus.Position.Y.Whole > 1000, "fixture breaks through the actual speed floor and falls down the shaft");

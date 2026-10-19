@@ -26,12 +26,12 @@ internal static class FullBodyPalettePointerListsVerification
             address => $"Runtime read of compiled full-body palette pointer ${address:X6}.");
         SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom)));
-        ushort[] equipment =
+        SamusEquipmentFlags[] equipment =
         [
             0,
-            (ushort)SamusEquipmentFlags.VariaSuit,
-            (ushort)SamusEquipmentFlags.GravitySuit,
-            (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
+            SamusEquipmentFlags.VariaSuit,
+            SamusEquipmentFlags.GravitySuit,
+            (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
         ];
         (string Name, int Top, ushort FirstList, ushort FirstPalette, int Phases, bool PingPong)[] families =
         [
@@ -60,7 +60,7 @@ internal static class FullBodyPalettePointerListsVerification
             }
         }
 
-        foreach (ushort items in equipment)
+        foreach (SamusEquipmentFlags items in equipment)
         {
             int suit = items.HasAny(SamusEquipmentFlags.GravitySuit) ? 2 :
                 items.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 0;
@@ -68,7 +68,7 @@ internal static class FullBodyPalettePointerListsVerification
             {
                 var speed = new SamusHorizontalSpeedState { SpecialPaletteFrame = (ushort)(phase * 2) };
                 var actual = new SnesCgram();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(guarded, actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (ushort)(items | (ushort)SamusEquipmentFlags.ScrewAttack) }, cycleColors: cycleColors),
+                AssertTrue(speed.UpdateSpeedBoosterPalette(actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }, cycleColors: cycleColors),
                     "Screw Attack copies a palette without reading either pointer table");
                 int shade = Math.Min(phase, 6 - phase);
                 AssertPaletteColors(rom, actual, 0x9ca0 + suit * 0x200 + shade * 0x20,
@@ -86,7 +86,7 @@ internal static class FullBodyPalettePointerListsVerification
                     SpecialPaletteFrame = (ushort)(phase * 2),
                 };
                 var actual = new SnesCgram();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(guarded, actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: cycleColors),
+                AssertTrue(speed.UpdateSpeedBoosterPalette(actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: cycleColors),
                     "active Speed Booster copies a palette without reading either pointer table");
                 AssertPaletteColors(rom, actual, 0x9b20 + suit * 0x200 + phase * 0x20,
                     $"active Speed Booster suit {suit}, phase {phase}");
@@ -99,7 +99,7 @@ internal static class FullBodyPalettePointerListsVerification
             for (int phase = 0; phase < 6; phase++)
             {
                 var actual = new SnesCgram();
-                AssertTrue(stored.Shinespark.UpdatePalette(guarded, actual, items,
+                AssertTrue(stored.Shinespark.UpdatePalette(actual, items,
                     cycleColors: cycleColors),
                     "stored shine copies a palette without reading either pointer table");
                 int shade = Math.Min(phase, 6 - phase);
@@ -115,7 +115,7 @@ internal static class FullBodyPalettePointerListsVerification
             for (int phase = 0; phase < 4; phase++)
             {
                 var actual = new SnesCgram();
-                AssertTrue(active.Shinespark.UpdatePalette(guarded, actual, items,
+                AssertTrue(active.Shinespark.UpdatePalette(actual, items,
                     cycleColors: cycleColors),
                     "active shinespark copies a palette without reading either pointer table");
                 AssertPaletteColors(rom, actual, 0x9c20 + suit * 0x200 + phase * 0x20,
@@ -136,7 +136,7 @@ internal static class FullBodyPalettePointerListsVerification
 
         var adjacentScrew = new SamusHorizontalSpeedState { SpecialPaletteFrame = 12 };
         var adjacentScrewColors = new SnesCgram();
-        AssertTrue(adjacentScrew.UpdateSpeedBoosterPalette(rom, adjacentScrewColors, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (ushort)SamusEquipmentFlags.ScrewAttack }, cycleColors: cycleColors),
+        AssertTrue(adjacentScrew.UpdateSpeedBoosterPalette(adjacentScrewColors, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }, cycleColors: cycleColors),
             "non-catalog Screw Attack phase retains native adjacent-data read");
         AssertPaletteColors(rom, adjacentScrewColors, 0x9ea0,
             "Screw Attack phase twelve reads the adjacent Varia list");
@@ -148,7 +148,7 @@ internal static class FullBodyPalettePointerListsVerification
             SpecialPaletteFrame = 8,
         };
         var adjacentBoostColors = new SnesCgram();
-        AssertTrue(adjacentBoost.UpdateSpeedBoosterPalette(rom, adjacentBoostColors, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0 }, cycleColors: cycleColors),
+        AssertTrue(adjacentBoost.UpdateSpeedBoosterPalette(adjacentBoostColors, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0 }, cycleColors: cycleColors),
             "non-catalog Speed Booster phase retains native adjacent-data read");
         AssertPaletteColors(rom, adjacentBoostColors, 0x9d20,
             "Speed Booster phase eight reads the adjacent Varia list");

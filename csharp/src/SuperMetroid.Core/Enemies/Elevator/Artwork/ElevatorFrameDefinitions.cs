@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Elevator.Artwork;
 
 /// <summary>
@@ -7,11 +9,10 @@ namespace SuperMetroid.Core.Enemies.Elevator.Artwork;
 internal static class ElevatorFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(ElevatorFrame frame) => frame.Pose switch
+    /// <summary>The installed frame each <see cref="ElevatorFrame"/> shows.</summary>
+    internal static EnemyFrameTable<ElevatorFrame> ShownFrames { get; } = new()
     {
-        0 => 0x962f,
-        1 => 0x9645,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined elevator pose."),
+        { new(Pose: 0), EnemyFrameId.ElevatorPlatform0 },
+        { new(Pose: 1), EnemyFrameId.ElevatorPlatform1 },
     };
 }

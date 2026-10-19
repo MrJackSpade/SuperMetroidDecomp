@@ -11,6 +11,14 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 [CpuBusBoundary("codec: ROM Mother Brain room-flash BGR555 payloads → Mother Brain room colors")]
 internal static class MotherBrainRoomColorExtractor
 {
+    /// <summary>Locates the palette operand of room-flash frame <paramref name="index"/> in the cartridge's flash list.</summary>
+    internal static ushort FlashPaletteOperandAddress(int index) =>
+        (uint)index < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount
+            ? checked((ushort)(MotherBrainRoomFlashSourceDefinitions.FlashList +
+                index * MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes +
+                MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset))
+            : throw new IndexOutOfRangeException();
+
     /// <summary>Imports room-flash rows and selected encounter palettes into an editable RGB5 document.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
@@ -19,7 +27,7 @@ internal static class MotherBrainRoomColorExtractor
         for (int index = 0; index < flash.Length; index++)
         {
             int pointerAddress = MotherBrainRoomColorRomData.SourceBank |
-                MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(index);
+                FlashPaletteOperandAddress(index);
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
             if (pointer == 0)
                 throw new InvalidDataException($"Mother Brain room-flash row {index} has no palette pointer.");
@@ -32,7 +40,7 @@ internal static class MotherBrainRoomColorExtractor
             Version = MotherBrainRoomColorFormat.Version,
             Flash = flash,
             FinalRoom = ReadColors(MotherBrainRoomColorRomData.SourceBank |
-                MotherBrainRoomPaletteProgramDefinitions.FinalPalette,
+                MotherBrainRoomFlashSourceDefinitions.FinalPalette,
                 MotherBrainRoomColorRomData.SliceColors * 2),
             PhaseTwoAttack = ReadColors(MotherBrainRoomColorRomData.PhaseTwoAttackSource,
                 MotherBrainRoomColorRomData.PhaseTwoColors),

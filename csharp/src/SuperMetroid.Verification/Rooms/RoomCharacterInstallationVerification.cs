@@ -57,8 +57,8 @@ internal static class RoomCharacterInstallationVerification
             CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
             VerifyRoomVisualLayouts(installed, bus, landing);
             VerifyXrayRevealVisualInstallation(installed);
-            CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, landing);
-            CartridgeRoomAssets installedRoom = LoadFixtureRoomAssets(bus, landing, stock);
+            CartridgeRoomAssets native = LoadFixtureRoomAssets(landing);
+            CartridgeRoomAssets installedRoom = LoadFixtureRoomAssets(landing, stock);
             AssertTrue(installedRoom.CreCharacters.SequenceEqual(native.CreCharacters) &&
                 installedRoom.RoomCharacters.SequenceEqual(native.RoomCharacters),
                 "installed stock room PNGs retain Landing Site character bytes");
@@ -77,7 +77,7 @@ internal static class RoomCharacterInstallationVerification
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             RoomCharacterAtlasCatalog edited = installed.LoadRoomCharacters();
-            CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(bus, landing, edited);
+            CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing, edited);
             AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(native.RoomCharacters),
                 "installed PNG override changes the real room-loader output");
             AssertTrue(stock.Get(source).Transfer.Span.SequenceEqual(native.RoomCharacters),
@@ -100,7 +100,7 @@ internal static class RoomCharacterInstallationVerification
             SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeGhostVram,
                 ghostTransfer.ListPointer, activeDoorPointer: 0);
             var installedGhostVram = new SnesVram();
-            LibraryBackgroundLoader.Execute(bus, installedGhostVram, ghostTransfer.ListPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), CharacterArt = stock });
+            LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), installedGhostVram, LibraryBackgroundProgramDefinitions.Get(ghostTransfer.ListPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), CharacterArt = stock });
             AssertTrue(nativeGhostVram.ImageEquals(installedGhostVram),
                 "installed statue-ghost PNG matches the complete native library upload");
             int ghostTileCount = nativeGhost.Length / RoomCharacterAtlasFormat.BytesPerTile;
@@ -116,7 +116,7 @@ internal static class RoomCharacterInstallationVerification
                     ghostImage.Pixels, ghostImage.Palette);
             RoomCharacterAtlasCatalog editedGhost = installed.LoadRoomCharacters();
             var editedGhostVram = new SnesVram();
-            LibraryBackgroundLoader.Execute(bus, editedGhostVram, ghostTransfer.ListPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), CharacterArt = editedGhost });
+            LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), editedGhostVram, LibraryBackgroundProgramDefinitions.Get(ghostTransfer.ListPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), CharacterArt = editedGhost });
             int ghostDestinationByte = ghostTransfer.VramDestination.Value * 2;
             AssertTrue(nativeGhostVram.ReadByte(ghostDestinationByte) !=
                     editedGhostVram.ReadByte(ghostDestinationByte) &&
@@ -141,7 +141,7 @@ internal static class RoomCharacterInstallationVerification
             string paletteOverridePath = Path.Combine(installed.RoomPaletteOverrideDirectory, paletteName);
             File.WriteAllText(paletteOverridePath, paletteDocument.ToJsonString());
             RoomStaticPaletteCatalog editedPalettes = installed.LoadRoomPalettes();
-            CartridgeRoomAssets editedPaletteRoom = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets editedPaletteRoom = LoadFixtureRoomAssets(landing,
                 paletteArt: editedPalettes);
             var stockCgram = new SnesCgram();
             var editedCgram = new SnesCgram();
@@ -160,7 +160,7 @@ internal static class RoomCharacterInstallationVerification
                     RoomMetatileArtworkFiles.ManifestFileName)),
                 "room-block stock manifest is installed");
             RoomMetatileCatalog stockBlocks = installed.LoadRoomMetatiles();
-            CartridgeRoomAssets installedBlocks = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets installedBlocks = LoadFixtureRoomAssets(landing,
                 metatileArt: stockBlocks);
             AssertTrue(native.LevelData.BlockDefinitions.Span.SequenceEqual(
                     installedBlocks.LevelData.BlockDefinitions.Span),
@@ -175,7 +175,7 @@ internal static class RoomCharacterInstallationVerification
             Directory.CreateDirectory(installed.RoomMetatileOverrideDirectory);
             string blockOverridePath = Path.Combine(installed.RoomMetatileOverrideDirectory, blockName);
             File.WriteAllText(blockOverridePath, blockDocument.ToJsonString());
-            CartridgeRoomAssets editedBlocks = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets editedBlocks = LoadFixtureRoomAssets(landing,
                 metatileArt: installed.LoadRoomMetatiles());
             AssertTrue(!native.LevelData.BlockDefinitions.Span.SequenceEqual(
                     editedBlocks.LevelData.BlockDefinitions.Span) &&
@@ -231,7 +231,7 @@ internal static class RoomCharacterInstallationVerification
             var stockBackgroundVram = new SnesVram();
             SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeBackgroundVram,
                 ceres.State.BackgroundDataPointer, activeDoorPointer: 0);
-            LibraryBackgroundLoader.Execute(bus, stockBackgroundVram, ceres.State.BackgroundDataPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = stockBackgrounds });
+            LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), stockBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = stockBackgrounds });
             AssertTrue(nativeBackgroundVram.ImageEquals(stockBackgroundVram),
                 "installed Ceres background tilemap retains native VRAM words");
             string backgroundStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory,
@@ -246,7 +246,7 @@ internal static class RoomCharacterInstallationVerification
                 installed.RoomBackgroundTilemapOverrideDirectory, backgroundName);
             File.WriteAllText(backgroundOverridePath, backgroundDocument.ToJsonString());
             var editedBackgroundVram = new SnesVram();
-            LibraryBackgroundLoader.Execute(bus, editedBackgroundVram, ceres.State.BackgroundDataPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = installed.LoadRoomBackgroundTilemaps() });
+            LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), editedBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = installed.LoadRoomBackgroundTilemaps() });
             AssertTrue(nativeBackgroundVram.ReadWord(0x4800) != editedBackgroundVram.ReadWord(0x4800) &&
                 nativeBackgroundVram.ReadWord(0x4801) == editedBackgroundVram.ReadWord(0x4801),
                 "installed background override changes only its selected Ceres BG tile");
@@ -312,23 +312,23 @@ internal static class RoomCharacterInstallationVerification
             AssertTrue(File.Exists(skyOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, skyName)),
                 "scrolling-sky stock is restored while its override survives repair");
-            CartridgeRoomAssets repairedEdited = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets repairedEdited = LoadFixtureRoomAssets(landing,
                 repaired.LoadRoomCharacters());
             AssertTrue(repairedEdited.RoomCharacters.SequenceEqual(editedRoom.RoomCharacters),
                 "repaired installation retains the selected user room artwork");
-            CartridgeRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing,
                 paletteArt: repaired.LoadRoomPalettes());
             var repairedCgram = new SnesCgram();
             repairedPaletteRoom.LoadGraphics(new SnesVram(), repairedCgram);
             AssertTrue(new CgramPalettes(repairedCgram).ImageEquals(new CgramPalettes(editedCgram)),
                 "repaired installation retains the selected user room palette");
-            CartridgeRoomAssets repairedBlocks = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets repairedBlocks = LoadFixtureRoomAssets(landing,
                 metatileArt: repaired.LoadRoomMetatiles());
             AssertTrue(repairedBlocks.LevelData.BlockDefinitions.Span.SequenceEqual(
                     editedBlocks.LevelData.BlockDefinitions.Span),
                 "repaired installation retains selected user visual blocks");
             var repairedBackgroundVram = new SnesVram();
-            LibraryBackgroundLoader.Execute(bus, repairedBackgroundVram, ceres.State.BackgroundDataPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = repaired.LoadRoomBackgroundTilemaps() });
+            LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), repairedBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = repaired.LoadRoomBackgroundTilemaps() });
             AssertTrue(repairedBackgroundVram.ImageEquals(editedBackgroundVram),
                 "repaired installation retains selected user background tilemap");
             AssertTrue(repaired.LoadRoomSkyTilemaps().TryResolve(landingSky.SourceAddress,

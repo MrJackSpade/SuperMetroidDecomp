@@ -430,9 +430,9 @@ internal static class SamusFullBodyCycleColorsVerification
             "full-body cycle edit changes installed-content identity");
 
         var guard = NewFullBodyColorReadGuard(rom);
-        ushort[] equipment = [0, (ushort)SamusEquipmentFlags.VariaSuit,
-            (ushort)SamusEquipmentFlags.GravitySuit];
-        foreach (ushort items in equipment)
+        SamusEquipmentFlags[] equipment = [0, SamusEquipmentFlags.VariaSuit,
+            SamusEquipmentFlags.GravitySuit];
+        foreach (SamusEquipmentFlags items in equipment)
         {
             int suit = items.HasAny(SamusEquipmentFlags.GravitySuit) ? 2 :
                 items.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 0;
@@ -445,7 +445,7 @@ internal static class SamusFullBodyCycleColorsVerification
                     SpecialPaletteFrame = (ushort)(phase * 2),
                 };
                 var cgram = new SnesCgram();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(guard, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: edited.SamusFullBodyCycleColors),
+                AssertTrue(speed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: edited.SamusFullBodyCycleColors),
                     "Speed Booster reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.SpeedBooster, suit, phase);
             }
@@ -454,7 +454,7 @@ internal static class SamusFullBodyCycleColorsVerification
             {
                 var screw = new SamusHorizontalSpeedState { SpecialPaletteFrame = (ushort)(phase * 2) };
                 var cgram = new SnesCgram();
-                AssertTrue(screw.UpdateSpeedBoosterPalette(guard, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (ushort)(items | (ushort)SamusEquipmentFlags.ScrewAttack) }, cycleColors: edited.SamusFullBodyCycleColors),
+                AssertTrue(screw.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }, cycleColors: edited.SamusFullBodyCycleColors),
                     "Screw Attack reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ScrewAttack, suit,
                     Math.Min(phase, 6 - phase));
@@ -465,7 +465,7 @@ internal static class SamusFullBodyCycleColorsVerification
             for (int phase = 0; phase < 6; phase++)
             {
                 var cgram = new SnesCgram();
-                AssertTrue(stored.Shinespark.UpdatePalette(guard, cgram, items,
+                AssertTrue(stored.Shinespark.UpdatePalette(cgram, items,
                         cycleColors: edited.SamusFullBodyCycleColors),
                     "stored shine reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.StoredShine, suit,
@@ -478,7 +478,7 @@ internal static class SamusFullBodyCycleColorsVerification
             for (int phase = 0; phase < 4; phase++)
             {
                 var cgram = new SnesCgram();
-                AssertTrue(active.Shinespark.UpdatePalette(guard, cgram, items,
+                AssertTrue(active.Shinespark.UpdatePalette(cgram, items,
                         cycleColors: edited.SamusFullBodyCycleColors),
                     "active shinespark reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ActiveShinespark, suit, phase);
@@ -498,7 +498,8 @@ internal static class SamusFullBodyCycleColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed full-body cycles do not reread any of the 768 source color words");
 
-        var runtime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = edited } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

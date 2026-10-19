@@ -39,7 +39,7 @@ internal static class IntroNarrationPresentationVerification
             nativeFont.AsSpan(0, IntroFontAtlasFormat.ByteCount)),
             "installed opening-font PNG compiles to exact native planar bytes");
         var installedIntro = CreateRetailIntroFixture(
-            NewIntroFontGuard(nativeBus), introFont: font);
+            introFont: font);
         AssertTrue(installedIntro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
             (IntroVramLayout.FontOne.Offset * 2),
             IntroFontAtlasFormat.ByteCount).SequenceEqual(font.Transfer.Span),
@@ -53,7 +53,7 @@ internal static class IntroNarrationPresentationVerification
             // extraction copied its text from the cartridge.
             ushort[] installedTilemap = CreateBlankIntroTilemap();
             var installed = new IntroCinematicObjectSystem(
-                installedBus, new SnesVram(), installedTilemap, new IntroJapaneseSubtitles(enabled: false),
+                new SnesVram(), installedTilemap, new IntroJapaneseSubtitles(enabled: false),
                 narrationPresentation: presentation, eyeArtwork: eyeArtwork);
             StartPage(installed, page);
             for (int frame = 0; !IsPageComplete(installed, page); frame++)
@@ -76,7 +76,7 @@ internal static class IntroNarrationPresentationVerification
             new MemoryStream(editedBytes, writable: false));
         ushort[] editedTilemap = CreateBlankIntroTilemap();
         var editedState = new IntroCinematicObjectSystem(
-            installedBus, new SnesVram(), editedTilemap, new IntroJapaneseSubtitles(enabled: false),
+            new SnesVram(), editedTilemap, new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: edited, eyeArtwork: eyeArtwork);
         editedState.StartEnglishPageSix();
         editedState.Step(0);
@@ -87,7 +87,7 @@ internal static class IntroNarrationPresentationVerification
 
         ushort[] reboundTilemap = CreateBlankIntroTilemap();
         var rebound = new IntroCinematicObjectSystem(
-            installedBus, new SnesVram(), reboundTilemap, new IntroJapaneseSubtitles(enabled: false),
+            new SnesVram(), reboundTilemap, new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation, eyeArtwork: eyeArtwork);
         rebound.StartEnglishPageSix();
         rebound.Step(0);
@@ -98,7 +98,7 @@ internal static class IntroNarrationPresentationVerification
             "active opening narration accepts current replacement content");
 
         var saved = new IntroCinematicObjectSystem(
-            nativeBus, new SnesVram(), CreateBlankIntroTilemap(), new IntroJapaneseSubtitles(enabled: false),
+            new SnesVram(), CreateBlankIntroTilemap(), new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation, eyeArtwork: eyeArtwork);
         saved.StartEnglishPageSix();
         saved.Step(0);
@@ -203,7 +203,7 @@ internal static class IntroNarrationPresentationVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
         AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
-            edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].TilemapWord,
+            edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].TilemapWord.Raw,
             "catalog override changes installed opening narration");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "opening-narration override changes catalog content identity");

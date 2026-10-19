@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Shaktool.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Shaktool;
 internal static class ShaktoolProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, ShaktoolProjectileAnimations.Programs, ShaktoolProjectileFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, ShaktoolProjectileAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(ShaktoolProjectileFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyShaktoolProjectileAnimations(SuperMetroidAddressSpace rom)

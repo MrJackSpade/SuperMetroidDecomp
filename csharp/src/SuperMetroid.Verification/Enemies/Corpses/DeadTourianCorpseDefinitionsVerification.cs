@@ -15,11 +15,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks dead Tourian Zoomer, Ripper, and Skree variant metadata against cartridge tables and live setup.</summary>
 internal static class DeadTourianCorpseDefinitionsVerification
 {
-    /// <summary>Compares eight variant selectors and configurations and exercises their production initializers.</summary>
-    internal static void VerifyDeadTourianCorpseDefinitions(SuperMetroidAddressSpace rom)
-    {
-        (DeadTourianCorpseSpecies Species, EnemyDefinitionId EnemyDefinition, int VariantCount,
-            int InstructionTable, int ConfigurationTable)[] families =
+    /// <summary>Each species' corpse, variant count and native instruction and configuration selector tables.</summary>
+    private static readonly (DeadTourianCorpseSpecies Species, EnemyDefinitionId EnemyDefinition, int VariantCount,
+        int InstructionTable, int ConfigurationTable)[] Families =
         [
             (DeadTourianCorpseSpecies.Zoomer, EnemyDefinitionId.CorpseZoomer,
                 3, 0xa9d86a, 0xa9d870),
@@ -29,7 +27,14 @@ internal static class DeadTourianCorpseDefinitionsVerification
                 3, 0xa9d8c0, 0xa9d8c6),
         ];
 
-        foreach (var family in families)
+    /// <summary>The bank-$A9 configuration record the cartridge selects for <paramref name="species"/> variant <paramref name="variantIndex"/>.</summary>
+    internal static ushort ConfigurationPointer(ISnesAddressSpace rom, DeadTourianCorpseSpecies species, int variantIndex) =>
+        CartridgeImportSource.Require(rom).ReadCartridgeWord(Families.Single(family => family.Species == species).ConfigurationTable + variantIndex * 2);
+
+    /// <summary>Compares eight variant selectors and configurations and exercises their production initializers.</summary>
+    internal static void VerifyDeadTourianCorpseDefinitions(SuperMetroidAddressSpace rom)
+    {
+        foreach (var family in Families)
         {
             for (int variantIndex = 0; variantIndex < family.VariantCount; variantIndex++)
             {
@@ -39,10 +44,6 @@ internal static class DeadTourianCorpseDefinitionsVerification
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((family.InstructionTable + variantIndex * 2)),
                     NativeEnemyProgramOracle.EntryOf(DeadTourianNativeListAddresses.Entries, definition.InitialProgram),
                     $"dead {family.Species} variant {variantIndex} instruction selector");
-                AssertEqual(
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord((family.ConfigurationTable + variantIndex * 2)),
-                    definition.ConfigurationPointer,
-                    $"dead {family.Species} variant {variantIndex} configuration selector");
                 VerifyDeadTourianCorpseConfiguration(
                     rom, family.Species, variantIndex, definition);
                 VerifyDeadTourianCorpseProductionInitialization(
@@ -61,33 +62,20 @@ internal static class DeadTourianCorpseDefinitionsVerification
             "Dead Tourian corpse definitions: 16 selectors, 64 configuration words, eight derived wrap offsets, and all eight real initializers pass with migrated metadata reads forbidden.");
     }
 
-    /// <summary>Checks seven consumed configuration words and derives the wrap offset from the rotation table.</summary>
+    /// <summary>Checks the consumed configuration words and derives the wrap offset from the rotation table.</summary>
     private static void VerifyDeadTourianCorpseConfiguration(
         SuperMetroidAddressSpace rom,
         DeadTourianCorpseSpecies species,
         int variantIndex,
         DeadTourianCorpseDefinition definition)
     {
-        int address = 0xa90000 | definition.ConfigurationPointer;
-        ushort[] expected = new ushort[8];
-        for (int index = 0; index < expected.Length; index++)
-            expected[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + index * 2));
-        // Word five is the graphics-initialization routine, which production never calls.
-        expected = [.. expected[..5], .. expected[6..]];
-        ushort[] actual =
-        [
-            definition.RottingTablePointer,
-            definition.VramTransferPointer,
-            definition.CopyFunction,
-            definition.MoveFunction,
-            definition.EntryCount,
-            definition.RotationTablePointer,
-            definition.FinishFunction,
-        ];
-        AssertTrue(actual.SequenceEqual(expected),
+        int address = 0xa90000 | ConfigurationPointer(rom, species, variantIndex);
+        ushort Word(int index) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
+        ushort[] actual = [definition.RottingTablePointer, definition.VramTransferPointer, definition.EntryCount];
+        AssertTrue(actual.SequenceEqual(new[] { Word(0), Word(1), Word(4) }),
             $"dead {species} variant {variantIndex} configuration words");
 
-        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));
+        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(Word(6) + 2))));
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
             $"dead {species} variant {variantIndex} wrap offset");
     }
@@ -100,12 +88,11 @@ internal static class DeadTourianCorpseDefinitionsVerification
         int variantIndex,
         DeadTourianCorpseDefinition expected)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
-        enemies.BindFixtureBus(NewDeadTourianCorpseDefinitionReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.DeadTourianBehavior.InitializeDeadTourianCorpse;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = enemyDefinition;
+        slot.Bind(enemyDefinition, slot.Definition);
         slot.Parameter1 = checked((ushort)(variantIndex * 2));
 
         initialize(slot);
@@ -116,44 +103,23 @@ internal static class DeadTourianCorpseDefinitionsVerification
         AssertEqual(variantIndex, state.VariantIndex,
             $"dead {species} variant {variantIndex} index");
         AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(expected.InitialProgram),
-            enemies.DeadTourianBehavior._deadTourianCorpsePrograms[slot.SlotIndex],
+            enemies.DeadTourianBehavior._extensions[slot.SlotIndex].Program,
             $"dead {species} variant {variantIndex} started animation");
-        AssertEqual(expected.ConfigurationPointer, state.ConfigurationPointer,
-            $"dead {species} variant {variantIndex} configuration");
-        AssertEqual(expected.RottingTablePointer, state.TablePointer,
-            $"dead {species} variant {variantIndex} rotting table");
-        AssertEqual(expected.VramTransferPointer, state.VramTablePointer,
-            $"dead {species} variant {variantIndex} VRAM table");
-        AssertEqual(expected.CopyFunction, state.CopyFunction,
-            $"dead {species} variant {variantIndex} copy callback");
-        AssertEqual(expected.MoveFunction, state.MoveFunction,
-            $"dead {species} variant {variantIndex} move callback");
-        AssertEqual(expected.RotationTablePointer, state.RotationTablePointer,
-            $"dead {species} variant {variantIndex} rotation table");
-        AssertEqual(expected.FinishFunction, state.FinishFunction,
-            $"dead {species} variant {variantIndex} finish callback");
-        AssertEqual(expected.EntryCount, state.EntryCount,
-            $"dead {species} variant {variantIndex} row count");
-        AssertEqual(unchecked((ushort)(expected.EntryCount - 1)), state.YLimit,
+        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RottingTablePointer, expected.EntryCount,
+            state.RotTable, $"dead {species} variant {variantIndex}");
+        AssertTrue(DeadMonsterRottingDefinitions.ForTransferTable(expected.VramTransferPointer).SequenceEqual(state.VramTransfers),
+            $"dead {species} variant {variantIndex} uploads the configured VRAM transfer list");
+        AssertEqual((ushort)state.Profile.RowLayout,
+            CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa90000 | (ConfigurationPointer(rom, species, variantIndex) + 12)),
+            $"dead {species} variant {variantIndex} configuration names the tile-row layout production copies with");
+        AssertEqual(expected.EntryCount - 1, state.YLimit,
             $"dead {species} variant {variantIndex} Y limit");
-        AssertEqual(unchecked((ushort)(expected.EntryCount - 2)), state.LateMoveEntryIndex,
+        AssertEqual(expected.EntryCount - 2, state.LateMoveEntryIndex,
             $"dead {species} variant {variantIndex} late-move row");
         AssertEqual(expected.WrapOffset, state.WrapOffset,
             $"dead {species} variant {variantIndex} wrap offset");
     }
 
-    /// <summary>Blocks the migrated species selectors, configurations, and rotation offsets during setup.</summary>
-    private static CartridgeReadGuard NewDeadTourianCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address =>
-                    address is >= 0xa9d86a and < 0xa9d876 or
-                    >= 0xa9d897 and < 0xa9d89f or
-                    >= 0xa9d8c0 and < 0xa9d8cc or
-                    >= 0xa9dd88 and < 0xa9de08 or
-                    >= 0xa9e24e and < 0xa9e250 or
-                    >= 0xa9e254 and < 0xa9e256 or
-                    >= 0xa9e25a and < 0xa9e25c,
-                address => $"Dead Tourian corpse attempted migrated metadata read ${address:X6}.");
 
     /// <summary>Runs the corpse definition comparison against the retail ROM.</summary>
     [VerificationCommand("--dead-tourian-corpse-definitions")]

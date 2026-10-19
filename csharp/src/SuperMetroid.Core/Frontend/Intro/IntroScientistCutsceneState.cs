@@ -7,14 +7,12 @@ internal sealed class IntroScientistCutsceneState
 {
     /// <summary>Delivered or examined Baby actor whose instruction list drives scene completion.</summary>
     internal readonly IntroDiscoverySprite baby;
-    /// <summary>Selects delivery's horizontal pan or examination's vertical pan and page transition.</summary>
-    private readonly ScientistSceneKind kind;
 
     /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor program.</summary>
-    private IntroScientistCutsceneState(ScientistSceneKind kind)
+    private IntroScientistCutsceneState(IntroLaboratoryScene scene)
     {
-        this.kind = kind;
-        bool delivery = kind == ScientistSceneKind.Delivery;
+        Scene = scene;
+        bool delivery = scene == IntroLaboratoryScene.Delivery;
         IntroBabyActorDefinition definition = delivery
             ? IntroBabyActorDefinitions.DeliveredBaby
             : IntroBabyActorDefinitions.ExaminedBaby;
@@ -24,18 +22,18 @@ internal sealed class IntroScientistCutsceneState
             definition.Position,
             definition.PaletteBits,
             definition.Program);
-        baby.PreInstructionPointerForDiscovery(definition.PreInstruction);
-        TilemapBaseWord = delivery
-            ? IntroCinematicRomData.Layers.ScientistTilemapWord
-            : IntroCinematicRomData.Layers.ScientistExaminationTilemapWord;
+        baby.InstallPreInstruction(definition.PreInstruction);
         Background = delivery ? new(32, 8) : new(0, unchecked((ushort)-24));
     }
 
     /// <summary>The laboratory page's BG1 scroll.</summary>
     public Position16<RoomPixels> Background { get; private set; }
 
-    /// <summary>BG1 tilemap base $5800 for delivery or $5C00 for examination.</summary>
-    public ushort TilemapBaseWord { get; }
+    /// <summary>
+    /// Which laboratory scene this is: it selects delivery's horizontal pan or examination's vertical pan, the page
+    /// that follows, and the background page the scene shows.
+    /// </summary>
+    public IntroLaboratoryScene Scene { get; }
 
     /// <summary>Set when delivery's actor instruction hands the intro to page four.</summary>
     public bool PageFourRequested { get; private set; }
@@ -44,10 +42,10 @@ internal sealed class IntroScientistCutsceneState
     public bool PageFiveRequested { get; private set; }
 
     /// <summary>Starts the delivered-Baby page with a leftward camera pan and page-four handoff.</summary>
-    public static IntroScientistCutsceneState CreateDelivery() => new(ScientistSceneKind.Delivery);
+    public static IntroScientistCutsceneState CreateDelivery() => new(IntroLaboratoryScene.Delivery);
 
     /// <summary>Starts the examined-Baby page with a downward camera pan and page-five handoff.</summary>
-    public static IntroScientistCutsceneState CreateExamination() => new(ScientistSceneKind.Examination);
+    public static IntroScientistCutsceneState CreateExamination() => new(IntroLaboratoryScene.Examination);
 
     /// <summary>Advances the Baby script and pans on every fourth function tick until the alternate crossfade timer redirects it to deletion.</summary>
     public void Step(
@@ -66,14 +64,14 @@ internal sealed class IntroScientistCutsceneState
         }
         else if ((cinematicFunctionTimer & 3) == 0)
         {
-            if (kind == ScientistSceneKind.Delivery && Background.X != 0)
+            if (Scene == IntroLaboratoryScene.Delivery && Background.X != 0)
             {
                 // AD68 moves the camera left while keeping the delivered baby fixed
                 // relative to the laboratory subjects.
                 Background += new Offset16<RoomPixels>(-1, 0);
                 baby.WholePosition += new Offset16<ScreenPixels>(1, 0);
             }
-            else if (kind == ScientistSceneKind.Examination &&
+            else if (Scene == IntroLaboratoryScene.Examination &&
                 unchecked((short)(Background.Y - 8)) < 0)
             {
                 // ADA6 moves the second laboratory page down from -24 to +8 while the
@@ -107,14 +105,5 @@ internal sealed class IntroScientistCutsceneState
             default:
                 throw new InvalidOperationException($"The scientist-scene Baby programs publish no {cue} cue.");
         }
-    }
-
-    /// <summary>Distinct laboratory pages with opposite pan axes and later page destinations.</summary>
-    private enum ScientistSceneKind
-    {
-        /// <summary>Delivered Baby remains fixed against the subjects as the camera pans left.</summary>
-        Delivery,
-        /// <summary>Examined Baby rises against the laboratory as the camera pans down.</summary>
-        Examination,
     }
 }

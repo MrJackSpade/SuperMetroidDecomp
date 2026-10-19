@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
@@ -22,22 +21,21 @@ internal static class InvalidBeamGraphicsVerification
     internal static void VerifyInvalidBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(0x9090, SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x7ffe, 0),
-            "both expansion bytes retain the fetched pointer bank");
-        AssertEqual(0x0890, SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x7fff, 0,
-                ChainsawBeamGraphicsDefinitions.InstructionBytes, ChainsawBeamGraphicsDefinitions.InstructionAddress),
-            "expansion-to-ROM boundary preserves the low bus byte and reads high ROM byte");
-        AssertThrows<InvalidOperationException>(() => SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x2100, 0),
-            "untranslated PPU register remains a loud failure");
         AssertThrows<InvalidOperationException>(() => CpuBusRegionRead.Read(bus, 0x907fff),
             "plain high-level address reads do not acquire an invented open-bus value");
-        AssertSequenceEqual(ChainsawBeamGraphicsDefinitions.InstructionBytes.ToArray(),
-            Enumerable.Range(0, ChainsawBeamGraphicsDefinitions.InstructionBytes.Length)
-                .Select(offset => bus.ReadCartridgeByte(ChainsawBeamGraphicsDefinitions.InstructionAddress + offset)),
-            "bounded instruction data matches the original executable bytes");
-        AssertThrows<InvalidOperationException>(() => SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x801e, 0,
-                ChainsawBeamGraphicsDefinitions.InstructionBytes, ChainsawBeamGraphicsDefinitions.InstructionAddress),
-            "definition window cannot admit adjacent, uncompiled cartridge bytes");
+        // ROM oracle for the typed glitched palette: colour c is the word whose low byte is the
+        // byte before Samus_Animate's byte 2c (the open-bus pointer bank for colour zero) and
+        // whose high byte is Samus_Animate's byte 2c, kept as CGRAM keeps it.
+        for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
+        {
+            int highByteAddress = ChainsawBeamGraphicsDefinitionsConstants.InstructionAddress + color * 2;
+            byte low = color == 0
+                ? ChainsawBeamGraphicsDefinitionsConstants.OpenBusByte
+                : bus.ReadCartridgeByte(highByteAddress - 1);
+            Bgr555 native = Bgr555.FromCgramPortWord(SnesLittleEndian.Word(low, bus.ReadCartridgeByte(highByteAddress)));
+            AssertEqual(native, ChainsawBeamGraphicsDefinitions.Palette[color],
+                $"Chainsaw palette colour {color} is the open-bus byte and Samus_Animate's instruction bytes as CGRAM keeps them");
+        }
         using var scratch = new TestScratchDirectory("projectile-artwork");
         string installedDirectory = scratch.Root;
         SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Extract(bus, installedDirectory);
@@ -50,7 +48,7 @@ internal static class InvalidBeamGraphicsVerification
         for (ushort beam = 0; beam < 12; beam++)
         {
             var ordinary = new SnesCgram();
-            SamusProjectileSystem.LoadBeamPalette(bus, ordinary, beam, artwork.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(ordinary, (SamusBeamFlags)beam, artwork.Palettes);
             int table = SamusProjectileRomData.Beams.PalettePointers + beam * 2;
             int source = (int)new SnesAddress(0x90, SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)
@@ -63,11 +61,11 @@ internal static class InvalidBeamGraphicsVerification
             0x8067, 0x1cad, 0xc90a, 0x004d, 0x19f0, 0x4ec9, 0xf000, 0xad14];
         {
             var cgram = new SnesCgram();
-            SamusProjectileSystem.LoadBeamPalette(gameplayBus, cgram, 0x000d, artwork.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(cgram, (SamusBeamFlags)0x000d, artwork.Palettes);
             // The page Chainsaw's equipped word binds shows the bytes its native DMA reads.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
                 InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
-            ReadOnlySpan<byte> page = pages.For(0x000d).Characters;
+            ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)0x000d).Characters;
             int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
             for (int offset = 0; offset < 256; offset++)
                 AssertEqual(CpuBusRegionRead.Read(bus, 0x9ac421 + offset), page[first + offset], $"Chainsaw native DMA byte {offset}");
@@ -77,12 +75,11 @@ internal static class InvalidBeamGraphicsVerification
         Console.WriteLine("Chainsaw graphics: the bound page matches native DMA and the palette matches the instruction-context trace.");
     }
 
-    /// <summary>Runs invalid-beam graphics and production magic-number checks.</summary>
+    /// <summary>Runs invalid-beam graphics checks.</summary>
     [VerificationCommand("--invalid-beam-graphics")]
     internal static int InvalidBeamGraphicsCommand()
     {
         Suite(nameof(VerifyInvalidBeamGraphics), () => VerifyInvalidBeamGraphics());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

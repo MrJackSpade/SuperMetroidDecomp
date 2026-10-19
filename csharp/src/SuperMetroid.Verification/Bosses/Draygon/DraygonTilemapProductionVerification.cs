@@ -13,34 +13,40 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Draygon's full BG2 staging and DMA output from a fresh room.</summary>
 internal static class DraygonTilemapProductionVerification
 {
+    /// <summary>
+    /// The enemy BG2 transfer size Draygon's body initializer gives the native NMI upload (A5:86D7): the first
+    /// 1,024 bytes of the staging surface. The port writes VRAM directly, so only this oracle models the prefix.
+    /// </summary>
+    private const int NativeBg2TransferByteCount = 1024;
+
     /// <summary>#385: reconstruct fresh-room BG2 staging and native DMA, not merely retained current-command destinations.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon tilemap production")]
     internal static void VerifyDraygonTilemapProduction()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, DraygonProductionAuditDefinitions.Room);
+        var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderDefinitions.Draygon.Pointer);
         var installation = RepositoryInstallation.Installation;
-        var assets = LoadFixtureRoomAssets(bus, room, installation.LoadRoomCharacters(),
+        var assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram(); var cgram = new SnesCgram(); assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState(0x1234);
         var samus = new SamusState { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 64)),
             Pose = SamusPoseId.FacingRightNormalPose };
-        samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => false } }) { Level = assets.LevelData, Samus = samus });
+        enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => false } }) { Level = assets.LevelData, Samus = samus });
         var boss = enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");
         // Observe which native enemy indexes were actually scheduled, without adding
         // a diagnostic callback to production. This does NOT independently verify AI
         // or queue construction; it isolates the downstream tilemap/DMA producer.
         var staging = Enumerable.Repeat((ushort)0x0338, 2048).ToArray();
         var expectedVram = staging.ToArray();
-        AssertEqual((ushort)0x0400, boss.Bg2TilemapSize, "A5:86D7 initializes the native DMA prefix size");
         for (int word = 0; word < expectedVram.Length; word++)
             AssertEqual(expectedVram[word], vram.ReadWord(0x4800 + word), "fresh Draygon BG2 starts entirely blank before any draw");
         var destinations = new HashSet<int>(); var streams = new HashSet<int>();
@@ -56,7 +62,7 @@ internal static class DraygonTilemapProductionVerification
             foreach (ushort nativeIndex in queue)
             {
                 var slot = enemies.SlotTable.Slots[nativeIndex / 64];
-                if (((ushort)slot.ExtraProperties & 0x8004) != 0x8004) continue;
+                if ((slot.ExtraProperties.ToNativeWord() & 0x8004) != 0x8004) continue;
                 int bank = (int)new SnesAddress(slot.Definition.Bank, 0);
                 int count = bus.ReadCartridgeByte(bank | slot.SpritemapPointer);
                 for (int component = 0; component < count; component++)
@@ -80,7 +86,7 @@ internal static class DraygonTilemapProductionVerification
             // of staging when any extended command ran. Compare untouched cells too.
             if (queuedTransfer)
             {
-                staging.AsSpan(0, boss.Bg2TilemapSize / 2).CopyTo(expectedVram);
+                staging.AsSpan(0, NativeBg2TransferByteCount / 2).CopyTo(expectedVram);
                 transfers++;
             }
             oam.BeginFrame(); enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 7); oam.FinalizeFrame();

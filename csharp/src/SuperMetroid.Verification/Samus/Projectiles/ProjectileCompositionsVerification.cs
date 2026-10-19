@@ -18,8 +18,10 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Checks imported projectile OAM against native records, production draw owners, and installed edits.</summary>
 internal static class ProjectileCompositionsVerification
@@ -36,7 +38,7 @@ internal static class ProjectileCompositionsVerification
             VerifyHyperBeamFxColorArtwork(rom);
         }
         var content = ProjectileSpriteCatalog.Load(new MemoryStream(json));
-        Suite(nameof(VerifyProjectileCompositionOwners), () => VerifyProjectileCompositionOwners(rom, content));
+        Suite(nameof(VerifyProjectileCompositionOwners), () => VerifyProjectileCompositionOwners(content));
         int draws = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         foreach (ushort origin in new ushort[] { 0, 1, 127, 255, 256, 0x7fff, 0xffff })
@@ -116,7 +118,7 @@ internal static class ProjectileCompositionsVerification
 
     /// <summary>Checks shot, explosion, and bomb draw owners preserve OAM, flicker, and projectile state without ROM reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyProjectileCompositionOwners(ISnesAddressSpace rom, ProjectileSpriteCatalog content)
+    private static void VerifyProjectileCompositionOwners(ProjectileSpriteCatalog content)
     {
         var forbidden = NewProjectileCompositionForbiddenBus();
         int comparisons = 0;
@@ -139,12 +141,12 @@ internal static class ProjectileCompositionsVerification
                 ProjectileDrawArtwork artwork = InstalledFixtures.ProjectileArtwork(content);
                 var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();
                 native.BeginFrame(); extracted.BeginFrame();
-                shots.DrawLiveProjectiles(rom, native, Position16<RoomPixels>.Zero, parity, artwork);
-                shots.DrawExplosions(rom, native, Position16<RoomPixels>.Zero, artwork);
-                bombs.Draw(rom, native, Position16<RoomPixels>.Zero, artwork);
-                shots.DrawLiveProjectiles(forbidden, extracted, Position16<RoomPixels>.Zero, parity, artwork);
-                shots.DrawExplosions(forbidden, extracted, Position16<RoomPixels>.Zero, artwork);
-                bombs.Draw(forbidden, extracted, Position16<RoomPixels>.Zero, artwork);
+                shots.DrawLiveProjectiles(native, Position16<RoomPixels>.Zero, parity, artwork);
+                shots.DrawExplosions(native, Position16<RoomPixels>.Zero, artwork);
+                bombs.Draw(native, Position16<RoomPixels>.Zero, artwork);
+                shots.DrawLiveProjectiles(extracted, Position16<RoomPixels>.Zero, parity, artwork);
+                shots.DrawExplosions(extracted, Position16<RoomPixels>.Zero, artwork);
+                bombs.Draw(extracted, Position16<RoomPixels>.Zero, artwork);
                 AssertTrue(native.FinalizeAsOam().ImageEquals(extracted.FinalizeAsOam()),
                     "Production projectile composition preserves admission, flicker and OAM");
                 AssertEqual(native.Draws.Length, extracted.Draws.Length, "Composition owner publishes the same draws");
@@ -158,7 +160,7 @@ internal static class ProjectileCompositionsVerification
                 bomb.BombTimer = NativeCountdown.Start(0);
                 var hidden = new SpriteFrameBuffer();
                 hidden.BeginFrame();
-                bombs.Draw(forbidden, hidden, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork(content));
+                bombs.Draw(hidden, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork(content));
                 hidden.FinalizeFrame();
                 AssertEqual(0, hidden.Draws.Length, "Detonated power bomb remains hidden with extracted art");
             }
@@ -178,15 +180,15 @@ internal static class ProjectileCompositionsVerification
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
     {
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes) { Artwork = { MapPresentation = maps } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes);
+        runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.ProjectileCompositions = stock;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        game.runtime = runtime;
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+        game.Session.runtime = runtime;
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
@@ -221,13 +223,13 @@ internal static class ProjectileCompositionsVerification
             {
                 ProjectileCompositions = stock,
             });
-            AssertTrue(baseline.SequenceEqual(Draw(stockCopy.GameplayRuntime)),
+            AssertTrue(baseline.SequenceEqual(Draw(stockCopy.Session.GameplayRuntime)),
                 "Restored stock projectile actor matches the same initial state");
             editedCopy.BindArtwork(editedCopy.Artwork with
             {
                 ProjectileCompositions = edited,
             });
-            AssertTrue(!baseline.SequenceEqual(Draw(editedCopy.GameplayRuntime)),
+            AssertTrue(!baseline.SequenceEqual(Draw(editedCopy.Session.GameplayRuntime)),
                 "Edited composition reaches runtime actor drawing");
         }
         game.BindArtwork(game.Artwork with
@@ -245,7 +247,7 @@ internal static class ProjectileCompositionsVerification
         AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Projectile content excluded from frontend and runtime state graph");
         with.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = restored.GameplayRuntime;
+        var restoredRuntime = restored.Session.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ProjectileCompositions is null, "Restored runtime requires external composition rebind");
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
@@ -269,7 +271,7 @@ internal static class ProjectileCompositionsVerification
             snapshot.Position = 0;
             var clone = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer
                 .Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(snapshot);
-            var cloneRuntime = clone.GameplayRuntime;
+            var cloneRuntime = clone.Session.GameplayRuntime;
             roomAssets.Bind(cloneRuntime);
             cloneRuntime.Artwork.MapPresentation = maps;
             cloneRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindArtwork(roomAssets.SamusBody);
@@ -440,7 +442,7 @@ internal static class ProjectileCompositionsVerification
         AssertTrue(compositionEdited.SelectedSha256 != flareEdited.SelectedSha256, "Composition-only flare edit changes content identity");
         var flareOam = new OamBuffer();
         compositionEdited.FlareCompositions.Draw(0, flareOam, new(100, 100));
-        AssertEqual(117, flareOam.GetEntry(0).X, "Installed flare composition emits selected part offset");
+        AssertEqual(117, flareOam.GetEntry(0).Position.X, "Installed flare composition emits selected part offset");
         File.WriteAllText(compositionStock, "broken stock");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Flare composition override cannot conceal corrupt stock");
         File.Move(compositionStock, compositionStock + ".invalid");

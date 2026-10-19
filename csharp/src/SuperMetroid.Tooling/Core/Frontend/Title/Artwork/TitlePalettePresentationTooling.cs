@@ -14,13 +14,13 @@ internal static class TitlePalettePresentationTooling
         /// <summary>The number of color operands across all installed title ambient frames.</summary>
         public int Count => TitleScreenAmbientPaletteFxColorDefinitions.All.Sum(
             program => program.FrameCount * program.ColorsPerFrame);
-        /// <summary>Walks program frames in catalog order, skipping each frame's instruction word.</summary>
+        /// <summary>Walks program frames in catalog order, reporting each color's bank-$8D address.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
             for (int frame = 0; frame < program.FrameCount; frame++)
             for (int index = 0; index < program.ColorsPerFrame; index++)
-                yield return (ushort)(program.FramePointer(frame) + sizeof(ushort) * (index + 1));
+                yield return SuperMetroid.AssetExtraction.Fx.PaletteFxRecordSources.ColorAddress(program.Color(frame, index));
         }
         /// <summary>Provides the same pointer sequence to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();

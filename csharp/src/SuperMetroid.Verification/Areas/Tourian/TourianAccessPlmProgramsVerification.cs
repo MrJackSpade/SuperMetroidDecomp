@@ -128,10 +128,10 @@ internal static class TourianAccessPlmProgramsVerification
         int deletionFrame = -1;
         for (int frame = 0; frame < 120 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (frame == 0 && !clear)
                 AssertEqual((ushort)0x0053,
-                    level.GetCollisionBlockByIndex(12 * width + 6).LevelWord,
+                    level.GetCollisionBlockByIndex(12 * width + 6).PackedWord.Raw,
                     "Tourian crumble first frame draws the native first breakup word");
             if (plms.SlotTable.ActiveCount == 0)
                 deletionFrame = frame;
@@ -141,7 +141,7 @@ internal static class TourianAccessPlmProgramsVerification
         for (int y = 12; y < 18; y++)
         for (int x = 6; x < 10; x++)
             AssertEqual((ushort)0x00ff,
-                level.GetCollisionBlockByIndex(y * width + x).LevelWord,
+                level.GetCollisionBlockByIndex(y * width + x).PackedWord.Raw,
                 $"Tourian {(clear ? "clear" : "crumble")} clears ({x},{y}) physically");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             $"Tourian {(clear ? "clear" : "crumble")} reads no migrated ROM bytes");

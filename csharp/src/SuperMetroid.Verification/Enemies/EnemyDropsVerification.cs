@@ -14,6 +14,8 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Exercises native enemy drop selection, pickup effects, collision timing, and death conversion.</summary>
 internal static class EnemyDropsVerification
@@ -57,25 +59,25 @@ internal static class EnemyDropsVerification
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.SlotTable.Slots[0];
-        enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
-        enemy.Definition = default(RoomEnemyDefinition) with
+        enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
+        enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,
             TouchAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyTouch,
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
-        };
+        });
         SeedContactDeathVulnerability(fixture.Bus);
         enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
         enemy.Radius = new(8, 8);
         enemy.Health = 1;
-        enemy.SpritemapPointer = 0x8000;
-        enemy.Properties = (ushort)EnemyProperties.RespawnIfKilled;
+        enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
+        enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
         var projectiles = new SamusProjectileSystem();
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });
         AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
-        AssertEqual((int)EnemyAiRoutine.RTL_A3804C,
+        AssertEqual((int)EnemyCommonNoOpRoutine.BankA3,
             ((int)new SnesAddress(enemy.Definition.Bank, enemy.Definition.MainAiPointer)),
             "cached header follows replacement identity into native no-op AI");
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });
@@ -109,7 +111,7 @@ internal static class EnemyDropsVerification
                     "big-energy pickup caps ordinary energy");
                 AssertEqual((ushort)100, samus.ReserveEnergy,
                     "big-energy overflow fills and caps reserve energy");
-                AssertEqual((ushort)1, samus.ReserveTankMode,
+                AssertEqual(ReserveTankMode.Auto, samus.ReserveTankMode,
                     "first reserve overflow enables automatic reserve mode");
             });
 
@@ -179,11 +181,9 @@ internal static class EnemyDropsVerification
             $"{kind} starts with native 400-frame lifetime");
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
 
-        AssertEqual(kind, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
-            $"{kind} collection publication");
-        AssertEqual(expectedSound, fixture.System.DeathsAndDrops.LastEnemyPickupSoundEffect,
+        AssertEqual((SoundEffectId?)new SoundEffectId(SoundEffectLibrary.Library2, expectedSound), fixture.System.DeathsAndDrops.LastEnemyPickupSoundEffect,
             $"{kind} library-two sound");
-        AssertEqual((ushort)0xefdf, pickup.PreInstruction,
+        AssertEqual((ushort)0xefdf, pickup.PreInstructionWord,
             $"{kind} enters shared blank/no-collision tail after collection");
         assertEffect(samus);
     }
@@ -225,7 +225,7 @@ internal static class EnemyDropsVerification
         biasSamus.Health = 50;
         RoomEnemyProjectileSlot clearedBias =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChancePointer) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChancePoi...."));
-        AssertEqual((ushort)0xefdf, (clearedBias ?? throw new InvalidOperationException("Verification requires clearedBias.")).PreInstruction,
+        AssertEqual((ushort)0xefdf, (clearedBias ?? throw new InvalidOperationException("Verification requires clearedBias.")).PreInstructionWord,
             "50 energy clears critical bias and permits the table's no-drop weight");
 
         SamusState fullSamus = CreateDropTestSamus();
@@ -236,7 +236,7 @@ internal static class EnemyDropsVerification
         EnemyDropFixture full = CreateEnemyDropFixture(fullSamus, randomValues: [1]);
         RoomEnemyProjectileSlot ineligible =
             (full.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires full.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChanceP...."));
-        AssertEqual((ushort)0xefdf, (ineligible ?? throw new InvalidOperationException("Verification requires ineligible.")).PreInstruction,
+        AssertEqual((ushort)0xefdf, (ineligible ?? throw new InvalidOperationException("Verification requires ineligible.")).PreInstructionWord,
             "full resources make the native record's ammo weights ineligible");
     }
 
@@ -253,9 +253,9 @@ internal static class EnemyDropsVerification
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual((ushort)0, expiring.Variable1,
             "pickup lifetime decrements before its expiry comparison");
-        AssertEqual((ushort)0xefdf, expiring.PreInstruction,
+        AssertEqual((ushort)0xefdf, expiring.PreInstructionWord,
             "expired pickup enters native blank tail");
-        AssertEqual<EnemyPickupKind?>(null, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
+        AssertEqual(50, (int)samus.Health,
             "expiry does not apply a pickup effect");
 
         RoomEnemyProjectileSlot boundary =
@@ -263,12 +263,12 @@ internal static class EnemyDropsVerification
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(
             (boundary ?? throw new InvalidOperationException("Verification requires boundary.")).Position.X.Whole + boundary.Radius.X + samus.Kinematics.Radius.X)), boundary.Position.Y.Whole));
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual<EnemyPickupKind?>(null, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
+        AssertEqual(50, (int)samus.Health,
             "radius equality is not Samus/pickup contact");
 
         samus.Position -= new Offset16<RoomPixels>(1, 0);
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual(EnemyPickupKind.SmallEnergy, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
+        AssertTrue(samus.Health > 50,
             "one pixel inside strict radius sum collects pickup");
     }
 
@@ -288,14 +288,14 @@ internal static class EnemyDropsVerification
         for (int frame = 0; frame < 16; frame++)
         {
             fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-            AssertEqual<EnemyPickupKind?>(null, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
+            AssertEqual(50, (int)samus.Health,
                 $"grapple cannot collect pickup during protected frame {frame + 1}");
         }
         AssertEqual((ushort)384, (pickup ?? throw new InvalidOperationException("Verification requires pickup.")).Variable1,
             "sixteen protected frames still decrement pickup lifetime");
 
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual(EnemyPickupKind.SmallEnergy, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
+        AssertTrue(samus.Health > 50,
             "grapple endpoint collects on the seventeenth pickup frame");
     }
 
@@ -318,14 +318,14 @@ internal static class EnemyDropsVerification
                 (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
             AssertEqual(17 - allocation, (pickup ?? throw new InvalidOperationException("Verification requires pickup.")).SlotIndex,
                 $"enemy projectile allocation {allocation} descends from native $22");
-            AssertEqual((ushort)0xefe0, pickup.PreInstruction,
+            AssertEqual((ushort)0xefe0, pickup.PreInstructionWord,
                 $"nonzero projectile slot {pickup.SlotIndex} becomes pickup");
         }
 
         RoomEnemyProjectileSlot slotZero =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
         AssertEqual(0, (slotZero ?? throw new InvalidOperationException("Verification requires slotZero.")).SlotIndex, "eighteenth allocation reaches physical slot zero");
-        AssertEqual((ushort)0xefe0, slotZero.PreInstruction,
+        AssertEqual((ushort)0xefe0, slotZero.PreInstructionWord,
             "a directly spawned drop in physical slot zero becomes a pickup");
         AssertEqual<RoomEnemyProjectileSlot?>(null,
             fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer),
@@ -342,20 +342,20 @@ internal static class EnemyDropsVerification
         const ushort enemyHeader = 0x9000;
         SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
         RoomEnemySlot enemy = fixture.System.SlotTable.Slots[0];
-        enemy.EnemyDefinitionPointer = (EnemyDefinitionId)enemyHeader;
+        enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.VramTilesIndex = 0x0200;
         enemy.PaletteIndex = 0x0c00;
-        enemy.Properties = (ushort)EnemyProperties.RespawnIfKilled;
+        enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
 
         // Variant nine proves the common routine applies the native >=5 clamp before it
         // indexes the five-pointer death-animation table.
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 9);
         AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer,
             "respawning death leaves native DAFF placeholder in physical enemy slot");
-        AssertEqual((byte)0xa3, enemy.AiBank,
+        AssertEqual((byte)0xa3, enemy.Definition.Bank,
             "respawning death leaves native placeholder AI bank");
-        AssertEqual((ushort)1, fixture.System.RoomStatus.EnemiesKilled,
+        AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
             "generic enemy death increments room kill counter");
 
         RoomEnemyProjectileSlot explosion = fixture.System.Projectiles.EnemyProjectiles[17];
@@ -381,7 +381,7 @@ internal static class EnemyDropsVerification
             "EEAF converts death actor in place without rewriting its definition identity");
         AssertEqual((ushort)2, explosion.Variable0,
             "converted death actor stores selected small-energy identity");
-        AssertEqual((ushort)0xefe0, explosion.PreInstruction,
+        AssertEqual((ushort)0xefe0, explosion.PreInstructionWord,
             "converted death actor enters shared pickup pre-instruction");
         AssertEqual(EnemyDeathProjectileProgram.SmallEnergy, converted,
             "converted death actor continues at the small-energy drop program");
@@ -403,13 +403,13 @@ internal static class EnemyDropsVerification
         var bus = new TestAddressSpace();
         SeedEnemyPickupRom(bus);
         Queue<ushort> random = new(randomValues);
-        ushort NextRandom() => random.Count == 0 ? (ushort)1 : random.Dequeue();
+        int NextRandom() => random.Count == 0 ? 1 : random.Dequeue();
 
         RoomLevelData level = CreateRoom(new(1, 1),
             new ushort[1],
             new byte[1]);
         var system = new RoomEnemySystem();
-        system.Load(new RoomEnemyLoadRequest(bus, 0x9000, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(NextRandom)) { Level = level, Samus = samus });
+        system.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9000), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(NextRandom)) { Level = level, Samus = samus });
         return new EnemyDropFixture(bus, system, level);
     }
 

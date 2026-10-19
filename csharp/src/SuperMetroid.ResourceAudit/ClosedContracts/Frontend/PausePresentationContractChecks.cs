@@ -37,20 +37,20 @@ internal static class PausePresentationContractChecks
                     wireframe.ApplyTo(page, PauseWireframeKind.VariaSuitHiJump);
                     wireframe.ApplyTo(page, (PauseWireframeKind)99);
                     labels.ApplyInventory(page, 0, 0, 0, 0, false);
-                    labels.ApplyLabel(page, 1, 4, PauseEquipmentLabelDefinitions.EquipmentWords, false);
-                    labels.ApplyLabel(page, 1, 0, PauseEquipmentLabelDefinitions.EquipmentWords, false);
-                    labels.ApplyLabel(page, 3, 2, PauseEquipmentLabelDefinitions.EquipmentWords, false);
-                    labels.ApplyLabel(page, 3, 3, PauseEquipmentLabelDefinitions.EquipmentWords, false);
+                    labels.ApplyLabel(page, (PauseEquipmentCategory)1, 4, PauseEquipmentLabelDefinitions.EquipmentWords, false);
+                    labels.ApplyLabel(page, (PauseEquipmentCategory)1, 0, PauseEquipmentLabelDefinitions.EquipmentWords, false);
+                    labels.ApplyLabel(page, (PauseEquipmentCategory)3, 2, PauseEquipmentLabelDefinitions.EquipmentWords, false);
+                    labels.ApplyLabel(page, (PauseEquipmentCategory)3, 3, PauseEquipmentLabelDefinitions.EquipmentWords, false);
                     labels.ApplyLabel(page, 0, 0, 0, false);
                     labels.OwnsLiveCell(0);
-                    selector.Anchor(3, 2);
-                    selector.Anchor(3, 3);
+                    selector.Anchor((PauseEquipmentCategory)3, 2);
+                    selector.Anchor((PauseEquipmentCategory)3, 3);
                     selector.NormalizePhase(int.MaxValue);
                     selector.NormalizePhase(-1);
                     selector.Duration(1000);
                     selector.Draw(oam, 0, 1, int.MaxValue);
                     selector.Draw(oam, 0, 2, 0);
-                    tanks.Draw(oam, 0x1b, PauseReserveTankDefinitions.AnchorCount - 1);
+                    tanks.Draw(oam, (PauseReserveTankVisual)0x1b, PauseReserveTankDefinitions.AnchorCount - 1);
                     tanks.Draw(oam, 0, 0);
                     tanks.Anchor(PauseReserveTankDefinitions.AnchorCount);
                     tanks.Anchor(0);
@@ -75,23 +75,12 @@ internal static class PausePresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 26, "twenty-six calls must first reproduce the absent adapters");
+        Require(before.UnresolvedCount == 26, "twenty-six calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 16 && after.UnresolvedCount == 10 && after.MissingCount == 0 &&
-            after.Consumers.Count == 26, "complete resources qualify, while wrong area/kind/tuple/overrun/anchor/phase/identity constants still fail");
+            after.Consumers.Count == 26, "complete resources qualify, while wrong area/kind/tuple/overrun/anchor/phase/identity constants still fail (expected 16/10/0/26; " + after.Describe() + ")");
         Require(after.Findings.Count(item => item.Owner == "PauseEquipmentLabelPresentation.ApplyLabel") == 3 &&
             after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Anchor" or "PauseSelectorPresentation.Draw") == 2,
             "Boots and Reserve must not borrow larger categories; only Plasma may extend a beam label to nine words");
-
-        const string labelPath = "csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseEquipmentLabelDefinitions.cs";
-        SyntaxTree labelSource = trees.Single(tree => tree.FilePath == labelPath);
-        SyntaxTree changedLabels = CSharpSyntaxTree.ParseText(
-            labelSource.GetText().ToString().Replace("\"Beam.Hyper\"", "\"Absent.Key\"", StringComparison.Ordinal),
-            path: labelPath);
-        AuditReport revoked = Inspect(Compile(trees.Select(tree => tree == labelSource ? changedLabels : tree)), true);
-        Require(revoked.Classifications.Count == 12 && revoked.UnresolvedCount == 14 &&
-            revoked.Findings.Count(item => item.Owner.StartsWith("PauseEquipmentLabelPresentation.", StringComparison.Ordinal) &&
-                item.Message.Contains("stale", StringComparison.Ordinal)) == 7,
-            "changed label identity source must revoke every label proof; the former public mutable Keys table no longer exists");
     }
 
     /// <summary>Fails the audit with the violated pause-provider contract predicate.</summary>

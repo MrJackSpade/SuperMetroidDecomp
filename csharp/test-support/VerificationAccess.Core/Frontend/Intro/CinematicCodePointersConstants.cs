@@ -17,6 +17,11 @@ internal static class CinematicCodePointersConstants
     public const ushort Ending_Instruction_DrawItemPercentage = 0xe627;
     /// <summary>Bank-$8B ending command at $E769 that draws the percentage subtitle.</summary>
     public const ushort Ending_Instruction_DrawItemPercentageSubtitle = 0xe769;
+    /// <summary>
+    /// <c>CinematicBGObject_Instruction_GotoY</c> at $8B:971E, the only command in the bank-$8C eye lists; the eye
+    /// program oracle follows it to the list's loop target.
+    /// </summary>
+    public const ushort CinematicBackgroundObject_Instruction_Goto = 0x971e;
     /// <summary><c>IndirectInstructionFunction_DoNothing</c> at $8B:8849.</summary>
     public const ushort IndirectInstruction_DoNothing = 0x8849;
     /// <summary><c>IndirectInstructionFunction_DrawTextCharacter</c> at $8B:884D.</summary>

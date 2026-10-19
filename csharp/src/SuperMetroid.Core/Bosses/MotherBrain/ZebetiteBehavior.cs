@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies;
@@ -7,12 +10,20 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Zebetite species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ZebetiteBehavior : IEnemySpecies
+internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zebetite];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ZebetiteEntity(this, slot, common);
+
     /// <summary>Initializes newly spawned Zebetite slots through the common enemy dispatch path.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Supplies room artwork, cartridge data, and event services used by Zebetites.</summary>
@@ -50,21 +61,18 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
 
     /// <summary>Health ceiling applied while an active Zebetite regenerates each update.</summary>
     private const ushort ZebetiteMaximumHealth = 1000;
-    /// <summary>Library-three sound selected by the Zebetite shot reaction.</summary>
-    private const ushort ZebetiteShotSound = 9;
-
-    /// <summary>Per-slot Zebetite state, cleared when a half dies or a new room loads.</summary>
-    internal readonly ZebetiteEnemyState?[] _zebetiteStates =
-        new ZebetiteEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Library-3 sound $09, selected by the Zebetite shot reaction.</summary>
+    private static readonly SoundEffectId ZebetiteShotSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 9);
 
     /// <summary>Most recent library-three sound requested by Zebetite shot AI.</summary>
-    public ushort? LastZebetiteSoundEffect { get; private set; }
+    public SoundEffectId? LastZebetiteSoundEffect { get; private set; }
 
     /// <summary>
-    /// Native <c>palette_change_num</c>. A nonzero scripted palette fade suppresses the
-    /// Zebetite's private two-color cycle; normal gameplay leaves this at zero.
+    /// Native <c>palette_change_num</c>, the count of scripted palette fades in progress. A
+    /// nonzero count suppresses the Zebetite's private two-color cycle; normal gameplay leaves
+    /// this at zero.
     /// </summary>
-    public ushort PaletteChangeNumber { get; set; }
+    public int PaletteChangeNumber { get; set; }
 
     /// <summary>
     /// <c>CameraDistanceIndex</c> ($0941), shared by every boss that retargets the camera.
@@ -72,11 +80,29 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     /// </summary>
     public CameraDistanceMode CameraDistanceIndex { get; internal set; }
 
+    /// <summary>
+    /// The Zebetites' shared palette-cycle counter: physical slot zero's record word C
+    /// (<c>Get_Zebetites(0)->zebet_var_C</c>) whichever enemy holds that slot, advanced by every Zebetite in the room.
+    /// It restarts with slot zero's record: at room load, when a Zebetite initializes into slot zero, and when a kill
+    /// empties a slot-zero Zebetite. Tourian's Zebetite room puts Mother Brain's body in slot zero, and the body never
+    /// uses that word.
+    /// </summary>
+    public int SharedPaletteCycle
+    {
+        get;
+        internal set => field = checked((ushort)value);
+    }
+
     /// <summary>Ports <c>Zebetites_Init</c> at <c>$A6:FB72</c>.</summary>
     internal void InitializeZebetite(RoomEnemySlot slot)
     {
         var state = new ZebetiteEnemyState(slot);
-        _zebetiteStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state, () =>
+        {
+            state.ClearWithRecord();
+            if (slot.SlotIndex == 0)
+                SharedPaletteCycle = 0;
+        });
 
         // $8000 is still unnamed globally: its wider engine meaning is not proven. Keep it
         // raw while naming only the independently verified instruction-processing bit.
@@ -87,15 +113,16 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
         // Tile 128: the Zebetite artwork follows the room's first 128 enemy tiles.
         slot.VramTilesIndex = 128;
-        state.PaletteCycle = 0;
+        if (slot.SlotIndex == 0)
+            SharedPaletteCycle = 0;
         state.Function = state.IsSecondaryHalf
             ? ZebetiteAiFunction.WaitForDoorTransition
             : ZebetiteAiFunction.SpawnLinkedHalf;
 
-        ushort generation = 0;
-        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit2) ? 1 : 0)));
-        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit1) ? 1 : 0)));
-        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit0) ? 1 : 0)));
+        int generation = 0;
+        generation = (generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit2) ? 1 : 0);
+        generation = (generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit1) ? 1 : 0);
+        generation = (generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit0) ? 1 : 0);
         state.Generation = generation;
         if (generation >= 4)
         {
@@ -130,7 +157,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Zebetite function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Zebetite function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -167,9 +194,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
 
         if (slot.Health != 0)
         {
-            slot.Health = unchecked((ushort)Math.Min(
-                ZebetiteMaximumHealth,
-                slot.Health + 1));
+            slot.Health = Math.Min(ZebetiteMaximumHealth, slot.Health + 1);
             return;
         }
 
@@ -179,7 +204,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
             return;
         }
 
-        ushort nextGeneration = unchecked((ushort)(state.Generation + 1));
+        int nextGeneration = state.Generation + 1;
         state.Generation = nextGeneration;
         PublishZebetiteGenerationEvents(nextGeneration);
         FinishZebetiteDeath(slot);
@@ -193,13 +218,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         if (PaletteChangeNumber != 0 || slot.Parameter1 != 0)
             return;
 
-        // This is intentionally slot zero rather than the current actor. Later generations
-        // occupy higher slots while retaining the original's vacated WRAM word as the shared
-        // palette counter, exactly matching Get_Zebetites(0)->zebet_var_C.
-        RoomEnemySlot firstPhysicalSlot = _slotTable._slots[0];
-        ushort paletteCycle = unchecked((ushort)((firstPhysicalSlot.VariableC + 1) &
-            ZebetiteDefinitions.PaletteCycleMask));
-        firstPhysicalSlot.VariableC = paletteCycle;
+        int paletteCycle = (SharedPaletteCycle + 1) & ZebetiteDefinitions.PaletteCycleMask;
+        SharedPaletteCycle = paletteCycle;
         (_room.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
             "Zebetite requires installed palette-cycle colors."))
             .Apply(_presentation.Cgram, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);
@@ -237,7 +257,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         }
 
         RoomEnemySlot spawned = _slotTable._slots[slotIndex];
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, population.DefinitionPointer);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(spawned, population, definition);
         _dispatch.RunInitializationAi(spawned);
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
@@ -249,7 +269,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
         LastZebetiteSoundEffect = ZebetiteShotSound;
-        ushort linkedIndex = struck.Parameter2;
+        ushort linkedIndex = checked((ushort)struck.Parameter2);
         if (linkedIndex >= RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize ||
             linkedIndex % RoomEnemySystem.NativeSlotSize != 0)
         {
@@ -283,15 +303,15 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         int slotIndex = slot.SlotIndex;
         slot.Clear();
         slot.Spawn = survivingSpawn;
-        _zebetiteStates[slotIndex] = null;
-        _roomStatus.EnemiesKilled = unchecked((ushort)(_roomStatus.EnemiesKilled + 1));
+        _slotTable._slots[slotIndex].SetSpeciesState<ZebetiteEnemyState>(null);
+        _roomStatus.RecordKill();
     }
 
     /// <summary>Reads one persistent bit used to reconstruct the current Zebetite generation.</summary>
     private bool HasZebetiteEvent(EventNumber eventNumber) => _room.Services.Events.Has(eventNumber);
 
     /// <summary>Stores the next generation as three persistent Zebetite-destroyed event bits.</summary>
-    private void PublishZebetiteGenerationEvents(ushort generation)
+    private void PublishZebetiteGenerationEvents(int generation)
     {
         PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit0, (generation & 1) != 0);
         PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit1, (generation & 2) != 0);
@@ -308,20 +328,21 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     }
 
     /// <summary>Gets the initialized state for a Zebetite slot and rejects a missing binding.</summary>
-    private ZebetiteEnemyState RequireZebetiteState(RoomEnemySlot slot) =>
-        _zebetiteStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static ZebetiteEnemyState RequireZebetiteState(RoomEnemySlot slot) =>
+        slot.SpeciesState<ZebetiteEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Zebetite state.");
 
-    /// <summary>Binds the Zebetites' typed health programs (#641) to the enemy instruction stage.</summary>
-    internal void RegisterZebetiteTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite,
-            (slot, context) => AdvanceZebetiteAnimation(slot));
+    /// <summary>Advances Zebetite's typed animation.</summary>
+    internal static void AdvanceZebetiteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceZebetiteAnimation(slot);
+    }
 
     /// <summary>
     /// Runs a half's health program where the enemy instruction interpreter would: its pose shows on the update the
     /// native timer expires, raising the new-frame flag, and the native sleep then keeps it.
     /// </summary>
-    internal void AdvanceZebetiteAnimation(RoomEnemySlot slot)
+    internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)
     {
         ZebetiteEnemyState state = RequireZebetiteState(slot);
         ushort oldTimer = slot.InstructionTimer.RawValue;
@@ -342,7 +363,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         {
             case AnimationProgramAdvanceKind.Show:
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.SpritemapPointer = advance.Frame.Spritemap;
+                slot.Frame = ZebetiteVisualDefinitions.ShownFrames.Of(advance.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:
@@ -354,7 +375,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     }
 
     /// <summary>Registers bombs to share the Zebetite shot tail without generic death handling.</summary>
-    internal void RegisterZebetiteBombReactions(EnemyAiTable table)
+    internal void RegisterZebetiteBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.ZebetiteShot)
@@ -364,28 +385,20 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Binds the native Zebetite initialization routine to matching enemy slots.</summary>
-    internal void RegisterZebetiteInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Zebetite's initialization AI.</summary>
+    internal void RunZebetiteInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Zebetite, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeZebetite(slot);
-        });
+        InitializeZebetite(slot);
     }
 
-    /// <summary>Binds the native main routine to each initialized Zebetite state.</summary>
-    internal void RegisterZebetiteMainAi(EnemyAiTable table)
+    /// <summary>Ports Zebetite's main AI.</summary>
+    internal void RunZebetiteMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Zebetite, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunZebetiteMain(slot, RequireZebetiteState(slot));
-        });
+        RunZebetiteMain(slot, RequireZebetiteState(slot));
     }
 
     /// <summary>Registers shot damage with the Zebetite-specific linked-health tail and no generic death.</summary>
-    internal void RegisterZebetiteShotReactions(EnemyAiTable table)
+    internal void RegisterZebetiteShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ZebetiteShot)
@@ -402,7 +415,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         LastZebetiteSoundEffect = null;
         PaletteChangeNumber = 0;
         CameraDistanceIndex = CameraDistanceMode.NormalTracking;
-        Array.Clear(_zebetiteStates);
+        SharedPaletteCycle = 0;
     }
 
     /// <inheritdoc/>
@@ -414,11 +427,12 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastZebetiteSoundEffect, library: SoundEffectLibrary.Library3, maximumQueued: 6);
+        if (LastZebetiteSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>
-    internal void RegisterZebetiteTouch(EnemyAiTable table)
+    internal void RegisterZebetiteTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ZebetiteTouch,

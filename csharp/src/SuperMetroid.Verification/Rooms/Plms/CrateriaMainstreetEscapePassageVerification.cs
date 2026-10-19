@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the escape passage PLM spawned by Crateria mainstreet setup.</summary>
 internal static class CrateriaMainstreetEscapePassageVerification
@@ -17,21 +18,21 @@ internal static class CrateriaMainstreetEscapePassageVerification
         RoomLevelData Load(bool crittersEscaped)
         {
             var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
             if (crittersEscaped)
                 runtime.System.SetEvent(EventNumber.CrittersEscaped);
-            runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.CrateriaMainstreet);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
             runtime.StepFrame(0);
             runtime.StepFrame(0);
             return runtime.Room.LoadedLevelData;
         }
 
         ushort Word(RoomLevelData level, int x) =>
-            level.GetCollisionBlockByIndex(level.GetBlockIndex(new(checked((ushort)x), 0x0b))).LevelWord;
+            level.GetCollisionBlockByIndex(level.GetBlockIndex(new(checked((ushort)x), 0x0b))).PackedWord.Raw;
 
         RoomLevelData opened = Load(crittersEscaped: true);
         foreach (int x in new[] { 0x3d, 0x3e, 0x41, 0x42 })

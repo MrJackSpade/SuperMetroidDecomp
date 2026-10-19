@@ -20,34 +20,33 @@ internal static class EvirDeathFrameVerification
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemies = fixture.System;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var states = (EvirEnemyState?[])enemies.EvirBehavior._evirStates;
         Action<RoomEnemySlot, SamusState?> initialize = enemies.EvirBehavior.InitializeEvir;
         Action<RoomEnemySlot> initializeProjectile = enemies.EvirBehavior.InitializeEvirProjectile;
         for (int index = 6; index <= 8; index++)
         {
             var slot = enemies.SlotTable.Slots[index];
-            slot.EnemyDefinitionPointer = index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir;
-            slot.Definition = RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer);
-            slot.AiBank = slot.Definition.Bank;
+            slot.Bind(index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer));
             slot.Position = slot.Position.WithWhole(new(128, 128));
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Health = slot.Definition.Health;
             slot.SpritemapPointer = 0x8b59;
-            slot.Properties = index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision;
+            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision));
             slot.Parameter1 = index == 7 ? (ushort)1 : (ushort)0;
+            // The body bobs at speed record 8, one of the two records retail Evirs use.
+            if (index == 6) slot.Parameter2 = 8;
             if (index == 8) initializeProjectile(slot); else initialize(slot, samus);
         }
         var body = enemies.SlotTable.Slots[6];
         var arms = enemies.SlotTable.Slots[7];
         var projectile = enemies.SlotTable.Slots[8];
-        AssertEqual((ushort)1, (states[6] ?? throw new InvalidOperationException("Verification requires states[6].")).FacingDirection, "live Evir initially faces right");
+        AssertEqual(EvirFacing.Right, (enemies.SlotTable.Slots[6].SpeciesState<EvirEnemyState>() ?? throw new InvalidOperationException("Verification requires slot 6's Evir state.")).Facing, "live Evir initially faces right");
         // Contact kills the body after the real scheduler has selected all three slots.
         // Arms and spit are marked deleted by the native contact tail but still receive
         // their already-scheduled calls before next frame's population pass removes them.
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, ResolveSamusContactBeforeAi = true });
         AssertEqual(EnemyDefinitionId.None, body.EnemyDefinitionPointer, "Screw Attack clears Evir body during contact");
-        AssertEqual((ushort)1, enemies.RoomStatus.EnemiesKilled, "only body counts as a killed enemy");
+        AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "only body counts as a killed enemy");
         AssertTrue(arms.Properties.HasAny(EnemyProperties.Deleted) && projectile.Properties.HasAny(EnemyProperties.Deleted),
             "Evir contact tail marks both following physical slots deleted");
         AssertEqual((ushort)1, arms.FrameCounter, "already-selected arms still receive their native final AI call");

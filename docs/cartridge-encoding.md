@@ -72,6 +72,22 @@ convert through a named codec that rejects out-of-range words (`SamusQuantity.De
 of the behavior stays explicit: `NativeWordCounter` for counters, or a named operation on the owning type.
 `SubunitHealth` stays a word because its borrow into `Health` is load-bearing.
 
+## Fixed-point values, angles and carries
+
+A whole value and its fraction are one quantity. Speeds and accelerations are `SnesSignedSixteenSixteen` or
+`SnesUnsignedSixteenSixteen`; a position with its subpixel is a `SnesFixedPosition`. Code never carries the two words
+side by side, in a tuple or as two parameters (SME6351).
+
+An angle's type states its convention (SME6352). `SnesAngle` is the 8.8 turn word whose high byte indexes the tables;
+`SnesByteAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `AddTableUnits` wrapping in one byte; and
+`SnesBearing` is the cartridge angle routine's result, zero pointing up, converted by `ToTableAngle()`. Where a routine
+reads a bearing directly from the table, the conversion is written out at that call. Steps, deltas, masks and offsets
+in table units stay integers.
+
+Processor flags do not cross routine boundaries (SME6353). `SnesCarry.AddWithCarry`, `SubtractWithBorrow` and
+`AfterCompare` model the arithmetic where a carry is load-bearing, and a result names what the flag meant
+(`ReachedVerticalBoundary`, `GrappleBlockReaction`).
+
 ## Classifying an encoded value
 
 A subsystem migration decides what each raw value means:

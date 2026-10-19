@@ -234,8 +234,7 @@ public sealed class SamusHorizontalSpeedState
                 SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceDefinitions.ReadResetWord(0));
             }
 
-            if (unchecked((short)(ExtraRunSpeed.Whole - 7)) >= 0 &&
-                unchecked((short)ExtraRunSpeed.Fraction) >= 0)
+            if (ExtraRunSpeed.WordsAtLeast(new SnesUnsignedSixteenSixteen(7, 0)))
             {
                 ExtraRunSpeed = new SnesUnsignedSixteenSixteen(7, 0);
                 PublishBoostContactDamage();
@@ -257,8 +256,7 @@ public sealed class SamusHorizontalSpeedState
         // intentionally is not a conventional unsigned 32-bit >= comparison. The retail
         // no-booster fractional cap is zero, so a normal progression reaches 2.0000 and
         // clamps there on the following call before another 0.1000 can be added.
-        if (unchecked((short)(ExtraRunSpeed.Whole - 2)) >= 0 &&
-            unchecked((short)ExtraRunSpeed.Fraction) >= 0)
+        if (ExtraRunSpeed.WordsAtLeast(new SnesUnsignedSixteenSixteen(2, 0)))
         {
             ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0);
             PublishBoostContactDamage();

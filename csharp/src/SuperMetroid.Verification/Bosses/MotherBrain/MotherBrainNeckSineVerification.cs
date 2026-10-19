@@ -21,7 +21,7 @@ internal static class MotherBrainNeckSineVerification
                 AssertEqual(
                     expected,
                     MotherBrainNeckKinematics.CalculateSignedComponent(
-                        unchecked((byte)angle),
+                        new SnesByteAngle(unchecked((byte)angle)),
                         unchecked((ushort)distance)),
                     $"Mother Brain neck component angle {angle:X2}, distance {distance:X2}");
             }

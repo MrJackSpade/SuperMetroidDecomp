@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Drawing;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Checks compiled Samus splash, running foot-contact, and Crateria weather policies against cartridge tables and live owners.</summary>
 internal static class SamusAtmosphericEffectDefinitionsVerification
@@ -163,8 +164,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 landing,
                 previousMovementType: SamusMovementType.Falling,
                 previousPose: pose,
-                impactYSpeed: 1,
-                impactYSubspeed: 0);
+                impactYSpeed: new SnesUnsignedSixteenSixteen(1, 0));
             AssertEqual(wet ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
                 landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
                 $"production Crateria landing policy ${room:X2}");

@@ -168,7 +168,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 Head = new RoomEnemySlot(1, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) },
             };
             ringEnemies.MotherBrainEncounter.MotherBrain = ringState;
-            ringEnemies.MotherBrainBehavior.SpawnMotherBrainOnionRing(ringState, (byte)0);
+            ringEnemies.MotherBrainBehavior.SpawnMotherBrainOnionRing(ringState, new SnesByteAngle(0));
             RoomEnemyProjectileSlot ring = ringEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing);
             for (int frame = 0; frame < 52; frame++)

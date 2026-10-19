@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Initial articulated-tail angular geometry from InitializeTailParts at $A6:D2D6.</summary>
@@ -9,19 +11,19 @@ internal static class RidleyTailDefinitions
     internal static SnesAngle InitialMaximumCounterClockwise { get; } = SnesAngle.FromRaw(0x4040);
 
     /// <summary>$A6:BC0A sets ideal tail spacing while releasing Samus.</summary>
-    internal const ushort CarryReleaseInterSegmentAngle = 8;
+    internal const ushort CarryReleaseInterSegmentSpacing = 8;
     /// <summary>$A6:BC11/$BC54 restores tail extension speed on carry phase expiry.</summary>
     internal const ushort CarryReleaseExtensionSpeed = 240;
     /// <summary>$A6:CB78/CB88, straight-down target angle.</summary>
-    internal const ushort DownAngle = 0x4000;
+    internal static SnesAngle DownAngle { get; } = SnesAngle.QuarterTurn;
     /// <summary>$A6:CD52/CDD8, pogo clockwise whip target.</summary>
-    internal const ushort PogoWhipAngle = 0x3f00;
+    internal static SnesAngle PogoWhipAngle { get; } = SnesAngle.FromRaw(0x3f00);
     /// <summary>A segment's stagger word once it has activated the next segment (native -1).</summary>
     internal const ushort StaggerPropagated = 0xffff;
     /// <summary>The whip's extension request while a segment chases a whip target.</summary>
     internal const ushort WhipDistance = 0x0c00;
     /// <summary>The axis a facing change reflects tail angles around: half of the 16-bit turn ($A6:D3F9).</summary>
-    internal const ushort MirrorAxisAngle = 0x8000;
+    internal static SnesAngle MirrorAxisAngle { get; } = SnesAngle.HalfTurn;
     /// <summary>The first byte angle of the forward interval a whip may not aim through Ridley's body.</summary>
     internal const byte ForbiddenForwardStart = 0x18;
     /// <summary>The byte angle past the forbidden forward interval; a left-facing target clamps here.</summary>
@@ -53,7 +55,7 @@ internal static class RidleyTailDefinitions
     /// <summary>$A6:D38A begins InitializeTailParts.angles at $4000, one quarter of the 16-bit full turn.</summary>
     private const int InitialBaseAngle = 0x10000 / 4;
     /// <summary>$A6:D2FD loads $0010 into Ridley.idealInterSegmentTailAngle; the initial angles advance by that separation.</summary>
-    internal const ushort IdealInterSegmentAngle = 0x0010;
+    internal const ushort IdealInterSegmentSpacing = 0x0010;
     /// <summary>$A6:D37C initial base separation, in8.8 pixels. The two-pixel length is an authored scalar (see residualScalarInputsReview).</summary>
     private const ushort BaseRestDistance = 2 << 8;
     /// <summary>$A6:D37E..D387 initial shaft separation and $CF7F/$CFB5/$CFEB/$D021/$D057 shrink thresholds. The eight-pixel length is an authored scalar.</summary>
@@ -72,6 +74,6 @@ internal static class RidleyTailDefinitions
 
     /// <summary>$A6:D38A..D397 contains seven successive initial link angles, base through tip.</summary>
     internal static ushort InitialAngle(int segmentIndex) => (uint)segmentIndex < 7
-        ? (ushort)(InitialBaseAngle + segmentIndex * IdealInterSegmentAngle)
+        ? (ushort)(InitialBaseAngle + segmentIndex * IdealInterSegmentSpacing)
         : throw new ArgumentOutOfRangeException(nameof(segmentIndex));
 }

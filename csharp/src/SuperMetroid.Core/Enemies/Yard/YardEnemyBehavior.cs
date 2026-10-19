@@ -539,12 +539,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SetYardAirborneLists(slot, state);
 
         var horizontal = SnesSignedSixteenSixteen.FromRaw(unchecked((int)samus.AbsoluteMovedLastFrameXFixed));
-        (ushort kickFraction, ushort kickWhole) = YardKickDefinitions.ForHorizontalSpeed(horizontal.WholeWord);
+        SnesSignedSixteenSixteen kick = YardKickDefinitions.ForHorizontalSpeed(horizontal.WholeWord);
         if ((samus.PoseMetadata.ReadPoseXDirection() & 4) != 0)
             horizontal = NegateWordsSeparately(horizontal);
         state.AirborneVelocity = new FixedVector<RoomPixels>(
             horizontal,
-            SnesSignedSixteenSixteen.FromParts(unchecked((short)kickWhole), kickFraction));
+            kick);
     }
 
     /// <summary>Ports ordinary-beam launch setup at $A3:D557.</summary>

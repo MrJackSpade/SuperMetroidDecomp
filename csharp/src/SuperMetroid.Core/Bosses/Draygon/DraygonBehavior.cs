@@ -1299,7 +1299,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         // select slightly different table vectors near the destination.
         short deltaX = unchecked((short)(64 - (body.Position.X.Whole >> 2)));
         short deltaY = unchecked((short)(120 - (body.Position.Y.Whole >> 2)));
-        byte movementAngle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).ToTableAngle().RawValue;
+        SnesByteAngle movementAngle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).ToTableAngle();
         MoveDraygonAtMovementAngle(body, movementAngle, speed: 1);
 
         if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonDeathTargetX, 4) ||
@@ -1463,7 +1463,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Moves the body along a native sine-table angle at the supplied speed.</summary>
-    private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, byte movementAngle, ushort speed)
+    private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, SnesByteAngle movementAngle, ushort speed)
     {
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
@@ -1789,7 +1789,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> target,
         ushort speed)
     {
-        byte movementAngle = EnemyMath.CalculateCartridgeAngle(target - body.Position.Whole).ToTableAngle().RawValue;
+        SnesByteAngle movementAngle = EnemyMath.CalculateCartridgeAngle(target - body.Position.Whole).ToTableAngle();
 
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
@@ -1908,8 +1908,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         // PlaceAndAim negates the common zero-up angle, then adds $40 before retaining the
         // low byte. ConvertAngleToXy stores unsigned magnitudes; the pre-instruction applies
         // signs from this retained angle on every frame.
-        byte flightAngle = EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(samus.Position.X.Whole - turret.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - turret.Position.Y.Whole)))).ToTableAngle().RawValue;
+        SnesByteAngle flightAngle = EnemyMath.CalculateCartridgeAngle(
+            new(unchecked((short)(samus.Position.X.Whole - turret.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - turret.Position.Y.Whole)))).ToTableAngle();
         SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
         // The definition says $8DFF, but init replaces it with RTS until the 84-frame muzzle
@@ -1946,17 +1946,17 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int random = _room.Random.Generate();
         byte angle = unchecked((byte)((random & 63) + (movingRight ? 192 : 128)));
-        SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
+        SetDraygonProjectileVelocity(goop, new SnesByteAngle(angle), DraygonProjectileSpeeds.Goop);
         state.GoopProjectilesSpawned++;
     }
 
     /// <summary>Splits sine-derived projectile velocity into native 8.8 and fraction words.</summary>
     private static void SetDraygonProjectileVelocity(
         RoomEnemyProjectileSlot projectile,
-        byte angle,
+        SnesByteAngle angle,
         ushort speed)
     {
-        projectile.DirectionParameter = angle;
+        projectile.DirectionParameter = angle.RawValue;
         int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, speed);
         int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, speed);
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesFixedPosition.WholeOf(xMagnitude)));
@@ -1970,8 +1970,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.X.RawValue, checked((ushort)projectile.Variable0))));
         int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, checked((ushort)projectile.Variable1))));
-        int xDisplacement = EnemyMath.CosineIsNegative(projectile.DirectionParameter) ? -xMagnitude : xMagnitude;
-        int yDisplacement = EnemyMath.SineIsNegative(projectile.DirectionParameter) ? -yMagnitude : yMagnitude;
+        int xDisplacement = EnemyMath.CosineIsNegative(new SnesByteAngle(unchecked((byte)(projectile.DirectionParameter)))) ? -xMagnitude : xMagnitude;
+        int yDisplacement = EnemyMath.SineIsNegative(new SnesByteAngle(unchecked((byte)(projectile.DirectionParameter)))) ? -yMagnitude : yMagnitude;
         projectile.Position = projectile.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
         projectile.Position = projectile.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
     }

@@ -130,7 +130,7 @@ internal static class GrappleConnectionDefinitionsVerification
         {
             int address = 0x9bc43e + i * 10;
             AssertEqual(0, Word(address + 2) >> 8, "Native special pose word has no discarded high byte");
-            return new GrappleConnectionDefinitions.SpecialConnection(Word(address), (SamusPoseId)Word(address + 2),
+            return new GrappleConnectionDefinitions.SpecialConnection(SnesAngle.FromRaw(checked((ushort)Word(address))), (SamusPoseId)Word(address + 2),
                 new Offset16<RoomPixels>(unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6))),
                 (GrappleConnectionFunction)Word(address + 8));
         }).ToArray();
@@ -147,7 +147,7 @@ internal static class GrappleConnectionDefinitionsVerification
             samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new(100, 200));
             g.Phase = GrapplePhase.ConnectedSwinging; g.Anchor = g.Anchor.WithY(512).WithX(512);
             g.Angle = SnesAngle.FromRaw((ushort)angle);
-            int index = Array.FindLastIndex(native, row => row.Angle == angle);
+            int index = Array.FindLastIndex(native, row => row.Angle.RawValue == angle);
             AssertEqual(index >= 0, special(samus, g, new(100, 200), out _), "Exact native special angle, no tolerance");
             if (index < 0)
             {
@@ -161,7 +161,7 @@ internal static class GrappleConnectionDefinitionsVerification
         for (int coordinate = 0; coordinate <= ushort.MaxValue; coordinate++)
         {
             g.Anchor = g.Anchor.WithX((ushort)coordinate); g.Anchor = g.Anchor.WithY(unchecked((ushort)~coordinate));
-            g.Angle = SnesAngle.FromRaw(row.Angle); g.WallJumpTimer = NativeCountdown.Start(77);
+            g.Angle = row.Angle; g.WallJumpTimer = NativeCountdown.Start(77);
             AssertTrue(special(samus, g, new(0, ushort.MaxValue), out var result), "Native special record dispatch");
             ushort x = unchecked((ushort)(g.Anchor.X + row.SamusOffset.X)), y = unchecked((ushort)(g.Anchor.Y + row.SamusOffset.Y));
             AssertEqual(x, samus.Position.X.Whole, "Special wrapped body X");

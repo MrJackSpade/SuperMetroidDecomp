@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Grapple tile ownership and the pinned $9B:C342/C346 endpoint/angle selection tables.</summary>
@@ -34,11 +36,11 @@ public static class GrappleTileDefinitions
     public static IReadOnlyList<GrappleTileTransfer> Transfers => transfers;
 
     /// <summary>$9B:C005 folds the unsigned angle into an even table byte offset, equivalent to angle / 1024.</summary>
-    public static VramAssetId SegmentAssetFor(ushort angle)
+    public static VramAssetId SegmentAssetFor(SnesAngle angle)
     {
         // The 64 sectors repeat after half a turn. Reflect each half-turn about
         // its midpoint, retaining the native three/eight/five sector widths.
-        int halfTurnSector = (angle >> 10) & 31;
+        int halfTurnSector = (angle.RawValue >> 10) & 31;
         int distance = Math.Min(halfTurnSector, 31 - halfTurnSector);
         return distance < 3 ? Vertical : distance < 11 ? Diagonal : Horizontal;
     }

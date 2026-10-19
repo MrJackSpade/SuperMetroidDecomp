@@ -1247,18 +1247,14 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
         bool drainedLanded = drainedLanding is not null;
         if (!frame.DeathOwnsSamus && (ordinaryOrBallLanded || knockbackLanded || drainedLanded))
         {
-            int impactYSpeed = drainedLanding is { } drainedSpeed
+            SnesUnsignedSixteenSixteen impactYSpeed = drainedLanding is { } drainedSpeed
                 ? drainedSpeed.ImpactYSpeed
-                : samus.Kinematics.YSpeed.Whole;
-            int impactYSubspeed = drainedLanding is { } drainedSubspeed
-                ? drainedSubspeed.ImpactYSubspeed
-                : samus.Kinematics.YSpeed.Fraction;
+                : samus.Kinematics.YSpeed;
             samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
                 samus,
                 frame.MovementTypeAtFrameStart,
                 frame.PoseAtFrameStart,
-                impactYSpeed,
-                impactYSubspeed);
+                impactYSpeed);
         }
 
         // `$90:E738` runs the timer/hack handler after movement and before animation.

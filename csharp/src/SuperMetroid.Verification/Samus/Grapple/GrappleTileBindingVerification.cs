@@ -63,7 +63,7 @@ internal static class GrappleTileBindingVerification
                 .Where(draw => draw.Source.Kind is SpriteSourceKind.SamusGrappleEndpoint or SpriteSourceKind.SamusGrappleRope)];
             AssertTrue(grappleDraws.Length > 0, context + ": the grapple beam is drawn");
             SpriteArtwork expected = atlas.OnStandardObjects(target.Artwork.StandardObjects ?? throw new InvalidOperationException(
-                "Verification requires the runtime's standard OBJ page."), grapple.PointAnimationFrame, grapple.Angle.RawValue);
+                "Verification requires the runtime's standard OBJ page."), grapple.PointAnimationFrame, grapple.Angle);
             AssertTrue(grappleDraws.All(draw => ReferenceEquals(expected, draw.Artwork)), context);
         }
     }

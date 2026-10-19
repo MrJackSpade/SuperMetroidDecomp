@@ -44,7 +44,9 @@ internal sealed class FallingSparksBehavior
         // final RNG outcome's instruction-byte overread, including its signed delta.
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         Func<int> nextRandom = _room.Random.Generate;
-        (projectile.Variable1, projectile.Variable0) = FallingSparkLaunchDefinitions.FromRandom(nextRandom());
+        SnesSignedSixteenSixteen launch = FallingSparkLaunchDefinitions.FromRandom(nextRandom());
+        projectile.Variable1 = launch.WholeWord;
+        projectile.Variable0 = launch.Fraction;
 
     }
 

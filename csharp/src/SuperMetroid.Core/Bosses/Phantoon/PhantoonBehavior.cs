@@ -1904,7 +1904,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
         flame.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         flame.Variable0 = unchecked((byte)(directionIndex * 32));
-        PositionPhantoonFlameAroundBody(flame, body, checked((ushort)flame.Variable0), radius: 48);
+        PositionPhantoonFlameAroundBody(flame, body, checked(new SnesByteAngle(unchecked((byte)((ushort)flame.Variable0)))), radius: 48);
         flame.PreInstruction = PhantoonStartingFlameWaitingPreInstruction;
         return true;
     }
@@ -2020,7 +2020,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
-            checked((ushort)flame.Variable0),
+            checked(new SnesByteAngle(unchecked((byte)((ushort)flame.Variable0)))),
             unchecked((byte)flame.Velocity.Y.RawValue));
     }
 
@@ -2108,7 +2108,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
-            checked((ushort)flame.Variable0),
+            checked(new SnesByteAngle(unchecked((byte)((ushort)flame.Variable0)))),
             unchecked((byte)flame.Velocity.Y.RawValue));
         DeletePhantoonFlameOutsideRoom(flame);
     }
@@ -2152,7 +2152,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
-            checked((ushort)flame.Variable0),
+            checked(new SnesByteAngle(unchecked((byte)((ushort)flame.Variable0)))),
             unchecked((byte)flame.Velocity.Y.RawValue));
         DeletePhantoonFlameOutsideRoom(flame);
     }
@@ -2161,21 +2161,21 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void PositionPhantoonFlameAroundBody(
         RoomEnemyProjectileSlot flame,
         RoomEnemySlot body,
-        ushort angle,
+        SnesByteAngle angle,
         ushort radius)
     {
         // Unlike the common byte-table enemy sine routine, this callback uses a
         // word sample. Its high byte preserves the exact full radius at cardinal angles.
         int xOffset = ReadPhantoonFlameComponent(angle, radius);
-        int yOffset = ReadPhantoonFlameComponent(unchecked((byte)(angle - 64)), radius);
+        int yOffset = ReadPhantoonFlameComponent(angle.AddTableUnits(-SnesByteAngle.QuarterTurn.RawValue), radius);
         flame.Position = flame.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + xOffset)), unchecked((ushort)(body.Position.Y.Whole + 16 + yOffset))));
     }
 
     /// <summary>Ports $86:9BA2/$9BF3: unsigned half-wave multiplication followed by whole-result negation.</summary>
-    internal static int ReadPhantoonFlameComponent(ushort angle, ushort radius)
+    internal static int ReadPhantoonFlameComponent(SnesByteAngle angle, ushort radius)
     {
-        int byteAngle = unchecked((byte)angle);
-        int sample = EnemyTrigonometryTables.SignedSine((byte)(byteAngle & 127));
+        int byteAngle = angle.RawValue;
+        int sample = EnemyTrigonometryTables.SignedSine(new SnesByteAngle((byte)(byteAngle & 127)));
         int magnitude = (SnesEightEight.Multiply(unchecked((byte)sample), SnesLittleEndian.LowByte(radius))) + SnesEightEight.WholeOf(sample) * (SnesLittleEndian.LowByte(radius));
         return byteAngle < 128 ? magnitude : -magnitude;
     }

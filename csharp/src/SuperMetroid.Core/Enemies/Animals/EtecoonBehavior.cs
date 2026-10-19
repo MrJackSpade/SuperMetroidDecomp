@@ -59,22 +59,16 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     // These are the literal eight ROM words at $A7:E900-$E90F. Keeping them named beside
     // their consumers avoids replacing authored fixed-point values with host-side tuning.
-    /// <summary>Signed whole Y speed for an ordinary Etecoon hop.</summary>
-    private const ushort EtecoonJumpYVelocity = unchecked((ushort)-3);
-    /// <summary>Fractional Y speed paired with an ordinary hop.</summary>
-    private const ushort EtecoonJumpYSubvelocity = 0;
-    /// <summary>Signed whole Y speed for the stronger long jump.</summary>
-    private const ushort EtecoonLongJumpYVelocity = unchecked((ushort)-4);
-    /// <summary>Fractional Y speed paired with the long jump.</summary>
-    private const ushort EtecoonLongJumpYSubvelocity = 0;
-    /// <summary>Whole X speed used by rightward teaching runs.</summary>
-    private const ushort EtecoonRightVelocity = 2;
-    /// <summary>Fractional X speed paired with rightward runs.</summary>
-    private const ushort EtecoonRightSubvelocity = 0;
-    /// <summary>Signed whole X speed used by leftward teaching runs.</summary>
-    private const ushort EtecoonLeftVelocity = unchecked((ushort)-2);
-    /// <summary>Fractional X speed paired with leftward runs.</summary>
-    private const ushort EtecoonLeftSubvelocity = 0;
+    /// <summary>Y speed for an ordinary Etecoon hop.</summary>
+    private static readonly SnesSignedSixteenSixteen EtecoonJumpYVelocity = SnesSignedSixteenSixteen.FromParts(-3, 0);
+    /// <summary>Y speed for the stronger long jump.</summary>
+    private static readonly SnesSignedSixteenSixteen EtecoonLongJumpYVelocity = SnesSignedSixteenSixteen.FromParts(-4, 0);
+    /// <summary>Y speed of the hop that lands the long route.</summary>
+    private static readonly SnesSignedSixteenSixteen EtecoonLongJumpLandingYVelocity = SnesSignedSixteenSixteen.FromParts(-1, 0);
+    /// <summary>X speed of rightward teaching runs.</summary>
+    private static readonly SnesSignedSixteenSixteen EtecoonRightVelocity = SnesSignedSixteenSixteen.FromParts(2, 0);
+    /// <summary>X speed of leftward teaching runs.</summary>
+    private static readonly SnesSignedSixteenSixteen EtecoonLeftVelocity = SnesSignedSixteenSixteen.FromParts(-2, 0);
 
     /// <summary>Library-two sound queued when an Etecoon wakes near Samus.</summary>
     private static readonly SoundEffectId EtecoonWakeSound =
@@ -234,7 +228,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = EtecoonAiFunction.InitialJump;
@@ -280,7 +274,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SetEtecoonVerticalVelocity(state, 0, 0);
+        SetEtecoonVerticalVelocity(state, SnesSignedSixteenSixteen.Zero);
         slot.InstructionTimer = NativeCountdown.Start(3);
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.HitCeiling);
     }
@@ -297,15 +291,15 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
         if (state.HeadsRightOrCountsHops)
         {
-            SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
+            SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
             state.Function = EtecoonAiFunction.RunRightToWall;
         }
         else
         {
-            SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity, EtecoonLeftSubvelocity);
+            SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
             state.Function = EtecoonAiFunction.RunLeftToWall;
         }
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
     }
 
     /// <summary>Runs left until terrain collision, then reverses into the rightward teaching path.</summary>
@@ -317,7 +311,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MoveEtecoonHorizontally(slot, state, level))
             return;
 
-        SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
+        SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
         state.Function = EtecoonAiFunction.RunRightToWall;
         InstallEtecoonInstruction(slot, state, EtecoonProgram.RunningRight);
         state.Head(right: true);
@@ -380,7 +374,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 : EtecoonProgram.HoppingFacingRight);
         state.FunctionTimer = NativeCountdown.Start(11);
         state.Function = EtecoonAiFunction.RouteAfterLanding;
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
     }
 
     /// <summary>Waits eight calls at a wall, then launches in the stored opposite direction.</summary>
@@ -393,15 +387,15 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HeadsRightOrCountsHops)
         {
             InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpRight);
-            SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
+            SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
         }
         else
         {
             InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpLeft);
-            SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity, EtecoonLeftSubvelocity);
+            SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
         }
         state.Function = EtecoonAiFunction.Airborne;
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
     }
 
     /// <summary>Selects one of the three authored post-landing routes from parameter two.</summary>
@@ -412,23 +406,23 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         switch (state.Route)
         {
             case 0:
                 state.Function = EtecoonAiFunction.MoveLeftToTeachingStart;
                 state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningLeft);
-                SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity, EtecoonLeftSubvelocity);
+                SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
                 break;
             case 1:
                 state.Function = EtecoonAiFunction.MoveRightToTeachingStart;
                 state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningRight);
-                SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
+                SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
                 break;
             case 2:
                 state.Function = EtecoonAiFunction.TeachingJump;
                 state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
-                SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
+                SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
                 break;
             default:
                 throw new InvalidDataException(
@@ -478,7 +472,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Function = EtecoonAiFunction.LongJump;
-        SetEtecoonVerticalVelocity(state, EtecoonLongJumpYVelocity, EtecoonLongJumpYSubvelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonLongJumpYVelocity);
         InstallEtecoonInstruction(slot, state, EtecoonProgram.JumpingRight);
     }
 
@@ -510,7 +504,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         InstallEtecoonInstruction(slot, state, EtecoonProgram.JumpingRight);
         state.Function = EtecoonAiFunction.LongJumpLanding;
-        SetEtecoonVerticalVelocity(state, unchecked((ushort)-1), EtecoonLongJumpYSubvelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonLongJumpLandingYVelocity);
     }
 
     /// <summary>Waits for floor contact after the long route, then resumes the teaching-hop pause.</summary>
@@ -551,7 +545,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SetEtecoonVerticalVelocity(state, 0, 0);
+        SetEtecoonVerticalVelocity(state, SnesSignedSixteenSixteen.Zero);
         slot.InstructionTimer = NativeCountdown.Start(3);
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.HitCeiling);
     }
@@ -586,9 +580,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Function = EtecoonAiFunction.RunRightToReturnJump;
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningRight);
-            SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
+            SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
         }
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         slot.InstructionTimer = NativeCountdown.Start(1);
         if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
             LastEtecoonSoundEffect = EtecoonJumpSound;
@@ -612,7 +606,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
+            SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
             state.Function = EtecoonAiFunction.TeachingJump;
             if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
@@ -646,9 +640,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MoveEtecoonVertically(slot, state, samus, level))
             return;
 
-        SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity, EtecoonLeftSubvelocity);
+        SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
         state.Function = EtecoonAiFunction.RunLeftToWall;
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         InstallEtecoonInstruction(slot, state, EtecoonProgram.RunningLeft);
     }
 
@@ -701,23 +695,13 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + increment);
     }
 
-    /// <summary>Installs a native signed whole/fraction Y speed for the next movement phase.</summary>
-    private static void SetEtecoonVerticalVelocity(
-        EtecoonEnemyState state,
-        ushort whole,
-        ushort fraction)
-    {
-        state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction));
-    }
+    /// <summary>Installs a Y speed for the next movement phase.</summary>
+    private static void SetEtecoonVerticalVelocity(EtecoonEnemyState state, SnesSignedSixteenSixteen speed) =>
+        state.Velocity = state.Velocity.WithY(speed);
 
-    /// <summary>Installs a native signed whole/fraction X speed for the next movement phase.</summary>
-    private static void SetEtecoonHorizontalVelocity(
-        EtecoonEnemyState state,
-        ushort whole,
-        ushort fraction)
-    {
-        state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction));
-    }
+    /// <summary>Installs an X speed for the next movement phase.</summary>
+    private static void SetEtecoonHorizontalVelocity(EtecoonEnemyState state, SnesSignedSixteenSixteen speed) =>
+        state.Velocity = state.Velocity.WithX(speed);
 
     /// <summary>Uses native post-decrement semantics, treating a one-to-zero or signed underflow as expiry.</summary>
     private static bool DecrementEtecoonTimerAndTestExpired(EtecoonEnemyState state)

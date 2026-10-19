@@ -159,6 +159,15 @@ commands species only through `RoomEnemySystem`'s capability interfaces (`Elevat
 `RoomMainHooks`, `LoaderHooks`, `GrappleTargets`, `PlmSpawns`, `TourianStatue`, `DisplaySources`), never through a
 `*Behavior` or `*Encounter` property.
 
+**SME6351**, **SME6352** and **SME6353** keep Core's numeric vocabulary in its named types (#1326). Outside
+`Hardware/` and `[SnesEncodingOwner]` codec types, a whole value and its fraction are never carried as two primitives
+or a tuple (`Speed`/`Subspeed`, `Whole`/`Fraction`): they are one `SnesSignedSixteenSixteen`,
+`SnesUnsignedSixteenSixteen` or `SnesFixedPosition` (SME6351). An angle, heading or bearing is never a raw byte or
+word: it is a `SnesAngle` (8.8 turn), `SnesByteAngle` (trigonometry-table index) or `SnesBearing` (the
+up-is-zero result of the cartridge angle routine); a name ending in Step, Delta, Mask or Offset is a difference in
+table units and is not an angle (SME6352). No member, tuple element or by-reference parameter carries a processor
+carry or overflow flag: carry arithmetic is `SnesCarry`'s operations, and results name what happened (SME6353).
+
 **SME6408** keeps enemy state out of generic slot words. `RoomEnemySlot` declares no multipurpose word
 (`VariableA`-`F`, `Parameter1`/`2` or another lettered variable or numbered parameter): each family owns its state as
 typed fields, and authored spawn parameters are read from the slot's spawn record.

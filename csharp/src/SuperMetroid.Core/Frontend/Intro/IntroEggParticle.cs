@@ -68,10 +68,10 @@ internal sealed class IntroEggParticle
     private static void AddSixteenSixteenVelocity(
         IntroDiscoverySprite sprite,
         bool horizontal,
-        (ushort Whole, ushort Fraction) velocity)
+        SnesSignedSixteenSixteen velocity)
     {
         sprite.Position = horizontal
-            ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, velocity.Whole, velocity.Fraction))
-            : sprite.Position.WithY(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.Y, velocity.Whole, velocity.Fraction));
+            ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, velocity.WholeWord, velocity.Fraction))
+            : sprite.Position.WithY(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.Y, velocity.WholeWord, velocity.Fraction));
     }
 }

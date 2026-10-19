@@ -200,8 +200,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Calculates the cartridge angle from signed wrapped eye-to-Samus displacement.</summary>
     private static SnesAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
-        SnesAngle.FromTableIndex(EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(samus.Position.X.Whole - eye.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - eye.Position.Y.Whole)))).RawValue);
+        EnemyMath.CalculateCartridgeAngle(
+            new(unchecked((short)(samus.Position.X.Whole - eye.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - eye.Position.Y.Whole)))).ReinterpretAsTableAngle().ToAngle();
 
     /// <summary>Requires the body in retail slot one before scheduling the room-global bank-$88 beam for next frame.</summary>
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)

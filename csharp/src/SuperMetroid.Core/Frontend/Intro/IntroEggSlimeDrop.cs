@@ -74,11 +74,10 @@ internal sealed class IntroEggSlimeDrop
         sprite.Draw(oam, installedArt: installedArt);
 
     /// <summary>Adds native 16.16 motion to one screen coordinate while preserving its fractional part.</summary>
-    private void AddVelocity(bool horizontal, (ushort Whole, ushort Fraction) velocity)
+    private void AddVelocity(bool horizontal, SnesSignedSixteenSixteen velocity)
     {
-        (ushort wholeVelocity, ushort fractionVelocity) = velocity;
         sprite.Position = horizontal
-            ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, wholeVelocity, fractionVelocity))
-            : sprite.Position.WithY(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.Y, wholeVelocity, fractionVelocity));
+            ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, velocity.WholeWord, velocity.Fraction))
+            : sprite.Position.WithY(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.Y, velocity.WholeWord, velocity.Fraction));
     }
 }

@@ -102,6 +102,9 @@ dotnet_diagnostic.SME6407.severity = error
 
 # #1325: enemy families own typed state; the common enemy slot declares no multipurpose words.
 dotnet_diagnostic.SME6408.severity = error
+dotnet_diagnostic.SME6351.severity = error
+dotnet_diagnostic.SME6352.severity = error
+dotnet_diagnostic.SME6353.severity = error
 
 # Owner decision (2026-10-17): the SME code-quality rules apply only to SuperMetroid.Core and
 # SuperMetroid.AssetExtraction. Core is what the Godot port carries over and AssetExtraction is the ROM import pipeline
@@ -166,6 +169,9 @@ dotnet_diagnostic.SME6405.severity = none
 dotnet_diagnostic.SME6406.severity = none
 dotnet_diagnostic.SME6407.severity = none
 dotnet_diagnostic.SME6408.severity = none
+dotnet_diagnostic.SME6351.severity = none
+dotnet_diagnostic.SME6352.severity = none
+dotnet_diagnostic.SME6353.severity = none
 
 [{test-support,test-fixtures,tools}/**.cs]
 dotnet_diagnostic.SME6201.severity = none
@@ -225,3 +231,6 @@ dotnet_diagnostic.SME6405.severity = none
 dotnet_diagnostic.SME6406.severity = none
 dotnet_diagnostic.SME6407.severity = none
 dotnet_diagnostic.SME6408.severity = none
+dotnet_diagnostic.SME6351.severity = none
+dotnet_diagnostic.SME6352.severity = none
+dotnet_diagnostic.SME6353.severity = none

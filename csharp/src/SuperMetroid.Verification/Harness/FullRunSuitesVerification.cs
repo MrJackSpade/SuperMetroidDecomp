@@ -25,6 +25,7 @@ using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerif
 using static SuperMetroid.Verification.Samus.Projectiles.BeamImpactSoundVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerification;
 using static SuperMetroid.Verification.Hardware.Bgr555DomainVerification;
+using static SuperMetroid.Verification.Hardware.FixedPointVocabularyVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.BombBlockProgramsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BombChargeRejectionVerification;
 using static SuperMetroid.Verification.Samus.Movement.BombJumpRunMomentumVerification;
@@ -761,6 +762,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPuromiArcPosition), () => VerifyPuromiArcPosition()),
         new(nameof(VerifySpringBallBounce), () => VerifySpringBallBounce()),
         new(nameof(VerifyMainGameLoopCarry), () => VerifyMainGameLoopCarry()),
+        new(nameof(VerifyFixedPointVocabulary), () => VerifyFixedPointVocabulary()),
         new(nameof(VerifyBootDemoSetCount), () => VerifyBootDemoSetCount()),
         new(nameof(VerifyDoorEntryRoomFxSound), () => VerifyDoorEntryRoomFxSound()),
         new(nameof(VerifyDoorEntryShotBinding), () => VerifyDoorEntryShotBinding()),

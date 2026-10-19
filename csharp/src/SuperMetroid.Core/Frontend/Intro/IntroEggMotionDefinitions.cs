@@ -38,7 +38,7 @@ internal static class IntroEggMotionDefinitions
     /// speeds vary irregularly by shell piece, so retain the six authored
     /// launch velocities. Unknown indices throw rather than read adjacent data.
     /// </remarks>
-    public static (ushort Whole, ushort Fraction) FragmentX(int index) => Split(index switch
+    public static SnesSignedSixteenSixteen FragmentX(int index) => Split(index switch
     {
         0 => -0xc000, 1 => 0x4000, 2 => -0x8000,
         3 => -0xe000, 4 => 0x8000, 5 => 0x2000,
@@ -64,11 +64,11 @@ internal static class IntroEggMotionDefinitions
     /// to the bounded curve, not an extension of its formula. Other frame
     /// indices, including 41 and negative values, throw.
     /// </remarks>
-    public static (ushort Whole, ushort Fraction) FragmentY(int frame) => frame switch
+    public static SnesSignedSixteenSixteen FragmentY(int frame) => frame switch
     {
-        38 => (0x9dad, 0x991b),
-        39 => (0x1b7d, 0x97ad),
-        40 => (0x991a, 0x1a7d),
+        38 => SnesSignedSixteenSixteen.FromParts(unchecked((short)0x9dad), 0x991b),
+        39 => SnesSignedSixteenSixteen.FromParts(0x1b7d, 0x97ad),
+        40 => SnesSignedSixteenSixteen.FromParts(unchecked((short)0x991a), 0x1a7d),
         _ => Curve(frame, 38, 2),
     };
 
@@ -84,7 +84,7 @@ internal static class IntroEggMotionDefinitions
     /// explicit launch choices rather than hide this authored extra entry
     /// behind a four-item symmetry rule. Unknown indices throw.
     /// </remarks>
-    public static (ushort Whole, ushort Fraction) SlimeX(int index) => Split(index switch
+    public static SnesSignedSixteenSixteen SlimeX(int index) => Split(index switch
     {
         0 => -0x10000, 1 => -0x8000, 2 => 0x10000, 3 => 0x8000, 4 => -0x8000,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
@@ -115,10 +115,10 @@ internal static class IntroEggMotionDefinitions
     /// and $FFFF grounds at frame 62, within the table. Frame 69 and
     /// negative frames throw instead of reading the adjacent routine.
     /// </remarks>
-    public static (ushort Whole, ushort Fraction) SlimeY(int frame, bool odd) => Curve(frame, odd ? 62 : 69, odd ? 2 : 3);
+    public static SnesSignedSixteenSixteen SlimeY(int frame, bool odd) => Curve(frame, odd ? 62 : 69, odd ? 2 : 3);
 
     /// <summary>Produces one bounded signed 16.16 gravity step for shell or parity-selected slime trajectories.</summary>
-    private static (ushort Whole, ushort Fraction) Curve(int frame, int count, int negativeGroups)
+    private static SnesSignedSixteenSixteen Curve(int frame, int count, int negativeGroups)
     {
         if ((uint)frame >= count)
             throw new ArgumentOutOfRangeException(nameof(frame));
@@ -130,7 +130,6 @@ internal static class IntroEggMotionDefinitions
         return Split((frame / 7 - negativeGroups) * 0x10000 + fraction);
     }
 
-    /// <summary>Splits a signed fixed-point step into the native whole and fractional words.</summary>
-    private static (ushort Whole, ushort Fraction) Split(int value) =>
-        (SnesFixedPosition.WholeOf(value), unchecked((ushort)value));
+    /// <summary>One signed fixed-point step.</summary>
+    private static SnesSignedSixteenSixteen Split(int value) => SnesSignedSixteenSixteen.FromRaw(value);
 }

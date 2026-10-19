@@ -775,7 +775,7 @@ public static class SamusGrappleMovement
         for (int record = GrappleConnectionDefinitions.SpecialAngleCount - 1; record >= 0; record--)
         {
             var special = GrappleConnectionDefinitions.SpecialAngle(record);
-            if (special.Angle != grapple.Angle.RawValue)
+            if (special.Angle != grapple.Angle)
                 continue;
 
             GrappleConnectionFunction function = special.Function;
@@ -1121,7 +1121,7 @@ public static class SamusGrappleMovement
         // independently authored Flare pair from the firing tables.
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
             grapple,
-            angle.TableIndex,
+            angle.ToByteAngle(),
             grapple.RopeLength);
         grapple.RopeStart = ropeStart.Pixel;
         grapple.Phase = swinging
@@ -1342,7 +1342,7 @@ public static class SamusGrappleMovement
         SuperMetroid.Core.Samus.Artwork.GrappleTileAtlas installed = artwork ?? throw new InvalidOperationException(
             "The grapple beam requires installed grapple artwork.");
         SpriteArtwork tiles = installed.OnStandardObjects(standardObjects ?? throw new InvalidOperationException(
-            "The grapple beam requires the installed standard OBJ page."), grapple.PointAnimationFrame, grapple.Angle.RawValue);
+            "The grapple beam requires the installed standard OBJ page."), grapple.PointAnimationFrame, grapple.Angle);
 
         // `$9B:BFA5` increments the shared flare counter after both tile records, saturating
         // at 120 by a signed comparison. It happens even at zero rope length; only the OAM
@@ -1559,7 +1559,7 @@ public static class SamusGrappleMovement
         // with the collision body by one pixel.
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
             grapple,
-            grapple.Angle.TableIndex,
+            grapple.Angle.ToByteAngle(),
             grapple.RopeLength);
         grapple.RopeStart = ropeStart.Pixel;
 
@@ -1574,7 +1574,7 @@ public static class SamusGrappleMovement
         byte artFrame = (grapple.SwingFrames ?? throw new InvalidOperationException(
             "Grapple swing requires installed frame definitions."))
             .Resolve(grapple.MirroredAngle.ToByteAngle());
-        var offset = GrappleBodyPlacementDefinitions.Offset(grapple.MirroredAngle.TableIndex,
+        var offset = GrappleBodyPlacementDefinitions.Offset(grapple.MirroredAngle.ToByteAngle(),
             SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
         samus.Presentation.SetGrappleSwingAnimationFrame(artFrame);
@@ -1799,7 +1799,7 @@ public static class SamusGrappleMovement
             int probeDistance = candidateLength + frontBoundaryOffset;
             GrappleCollisionPoint point = CalculateCollisionPoint(
                 grapple,
-                grapple.Angle.TableIndex,
+                grapple.Angle.ToByteAngle(),
                 probeDistance);
             if (IsSwingCollision(level, samus, point.Block))
             {
@@ -1952,7 +1952,7 @@ public static class SamusGrappleMovement
                 level,
                 samus,
                 grapple,
-                candidateAngleByte);
+                new SnesByteAngle(candidateAngleByte));
             if (collision.Collided)
             {
                 // $94:ADB4/$AE84 restore the last safe whole angle byte and force the
@@ -2012,7 +2012,7 @@ public static class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple,
-        byte candidateAngleByte)
+        SnesByteAngle candidateAngle)
     {
         // $94:ABE6 checks six points on an eight-pixel cadence. The first point is eight
         // pixels beyond the hand; the last is 48 pixels beyond it. Together with rope length
@@ -2022,7 +2022,7 @@ public static class SamusGrappleMovement
         {
             GrappleCollisionPoint point = CalculateCollisionPoint(
                 grapple,
-                candidateAngleByte,
+                candidateAngle,
                 distance);
             if (IsSwingCollision(level, samus, point.Block))
             {
@@ -2040,11 +2040,11 @@ public static class SamusGrappleMovement
     /// <summary>Projects a body probe from the block-biased anchor and wraps its room-block coordinates to native bytes.</summary>
     internal static GrappleCollisionPoint CalculateCollisionPoint(
         SamusGrappleState grapple,
-        byte angleByte,
+        SnesByteAngle angle,
         int distance)
     {
-        short xSine = ReadSignedSine(angleByte + 64);
-        short yNegativeCosine = ReadSignedSine(angleByte);
+        short xSine = ReadSignedSine(angle.RawValue + 64);
+        short yNegativeCosine = ReadSignedSine(angle.RawValue);
 
         // For a block anchor, $94:A95F-$A996 biases the low nibble toward the side from
         // which the rope leaves the block: eight for a nonnegative component, seven for a

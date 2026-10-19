@@ -167,18 +167,18 @@ internal static class MotherBrainNeckKinematics
         byte lower = lowerAngle.TableIndex;
         byte upper = upperAngle.TableIndex;
 
-        Position16<RoomPixels> segment0 = CalculateLowerSegment(reference, lower, distances.Segment0Distance);
-        Position16<RoomPixels> segment1 = CalculateLowerSegment(reference, lower, distances.Segment1Distance);
-        Position16<RoomPixels> segment2 = CalculateLowerSegment(reference, lower, distances.Segment2Distance);
-        Position16<RoomPixels> segment3 = segment2 + CalculatePolarOffset(upper, distances.Segment3Distance);
-        Position16<RoomPixels> segment4 = segment2 + CalculatePolarOffset(upper, distances.Segment4Distance);
+        Position16<RoomPixels> segment0 = CalculateLowerSegment(reference, new SnesByteAngle(lower), distances.Segment0Distance);
+        Position16<RoomPixels> segment1 = CalculateLowerSegment(reference, new SnesByteAngle(lower), distances.Segment1Distance);
+        Position16<RoomPixels> segment2 = CalculateLowerSegment(reference, new SnesByteAngle(lower), distances.Segment2Distance);
+        Position16<RoomPixels> segment3 = segment2 + CalculatePolarOffset(new SnesByteAngle(upper), distances.Segment3Distance);
+        Position16<RoomPixels> segment4 = segment2 + CalculatePolarOffset(new SnesByteAngle(upper), distances.Segment4Distance);
         return new MotherBrainNeckGeometry(segment0, segment1, segment2, segment3, segment4);
     }
 
     /// <summary>Places a lower-neck joint from the body-relative reference point and its signed polar displacement.</summary>
     private static Position16<RoomPixels> CalculateLowerSegment(
         Position16<RoomPixels> reference,
-        byte angle,
+        SnesByteAngle angle,
         int distance) =>
         reference + new Offset16<RoomPixels>(112, -96) + CalculatePolarOffset(angle, distance);
 
@@ -186,13 +186,13 @@ internal static class MotherBrainNeckKinematics
     /// One joint's displacement: <c>$A9:C46C</c> for the angle (X) and the angle plus a
     /// quarter turn (Y), each added to the anchor with 16-bit wrap.
     /// </summary>
-    private static Offset16<RoomPixels> CalculatePolarOffset(byte angle, int distance) =>
+    private static Offset16<RoomPixels> CalculatePolarOffset(SnesByteAngle angle, int distance) =>
         new(CalculateSignedComponent(angle, distance),
-            CalculateSignedComponent(unchecked((byte)(angle + 64)), distance));
+            CalculateSignedComponent(angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue), distance));
 
     /// <summary>Exact signed multiply/high-word behavior of <c>$A9:C46C</c>.</summary>
     internal static short CalculateSignedComponent(
-        byte angle,
+        SnesByteAngle angle,
         int distance)
     {
         short sine = EnemyTrigonometryTables.SignedSine(angle);

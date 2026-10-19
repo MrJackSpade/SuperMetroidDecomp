@@ -191,7 +191,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         };
         samus.Kinematics.Radius = new(5, 8);
         samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(active
-            ? SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage
+            ? SamusSpeedBoostCounterFixtures.ActiveStageWord
             : (ushort)0);
         return samus;
     }

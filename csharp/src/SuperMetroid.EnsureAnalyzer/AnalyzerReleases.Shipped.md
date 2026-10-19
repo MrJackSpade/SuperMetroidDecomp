@@ -36,6 +36,9 @@ SME6330 | Design | Warning | ParameterListAnalyzer
 SME6331 | Design | Warning | ParameterListAnalyzer
 SME6332 | Design | Warning | ParameterListAnalyzer
 SME6350 | Design | Warning | WordReadAnalyzer
+SME6351 | Design | Warning | FixedPointVocabularyAnalyzer
+SME6352 | Design | Warning | FixedPointVocabularyAnalyzer
+SME6353 | Design | Warning | FixedPointVocabularyAnalyzer
 SME6360 | Architecture | Error | PartialTypeAnalyzer
 SME6361 | Architecture | Error | PartialTypeAnalyzer
 SME6370 | Documentation | Error | MemberDocumentationAnalyzer

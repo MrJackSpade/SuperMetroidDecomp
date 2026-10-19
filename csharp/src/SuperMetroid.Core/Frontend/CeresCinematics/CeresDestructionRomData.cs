@@ -132,10 +132,8 @@ public static class CeresDestructionRomData
         public const int NegativeQuarterPixel16Point16 = unchecked((int)0xffff_c000);
         /// <summary>Fractional horizontal velocity word assigned to the gunship.</summary>
         public const ushort GunshipXSubvelocity = 0x4000;
-        /// <summary>Signed integer vertical velocity word assigned to the gunship.</summary>
-        public const ushort GunshipYVelocity = 0xffff;
-        /// <summary>Fractional vertical velocity word assigned to the gunship.</summary>
-        public const ushort GunshipYSubvelocity = 0xf000;
+        /// <summary>The gunship's vertical velocity.</summary>
+        public static SnesSignedSixteenSixteen GunshipYVelocity { get; } = SnesSignedSixteenSixteen.FromParts(-1, 0xf000);
         /// <summary>Mode 7 X position that completes the gunship exit.</summary>
         public const ushort Mode7ExitX = 0x003e;
         /// <summary>Gets the native table-index angle used during the Zebes approach.</summary>

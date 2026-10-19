@@ -178,36 +178,33 @@ internal static class EnemyMath
     /// velocity words directly comparable with the SNES multiplication result.
     /// </summary>
     internal static int ReadUnsignedSineMagnitudeProduct(
-        ushort angle,
+        SnesByteAngle angle,
         ushort magnitude,
         ushort angleOffset)
     {
-        int tableIndex = unchecked((ushort)(angle + angleOffset)) & EnemyByteAngleDefinitions.HalfWaveIndexMask;
+        int tableIndex = angle.AddTableUnits(angleOffset).RawValue & EnemyByteAngleDefinitions.HalfWaveIndexMask;
         ushort sample = EnemyTrigonometryTables.UnsignedHalfWave(tableIndex);
         uint product = (uint)sample * magnitude;
         return unchecked((int)product);
     }
 
     /// <summary>The absolute cosine half of the angle-to-vector routine: the sample a quarter turn ahead.</summary>
-    internal static int ReadAbsoluteCosineProduct(int angle, ushort magnitude) =>
-        ReadUnsignedSineMagnitudeProduct(unchecked((ushort)angle), magnitude, SnesAngle.QuarterTurn.TableIndex);
+    internal static int ReadAbsoluteCosineProduct(SnesByteAngle angle, ushort magnitude) =>
+        ReadUnsignedSineMagnitudeProduct(angle, magnitude, SnesAngle.QuarterTurn.TableIndex);
 
     /// <summary>The absolute sine half of the angle-to-vector routine: the sample a half turn ahead.</summary>
-    internal static int ReadAbsoluteSineProduct(int angle, ushort magnitude) =>
-        ReadUnsignedSineMagnitudeProduct(unchecked((ushort)angle), magnitude, SnesAngle.HalfTurn.TableIndex);
+    internal static int ReadAbsoluteSineProduct(SnesByteAngle angle, ushort magnitude) =>
+        ReadUnsignedSineMagnitudeProduct(angle, magnitude, SnesAngle.HalfTurn.TableIndex);
 
     /// <summary>Whether a table angle's cosine component is negative: the native tests bit 7 of the angle plus a quarter turn.</summary>
-    internal static bool CosineIsNegative(int angle) => IsInSecondHalfTurn(angle + SnesAngle.QuarterTurn.TableIndex);
+    internal static bool CosineIsNegative(SnesByteAngle angle) => angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue >= SnesByteAngle.HalfTurn.RawValue;
 
     /// <summary>Whether a table angle's sine component is negative: the native tests bit 7 of the angle plus a half turn.</summary>
-    internal static bool SineIsNegative(int angle) => IsInSecondHalfTurn(angle + SnesAngle.HalfTurn.TableIndex);
-
-    /// <summary>Whether a table angle lies in the second half turn (table bit 7).</summary>
-    private static bool IsInSecondHalfTurn(int tableAngle) => (tableAngle & SnesAngle.HalfTurn.TableIndex) != 0;
+    internal static bool SineIsNegative(SnesByteAngle angle) => angle.AddTableUnits(SnesByteAngle.HalfTurn.RawValue).RawValue >= SnesByteAngle.HalfTurn.RawValue;
 
     /// <summary>Multiplies a signed sine-table sample by speed with the cartridge's fixed-point rounding.</summary>
     internal static ushort MultiplyCartridgeSinCos(ushort speed, SnesByteAngle angle) =>
-        EnemyTrigonometryTables.MultiplySignedSine(speed, angle.RawValue);
+        EnemyTrigonometryTables.MultiplySignedSine(speed, angle);
 
     /// <summary>Tests the sign of the low sixteen bits as a 65816 word, ignoring higher host bits.</summary>
     internal static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -276,7 +277,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
-                UpdateSpeedAndAngle(angleDelta: unchecked((ushort)-384), targetAngle: 45056, targetSpeed: 2560);
+                UpdateSpeedAndAngle(angleDelta: unchecked((ushort)-384), targetAngle: SnesAngle.FromRaw(45056), targetSpeed: 2560);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
@@ -286,7 +287,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
-                UpdateSpeedAndAngle(angleDelta: unchecked((ushort)-1536), targetAngle: 33280, targetSpeed: 3584);
+                UpdateSpeedAndAngle(angleDelta: unchecked((ushort)-1536), targetAngle: SnesAngle.FromRaw(33280), targetSpeed: 3584);
                 brainCollision = CollidesWithRectangle(
                     head,
                     TargetRadius);
@@ -902,7 +903,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Clamps speed and angle toward their targets before deriving 8.8 X/Y velocity from native sine values.</summary>
     private void UpdateSpeedAndAngle(
         ushort angleDelta,
-        ushort targetAngle,
+        SnesAngle targetAngle,
         ushort targetSpeed)
     {
         // `$CF31` changes speed by exactly `$20` and clamps rather than crossing the target.
@@ -919,15 +920,15 @@ public sealed class BabyMetroidCutsceneState
         SnesAngle candidateAngle = Angle.AddRaw(angleDelta);
         if (unchecked((short)angleDelta) < 0)
         {
-            Angle = unchecked((short)(candidateAngle.RawValue - targetAngle)) >= 0
+            Angle = unchecked((short)(candidateAngle.RawValue - targetAngle.RawValue)) >= 0
                 ? candidateAngle
-                : SnesAngle.FromRaw(targetAngle);
+                : targetAngle;
         }
         else
         {
-            Angle = unchecked((short)(candidateAngle.RawValue - targetAngle)) < 0
+            Angle = unchecked((short)(candidateAngle.RawValue - targetAngle.RawValue)) < 0
                 ? candidateAngle
-                : SnesAngle.FromRaw(targetAngle);
+                : targetAngle;
         }
 
         byte angleByte = Angle.TableIndex;
@@ -944,7 +945,7 @@ public sealed class BabyMetroidCutsceneState
     {
         // Bank `$86:C27A` multiplies unsigned speed by the absolute signed-table value,
         // returns product bits 8..23, then reapplies the original sign.
-        return EnemyTrigonometryTables.MultiplySignedSine(speed, sineIndex);
+        return EnemyTrigonometryTables.MultiplySignedSine(speed, new SnesByteAngle(sineIndex));
     }
 
     /// <summary>Advances native 16.16 position from 8.8 velocity while leaving the low subposition byte untouched.</summary>

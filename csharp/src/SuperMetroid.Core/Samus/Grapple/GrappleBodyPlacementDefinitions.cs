@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Native swing collision-body placement, independent of the displayed animation frame.</summary>
@@ -22,9 +24,9 @@ internal static class GrappleBodyPlacementDefinitions
     ];
 
     /// <summary>$9B:C1C2 GrappleSwingSamusXYOffsets: native 256-entry selector is nearest eight-angle bucket, wrapping at 32.</summary>
-    internal static (sbyte X, sbyte Y) Offset(byte mirroredAngle, bool left)
+    internal static (sbyte X, sbyte Y) Offset(SnesByteAngle mirroredAngle, bool left)
     {
-        int pair = ((mirroredAngle + 4) >> 3) & 31;
+        int pair = ((mirroredAngle.RawValue + 4) >> 3) & 31;
         return (left ? LeftOffsets : RightOffsets)[pair];
     }
 }

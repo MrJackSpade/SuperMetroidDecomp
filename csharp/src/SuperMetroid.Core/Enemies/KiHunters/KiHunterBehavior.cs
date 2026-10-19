@@ -608,7 +608,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
         state.OrbitOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.DetachedOrbitOffsetAngle, radius);
         state.FallingArcOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.FallingArcOffsetAngle, radius);
-        state.WingArcAngle = SnesAngle.FromRaw(KiHunterMotionDefinitions.DetachedOrbitStartAngle);
+        state.WingArcAngle = KiHunterMotionDefinitions.DetachedOrbitStartAngle;
         state.Function = KiHunterEnemyFunction.DetachedWing;
         state.WingFunction = KiHunterWingFunction.Orbit;
         state.OrbitCenter = new Position16<RoomPixels>(
@@ -647,7 +647,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.WingFunction = KiHunterWingFunction.Orbit;
         state.DetachedSpeedIndex = state.DetachedSpeedReset;
-        state.WingArcAngle = SnesAngle.FromRaw(KiHunterMotionDefinitions.DetachedOrbitStartAngle);
+        state.WingArcAngle = KiHunterMotionDefinitions.DetachedOrbitStartAngle;
         state.OrbitCenter = wings.Position.Whole;
     }
 
@@ -658,7 +658,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.WingFunction = KiHunterWingFunction.FallingCollisionArc;
         state.DetachedSpeedIndex = state.DetachedSpeedReset;
-        state.WingArcAngle = SnesAngle.FromRaw(KiHunterMotionDefinitions.FallingArcStartAngle);
+        state.WingArcAngle = KiHunterMotionDefinitions.FallingArcStartAngle;
         state.OrbitCenter = wings.Position.Whole;
     }
 

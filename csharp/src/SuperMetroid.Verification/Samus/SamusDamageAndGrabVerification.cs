@@ -156,7 +156,7 @@ level, right, unchecked((ushort)(frame + 1))),
         "collision restores normal movement pointer");
     AssertEqual(7, right.AnimationFrame, "collision jumps to crouched floor art");
     AssertEqual(8, right.AnimationFrameTimer.RawValue, "collision loads literal floor-art timer");
-    AssertTrue(landing.ImpactYSpeed != 0 || landing.ImpactYSubspeed != 0,
+    AssertTrue(landing.ImpactYSpeed != default,
         "drained landing preserves pre-clear impact magnitude");
 
     right.Drained.PutStanding(right);

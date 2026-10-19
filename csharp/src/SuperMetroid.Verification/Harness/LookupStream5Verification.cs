@@ -1218,7 +1218,7 @@ internal static class LookupStream5Verification
         }
         for (ushort angle = 0; angle < 256; angle++)
         {
-            state.AimAngle = angle;
+            state.AimAngle = new SnesBearing(checked((byte)angle));
             begin(slot, state);
             int direction = unchecked((byte)(angle + 16)) >> 5;
             AssertEqual(direction, state.DirectionIndex,

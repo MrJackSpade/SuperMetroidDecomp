@@ -318,8 +318,7 @@ public sealed class SamusDrainedState
 
         // Generic Y movement has already applied gravity when it reports the collision.
         // Capture the exact magnitude before `$90:94E5-$94E8` erases it for on-floor art.
-        int impactYSpeed = samus.Kinematics.YSpeed.Whole;
-        int impactYSubspeed = samus.Kinematics.YSpeed.Fraction;
+        SnesUnsignedSixteenSixteen impactYSpeed = samus.Kinematics.YSpeed;
 
         if (vertical.Collided)
         {
@@ -333,8 +332,7 @@ public sealed class SamusDrainedState
 
         return new DrainedSamusMovementResult(
             downwardDisplacement && vertical.Collided,
-            impactYSpeed,
-            impactYSubspeed);
+            impactYSpeed);
     }
 
     /// <summary>Ports controller function one at <c>$91:E571</c>.</summary>

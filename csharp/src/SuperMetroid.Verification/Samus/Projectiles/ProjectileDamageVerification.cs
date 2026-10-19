@@ -172,7 +172,7 @@ internal static class ProjectileDamageVerification
         for (int amplitude = 0; amplitude < 256; amplitude++)
             AssertEqual(NativeOffset(angle, amplitude),
                 SamusComboMechanicsDefinitions.GetSineOffset(
-                    (ushort)angle, (ushort)amplitude),
+                    new SnesByteAngle((byte)angle), (ushort)amplitude),
                 $"compiled combo sine offset {angle}/{amplitude}");
 
     }
@@ -212,7 +212,7 @@ internal static class ProjectileDamageVerification
             ushort angle = checked((ushort)first.Variable);
             ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.Velocity.X.SignedRawValue);
             (ushort X, ushort Y) offset = SamusComboMechanicsDefinitions.GetSineOffset(
-                angle, amplitude);
+                new SnesByteAngle(unchecked((byte)angle)), amplitude);
             if (beam == 2)
                 projectiles.Combos.StepIceCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             else if (beam == 4)

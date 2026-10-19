@@ -1092,7 +1092,7 @@ internal static class LookupStream3Verification
         {
             int address = 0x9bc346 + 2 * (angle >> 10);
             int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            var asset = GrappleTileDefinitions.SegmentAssetFor((ushort)angle);
+            var asset = GrappleTileDefinitions.SegmentAssetFor(SnesAngle.FromRaw((ushort)angle));
             AssertEqual(expected, GrappleTileDefinitions.TransferFor(asset).SourceAddress,
                 "stream 3 native grapple angle sector");
         }

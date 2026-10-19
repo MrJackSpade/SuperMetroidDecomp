@@ -465,7 +465,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Reads the native signed sine sample for a Mode 7 angle index.</summary>
-    internal static short ReadSine(byte tableIndex) => EnemyTrigonometryTables.SignedSine(tableIndex);
+    internal static short ReadSine(byte tableIndex) => EnemyTrigonometryTables.SignedSine(new SnesByteAngle(tableIndex));
 
     /// <summary>Multiplies a signed trigonometric component by the scene's 8.8 scale.</summary>
     private static short Scale(short component, int scalar) =>

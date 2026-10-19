@@ -55,7 +55,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production callback {index}");
             AssertEqual((int)definition.AngularVelocity, state.AngularVelocity,
                 $"Shaktool production angular velocity {index}");
-            AssertEqual(definition.InitialOrbitAngle, state.OrbitAngle.RawValue,
+            AssertEqual(definition.InitialOrbitAngle, state.OrbitAngle,
                 $"Shaktool production orbit angle {index}");
             AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(definition.InitialProgram), state.Program,
                 $"Shaktool production initial list {index}");
@@ -96,7 +96,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Checks the initial orbit angle selected for all seven body segments.</summary>
     internal static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
-            definition => definition.InitialOrbitAngle, "initial angle algorithm"));
+            definition => definition.InitialOrbitAngle.RawValue, "initial angle algorithm"));
 
     /// <summary>Checks each segment's offset back to the controlling Shaktool slot.</summary>
     private static void VerifyShaktoolOwnerOffsetAlgorithm(SuperMetroidAddressSpace rom) =>

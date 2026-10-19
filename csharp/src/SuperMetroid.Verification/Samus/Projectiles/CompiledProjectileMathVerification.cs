@@ -44,11 +44,11 @@ internal static class CompiledProjectileMathVerification
         var fly = new Func<int, short>(FliesBehavior.ReadSignedSineCosine);
         var glass = new Func<int, ushort>(MotherBrainBehavior.ReadSignedSineSample);
         var eye = new Func<int, short>(EyeDoorBehavior.ReadEyeDoorAcceleration);
-        var rio = new Func<byte, ushort>(RioBehavior.ReadRioSignedSineCosineSample);
+        var rio = new Func<byte, ushort>(angle => RioBehavior.ReadRioSignedSineCosineSample(new SnesByteAngle(angle)));
         var shaktool = new Func<int, ushort>(ShaktoolBehavior.ReadShaktoolCommonSineSample);
-        var phantoon = new Func<ushort, ushort, int>(PhantoonBehavior.ReadPhantoonFlameComponent);
+        var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonBehavior.ReadPhantoonFlameComponent(new SnesByteAngle(unchecked((byte)angle)), radius));
         var arc = new Action<RoomEnemyProjectileSlot, ushort>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
-        var crocomire = new Func<byte, EightEightVector<RoomPixels>>(CrocomireBehavior.CalculateCrocomireProjectileVelocity);
+        var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireBehavior.CalculateCrocomireProjectileVelocity(new SnesBearing(bearing)));
         var echo = new Func<SnesAngle, byte, Offset16<RoomPixels>>(SamusShinesparkState.ProjectileSinLookup);
 
         // Every angle high byte (with zero, mid and saturated fractions, which the reader
@@ -78,7 +78,7 @@ internal static class CompiledProjectileMathVerification
             // Subtract a quarter-turn so the rainbow wrapper's explicit cosine
             // offset should select the same sample. Poison the fractional byte.
             var cosineAngle = SnesAngle.FromTableIndex(unchecked((byte)(angle - 64))).AddRaw(255);
-            if (EnemyTrigonometryTables.MultiplySignedSine((ushort)speed, (byte)angle) != expected ||
+            if (EnemyTrigonometryTables.MultiplySignedSine((ushort)speed, new SnesByteAngle((byte)angle)) != expected ||
                 enemy((ushort)speed, (byte)angle) != expected || baby((ushort)speed, (byte)angle) != expected ||
                 rainbow((ushort)speed, cosineAngle) != expected)
                 throw new InvalidDataException($"Signed projectile product differs: angle={angle}, speed={speed}.");

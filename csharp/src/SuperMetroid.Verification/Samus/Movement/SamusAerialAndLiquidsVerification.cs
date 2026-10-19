@@ -1205,7 +1205,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.SpinJumping, previousPose: SamusPoseId.SpinJumpRightPose,
-        landing.Kinematics.YSpeed.Whole, landing.Kinematics.YSpeed.Fraction);
+        landing.Kinematics.YSpeed);
     AssertEqual(2, landing.LiquidPhysics.SoundRequests.Count,
         "spin landing publishes termination and impact sounds");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32), 6),
@@ -1231,7 +1231,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.WallJumping, previousPose: SamusPoseId.ScrewAttackRightPose,
-        landing.Kinematics.YSpeed.Whole, landing.Kinematics.YSpeed.Fraction);
+        landing.Kinematics.YSpeed);
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x34), 6),
         landing.LiquidPhysics.SoundRequests[0], "Screw Attack termination sound");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x04), 6),
@@ -1240,7 +1240,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.SpinJumping, previousPose: SamusPoseId.SpinJumpRightPose,
-        landing.Kinematics.YSpeed.Whole, landing.Kinematics.YSpeed.Fraction);
+        landing.Kinematics.YSpeed);
     AssertEqual(0, landing.LiquidPhysics.SoundRequests.Count,
         "cinematic landing suppresses both sound libraries");
     AssertEqual(SamusAtmosphericEffectType.Dust, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
@@ -1250,7 +1250,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.ConfigureWater(surfaceY: 111);
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
-        landing.Kinematics.YSpeed.Whole, landing.Kinematics.YSpeed.Fraction);
+        landing.Kinematics.YSpeed);
     AssertEqual(SamusAtmosphericEffectType.Dust, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "liquid exactly at the inclusive bottom does not suppress landing dust");
 
@@ -1262,7 +1262,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
-        landing.Kinematics.YSpeed.Whole, landing.Kinematics.YSpeed.Fraction);
+        landing.Kinematics.YSpeed);
     AssertEqual(SamusAtmosphericEffectType.AlternateDust, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "submerged landing leaves prior atmospheric slot untouched");
     AssertEqual(9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer.RawValue,
@@ -1275,7 +1275,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.Kinematics.YSpeed = landing.Kinematics.YSpeed.WithWhole(1);
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
-        landing.Kinematics.YSpeed.Whole, landing.Kinematics.YSpeed.Fraction);
+        landing.Kinematics.YSpeed);
     AssertEqual(0, landing.LiquidPhysics.AtmosphericEffects.Slots[2].FrameAndType,
         "Ceres deletes landing packed word");
     AssertEqual(9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer.RawValue,
@@ -1287,7 +1287,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.Kinematics.YSpeed = default;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
-        landing.Kinematics.YSpeed.Whole, landing.Kinematics.YSpeed.Fraction);
+        landing.Kinematics.YSpeed);
     AssertEqual(SamusAtmosphericEffectType.AlternateDust, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "zero-speed grounding returns before graphics dispatch");
 
@@ -1300,7 +1300,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.Kinematics.YSpeed = landing.Kinematics.YSpeed.WithFraction(1);
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
-        landing.Kinematics.YSpeed.Whole, landing.Kinematics.YSpeed.Fraction);
+        landing.Kinematics.YSpeed);
     AssertEqual(SamusAtmosphericEffectType.FootstepSplash, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "Landing Site type-A FX selects splash");
     AssertEqual(104, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.X,

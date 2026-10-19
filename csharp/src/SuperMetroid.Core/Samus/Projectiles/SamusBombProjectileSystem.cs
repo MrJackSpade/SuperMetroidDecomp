@@ -500,7 +500,7 @@ public sealed class SamusBombProjectileSystem
             // The held charge adds up to three whole pixels of upward launch speed; the negated whole word
             // wraps exactly as the cartridge's sixteen-bit subtraction from zero does.
             slot.BombSpreadLaunchVelocity = SnesSignedSixteenSixteen.FromParts(
-                unchecked((short)-(launch.YSpeed + verticalModifier)), launch.YSubspeed);
+                unchecked((short)-(launch.YSpeed.Whole + verticalModifier)), launch.YSpeed.Fraction);
             slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
         }
 

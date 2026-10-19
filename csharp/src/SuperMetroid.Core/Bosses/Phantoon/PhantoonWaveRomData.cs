@@ -22,10 +22,10 @@ public static class PhantoonWaveRomData
     public static short ReadSineAtBytePhase(ushort phase)
     {
         int offset = phase & PhaseMask;
-        ushort word = unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(offset >> 1)));
+        ushort word = unchecked((ushort)EnemyTrigonometryTables.SignedSine(new SnesByteAngle((byte)(offset >> 1))));
         if ((offset & 1) == 0) return unchecked((short)word);
         byte next = offset == PhaseMask ? SineTrailingByte :
-            unchecked((byte)EnemyTrigonometryTables.SignedSine((byte)((offset >> 1) + 1)));
+            unchecked((byte)EnemyTrigonometryTables.SignedSine(new SnesByteAngle((byte)((offset >> 1) + 1))));
         return unchecked((short)((SnesLittleEndian.HighByte(word)) | (next << 8)));
     }
     /// <summary>$88:E567 PreInstruction_WavyPhantoon: phase is a nine-bit byte offset into signed word samples.</summary>

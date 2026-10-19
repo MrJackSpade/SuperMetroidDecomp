@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -211,7 +212,7 @@ public static class EndingCreditsRomData
         /// <summary>Mode 7 zoom/matrix identity $0100, representing unity in the native 8.8 transform scale.</summary>
         public const ushort IdentityScale = 0x0100;
         /// <summary>$8B:D480/D731 seed cinematic_var5 (angle), not horizontal scrolling.</summary>
-        public const byte EscapeInitialAngle = 0x20;
+        public static SnesByteAngle EscapeInitialAngle { get; } = new(0x20);
         /// <summary>$8B:D480/D731/D837 seed cinematic_var6 (zoom), not vertical scrolling.</summary>
         public const ushort EscapeInitialScale = 0x0040;
         /// <summary>Atmospheric zoom threshold $0180 at which escape scenes A and B begin fading out.</summary>

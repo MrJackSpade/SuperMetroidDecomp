@@ -756,8 +756,8 @@ internal sealed class CeresDestructionCinematicState
                 CeresDestructionRomData.Motion.GunshipXSubvelocity),
             IntroCinematicMotion.AddSixteenSixteen(
                 actor.Position.Y,
-                CeresDestructionRomData.Motion.GunshipYVelocity,
-                CeresDestructionRomData.Motion.GunshipYSubvelocity));
+                CeresDestructionRomData.Motion.GunshipYVelocity.WholeWord,
+                CeresDestructionRomData.Motion.GunshipYVelocity.Fraction));
     }
 
     /// <summary>Advances the planet and title objects, applying slide acceleration and finishing on star deletion.</summary>
@@ -919,7 +919,7 @@ internal sealed class CeresDestructionCinematicState
     }
 
     /// <summary>Reads the compiled signed sine quadrant used by Ceres Mode-7 motion.</summary>
-    internal static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
+    internal static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(new SnesByteAngle(index));
 
     /// <summary>Applies 8.8 matrix scaling with signed 16-bit truncation; the scale stays below 32768.</summary>
     private static short Scale(short component, int scalar) =>

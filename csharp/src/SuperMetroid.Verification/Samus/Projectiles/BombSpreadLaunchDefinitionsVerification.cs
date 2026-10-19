@@ -15,8 +15,8 @@ internal static class BombSpreadLaunchDefinitionsVerification
     {
         var reference = Enumerable.Range(0,SamusBombSpreadRomData.SlotCount).Select(i =>
             new BombSpreadLaunchDefinition(CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.FuseTimers+i*2)),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.XVelocities+i*2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.YSpeeds+i*2)),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.YSubspeeds+i*2)))).ToArray();
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.XVelocities+i*2)), new SnesUnsignedSixteenSixteen(CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.YSpeeds+i*2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.YSubspeeds+i*2))))).ToArray();
         for(int i=0;i<reference.Length;i++)
             AssertEqual(reference[i],SamusBombSpreadLaunchDefinitions.ForSlot(i),"All native Bomb Spread launch words");
         Action<SamusBombProjectileSystem,SamusState> spawn=(system,player)=>system.SpawnBombSpread(player);
@@ -32,15 +32,15 @@ internal static class BombSpreadLaunchDefinitionsVerification
             for(int i=0;i<reference.Length;i++)
             {
                 var slot=bombs.Slots[i]; var expected=reference[i];
-                ushort y=unchecked((ushort)-(expected.YSpeed+((hold>>6)&3)));
+                ushort y=unchecked((ushort)-(expected.YSpeed.Whole+((hold>>6)&3)));
                 AssertEqual(expected.FuseTimer,slot.BombTimer.RawValue,"Spread fuse by physical slot");
                 AssertEqual(BombSpreadHorizontalVelocity.FromLaunchWord(expected.XVelocity),slot.BombSpreadHorizontal,"Spread horizontal direction and speed");
                 AssertEqual((int)expected.XVelocity,slot.BombSpreadDirectionMagnitude,"Spread horizontal travel re-encodes the native direction/magnitude word");
-                var launchVelocity=SnesSignedSixteenSixteen.FromParts(unchecked((short)y),expected.YSubspeed);
+                var launchVelocity=SnesSignedSixteenSixteen.FromParts(unchecked((short)y),expected.YSpeed.Fraction);
                 AssertEqual(launchVelocity,slot.BombSpreadLaunchVelocity,"Spread hold modifier, negated whole velocity and authored fraction");
                 AssertEqual(launchVelocity,slot.BombSpreadVerticalVelocity,"Spread live velocity starts at the launch velocity");
                 AssertEqual((int)y,slot.BombSpreadYVelocity,"Spread whole velocity word");
-                AssertEqual((int)expected.YSubspeed,slot.BombSpreadYSubvelocity,"Spread fractional velocity word");
+                AssertEqual((int)expected.YSpeed.Fraction,slot.BombSpreadYSubvelocity,"Spread fractional velocity word");
                 AssertEqual(samus.Position.X.Whole,slot.Position.X.Whole,"Spread launch X wraps with Samus");
                 AssertEqual(samus.Position.Y.Whole,slot.Position.Y.Whole,"Spread launch Y wraps with Samus");
             }

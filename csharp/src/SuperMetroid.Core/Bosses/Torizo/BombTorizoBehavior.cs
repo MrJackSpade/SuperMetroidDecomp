@@ -1582,7 +1582,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             angle = unchecked((byte)(baseAngle + (random & TorizoRandomDefinitions.DroolFacingAngleMask) - 8));
         }
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)
-            EnemyTrigonometryTables.SignedSine(unchecked((byte)angle)))));
+            EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)angle))))));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)
             EnemyTrigonometryTables.SignedNegativeCosineWord(angle))));
         projectile.Position = projectile.Position.WithWholeX(FacesRight(torizo)
@@ -2064,7 +2064,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         bool awayFromSamus)
     {
         byte angle = EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).RawValue;
+            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue;
         angle = awayFromSamus
             ? unchecked((byte)(angle | TorizoMotionDefinitions.AwayHalfTurn))
             : unchecked((byte)(angle & TorizoMotionDefinitions.TowardHalfTurn));

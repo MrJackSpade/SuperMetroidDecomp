@@ -795,7 +795,7 @@ false,             CrashSequenceFinished: true);
     {
         // Native multiplies the positive half-wave, discards the fraction, then
         // restores sign. Shifting a negative product would round differently.
-        return EnemyTrigonometryTables.MultiplySignedSine(radius, angle.TableIndex);
+        return EnemyTrigonometryTables.MultiplySignedSine(radius, angle.ToByteAngle());
     }
 
     /// <summary>

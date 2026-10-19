@@ -132,19 +132,19 @@ public static class SamusSolidEnemyCollision
         switch (direction)
         {
             case SamusCollisionDirection.Left:
-                targetX = RoundNegative(state.Position.X.Whole, state.Position.X.Fraction, distance, distanceSubposition);
+                targetX = RoundNegative(state.Position.X, new SnesFixedPosition(distance, distanceSubposition));
                 break;
 
             case SamusCollisionDirection.Right:
-                targetX = RoundPositive(state.Position.X.Whole, state.Position.X.Fraction, distance, distanceSubposition);
+                targetX = RoundPositive(state.Position.X, new SnesFixedPosition(distance, distanceSubposition));
                 break;
 
             case SamusCollisionDirection.Up:
-                targetY = RoundNegative(state.Position.Y.Whole, state.Position.Y.Fraction, distance, distanceSubposition);
+                targetY = RoundNegative(state.Position.Y, new SnesFixedPosition(distance, distanceSubposition));
                 break;
 
             case SamusCollisionDirection.Down:
-                targetY = RoundPositive(state.Position.Y.Whole, state.Position.Y.Fraction, distance, distanceSubposition);
+                targetY = RoundPositive(state.Position.Y, new SnesFixedPosition(distance, distanceSubposition));
                 break;
             // The pose-observation probe targets Samus's current position.
             case SamusCollisionDirection.NonDirectionalProbe:
@@ -157,12 +157,10 @@ public static class SamusSolidEnemyCollision
     }
 
     /// <summary>Models native subtraction, including fractional borrow and the extra outward decrement selected by the assembly's zero flag.</summary>
-    private static ushort RoundNegative(
-        ushort position,
-        ushort subposition,
-        ushort distance,
-        ushort distanceSubposition)
+    private static ushort RoundNegative(SnesFixedPosition target, SnesFixedPosition reach)
     {
+        ushort position = target.Whole, subposition = target.Fraction;
+        ushort distance = reach.Whole, distanceSubposition = reach.Fraction;
         ushort whole = unchecked((ushort)(position - distance));
 
         // SEC/SBC sets carry when no unsigned borrow occurred. Model that borrow explicitly,
@@ -186,12 +184,10 @@ public static class SamusSolidEnemyCollision
     }
 
     /// <summary>Models native addition, including fractional carry and the extra outward increment selected by the assembly's zero flag.</summary>
-    private static ushort RoundPositive(
-        ushort position,
-        ushort subposition,
-        ushort distance,
-        ushort distanceSubposition)
+    private static ushort RoundPositive(SnesFixedPosition target, SnesFixedPosition reach)
     {
+        ushort position = target.Whole, subposition = target.Fraction;
+        ushort distance = reach.Whole, distanceSubposition = reach.Fraction;
         ushort whole = unchecked((ushort)(position + distance));
 
         // CLC/ADC carries the fractional overflow into the whole word before the native

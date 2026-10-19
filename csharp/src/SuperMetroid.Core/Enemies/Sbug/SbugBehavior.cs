@@ -64,25 +64,25 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SnesAngle leftAngle = state.InitialAngle.AddTableUnits(-EnemyByteAngleDefinitions.EighthTurn);
         SnesAngle rightAngle = state.InitialAngle.AddTableUnits(EnemyByteAngleDefinitions.EighthTurn);
         state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
-            state.InitialAngle.TableIndex,
+            state.InitialAngle.ToByteAngle(),
             speed,
             phase: EnemyByteAngleDefinitions.QuarterTurn);
         state.ForwardYVelocity = CalculateUnsignedSbugMagnitude(
-            state.InitialAngle.TableIndex,
+            state.InitialAngle.ToByteAngle(),
             speed,
             phase: EnemyByteAngleDefinitions.HalfTurn);
         CalculateSignedSbugVelocities(
-            leftAngle.TableIndex,
+            leftAngle.ToByteAngle(),
             speed,
-            out SbugVelocityWords leftX,
-            out SbugVelocityWords leftY);
+            out SnesSignedSixteenSixteen leftX,
+            out SnesSignedSixteenSixteen leftY);
         state.LeftXVelocity = leftX;
         state.LeftYVelocity = leftY;
         CalculateSignedSbugVelocities(
-            rightAngle.TableIndex,
+            rightAngle.ToByteAngle(),
             speed,
-            out SbugVelocityWords rightX,
-            out SbugVelocityWords rightY);
+            out SnesSignedSixteenSixteen rightX,
+            out SnesSignedSixteenSixteen rightY);
         state.RightXVelocity = rightX;
         state.RightYVelocity = rightY;
 
@@ -246,12 +246,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                state.CustomXVelocity.SignedFixed))
+                state.CustomXVelocity.RawValue))
         {
             state.Function = SbugEnemyFunction.WaitForSamus;
             return;
         }
-        if (_terrain.MoveEnemyVertically(level, slot, state.CustomYVelocity.SignedFixed))
+        if (_terrain.MoveEnemyVertically(level, slot, state.CustomYVelocity.RawValue))
             state.Function = SbugEnemyFunction.WaitForSamus;
     }
 
@@ -304,10 +304,10 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RecalculateSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         CalculateSignedSbugVelocities(
-            state.CustomHeading.TableIndex,
+            state.CustomHeading.ToByteAngle(),
             checked((byte)state.Speed),
-            out SbugVelocityWords customX,
-            out SbugVelocityWords customY);
+            out SnesSignedSixteenSixteen customX,
+            out SnesSignedSixteenSixteen customY);
         state.CustomXVelocity = customX;
         state.CustomYVelocity = customY;
         state.CustomFacing = CalculateSbugFacing(state.CustomHeading);
@@ -331,10 +331,10 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Negates pixel and subpixel words separately, retaining the cartridge's fractional error.</summary>
-    private static SbugVelocityWords NegateSbugWordsIndependently(SbugVelocityWords value) =>
-        new(
-            unchecked((ushort)-value.Pixel),
-            unchecked((ushort)-value.Subpixel));
+    private static SnesSignedSixteenSixteen NegateSbugWordsIndependently(SnesSignedSixteenSixteen value) =>
+        SnesSignedSixteenSixteen.FromParts(
+            unchecked((short)-value.WholeWord),
+            unchecked((ushort)-value.Fraction));
 
     /// <summary>Applies unsigned quarter-wave magnitudes with signs from the original angle.</summary>
     private static void MoveSbugForward(RoomEnemySlot slot, SbugEnemyState state)
@@ -346,27 +346,27 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         bool subtractY = ((initialAngle + EnemyByteAngleDefinitions.HalfTurn) & EnemyByteAngleDefinitions.HalfTurn) != 0;
         slot.Position = slot.Position.WithX(AddRawSbugVelocity(
             slot.Position.X,
-            state.ForwardXVelocity.RawFixed,
+            state.ForwardXVelocity.RawValue,
             subtractX));
         slot.Position = slot.Position.WithY(AddRawSbugVelocity(
             slot.Position.Y,
-            state.ForwardYVelocity.RawFixed,
+            state.ForwardYVelocity.RawValue,
             subtractY));
     }
 
     /// <summary>Adds both signed 16.16 custom velocity words to the actor position.</summary>
     private static void AddSbugVelocity(
         RoomEnemySlot slot,
-        SbugVelocityWords xVelocity,
-        SbugVelocityWords yVelocity)
+        SnesSignedSixteenSixteen xVelocity,
+        SnesSignedSixteenSixteen yVelocity)
     {
         slot.Position = slot.Position.WithX(AddRawSbugVelocity(
             slot.Position.X,
-            xVelocity.RawFixed,
+            unchecked((uint)xVelocity.RawValue),
             subtract: false));
         slot.Position = slot.Position.WithY(AddRawSbugVelocity(
             slot.Position.Y,
-            yVelocity.RawFixed,
+            unchecked((uint)yVelocity.RawValue),
             subtract: false));
     }
 
@@ -384,39 +384,37 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Multiplies a quarter-wave table value by population speed into unsigned 16.16 words.</summary>
-    internal static SbugVelocityWords CalculateUnsignedSbugMagnitude(
-        byte angle,
+    internal static SnesUnsignedSixteenSixteen CalculateUnsignedSbugMagnitude(
+        SnesByteAngle angle,
         byte speed,
         int phase)
     {
         // ConvertAngleToXy at $A0:B643 indexes a 128-word unsigned quarter-circle table,
         // then performs a complete 16x16->32 multiplication. Population speed is a byte,
         // but retaining uint arithmetic documents the actual width of the result.
-        int tableIndex = (angle + phase) & EnemyByteAngleDefinitions.HalfWaveIndexMask;
+        int tableIndex = (angle.RawValue + phase) & EnemyByteAngleDefinitions.HalfWaveIndexMask;
         uint product = (uint)EnemyTrigonometryTables.UnsignedHalfWave(tableIndex) * speed;
-        return new SbugVelocityWords(
-            SnesFixedPosition.WholeOf(unchecked((int)product)),
-            unchecked((ushort)product));
+        return SnesUnsignedSixteenSixteen.FromRaw(product);
     }
 
     /// <summary>Samples the signed eight-bit multiply path for X and Y phase offsets.</summary>
     private static void CalculateSignedSbugVelocities(
-        byte angle,
+        SnesByteAngle angle,
         byte speed,
-        out SbugVelocityWords xVelocity,
-        out SbugVelocityWords yVelocity)
+        out SnesSignedSixteenSixteen xVelocity,
+        out SnesSignedSixteenSixteen yVelocity)
     {
         xVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyByteAngleDefinitions.QuarterTurn);
         yVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyByteAngleDefinitions.HalfTurn);
     }
 
     /// <summary>Reproduces the native eight-bit sine multiply and independent negative-word conversion.</summary>
-    internal static SbugVelocityWords CalculateSignedSbugComponent(byte angle, byte speed, int phase)
+    internal static SnesSignedSixteenSixteen CalculateSignedSbugComponent(SnesByteAngle angle, byte speed, int phase)
     {
         // $A0:B0DA multiplies two bytes, swaps the product's bytes into 16.16 words, then
         // (when negative) negates those words independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
-        byte tableAngle = unchecked((byte)(angle + phase));
+        byte tableAngle = angle.AddTableUnits(phase).RawValue;
         int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave(tableAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
         ushort product = unchecked((ushort)(sineMagnitude * speed));
         ushort pixel = unchecked((ushort)(SnesUnsignedEightEight.Whole(product)));
@@ -426,7 +424,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             pixel = unchecked((ushort)-pixel);
             subpixel = unchecked((ushort)-subpixel);
         }
-        return new SbugVelocityWords(pixel, subpixel);
+        return SnesSignedSixteenSixteen.FromParts(unchecked((short)pixel), subpixel);
     }
 
     /// <summary>Quantizes a heading to one of the eight facing loops, after rotating it back by the cartridge's quantization offset.</summary>

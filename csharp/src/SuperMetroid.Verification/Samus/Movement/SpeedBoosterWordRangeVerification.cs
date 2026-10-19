@@ -60,7 +60,7 @@ internal static class SpeedBoosterWordRangeVerification
         const int crashResidue = 16 + 2 * 256;
         var boosted = new SamusHorizontalSpeedState
         {
-            SpeedBoostCounter = new SamusSpeedBoostCounter(SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage),
+            SpeedBoostCounter = new SamusSpeedBoostCounter(SamusSpeedBoostCounterFixtures.ActiveStageWord),
         };
         boosted.SetShinesparkCrashEchoState(crashResidue, Position16<RoomPixels>.Zero, Position16<RoomPixels>.Zero);
         AssertTrue(!boosted.SpeedEchoesDeparting, "the crash residue is not the departure state");

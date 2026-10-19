@@ -199,7 +199,7 @@ internal sealed class CeresRidleyBehavior
             CounterClockwiseWhipTarget = null,
             TailWhipRequest = 0,
             TailExtensionSpeed = 240,
-            IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle,
+            IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
         StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
@@ -697,8 +697,8 @@ internal sealed class CeresRidleyBehavior
             angle = SnesAngle.NormalizeRaw(targetAngle);
         state.SwoopAngleAccumulator = angle;
         byte phase = angle.TableIndex;
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, phase)));
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, unchecked((byte)(phase + 64)))));
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, new SnesByteAngle(phase))));
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, unchecked(new SnesByteAngle((byte)(phase + 64))))));
     }
 
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>
@@ -926,13 +926,13 @@ internal sealed class CeresRidleyBehavior
         // $A6:D86B calls the impact routine only when proposed X is strictly below the
         // left bound, before zeroing X velocity. Vertical speed can meet its threshold
         // even when horizontal motion is slow; the right and vertical clamps do not call it.
-        var proposedX = IntegrateUnclampedAxis(slot.Position.X.Whole, slot.Position.X.Fraction, state.Velocity.X.RawValue);
-        var proposedY = IntegrateUnclampedAxis(slot.Position.Y.Whole, slot.Position.Y.Fraction, state.Velocity.Y.RawValue);
-        state.HitRoomBoundary = unchecked((short)(proposedX.Position - state.MovementMinimum.X)) < 0 ||
-            unchecked((short)(proposedX.Position - state.MovementMaximum.X)) >= 0 ||
-            unchecked((short)(proposedY.Position - state.MovementMinimum.Y)) < 0 ||
-            unchecked((short)(proposedY.Position - state.MovementMaximum.Y)) >= 0;
-        if (ceresWallImpact && unchecked((short)(proposedX.Position - state.MovementMinimum.X)) < 0 &&
+        SnesFixedPosition proposedX = IntegrateUnclampedAxis(slot.Position.X, state.Velocity.X.RawValue);
+        SnesFixedPosition proposedY = IntegrateUnclampedAxis(slot.Position.Y, state.Velocity.Y.RawValue);
+        state.HitRoomBoundary = unchecked((short)(proposedX.Whole - state.MovementMinimum.X)) < 0 ||
+            unchecked((short)(proposedX.Whole - state.MovementMaximum.X)) >= 0 ||
+            unchecked((short)(proposedY.Whole - state.MovementMinimum.Y)) < 0 ||
+            unchecked((short)(proposedY.Whole - state.MovementMaximum.Y)) >= 0;
+        if (ceresWallImpact && unchecked((short)(proposedX.Whole - state.MovementMinimum.X)) < 0 &&
             Math.Max(Math.Abs((int)state.Velocity.X.SignedRawValue),
                 Math.Abs((int)state.Velocity.Y.SignedRawValue)) >= RidleyWallImpactDefinitions.MinimumSpeed)
         {
@@ -975,15 +975,9 @@ internal sealed class CeresRidleyBehavior
         return (new(next, subposition), velocityWord);
     }
 
-    /// <summary>Adds an 8.8 velocity to a native whole/subpixel pair before boundary checks.</summary>
-    private static (ushort Position, ushort Subposition) IntegrateUnclampedAxis(
-        ushort position,
-        ushort subposition,
-        ushort velocityWord)
-    {
-        SnesFixedPosition moved = new SnesFixedPosition(position, subposition).AddEightEightToHighFraction(velocityWord);
-        return (moved.Whole, moved.Fraction);
-    }
+    /// <summary>Adds an 8.8 velocity to a native position before boundary checks.</summary>
+    private static SnesFixedPosition IntegrateUnclampedAxis(SnesFixedPosition position, ushort velocityWord) =>
+        position.AddEightEightToHighFraction(velocityWord);
 
     /// <summary>Tests an inclusive actor rectangle for hover, lunge or retrieval handoffs.</summary>
     internal static bool IsWithinRidleyRectangle(

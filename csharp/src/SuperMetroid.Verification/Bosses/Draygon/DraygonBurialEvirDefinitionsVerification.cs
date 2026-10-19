@@ -34,7 +34,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
                 $"Draygon burial Evir {entry} initial X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((positionTable + entry * 4 + 2)), definition.Initial.Y,
                 $"Draygon burial Evir {entry} initial Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((angleTable + entry * 4)), definition.Angle,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((angleTable + entry * 4)), (ushort)definition.Angle.RawValue,
                 $"Draygon burial Evir {entry} angle");
             AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord((angleTable + entry * 4 + 2)),
                 $"Draygon burial Evir {entry} angle padding");
@@ -81,11 +81,11 @@ internal static class DraygonBurialEvirDefinitionsVerification
             (ushort expectedX, ushort expectedXSub) = AddDraygonBurialSubspeed(
                 definition.Initial.X,
                 definition.SubspeedMagnitude.X.Fraction,
-                add: ((definition.Angle + 0x0040) & 0x0080) != 0);
+                add: ((definition.Angle.RawValue + 0x0040) & 0x0080) != 0);
             (ushort expectedY, ushort expectedYSub) = AddDraygonBurialSubspeed(
                 definition.Initial.Y,
                 definition.SubspeedMagnitude.Y.Fraction,
-                add: ((definition.Angle + 0x0080) & 0x0080) != 0);
+                add: ((definition.Angle.RawValue + 0x0080) & 0x0080) != 0);
             AssertEqual(expectedX, sprite.Position.X.Whole,
                 $"Draygon burial Evir {entry} moved X");
             AssertEqual(expectedXSub, sprite.Position.X.Fraction,

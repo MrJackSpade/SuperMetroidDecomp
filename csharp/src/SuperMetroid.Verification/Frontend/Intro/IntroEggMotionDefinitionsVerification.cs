@@ -12,12 +12,12 @@ internal static class IntroEggMotionDefinitionsVerification
     internal static void VerifyCompiledIntroEggMotion(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledIntroEggMotionRomByte(rom, address), CompiledIntroEggMotionRomByte(rom, address + 1)));
-        void Compare(int address, int count, Func<int, (ushort Whole, ushort Fraction)> sample)
+        void Compare(int address, int count, Func<int, SnesSignedSixteenSixteen> sample)
         {
             for (int index = 0; index < count; index++)
             {
                 var actual = sample(index);
-                AssertEqual(Word(address + index * 4), actual.Whole, "Egg motion native whole word");
+                AssertEqual(Word(address + index * 4), actual.WholeWord, "Egg motion native whole word");
                 AssertEqual(Word(address + index * 4 + 2), actual.Fraction, "Egg motion native fraction word");
             }
         }

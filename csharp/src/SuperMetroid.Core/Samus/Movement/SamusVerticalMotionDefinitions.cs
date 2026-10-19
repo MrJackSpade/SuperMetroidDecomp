@@ -3,11 +3,11 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>Pinned NTSC bank-$90 vertical mechanics; presentation overrides do not alter physics.</summary>
 internal static class SamusVerticalMotionDefinitions
 {
-    /// <summary>$90:9EB5 YSpeedWhenBouncingInMorphBall; second rebound subtracts one from this whole word.</summary>
-    internal const ushort BallBounceSpeed = 1;
-
-    /// <summary>$90:9EB7 YSubSpeedWhenBouncingInMorphBall; both NTSC rebounds have zero fractional speed.</summary>
-    internal const ushort BallBounceSubspeed = 0;
+    /// <summary>
+    /// $90:9EB5/9EB7 YSpeed/YSubSpeedWhenBouncingInMorphBall; the second rebound subtracts one from the whole word, and
+    /// both NTSC rebounds have zero fractional speed.
+    /// </summary>
+    internal static SnesUnsignedSixteenSixteen BallBounceSpeed { get; } = new(1, 0);
 
     /// <summary>$90:9EF5/9EFB InitialYSpeeds/InitialYSubSpeeds_BombJump: bomb launch is weakened equally in both liquids.</summary>
     internal static SnesUnsignedSixteenSixteen BombJump(SamusLiquidMedium medium) => SplitSpeed(medium switch

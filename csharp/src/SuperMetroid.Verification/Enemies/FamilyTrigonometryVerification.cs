@@ -16,12 +16,12 @@ internal static class FamilyTrigonometryVerification
     /// <summary>Compares all 256 signed sine samples and Bull's production lookup with retail words.</summary>
     internal static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
     {
-        Func<byte, short> bullSample = BullBehavior.ReadBullSignedSine;
+        Func<byte, short> bullSample = angle => BullBehavior.ReadBullSignedSine(new SnesByteAngle(angle));
         for (int angle = 0; angle < 256; angle++)
         {
             int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
             short original = unchecked((short)(SnesLittleEndian.Word(SignedSixteenBitSineDefinitionsRomByte(rom, address), SignedSixteenBitSineDefinitionsRomByte(rom, address + 1))));
-            AssertEqual(original, EnemyTrigonometryTables.SignedSixteenBitSine((byte)angle), "signed 16-bit sample");
+            AssertEqual(original, EnemyTrigonometryTables.SignedSixteenBitSine(new SnesByteAngle((byte)angle)), "signed 16-bit sample");
             AssertEqual(original, bullSample((byte)angle), "Bull production sample");
         }
     }
@@ -40,8 +40,8 @@ internal static class FamilyTrigonometryVerification
             .Select(i => Read(EnemyMathReferenceData.ShaktoolOrbit + i * 2)).ToArray();
         Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(rom));
         var bullMove = new Action<RoomEnemySlot, BullEnemyState>(BullBehavior.MoveBull);
-        var mawX = new Func<ushort, ushort, ushort>(YappingMawBehavior.CalculateYappingMawX);
-        var mawY = new Func<ushort, ushort, ushort>(YappingMawBehavior.CalculateYappingMawY);
+        var mawX = new Func<ushort, ushort, ushort>((angle, length) => YappingMawBehavior.CalculateYappingMawX(new SnesByteAngle(unchecked((byte)angle)), length));
+        var mawY = new Func<ushort, ushort, ushort>((angle, length) => YappingMawBehavior.CalculateYappingMawY(new SnesByteAngle(unchecked((byte)angle)), length));
         Suite(nameof(VerifyShaktoolOrbitAlgorithm), () => VerifyShaktoolOrbitAlgorithm(rom));
 
         ushort MawReference(int angle, int length)

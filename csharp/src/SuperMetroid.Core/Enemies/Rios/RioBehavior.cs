@@ -198,10 +198,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 byte angle = EnemyMath.CalculateCartridgeAngle(
-                    new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).RawValue;
+                    new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue;
                 state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(ReadRioSignedSineCosineSample(
-                    unchecked((byte)(angle + EnemyByteAngleDefinitions.QuarterTurn)))));
-                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(ReadRioSignedSineCosineSample(angle)));
+                    unchecked(new SnesByteAngle((byte)(angle + EnemyByteAngleDefinitions.QuarterTurn))))));
+                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(ReadRioSignedSineCosineSample(new SnesByteAngle(angle))));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,
                     slot,
@@ -257,7 +257,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reads one sign-extended entry from kSinCosTable8bit_Sext at $A0:B443. Rio consumes
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
-    internal static ushort ReadRioSignedSineCosineSample(byte angle) =>
+    internal static ushort ReadRioSignedSineCosineSample(SnesByteAngle angle) =>
         unchecked((ushort)EnemyTrigonometryTables.SignedSine(angle));
 
     /// <summary>Rejects movement dispatch without active room collision data.</summary>

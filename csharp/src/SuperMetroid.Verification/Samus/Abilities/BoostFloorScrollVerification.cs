@@ -37,7 +37,7 @@ internal static class BoostFloorScrollVerification
         samus.HorizontalSpeed.HasRunningMomentum = true;
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(2);
         samus.HorizontalSpeed.ExtraRunSpeed = samus.HorizontalSpeed.ExtraRunSpeed.WithWhole(7);
-        samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage | 1);
+        samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(SamusSpeedBoostCounterFixtures.ActiveStageWord | 1);
         for (int tick = 0; tick < 420; tick++)
         {
             runtime.StepFrame((SnesButton.Right | runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));

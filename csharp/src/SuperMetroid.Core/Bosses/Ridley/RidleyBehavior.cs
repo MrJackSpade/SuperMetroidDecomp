@@ -221,7 +221,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             ClockwiseWhipTarget = null,
             CounterClockwiseWhipTarget = null,
             TailExtensionSpeed = 240,
-            IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle,
+            IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
         CeresRidleyBehavior.StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
@@ -478,7 +478,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyAiFunction.NorfairCarryRise:
                 if (TickRidleyFunctionTimer(state))
                 {
-                    state.IdealInterSegmentTailAngle = RidleyTailDefinitions.CarryReleaseInterSegmentAngle;
+                    state.IdealInterSegmentTailAngle = RidleyTailDefinitions.CarryReleaseInterSegmentSpacing;
                     state.TailExtensionSpeed = RidleyTailDefinitions.CarryReleaseExtensionSpeed;
                     ReleaseNorfairRidleyGrab(state, samus);
                     state.Function = RidleyAiFunction.NorfairCarryRelease;
@@ -491,7 +491,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyAiFunction.NorfairCarryRelease:
                 if (TickRidleyFunctionTimer(state))
                 {
-                    state.IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle;
+                    state.IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing;
                     state.TailExtensionSpeed = RidleyTailDefinitions.CarryReleaseExtensionSpeed;
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
                 }

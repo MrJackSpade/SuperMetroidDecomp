@@ -16,8 +16,8 @@ internal static class SamusBallBounceDefinitionsVerification
     {
         ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementRomDataVerticalMotionConstants.BallBounceSpeed);
         ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementRomDataVerticalMotionConstants.BallBounceSubspeed);
-        AssertEqual(whole, SamusVerticalMotionDefinitions.BallBounceSpeed, "Native ball rebound whole definition");
-        AssertEqual(fraction, SamusVerticalMotionDefinitions.BallBounceSubspeed, "Native ball rebound fraction definition");
+        AssertEqual(whole, SamusVerticalMotionDefinitions.BallBounceSpeed.Whole, "Native ball rebound whole definition");
+        AssertEqual(fraction, SamusVerticalMotionDefinitions.BallBounceSpeed.Fraction, "Native ball rebound fraction definition");
         var guard = NewImpulsePoseReadGuard(rom);
         int cases = 0;
         foreach (bool spring in new[] { false, true })

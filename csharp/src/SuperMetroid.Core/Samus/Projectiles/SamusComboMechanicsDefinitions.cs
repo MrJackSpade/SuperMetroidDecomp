@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -65,15 +66,15 @@ internal static class SamusComboMechanicsDefinitions
     /// with byte wrap. Amplitude uses its low byte as the hardware multiplier does.
     /// This is a consumer view of the reviewed signed sine mapping, with no stored
     /// lookup of its own; preserve this existing algorithm.</remarks>
-    internal static (ushort X, ushort Y) GetSineOffset(ushort angle, ushort amplitude)
+    internal static (ushort X, ushort Y) GetSineOffset(SnesByteAngle angle, ushort amplitude)
     {
         ushort Component(byte phase)
         {
-            short sample = EnemyTrigonometryTables.SignedSine(phase);
+            short sample = EnemyTrigonometryTables.SignedSine(new SnesByteAngle(phase));
             int magnitude = SnesEightEight.Multiply(Math.Abs((int)sample), (byte)amplitude);
             return unchecked((ushort)(sample < 0 ? -magnitude : magnitude));
         }
 
-        return (Component((byte)angle), Component(unchecked((byte)(angle - 64))));
+        return (Component(angle.RawValue), Component(angle.AddTableUnits(-SnesByteAngle.QuarterTurn.RawValue).RawValue));
     }
 }

@@ -2141,9 +2141,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         // nine-word gradient table. The compiled definition includes those exact setup
         // instruction bytes; do not clamp the final shot to the last authored gradient.
         short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(checked((ushort)projectile.DirectionParameter));
-        byte angle = EnemyMath.CalculateCartridgeAngle(new(-64, gradient)).RawValue;
         // The native angle starts at up, not right: Y uses negative cosine.
-        projectile.Velocity = CalculateCrocomireProjectileVelocity(angle);
+        projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateCartridgeAngle(new(-64, gradient)));
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.CrocomiresProjectile_Fired;
     }
@@ -2161,13 +2160,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Projects a projectile angle into signed 8.8 X/Y speed using native word shifts.</summary>
-    internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(byte angle)
+    internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(SnesBearing bearing)
     {
-        // Preserve the two native word shifts, including negative two's-complement bits.
+        // Preserve the two native word shifts, including negative two's-complement bits. The
+        // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
         return new(
-            unchecked((short)(EnemyTrigonometryTables.SignedSine(angle) *
+            unchecked((short)(EnemyTrigonometryTables.SignedSine(bearing.ReinterpretAsTableAngle()) *
                 CrocomireProjectileRomData.VelocityMultiplier)),
-            unchecked((short)(EnemyTrigonometryTables.SignedNegativeCosineWord(angle) *
+            unchecked((short)(EnemyTrigonometryTables.SignedNegativeCosineWord(bearing.ReinterpretAsTableAngle().RawValue) *
                 CrocomireProjectileRomData.VelocityMultiplier)));
     }
 

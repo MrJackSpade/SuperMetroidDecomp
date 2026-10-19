@@ -684,7 +684,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // Selector provenance is now compiled even without installed artwork. The
     // independent all-angle cartridge comparison covers its exact sector boundaries.
     int segmentSource = SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.TransferFor(
-        SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle.RawValue)).SourceAddress;
+        SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress;
 
     // $94:AFBA recalculates the angle from endpoint minus flare (1,-49).
     // Coarse octant division selects angle zero, giving a (0,-8) segment step.
@@ -701,10 +701,10 @@ firingLevel, cancelledSamus, controllerInput: 0);
 
     AssertEqual(0x9a8200, GrapplePointAnimationDefinitions.SourceAddress(samus.Grapple.PointAnimationFrame),
         "grapple selects the native first endpoint tile");
-    AssertEqual(segmentSource, GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle.RawValue)).SourceAddress,
+    AssertEqual(segmentSource, GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress,
         "grapple selects the native angle-selected segment tiles");
     AssertTrue(grappleOamFrame.Draws.All(draw => draw.Draw.Artwork.Id.Variant ==
-            SpriteFrameTestArtwork.BlankGrapple.Tiles(samus.Grapple.PointAnimationFrame, samus.Grapple.Angle.RawValue).Id.Variant),
+            SpriteFrameTestArtwork.BlankGrapple.Tiles(samus.Grapple.PointAnimationFrame, samus.Grapple.Angle).Id.Variant),
         "grapple draws bind that endpoint and segment selection");
     AssertEqual(2, samus.Grapple.FlareCounter,
         "post-Samus grapple tile pass increments flare counter");

@@ -681,9 +681,9 @@ internal static class EnemyTrigonometryVerification
         var negative = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
         var fixedCosine = new Func<ushort, ushort, SnesSignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitCosineFixedProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
         var fixedNegative = new Func<ushort, ushort, SnesSignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitNegativeSineFixedProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
-        var sbugSigned = new Func<byte, byte, int, SbugVelocityWords>(SbugBehavior.CalculateSignedSbugComponent);
-        var sbugUnsigned = new Func<byte, byte, int, SbugVelocityWords>(SbugBehavior.CalculateUnsignedSbugMagnitude);
-        var unsigned = new Func<ushort, ushort, ushort, int>(EnemyMath.ReadUnsignedSineMagnitudeProduct);
+        var sbugSigned = new Func<byte, byte, int, SnesSignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new SnesByteAngle(angle), speed, phase));
+        var sbugUnsigned = new Func<byte, byte, int, SnesUnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new SnesByteAngle(angle), speed, phase));
+        var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => EnemyMath.ReadUnsignedSineMagnitudeProduct(new SnesByteAngle(unchecked((byte)angle)), magnitude, offset));
 
         int ExpectedPixel(int angle, int radius)
         {
@@ -713,8 +713,8 @@ internal static class EnemyTrigonometryVerification
                 var signedActual = sbugSigned((byte)angle, (byte)radius, phase);
                 var unsignedActual = sbugUnsigned((byte)angle, (byte)radius, phase);
                 uint magnitude = (uint)words[shiftedAngle & 127] * (uint)radius;
-                if (fixedActual != SnesSignedSixteenSixteen.FromParts(whole, fraction) || signedActual != new SbugVelocityWords(unchecked((ushort)whole), fraction) ||
-                    unsignedActual.RawFixed != magnitude)
+                if (fixedActual != SnesSignedSixteenSixteen.FromParts(whole, fraction) || signedActual != SnesSignedSixteenSixteen.FromParts(whole, fraction) ||
+                    unsignedActual.RawValue != magnitude)
                     throw new InvalidDataException($"Compiled vector differs at angle={angle}, radius={radius}, phase={phase}.");
             }
         }
@@ -747,7 +747,7 @@ internal static class EnemyTrigonometryVerification
             if (index >= 64)
             {
                 byte angle = (byte)(index - 64);
-                AssertEqual(expected, EnemyTrigonometryTables.SignedSine(angle), "all signed sine quadrants match cartridge");
+                AssertEqual(expected, EnemyTrigonometryTables.SignedSine(new SnesByteAngle(angle)), "all signed sine quadrants match cartridge");
                 foreach (var reader in cinematicReaders)
                     AssertEqual(expected, reader(angle), "cinematic matrix sample matches cartridge without bus");
             }

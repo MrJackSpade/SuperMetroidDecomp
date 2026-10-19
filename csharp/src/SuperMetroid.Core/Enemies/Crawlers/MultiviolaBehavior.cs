@@ -101,11 +101,11 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ushort magnitude = checked((ushort)state.Speed);
         int xProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            checked((ushort)state.Heading),
+            checked(new SnesByteAngle(unchecked((byte)((ushort)state.Heading)))),
             magnitude,
             MultiviolaCosineOffset);
         int yProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            checked((ushort)state.Heading),
+            checked(new SnesByteAngle(unchecked((byte)((ushort)state.Heading)))),
             magnitude,
             MultiviolaSineOffset);
         state.Velocity = new FixedVector<RoomPixels>(

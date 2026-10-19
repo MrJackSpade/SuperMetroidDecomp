@@ -115,7 +115,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         byte angle = EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).RawValue;
+            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue;
         state.Velocity = new(
             unchecked((short)(ReadSignedSineCosine(angle + 64) * 2)),
             unchecked((short)(ReadSignedSineCosine(angle) * 4)));

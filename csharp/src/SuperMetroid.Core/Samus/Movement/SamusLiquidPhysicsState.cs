@@ -390,12 +390,9 @@ public sealed class SamusLiquidPhysicsState
         SamusState samus,
         SamusMovementType previousMovementType,
         SamusPoseId previousPose,
-        int impactYSpeed,
-        int impactYSubspeed)
+        SnesUnsignedSixteenSixteen impactYSpeed)
     {
         Ensure.NotNull(samus);
-        Ensure.BetweenInclusive(0, ushort.MaxValue, impactYSpeed);
-        Ensure.BetweenInclusive(0, ushort.MaxValue, impactYSubspeed);
 
         // `$91:F046-$F074` ends the spin-loop sound separately from the impact. The test is
         // on PREVIOUS movement type and pose because landing selection has not run yet.
@@ -413,12 +410,12 @@ public sealed class SamusLiquidPhysicsState
         // A truly stationary grounding probe returns before impact audio AND graphics. Any
         // nonzero fractional descent is a soft landing; whole speed five or greater is hard.
         // Native Y speed is an unsigned magnitude, so CMP #$0005/BPL is equivalent here.
-        if (impactYSpeed == 0 && impactYSubspeed == 0)
+        if (impactYSpeed == default)
             return;
 
         if (!CinematicFunctionActive)
         {
-            QueueSound(impactYSpeed >= 5
+            QueueSound(impactYSpeed.Whole >= 5
                     ? SoundEffectLibrary3Sounds.HardLanding
                     : SoundEffectLibrary3Sounds.SoftLanding,
                 maximumQueued: 6);

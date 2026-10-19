@@ -133,7 +133,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             if (!attacks)
                 continue;
 
-            AssertEqual(0, state.AimAngle, $"{context} aims straight along X");
+            AssertEqual(default(SnesBearing), state.AimAngle, $"{context} aims straight along X");
             enemies.YappingMawBehavior.RunYappingMawMainAi(slot, Frame(samus));
             AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, state.Function, $"{context} begins extending");
             AssertEqual(32, state.SegmentRadius, $"{context} radius is half the capped distance");
@@ -144,7 +144,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         {
             (_, RoomEnemySlot slot, YappingMawEnemyState state) = NewInitializedYappingMaw(301);
             state.DistanceToSamus = YappingMawRomData.MaximumTargetDistance;
-            state.AimAngle = aim;
+            state.AimAngle = new SnesBearing(checked((byte)aim));
             YappingMawBehavior.BeginYappingMawExtension(slot, state);
             AssertEqual(SnesAngle.FromTableIndex(checked((byte)curl)), state.CurlAngle, $"Yapping Maw aim {aim} curl wraps around the turn");
             AssertEqual(mirrored, state.MirroredBend, $"Yapping Maw aim {aim} bend");

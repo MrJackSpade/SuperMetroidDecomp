@@ -1829,7 +1829,7 @@ internal static class LookupStream4Verification
         Func<RidleyTailSegment[]> create = RidleyTail.CreateInitialRidleyTailSegments;
         var segments = create();
         AssertEqual(7, segments.Length, "Tail initialization retains seven links");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe), RidleyTailDefinitions.IdealInterSegmentAngle, "Tail separation matches the native initializer immediate");
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe), RidleyTailDefinitions.IdealInterSegmentSpacing, "Tail separation matches the native initializer immediate");
         for (int index = 0; index < segments.Length; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d38a + 2 * index)), segments[index].Angle, "Actual initialized link angle matches native progression");
@@ -2277,7 +2277,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1b1 + 4 * entry)), actual.SubspeedMagnitude.Y.Fraction, "stream4 burial radial Y subspeed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c7 + 4 * entry)), actual.Initial.X, "stream4 burial radial spawn X including negative wrap");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c9 + 4 * entry)), actual.Initial.Y, "stream4 burial radial spawn Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1df + 4 * entry)), actual.Angle, "stream4 burial radial angle");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1df + 4 * entry)), (ushort)actual.Angle.RawValue, "stream4 burial radial angle");
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
             AssertThrows<InvalidDataException>(() => DraygonBurialEvirDefinitions.ForEntry(invalid), "stream4 burial exact six-record domain");

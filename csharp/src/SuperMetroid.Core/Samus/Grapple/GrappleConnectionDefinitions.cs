@@ -3,6 +3,7 @@ using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionHandler;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseId;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Samus.Grapple;
 
@@ -16,10 +17,10 @@ internal static class GrappleConnectionDefinitions
     /// </summary>
     private static readonly SpecialConnection[] AuthoredStops =
     [
-        new(0xd680, GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionFunction.LockedInPlace),
-        new(0xb380, GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionFunction.LockedInPlace),
-        new(0x6a80, GrappleWallContactRightPose, new(24, 16), GrappleConnectionFunction.WallGrab),
-        new(0x7380, GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionFunction.WallGrab),
+        new(SnesAngle.FromRaw(0xd680), GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionFunction.LockedInPlace),
+        new(SnesAngle.FromRaw(0xb380), GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionFunction.LockedInPlace),
+        new(SnesAngle.FromRaw(0x6a80), GrappleWallContactRightPose, new(24, 16), GrappleConnectionFunction.WallGrab),
+        new(SnesAngle.FromRaw(0x7380), GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionFunction.WallGrab),
     ];
 
     /// <summary>One collision-stop record.</summary>
@@ -27,7 +28,7 @@ internal static class GrappleConnectionDefinitions
     /// <param name="Pose">Samus's pose at the stop.</param>
     /// <param name="SamusOffset">Samus's room-pixel position relative to the grapple anchor.</param>
     /// <param name="Function">The connection function installed at the stop.</param>
-    internal readonly record struct SpecialConnection(ushort Angle, SamusPoseId Pose, Offset16<RoomPixels> SamusOffset, GrappleConnectionFunction Function);
+    internal readonly record struct SpecialConnection(SnesAngle Angle, SamusPoseId Pose, Offset16<RoomPixels> SamusOffset, GrappleConnectionFunction Function);
 
     /// <summary>Number of native special-angle records, in their native order.</summary>
     internal static int SpecialAngleCount => AuthoredStops.Length * 2;
@@ -37,7 +38,7 @@ internal static class GrappleConnectionDefinitions
     {
         if ((uint)index >= SpecialAngleCount) throw new IndexOutOfRangeException();
         SpecialConnection stop = AuthoredStops[index >> 1];
-        return (index & 1) == 0 ? stop : new(unchecked((ushort)(0x0100 - stop.Angle)), MirrorPose(stop.Pose),
+        return (index & 1) == 0 ? stop : new(SnesAngle.FromRaw(unchecked((ushort)(0x0100 - stop.Angle.RawValue))), MirrorPose(stop.Pose),
             stop.SamusOffset.MirroredX(), stop.Function);
     }
 

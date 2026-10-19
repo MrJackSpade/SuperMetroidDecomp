@@ -59,21 +59,21 @@ public sealed class SbugEnemyState
         ClosedNativeWords.Decode<SbugActivationBehavior>(SnesLittleEndian.HighByte(_slot.Spawn.Population.Parameter2), "Sbug activation behavior");
 
     /// <summary>Spawn-computed unsigned 16.16 horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
-    public SbugVelocityWords ForwardXVelocity { get; internal set; }
+    public SnesUnsignedSixteenSixteen ForwardXVelocity { get; internal set; }
     /// <summary>Spawn-computed unsigned 16.16 vertical magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
-    public SbugVelocityWords ForwardYVelocity { get; internal set; }
+    public SnesUnsignedSixteenSixteen ForwardYVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle - $20</c>, used by the native left zigzag leg.</summary>
-    public SbugVelocityWords LeftXVelocity { get; internal set; }
+    public SnesSignedSixteenSixteen LeftXVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle - $20</c>, used by the native left zigzag leg.</summary>
-    public SbugVelocityWords LeftYVelocity { get; internal set; }
+    public SnesSignedSixteenSixteen LeftYVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle + $20</c>, used by the native right zigzag leg.</summary>
-    public SbugVelocityWords RightXVelocity { get; internal set; }
+    public SnesSignedSixteenSixteen RightXVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle + $20</c>, used by the native right zigzag leg.</summary>
-    public SbugVelocityWords RightYVelocity { get; internal set; }
+    public SnesSignedSixteenSixteen RightYVelocity { get; internal set; }
     /// <summary>Current signed 16.16 horizontal displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
-    public SbugVelocityWords CustomXVelocity { get; internal set; }
+    public SnesSignedSixteenSixteen CustomXVelocity { get; internal set; }
     /// <summary>Current signed 16.16 vertical displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
-    public SbugVelocityWords CustomYVelocity { get; internal set; }
+    public SnesSignedSixteenSixteen CustomYVelocity { get; internal set; }
 
     /// <summary>Spawn-computed facing, 0 through 7 counter-clockwise from right, for the spawn heading; selects the forward loop.</summary>
     public int ForwardFacing { get; internal set; }

@@ -1936,7 +1936,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         {
             _samus.MorphBallBounceState = SamusBallBounceState.FirstRebound;
             _samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            _samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(SamusVerticalMotionDefinitions.BallBounceSpeed, SamusVerticalMotionDefinitions.BallBounceSubspeed);
+            _samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed;
             return false;
         }
 
@@ -1944,7 +1944,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         {
             _samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
             _samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            _samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed - 1)), SamusVerticalMotionDefinitions.BallBounceSubspeed);
+            _samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed.WithWhole(unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed.Whole - 1)));
             return false;
         }
 
@@ -1990,7 +1990,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         {
             _samus.MorphBallBounceState = SamusBallBounceState.SpringBallFirstRebound;
             _samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            _samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(SamusVerticalMotionDefinitions.BallBounceSpeed, SamusVerticalMotionDefinitions.BallBounceSubspeed);
+            _samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed;
             return false;
         }
 
@@ -1998,7 +1998,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         {
             _samus.MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound;
             _samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            _samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed - 1)), SamusVerticalMotionDefinitions.BallBounceSubspeed);
+            _samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed.WithWhole(unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed.Whole - 1)));
             return false;
         }
 

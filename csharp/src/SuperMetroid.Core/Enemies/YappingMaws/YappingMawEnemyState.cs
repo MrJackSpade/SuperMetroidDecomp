@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
@@ -47,10 +48,10 @@ public sealed class YappingMawEnemyState
     /// <summary>Half of the capped target distance in room pixels, 16 through 32, used as the tongue's X radius.</summary>
     public int SegmentRadius { get; internal set; }
 
-    /// <summary>Zero-up, clockwise direction to Samus in 1/256 turn, 0 through 255, returned by CalculateAngleFromXY.</summary>
-    public int AimAngle { get; internal set; }
+    /// <summary>The bearing to Samus returned by CalculateAngleFromXY.</summary>
+    public SnesBearing AimAngle { get; internal set; }
 
-    /// <summary>A quarter turn minus <see cref="AimAngle"/>, wrapping around the turn; rotates the curled link corrections.</summary>
+    /// <summary><see cref="AimAngle"/> in the table convention; rotates the curled link corrections.</summary>
     public SnesAngle CurlAngle { get; internal set; }
 
     /// <summary>Native variable 2F: whether the tongue bends the mirrored way, which it does when the curl angle lies in the turn's second half.</summary>

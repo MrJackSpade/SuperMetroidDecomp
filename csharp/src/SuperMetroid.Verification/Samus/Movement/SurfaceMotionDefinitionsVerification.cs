@@ -29,7 +29,7 @@ internal static class SurfaceMotionDefinitionsVerification
             int address = 0xa3d517 + Math.Min(speed, 15) * 4;
             var actual = YardKickDefinitions.ForHorizontalSpeed((ushort)speed);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), actual.Fraction, "Yard native capped kick fraction");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), actual.Whole, "Yard native capped kick whole");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), actual.WholeWord, "Yard native capped kick whole");
         }
         AssertThrows<InvalidDataException>(() => CrawlerSlopeDefinitions.Multiplier(32), "Crawler invalid slope");
         Console.WriteLine("Surface motion definitions: 32 native slope multipliers, 2097152 signed displacements and 65536 Yard kick selectors match.");

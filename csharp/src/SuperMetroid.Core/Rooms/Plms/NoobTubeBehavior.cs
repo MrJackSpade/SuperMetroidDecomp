@@ -187,7 +187,7 @@ internal sealed class NoobTubeBehavior
         ushort angleStep)
     {
         // The native even table offset ORs in a quarter turn: the angle's bit 6.
-        short sine = EnemyTrigonometryTables.SignedSine(unchecked((byte)((projectile.Velocity.X.RawValue >> 1) | 64)));
+        short sine = EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)((projectile.Velocity.X.RawValue >> 1) | 64))));
         ushort horizontalVelocity = unchecked((ushort)(sine >> 2));
         AdvanceNoobTubeShardX(projectile, horizontalVelocity);
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue + angleStep))));

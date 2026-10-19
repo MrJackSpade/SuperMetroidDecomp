@@ -488,7 +488,7 @@ internal sealed class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
         mode7 = new(mode7.X.WithWhole(0), default);
         mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
-        mode7Angle = SnesAngle.FromTableIndex(EndingCreditsRomData.Motion.EscapeInitialAngle);
+        mode7Angle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
         brightness = 0;
         postCreditsScroll = Position16<BgPlanePixels>.Zero;
         audio.QueueMusicDelayed8(MusicCommand.Stop);
@@ -514,7 +514,7 @@ internal sealed class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
         mode7 = new(mode7.X.WithWhole(0), default);
         mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
-        mode7Angle = SnesAngle.FromTableIndex(EndingCreditsRomData.Motion.EscapeInitialAngle);
+        mode7Angle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
         brightness = 0;
         fadeCounter = 1;
         Phase = EndingCreditsPhase.FadeInEscapeSceneB;

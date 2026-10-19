@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.Verification.Audio;
 
 /// <summary>Checks same-frame gameplay sound publication, ordering, and Power Bomb echo suppression.</summary>
@@ -27,11 +28,11 @@ internal static class GameplayAudioPublicationVerification
 
         // Use real native landing publishers, not direct injection into private lists.
         samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(samus,
-            SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, 5, 0);
+            SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new SnesUnsignedSixteenSixteen(5, 0));
         AssertEqual(0x0103, publication.QueueEcho(runtime),
             "echo sees earlier landing sound in the same queue");
         samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(samus,
-            SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, 1, 1);
+            SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new SnesUnsignedSixteenSixteen(1, 1));
         publication.PublishPrefix(runtime);
         publication.PublishPrefix(runtime);
 

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Poses;
+﻿using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Movement;
 
@@ -59,12 +59,6 @@ public static class SamusMovementRomData
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>
     public static class HorizontalMotion
     {
-        /// <summary>High-nibble stage mask used by setup <c>$84:CDEA</c>.</summary>
-        public const ushort SpeedBoostStageMask = 0x0f00;
-
-        /// <summary>Stage-four value that marks an actively speed-boosting Samus.</summary>
-        public const ushort ActiveSpeedBoostStage = 0x0400;
-
         /// <summary>Per-frame 16.16 extra-run acceleration while charging the Speed Booster: 1/16 pixel.</summary>
         public const uint ExtraRunAcceleration = 0x00001000u;
     }

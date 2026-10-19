@@ -777,7 +777,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             }
             case MotherBrainHeadCueKind.SpawnOnionRing:
-                SpawnMotherBrainOnionRing(state, unchecked((byte)state.OnionRingsTargetAngle));
+                SpawnMotherBrainOnionRing(state, unchecked(new SnesByteAngle((byte)state.OnionRingsTargetAngle)));
                 return null;
             case MotherBrainHeadCueKind.SpawnBomb:
                 SpawnMotherBrainBomb(state, (ushort)cue.Afterburns);
@@ -3589,7 +3589,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,
-        byte angle)
+        SnesByteAngle angle)
     {
         RoomEnemyProjectileSlot? ring = _projectiles.AllocateEnemyProjectile();
         if (ring is null)
@@ -3601,11 +3601,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             graphicsIndex: 1024);
         ring.Variable0 = 8;
         ring.Variable1 = 0;
-        ring.DirectionParameter = angle;
-        ring.Velocity = ring.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(1104, new SnesByteAngle(angle))));
+        ring.DirectionParameter = angle.RawValue;
+        ring.Velocity = ring.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(1104, angle)));
         ring.Velocity = ring.Velocity.WithY(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
             1104,
-            new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
+            angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
 
         // `$C2F3` falls through into `$C320`, making the mouth position observable before
         // the projectile scheduler performs the first of eight delayed attachment frames.

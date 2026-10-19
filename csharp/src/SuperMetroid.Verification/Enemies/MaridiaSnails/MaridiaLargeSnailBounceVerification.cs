@@ -33,8 +33,7 @@ internal static class MaridiaLargeSnailBounceVerification
                      ("rising past zero", air, MaridiaLargeSnailBounceFunction.Rising, 200, 0, MaridiaLargeSnailBounceFunction.Falling, false),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Oum, slot.Definition);
             MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail(slot);

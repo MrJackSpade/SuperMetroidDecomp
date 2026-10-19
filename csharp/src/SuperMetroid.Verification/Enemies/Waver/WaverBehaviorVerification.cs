@@ -22,8 +22,7 @@ internal static class WaverBehaviorVerification
                      WaverAnimationSelector.Spinning, WaverAnimationSelector.Spinning | WaverAnimationSelector.FacingRight,
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = WaverFrameToolingDefinitions.Bank });

@@ -44,8 +44,8 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = installedArt ?? InstalledFixtures.EnemyTiles };
-        enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { Level = assets.LevelData });
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { TileArtwork = installedArt ?? InstalledFixtures.EnemyTiles };
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, vram, cgram) { Level = assets.LevelData });
 
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         AlcoonEnemyState state = enemies.AlcoonStates[0] ??

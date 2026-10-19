@@ -44,8 +44,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         }
 
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
-        var installed = new RoomEnemySystem(new EnemySession()) { TileArtwork = stock };
-        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
         var installedQueue = new VramWriteQueue();
         installed.CeresRidleyBehavior.QueueCeresEmergencyText(installedQueue);
         installed.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay, installedQueue);
@@ -101,8 +100,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
             "edited Ceres title changes exactly its first tile word");
         AssertTrue(stockWords.Span[1..].SequenceEqual(editedWords.Span[1..]),
             "edited Ceres title leaves other tilemap bytes unchanged");
-        var editedEnemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
-        editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
         var editedQueue = new VramWriteQueue();
         editedEnemies.CeresRidleyBehavior.QueueCeresEmergencyText(editedQueue);
         var editedVram = new SnesVram();
@@ -124,11 +122,10 @@ internal static class CeresEscapeOverlayTilemapsVerification
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
             "corrupt Ceres overlay JSON fails loudly");
-        var missing = new RoomEnemySystem(new EnemySession())
+        var missing = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
         };
-        missing.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         ExpectMissing(() => missing.CeresRidleyBehavior.QueueCeresEmergencyText(new VramWriteQueue()),
             "missing installed English title");
         ExpectMissing(() => missing.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay,

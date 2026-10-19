@@ -14,8 +14,7 @@ internal static class StokeOwnedStateVerification
     /// </summary>
     internal static void VerifyStokeOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         StokeEnemyState? state = null;
         for (int record = 0; record < EnemyLinearSpeedDefinitions.RecordCount; record++)

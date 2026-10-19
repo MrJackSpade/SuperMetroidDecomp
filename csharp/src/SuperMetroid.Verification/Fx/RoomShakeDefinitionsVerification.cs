@@ -20,8 +20,7 @@ internal static class RoomShakeDefinitionsVerification
         const ushort renderedTypeCount = 36;
 
         var guarded = NewRoomShakeReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         for (ushort type = 0; type < renderedTypeCount; type++)
         {

@@ -3,14 +3,11 @@ using SuperMetroid.Core.Enemies.Gunship;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Everything <see cref="RoomEnemySystem.Load"/> needs: the population source and actor context its
-/// child loaders read, the services the AI keeps for the room, and the load scenario it owns directly.
+/// Everything <see cref="RoomEnemySystem.Load"/> needs besides the definitions and services its enemy system was built
+/// with: the population source and actor context its child loaders read, and the load scenario it owns directly.
 /// </summary>
 public interface IRoomEnemyLoad : IRoomEnemyPopulationSource, IRoomEnemyActorContext
 {
-    /// <summary>The cartridge-state services the room's enemy AI calls.</summary>
-    IRoomEnemyServices Services { get; }
-
     /// <summary>Which gunship arrival this load performs.</summary>
     GunshipLoadScenario GunshipScenario { get; }
 

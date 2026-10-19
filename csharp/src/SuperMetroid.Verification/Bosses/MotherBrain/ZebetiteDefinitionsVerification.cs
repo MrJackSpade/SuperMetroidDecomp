@@ -142,8 +142,7 @@ internal static class ZebetiteDefinitionsVerification
     private static RoomEnemySystem NewZebetiteDefinitionSystem(
         ushort generation)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(eventNumber => eventNumber switch
             {
                 EventNumber.ZebetiteDestroyedBit2 => (generation & 4) != 0,

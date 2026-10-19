@@ -46,12 +46,11 @@ internal static class CeresEscapeTileArtworkVerification
             writable: false);
         EscapeTimerTileAtlas timer = EscapeTimerTileAtlas.Load(timerPng);
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
-        var installed = new RoomEnemySystem(new EnemySession())
+        var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = stock,
             Presentation = { EscapeTimerArtwork = timer },
         };
-        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedQueue = new VramWriteQueue();
         foreach (CeresEscapeTransferCursor start in new[]
                  {
@@ -123,12 +122,11 @@ internal static class CeresEscapeTileArtworkVerification
             "Ceres warning PNG edit changes the first tile-plane byte");
         AssertTrue(stockChunk.Span[1..].SequenceEqual(editedChunk.Span[1..]),
             "Ceres warning PNG edit leaves other transfer bytes unchanged");
-        var editedEnemies = new RoomEnemySystem(new EnemySession())
+        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = edited,
             Presentation = { EscapeTimerArtwork = timer },
         };
-        editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         // The cursor starts at the first warning-text record, part-way through the timer-sprite list.
         var editedState = new RidleyEnemyState
         {
@@ -162,12 +160,11 @@ internal static class CeresEscapeTileArtworkVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
             "invalid Ceres warning PNG fails loudly");
 
-        var missing = new RoomEnemySystem(new EnemySession())
+        var missing = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
             Presentation = { EscapeTimerArtwork = timer },
         };
-        missing.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         try
         {
             missing.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(new RidleyEnemyState

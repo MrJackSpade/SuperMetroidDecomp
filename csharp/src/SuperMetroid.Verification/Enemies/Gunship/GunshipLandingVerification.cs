@@ -47,11 +47,11 @@ internal static class GunshipLandingVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0080)),
             InputLocked = true,
         };
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: new GunshipMotionFixtureGuard(bus), services: new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>
+                zebesTimebombSet && eventNumber == EventNumber.ZebesTimebombSet } });
         samus.Presentation.TileTransfers.BindArtwork(
             InstalledFixtures.SamusBody);
-        enemies.Load(new RoomEnemyLoadRequest(new GunshipMotionFixtureGuard(bus), bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), vram, cgram, new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>
-                zebesTimebombSet && eventNumber == EventNumber.ZebesTimebombSet } }) { Samus = samus, GunshipScenario = GunshipLoadScenario.EscapingCeres });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), vram, cgram) { Samus = samus, GunshipScenario = GunshipLoadScenario.EscapingCeres });
 
         RoomEnemySlot top = enemies.SlotTable.Slots[0];
         RoomEnemySlot bottom = enemies.SlotTable.Slots[1];

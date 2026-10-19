@@ -14,8 +14,7 @@ internal static class PolypOwnedStateVerification
     /// </summary>
     internal static void VerifyPolypOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.LavaRocks, slot.Definition);

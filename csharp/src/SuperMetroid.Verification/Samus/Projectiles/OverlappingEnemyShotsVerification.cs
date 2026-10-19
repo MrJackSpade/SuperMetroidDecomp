@@ -20,8 +20,7 @@ internal static class OverlappingEnemyShotsVerification
     internal static void VerifyOverlappingEnemyShots()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
         Action<RoomEnemySlot, SamusState, SnesButton> initialize = enemies.BeetomBehavior.InitializeBeetom;

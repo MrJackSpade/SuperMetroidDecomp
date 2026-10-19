@@ -23,8 +23,7 @@ internal static class FuneNamiheDefinitionsVerification
         {
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initialize = FuneNamiheBehavior.InitializeFuneNamihe;
             Action<RoomEnemySlot, FuneNamiheEnemyState, SamusState?> runMain = FuneNamiheBehavior.RunFuneNamiheMain;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

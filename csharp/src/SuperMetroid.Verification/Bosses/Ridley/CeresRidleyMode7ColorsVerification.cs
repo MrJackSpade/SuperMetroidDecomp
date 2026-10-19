@@ -74,9 +74,8 @@ internal static class CeresRidleyMode7ColorsVerification
             "runtime rebind drops old Ceres Mode-7 colors");
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors } };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors } };
         var cgram = new SnesCgram();
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);
         Action<ushort> select = enemies.CeresRidleyBehavior.UpdateCeresRidleyMode7Palette;
         var visited = new HashSet<int>();

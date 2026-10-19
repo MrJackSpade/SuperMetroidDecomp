@@ -104,8 +104,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for complete Draygon intro trajectory")]
     private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         Action<DraygonEnemyState, SamusState?, byte> run = enemies.DraygonBehavior.RunDraygonIntroDance;
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
@@ -185,8 +184,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         // A restored index can be corrupt while the owner is still inside its native
         // duration. Exercise the production dispatcher so this cannot regress into an
         // arbitrary bank-$A5 read hidden behind a catalog-only unit test.
-        var malformedEnemies = new RoomEnemySystem(new EnemySession());
-        malformedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var malformedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<DraygonEnemyState, SamusState?, byte> malformedRun = malformedEnemies.DraygonBehavior.RunDraygonIntroDance;
         var malformedState = new DraygonEnemyState(malformedEnemies.SlotTable.Slots[0])
         {

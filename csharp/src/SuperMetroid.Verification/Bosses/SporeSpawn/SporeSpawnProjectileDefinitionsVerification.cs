@@ -34,8 +34,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 delta.Y, $"Spore Spawn movement Y {offset:X2}");
         }
 
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, ushort> spawnStalk = enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk;
         Action<RoomEnemySlot, ushort> spawnSpawner = enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner;
         Action<RoomEnemyProjectileSlot> move = SporeSpawnBehavior.RunSporeSpawnSporePreInstruction;

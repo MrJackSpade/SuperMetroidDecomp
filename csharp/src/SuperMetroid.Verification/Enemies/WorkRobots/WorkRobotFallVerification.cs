@@ -26,8 +26,7 @@ internal static class WorkRobotFallVerification
                      (-1, 32768, 0, 0),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.RobotNoPower, slot.Definition);
             slot.Radius = new(8, 8);

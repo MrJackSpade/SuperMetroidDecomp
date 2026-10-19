@@ -155,8 +155,7 @@ internal static class EnemyEffectIsolationVerification
     /// <summary>An enemy system bound to a cartridge-free fixture and <paramref name="vram"/>, for corpse upload checks.</summary>
     private static RoomEnemySystem CorpseRamEnemies(SnesVram vram)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindVram(vram);
         return enemies;
     }

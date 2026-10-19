@@ -45,8 +45,8 @@ internal static class EyeDoorPlmsVerification
             blockDefinitions: new byte[0x400 * 8]);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 80)) };
         int randomAdvances = 0;
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => { randomAdvances++; return 0x7777; }) { ReadRandom = () => 0x3412 }) { Level = level, Samus = samus });
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => { randomAdvances++; return 0x7777; }) { ReadRandom = () => 0x3412 });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram()) { Level = level, Samus = samus });
         var system = new Bank80SystemState();
         int plmBlock = 4 * 16 + 7;
 

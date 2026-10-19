@@ -89,8 +89,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             ((ushort)1, YappingMawProgram.AttackingUp, "ordinary/up"),
         })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
@@ -159,8 +158,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     /// <summary>A Yapping Maw rooted at (128, 128) through the production initializer, with the given activation distance.</summary>
     internal static (RoomEnemySystem Enemies, RoomEnemySlot Slot, YappingMawEnemyState State) NewInitializedYappingMaw(int activationDistance)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = YappingMawFrameToolingDefinitions.Bank });
@@ -179,8 +177,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         YappingMawEnemyState State) NewYappingMawInstructionSystem(
             YappingMawProgram entry)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });

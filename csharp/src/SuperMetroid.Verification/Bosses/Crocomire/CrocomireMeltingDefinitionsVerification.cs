@@ -185,11 +185,10 @@ internal static class CrocomireMeltingDefinitionsVerification
         var artwork = InstalledFixtures.EnemyTiles;
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
             var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
             var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
             var vram = new SnesVram();
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation.BindVram(vram);
             enemies.CrocomireBehavior.CrocomireDeath = death;
             Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.InitializeCrocomireMeltingGraphics;
@@ -247,7 +246,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     internal static void VerifyCrocomireMeltingProductionSequence(
         SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var death = new CrocomireDeathState
         {
             MeltingTableOffset = CrocomireMeltingTransferDefinitions.Passes[0].TransferStartOffset,
@@ -255,7 +254,6 @@ internal static class CrocomireMeltingDefinitionsVerification
             MeltTargetHeight = 48,
         };
         death.MutableMeltingGraphics.Fill(0xff);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindVram(new SnesVram());
         enemies.CrocomireBehavior.CrocomireDeath = death;
         Func<bool> erase = enemies.CrocomireBehavior.EraseNextCrocomireMeltingColumn;
@@ -299,11 +297,10 @@ internal static class CrocomireMeltingDefinitionsVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static byte[] VerifyInstalledCrocomireMeltingPass(EnemyTileArtworkCatalog artwork, CrocomireMeltingPass pass)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
         var vram = new SnesVram();
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindVram(vram);
         enemies.CrocomireBehavior.CrocomireDeath = death;
         Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.InitializeCrocomireMeltingGraphics;
@@ -338,11 +335,10 @@ internal static class CrocomireMeltingDefinitionsVerification
         CrocomireMeltingTilemapAddress source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
     {
         int sourceAddress = (int)source;
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState();
         var vram = new SnesVram();
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindVram(vram);
         enemies.CrocomireBehavior.CrocomireDeath = death;
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).

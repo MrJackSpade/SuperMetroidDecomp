@@ -69,9 +69,8 @@ internal static class KraidSinkScheduleVerification
     private static void VerifyKraidSinkRockPlacement(SuperMetroidAddressSpace rom,
         Dictionary<ushort, ushort> callbacks)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.ProcessKraidSinkTable;
         var requests = enemies.FrameResults.KraidPlms;
@@ -119,9 +118,8 @@ internal static class KraidSinkScheduleVerification
             Console.WriteLine("Kraid sinking: full Y selection, native PLM fields and all seven production rock/mutation callbacks pass.");
             return;
         }
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.ProcessKraidSinkTable;
         var requests = enemies.FrameResults.KraidPlms;

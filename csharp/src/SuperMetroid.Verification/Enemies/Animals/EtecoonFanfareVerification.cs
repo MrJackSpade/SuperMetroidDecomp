@@ -18,8 +18,7 @@ internal static class EtecoonFanfareVerification
     internal static void VerifyEtecoonFanfareAfterDoor()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int index = 0; index < 3; index++)
         {
             var slot = enemies.SlotTable.Slots[index];

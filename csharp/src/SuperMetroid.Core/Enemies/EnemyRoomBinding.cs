@@ -10,32 +10,35 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal sealed class EnemyRoomBinding
 {
-    /// <summary>Binds the room to the session whose enemy words outlive it.</summary>
+    /// <summary>Binds the room to its enemy definitions and services and to the session whose enemy words outlive it.</summary>
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
-    internal EnemyRoomBinding(EnemySession session) => Session = Ensure.NotNull(session);
+    /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
+    /// <param name="services">The cartridge-state services the room's AI calls, or null when none is supplied.</param>
+    internal EnemyRoomBinding(EnemySession session, IRoomEnemyDefinitionSource? definitions, IRoomEnemyServices? services)
+    {
+        Session = Ensure.NotNull(session);
+        Definitions = definitions;
+        InstalledServices = services;
+    }
 
     /// <summary>The enemy words and installed artwork that outlive each room.</summary>
     internal EnemySession Session { get; }
 
-    /// <summary>The enemy definition source <see cref="RoomEnemySystem.Load"/> bound; null until a population loads.</summary>
-    internal IRoomEnemyDefinitionSource? Definitions { get; set; }
+    /// <summary>The room's enemy definition source; null for an enemy system built without one.</summary>
+    internal IRoomEnemyDefinitionSource? Definitions { get; }
 
     /// <summary>Whether a room population (or a verification fixture source) is bound.</summary>
     internal bool IsLoaded => Definitions is not null;
 
     /// <summary>
-    /// The cartridge-state services the current room's AI calls; installed by <see cref="RoomEnemySystem.Load"/>. A
-    /// host without a service supplies one that fails at the exact dependency.
+    /// The cartridge-state services the room's AI calls, which the room's enemy system was built with. A host without
+    /// a service supplies one that fails at the exact dependency.
     /// </summary>
-    internal IRoomEnemyServices Services
-    {
-        get => installedServices ?? throw new InvalidOperationException(
-            "Room enemy AI ran before RoomEnemySystem.Load installed its services.");
-        set => installedServices = Ensure.NotNull(value);
-    }
+    internal IRoomEnemyServices Services => InstalledServices ?? throw new InvalidOperationException(
+        "Room enemy AI ran in an enemy system built without services.");
 
-    /// <summary>The services <see cref="Services"/> holds; null until <see cref="RoomEnemySystem.Load"/> installs them.</summary>
-    internal IRoomEnemyServices? installedServices;
+    /// <summary>The services <see cref="Services"/> returns; null for an enemy system built without them.</summary>
+    internal IRoomEnemyServices? InstalledServices { get; }
 
     /// <summary>The cartridge random source of the current room's services.</summary>
     internal IEnemyRandomNumbers Random => Services.Random;

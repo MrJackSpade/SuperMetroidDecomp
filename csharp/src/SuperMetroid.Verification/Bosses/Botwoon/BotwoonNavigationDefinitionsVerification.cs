@@ -80,8 +80,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         Action<RoomEnemySlot, BotwoonEnemyState> run = BotwoonBehavior.RunBotwoonMovement;
         for (int offset = 0; offset < 256; offset += 8)
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             var state = new BotwoonEnemyState() { MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
                 PathChoice = offset / RecordBytes, Speed = 0 };
@@ -165,8 +164,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)),
                 $"Botwoon path {choice} alignment word");
 
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             var state = new BotwoonEnemyState()
             {
@@ -188,8 +186,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                 $"Botwoon production path {choice} handoff");
         }
 
-        var movementEnemies = new RoomEnemySystem(new EnemySession());
-        movementEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var movementEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot movementHead = movementEnemies.SlotTable.Slots[0];
         int movementSampleCount = 0;
         for (int pointer = BotwoonNavigationDefinitionsConstants.MovementDataStart;
@@ -276,8 +273,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         for (int holeIndex = 0; holeIndex < holes.Length; holeIndex++)
         {
             BotwoonHoleDefinition hole = holes[holeIndex];
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             head.Position = head.Position.WithWhole(hole.Target);
             var state = new BotwoonEnemyState()

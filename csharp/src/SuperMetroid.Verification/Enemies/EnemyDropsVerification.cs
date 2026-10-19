@@ -398,7 +398,8 @@ internal static class EnemyDropsVerification
     /// <summary>Loads a one-block room with ROM-shaped pickup programs and a controlled random queue.</summary>
     internal static EnemyDropFixture CreateEnemyDropFixture(
         SamusState samus,
-        IReadOnlyList<ushort> randomValues)
+        IReadOnlyList<ushort> randomValues,
+        IRoomEnemyDefinitionSource? definitions = null)
     {
         var bus = new TestAddressSpace();
         SeedEnemyPickupRom(bus);
@@ -408,8 +409,8 @@ internal static class EnemyDropsVerification
         RoomLevelData level = CreateRoom(new(1, 1),
             new ushort[1],
             new byte[1]);
-        var system = new RoomEnemySystem(new EnemySession());
-        system.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9000), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(NextRandom)) { Level = level, Samus = samus });
+        var system = new RoomEnemySystem(new EnemySession(), definitions: definitions ?? bus, services: new StandaloneRoomEnemyServices(NextRandom));
+        system.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9000), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram()) { Level = level, Samus = samus });
         return new EnemyDropFixture(bus, system, level);
     }
 

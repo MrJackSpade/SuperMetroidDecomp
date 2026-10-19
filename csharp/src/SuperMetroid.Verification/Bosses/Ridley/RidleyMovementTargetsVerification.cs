@@ -43,8 +43,7 @@ internal static class RidleyMovementTargetsVerification
         var release = Facings(EnemyRomTablePointers.Ridley.CarryReleaseXWords, RidleyMovementTargets.CarryReleaseX);
         var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords, RidleyMovementTargets.HoverDivisorIndexes, 4);
         var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords, RidleyMovementTargets.GrabDivisorIndexes, 4);
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState> beginCarry = RidleyBehavior.BeginNorfairRidleyCarry;
         Func<RidleyEnemyState, int> readDivisor = RidleyBehavior.ReadRidleyHealthMovementDivisorIndex;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, bool> pogo = enemies.RidleyBehavior.TickNorfairRidleyPogo;
@@ -114,7 +113,6 @@ internal static class RidleyMovementTargetsVerification
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> approach = enemies.RidleyBehavior.TickNorfairRidleyGrabApproach;
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 256)) };
         for (int health = 0; health <= ushort.MaxValue; health++)

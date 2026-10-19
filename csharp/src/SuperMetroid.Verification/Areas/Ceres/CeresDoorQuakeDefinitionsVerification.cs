@@ -48,13 +48,12 @@ internal static class CeresDoorQuakeDefinitionsVerification
         }
 
         var guarded = NewCeresDoorQuakeReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession())
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             RidleyEncounter = { CeresStatus = CeresEscapeStatus.RidleyEscaped },
             TileArtwork = InstalledFixtures.EnemyTiles,
         };
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
         RoomEnemySlot door = enemies.SlotTable.Slots[1];
         door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
@@ -79,7 +78,6 @@ internal static class CeresDoorQuakeDefinitionsVerification
                 $"Ceres private door production OAM phase {phase}");
         }
 
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(0);
         var nativeOverlay = new OamBuffer();
         nativeOverlay.BeginFrame();

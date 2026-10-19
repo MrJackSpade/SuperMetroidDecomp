@@ -17,8 +17,7 @@ internal static class StokeProjectileBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, StokeProjectileNativeListAddresses.Extent, "Stoke projectile");
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[0];
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.StokeProjectile, 0);
         AssertTrue(projectile.Animation is StokeProjectileAnimation { Cursor.Program: StokeProjectileProgram.Initial }, "the projectile starts its loop");

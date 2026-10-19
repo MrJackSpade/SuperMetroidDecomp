@@ -205,11 +205,10 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         static (RoomEnemySystem, SnesCgram, RoomEnemySlot, RidleyEnemyState) Create(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
-            var enemy = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
+            var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
-            enemy.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemy.Presentation.BindCgram(cgram);
             enemy.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];

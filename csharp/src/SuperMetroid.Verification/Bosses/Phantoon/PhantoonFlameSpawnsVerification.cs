@@ -28,8 +28,7 @@ internal static class PhantoonFlameSpawnsVerification
         foreach (ushort origin in new ushort[] { 0, 128, 0xfff8 })
         foreach (ushort parameter in parameters)
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool> spawn = enemies.PhantoonBehavior.SpawnPhantoonDestroyableFlame;
             var body = enemies.SlotTable.Slots[0];
             body.Position = body.Position.WithWhole(new(origin, origin));

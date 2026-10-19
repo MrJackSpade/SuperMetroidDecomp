@@ -59,8 +59,7 @@ internal static class ShutterBehaviorVerification
 
         RoomEnemySystem NewSystem()
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             return enemies;
         }
     }
@@ -246,8 +245,7 @@ internal static class ShutterBehaviorVerification
 
         static void Confirm(byte primaryDirection, ushort spawnY, ushort expectedUpperY, ushort expectedLowerY)
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.ShutterShootable);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
             slot.CurrentInstruction = SnesLittleEndian.Word(speedIndex, primaryDirection);

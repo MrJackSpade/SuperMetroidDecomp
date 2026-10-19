@@ -15,8 +15,7 @@ internal static class ChootOwnedStateVerification
     /// </summary>
     internal static void VerifyChootOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));

@@ -37,8 +37,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal BossDisplayFixture(EnemyDefinitionId definition, EnemyTileArtworkCatalog artwork, int slot = 0)
         {
             _slot = slot;
-            Enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-            Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance); Enemies.Presentation.BindVram(Vram); Enemies.Presentation.BindCgram(new SnesCgram());
+            Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
             Actor.Bind(definition, Actor.Definition);
             Actor.Bind(Actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(definition));
             Actor.Position = Actor.Position.WithWhole(new(128, 128));

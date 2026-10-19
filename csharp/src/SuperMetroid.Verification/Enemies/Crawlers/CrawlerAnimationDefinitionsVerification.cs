@@ -54,8 +54,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         foreach ((CrawlerAnimationFamily family, _, ushort? speciesOffset) in initialTables)
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             slot.CurrentInstruction = orientation;

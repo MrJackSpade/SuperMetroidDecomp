@@ -18,8 +18,7 @@ internal static class DraygonEscapeDragVerification
     internal static void VerifyDraygonEscapeDrag()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0135, 0x019d)) };
         samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
         samus.DraygonGrabbed.Release(samus);

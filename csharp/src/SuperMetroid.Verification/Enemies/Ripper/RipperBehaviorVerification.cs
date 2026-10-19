@@ -92,8 +92,7 @@ internal static class RipperBehaviorVerification
 
         RoomEnemySystem NewSystem()
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             return enemies;
         }
 

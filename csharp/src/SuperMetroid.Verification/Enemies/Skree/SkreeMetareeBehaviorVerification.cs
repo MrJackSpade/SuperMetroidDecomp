@@ -59,8 +59,7 @@ internal static class SkreeMetareeBehaviorVerification
     /// <summary>A freshly initialized Skree or Metaree and accessors for its typed animation and attack-ready flag.</summary>
     private static (RoomEnemySystem, RoomEnemySlot, Func<AnimationProgramCursor<SkreeMetareeProgram>>, Action<SkreeMetareeProgram>, Func<bool>) Create(bool metaree)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(metaree ? EnemyDefinitionId.Metaree : EnemyDefinitionId.Skree, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = SkreeMetareeFrameToolingDefinitions.Bank });

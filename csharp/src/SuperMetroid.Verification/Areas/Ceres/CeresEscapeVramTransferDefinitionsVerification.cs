@@ -58,12 +58,11 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         CeresEscapeOverlayTilemapCatalog overlay =
             CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
-        var system = new RoomEnemySystem(new EnemySession())
+        var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay }),
             Presentation = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
         };
-        system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         // Each typed list must queue exactly the ROM-checked records from its native list start to its terminator.
         foreach ((ushort start, CeresEscapeTransferCursor cursor) in new[]
                  {

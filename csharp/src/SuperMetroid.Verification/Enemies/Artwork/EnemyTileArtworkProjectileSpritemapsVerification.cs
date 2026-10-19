@@ -998,8 +998,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawBurst(EnemyTileArtworkCatalog artwork, ushort program,
             ISnesAddressSpace source)
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
             Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
                 ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
             var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
@@ -1038,8 +1037,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawPresentedFrame(EnemyTileArtworkCatalog artwork,
             ushort presentationKey, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
@@ -1055,8 +1053,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawNoobTubeShard(EnemyTileArtworkCatalog artwork,
             ISnesAddressSpace source)
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
             slot.Variable1 = 128;

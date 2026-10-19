@@ -32,8 +32,7 @@ internal static class CrawlerBehaviorVerification
         foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition, ushort? speciesOffset) in families)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank });

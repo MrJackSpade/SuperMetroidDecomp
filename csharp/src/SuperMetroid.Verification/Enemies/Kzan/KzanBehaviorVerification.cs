@@ -20,8 +20,7 @@ internal static class KzanBehaviorVerification
     /// <summary>The initializer starts the idle program, which shows its one frame and then holds it.</summary>
     internal static void VerifyKzanBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = KzanFrameToolingDefinitions.Bank });

@@ -31,10 +31,9 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
             () => CrocomireBridgeFragmentDefinitions.XPosition(CrocomireBridgeFragmentDefinitions.FragmentCount),
             "Crocomire bridge fragment past the last");
 
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var death = new CrocomireDeathState();
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         // $86:92A5 reads the seed without advancing it; generating one would fail here.
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x1234);
         enemies.CrocomireBehavior.CrocomireDeath = death;

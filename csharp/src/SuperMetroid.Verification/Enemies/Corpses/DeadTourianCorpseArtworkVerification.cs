@@ -186,9 +186,8 @@ internal static class DeadTourianCorpseArtworkVerification
     private static EnemyStagingSurfaces InitializeDeadSidehopperArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork, ushort parameter)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.SetSpawnParameter1(parameter);
         new Action<RoomEnemySlot>(enemies.DeadSidehopperBehavior.InitializeDeadSidehopper)(slot);
@@ -200,9 +199,8 @@ internal static class DeadTourianCorpseArtworkVerification
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork,
         EnemyDefinitionId definition, int variant)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(definition, slot.Definition);
         slot.SetSpawnParameter1(checked((ushort)(variant * 2)));

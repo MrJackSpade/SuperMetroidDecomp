@@ -54,8 +54,8 @@ internal static class EnemyDropChanceDefinitionsVerification
             Health = 99,
             MaxHealth = 99,
         };
-        EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
-        fixture.System.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        // The fixture's population is empty; drop selection reads the compiled enemy definitions.
+        EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1], CompiledRoomEnemyDefinitions.Instance);
         var projectile = new RoomEnemyProjectileSlot(1);
 
         for (int record = 0; record < EnemyDropChanceDefinitions.RecordCount; record++)

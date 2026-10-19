@@ -127,7 +127,7 @@ internal static class CrocomireSkeletonArtworkVerification
         static (SnesVram Vram, CrocomireDeathState State,
             CartridgeReadGuard Guard) RunInstalled(EnemyTileArtworkCatalog art)
         {
-            var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
+            var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
             var vram = new SnesVram();
             var guard = NewCrocomireSkeletonNoReadBus();
             var state = new CrocomireDeathState();
@@ -141,7 +141,6 @@ internal static class CrocomireSkeletonArtworkVerification
         static void SetRuntimeFields(RoomEnemySystem system,
             ISnesAddressSpace bus, SnesVram vram)
         {
-            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             system.Presentation.BindVram(vram);
         }
 

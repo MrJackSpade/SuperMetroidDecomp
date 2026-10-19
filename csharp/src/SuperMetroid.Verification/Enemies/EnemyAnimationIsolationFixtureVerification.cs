@@ -60,8 +60,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             for (int x = 0; x < roomBlocks; x++)
                 layer[y * roomBlocks + x] = RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw;
             Level = new RoomLevelData(new Extent16<RoomBlocks>(roomBlocks, roomBlocks), new RoomLevelPlanes(layer, new byte[layer.Length], new ushort[layer.Length]), []);
-            Enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-            Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
             Enemies.Presentation.BindVram(Vram);
             Enemies.Presentation.BindCgram(Colors);
             Enemies.VerificationServices().NextRandom = (Func<ushort>)NextRandom;

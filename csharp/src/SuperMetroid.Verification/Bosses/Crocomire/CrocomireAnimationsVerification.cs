@@ -110,7 +110,7 @@ internal static class CrocomireAnimationsVerification
     /// <summary>Creates a Crocomire body with its encounter state in a fresh enemy system.</summary>
     private static (RoomEnemySystem Enemies, CrocomireEnemyState State) NewCrocomire()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
@@ -266,7 +266,6 @@ internal static class CrocomireAnimationsVerification
             CompareProjectile(cartridge, spikeSystem, spike, RoomEnemyProjectileKind.CrocomireSpikeWallPieces, shot: false, "spike");
 
         (RoomEnemySystem shotSystem, CrocomireEnemyState shotState) = NewCrocomire();
-        shotSystem.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         shotSystem.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
         shotSystem.CrocomireBehavior.SpawnCrocomireProjectile(shotState.Body, 2);
         RoomEnemyProjectileSlot exploding = shotSystem.Projectiles.EnemyProjectiles.Single(

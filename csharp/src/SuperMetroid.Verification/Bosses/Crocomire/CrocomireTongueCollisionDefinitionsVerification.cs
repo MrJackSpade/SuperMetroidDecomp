@@ -19,8 +19,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
     internal static void VerifyInstalledCrocomireTongueVisualSelectors(EnemyTileArtworkCatalog stock)
     {
         var denied = NewCrocomireTongueNoReadBus();
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = stock };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.CrocomireTongue, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -88,8 +87,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         Suite(nameof(VerifyCrocomireTongueFramePositions), () => VerifyCrocomireTongueFramePositions(rom));
         Suite(nameof(VerifyCrocomireTongueComponentCases), () => VerifyCrocomireTongueComponentCases(rom));
         var denied = NewCrocomireTongueNoReadBus();
-        var compiled = new RoomEnemySystem(new EnemySession());
-        compiled.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var compiled = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         var boundDefinition = default(RoomEnemyDefinition) with

@@ -51,8 +51,7 @@ internal static class ChootPatternDefinitionsVerification
 
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
-                var enemies = new RoomEnemySystem(new EnemySession());
-                enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+                var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
                 var initialize = new Action<RoomEnemySlot>(enemies.ChootBehavior.InitializeChoot);
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
@@ -74,8 +73,7 @@ internal static class ChootPatternDefinitionsVerification
                     $"Choot production initial falling Y {patternIndex}/{loopCount}");
             }
 
-            var fallEnemies = new RoomEnemySystem(new EnemySession());
-            fallEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var fallEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var initializeFall = new Action<RoomEnemySlot>(fallEnemies.ChootBehavior.InitializeChoot);
             RoomEnemySlot fallSlot = fallEnemies.SlotTable.Slots[0];
             fallSlot.Bind(EnemyDefinitionId.Choot, fallSlot.Definition);

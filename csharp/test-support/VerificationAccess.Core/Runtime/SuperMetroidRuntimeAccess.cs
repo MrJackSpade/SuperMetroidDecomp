@@ -58,9 +58,10 @@ internal static class SuperMetroidRuntimeAccess
         /// Gives the loaded room a new enemy system loaded from <paramref name="request"/>, as a room load builds one, and
         /// returns it. Fixtures use it to place a constructed population into a room that is already running.
         /// </summary>
-        internal RoomEnemySystem ReplaceRoomEnemiesForVerification(IRoomEnemyLoad request)
+        internal RoomEnemySystem ReplaceRoomEnemiesForVerification(IRoomEnemyDefinitionSource definitions,
+            IRoomEnemyServices services, IRoomEnemyLoad request)
         {
-            var enemies = new RoomEnemySystem(self.EnemySession);
+            var enemies = new RoomEnemySystem(self.EnemySession, definitions, services);
             enemies.Load(request);
             self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies });
             return enemies;

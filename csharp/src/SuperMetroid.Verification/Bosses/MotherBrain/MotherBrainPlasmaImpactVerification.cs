@@ -21,8 +21,7 @@ internal static class MotherBrainPlasmaImpactVerification
     internal static int VerifyMotherBrainPlasmaImpact()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var head = enemies.SlotTable.Slots[1];
         head.Bind(EnemyDefinitionId.MotherBrainHead, head.Definition);
         head.Bind(head.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer));

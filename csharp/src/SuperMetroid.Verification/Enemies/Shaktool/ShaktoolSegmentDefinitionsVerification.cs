@@ -33,8 +33,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool segment {index} initialization subtrahend");
         }
 
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < definitions.Length; index++)
         {

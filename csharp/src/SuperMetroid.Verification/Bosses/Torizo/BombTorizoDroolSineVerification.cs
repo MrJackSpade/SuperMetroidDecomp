@@ -69,8 +69,7 @@ internal static class BombTorizoDroolSineVerification
         int expectedIndex,
         string scenario)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = (Func<ushort>)(new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue);
 
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];

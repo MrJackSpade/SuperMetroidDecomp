@@ -69,8 +69,7 @@ internal static class YardDirectionDefinitionsVerification
 
         for (ushort direction = 0; direction < 8; direction++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
             slot.SetSpawnParameter1(0);
@@ -106,8 +105,7 @@ internal static class YardDirectionDefinitionsVerification
 
         foreach (ushort direction in new ushort[] { 0, 1 })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
             slot.SetSpawnParameter1(0);

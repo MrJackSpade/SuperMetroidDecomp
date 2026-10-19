@@ -32,10 +32,9 @@ internal static class RidleyPogoDefinitionsVerification
             reference[pattern, stage] = native;
             AssertTrue(native == RidleyPogoDefinitions.Read(pattern, stage), "All indirect native pogo records and accelerations");
         }
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int reads = 0, advances = 0;
         ushort seed = 0;
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return seed; });
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); });
         Action<RidleyEnemyState> initialize = enemies.RidleyBehavior.InitializeNorfairRidleyPogoVelocity;
@@ -71,10 +70,9 @@ internal static class RidleyPogoDefinitionsVerification
     /// <summary>Checks pogo and fireball setup timers consume the current RNG word without advancing it.</summary>
     private static void VerifyRidleyAttackTimerRandomReads()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int reads = 0, advances = 0;
         ushort seed = 0;
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return seed; });
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); });
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;

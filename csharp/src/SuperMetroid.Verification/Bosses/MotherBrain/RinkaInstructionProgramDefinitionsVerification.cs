@@ -57,7 +57,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         RinkaProgram program,
         bool special)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot rinka = enemies.SlotTable.Slots[0];
         rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
         rinka.Bind(rinka.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
@@ -70,7 +70,6 @@ internal static class RinkaInstructionProgramDefinitionsVerification
             Program = AnimationProgramCursor<RinkaProgram>.Start(program),
         };
         enemies.SlotTable.Slots[0].SetSpeciesState(state);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
 

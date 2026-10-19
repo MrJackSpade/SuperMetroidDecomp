@@ -36,8 +36,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyBeetomDistantActionMapping), () => VerifyBeetomDistantActionMapping(rom));
         Suite(nameof(VerifyBeetomDistantDirectionMapping), () => VerifyBeetomDistantDirectionMapping());
 
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
@@ -93,7 +92,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     private static (RoomEnemySystem Enemies, BeetomEnemyState State, Action<BeetomEnemyState> Choose)
         CreateBeetomDistantSelectionFixture(Func<ushort> nextRandom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         enemies.VerificationServices().NextRandom = nextRandom;
         Action<RoomEnemySlot, SamusState, SnesButton> initialize = enemies.BeetomBehavior.InitializeBeetom;

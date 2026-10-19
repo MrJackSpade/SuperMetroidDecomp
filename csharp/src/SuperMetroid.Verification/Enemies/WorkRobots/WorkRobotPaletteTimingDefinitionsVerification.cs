@@ -89,12 +89,11 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
 
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession())
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = edited }),
         };
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer = NativeCountdown.Start((ushort)1);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationRecord = 0;

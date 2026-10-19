@@ -29,8 +29,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             // Exercise the ordinary draw entry point too: unlike the extended
             // $804F root below, enemies can select $804D directly during their
             // initialization. A full-ROM read guard proves this is compiled.
-            var ordinaryEnemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = stock };
-            ordinaryEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var ordinaryEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
             var emptyDraw = new OamBuffer();
             ordinaryEnemies.Presentation.DrawEnemySpritemap(emptyDraw, new NativeEnemySpritemapDraw { Bank = (byte)bank, Pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, Origin = new Position16<OamPixels>((ushort)0x0080, (ushort)0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             AssertEqual(0, emptyDraw.NextByteOffset,
@@ -89,8 +88,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
     private static ushort FindSharedEmptyCallback(
         byte bank, bool selectShot)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = bank });
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.Frame;

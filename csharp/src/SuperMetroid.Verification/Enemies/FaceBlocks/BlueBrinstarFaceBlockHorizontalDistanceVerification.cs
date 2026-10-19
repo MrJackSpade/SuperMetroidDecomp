@@ -35,8 +35,7 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
     /// <summary>Runs one main-AI update with Morph Ball collected and Samus level with the block at <paramref name="samusX"/>.</summary>
     private static int RecordedDistance(int blockX, int samusX)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BlueBrinstarFaceBlockFrameToolingDefinitions.Bank });

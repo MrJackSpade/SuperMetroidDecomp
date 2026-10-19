@@ -26,9 +26,9 @@ internal static class MetroidBombPlacementVerification
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xdae1);
         Suite(nameof(VerifyMetroidBombRuntime), () => VerifyMetroidBombRuntime(room));
         var assets = LoadFixtureRoomAssets(room);
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = FixtureEnemyTileArtwork() };
         var random = new Bank80SystemState();
-        enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }));
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram()));
         var samus = new SamusState { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) };

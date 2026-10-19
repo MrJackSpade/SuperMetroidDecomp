@@ -52,8 +52,7 @@ internal static class RidleyFlightTailVerification
             AssertEqual(NativeComponent(phase), state.Velocity.X.RawValue, "native swoop X table multiplication");
             AssertEqual(NativeComponent(phase + 64), state.Velocity.Y.RawValue, "native swoop Y table multiplication");
         }
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> tail = enemies.RidleyTail.TickRidleyTail;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;

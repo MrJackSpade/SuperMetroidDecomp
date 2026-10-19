@@ -20,8 +20,7 @@ internal static class MagdolliteLavaBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, MagdolliteLavaNativeListAddresses.Extent, "Magdollite-lava");
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         enemies.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
         RoomEnemySlot source = enemies.SlotTable.Slots[0];

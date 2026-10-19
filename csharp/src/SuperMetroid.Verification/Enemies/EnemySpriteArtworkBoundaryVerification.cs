@@ -35,8 +35,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         EnemyTileArtworkCatalog artwork = installation.LoadEnemyTiles();
         EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         int enemyCases = 0, projectileCases = 0, spriteObjectCases = 0;
 
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)

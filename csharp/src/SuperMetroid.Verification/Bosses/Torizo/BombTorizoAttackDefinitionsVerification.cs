@@ -116,8 +116,7 @@ internal static class BombTorizoAttackDefinitionsVerification
     private static (RoomEnemySystem Enemies, RoomEnemySlot Torizo)
         CreateBombTorizoAttackFixture(bool facingRight)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         enemies.BombTorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);

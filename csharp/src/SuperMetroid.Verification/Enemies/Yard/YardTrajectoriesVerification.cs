@@ -29,9 +29,9 @@ internal static class YardTrajectoriesVerification
         Suite(nameof(VerifyYardAirborneTrajectories), () => VerifyYardAirborneTrajectories(room));
         for (int focus = 0; focus < 5; focus++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = FixtureEnemyTileArtwork() };
             var random = new Bank80SystemState();
-            enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }));
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
+            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram()));
             var actor = enemies.SlotTable.Slots[focus];
             var state = enemies.YardStates[focus];
             var samus = new SamusState { Health = 999, MaxHealth = 999,
@@ -65,8 +65,8 @@ internal static class YardTrajectoriesVerification
         foreach (ushort direction in Enumerable.Range(0, 8).Select(x => (ushort)x))
         foreach (ushort facing in new ushort[] { 0, 1 })
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = FixtureEnemyTileArtwork() };
-            enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
+            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram()));
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];
             actor.Position = FixedPosition<RoomPixels>.FromWhole(new(256, unchecked((ushort)(256 - actor.Radius.Y))));

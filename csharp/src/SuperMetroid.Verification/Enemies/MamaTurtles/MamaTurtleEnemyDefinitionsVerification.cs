@@ -45,8 +45,8 @@ internal static class MamaTurtleEnemyDefinitionsVerification
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, vram, cgram, new StandaloneRoomEnemyServices(() => 0)) { Level = assets.LevelData, Samus = new SamusState() });
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = InstalledFixtures.EnemyTiles };
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, vram, cgram) { Level = assets.LevelData, Samus = new SamusState() });
 
         AssertEqual(5, enemies.SlotTable.EnemyCount, "Mama Turtle retail population count");
         AssertEqual(EnemyDefinitionId.MamaTurtle,

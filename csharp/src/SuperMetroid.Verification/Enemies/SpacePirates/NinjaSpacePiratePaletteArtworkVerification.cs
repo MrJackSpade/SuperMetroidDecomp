@@ -87,11 +87,10 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         static (RoomEnemySlot Slot, SnesCgram Colors, AnimationProgramCursor<NinjaSpacePirateProgram> Program) Initialize(
             EnemyTileArtworkCatalog artwork)
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
             var colors = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 colors.SetColor(color, Bgr555.FromWord((ushort)(color * 17)));
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation.BindCgram(colors);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);

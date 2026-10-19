@@ -541,8 +541,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// gameplay services.
     /// </summary>
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
-    public RoomEnemySystem(EnemySession session)
-        : this(session, EnemyRoomResidue.None)
+    /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
+    /// <param name="services">The cartridge-state services the room's AI calls, or null when none is supplied.</param>
+    public RoomEnemySystem(EnemySession session, IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null)
+        : this(session, EnemyRoomResidue.None, definitions, services)
     {
     }
 
@@ -553,9 +555,12 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// </summary>
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
     /// <param name="residue">The words the replaced room's enemies leave behind.</param>
-    internal RoomEnemySystem(EnemySession session, EnemyRoomResidue residue)
+    /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
+    /// <param name="services">The cartridge-state services the room's AI calls, or null when none is supplied.</param>
+    internal RoomEnemySystem(EnemySession session, EnemyRoomResidue residue, IRoomEnemyDefinitionSource? definitions,
+        IRoomEnemyServices? services)
     {
-        Room = new EnemyRoomBinding(session);
+        Room = new EnemyRoomBinding(session, definitions, services);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
         RoomFx = new EnemyRoomFx();
@@ -802,15 +807,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         if (_populationLoaded)
             throw new InvalidOperationException("A room's enemy system loads its population once; each room builds its own.");
         _populationLoaded = true;
-        IRoomEnemyDefinitionSource definitions = request.Definitions;
-        Room.Definitions = definitions;
+        IRoomEnemyDefinitionSource definitions = Room.LoadedDefinitions;
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
         DeathsAndDrops.BindSamus(request.Samus);
-        // Some enemy routines call GenerateRandomNumber while others, including Alcoon's
-        // post-volley bytecode, merely sample the existing WRAM seed: IEnemyRandomNumbers keeps
-        // Generate and Read distinct so a sample never silently advances the cartridge RNG.
-        Room.Services = request.Services;
         Presentation.BindVram(request.Vram);
         Presentation.BindCgram(request.Cgram);
         FrameResults.Begin();

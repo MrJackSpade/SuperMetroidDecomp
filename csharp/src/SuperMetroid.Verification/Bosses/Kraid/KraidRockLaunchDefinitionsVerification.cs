@@ -38,8 +38,7 @@ internal static class KraidRockLaunchDefinitionsVerification
             return;
         }
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KraidRockLaunchDefinitionsRomByte(rom, address), KraidRockLaunchDefinitionsRomByte(rom, address + 1)));
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         ushort random = 0;
         int reads = 0;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return random; });

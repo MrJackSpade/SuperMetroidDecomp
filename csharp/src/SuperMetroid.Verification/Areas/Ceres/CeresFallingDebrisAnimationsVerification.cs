@@ -26,11 +26,10 @@ internal static class CeresFallingDebrisAnimationsVerification
             AssertEqual(entry, program == CeresFallingDebrisProgram.Light
                 ? CeresFallingDebrisVisualDefinitionsConstants.LightDefinitionList
                 : CeresFallingDebrisVisualDefinitionsConstants.DarkDefinitionList, $"the {program} tile definition names its native list");
-            var enemies = new RoomEnemySystem(new EnemySession());
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native Ceres falling tile list at ${address:X6}.");
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyProjectileSlot tile = enemies.Projectiles.EnemyProjectiles[^1];
             tile.Kind = kind;
             tile.StartAnimation(new CeresFallingDebrisAnimation(program));

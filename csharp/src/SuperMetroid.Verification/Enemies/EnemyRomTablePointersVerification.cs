@@ -119,8 +119,7 @@ internal static class EnemyRomTablePointersVerification
         Type type = typeof(RoomEnemySystem);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
-            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
             system.Presentation.BindCgram(new SnesCgram());
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.SetSpawnParameter1(parameter);
@@ -134,8 +133,7 @@ internal static class EnemyRomTablePointersVerification
 
         foreach (bool facingRight in new[] { false, true })
         {
-            var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
-            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
             var torizo = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

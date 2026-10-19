@@ -80,7 +80,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
     private static (RoomEnemySystem System, RoomEnemySlot Slot) RunFuneNamiheProgram(
         FuneNamiheProgramCase program)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
@@ -100,7 +100,6 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             Program = AnimationProgramCursor<FuneNamiheProgram>.Start(program.Entry),
         };
         enemies.SlotTable.Slots[0].SetSpeciesState(state);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         int frames = program.Active ? 140 : 4;

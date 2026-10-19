@@ -29,8 +29,7 @@ internal static class TorizoInstructionVramArtworkVerification
             "all bank-AA Torizo $814B transfer descriptors are catalogued");
         AssertTrue(stock.TorizoInstructionVram is not null,
             "installed Torizo instruction tile pages exist");
-        var installedEnemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = stock };
-        installedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var installedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
         var installedVram = new SnesVram();
         installedEnemies.Presentation.BindVram(installedVram);
         RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
@@ -126,8 +125,7 @@ internal static class TorizoInstructionVramArtworkVerification
             "Golden Torizo PNG edit changes the first native tile-plane byte");
         AssertTrue(stockBytes.Span[1..].SequenceEqual(editedBytes.Span[1..]),
             "Golden Torizo PNG edit leaves every other tile byte intact");
-        var editedEnemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
-        editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
         var editedVram = new SnesVram();
         editedEnemies.Presentation.BindVram(editedVram);
         RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];

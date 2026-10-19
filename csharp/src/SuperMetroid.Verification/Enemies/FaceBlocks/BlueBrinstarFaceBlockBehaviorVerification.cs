@@ -58,8 +58,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     /// <summary>A face block initialized at (256, 256) with a 64-pixel trigger range.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, BlueBrinstarFaceBlockEnemyState State) Create(ushort parameter2)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BlueBrinstarFaceBlockFrameToolingDefinitions.Bank });

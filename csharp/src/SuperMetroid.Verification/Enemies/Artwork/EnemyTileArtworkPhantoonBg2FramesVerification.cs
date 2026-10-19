@@ -214,8 +214,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     internal static ushort FindPhantoonHitboxCallback(
         EnemyTileArtworkCatalog? art, ushort pointer, Position16<RoomPixels> target, bool selectShot)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -235,9 +234,8 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog art,
         ushort pointer, bool newInstructionFrame)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
         var vram = new SnesVram();
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindVram(vram);
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

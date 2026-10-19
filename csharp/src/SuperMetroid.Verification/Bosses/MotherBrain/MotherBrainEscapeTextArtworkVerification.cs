@@ -98,9 +98,8 @@ internal static class MotherBrainEscapeTextArtworkVerification
     private static SnesVram TransferMotherBrainEscapeTextPages(
         EnemyTileArtworkCatalog artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         var vram = new SnesVram();
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindVram(vram);
         for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageCount; page++)
         {

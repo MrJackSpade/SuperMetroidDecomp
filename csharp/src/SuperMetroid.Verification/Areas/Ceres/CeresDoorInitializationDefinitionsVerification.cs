@@ -35,8 +35,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 NativeEnemyProgramOracle.EntryOf(CeresDoorNativeListAddresses.Entries, definition.Program),
                 $"Ceres door instruction selector {variant}");
 
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
             enemies.Presentation.BindVram(new SnesVram());
             enemies.Presentation.BindCgram(new SnesCgram());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

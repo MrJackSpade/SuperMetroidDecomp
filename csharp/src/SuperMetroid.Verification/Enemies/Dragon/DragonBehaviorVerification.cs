@@ -54,8 +54,7 @@ internal static class DragonBehaviorVerification
     /// </summary>
     private static void VerifyDragonsAttackingTogether()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         foreach (int bodySlot in new[] { 0, 2 })
         {
             for (int part = 0; part < 2; part++)
@@ -85,8 +84,7 @@ internal static class DragonBehaviorVerification
     /// <summary>A Dragon body, or a wing for the wing selectors, with <paramref name="selector"/> freshly installed.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, DragonEnemyState State) Install(DragonAnimationSelector selector)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dragon, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank });

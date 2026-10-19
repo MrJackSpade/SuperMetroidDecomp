@@ -22,8 +22,7 @@ internal static class DownwardGateProjectileBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DownwardGateProjectileNativeListAddresses.Extent, "downward gate");
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyProjectileSlot gate = enemies.Projectiles.EnemyProjectiles[0];
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(gate, RoomEnemyProjectileKind.DownwardGateMoving, 0);
         AssertTrue(gate.Animation is DownwardGateProjectileAnimation { Cursor.Program: DownwardGateProjectileProgram.Moving }, "the moving gate starts its program");

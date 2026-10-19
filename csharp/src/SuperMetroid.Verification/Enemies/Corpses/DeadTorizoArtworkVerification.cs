@@ -164,7 +164,6 @@ internal static class DeadTorizoArtworkVerification
         var installedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
         var nativeTransfers = new List<VramWriteEntry>();
-        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         Action<DeadTorizoEnemyState> buildInstalled =
             new Action<DeadTorizoEnemyState>(installed.DeadTorizoBehavior.BuildDeadTorizoVramTransfers);
@@ -235,9 +234,8 @@ internal static class DeadTorizoArtworkVerification
     private static RoomEnemySystem InitializeDeadTorizoArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTorizoArtworkReadGuard(bus);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         new Action<RoomEnemySlot>(enemies.DeadTorizoBehavior.InitializeDeadTorizo)(enemies.SlotTable.Slots[0]);
         return enemies;
     }
@@ -254,7 +252,6 @@ internal static class DeadTorizoArtworkVerification
         Position16<RoomPixels> camera)
     {
         RoomEnemySystem enemies = InitializeDeadTorizoArtwork(bus, artwork);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var oam = new OamBuffer();
         new Action<OamBuffer, Position16<RoomPixels>>(enemies.DeadTorizoBehavior.DrawDeadTorizoHook)(
                 oam, camera);

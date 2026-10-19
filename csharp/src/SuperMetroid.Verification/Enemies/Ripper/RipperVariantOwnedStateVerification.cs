@@ -14,8 +14,7 @@ internal static class RipperVariantOwnedStateVerification
     /// </summary>
     internal static void VerifyRipperVariantOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Ripper2, slot.Definition);
         const int speedRecord = 3;

@@ -157,8 +157,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     private static RoomEnemySystem NewSkreeMetareeGuardedSystem(
 )
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         return enemies;
     }
 

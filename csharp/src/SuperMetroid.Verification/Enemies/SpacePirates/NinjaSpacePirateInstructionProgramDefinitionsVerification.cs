@@ -229,8 +229,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         // Initializes a ninja Pirate actor with the installed shared palette.
         (RoomEnemySystem Enemies, RoomEnemySlot Slot, SamusState Samus) CreateSystem()
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
             enemies.Presentation.BindCgram(new SnesCgram());
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

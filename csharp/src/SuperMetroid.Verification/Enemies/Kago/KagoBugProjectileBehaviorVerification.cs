@@ -18,8 +18,7 @@ internal static class KagoBugProjectileBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, KagoBugProjectileNativeListAddresses.Extent, "Kago bug");
         foreach (KagoBugProjectileProgram program in new[] { KagoBugProjectileProgram.Landed, KagoBugProjectileProgram.Falling, KagoBugProjectileProgram.JumpStart })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 1);
             RoomEnemyProjectileSlot bug = enemies.Projectiles.EnemyProjectiles[0];
             bug.Kind = RoomEnemyProjectileKind.KagoBug;

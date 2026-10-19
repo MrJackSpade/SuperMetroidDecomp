@@ -44,8 +44,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         for (int soulValue = 0; soulValue < 2; soulValue++)
         {
             bool soul = soulValue != 0;
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
             enemies.Presentation.BindCgram(new SnesCgram());
             enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(parameter, soul);
 

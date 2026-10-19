@@ -314,8 +314,7 @@ internal static class MotherBrainRoomColorsVerification
     private static RoomEnemySystem CreateEnemy(SnesCgram cgram,
         MotherBrainRoomColorPresentation? colors)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { Presentation = { MotherBrainRoomColors = colors } };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { MotherBrainRoomColors = colors } };
         enemies.Presentation.BindCgram(cgram);
         enemies.Presentation.BindVram(new SnesVram());
         return enemies;

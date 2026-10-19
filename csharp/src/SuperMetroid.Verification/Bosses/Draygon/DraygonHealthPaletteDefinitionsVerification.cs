@@ -48,11 +48,10 @@ internal static class DraygonHealthPaletteDefinitionsVerification
 
         var guard = NewDraygonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
-        var enemies = new RoomEnemySystem(new EnemySession())
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = DraygonColorCatalog.Load(colors) }),
         };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(new SnesCgram());
         Action<DraygonEnemyState> update = enemies.DraygonBehavior.UpdateDraygonHealthPalette;
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);

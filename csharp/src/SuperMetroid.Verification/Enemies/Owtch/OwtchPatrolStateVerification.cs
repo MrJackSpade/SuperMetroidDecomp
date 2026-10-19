@@ -67,11 +67,10 @@ internal static class OwtchPatrolStateVerification
     /// <summary>An initialized Owtch at room position (100, 64) in <paramref name="behavior"/>, with the first travel distance and speed.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, OwtchEnemyState State) NewOwtch(OwtchBehaviorState behavior)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         // A walk rolls the sink chance each update; a high roll keeps the Owtch walking.
         enemies.VerificationServices().NextRandom = () => 0x80;
         enemies.VerificationServices().ReadRandom = () => 0x80;
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
         slot.SetSpawnParameter1((ushort)behavior);

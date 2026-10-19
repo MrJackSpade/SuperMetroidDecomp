@@ -82,9 +82,8 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);
         int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
         cgram.SetColor(destination - 1, Bgr555.FromWord(0x1234));

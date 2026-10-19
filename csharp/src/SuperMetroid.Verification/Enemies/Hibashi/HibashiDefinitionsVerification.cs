@@ -24,8 +24,7 @@ internal static class HibashiDefinitionsVerification
         const int yOffsetTable = 0xa68dbb;
         const int yRadiusTable = 0xa68de7;
 
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = HibashiBehavior.InitializeHibashi;
         Action<RoomEnemySlot, int> applyFrame = enemies.HibashiBehavior.ApplyHibashiActivityFrame;
 
@@ -66,8 +65,7 @@ internal static class HibashiDefinitionsVerification
             "Hibashi production activity index beyond authored table");
 
         var shownSpritemaps = new HashSet<ushort>();
-        var programSystem = new RoomEnemySystem(new EnemySession());
-        programSystem.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var programSystem = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initializeProgram = HibashiBehavior.InitializeHibashi;
 
         RoomEnemySlot programGraphics = programSystem.SlotTable.Slots[0];

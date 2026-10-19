@@ -1018,8 +1018,7 @@ internal static class LookupStream2Verification
                         Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
                     }))),
             }, Spritemaps = display, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = DeadTorizoArtworkDefinitions.SourceAddress } });
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         StagingByteView corpseTiles = enemies.Room.Staging.CorpseTiles;
         corpseTiles.Fill(0);
         new Action(enemies.DeadTorizoBehavior.InitializeDeadTorizoGraphics)();
@@ -1222,7 +1221,7 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid Lint initialization")]
     internal static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
         // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
         enemies.KraidBehavior.Kraid = state;

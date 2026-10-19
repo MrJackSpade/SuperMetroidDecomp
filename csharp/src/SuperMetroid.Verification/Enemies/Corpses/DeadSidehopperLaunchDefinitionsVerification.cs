@@ -19,8 +19,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Sidehopper launch definitions")]
     internal static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState;
         var slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, 0, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });

@@ -22,8 +22,7 @@ internal static class SparkMovementDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spark selector tables")]
     internal static void VerifySparkMovementDefinitions(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(new TestAddressSpace());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: new TestAddressSpace(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Spark, slot.Definition);
@@ -71,8 +70,7 @@ internal static class SparkMovementDefinitionsVerification
     /// <summary>A Spark running <paramref name="program"/> from its first step.</summary>
     private static (RoomEnemySystem, RoomEnemySlot, SparkEnemyState) Start(SparkProgram program, bool intangible)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Spark, slot.Definition);

@@ -149,7 +149,7 @@ internal static class LookupStream5Verification
         AssertThrows<IndexOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(4), "Rumble upper bound");
         foreach (Position16<RoomPixels> origin in new Position16<RoomPixels>[] { new(232, 631), new(1, 65530) })
         {
-            var system = new RoomEnemySystem(new EnemySession());
+            var system = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
             var slot = system.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(origin);
             var doorState = new CeresDoorEnemyState { RumbleCallsLeft = 48 };
@@ -191,7 +191,7 @@ internal static class LookupStream5Verification
         const int nextPattern = 3;
         foreach (int bucket in new[] { 2, 0, 1 })
         {
-            var system = new RoomEnemySystem(new EnemySession());
+            var system = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
             var body = system.SlotTable.Slots[0];
             var eye = system.SlotTable.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.SlotTable.Slots[2], Mouth = system.SlotTable.Slots[3] };
@@ -250,7 +250,7 @@ internal static class LookupStream5Verification
         foreach (int bucket in new[] { 1, 2, 0 })
         foreach (bool reversed in new[] { false, true })
         {
-            var system = new RoomEnemySystem(new EnemySession());
+            var system = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
             var body = system.SlotTable.Slots[0];
             var eye = system.SlotTable.Slots[1];
             var mouth = system.SlotTable.Slots[3];
@@ -395,7 +395,7 @@ internal static class LookupStream5Verification
         foreach (int bucket in new[] { 2, 1, 0 })
         foreach (bool shot in new[] { false, true })
         {
-            var system = new RoomEnemySystem(new EnemySession());
+            var system = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
             var body = system.SlotTable.Slots[0];
             var eye = system.SlotTable.Slots[1];
             var tentacles = system.SlotTable.Slots[2];
@@ -1069,7 +1069,7 @@ internal static class LookupStream5Verification
     {
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.SlotTable.Slots[0];
         var state = new PhantoonEnemyState(body)
         {
@@ -1357,8 +1357,7 @@ internal static class LookupStream5Verification
         {
             bool alternate = variant != 0;
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
             StagingByteView corpseTiles = enemies.Room.Staging.CorpseTiles;
             Action<ushort> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopperGraphics;
             byte[] expected = new byte[0x800];
@@ -1473,8 +1472,7 @@ internal static class LookupStream5Verification
         for (int high = 0; high < 1; high++)
         for (int pattern = 0; pattern < 8; pattern++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             ushort random = SnesLittleEndian.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { calls++; return random; }));
@@ -1514,8 +1512,7 @@ internal static class LookupStream5Verification
                 PhantoonNativeListAddresses.PartEntry(PhantoonPatternDefinitions.EyeProgram(direction)),
                 $"native Phantoon eye direction {direction}");
         }
-        var eyeEnemies = new RoomEnemySystem(new EnemySession());
-        eyeEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var eyeEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, PhantoonEnemyState, SamusState> pointEye = PhantoonBehavior.PointPhantoonEyeAtSamus;
         RoomEnemySlot eyeBody = eyeEnemies.SlotTable.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.SlotTable.Slots[1];
@@ -1837,12 +1834,11 @@ internal static class LookupStream5Verification
         Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(rom));
         byte[] stockJson = SuperMetroid.AssetExtraction.Enemies.EnemySpritemapFiles.Extract(rom);
         var installed = EnemySpritemapCatalog.Load(new MemoryStream(stockJson, writable: false));
-        var enemies = new RoomEnemySystem(new EnemySession())
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             RidleyEncounter = { CeresStatus = CeresEscapeStatus.RidleyEscaped },
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = installed }),
         };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
         var door = enemies.SlotTable.Slots[1];

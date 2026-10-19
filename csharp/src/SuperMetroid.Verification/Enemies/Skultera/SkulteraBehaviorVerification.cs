@@ -25,8 +25,7 @@ internal static class SkulteraBehaviorVerification
                      (false, SkulteraProgram.SwimmingRight, SkulteraProgram.SwimmingRightLoop, (ushort)6, SkulteraProgram.TurningLeft),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Skultera, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = SkulteraFrameToolingDefinitions.Bank });

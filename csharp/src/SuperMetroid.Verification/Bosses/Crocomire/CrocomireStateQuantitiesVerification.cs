@@ -329,7 +329,7 @@ internal static class CrocomireStateQuantitiesVerification
     /// <summary>Creates a Crocomire body with its encounter and death state in a fresh enemy system.</summary>
     private static (RoomEnemySystem Enemies, CrocomireEnemyState State) NewCrocomire()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));

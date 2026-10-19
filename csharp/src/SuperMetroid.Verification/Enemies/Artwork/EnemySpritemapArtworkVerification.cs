@@ -120,8 +120,7 @@ internal static class EnemySpritemapArtworkVerification
     private static void VerifyInstalledBullInstructionFrames(
         EnemyTileArtworkCatalog stock)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = stock };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
         bull.Bind(bull.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -2923,8 +2922,7 @@ internal static class EnemySpritemapArtworkVerification
             ISnesAddressSpace guard, ushort pointer, EnemyDefinitionId definition,
             Action<RoomEnemySlot>? inspect = null, byte? spritemapBank = null)
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
@@ -3073,8 +3071,7 @@ internal static class EnemySpritemapArtworkVerification
         EnemyTileArtworkCatalog art, ushort pointer,
         Position16<RoomPixels> world)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
         var oam = new OamBuffer();
         enemies.MotherBrainBehavior.DrawMotherBrainWorldSpritemap(oam, RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualDefinitions.Bank, pointer)
             ?? throw new InvalidOperationException("A Mother Brain draw shows a frame."), world, (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010));
@@ -3086,8 +3083,7 @@ internal static class EnemySpritemapArtworkVerification
     private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
         RoomSpriteObjectKind kind)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =
             (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
         Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =

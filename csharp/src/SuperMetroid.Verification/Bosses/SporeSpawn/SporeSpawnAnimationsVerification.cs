@@ -194,8 +194,7 @@ internal static class SporeSpawnAnimationsVerification
     /// <summary>A projectile system whose spore drops have a Samus to read.</summary>
     private static RoomEnemySystem NewProjectileSystem()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         enemies.DeathsAndDrops.BindSamus(new SamusState());
         return enemies;
@@ -208,7 +207,7 @@ internal static class SporeSpawnAnimationsVerification
         EnemyTileArtworkCatalog? artwork = null,
         Action<RoomEnemySystem, RoomEnemySlot>? afterFrame = null)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.TileArtwork = artwork ?? InstalledFixtures.EnemyTiles;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
@@ -225,7 +224,6 @@ internal static class SporeSpawnAnimationsVerification
             AngleDelta = 1,
             BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(program),
         };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(new SnesCgram());
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4660);
         enemies.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });

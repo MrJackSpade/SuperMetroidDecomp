@@ -118,9 +118,8 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                         MotherBrainDeathRomData.BodyColorCount * sizeof(ushort)),
             address => $"Live Mother Brain death read migrated ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);
         cgram.SetColor(MotherBrainDeathRomData.BodyColors - 1, Bgr555.FromWord(0x1234));
         cgram.SetColor(MotherBrainDeathRomData.BrainColors - 1, Bgr555.FromWord(0x1234));

@@ -70,8 +70,7 @@ internal static class RidleySupplementalArtworkVerification
     internal static OamBuffer DrawInstalledRidleySupplement(
         EnemyTileArtworkCatalog artwork, RidleyFacing facing, ushort wingFrame, int? tailDirection)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         slot.Position = slot.Position.WithWhole(new(200, 100));

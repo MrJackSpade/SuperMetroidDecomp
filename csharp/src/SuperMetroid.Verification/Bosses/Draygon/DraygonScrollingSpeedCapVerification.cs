@@ -41,8 +41,7 @@ internal static class DraygonScrollingSpeedCapVerification
     private static (ushort X, ushort Y) PreviousAfterDraygonMove(
         FixedPosition<RoomPixels> checkpoint, Position16<RoomPixels> body)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.ScrollCap.BeginFrame(checkpoint);
         var samus = new SamusState { Position = new(new(checkpoint.X.Whole, 0), new(checkpoint.Y.Whole, 0))};
         samus.DraygonGrabbed.Begin(samus, draygonFacingRight: true);

@@ -28,8 +28,7 @@ internal static class TorizoInitializationDefinitionsVerification
             ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Program), (ushort)compiled.PropertyMask, compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.Presentation.BindCgram(new SnesCgram());
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);

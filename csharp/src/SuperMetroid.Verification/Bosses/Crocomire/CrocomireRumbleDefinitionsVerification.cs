@@ -68,7 +68,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         var guarded = NewCrocomireRumbleReadGuard(rom);
         CrocomireColorCatalog colors = CrocomireColorCatalog.Load(
             new MemoryStream(CrocomireColorExtractor.Extract(rom), writable: false));
-        var enemies = new RoomEnemySystem(new EnemySession())
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CrocomireColors = colors }),
         };
@@ -85,7 +85,6 @@ internal static class CrocomireRumbleDefinitionsVerification
             DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall,
             RumbleTableOffset = 4,
         };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);
         enemies.CrocomireBehavior.CrocomireDeath = death;
 

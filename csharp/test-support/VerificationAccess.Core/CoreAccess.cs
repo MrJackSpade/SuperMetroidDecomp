@@ -223,13 +223,6 @@ internal static class CoreAccess
     /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>
     extension(RoomEnemySystem enemies)
     {
-        /// <summary>
-        /// Binds an enemy definition source without loading a population, so a focused check can run one enemy
-        /// routine against constructed records.
-        /// </summary>
-        internal void BindFixtureDefinitions(IRoomEnemyDefinitionSource definitions) =>
-            enemies.Room.Definitions = Ensure.NotNull(definitions);
-
         /// <summary>Room PLM requests emitted by Chozo statue AI in their publication order.</summary>
         internal IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>
             enemies.ChozoStatueBehavior.ChozoStatuePlmRequests;

@@ -88,13 +88,12 @@ internal static class CeresRidleyColorsVerification
         AssertTrue(ReferenceEquals(original.CeresRidleyColors, runtime.EnemySession.CeresRidleyColors),
             "runtime rebind drops previous Ceres Ridley colors");
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem(new EnemySession())
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             Presentation = { CeresRidleyColors = edited.CeresRidleyColors },
             TileArtwork = fixtureAssets.EnemyTiles,
         };
         var cgram = new SnesCgram();
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.InitializeCeresRidley;
@@ -226,9 +225,9 @@ internal static class CeresRidleyColorsVerification
         {
             // Compare every callback, including the three skipped frame counters
             // between each alarm color upload. Only the authored RGB5 row is editable.
-            var nativeEnemy = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
-            var stockEnemy = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
-            var editedEnemy = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = edited.CeresRidleyColors } };
+            var nativeEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
+            var stockEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
+            var editedEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyColors = edited.CeresRidleyColors } };
             var nativeCgram = new SnesCgram();
             var stockCgram = new SnesCgram();
             var editedCgram = new SnesCgram();
@@ -240,7 +239,6 @@ internal static class CeresRidleyColorsVerification
                     (editedEnemy, guarded, editedCgram),
                 })
             {
-                owner.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 owner.Presentation.BindCgram(palette);
             }
             var nativeTick = new Action<RidleyEnemyState, int>(nativeEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
@@ -284,9 +282,9 @@ internal static class CeresRidleyColorsVerification
             // Drive the real Norfair palette callback at both sides of every
             // health threshold. The extracted stock catalog supplies full-CGRAM
             // parity; the guarded installed path proves no copied ROM colors are read.
-            var nativeEnemy = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
-            var stockEnemy = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
-            var editedEnemy = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = edited.CeresRidleyColors } };
+            var nativeEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
+            var stockEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
+            var editedEnemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyColors = edited.CeresRidleyColors } };
             var nativeCgram = new SnesCgram();
             var stockCgram = new SnesCgram();
             var editedCgram = new SnesCgram();
@@ -298,7 +296,6 @@ internal static class CeresRidleyColorsVerification
                     (editedEnemy, guarded, editedCgram),
                 })
             {
-                owner.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 owner.Presentation.BindCgram(palette);
             }
             var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(nativeEnemy.RidleyBehavior.UpdateNorfairRidleyHealthPalette);

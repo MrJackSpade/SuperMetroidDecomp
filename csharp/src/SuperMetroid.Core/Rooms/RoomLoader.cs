@@ -1059,16 +1059,14 @@ internal sealed class RoomLoader
 
         // `$A0:8A1E` LoadEnemies builds the destination's enemy RAM, with the door-transition gates clear, over the
         // projectile and first-free words the outgoing room's enemies left.
-        var enemies = new RoomEnemySystem(_enemySession, carryOver.EnemyResidue);
+        var enemies = new RoomEnemySystem(_enemySession, carryOver.EnemyResidue, CompiledRoomEnemyDefinitions.Instance, areaServices);
         scope.Enemies = enemies;
         projectiles.Earthquakes.BindRoomEarthquakeOwner(enemies);
         enemies.Load(new RoomEnemyLoadRequest(
-            CompiledRoomEnemyDefinitions.Instance,
             room.State.EnemyPopulation,
             room.State.EnemyGraphicsSet,
             _vram,
-            _cgram,
-            areaServices)
+            _cgram)
         {
             Level = assets.LevelData,
             Samus = _player.Samus,

@@ -163,8 +163,7 @@ internal static class ShotCallbackDefinitionsVerification
 
         static (RoomEnemySystem System, RoomEnemySlot Enemy) CreateLiteralNoOpCombatSystem()
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy.NativeIndex);

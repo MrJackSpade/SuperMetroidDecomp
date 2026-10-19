@@ -26,8 +26,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewCrocomireTongueNoReadBus();
-        var compiled = new RoomEnemySystem(new EnemySession());
-        compiled.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var compiled = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         var boundDefinition = default(RoomEnemyDefinition) with

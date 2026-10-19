@@ -94,9 +94,8 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                     SporeSpawnColorRomData.FrameByteCount),
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);
         enemies.VerificationServices().IsAreaMiniBossDefeated = (Func<bool>)(() => false);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];

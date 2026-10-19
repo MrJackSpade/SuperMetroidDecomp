@@ -15,8 +15,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
     internal static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1)));
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         ushort random = 0;
         int advances = 0;
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return random; });

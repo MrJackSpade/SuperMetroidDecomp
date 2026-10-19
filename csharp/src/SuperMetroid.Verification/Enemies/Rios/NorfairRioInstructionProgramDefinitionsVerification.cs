@@ -66,8 +66,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     private static void VerifyNorfairRioInitializerSelections(
 )
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
@@ -95,8 +94,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             NorfairRioProgram entry,
             EnemyTileArtworkCatalog? art = null)
     {
-        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
-        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });

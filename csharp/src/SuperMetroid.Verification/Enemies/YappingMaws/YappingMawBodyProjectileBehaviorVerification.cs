@@ -20,8 +20,7 @@ internal static class YappingMawBodyProjectileBehaviorVerification
         foreach ((ushort facing, YappingMawBodyProjectileProgram program) in new (ushort, YappingMawBodyProjectileProgram)[]
                  { (0, YappingMawBodyProjectileProgram.FacingDown), (1, YappingMawBodyProjectileProgram.FacingUp) })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot owner = enemies.SlotTable.Slots[0];
             owner.Bind(EnemyDefinitionId.YappingMaw, owner.Definition);
             owner.Bind(owner.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = YappingMawFrameToolingDefinitions.Bank });

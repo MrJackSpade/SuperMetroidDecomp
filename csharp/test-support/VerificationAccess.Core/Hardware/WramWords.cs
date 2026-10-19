@@ -5,7 +5,7 @@
 /// element within the bank. Constructed only by domain memory views.
 /// </summary>
 [CpuBusAccess]
-public readonly struct WramWords
+internal readonly struct WramWords
 {
     /// <summary>Mutable CPU bus supplying the table's two-byte elements.</summary>
     private readonly ISnesMemoryBus bus;

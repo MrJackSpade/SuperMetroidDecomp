@@ -1,18 +1,11 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
-/// Write boundary for mutable SNES state used by translated logic.
+/// A SNES CPU address space: the identity an importer, the WRAM image or a test bus is handed around as.
 /// </summary>
 /// <remarks>
-/// ROM, WRAM, SRAM, and peripheral reads have separate contracts. No generic read is
+/// ROM, WRAM, SRAM, and peripheral reads have separate contracts. No generic read or write is
 /// exposed here: a caller must declare which source owns the byte it needs.
 /// </remarks>
 [CpuBusAccess]
-public interface ISnesAddressSpace
-{
-    /// <summary>
-    /// Writes a byte to a mutable mapped region. Implementations must reject ROM and
-    /// unimplemented hardware writes rather than silently discarding them.
-    /// </summary>
-    void WriteByte(int address, byte value);
-}
+public interface ISnesAddressSpace;

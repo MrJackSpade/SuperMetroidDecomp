@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Hardware;
 /// The SNES's little-endian byte order (#223): a 16-bit word stores its low byte first, and a 24-bit long adds its
 /// bank byte third. This type owns splitting values into those byte lanes and composing them back. Byte sources that
 /// are not CPU address spaces (compiled definition tables, routed WRAM/ROM windows, test byte stores) compose their
-/// words here; address-space reads use <see cref="SnesWordReads"/> and the cartridge word reads.
+/// words here; address-space reads use <c>SnesWordReads</c> and the cartridge word reads.
 /// </summary>
 /// <remarks>
 /// Use these only where the value really is split into storage bytes: a word written to or read from byte-wide

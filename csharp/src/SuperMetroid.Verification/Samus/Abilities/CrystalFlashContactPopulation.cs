@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 /// <summary>One stationary retail Ripper in a constructed population; its AI/header remain ROM-authored.</summary>
 [CpuBusBoundary("exact bus test: constructed enemy population fixture overlaying one Ripper's population and tileset bytes on a live bus")]
 internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Position16<RoomPixels> position) :
-    ISnesAddressSpace, IRoomEnemyDefinitionSource
+    ISnesWritableAddressSpace, IRoomEnemyDefinitionSource
 {
     /// <summary>Uses the retail enemy header for the constructed Ripper population.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>

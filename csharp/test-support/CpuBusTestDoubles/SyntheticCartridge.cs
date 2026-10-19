@@ -19,17 +19,10 @@ internal sealed class SyntheticCartridge : ISnesAddressSpace, IImportCartridgeSo
     private readonly List<Func<int, bool>> zeroFilled = [];
     /// <summary>Caller-selected failure for reads outside seeded or zero-filled source regions.</summary>
     private readonly Func<int, Exception> undeclaredRead;
-    /// <summary>Caller-selected failure for every attempted cartridge write.</summary>
-    private readonly Func<int, Exception> write;
 
     /// <summary>Creates an empty cartridge.</summary>
     /// <param name="undeclaredRead">The failure for a read of an undeclared CPU address.</param>
-    /// <param name="write">The failure for any write.</param>
-    internal SyntheticCartridge(Func<int, Exception> undeclaredRead, Func<int, Exception> write)
-    {
-        this.undeclaredRead = Ensure.NotNull(undeclaredRead);
-        this.write = Ensure.NotNull(write);
-    }
+    internal SyntheticCartridge(Func<int, Exception> undeclaredRead) => this.undeclaredRead = Ensure.NotNull(undeclaredRead);
 
     /// <summary>Every served read's CPU address, in order.</summary>
     internal List<int> Reads { get; } = [];
@@ -67,7 +60,4 @@ internal sealed class SyntheticCartridge : ISnesAddressSpace, IImportCartridgeSo
         }
         throw undeclaredRead(cpuAddress);
     }
-
-    /// <inheritdoc />
-    public void WriteByte(int address, byte value) => throw write(address);
 }

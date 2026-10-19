@@ -137,7 +137,7 @@ internal static class ChargeFlarePlacementVerification
 
     /// <summary>Overlays a chosen pose and direction while rejecting reads from the migrated flare-origin table.</summary>
     [CpuBusBoundary("exact bus test: pose-table overlay that substitutes one synthetic pose row and direction byte while forbidding the flare-origin table")]
-    internal sealed class FlarePlacementGuard(ISnesAddressSpace source, SamusPoseId pose, byte direction, bool forbid) : ISnesAddressSpace, IImportCartridgeSource
+    internal sealed class FlarePlacementGuard(ISnesAddressSpace source, SamusPoseId pose, byte direction, bool forbid) : ISnesWritableAddressSpace, IImportCartridgeSource
     {
         /// <summary>Routes cartridge-byte requests through the same pose overlay as ordinary bus reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);

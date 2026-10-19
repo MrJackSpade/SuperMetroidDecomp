@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Hardware;
 /// </remarks>
 [CpuBusAccess]
 [SnesEncodingOwner]
-public static class SnesWordReads
+internal static class SnesWordReads
 {
     /// <summary>
     /// Adds WRAM word reads to the mutable CPU memory boundary while preserving the

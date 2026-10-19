@@ -2,7 +2,7 @@
 
 /// <summary>One WRAM byte at a fixed CPU address. Constructed only by domain memory views.</summary>
 [CpuBusAccess]
-public readonly struct WramByte
+internal readonly struct WramByte
 {
     /// <summary>Mutable CPU bus supplying this cell's WRAM reads and writes.</summary>
     private readonly ISnesMemoryBus bus;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Hardware;
 /// 65C816 does for a fixed-bank access. Constructed only by domain memory views.
 /// </summary>
 [CpuBusAccess]
-public readonly struct WramWord
+internal readonly struct WramWord
 {
     /// <summary>Mutable CPU bus supplying the word's bank-wrapped byte accesses.</summary>
     private readonly ISnesMemoryBus bus;

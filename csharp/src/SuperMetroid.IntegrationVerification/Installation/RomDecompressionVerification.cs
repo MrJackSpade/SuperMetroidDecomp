@@ -92,7 +92,7 @@ internal static class RomDecompressionVerification
 
     /// <summary>Tracks sequential LoROM byte reads and rejects reads beyond the declared fixture stream.</summary>
     [CpuBusBoundary("exact bus test: witnesses LoROM traversal order and read extent of a cartridge stream")]
-    private sealed class StreamBus(byte[] bytes) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class StreamBus(byte[] bytes) : ISnesWritableAddressSpace, IImportCartridgeSource
     {
         // Deliberately cross xx:FFFF -> (xx+1):8000 inside the first literal run.
         /// <summary>Begins four bytes before a bank boundary to exercise the native wrap.</summary>

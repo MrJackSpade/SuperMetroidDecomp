@@ -649,12 +649,13 @@ Commit and push that update too.
     hierarchies (3291 compile errors). `25924e7c0` and `338c78937` removed the test-only definition fields (corpse
     pointers, the Ceres header pointer, the projectile initial list), two convenience constructors,
     `EnemyFrameCollision.Count` and `CpuBusCell.Require`, and pruned the constants they fed; the library-background
-    byte count left Core, its generator and the generated catalog together. What remains (6 findings) is the CPU
-    bus write path: `ISnesMemoryBus`, `SnesMemoryBusRequirement`, `SnesWordReads`, `ISnesAddressSpace.WriteByte`,
-    `SuperMetroidAddressSpace.WriteByte` and test support's `SyntheticCartridge.WriteByte`. Production keeps
-    `SuperMetroidAddressSpace` as the WRAM image for the desktop host and debugger save states, but only tests and
-    the import pipeline write through it. About 1700 test call sites pass it as an `ISnesAddressSpace`, so moving
-    the write path out of Core means a test-support bus that wraps it, adopted at those sites.
+    byte count left Core, its generator and the generated catalog together. The CPU-bus write path went last:
+    `ISnesAddressSpace` is a member-free identity, `SuperMetroidAddressSpace` implements it and
+    `ISnesMutableMemory` directly, and test support owns `ISnesWritableAddressSpace`, `ISnesMemoryBus`,
+    `SnesMemoryBusRequirement`, `SnesWordReads`, the WRAM image's write (`SuperMetroidAddressSpaceAccess`), a write
+    that dispatches over test buses and the image (`SnesAddressSpaceWrites`) and `WorkRamImageBus` for the cell
+    primitives. `SyntheticCartridge` has no write path, so the resource audits' "must not mutate" guarantee is the
+    type itself. **The reachability gate passes with no findings.**
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

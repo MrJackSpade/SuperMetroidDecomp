@@ -156,8 +156,7 @@ internal static class PaletteDefinitionAudit
     private static SyntheticCartridge ColorAddressRecorder()
     {
         var recorder = new SyntheticCartridge(
-            _ => new InvalidDataException("Palette audit unexpectedly requested non-color-bank data."),
-            _ => new InvalidOperationException("Static color extraction must not mutate emulated state."));
+            _ => new InvalidDataException("Palette audit unexpectedly requested non-color-bank data."));
         recorder.DeclareZero(address => (SnesAddressMath.BankNumber(address)) == ResourceBanks.ProjectileOamAndPaletteFx);
         recorder.DeclareZero(TitleSequenceRomData.Assets.PaletteAddress, CgramPalettes.ByteCount);
         return recorder;

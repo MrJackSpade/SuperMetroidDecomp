@@ -54,8 +54,7 @@ internal static class MotherBrainRoomFlashAudit
         // A synthetic RGB5 payload, not a native resource identity.
         const ushort syntheticPalettePointer = 0xf000;
         var source = new SyntheticCartridge(
-            address => new InvalidDataException($"Room-flash audit requested undeclared bytes at {address:X6}."),
-            _ => new InvalidOperationException("Static color extraction cannot mutate emulated state."));
+            address => new InvalidDataException($"Room-flash audit requested undeclared bytes at {address:X6}."));
         for (int index = 0; index < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; index++)
             source.SetWord(MotherBrainRoomColorRomData.SourceBank |
                 MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(index), syntheticPalettePointer);

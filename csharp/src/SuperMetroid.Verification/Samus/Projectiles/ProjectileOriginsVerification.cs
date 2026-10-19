@@ -65,7 +65,7 @@ internal static class ProjectileOriginsVerification
 
     /// <summary>Forbids physical-origin table reads while substituting sprite presentation bytes to check their separation.</summary>
     [CpuBusBoundary("exact bus test: serves substitute presentation bytes ($90:C1A8-C203) while forbidding origin rows, proving physical origins ignore presentation data")]
-    internal sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    internal sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesWritableAddressSpace, IImportCartridgeSource
     {
         /// <summary>Rejects compiled origin reads and substitutes presentation bytes to prove independence.</summary>
         public byte ReadCartridgeByte(int address)

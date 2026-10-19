@@ -80,7 +80,7 @@ internal static class CpuBusBoundaryVerification
     [CpuBusBoundary("exact bus test: WramWord and WramWords bank wrap")]
     private static void VerifyWramWordBankWrap()
     {
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var bus = new WorkRamImageBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
         var word = new WramWord(bus, CpuBusCellConstants.WramWord("WrapProbe", 0x7effff));
         word.Write(0x1234);
         AssertEqual((byte)0x34, bus.ReadWorkRamByte(0x7effff), "low byte stays at $7E:FFFF");
@@ -99,7 +99,7 @@ internal static class CpuBusBoundaryVerification
     [CpuBusBoundary("exact bus test: WramWords and WramBytes bounds")]
     private static void VerifyCpuBusTableBounds()
     {
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var bus = new WorkRamImageBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
         var words = new WramWords(bus, CpuBusCellConstants.WramWords("BoundWords", 0x7e1000, 3));
         AssertEqual(3, words.Count, "word table count");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = words[-1], "word table rejects index -1");
@@ -115,7 +115,7 @@ internal static class CpuBusBoundaryVerification
     [CpuBusBoundary("exact bus test: region and width mismatch rejection")]
     private static void VerifyCpuBusCellShapeRejection()
     {
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var bus = new WorkRamImageBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
         CpuBusCell wramByte = CpuBusCellConstants.WramByte("ShapeByte", 0x7e1000);
         CpuBusCell wramWord = CpuBusCellConstants.WramWord("ShapeWord", 0x7e1000);
         AssertThrows<ArgumentException>(() => new WramWord(bus, wramByte), "a word primitive rejects a byte cell");
@@ -130,7 +130,7 @@ internal static class CpuBusBoundaryVerification
     [CpuBusBoundary("exact bus test: low-window WRAM mirror")]
     private static void VerifyWramLowWindowMirror()
     {
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var bus = new WorkRamImageBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
         new WramByte(bus, CpuBusCellConstants.WramByte("Home", 0x7e0123)).Write(0x9c);
         foreach (int mirror in new[] { 0x000123, 0x3f0123, 0x800123, 0xbf0123 })
             AssertEqual((byte)0x9c, new WramByte(bus, CpuBusCellConstants.WramByte("Mirror", mirror)).Read(),

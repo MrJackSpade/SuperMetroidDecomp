@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Resolves the live WRAM/SRAM bus that typed domain memory views require.</summary>
-public static class SnesMemoryBusRequirement
+internal static class SnesMemoryBusRequirement
 {
     /// <summary>
     /// Returns <paramref name="bus"/> as the mutable memory bus, or throws naming the

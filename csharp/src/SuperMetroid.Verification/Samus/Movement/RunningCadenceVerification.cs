@@ -209,7 +209,7 @@ internal static class RunningCadenceVerification
     /// <summary>Forbids compiled cadence ROM reads while exposing the live WRAM delay alias and fallback address signature.</summary>
     [CpuBusBoundary("exact bus test: live WRAM delay alias at $91:0303 plus a constructed unimplemented-hardware byte signature that witnesses running-cadence operand routing")]
     internal sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        ISnesWritableAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         /// <summary>Mutable delay byte observed when the native stage-five pointer wraps into low-bank memory.</summary>
         public byte MutableDelay = 0x35;

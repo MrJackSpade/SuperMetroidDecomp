@@ -72,8 +72,7 @@ internal static class CrocomireSkeletonResourceChecks
     private static SyntheticCartridge ConstructedComponentSource(EnemyExtendedFrameDefinition frame, int count)
     {
         var source = new SyntheticCartridge(
-            address => new InvalidDataException($"Unexpected synthetic composition read {address:X6}."),
-            _ => new InvalidOperationException("Static import must not mutate emulated state."));
+            address => new InvalidDataException($"Unexpected synthetic composition read {address:X6}."));
         int address = ((int)new SnesAddress(frame.Bank, frame.Pointer));
         int sprite = ((int)new SnesAddress(frame.Bank, checked((ushort)(0x8000))));
         source.SetWord(address, count);

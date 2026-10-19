@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Hardware;
 /// fixed-bank indexed access does. Constructed only by domain memory views.
 /// </summary>
 [CpuBusAccess]
-public readonly struct WramBytes
+internal readonly struct WramBytes
 {
     /// <summary>Mutable CPU bus supplying this bounded WRAM range.</summary>
     private readonly ISnesMemoryBus bus;

@@ -40,9 +40,7 @@ public static class SamusBlockCollision
         BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, probe, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         // Submerging sand writes these real motion words even through wall observation.
         state.YSpeed = probe.YSpeed;
-        state.YSubspeed = probe.YSubspeed;
         state.YAcceleration = probe.YAcceleration;
-        state.YSubacceleration = probe.YSubacceleration;
 
         // $94:8F49 (and square-slope clipping) writes Samus's real X subposition
         // even through the observational $94:967F entry point. The probe's accepted

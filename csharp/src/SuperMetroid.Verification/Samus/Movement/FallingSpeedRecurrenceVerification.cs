@@ -18,25 +18,22 @@ internal static class FallingSpeedRecurrenceVerification
         {
             var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose };
             samus.PoseTransitions.ApplyStandingLeftToRunningLeft();
-            samus.HorizontalSpeed.BaseSpeed = 2;
-            samus.HorizontalSpeed.BaseSubspeed = 0xc000;
+            samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0xc000);
             samus.HorizontalSpeed.AccelerationMode = previousMode;
-            samus.HorizontalSpeed.ExtraRunSpeed = extraWhole;
-            samus.HorizontalSpeed.ExtraRunSubspeed = extraFraction;
+            samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(extraWhole, extraFraction);
             samus.PoseTransitions.ApplyWalkedOffFloorTransition(level, SamusPoseId.FallingLeftPose);
             AssertEqual(extraWhole != 0 || extraFraction != 0 ? 2 : 0,
                 samus.HorizontalSpeed.AccelerationMode, "fall entry selects acceleration mode from extra speed");
             AssertEqual(0x2c000u, samus.HorizontalSpeed.BaseFixed, "fall entry does not clamp base speed");
-            AssertEqual(extraWhole, samus.HorizontalSpeed.ExtraRunSpeed, "fall entry preserves whole dash component");
-            AssertEqual(extraFraction, samus.HorizontalSpeed.ExtraRunSubspeed, "fall entry preserves fractional dash component");
+            AssertEqual(extraWhole, samus.HorizontalSpeed.ExtraRunSpeed.Whole, "fall entry preserves whole dash component");
+            AssertEqual(extraFraction, samus.HorizontalSpeed.ExtraRunSpeed.Fraction, "fall entry preserves fractional dash component");
         }
         foreach (SamusLiquidMedium medium in new[] { SamusLiquidMedium.Air, SamusLiquidMedium.Water })
         {
             var speed = new SamusHorizontalSpeedState
             {
                 AccelerationMode = 2,
-                BaseSpeed = 2,
-                BaseSubspeed = 0x9800,
+                BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x9800),
             };
             speed.SelectEnvironmentSpeedTable(medium);
             for (int frame = 0; frame < 20; frame++)

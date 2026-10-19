@@ -45,8 +45,7 @@ internal static class SpringBallEquipmentJumpVerification
             AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
             samus.Presentation.InitializeAnimation(3);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            samus.Kinematics.YSpeed = 1;
-            samus.Kinematics.YSubspeed = 0x8000;
+            samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
             for (int jump = 0; jump < 2; jump++)
             {
                 Resume(true);
@@ -58,8 +57,8 @@ internal static class SpringBallEquipmentJumpVerification
                 runtime.StepFrame(SnesButton.A);
                 AssertEqual(left ? SamusPoseId.SpringBallJumpLeftPose : SamusPoseId.SpringBallJumpRightPose,
                     samus.Pose, "new jump input enters powered Spring Ball jump");
-                AssertEqual((ushort)2, samus.Kinematics.YSpeed, "native Hi-Jump water launch whole speed");
-                AssertEqual((ushort)0x8000, samus.Kinematics.YSubspeed, "native Hi-Jump water launch fractional speed");
+                AssertEqual((ushort)2, samus.Kinematics.YSpeed.Whole, "native Hi-Jump water launch whole speed");
+                AssertEqual((ushort)0x8000, samus.Kinematics.YSpeed.Fraction, "native Hi-Jump water launch fractional speed");
                 runtime.StepFrame(SnesButton.A);
                 AssertTrue(samus.Position.Y.Whole < beforeY, "mid-air equipment jump gains height");
                 if (jump == 0)
@@ -72,7 +71,7 @@ internal static class SpringBallEquipmentJumpVerification
 
             void Resume(bool equipped)
             {
-                int y = samus.Position.Y.Whole, speed = samus.Kinematics.YSpeed, sub = samus.Kinematics.YSubspeed;
+                int y = samus.Position.Y.Whole, speed = samus.Kinematics.YSpeed.Whole, sub = samus.Kinematics.YSpeed.Fraction;
                 SamusVerticalDirection direction = samus.Kinematics.YDirection;
                 if (equipped) samus.EquippedItems |= SamusEquipmentFlags.SpringBall;
                 else samus.EquippedItems &= ~SamusEquipmentFlags.SpringBall;
@@ -82,8 +81,8 @@ internal static class SpringBallEquipmentJumpVerification
                 game.Step(0);
                 AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "actual frontend teardown completes");
                 AssertEqual(y, samus.Position.Y.Whole, "equipment switch does not move Samus");
-                AssertEqual(speed, samus.Kinematics.YSpeed, "equipment switch preserves vertical whole speed");
-                AssertEqual(sub, samus.Kinematics.YSubspeed, "equipment switch preserves vertical fractional speed");
+                AssertEqual(speed, samus.Kinematics.YSpeed.Whole, "equipment switch preserves vertical whole speed");
+                AssertEqual(sub, samus.Kinematics.YSpeed.Fraction, "equipment switch preserves vertical fractional speed");
                 AssertEqual(direction, samus.Kinematics.YDirection, "equipment switch preserves ascent");
             }
         }

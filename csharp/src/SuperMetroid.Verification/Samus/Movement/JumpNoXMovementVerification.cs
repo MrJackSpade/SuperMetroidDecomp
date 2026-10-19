@@ -31,9 +31,8 @@ internal static class JumpNoXMovementVerification
         samus.Presentation.InitializeAnimation();
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
-        samus.Kinematics.YSubacceleration = 0x1c00;
+        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
         samus.HorizontalSpeed.AccelerationMode = 0;
 
         SamusAerialMovement.StepNormalJump(runtime.Room.LoadedLevelData, samus,

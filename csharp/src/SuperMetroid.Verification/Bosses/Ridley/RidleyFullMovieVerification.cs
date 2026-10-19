@@ -276,7 +276,7 @@ internal static class RidleyFullMovieVerification
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.HorizontalSpeed.CalculateTotalSpeed(0x00054321);
-            samus.HorizontalSpeed.BaseSpeed = branch == 3 ? (ushort)0 : (ushort)5;
+            samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(branch == 3 ? (ushort)0 : (ushort)5);
             if (branch == 0) SamusAerialMovement.StepNormalJump(room, samus, 0, 0);
             else if (branch == 1) SamusAerialMovement.StepFalling(room, samus, 0, 0);
             else if (branch == 2) SamusMorphBallMovement.StepSpringBallInAir(room, samus, 0, 0);
@@ -285,11 +285,11 @@ internal static class RidleyFullMovieVerification
                 samus.Grapple.ReleasedMovementActive = true;
                 SamusAerialMovement.StepReleasedFromGrapple(room, samus, 0, 0);
             }
-            AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, $"branch {branch} clears base speed");
-            AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSubspeed, $"branch {branch} clears base fraction");
+            AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed.Whole, $"branch {branch} clears base speed");
+            AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed.Fraction, $"branch {branch} clears base fraction");
             AssertEqual((ushort)128, samus.Position.X.Whole, $"branch {branch} does not move horizontally");
-            AssertEqual((ushort)5, samus.HorizontalSpeed.TotalSpeed, $"branch {branch} retains total speed");
-            AssertEqual((ushort)0x4321, samus.HorizontalSpeed.TotalSubspeed, $"branch {branch} retains total fraction");
+            AssertEqual((ushort)5, samus.HorizontalSpeed.TotalSpeed.Whole, $"branch {branch} retains total speed");
+            AssertEqual((ushort)0x4321, samus.HorizontalSpeed.TotalSpeed.Fraction, $"branch {branch} retains total fraction");
         }
         Console.WriteLine("No-direction normal jump, fall, Spring Ball jump and grapple release retain total speed while clearing base motion.");
     }
@@ -530,7 +530,7 @@ internal static class RidleyFullMovieVerification
         samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
         samus.Presentation.SetAnimationFrameFromSpecialHandler(5, 3);
         samus.Position = new(new(79, 0x8000), new(425, ushort.MaxValue));
-        samus.HorizontalSpeed.BaseSpeed = 3; samus.HorizontalSpeed.BaseSubspeed = 0xc000;
+        samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3); samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithFraction(0xc000);
         samus.HorizontalSpeed.AccelerationMode = 0;
         runtime.Controller1.Latch(SnesButton.Left);
         // Original movie source 1616 -> 1617: release Left while rolling.
@@ -549,7 +549,7 @@ internal static class RidleyFullMovieVerification
         samus.KnockbackActive = true; samus.KnockbackDirection = SamusKnockbackDirection.UpRight;
         samus.KnockbackXDirection = KnockbackHorizontalDirection.Right; samus.KnockbackTimer = NativeCountdown.Start(4);
         samus.InvincibilityTimer = NativeCountdown.Start(95);
-        samus.Kinematics.YDirection = SamusVerticalDirection.Up; samus.Kinematics.YSpeed = 5; samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Up; samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(5); samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(0);
         runtime.StepFrame(0);
         AssertEqual(0x00cb4000u, samus.Kinematics.Position.X.RawValue, "stationary spring hurt frame preserves native displacement");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "stationary spring fallback clears hurt mover base speed");
@@ -1162,17 +1162,17 @@ internal static class RidleyFullMovieVerification
             Check("Samus last different movement", samus.PoseHistory.LastDifferentDirectionAndMovement, NativeSnapshotMemory.LastDifferentDirection);
             Check("Samus animation", samus.AnimationFrame, NativeSnapshotMemory.Animation);
             Check("Samus animation timer", samus.AnimationFrameTimer.RawValue, NativeSnapshotMemory.AnimationTimer);
-            Check("Samus base speed", samus.HorizontalSpeed.BaseSpeed, NativeSnapshotMemory.BaseSpeed);
-            Check("Samus base fraction", samus.HorizontalSpeed.BaseSubspeed, NativeSnapshotMemory.BaseFraction);
-            Check("Samus extra speed", samus.HorizontalSpeed.ExtraRunSpeed, NativeSnapshotMemory.ExtraSpeed);
-            Check("Samus extra fraction", samus.HorizontalSpeed.ExtraRunSubspeed, NativeSnapshotMemory.ExtraFraction);
-            Check("Samus vertical speed", samus.Kinematics.YSpeed, NativeSnapshotMemory.VerticalSpeed);
-            Check("Samus vertical fraction", samus.Kinematics.YSubspeed, NativeSnapshotMemory.VerticalFraction);
+            Check("Samus base speed", samus.HorizontalSpeed.BaseSpeed.Whole, NativeSnapshotMemory.BaseSpeed);
+            Check("Samus base fraction", samus.HorizontalSpeed.BaseSpeed.Fraction, NativeSnapshotMemory.BaseFraction);
+            Check("Samus extra speed", samus.HorizontalSpeed.ExtraRunSpeed.Whole, NativeSnapshotMemory.ExtraSpeed);
+            Check("Samus extra fraction", samus.HorizontalSpeed.ExtraRunSpeed.Fraction, NativeSnapshotMemory.ExtraFraction);
+            Check("Samus vertical speed", samus.Kinematics.YSpeed.Whole, NativeSnapshotMemory.VerticalSpeed);
+            Check("Samus vertical fraction", samus.Kinematics.YSpeed.Fraction, NativeSnapshotMemory.VerticalFraction);
             Check("Samus vertical direction", (ushort)samus.Kinematics.YDirection, NativeSnapshotMemory.VerticalDirection);
             Check("Samus SamusXRadius", samus.Kinematics.Radius.X, NativeSnapshotMemory.SamusXRadius);
             Check("Samus SamusYRadius", samus.Kinematics.Radius.Y, NativeSnapshotMemory.SamusYRadius);
-            Check("Samus Gravity", samus.Kinematics.YAcceleration, NativeSnapshotMemory.Gravity);
-            Check("Samus GravityFraction", samus.Kinematics.YSubacceleration, NativeSnapshotMemory.GravityFraction);
+            Check("Samus Gravity", samus.Kinematics.YAcceleration.Whole, NativeSnapshotMemory.Gravity);
+            Check("Samus GravityFraction", samus.Kinematics.YAcceleration.Fraction, NativeSnapshotMemory.GravityFraction);
             Check("Samus ExtraXDisplacement", unchecked((ushort)samus.Kinematics.ExtraDisplacement.X.WholePixels), NativeSnapshotMemory.ExtraXDisplacement);
             Check("Samus ExtraXDisplacementFraction", samus.Kinematics.ExtraDisplacement.X.Fraction, NativeSnapshotMemory.ExtraXDisplacementFraction);
             Check("Samus ExtraYDisplacement", unchecked((ushort)samus.Kinematics.ExtraDisplacement.Y.WholePixels), NativeSnapshotMemory.ExtraYDisplacement);
@@ -1199,8 +1199,8 @@ internal static class RidleyFullMovieVerification
                 int address = NativeSnapshotMemory.ProjectileInheritancePrefix + offset;
                 Check($"Projectile inherited movement ${address:X4}", inheritance.Word(offset), address);
             }
-            Check("Samus total horizontal speed", samus.HorizontalSpeed.TotalSpeed, NativeSnapshotMemory.TotalHorizontalSpeed);
-            Check("Samus total horizontal fraction", samus.HorizontalSpeed.TotalSubspeed, NativeSnapshotMemory.TotalHorizontalSubspeed);
+            Check("Samus total horizontal speed", samus.HorizontalSpeed.TotalSpeed.Whole, NativeSnapshotMemory.TotalHorizontalSpeed);
+            Check("Samus total horizontal fraction", samus.HorizontalSpeed.TotalSpeed.Fraction, NativeSnapshotMemory.TotalHorizontalSubspeed);
             Check("Samus movement handler", samus.KnockbackActive
                 ? NativeSnapshotMemory.KnockbackMovementHandler : NativeSnapshotMemory.NormalMovementHandler,
                 NativeSnapshotMemory.SamusMovementHandler);
@@ -1599,7 +1599,7 @@ internal static class RidleyFullMovieVerification
                 Console.Error.WriteLine($"Pose history: port={(int)samus.PoseHistory.PreviousPose:X4}/{samus.PoseHistory.PreviousDirectionAndMovement:X4}/{(int)samus.PoseHistory.LastDifferentPose:X4}/{samus.PoseHistory.LastDifferentDirectionAndMovement:X4}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
                 Console.Error.WriteLine($"Liquid diagnostic: Y={samus.Position.Y.Whole:X4}, surface={samus.LiquidPhysics.LavaAcidYPosition:X4}, pose={(int)samus.Pose:X2}, radius={samus.Kinematics.Radius.Y}");
                 Console.Error.WriteLine($"Shot diagnostic: locked={samus.InputLocked}, HUD={samus.SelectedHudItem}, grappleDebug={runtime.Player.DebugGrappleItemSelected}, charge={runtime.Projectiles.Charge.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer.RawValue}, held={runtime.Controller1.Current:X}, new={runtime.Controller1.NewlyPressed:X}");
-                Console.Error.WriteLine($"Room width={level.Size.X}, Samus radius={samus.Kinematics.Radius.X}/{samus.Kinematics.Radius.Y}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
+                Console.Error.WriteLine($"Room width={level.Size.X}, Samus radius={samus.Kinematics.Radius.X}/{samus.Kinematics.Radius.Y}, speed={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4}+{samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4}");
                 for (int block = 0; block < level.Size.X * level.Size.Y; block++)
                 {
                     ushort expectedBlock = W(NativeSnapshotMemory.Level + block * 2);

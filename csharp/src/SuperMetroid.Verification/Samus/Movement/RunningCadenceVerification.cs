@@ -138,7 +138,7 @@ internal static class RunningCadenceVerification
         speed = new SamusHorizontalSpeedState();
         speed.HandleExtraRunSpeed(SamusMovementType.Running, SnesButton.B, true);
         AssertEqual(1, speed.SpeedBoostCounter, "First running frame seeds native countdown");
-        AssertEqual(0x1000, speed.ExtraRunSubspeed, "Cadence migration leaves run acceleration intact");
+        AssertEqual(0x1000, speed.ExtraRunSpeed.Fraction, "Cadence migration leaves run acceleration intact");
         speed.SpeedBoostCounter = 0; speed.SpecialPaletteTimer = NativeCountdown.Start(8); speed.SpecialPaletteFrame = 6;
         speed.ReconcilePauseSpeedBoosterState(true);
         AssertEqual(1, speed.SpeedBoostCounter, "Pause equipment reconciliation seeds native countdown");

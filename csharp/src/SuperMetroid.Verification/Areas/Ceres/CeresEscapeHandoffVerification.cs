@@ -74,7 +74,7 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(yBeforeInitialization, samus.Kinematics.Position.Y.RawValue, "first gamma performs no vertical movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
         AssertEqual(CeresRidleyShoveDirection.Left, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
-        AssertEqual(5, samus.Kinematics.YSpeed, "ejection installs terminal downward speed");
+        AssertEqual(5, samus.Kinematics.YSpeed.Whole, "ejection installs terminal downward speed");
         AssertSamusPosition(new(100, 100), samus, "first ejection gamma leaves world position unchanged");
 
         // The type-$0A air record supplies one pixel/frame after the first acceleration.
@@ -83,7 +83,7 @@ internal static class CeresEscapeHandoffVerification
         SeedCeresEjectionAirSpeedRecord(bus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(samus.Kinematics.Radius.X);
         // Leftover extra-run speed from before the shove (retail 100% movie: `.4000`).
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
+        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(samus.HorizontalSpeed.ExtraRunSpeed.Whole, 0x4000);
         samus.CeresRidleyEjection.Step(
 
             emptyRoom,
@@ -99,8 +99,8 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose,
             "wall handoff keeps the hurt pose for ordinary movement");
         AssertEqual(SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
-        AssertEqual(0, samus.Kinematics.YSpeed, "$90:DF85 clears Y speed");
-        AssertEqual(0, samus.HorizontalSpeed.ExtraRunSubspeed,
+        AssertEqual(0, samus.Kinematics.YSpeed.Whole, "$90:DF85 clears Y speed");
+        AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction,
             "Kill_SamusXSpeed_IfCollisionDetected clears extra-run speed at the wall");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "$90:DF88 clears Y direction");
         AssertEqual(100, samus.Kinematics.Position.Y.Whole,

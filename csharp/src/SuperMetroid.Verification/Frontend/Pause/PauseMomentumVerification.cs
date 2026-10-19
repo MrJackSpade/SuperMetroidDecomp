@@ -20,10 +20,11 @@ internal static class PauseMomentumVerification
         {
             var speed = new SamusHorizontalSpeedState
             {
-                BaseSpeed = 1, BaseSubspeed = 0x4000,
-                ExtraRunSpeed = 2, ExtraRunSubspeed = 0x8000,
+                BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000),
+                ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000),
                 SpeedBoostCounter = 0x0402,
-                SpecialPaletteFrame = 6, SpecialPaletteTimer = NativeCountdown.Start(3),
+                SpecialPaletteFrame = 6,
+                SpecialPaletteTimer = NativeCountdown.Start(3),
             };
             // Populate both echo slots through their production capture path, then
             // put them in departure mode. Unpause must erase rather than restart it.
@@ -34,8 +35,8 @@ internal static class PauseMomentumVerification
             speed.SpeedBoostCounter = counter;
             speed.ReconcilePauseSpeedBoosterState(equipped);
             AssertEqual(0x00014000u, speed.BaseFixed, "unpause preserves numeric base speed");
-            AssertEqual(2, speed.ExtraRunSpeed, "unpause leaves extra whole speed for the next movement update");
-            AssertEqual(0x8000, speed.ExtraRunSubspeed, "unpause leaves extra fractional speed for the next movement update");
+            AssertEqual(2, speed.ExtraRunSpeed.Whole, "unpause leaves extra whole speed for the next movement update");
+            AssertEqual(0x8000, speed.ExtraRunSpeed.Fraction, "unpause leaves extra fractional speed for the next movement update");
             AssertTrue(speed.HasRunningMomentum == (equipped && momentum), "unpause reconciles momentum to Speed Booster equipment");
             ushort expectedCounter = equipped ? momentum && counter == 0
                 ? initialCounter : counter : (ushort)0;

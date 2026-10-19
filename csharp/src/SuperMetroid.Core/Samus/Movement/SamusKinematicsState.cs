@@ -64,11 +64,9 @@ public sealed class SamusKinematicsState
         probe.Position = Position;
         probe.Radius = Radius;
         probe.YSpeed = YSpeed;
-        probe.YSubspeed = YSubspeed;
         probe.YDirection = YDirection;
         probe.SandCollisionArea = SandCollisionArea;
         probe.YAcceleration = YAcceleration;
-        probe.YSubacceleration = YSubacceleration;
         probe.HorizontalSlopeCollisionEnable = HorizontalSlopeCollisionEnable;
         probe.PositionAdjustedBySlope = PositionAdjustedBySlope;
         // Probes still call the native solid-enemy detector before blocks. The
@@ -126,19 +124,8 @@ public sealed class SamusKinematicsState
     /// </summary>
     public Extent16<RoomPixels> Radius { get; set; } = new(5, 0);
 
-    /// <summary>Whole vertical speed used to suppress grounded horizontal slope scaling.</summary>
-    public int YSpeed
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>Fractional vertical speed used to suppress grounded horizontal slope scaling.</summary>
-    public int YSubspeed
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>Vertical speed magnitude; its direction is <see cref="YDirection"/>.</summary>
+    public SnesUnsignedSixteenSixteen YSpeed { get; set; }
 
     /// <summary>
     /// Vertical direction at WRAM <c>$0B36</c>: zero is none, one is upward, and two is
@@ -151,19 +138,8 @@ public sealed class SamusKinematicsState
     /// <summary>Area-table selector used by bank-$94 sand reactions; refreshed before movement.</summary>
     public AreaId SandCollisionArea { get; set; }
 
-    /// <summary>Whole gravity word at WRAM <c>$0B34</c>.</summary>
-    public int YAcceleration
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>Fractional gravity word at WRAM <c>$0B32</c>.</summary>
-    public int YSubacceleration
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>The gravity applied to vertical speed at WRAM <c>$0B34</c>/<c>$0B32</c>.</summary>
+    public SnesUnsignedSixteenSixteen YAcceleration { get; set; }
 
     /// <summary>Native <c>enable_horiz_slope_coll</c>; bit 1 enables post-X Y alignment.</summary>
     public int HorizontalSlopeCollisionEnable
@@ -176,7 +152,7 @@ public sealed class SamusKinematicsState
     public bool PositionAdjustedBySlope { get; set; }
 
     /// <summary>Current vertical speed as an unsigned native high/low pair.</summary>
-    public uint VerticalSpeedFixed => SnesSixteenSixteen.Compose(YSpeed, YSubspeed);
+    public uint VerticalSpeedFixed => YSpeed.RawValue;
 
     /// <summary>
     /// Top-centre point of the collision box: Samus's whole X and her whole-pixel top

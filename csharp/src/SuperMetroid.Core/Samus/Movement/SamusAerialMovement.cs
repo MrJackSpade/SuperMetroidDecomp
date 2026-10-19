@@ -32,7 +32,7 @@ public static class SamusAerialMovement
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
         // The two words remain independent. Speed Booster's fractional
         // bonus likewise uses an independent 16-bit ADC and intentionally drops its carry.
-        (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
+        samus.Kinematics.YSpeed =
             SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: false);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(samus);
@@ -49,7 +49,7 @@ public static class SamusAerialMovement
 
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
-        (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
+        samus.Kinematics.YSpeed =
             SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: true);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(samus);
@@ -68,10 +68,9 @@ public static class SamusAerialMovement
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             return;
 
-        samus.Kinematics.YSubspeed = unchecked((ushort)(
-            samus.Kinematics.YSubspeed + samus.HorizontalSpeed.ExtraRunSubspeed));
-        samus.Kinematics.YSpeed = unchecked((ushort)(
-            samus.Kinematics.YSpeed + (samus.HorizontalSpeed.ExtraRunSpeed >> 1)));
+        samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(
+            samus.Kinematics.YSpeed.Whole + (samus.HorizontalSpeed.ExtraRunSpeed.Whole >> 1))), unchecked((ushort)(
+            samus.Kinematics.YSpeed.Fraction + samus.HorizontalSpeed.ExtraRunSpeed.Fraction)));
     }
 
     /// <summary>
@@ -81,7 +80,7 @@ public static class SamusAerialMovement
     public static void ConfigureEnvironmentGravity(SamusState samus)
     {
         Ensure.NotNull(samus);
-        (samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration) =
+        samus.Kinematics.YAcceleration =
             SamusVerticalMotionDefinitions.Gravity(samus.LiquidPhysics.DetermineMovementMedium(samus));
     }
 
@@ -395,10 +394,9 @@ public static class SamusAerialMovement
 
         // Simple_Samus_Y_Movement calls this before the shared gravity routine. A signed
         // underflow at the apex becomes a stationary downward state on this same frame.
-        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && unchecked((short)samus.Kinematics.YSpeed) < 0)
+        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && unchecked((short)samus.Kinematics.YSpeed.Whole) < 0)
         {
-            samus.Kinematics.YSpeed = 0;
-            samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         }
 
@@ -423,8 +421,7 @@ public static class SamusAerialMovement
 
         // `$90:A79E/$90:A7BB` cancel speed boost and explicitly clear both extra words.
         speed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
-        speed.ExtraRunSpeed = 0;
-        speed.ExtraRunSubspeed = 0;
+        speed.ExtraRunSpeed = default;
         return result with { Landed = false, HitCeiling = false };
     }
 
@@ -460,10 +457,9 @@ public static class SamusAerialMovement
         // before the common vertical routine can turn the negative word into moonfall-like
         // motion. An ordinary walk-off already enters with direction two.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
-            unchecked((short)samus.Kinematics.YSpeed) < 0)
+            unchecked((short)samus.Kinematics.YSpeed.Whole) < 0)
         {
-            samus.Kinematics.YSpeed = 0;
-            samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         }
 
@@ -472,7 +468,7 @@ public static class SamusAerialMovement
         // Aimed falling poses have their own lists and do not enter this branch.
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
-            unchecked((short)(samus.Kinematics.YSpeed - SamusMovementRomData.FastFallAnimationSpeed)) >= 0 &&
+            unchecked((short)(samus.Kinematics.YSpeed.Whole - SamusMovementRomData.FastFallAnimationSpeed)) >= 0 &&
             unchecked((short)(samus.AnimationFrame - SamusMovementRomData.FastFallAnimationFrame)) < 0)
             samus.Presentation.SetAnimationFrameFromSpecialHandler(SamusMovementRomData.FastFallAnimationFrame,
                 SamusMovementRomData.FastFallAnimationTimer);
@@ -510,10 +506,9 @@ public static class SamusAerialMovement
         // `$90:946E-$948A` treats a signed-negative upward whole speed as the apex-wrap
         // sentinel. It clears the complete magnitude, flips downward, and installs normal
         // movement, but deliberately continues the remainder of this final special frame.
-        if (state.YDirection == SamusVerticalDirection.Up && unchecked((short)state.YSpeed) < 0)
+        if (state.YDirection == SamusVerticalDirection.Up && unchecked((short)state.YSpeed.Whole) < 0)
         {
-            state.YSpeed = 0;
-            state.YSubspeed = 0;
+            state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;
             restoreNormalHandler = true;
         }
@@ -538,8 +533,7 @@ public static class SamusAerialMovement
         if (speed.AccelerationMode == 0 && !horizontalInput)
         {
             // `$90:94AA-$94B4` clears both persistent base words and the frame displacement.
-            speed.BaseSpeed = 0;
-            speed.BaseSubspeed = 0;
+            speed.BaseSpeed = default;
             // This branch bypasses $90:E4E6; retain the previous total-speed pair.
             horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, state, new HorizontalBlockMove { Displacement = 0 });
         }
@@ -591,8 +585,7 @@ public static class SamusAerialMovement
         if (speed.AccelerationMode == 0 && !directionHeld)
         {
             // $90:901E/$90:9185 clear both the DP displacement and persistent base speed.
-            speed.BaseSpeed = 0;
-            speed.BaseSubspeed = 0;
+            speed.BaseSpeed = default;
             // $90:902B then branches past MoveSamus_Horizontally (and $90:E4E6, so the
             // previous total-speed pair is retained): no slope alignment runs either.
             return BlockMoveResult.NotMoved;
@@ -644,18 +637,18 @@ public static class SamusAerialMovement
         {
             // `$90:9112` tests equality with whole speed five. Values above five are not
             // clamped; preserving that oddity matters for externally scripted velocities.
-            if (state.YSpeed != 5)
+            if (state.YSpeed.Whole != 5)
             {
                 SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed + SnesSixteenSixteen.Compose(
-                    state.YAcceleration,
-                    state.YSubacceleration)));
+                    state.YAcceleration.Whole,
+                    state.YAcceleration.Fraction)));
             }
         }
         else
         {
             SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed - SnesSixteenSixteen.Compose(
-                state.YAcceleration,
-                state.YSubacceleration)));
+                state.YAcceleration.Whole,
+                state.YAcceleration.Fraction)));
         }
 
         int displacement = state.YDirection == SamusVerticalDirection.Down
@@ -688,8 +681,7 @@ public static class SamusAerialMovement
         {
             // Ordinary handlers consume the ceiling collision as a jump stop. A turn
             // instead clears that pending result, so its caller defers these writes.
-            state.YSpeed = 0;
-            state.YSubspeed = 0;
+            state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;
         }
 
@@ -705,11 +697,10 @@ public static class SamusAerialMovement
             return;
 
         bool jumpHeld = (controllerInput & SnesButton.A) != 0;
-        bool speedUnderflowed = unchecked((short)state.YSpeed) < 0;
+        bool speedUnderflowed = unchecked((short)state.YSpeed.Whole) < 0;
         if (!jumpHeld || speedUnderflowed)
         {
-            state.YSpeed = 0;
-            state.YSubspeed = 0;
+            state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;
         }
     }
@@ -808,7 +799,7 @@ public static class SamusAerialMovement
         // byte of Y subspeed followed by the low byte of whole Y speed. In host terms that
         // is the magnitude converted from 16.16 to 8.8 without rounding.
         ushort fallingVelocity8_8 = unchecked((ushort)SnesEightEight.FromSixteenSixteen(
-            samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed));
+            samus.Kinematics.YSpeed.Whole, samus.Kinematics.YSpeed.Fraction));
         // `$0AD2` is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
         // velocity window can intentionally describe different samples for one frame.
@@ -833,8 +824,7 @@ public static class SamusAerialMovement
     /// <summary>Clears ordinary base X velocity and acceleration while leaving separate boost momentum intact.</summary>
     private static void ClearBaseHorizontalMotion(SamusHorizontalSpeedState speed)
     {
-        speed.BaseSpeed = 0;
-        speed.BaseSubspeed = 0;
+        speed.BaseSpeed = default;
         speed.AccelerationMode = 0;
     }
 
@@ -850,8 +840,7 @@ public static class SamusAerialMovement
     /// <summary>Splits a 16.16 vertical magnitude back into Samus's independent native words.</summary>
     private static void SetVerticalSpeed(SamusKinematicsState state, uint speed)
     {
-        state.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed)));
-        state.YSubspeed = unchecked((ushort)speed);
+        state.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed))), unchecked((ushort)speed));
     }
 
 }

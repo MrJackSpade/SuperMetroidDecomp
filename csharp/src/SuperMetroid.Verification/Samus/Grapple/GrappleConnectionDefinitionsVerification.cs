@@ -88,8 +88,7 @@ internal static class GrappleConnectionDefinitionsVerification
             if (sourcePose < 0) continue; // Native unused movement $0C has no authored pose.
             metadataPose = samus.Pose = (SamusPoseId)sourcePose;
             samus.Position = samus.Position.WithWhole(new(512, 512));
-            samus.Kinematics.YSpeed = vertical == 1 ? (ushort)1 : (ushort)0;
-            samus.Kinematics.YSubspeed = vertical == 2 ? (ushort)1 : (ushort)0;
+            samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(vertical == 1 ? (ushort)1 : (ushort)0, vertical == 2 ? (ushort)1 : (ushort)0);
             var g = samus.Grapple;
             g.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction; g.Anchor = g.Anchor.WithX(536); g.Anchor = g.Anchor.WithY(520); g.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -112,8 +111,8 @@ internal static class GrappleConnectionDefinitionsVerification
             bool locked = function == 0xc77e;
             AssertEqual(locked ? GrapplePhase.ConnectedLocked : GrapplePhase.ConnectedSwinging, g.Phase, "Actual next connection phase");
             AssertEqual(locked, g.Phase == GrapplePhase.ConnectedLocked, "Connection locks Samus in place");
-            AssertEqual(0, samus.Kinematics.YSpeed, "Connection clears Y whole speed");
-            AssertEqual(0, samus.Kinematics.YSubspeed, "Connection clears Y fractional speed");
+            AssertEqual(0, samus.Kinematics.YSpeed.Whole, "Connection clears Y whole speed");
+            AssertEqual(0, samus.Kinematics.YSpeed.Fraction, "Connection clears Y fractional speed");
         }
     }
 

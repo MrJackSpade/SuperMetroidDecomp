@@ -191,7 +191,7 @@ internal static class GModeGateGlitchVerification
             contact++;
             int before = plms.SlotTable.ActiveCount;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0).WithFractionY(0);
-            samus.HorizontalSpeed.BaseSpeed = 4;
+            samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(4);
             samus.HorizontalSpeed.HasRunningMomentum = true;
             SamusInsideBlockReactions.PrepareFrame(
                 level,
@@ -207,7 +207,7 @@ internal static class GModeGateGlitchVerification
             "standing Samus overloads forty PLM slots after fourteen three-point sand samples");
 
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0).WithFractionY(0);
-        samus.HorizontalSpeed.BaseSpeed = 4;
+        samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(4);
         samus.HorizontalSpeed.HasRunningMomentum = true;
         SamusInsideBlockReactions.PrepareFrame(
             level,
@@ -218,7 +218,7 @@ internal static class GModeGateGlitchVerification
             "forty-first G-Mode sand contact cannot exceed the cartridge PLM pool");
         AssertEqual(0, samus.Kinematics.ExtraDisplacement.Y.RawValue,
             "overloaded G-Mode sand runs no setup and contributes no sinking displacement");
-        AssertEqual((ushort)4, samus.HorizontalSpeed.BaseSpeed,
+        AssertEqual((ushort)4, samus.HorizontalSpeed.BaseSpeed.Whole,
             "overloaded G-Mode sand no longer cancels horizontal momentum");
         AssertTrue(samus.HorizontalSpeed.HasRunningMomentum,
             "overloaded G-Mode sand preserves the running-momentum flag");
@@ -494,8 +494,7 @@ internal static class GModeGateGlitchVerification
         samus.ReserveEnergy = 4;
         samus.MaxReserveEnergy = 100;
         samus.ReserveTankMode = ReserveTankMode.Auto;
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YSpeed = default;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),

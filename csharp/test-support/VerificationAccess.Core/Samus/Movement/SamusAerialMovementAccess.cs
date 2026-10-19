@@ -18,7 +18,7 @@ internal static class SamusAerialMovementAccess
             Ensure.NotNull(bus);
             Ensure.NotNull(samus);
 
-            (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
+            samus.Kinematics.YSpeed =
                 SamusVerticalMotionDefinitions.Launch(SamusLiquidMedium.Air, highJump: false, wallJump: false);
             SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(samus);
             SamusAerialMovement.ConfigureDryAirGravity(bus, samus);
@@ -34,7 +34,7 @@ internal static class SamusAerialMovementAccess
         {
             Ensure.NotNull(bus);
             Ensure.NotNull(samus);
-            (samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration) =
+            samus.Kinematics.YAcceleration =
                 SamusVerticalMotionDefinitions.Gravity(SamusLiquidMedium.Air);
         }
     }

@@ -72,8 +72,8 @@ public static class SamusInsideBlockReactions
                     speed.HasRunningMomentum = false;
                     speed.SpeedBoostCounter = 0;
                     speed.EchoSoundFlag = 0;
-                    speed.ExtraRunSpeed = speed.ExtraRunSubspeed = speed.BaseSpeed = 0;
-                    speed.BaseSubspeed &= (ushort)short.MaxValue;
+                    speed.ExtraRunSpeed = default;
+                    speed.BaseSpeed = new SnesUnsignedSixteenSixteen(0, speed.BaseSpeed.Fraction & (ushort)short.MaxValue);
                     if (!bottomPoint) return;
                     QuicksandSurfacePhysics physics =
                         QuicksandDefinitions.SurfacePhysics(
@@ -85,7 +85,7 @@ public static class SamusInsideBlockReactions
                     switch (body.YDirection)
                     {
                         case SamusVerticalDirection.None:
-                            body.YSpeed = body.YSubspeed = 0;
+                            body.YSpeed = default;
                             SetExtra(physics.StationaryDisplacement);
                             break;
                         case SamusVerticalDirection.Up:
@@ -94,8 +94,7 @@ public static class SamusInsideBlockReactions
                             // replaces the speed's whole pixels and fraction with the limit's.
                             if ((ushort)(SnesEightEight.WholeOf(body.VerticalSpeedFixed)) > SnesEightEight.WholeOf(limit.RawValue))
                             {
-                                body.YSpeed = limit.WholeWord;
-                                body.YSubspeed = limit.Fraction;
+                                body.YSpeed = new SnesUnsignedSixteenSixteen(limit.WholeWord, limit.Fraction);
                             }
                             SetExtra(physics.MovingDisplacement);
                             break;
@@ -143,7 +142,7 @@ public static class SamusInsideBlockReactions
                 _ => throw new InvalidOperationException($"Undefined {nameof(ConveyorBlockBts)} {(int)conveyor}."),
             };
             samus.HorizontalSpeed.SelectNormalAirSpeedTable();
-            if (groundedOnly && ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed != 0))
+            if (groundedOnly && ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed.Whole != 0))
                 return;
             // The original checks only whole Y speed: fractional vertical motion does
             // not suppress carry. This replaces external X displacement, never adds to it.
@@ -187,7 +186,8 @@ public static class SamusInsideBlockReactions
         }
         if (setup == SpecialAirReactionSetup.SubmergingQuicksandCollision)
         {
-            body.YSpeed = body.YSubspeed = body.YAcceleration = body.YSubacceleration = 0;
+            body.YSpeed = default;
+            body.YAcceleration = default;
             return false;
         }
         if (setup != SpecialAirReactionSetup.QuicksandSurfaceCollision) return false;

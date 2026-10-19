@@ -48,9 +48,8 @@ internal static class BabyMetroidWallClearTimingVerification
         samus.Position = samus.Position.WithWhole(new(0x02f9, 0x00bb));
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
-        samus.HorizontalSpeed.BaseSubspeed = 0x3000;
-        samus.HorizontalSpeed.ExtraRunSpeed = 2;
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0xc000;
+        samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithFraction(0x3000);
+        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0xc000);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0200, 0x0000));
         runtime.StepFrame(unchecked((SnesButton.Right | SnesButton.B)));
 

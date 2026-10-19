@@ -42,11 +42,9 @@ internal static class SamusBallBounceDefinitionsVerification
                     1 => spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound,
                     _ => spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound,
                 };
-                samus.Kinematics.YSpeed = (ushort)raw;
-                samus.Kinematics.YSubspeed = ushort.MaxValue;
+                samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen((ushort)raw, ushort.MaxValue);
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-                samus.HorizontalSpeed.BaseSpeed = 2;
-                samus.HorizontalSpeed.BaseSubspeed = 0x8000;
+                samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
                 samus.HorizontalSpeed.AccelerationMode = 2;
                 bool grounded = spring
                     ? samus.PoseTransitions.ApplySpringBallLanding(controllerInput: 0)
@@ -55,8 +53,8 @@ internal static class SamusBallBounceDefinitionsVerification
                 bool rebound = first || phase == 1;
                 AssertEqual(!rebound, grounded, "Native rebound versus grounded return");
                 AssertEqual(rebound ? (ushort)(first ? whole : whole - 1) : (ushort)0,
-                    samus.Kinematics.YSpeed, "Native rebound whole decrement");
-                AssertEqual(rebound ? fraction : (ushort)0, samus.Kinematics.YSubspeed, "Native rebound fraction");
+                    samus.Kinematics.YSpeed.Whole, "Native rebound whole decrement");
+                AssertEqual(rebound ? fraction : (ushort)0, samus.Kinematics.YSpeed.Fraction, "Native rebound fraction");
                 AssertEqual(rebound ? SamusVerticalDirection.Up : SamusVerticalDirection.None, samus.Kinematics.YDirection, "Native rebound direction");
                 SamusBallBounceState published = !rebound ? SamusBallBounceState.None
                     : first

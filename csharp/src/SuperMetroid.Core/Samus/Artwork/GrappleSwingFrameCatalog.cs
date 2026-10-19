@@ -12,14 +12,14 @@ public sealed class GrappleSwingFrameCatalog
     private GrappleSwingFrameCatalog(byte[] frames)
     {
         for (int angle = 0; angle < frames.Length; angle++)
-            if (frames[angle] != GrappleSwingFrameDefinitions.FrameForAngle((byte)angle))
+            if (frames[angle] != GrappleSwingFrameDefinitions.FrameForAngle(new SnesByteAngle((byte)angle)))
             { this.frames = frames; return; }
     }
     /// <summary>Selects the editable displayed orientation frame for one high angle byte, independently of the compiled body-placement frame and the runtime's separate straight-down animation handling.</summary>
     /// <param name="angle">High byte of the mirrored native swing angle, representing one of 256 positions around a full turn.</param>
     /// <returns>A displayed orientation frame index from 0 through 31, within the current facing's swing artwork.</returns>
-    public byte Resolve(byte angle) => frames is null
-        ? GrappleSwingFrameDefinitions.FrameForAngle(angle) : frames[angle];
+    public byte Resolve(SnesByteAngle angle) => frames is null
+        ? GrappleSwingFrameDefinitions.FrameForAngle(angle) : frames[angle.RawValue];
     /// <summary>Strict camel-case JSON settings for the editable 256-angle document.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {

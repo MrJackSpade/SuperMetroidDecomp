@@ -95,8 +95,7 @@ public sealed class SamusCeresRidleyEjectionState
             PushDirection = unchecked((short)(screenX - 128)) < 0
                 ? CeresRidleyShoveDirection.Left
                 : CeresRidleyShoveDirection.Right;
-            samus.Kinematics.YSpeed = TerminalDownwardSpeed;
-            samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(TerminalDownwardSpeed, 0);
 
             // `$90:E12E` initializes only handler state on this call. `$90:E1C8` does not
             // perform the first collision/movement pass until the following frame.
@@ -126,8 +125,7 @@ public sealed class SamusCeresRidleyEjectionState
             // hurt pose; `$53/$54` remains for the ordinary movement handler.
             IsActive = false;
             PushDirection = CeresRidleyShoveDirection.None;
-            samus.Kinematics.YSpeed = 0;
-            samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.None;
             samus.AlignBottomAfterPoseChange(
                 SamusPoseMetadata.ReadPoseYRadius(samus.PoseHistory.PreviousPose),
@@ -138,13 +136,12 @@ public sealed class SamusCeresRidleyEjectionState
         // `$90:8F5A` accelerates only while the signed whole speed is below five. The
         // resulting 16.16 word is passed directly to MoveDown; unlike the common falling
         // wrapper, this path adds no extra one-pixel downward bias.
-        if (unchecked((short)(samus.Kinematics.YSpeed - TerminalDownwardSpeed)) < 0)
+        if (unchecked((short)(samus.Kinematics.YSpeed.Whole - TerminalDownwardSpeed)) < 0)
         {
             uint accelerated = unchecked(
                 samus.Kinematics.VerticalSpeedFixed +
-                (SnesSixteenSixteen.Compose(samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration)));
-            samus.Kinematics.YSpeed = SnesFixedPosition.WholeOf(unchecked((int)accelerated));
-            samus.Kinematics.YSubspeed = unchecked((ushort)accelerated);
+                (samus.Kinematics.YAcceleration.RawValue));
+            samus.Kinematics.YSpeed = SnesUnsignedSixteenSixteen.FromRaw(accelerated);
         }
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, new VerticalBlockMove { Displacement = unchecked((int)samus.Kinematics.VerticalSpeedFixed), ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
 

@@ -30,7 +30,7 @@ public static class SamusBombJumpMovement
         // `$90:9A2C` uses the same bottom-edge air/water/lava classification as ordinary
         // launch, indexing adjacent table words by zero/two/four. Gravity is refreshed by
         // frame-handler alpha, so this routine replaces only the launch speed/direction.
-        (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
+        samus.Kinematics.YSpeed =
             SamusVerticalMotionDefinitions.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus));
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.BombJumpStarting = false;
@@ -87,15 +87,14 @@ public static class SamusBombJumpMovement
         // additionally selects mode two so normal horizontal movement decelerates after
         // this special handler relinquishes control.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
-            unchecked((short)samus.Kinematics.YSpeed) < 0)
+            unchecked((short)samus.Kinematics.YSpeed.Whole) < 0)
         {
-            samus.Kinematics.YSubspeed = 0;
-            samus.Kinematics.YSpeed = 0;
+            samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             if (direction != 2)
                 samus.HorizontalSpeed.AccelerationMode = 2;
         }
-        else if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && samus.Kinematics.YSpeed == 0)
+        else if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && samus.Kinematics.YSpeed.Whole == 0)
         {
             // The rising helper restores input while speed is still fractional and
             // positive, BEFORE the apex or a collision restores normal movement.
@@ -135,18 +134,16 @@ public static class SamusBombJumpMovement
     {
         SamusKinematicsState state = samus.Kinematics;
         uint oldSpeed = state.VerticalSpeedFixed;
-        uint acceleration = SnesSixteenSixteen.Compose(state.YAcceleration, state.YSubacceleration);
+        uint acceleration = state.YAcceleration.RawValue;
         uint nextSpeed = unchecked(oldSpeed - acceleration);
-        state.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(nextSpeed)));
-        state.YSubspeed = unchecked((ushort)nextSpeed);
+        state.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(nextSpeed))), unchecked((ushort)nextSpeed));
         int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             unchecked(-(int)oldSpeed));
         BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, state, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
         if (result.Collided)
         {
-            state.YSpeed = 0;
-            state.YSubspeed = 0;
+            state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;
         }
         // $90:915C: a non-negative displacement, including the apex's zero, takes MoveSamus_Down.

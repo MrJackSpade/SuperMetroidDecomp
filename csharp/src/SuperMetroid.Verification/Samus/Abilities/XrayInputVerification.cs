@@ -138,7 +138,7 @@ internal static class XrayInputVerification
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();
-            samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YSpeed = default;
             // This fixture checks display selection only; X-ray freezes the seeded
             // position so it need not drive an unrelated room's entrance sequence.
             AssertTrue(samus.Xray.TryBegin(samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "excluded-room capture fixture activates");

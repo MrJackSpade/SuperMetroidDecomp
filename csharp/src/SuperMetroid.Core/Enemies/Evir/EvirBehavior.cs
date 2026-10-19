@@ -317,9 +317,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // CalculateAngleOfSamusFromEnemy returns zero up/clockwise. The two native angle
         // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
-        byte cartridgeAngle = EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(activeSamus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(activeSamus.Position.Y.Whole - projectile.Position.Y.Whole))));
-        byte transformedAngle = unchecked((byte)-(byte)(cartridgeAngle - EnemyByteAngleDefinitions.QuarterTurn));
+        SnesByteAngle transformedAngle = EnemyMath.CalculateCartridgeAngle(
+            new(unchecked((short)(activeSamus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(activeSamus.Position.Y.Whole - projectile.Position.Y.Whole)))).ToTableAngle();
         SnesSignedSixteenSixteen x = EnemyMath.ReadEightBitCosineFixedProduct(
             transformedAngle,
             EvirProjectileSpeed);

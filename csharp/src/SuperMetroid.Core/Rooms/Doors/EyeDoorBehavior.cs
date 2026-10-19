@@ -232,7 +232,7 @@ internal sealed class EyeDoorBehavior
     private static void AimEyeDoorProjectileAtSamus(RoomEnemyProjectileSlot projectile, SamusState samus)
     {
         projectile.Variable0 = unchecked((ushort)(2 * EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole))))));
+            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).RawValue));
         int angle = projectile.Variable0 >> 1;
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)angle))));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(angle - 64)))));

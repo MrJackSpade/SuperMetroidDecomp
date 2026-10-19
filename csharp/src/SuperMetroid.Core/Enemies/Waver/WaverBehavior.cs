@@ -96,7 +96,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             int verticalPixels = EnemyMath.ReadEightBitNegativeSineProduct(
-                state.Angle.TableIndex,
+                state.Angle.ToByteAngle(),
                 WaverVerticalRadius);
             if (_terrain.MoveEnemyVertically(level, slot, SnesSixteenSixteen.FromWhole(verticalPixels)))
             {

@@ -37,8 +37,7 @@ internal static class DachoraMotionStateVerification
         AssertEqual(SnesSignedSixteenSixteen.FromParts(8, 0), state.Speed, "the run speed stays at its cap");
 
         var samus = new SamusState();
-        samus.Kinematics.YAcceleration = 0;
-        samus.Kinematics.YSubacceleration = AirGravityFraction;
+        samus.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, AirGravityFraction);
         var frame = new ClockedEnemyAiFrame(
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus, Level = level },
             new FrameCounters(0));

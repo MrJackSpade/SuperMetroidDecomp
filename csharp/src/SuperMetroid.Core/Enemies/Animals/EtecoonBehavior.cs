@@ -684,8 +684,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AddEtecoonFixed(
                 state,
-                samus.Kinematics.YAcceleration,
-                samus.Kinematics.YSubacceleration);
+                samus.Kinematics.YAcceleration.Whole,
+                samus.Kinematics.YAcceleration.Fraction);
         }
         return _terrain.MoveEnemyVertically(level, slot, displacement);
     }

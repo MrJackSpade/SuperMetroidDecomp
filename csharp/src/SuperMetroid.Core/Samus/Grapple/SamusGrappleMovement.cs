@@ -726,8 +726,8 @@ public static class SamusGrappleMovement
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         // C8C5 clears these words now, but publishes its pose to the transitional
         // slot. Normal beta movement still runs before that pose is committed.
-        samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSubspeed = 0;
-        samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
+        samus.HorizontalSpeed.BaseSpeed = default;
+        samus.Kinematics.YSpeed = default;
         bool emptyBeta = samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Grappling;
         if (!deferPoseChange)
             samus.PoseTransitions.ApplyGrappleDropTransition(level, targetPose, nmiFrameCounter, plms);
@@ -1057,7 +1057,7 @@ public static class SamusGrappleMovement
         }
 
         bool movingVertically =
-            samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0;
+            samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
         int connectionTable = movingVertically
             ? SamusGrappleRomData.Connections.MovingVerticallyTable
             : sourceMovementType == SamusMovementType.Crouching
@@ -1211,12 +1211,9 @@ public static class SamusGrappleMovement
         // $91:EF53 is shared by connection commands 9 and 10. Speed-booster bookkeeping
         // has no host field yet, but every modeled speed word cleared there is reset here.
         // AccelerationMode is deliberately retained: the native common tail does not write it.
-        samus.HorizontalSpeed.BaseSpeed = 0;
-        samus.HorizontalSpeed.BaseSubspeed = 0;
-        samus.HorizontalSpeed.ExtraRunSpeed = 0;
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0;
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
+        samus.HorizontalSpeed.BaseSpeed = default;
+        samus.HorizontalSpeed.ExtraRunSpeed = default;
+        samus.Kinematics.YSpeed = default;
 
         return ClampPreviousPosition(samus.Position.Whole, pending.Previous);
     }
@@ -1481,10 +1478,8 @@ public static class SamusGrappleMovement
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(initialFrame: 0);
             samus.HorizontalSpeed.AccelerationMode = 0;
-            samus.HorizontalSpeed.BaseSpeed = 0;
-            samus.HorizontalSpeed.BaseSubspeed = 0;
-            samus.HorizontalSpeed.ExtraRunSpeed = 0;
-            samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+            samus.HorizontalSpeed.BaseSpeed = default;
+            samus.HorizontalSpeed.ExtraRunSpeed = default;
         }
 
         grapple.Phase = GrapplePhase.Inactive;
@@ -1578,7 +1573,7 @@ public static class SamusGrappleMovement
         // move the collision body. Stock art still selects the same native frame.
         byte artFrame = (grapple.SwingFrames ?? throw new InvalidOperationException(
             "Grapple swing requires installed frame definitions."))
-            .Resolve(grapple.MirroredAngle.TableIndex);
+            .Resolve(grapple.MirroredAngle.ToByteAngle());
         var offset = GrappleBodyPlacementDefinitions.Offset(grapple.MirroredAngle.TableIndex,
             SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
@@ -1597,8 +1592,7 @@ public static class SamusGrappleMovement
             grapple.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
 
         uint verticalFixed = unchecked((uint)(Math.Abs(cosine) * doubledVelocity));
-        samus.Kinematics.YSpeed = SnesFixedPosition.WholeOf(unchecked((int)verticalFixed));
-        samus.Kinematics.YSubspeed = unchecked((ushort)verticalFixed);
+        samus.Kinematics.YSpeed = SnesUnsignedSixteenSixteen.FromRaw(verticalFixed);
 
         // $9B:CA65 selects Y direction from both angular-velocity sign and cosine sign.
         // Keeping that branch literal avoids deriving a screen-coordinate convention.
@@ -1610,8 +1604,7 @@ public static class SamusGrappleMovement
         byte horizontalAngle = grapple.Angle.AddTableUnits(-phaseOffset).TableIndex;
         int horizontalSine = Math.Abs(ReadSignedSine(horizontalAngle + 64));
         uint horizontalFixed = unchecked((uint)(horizontalSine * doubledVelocity));
-        samus.HorizontalSpeed.BaseSpeed = SnesFixedPosition.WholeOf(unchecked((int)horizontalFixed));
-        samus.HorizontalSpeed.BaseSubspeed = unchecked((ushort)horizontalFixed);
+        samus.HorizontalSpeed.BaseSpeed = SnesUnsignedSixteenSixteen.FromRaw(horizontalFixed);
     }
 
     /// <returns>

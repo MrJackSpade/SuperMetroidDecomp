@@ -107,7 +107,7 @@ internal static void VerifySamusRenderingSlice()
     unusedInstructionSamus.Presentation.AnimateDeathFrame();
     AssertEqual(SamusPoseId.MorphBallFallingRightPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FA` zero Y speed selects first pose byte");
-    unusedInstructionSamus.Kinematics.YSubspeed = 1;
+    unusedInstructionSamus.Kinematics.YSpeed = unusedInstructionSamus.Kinematics.YSpeed.WithFraction(1);
     unusedInstructionSamus.Presentation.InitializeAnimation();
     unusedInstructionSamus.Presentation.AnimateDeathFrame();
     AssertEqual(SamusPoseId.MorphBallFallingLeftPose, unusedInstructionSamus.PendingTransitionalPose,
@@ -115,7 +115,7 @@ internal static void VerifySamusRenderingSlice()
 
     // `$FC eeee gg aa` uses a little-endian equipment word and distinct pose bytes.
     WriteUnusedPoseDelayInstruction(unusedInstructionResidue, [0x01, 0xfc, 0x02, 0x00, 0x41, 0x42]);
-    unusedInstructionSamus.Kinematics.YSubspeed = 0;
+    unusedInstructionSamus.Kinematics.YSpeed = unusedInstructionSamus.Kinematics.YSpeed.WithFraction(0);
     unusedInstructionSamus.EquippedItems = 0;
     unusedInstructionSamus.Presentation.InitializeAnimation();
     unusedInstructionSamus.Presentation.AnimateDeathFrame();
@@ -199,8 +199,8 @@ internal static void VerifySamusRenderingSlice()
     // abstraction, so verify its exact OAM order, coordinates, size, and attribute word.
     SeedForwardFacingSamusData(bus);
     samus.EquippedItems = 0;
-    samus.HorizontalSpeed.BaseSpeed = 3;
-    samus.Kinematics.YSpeed = 2;
+    samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
+    samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
     samus.PoseHistory.PreviousPose = SamusPoseId.SpinJumpRightPose;
     samus.PoseHistory.PreviousDirectionAndMovement = 0x0308;
     samus.PoseHistory.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
@@ -227,8 +227,8 @@ internal static void VerifySamusRenderingSlice()
     // frame's SetSamusRadius installs the pose's own radius.
     AssertEqual(radiusBeforeForwardSetup, samus.Kinematics.Radius.Y, "forward setup leaves the live radius");
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "power forward setup reads delay eight");
-    AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "forward setup clears base X speed");
-    AssertEqual(0, samus.Kinematics.YSpeed, "forward setup clears Y speed");
+    AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "forward setup clears base X speed");
+    AssertEqual(0, samus.Kinematics.YSpeed.Whole, "forward setup clears Y speed");
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(oamFrame, layer1: new(0x0400, 0));

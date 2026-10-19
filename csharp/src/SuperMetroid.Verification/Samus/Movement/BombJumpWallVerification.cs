@@ -24,7 +24,7 @@ internal static class BombJumpWallVerification
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0xF000);
-        samus.Kinematics.YSubacceleration = 0x4000;
+        samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x4000);
         samus.RequestMorphedBombJump(3);
         SamusBombJumpMovement.Start(samus);
         var result = SamusBombJumpMovement.Step(level, samus, 0, new RoomPlmSystem());
@@ -39,8 +39,8 @@ internal static class BombJumpWallVerification
         AssertEqual(59, samus.Position.X.Whole, "native bomb-wall X endpoint");
         AssertEqual(77, samus.Position.Y.Whole, "native bomb-wall Y endpoint");
         AssertEqual(0x4000, samus.Kinematics.Position.Y.Fraction, "native bomb-wall Y fraction");
-        AssertEqual(2, samus.Kinematics.YSpeed, "native bomb-wall next speed");
-        AssertEqual(0x8000, samus.Kinematics.YSubspeed, "native bomb-wall next subspeed");
+        AssertEqual(2, samus.Kinematics.YSpeed.Whole, "native bomb-wall next speed");
+        AssertEqual(0x8000, samus.Kinematics.YSpeed.Fraction, "native bomb-wall next subspeed");
         Console.WriteLine("  Bomb jump: wall-only collision preserves native ascent and handler lifetime.");
         Suite(nameof(VerifyCarriedMorphCeiling), () => VerifyCarriedMorphCeiling());
     }
@@ -62,10 +62,10 @@ internal static class BombJumpWallVerification
         AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "native ceiling pose command selects down even from grounded carry");
         AssertEqual(71, samus.Position.Y.Whole, "carried Morph Ball remains at the ceiling boundary");
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0);
-        samus.Kinematics.YSubacceleration = 0x1C00;
+        samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1C00);
         SamusMorphBallMovement.StepGrounded(level, samus, 1, new RoomPlmSystem());
         AssertEqual(71, samus.Position.Y.Whole, "following frame moves by old zero speed, not a one-pixel grounding probe");
-        AssertEqual(0x1C00, samus.Kinematics.YSubspeed, "following frame stores normal gravity for its successor");
+        AssertEqual(0x1C00, samus.Kinematics.YSpeed.Fraction, "following frame stores normal gravity for its successor");
 
         // The native rising helper restores pose input below one whole pixel/frame,
         // using the speed BEFORE this frame's gravity subtraction, not at the apex.
@@ -75,9 +75,8 @@ internal static class BombJumpWallVerification
         hurt.PoseMetadata.PublishBombJumpDirection(2);
         AssertTrue(hurt.PoseMetadata.TrySetupPublishedBombJump(level, false, 0, controllerNewInput: 0), "hurt pose admits bomb start");
         SamusBombJumpMovement.Start(hurt);
-        hurt.Kinematics.YSpeed = 1;
-        hurt.Kinematics.YSubspeed = 0;
-        hurt.Kinematics.YSubacceleration = 0x4000;
+        hurt.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);
+        hurt.Kinematics.YAcceleration = hurt.Kinematics.YAcceleration.WithFraction(0x4000);
         SamusBombJumpMovement.Step(level, hurt, 0, new RoomPlmSystem());
         AssertTrue(hurt.BombJumpPoseInputLocked, "one-pixel speed keeps input locked despite crossing threshold this frame");
         SamusBombJumpMovement.Step(level, hurt, 1, new RoomPlmSystem());

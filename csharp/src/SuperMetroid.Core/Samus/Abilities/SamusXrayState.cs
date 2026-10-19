@@ -168,7 +168,7 @@ public sealed class SamusXrayState
             return false;
 
         if (conditions.GameState != SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionActive ||
-            samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0)
+            samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0)
         {
             return false;
         }

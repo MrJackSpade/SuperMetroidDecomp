@@ -230,11 +230,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWholeX(unchecked((ushort)(
             state.MovementCenter.X +
-            EnemyMath.ReadEightBitCosineProduct(state.Angle.TableIndex, checked((ushort)state.MaximumXRadius)))));
+            EnemyMath.ReadEightBitCosineProduct(state.Angle.ToByteAngle(), checked((ushort)state.MaximumXRadius)))));
         body.Position = body.Position.WithWholeY(unchecked((ushort)(
             state.MovementCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(
-                unchecked((ushort)(2 * (state.Angle.TableIndex - SnesAngle.QuarterTurn.TableIndex))),
+                new SnesByteAngle(unchecked((byte)(2 * (state.Angle.TableIndex - SnesAngle.QuarterTurn.TableIndex)))),
                 unchecked((ushort)(state.MaximumXRadius - 16))))));
 
         // The phase advances by the signed delta and wraps around the turn.
@@ -244,8 +244,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>SporeSpawn_Func_3</c> at $A5:EB9B.</summary>
     private static void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
-        byte direction = unchecked((byte)(64 - EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(SporeSpawnDeathCenterX - body.Position.X.Whole)), unchecked((short)(SporeSpawnDeathCenterY - body.Position.Y.Whole))))));
+        byte direction = EnemyMath.CalculateCartridgeAngle(
+            new(unchecked((short)(SporeSpawnDeathCenterX - body.Position.X.Whole)), unchecked((short)(SporeSpawnDeathCenterY - body.Position.Y.Whole)))).ToTableAngle().RawValue;
         state.DeathAngle = SnesAngle.FromTableIndex(direction);
         state.DeathVelocityMagnitude = new(
             SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 64)),

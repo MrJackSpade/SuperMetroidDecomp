@@ -21,8 +21,8 @@ internal static class KiHunterMotionDefinitionsVerification
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
         var orbit = new Action<RoomEnemySlot, KiHunterEnemyState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
         var delta = new Func<int, bool, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
-        var cosine = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitCosineProduct);
-        var sine = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitNegativeSineProduct);
+        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
+        var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
         var gravity = KiHunterBehavior.KiHunterGravity;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var state = new KiHunterEnemyState(slot);

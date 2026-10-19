@@ -153,12 +153,10 @@ internal static class ScrollPlmsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 40)),
         };
         bombJump.PoseMetadata.RefreshCollisionRadii();
-        bombJump.Kinematics.YAcceleration = 0;
-        bombJump.Kinematics.YSubacceleration = 0;
+        bombJump.Kinematics.YAcceleration = default;
         bombJump.RequestMorphedBombJump(2);
         SamusBombJumpMovement.Start(bombJump);
-        bombJump.Kinematics.YSpeed = 1;
-        bombJump.Kinematics.YSubspeed = 0;
+        bombJump.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);
         SamusBombJumpMovement.Step(
 
             level,

@@ -850,7 +850,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot head = state.Head;
         short deltaX = unchecked((short)(target.X - head.Position.X.Whole - 10));
         short deltaY = unchecked((short)(target.Y - head.Position.Y.Whole - 16));
-        byte angle = unchecked((byte)(128 - EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY))));
+        byte angle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
 
         // `$9E86-$9E98` performs two signed-flag comparisons in 8-bit mode. The
         // wraparound half maps $C0..FF and $00..0F to $10; the opposite half maps
@@ -2613,12 +2613,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);
 
-        byte angle = unchecked((byte)(
-            128 - EnemyMath.CalculateCartridgeAngle(samus.Position.Whole - beam.Position.Whole)));
-        state.HandBeamNextAngle = angle;
+        SnesByteAngle angle = EnemyMath.CalculateCartridgeAngle(samus.Position.Whole - beam.Position.Whole)
+            .ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue);
+        state.HandBeamNextAngle = angle.RawValue;
         state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
             new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(3072, angle)),
-            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(3072, unchecked((byte)(angle + 64)))));
+            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(3072, angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
 
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }
@@ -2653,10 +2653,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         int speedRandom = _room.Random.Generate();
         // Bits 8 to 10 of the random word: a whole speed of zero to seven.
         ushort scatterSpeed = SnesLittleEndian.Word(0, (byte)(SnesLittleEndian.HighByte(speedRandom) & 7));
-        beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(scatterSpeed, scatterAngle)));
+        beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(scatterSpeed, new SnesByteAngle(scatterAngle))));
         beam.Velocity = beam.Velocity.WithY(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
             scatterSpeed,
-            unchecked((byte)(scatterAngle + 64)))));
+            new SnesByteAngle(scatterAngle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
 
         if (IsMotherBrainHandBeamOutsideArena(beam))
@@ -3602,10 +3602,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         ring.Variable0 = 8;
         ring.Variable1 = 0;
         ring.DirectionParameter = angle;
-        ring.Velocity = ring.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(1104, angle)));
+        ring.Velocity = ring.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(1104, new SnesByteAngle(angle))));
         ring.Velocity = ring.Velocity.WithY(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
             1104,
-            unchecked((byte)(angle + 64)))));
+            new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
 
         // `$C2F3` falls through into `$C320`, making the mouth position observable before
         // the projectile scheduler performs the first of eight delayed attachment frames.

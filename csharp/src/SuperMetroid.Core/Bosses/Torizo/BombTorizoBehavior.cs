@@ -2064,7 +2064,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         bool awayFromSamus)
     {
         byte angle = EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole))));
+            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).RawValue;
         angle = awayFromSamus
             ? unchecked((byte)(angle | TorizoMotionDefinitions.AwayHalfTurn))
             : unchecked((byte)(angle & TorizoMotionDefinitions.TowardHalfTurn));

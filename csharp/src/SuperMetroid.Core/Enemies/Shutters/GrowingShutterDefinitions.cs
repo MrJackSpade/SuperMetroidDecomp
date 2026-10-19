@@ -14,7 +14,7 @@ public static class GrowingShutterDefinitions
     };
 
     /// <summary>
-    /// $A2:EA56, InitAI_ShutterGrowing.YSpeed/YSubSpeed: 24 records from 0.0625 to 1.5 pixels/frame.
+    /// $A2:EA56, InitAI_ShutterGrowing.YSpeed.Whole/YSubSpeed: 24 records from 0.0625 to 1.5 pixels/frame.
     /// Only parameter two's low byte selects the record; its high byte remains unrelated state.
     /// </summary>
     /// <remarks>

@@ -138,13 +138,10 @@ public sealed class SamusSuitPickupState
         // changing pose. CancelRunningMomentum also preserves the native departing-echo
         // side effect and publishes the immediate palette restore only when boost was live.
         samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
-        samus.HorizontalSpeed.ExtraRunSpeed = 0;
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0;
-        samus.HorizontalSpeed.BaseSpeed = 0;
-        samus.HorizontalSpeed.BaseSubspeed = 0;
+        samus.HorizontalSpeed.ExtraRunSpeed = default;
+        samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.AccelerationMode = 0;
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
         samus.MorphBallBounceState = SamusBallBounceState.None;
 

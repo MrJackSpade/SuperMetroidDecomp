@@ -267,8 +267,7 @@ internal static class CinematicCrystalFlashVerification
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.PowerBombs = samus.MaxPowerBombs = 10;
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YSpeed = default;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
 

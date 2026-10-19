@@ -179,7 +179,7 @@ internal static class SpikeShinesparkSuitVerification
         if (underwater)
             samus.LiquidPhysics.ConfigureWater(8, RoomLiquidOptions.SmallTide);
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(200).WithFractionX(0).WithWholeY(166).WithFractionY(0);
-        samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YSpeed = default;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         samus.PoseHistory.PreviousPose = samus.Pose;

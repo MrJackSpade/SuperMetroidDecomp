@@ -1583,8 +1583,8 @@ internal sealed class CeresRidleyBehavior
     {
         byte angle = state.Mode7Angle.TableIndex;
         ushort zoom = checked((ushort)state.Mode7Zoom);
-        var diagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, unchecked((byte)(angle + 64))));
-        var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, angle));
+        var diagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue)));
+        var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, new SnesByteAngle(angle)));
         state.Mode7MatrixA = diagonal;
         state.Mode7MatrixB = offDiagonal;
         state.Mode7MatrixC = NegateMode7Coefficient(offDiagonal);

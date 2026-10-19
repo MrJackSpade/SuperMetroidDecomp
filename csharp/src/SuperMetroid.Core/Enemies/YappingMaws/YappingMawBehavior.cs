@@ -551,8 +551,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(absoluteY - 255)) >= 0)
             return (absoluteY, 0);
 
-        ushort positiveQuadrantAngle = EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)absoluteX), unchecked((short)absoluteY)));
+        // The cartridge feeds the bearing to the table routines unconverted.
+        var positiveQuadrantAngle = new SnesByteAngle(EnemyMath.CalculateCartridgeAngle(
+            new(unchecked((short)absoluteX), unchecked((short)absoluteY))).RawValue);
         ushort distance = unchecked((ushort)(
             EnemyMath.WrappedMagnitude(unchecked((ushort)EnemyMath.ReadEightBitNegativeSineProduct(
                 positiveQuadrantAngle,
@@ -561,7 +562,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 positiveQuadrantAngle,
                 absoluteY)))));
         ushort signedAngle = EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)deltaX), unchecked((short)deltaY)));
+            new(unchecked((short)deltaX), unchecked((short)deltaY))).RawValue;
         return (distance, signedAngle);
     }
 

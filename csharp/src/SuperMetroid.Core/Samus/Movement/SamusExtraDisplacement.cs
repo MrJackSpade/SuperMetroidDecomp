@@ -47,8 +47,8 @@ internal static class SamusExtraDisplacement
         if (kinematics.PositionAdjustedBySlope)
             return 1 << 16;
 
-        uint total = (SnesSixteenSixteen.FromWhole((uint)horizontalSpeed.TotalSpeed)) |
-            (uint)horizontalSpeed.TotalSubspeed;
+        uint total = (SnesSixteenSixteen.FromWhole((uint)horizontalSpeed.TotalSpeed.Whole)) |
+            (uint)horizontalSpeed.TotalSpeed.Fraction;
         return unchecked((int)(total + (1u << 16)));
     }
 

@@ -112,7 +112,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the cartridge's zero-up angle.</summary>
     private static SnesAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         SnesAngle.NormalizeTableIndex(EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))) - EnemyByteAngleDefinitions.QuarterTurn);
+            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).RawValue - EnemyByteAngleDefinitions.QuarterTurn);
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(BullEnemyState state)

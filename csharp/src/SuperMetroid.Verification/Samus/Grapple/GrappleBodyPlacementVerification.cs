@@ -33,7 +33,7 @@ internal static class GrappleBodyPlacementVerification
         var stock = GrappleSwingFrameCatalog.Load(new MemoryStream(json));
         var edited = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameCatalog.Write(new()
         {
-            Version = 1, Frames = Enumerable.Range(0, 256).Select(angle => (stock.Resolve((byte)angle) + 11) & 31).ToArray(),
+            Version = 1, Frames = Enumerable.Range(0, 256).Select(angle => (stock.Resolve(new SnesByteAngle((byte)angle)) + 11) & 31).ToArray(),
         })));
         foreach (bool installed in new[] { false, true })
         foreach (bool replaceArt in new[] { false, true })

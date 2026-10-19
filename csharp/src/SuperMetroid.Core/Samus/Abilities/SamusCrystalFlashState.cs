@@ -136,7 +136,7 @@ public sealed class SamusCrystalFlashState
         // The remaining preconditions are literal WRAM comparisons. Reserve energy must
         // be empty even when the reserve mode is manual; possession of a reserve tank alone
         // does not matter. Each current ammo count—not its maximum—must supply ten shots.
-        if (samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0 ||
+        if (samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0 ||
             samus.Health >= 51 || samus.ReserveEnergy != 0 ||
             samus.Missiles < 10 ||
             samus.SuperMissiles < 10 ||

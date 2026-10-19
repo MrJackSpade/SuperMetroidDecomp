@@ -791,7 +791,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void MoveDraygonAlongGoopPath(DraygonEnemyState state, bool movingRight)
     {
         state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(
-            384 + EnemyMath.ReadEightBitCosineProduct(state.GoopYOscillationAngle.TableIndex, 32))));
+            384 + EnemyMath.ReadEightBitCosineProduct(state.GoopYOscillationAngle.ToByteAngle(), 32))));
         state.GoopYOscillationAngle = state.GoopYOscillationAngle.AddTableUnits(1);
         if (movingRight)
             AddDraygonHorizontalVelocity(state);
@@ -999,7 +999,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         short deltaX = unchecked((short)(samus.Position.X.Whole - unchecked((ushort)(
             eye.Position.X.Whole + (facingRight ? 24 : -24)))));
         short deltaY = unchecked((short)(samus.Position.Y.Whole - unchecked((ushort)(eye.Position.Y.Whole - 32))));
-        byte angle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY));
+        byte angle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).RawValue;
         DraygonEyeState eyeState = RequireEyeState(eye);
         if (angle == (byte)eyeState.LookAngle)
             return;
@@ -1299,8 +1299,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         // select slightly different table vectors near the destination.
         short deltaX = unchecked((short)(64 - (body.Position.X.Whole >> 2)));
         short deltaY = unchecked((short)(120 - (body.Position.Y.Whole >> 2)));
-        byte cartridgeAngle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY));
-        byte movementAngle = unchecked((byte)(SnesAngle.QuarterTurn.TableIndex - cartridgeAngle));
+        byte movementAngle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).ToTableAngle().RawValue;
         MoveDraygonAtMovementAngle(body, movementAngle, speed: 1);
 
         if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonDeathTargetX, 4) ||
@@ -1645,9 +1644,9 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(state.SpiralCenter.Whole + new Offset16<RoomPixels>(
-            unchecked((short)EnemyMath.ReadEightBitCosineProduct(state.SpiralAngle.TableIndex, state.SpiralXRadius.WholeWord)),
+            unchecked((short)EnemyMath.ReadEightBitCosineProduct(state.SpiralAngle.ToByteAngle(), state.SpiralXRadius.WholeWord)),
             unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(
-                state.SpiralAngle.TableIndex,
+                state.SpiralAngle.ToByteAngle(),
                 unchecked((ushort)(state.SpiralXRadius.WholeWord >> 2))))));
 
         if ((body.FrameCounter & 7) == 0)
@@ -1790,8 +1789,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> target,
         ushort speed)
     {
-        byte cartridgeAngle = EnemyMath.CalculateCartridgeAngle(target - body.Position.Whole);
-        byte movementAngle = unchecked((byte)(SnesAngle.QuarterTurn.TableIndex - cartridgeAngle));
+        byte movementAngle = EnemyMath.CalculateCartridgeAngle(target - body.Position.Whole).ToTableAngle().RawValue;
 
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
@@ -1910,9 +1908,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         // PlaceAndAim negates the common zero-up angle, then adds $40 before retaining the
         // low byte. ConvertAngleToXy stores unsigned magnitudes; the pre-instruction applies
         // signs from this retained angle on every frame.
-        byte cartridgeAngle = EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(samus.Position.X.Whole - turret.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - turret.Position.Y.Whole))));
-        byte flightAngle = unchecked((byte)(-cartridgeAngle + SnesAngle.QuarterTurn.TableIndex));
+        byte flightAngle = EnemyMath.CalculateCartridgeAngle(
+            new(unchecked((short)(samus.Position.X.Whole - turret.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - turret.Position.Y.Whole)))).ToTableAngle().RawValue;
         SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
         // The definition says $8DFF, but init replaces it with RTS until the 84-frame muzzle

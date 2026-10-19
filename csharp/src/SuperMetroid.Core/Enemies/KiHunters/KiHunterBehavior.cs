@@ -314,7 +314,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ushort tableAngle = SnesAngle.NormalizeTableIndex(state.SwoopAngle).TableIndex;
+        SnesByteAngle tableAngle = SnesAngle.NormalizeTableIndex(state.SwoopAngle).ToByteAngle();
         ushort targetX = unchecked((ushort)(
             state.SwoopTarget.X +
             EnemyMath.ReadEightBitCosineProduct(tableAngle, state.SwoopRadius.X)));
@@ -515,7 +515,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             state.DetachedSpeedIndex,
             negativeHalf: true));
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        ushort byteAngle = state.WingArcAngle.TableIndex;
+        SnesByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
         wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(byteAngle, radius) - state.OrbitOffset);
 
         if (LiesWithinMiddleHalfTurn(state.WingArcAngle))
@@ -536,7 +536,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             state.DetachedSpeedIndex,
             negativeHalf: false));
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        ushort byteAngle = state.WingArcAngle.TableIndex;
+        SnesByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
         ushort desiredY = unchecked((ushort)(
             state.OrbitCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(byteAngle, radius) -

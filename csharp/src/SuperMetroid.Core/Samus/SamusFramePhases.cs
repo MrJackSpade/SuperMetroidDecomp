@@ -1249,10 +1249,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
         {
             int impactYSpeed = drainedLanding is { } drainedSpeed
                 ? drainedSpeed.ImpactYSpeed
-                : samus.Kinematics.YSpeed;
+                : samus.Kinematics.YSpeed.Whole;
             int impactYSubspeed = drainedLanding is { } drainedSubspeed
                 ? drainedSubspeed.ImpactYSubspeed
-                : samus.Kinematics.YSubspeed;
+                : samus.Kinematics.YSpeed.Fraction;
             samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
                 samus,
                 frame.MovementTypeAtFrameStart,

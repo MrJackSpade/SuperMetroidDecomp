@@ -65,7 +65,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             // The initializer passes the complete 8.8 angle word to an eight-bit routine,
             // which reads its low byte. That is the retail missing-division bug; main AI
             // begins using the high byte on frame one and corrects the position immediately.
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.RawValue, checked((ushort)state.Radius)));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(new SnesByteAngle(SnesLittleEndian.LowByte(state.Angle.RawValue)), checked((ushort)state.Radius)));
             return;
         }
 
@@ -80,7 +80,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.UsesCircularMovement)
         {
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.TableIndex, checked((ushort)state.Radius)));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToByteAngle(), checked((ushort)state.Radius)));
 
             // `$A3:8E2D` performs an unaligned word read at var0+1: the speed's middle sixteen
             // bits, the high byte of its fraction under the low byte of its whole part. That

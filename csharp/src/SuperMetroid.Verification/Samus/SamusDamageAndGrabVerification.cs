@@ -109,10 +109,8 @@ internal static void VerifySamusDrainedController()
     };
     right.PoseMetadata.RefreshCollisionRadii();
     right.Presentation.InitializeAnimation();
-    right.HorizontalSpeed.BaseSpeed = 3;
-    right.HorizontalSpeed.BaseSubspeed = 0x4444;
-    right.Kinematics.YSpeed = 2;
-    right.Kinematics.YSubspeed = 0x2222;
+    right.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(3, 0x4444);
+    right.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(2, 0x2222);
 
     right.Drained.LetFall(right);
     AssertEqual(SamusPoseId.DrainedCrouchingRightPose, right.Pose,
@@ -120,7 +118,7 @@ internal static void VerifySamusDrainedController()
     AssertEqual(70, right.Position.Y.Whole,
         "drained controller preserves source bottom while radius grows 16 to 21");
     AssertEqual(2, right.AnimationFrame, "drained fall begins at byte index two");
-    AssertEqual(0, right.Kinematics.YSpeed, "drained fall clears whole Y speed");
+    AssertEqual(0, right.Kinematics.YSpeed.Whole, "drained fall clears whole Y speed");
     AssertEqual(SamusVerticalDirection.Down, right.Kinematics.YDirection, "drained fall selects down direction");
     AssertTrue(right.Drained.UpdatePalette(drainedCgram, right.EquippedItems, suitColors),
         "drained controller zero restores selected suit palette");
@@ -136,15 +134,14 @@ internal static void VerifySamusDrainedController()
     AssertEqual(5, right.AnimationFrame, "F7 performs its second frame increment");
     AssertEqual(1, right.AnimationFrameTimer.RawValue, "F7 selects following literal delay");
 
-    right.Kinematics.YAcceleration = 0;
-    right.Kinematics.YSubacceleration = 0x4000;
+    right.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x4000);
     ushort firstHandlerY = right.Position.Y.Whole;
     ushort firstHandlerYSubposition = right.Kinematics.Position.Y.Fraction;
     right.Drained.StepFalling(level, right, 0);
     AssertEqual(firstHandlerYSubposition, right.Kinematics.Position.Y.Fraction,
         "first drained handler call uses old zero speed");
     AssertEqual(firstHandlerY, right.Position.Y.Whole, "first drained handler frame is stationary");
-    AssertEqual(0x4000, right.Kinematics.YSubspeed,
+    AssertEqual(0x4000, right.Kinematics.YSpeed.Fraction,
         "first drained handler frame stores gravity for next call");
 
     DrainedSamusMovementResult landing = default;
@@ -762,13 +759,10 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "repeated D-pad pattern is rejected and leaves escape counter unchanged");
 
-    samus.HorizontalSpeed.BaseSpeed = 3;
-    samus.HorizontalSpeed.BaseSubspeed = 0x4000;
-    samus.HorizontalSpeed.ExtraRunSpeed = 2;
-    samus.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+    samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
+    samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
     samus.HorizontalSpeed.AccelerationMode = 2;
-    samus.Kinematics.YSpeed = 4;
-    samus.Kinematics.YSubspeed = 0xc000;
+    samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(4, 0xc000);
     samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
 
@@ -782,14 +776,14 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertTrue(release.Released, "sixtieth alternating D-pad input releases Samus");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose,
         "right grabbed family releases to pose $01");
-    AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "release clears base X speed");
-    AssertEqual(0, samus.HorizontalSpeed.BaseSubspeed, "release clears base X subspeed");
-    AssertEqual(2, samus.HorizontalSpeed.ExtraRunSpeed,
+    AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "release clears base X speed");
+    AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Fraction, "release clears base X subspeed");
+    AssertEqual(2, samus.HorizontalSpeed.ExtraRunSpeed.Whole,
         "release intentionally preserves extra run speed");
-    AssertEqual(0x8000, samus.HorizontalSpeed.ExtraRunSubspeed,
+    AssertEqual(0x8000, samus.HorizontalSpeed.ExtraRunSpeed.Fraction,
         "release intentionally preserves extra run subspeed");
-    AssertEqual(0, samus.Kinematics.YSpeed, "release clears Y speed");
-    AssertEqual(0, samus.Kinematics.YSubspeed, "release clears Y subspeed");
+    AssertEqual(0, samus.Kinematics.YSpeed.Whole, "release clears Y speed");
+    AssertEqual(0, samus.Kinematics.YSpeed.Fraction, "release clears Y subspeed");
     AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "release clears Y direction");
     AssertEqual(SamusBallBounceState.None, samus.MorphBallBounceState, "release clears bounce state");
     AssertEqual(0, samus.HorizontalSpeed.AccelerationMode,

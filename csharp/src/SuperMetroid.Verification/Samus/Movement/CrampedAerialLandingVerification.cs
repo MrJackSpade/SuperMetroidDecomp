@@ -56,9 +56,9 @@ internal static class CrampedAerialLandingVerification
         };
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.HorizontalSpeed.AccelerationMode = 2;
-        samus.HorizontalSpeed.BaseSpeed = 3;
+        samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        samus.Kinematics.YSpeed = 4;
+        samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(4);
 
         bool installedLanding = samus.PoseTransitions.TryApplyAerialLanding(
 
@@ -86,9 +86,9 @@ internal static class CrampedAerialLandingVerification
         // skips command five; #461's original-CPU trajectory proves this retained state.
         AssertEqual(2, samus.HorizontalSpeed.AccelerationMode,
             "rejected full landing skips collision command five");
-        AssertEqual(3, samus.HorizontalSpeed.BaseSpeed,
+        AssertEqual(3, samus.HorizontalSpeed.BaseSpeed.Whole,
             "cramped landing preserves horizontal speed");
-        AssertEqual(4, samus.Kinematics.YSpeed,
+        AssertEqual(4, samus.Kinematics.YSpeed.Whole,
             "cramped landing preserves vertical speed");
         AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection,
             "cramped landing does not publish grounded direction");

@@ -16,33 +16,11 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public sealed class SamusHorizontalSpeedState
 {
-    /// <summary>Whole part of <c>samus_x_base_speed</c> at WRAM <c>$0B46</c>.</summary>
-    public int BaseSpeed
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>Samus's base horizontal speed, <c>samus_x_base_speed</c>/<c>subspeed</c> at WRAM <c>$0B46</c>/<c>$0B48</c>.</summary>
+    public SnesUnsignedSixteenSixteen BaseSpeed { get; set; }
 
-    /// <summary>Fractional part of <c>samus_x_base_subspeed</c> at WRAM <c>$0B48</c>.</summary>
-    public int BaseSubspeed
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>Whole part of the run-button/speed-booster addition at WRAM <c>$0B42</c>.</summary>
-    public int ExtraRunSpeed
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>Fractional part of the run-button/speed-booster addition at WRAM <c>$0B44</c>.</summary>
-    public int ExtraRunSubspeed
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>The run-button/speed-booster addition to horizontal speed at WRAM <c>$0B42</c>/<c>$0B44</c>.</summary>
+    public SnesUnsignedSixteenSixteen ExtraRunSpeed { get; set; }
 
     /// <summary>
     /// Native <c>samus_has_momentum_flag</c>. Once dash begins, releasing Dash or leaving
@@ -170,19 +148,8 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Whole-pixel per-frame velocity of departing echo one; only X moves.</summary>
     public Offset16<RoomPixels> SecondSpeedEchoVelocity { get; private set; }
 
-    /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>, 0 through 65535.</summary>
-    public int TotalSpeed
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>Fractional part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBE</c>, 0 through 65535.</summary>
-    public int TotalSubspeed
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>The total horizontal speed produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>/<c>$0DBE</c>.</summary>
+    public SnesUnsignedSixteenSixteen TotalSpeed { get; internal set; }
 
     /// <summary>
     /// Speed divisor, 0 through 65535: total speed is halved this many times, capped at four
@@ -261,8 +228,7 @@ public sealed class SamusHorizontalSpeedState
             // A true flag carries the pair through airborne movement and a released button.
             if (!HasRunningMomentum)
             {
-                ExtraRunSpeed = 0;
-                ExtraRunSubspeed = 0;
+                ExtraRunSpeed = default;
             }
             // The native common epilogue also runs when Dash is released,
             // movement becomes airborne, or liquid suppresses acceleration.
@@ -283,11 +249,10 @@ public sealed class SamusHorizontalSpeedState
                 SpeedBoostCounter = SamusRunningCadenceDefinitions.ReadResetWord(0);
             }
 
-            if (unchecked((short)(ExtraRunSpeed - 7)) >= 0 &&
-                unchecked((short)ExtraRunSubspeed) >= 0)
+            if (unchecked((short)(ExtraRunSpeed.Whole - 7)) >= 0 &&
+                unchecked((short)ExtraRunSpeed.Fraction) >= 0)
             {
-                ExtraRunSpeed = 7;
-                ExtraRunSubspeed = 0;
+                ExtraRunSpeed = new SnesUnsignedSixteenSixteen(7, 0);
                 PublishBoostContactDamage();
                 return;
             }
@@ -307,11 +272,10 @@ public sealed class SamusHorizontalSpeedState
         // intentionally is not a conventional unsigned 32-bit >= comparison. The retail
         // no-booster fractional cap is zero, so a normal progression reaches 2.0000 and
         // clamps there on the following call before another 0.1000 can be added.
-        if (unchecked((short)(ExtraRunSpeed - 2)) >= 0 &&
-            unchecked((short)ExtraRunSubspeed) >= 0)
+        if (unchecked((short)(ExtraRunSpeed.Whole - 2)) >= 0 &&
+            unchecked((short)ExtraRunSpeed.Fraction) >= 0)
         {
-            ExtraRunSpeed = 2;
-            ExtraRunSubspeed = 0;
+            ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0);
             PublishBoostContactDamage();
             return;
         }
@@ -635,9 +599,8 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Adds the native 16.16 extra-run increment while retaining separate WRAM whole and fractional words.</summary>
     private void AddExtraRunAcceleration()
     {
-        uint accelerated = unchecked(SnesSixteenSixteen.Compose(ExtraRunSpeed, ExtraRunSubspeed) + SamusMovementRomData.HorizontalMotion.ExtraRunAcceleration);
-        ExtraRunSpeed = SnesFixedPosition.WholeOf(unchecked((int)accelerated));
-        ExtraRunSubspeed = unchecked((ushort)accelerated);
+        uint accelerated = unchecked(ExtraRunSpeed.RawValue + SamusMovementRomData.HorizontalMotion.ExtraRunAcceleration);
+        ExtraRunSpeed = SnesUnsignedSixteenSixteen.FromRaw(accelerated);
     }
 
     /// <summary>Enables Speed Booster contact damage only at the fully charged counter's high-byte state.</summary>
@@ -725,10 +688,8 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void ClearHorizontalVelocity()
     {
-        ExtraRunSpeed = 0;
-        ExtraRunSubspeed = 0;
-        BaseSpeed = 0;
-        BaseSubspeed = 0;
+        ExtraRunSpeed = default;
+        BaseSpeed = default;
         AccelerationMode = 0;
     }
 
@@ -747,8 +708,8 @@ public sealed class SamusHorizontalSpeedState
     {
         if (selectedMomentumCommand && BaseFixed != 0)
         {
-            SetBaseFixed(unchecked(BaseFixed + SnesSixteenSixteen.Compose(ExtraRunSpeed, ExtraRunSubspeed)));
-            ExtraRunSpeed = ExtraRunSubspeed = 0;
+            SetBaseFixed(unchecked(BaseFixed + ExtraRunSpeed.RawValue));
+            ExtraRunSpeed = default;
             AccelerationMode = 2;
         }
         else
@@ -870,10 +831,9 @@ public sealed class SamusHorizontalSpeedState
 
             // The native BMI tests only the signed high word. Once deceleration crosses
             // below zero it clears both halves and returns to acceleration mode zero.
-            if (unchecked((short)BaseSpeed) < 0)
+            if (unchecked((short)BaseSpeed.Whole) < 0)
             {
-                BaseSpeed = 0;
-                BaseSubspeed = 0;
+                BaseSpeed = default;
                 AccelerationMode = 0;
             }
         }
@@ -885,8 +845,8 @@ public sealed class SamusHorizontalSpeedState
             // signed word-subtraction quirk, including the fact that exact equality does
             // not count as greater and therefore is left untouched.
             if (IsGreaterThanQuirked(
-                    BaseSpeed,
-                    BaseSubspeed,
+                    BaseSpeed.Whole,
+                    BaseSpeed.Fraction,
                     entry.MaximumSpeed.WholeWord,
                     entry.MaximumSpeed.Fraction))
             {
@@ -915,10 +875,9 @@ public sealed class SamusHorizontalSpeedState
             // the deceleration-allowed routine. The distinction between the two native
             // entry points is the bit test above and their carry result, not the subtract.
             SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
-            if (unchecked((short)BaseSpeed) < 0)
+            if (unchecked((short)BaseSpeed.Whole) < 0)
             {
-                BaseSpeed = 0;
-                BaseSubspeed = 0;
+                BaseSpeed = default;
                 AccelerationMode = 0;
             }
 
@@ -932,9 +891,9 @@ public sealed class SamusHorizontalSpeedState
         // deliberately *not* considered a cap: $90:9B5A returns carry clear in that case.
         ushort maximumWhole = entry.MaximumSpeed.WholeWord;
         ushort maximumFraction = entry.MaximumSpeed.Fraction;
-        bool exceedsMaximum = unchecked((short)(BaseSpeed - maximumWhole)) > 0 ||
-            (BaseSpeed == maximumWhole &&
-             unchecked((short)(BaseSubspeed - maximumFraction)) > 0);
+        bool exceedsMaximum = unchecked((short)(BaseSpeed.Whole - maximumWhole)) > 0 ||
+            (BaseSpeed.Whole == maximumWhole &&
+             unchecked((short)(BaseSpeed.Fraction - maximumFraction)) > 0);
         if (exceedsMaximum)
         {
             SetBaseFixed(unchecked((uint)entry.MaximumSpeed.RawValue));
@@ -950,11 +909,10 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public uint CalculateTotalSpeed(uint baseSpeed)
     {
-        uint total = unchecked(baseSpeed + SnesSixteenSixteen.Compose(ExtraRunSpeed, ExtraRunSubspeed));
+        uint total = unchecked(baseSpeed + ExtraRunSpeed.RawValue);
         int shift = Math.Min(SpeedDivisor, 4);
         total >>= shift;
-        TotalSpeed = SnesFixedPosition.WholeOf(unchecked((int)total));
-        TotalSubspeed = unchecked((ushort)total);
+        TotalSpeed = SnesUnsignedSixteenSixteen.FromRaw(total);
         return total;
     }
 
@@ -974,13 +932,12 @@ public sealed class SamusHorizontalSpeedState
         ClampDisplacement(unchecked(extraDisplacement - (int)CalculateTotalSpeed(baseSpeed)));
 
     /// <summary>Current base speed as the native high-word/low-word unsigned 16.16 pair.</summary>
-    public uint BaseFixed => SnesSixteenSixteen.Compose(BaseSpeed, BaseSubspeed);
+    public uint BaseFixed => BaseSpeed.RawValue;
 
     /// <summary>Publishes a 16.16 result to the separate base-speed whole and fractional WRAM words.</summary>
     private void SetBaseFixed(uint value)
     {
-        BaseSpeed = SnesFixedPosition.WholeOf(unchecked((int)value));
-        BaseSubspeed = unchecked((ushort)value);
+        BaseSpeed = SnesUnsignedSixteenSixteen.FromRaw(value);
     }
 
     /// <summary>

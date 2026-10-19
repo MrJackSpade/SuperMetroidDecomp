@@ -321,16 +321,13 @@ public sealed class SamusShinesparkState
         // These are literal native writes. Stage four remains published during windup even
         // though base speed is zero and the extra component becomes exactly 8.0000.
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YSpeed = default;
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.HorizontalSpeed.SpeedBoostCounter =
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter;
-        samus.HorizontalSpeed.ExtraRunSpeed = 8;
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0;
-        samus.HorizontalSpeed.BaseSpeed = 0;
-        samus.HorizontalSpeed.BaseSubspeed = 0;
+        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(8, 0);
+        samus.HorizontalSpeed.BaseSpeed = default;
         samus.BombJumpDirection = 0;
 
         VerticalAcceleration = SnesSignedSixteenSixteen.FromParts(7, 0);
@@ -542,11 +539,9 @@ false);
     private void BeginCrash(SamusState samus)
     {
         // `$90:D2BA-$D345` kills translational velocity before installing the crash handler.
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
-        samus.HorizontalSpeed.ExtraRunSpeed = 0;
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+        samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.SpeedBoostCounter = 0;
         // EndSuperJump retains this frame's contact damage. The shared frame
         // prologue clears it before the newly installed crash handler runs next.
@@ -843,16 +838,14 @@ false,             CrashSequenceFinished: true);
     {
         ShineTimer = NativeCountdown.Start(15);
         uint accelerated = unchecked(SnesSixteenSixteen.Compose(
-            samus.HorizontalSpeed.ExtraRunSpeed,
-            samus.HorizontalSpeed.ExtraRunSubspeed) + SnesSixteenSixteen.Compose(
-                samus.Kinematics.YAcceleration,
-                samus.Kinematics.YSubacceleration));
-        samus.HorizontalSpeed.ExtraRunSpeed = SnesFixedPosition.WholeOf(unchecked((int)accelerated));
-        samus.HorizontalSpeed.ExtraRunSubspeed = unchecked((ushort)accelerated);
-        if (unchecked((short)(samus.HorizontalSpeed.ExtraRunSpeed - 15)) >= 0)
+            samus.HorizontalSpeed.ExtraRunSpeed.Whole,
+            samus.HorizontalSpeed.ExtraRunSpeed.Fraction) + SnesSixteenSixteen.Compose(
+                samus.Kinematics.YAcceleration.Whole,
+                samus.Kinematics.YAcceleration.Fraction));
+        samus.HorizontalSpeed.ExtraRunSpeed = SnesUnsignedSixteenSixteen.FromRaw(accelerated);
+        if (unchecked((short)(samus.HorizontalSpeed.ExtraRunSpeed.Whole - 15)) >= 0)
         {
-            samus.HorizontalSpeed.ExtraRunSpeed = 15;
-            samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+            samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(15, 0);
         }
 
         var displacement = SamusHorizontalDisplacement.Toward(samus.PoseMetadata.IsFacingLeft(), samus, baseSpeed: 0);
@@ -869,20 +862,19 @@ false,             CrashSequenceFinished: true);
     {
         ShineTimer = NativeCountdown.Start(15);
         VerticalAcceleration += SnesSignedSixteenSixteen.FromRaw(unchecked((int)SnesSixteenSixteen.Compose(
-            samus.Kinematics.YAcceleration,
-            samus.Kinematics.YSubacceleration)));
+            samus.Kinematics.YAcceleration.Whole,
+            samus.Kinematics.YAcceleration.Fraction)));
         uint acceleration = unchecked((uint)VerticalAcceleration.RawValue);
 
         uint speed = unchecked(SnesSixteenSixteen.Compose(
-            samus.Kinematics.YSpeed,
-            samus.Kinematics.YSubspeed) + acceleration);
-        samus.Kinematics.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed)));
-        samus.Kinematics.YSubspeed = unchecked((ushort)speed);
+            samus.Kinematics.YSpeed.Whole,
+            samus.Kinematics.YSpeed.Fraction) + acceleration);
+        samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed))), unchecked((ushort)speed));
 
         // The native clamp operates on a temporary displacement, not stored velocity.
         // Keep accumulating the wrapped speed words even after movement reaches its cap.
-        uint displacementSpeed = unchecked((short)(samus.Kinematics.YSpeed - 14)) >= 0
-            ? SnesSixteenSixteen.Compose(14, samus.Kinematics.YSubspeed)
+        uint displacementSpeed = unchecked((short)(samus.Kinematics.YSpeed.Whole - 14)) >= 0
+            ? SnesSixteenSixteen.Compose(14, samus.Kinematics.YSpeed.Fraction)
             : speed;
         int upwardDisplacement = unchecked(-(int)displacementSpeed);
         upwardDisplacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(

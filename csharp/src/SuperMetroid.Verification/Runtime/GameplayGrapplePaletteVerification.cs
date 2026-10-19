@@ -55,7 +55,7 @@ internal static class GameplayGrapplePaletteVerification
             samus.Presentation.InitializeAnimation();
             samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(192 - samus.Kinematics.Radius.Y)));
-            samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YSpeed = default;
             runtime.StepFrame(0);
             palettes.LoadTo(runtime.Cgram, SamusBeamCombinations.FromTableIndex(beam));
             runtime.Cgram.SetColor(223, Bgr555.FromWord(0x1234));

@@ -36,8 +36,7 @@ internal static class TreadmillPhysicsVerification
             samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(24, 40)) };
             var body = samus.Kinematics;
             body.Radius = body.Radius.WithY(8);
-            body.YSpeed = verticalSpeed;
-            body.YSubspeed = 0xffff; // Native admission does not inspect the fractional word.
+            body.YSpeed = new SnesUnsignedSixteenSixteen(verticalSpeed, 0xffff); // Native admission does not inspect the fractional word.
             body.ExtraDisplacement = body.ExtraDisplacement.WithX(SuperMetroid.Core.Spatial.SnesSignedSixteenSixteen.FromParts(7, 0x1234));
             samus.HorizontalSpeed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Water);
             bool admitted = behavior >= 10 || (verticalSpeed == 0 && (area != AreaId.WreckedShip || powered));

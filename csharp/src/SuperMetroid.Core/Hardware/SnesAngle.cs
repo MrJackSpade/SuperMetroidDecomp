@@ -21,6 +21,9 @@ public readonly record struct SnesAngle : IComparable<SnesAngle>
     /// <summary>The high-byte index consumed by 256-entry trigonometry tables.</summary>
     public byte TableIndex => unchecked((byte)(SnesEightEight.WholeOf(RawValue)));
 
+    /// <summary>The high byte as the eight-bit angle the trigonometry routines read.</summary>
+    public SnesByteAngle ToByteAngle() => new(TableIndex);
+
     /// <summary>Zero turns.</summary>
     public static SnesAngle Zero { get; } = new(0x0000);
 

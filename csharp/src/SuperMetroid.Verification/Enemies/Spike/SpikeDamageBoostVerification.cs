@@ -77,10 +77,9 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x4000);
         samus.Position = samus.Position.WithWholeY(232);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xe000);
-        samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        samus.HorizontalSpeed.BaseSpeed = 5;
-        samus.HorizontalSpeed.BaseSubspeed = 0;
+        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(5, 0);
         samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseFixed);
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
@@ -108,10 +107,8 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x6000);
         samus.Position = samus.Position.WithWholeY(160);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
-        samus.HorizontalSpeed.BaseSpeed = 1;
-        samus.HorizontalSpeed.BaseSubspeed = 0x6000;
-        samus.HorizontalSpeed.ExtraRunSpeed = 2;
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x6000);
+        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0);
         samus.HorizontalSpeed.HasRunningMomentum = true;
         samus.HorizontalSpeed.AccelerationMode = 1;
         runtime.Controller1.Latch(0);
@@ -126,7 +123,7 @@ internal static class SpikeDamageBoostVerification
             runtime.StepFrame(SnesButtons.FromRaw(expectedFrame.Input, "spike fixture frame"));
             AssertEqual((expectedFrame.X, expectedFrame.Y, expectedFrame.Base, expectedFrame.Extra),
                 (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
-                    samus.HorizontalSpeed.BaseFixed, samus.HorizontalSpeed.ExtraRunSpeed),
+                    samus.HorizontalSpeed.BaseFixed, samus.HorizontalSpeed.ExtraRunSpeed.Whole),
                 "native carried-speed hurt fallback trajectory");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "hurt fallback cancels momentum flag");
         }
@@ -176,11 +173,9 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x3800);
         samus.Position = samus.Position.WithWholeY(237);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xb800);
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0x9800;
+        samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(0, 0x9800);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        samus.HorizontalSpeed.BaseSpeed = 0;
-        samus.HorizontalSpeed.BaseSubspeed = 0x9000;
+        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(0, 0x9000);
         samus.HorizontalSpeed.AccelerationMode = 1;
         runtime.Controller1.Latch((SnesButton.Left | SnesButton.A));
         runtime.StepFrame((SnesButton.Left | SnesButton.A));

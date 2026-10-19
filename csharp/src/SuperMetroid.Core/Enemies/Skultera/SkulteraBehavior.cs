@@ -84,7 +84,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TurnFinished = false;
         state.CurrentYOffset = 0;
         state.PreviousYOffset = EnemyMath.ReadEightBitNegativeSineProduct(
-            state.Angle.TableIndex,
+            state.Angle.ToByteAngle(),
             checked((ushort)state.Radius));
     }
 
@@ -140,7 +140,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.CurrentYOffset = EnemyMath.ReadEightBitNegativeSineProduct(
-            state.Angle.TableIndex,
+            state.Angle.ToByteAngle(),
             checked((ushort)state.Radius));
         // Both offsets lie within the radius either way, so their difference never wraps.
         int yDifference = state.CurrentYOffset - state.PreviousYOffset;

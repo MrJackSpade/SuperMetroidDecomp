@@ -167,8 +167,7 @@ public static class SamusMorphBallMovement
         SamusHorizontalDisplacement requestedHorizontal;
         if (!directionHeld && speed.AccelerationMode == 0)
         {
-            speed.BaseSpeed = 0;
-            speed.BaseSubspeed = 0;
+            speed.BaseSpeed = default;
             requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: 0);
         }
         else
@@ -191,8 +190,7 @@ public static class SamusMorphBallMovement
             // It cancels the stored bounce velocity, forces direction down, and executes
             // `$90:9288`; a signed-negative producer can still make the actual scan upward.
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-            samus.Kinematics.YSpeed = 0;
-            samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YSpeed = default;
             int displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
                 throw new InvalidOperationException("A nonzero external Y displacement always yields a scan distance.");
             vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
@@ -249,10 +247,9 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         // the same branch even if Jump is still held.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
             (((controllerInput & SnesButton.A) == 0) ||
-             unchecked((short)samus.Kinematics.YSpeed) < 0))
+             unchecked((short)samus.Kinematics.YSpeed.Whole) < 0))
         {
-            samus.Kinematics.YSubspeed = 0;
-            samus.Kinematics.YSpeed = 0;
+            samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         }
 
@@ -268,8 +265,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         {
             // `$90:901E` clears the displacement and persistent base words when no
             // horizontal direction is held; powered vertical motion continues unchanged.
-            speed.BaseSpeed = 0;
-            speed.BaseSubspeed = 0;
+            speed.BaseSpeed = default;
             // This branch bypasses $90:E4E6; retain the previous total-speed pair.
             requestedHorizontal = 0;
         }
@@ -352,8 +348,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
             {
                 // `$90:A640` recognizes the ordinary landed result and cancels every word
                 // which could make command $F9 choose the airborne endpoint afterward.
-                samus.Kinematics.YSubspeed = 0;
-                samus.Kinematics.YSpeed = 0;
+                samus.Kinematics.YSpeed = default;
                 samus.Kinematics.YDirection = SamusVerticalDirection.None;
                 samus.MorphBallBounceState = SamusBallBounceState.None;
             }
@@ -380,21 +375,20 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         // `$90:90C4` converts the signed underflow produced at the prior apex frame before
         // this frame snapshots displacement. Direction is a separate word in the original;
         // do not infer it from the sign of the fixed-point magnitude.
-        if (state.YDirection == SamusVerticalDirection.Up && unchecked((short)state.YSpeed) < 0)
+        if (state.YDirection == SamusVerticalDirection.Up && unchecked((short)state.YSpeed.Whole) < 0)
         {
-            state.YSubspeed = 0;
-            state.YSpeed = 0;
+            state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;
         }
 
         // `$90:90E5` moves by the OLD magnitude, then updates stored speed for next frame.
         // This one-frame lag is observable on both bounce launch and the falling speed cap.
-        uint oldSpeed = SnesSixteenSixteen.Compose(state.YSpeed, state.YSubspeed);
-        uint acceleration = SnesSixteenSixteen.Compose(state.YAcceleration, state.YSubacceleration);
+        uint oldSpeed = state.YSpeed.RawValue;
+        uint acceleration = state.YAcceleration.RawValue;
         uint newSpeed;
         if (state.YDirection == SamusVerticalDirection.Down)
         {
-            newSpeed = state.YSpeed == 5
+            newSpeed = state.YSpeed.Whole == 5
                 ? oldSpeed
                 : unchecked(oldSpeed + acceleration);
         }
@@ -402,8 +396,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         {
             newSpeed = unchecked(oldSpeed - acceleration);
         }
-        state.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(newSpeed)));
-        state.YSubspeed = unchecked((ushort)newSpeed);
+        state.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(newSpeed))), unchecked((ushort)newSpeed));
 
         int displacement = state.YDirection == SamusVerticalDirection.Down
             ? unchecked((int)oldSpeed)

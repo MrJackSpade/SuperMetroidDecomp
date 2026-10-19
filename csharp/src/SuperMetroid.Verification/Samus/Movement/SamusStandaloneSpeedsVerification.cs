@@ -33,15 +33,14 @@ internal static class SamusStandaloneSpeedsVerification
             foreach (byte multiplier in new byte[] { 0, 1, 255 })
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
-                actual.BaseSpeed = reference.BaseSpeed = (ushort)raw;
-                actual.BaseSubspeed = reference.BaseSubspeed = (ushort)raw;
+                actual.BaseSpeed = reference.BaseSpeed = new SnesUnsignedSixteenSixteen(raw, raw);
                 actual.AccelerationMode = reference.AccelerationMode = mode;
                 actual.DecelerationMultiplier = reference.DecelerationMultiplier = multiplier;
                 uint expected = calculate(native);
                 uint result = actual.CalculateBaseSpeedAtAddress(address);
                 AssertEqual(expected, result, "Compiled entry preserves existing native-word arithmetic");
-                AssertEqual(reference.BaseSpeed, actual.BaseSpeed, "Whole base speed write");
-                AssertEqual(reference.BaseSubspeed, actual.BaseSubspeed, "Fraction base speed write");
+                AssertEqual(reference.BaseSpeed.Whole, actual.BaseSpeed.Whole, "Whole base speed write");
+                AssertEqual(reference.BaseSpeed.Fraction, actual.BaseSpeed.Fraction, "Fraction base speed write");
                 AssertEqual(reference.AccelerationMode, actual.AccelerationMode, "Underflow resets acceleration mode");
                 cases++;
             }

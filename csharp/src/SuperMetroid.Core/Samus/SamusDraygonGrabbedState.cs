@@ -204,10 +204,8 @@ public sealed class SamusDraygonGrabbedState
         // relying on the normal pose dispatcher to observe the standing pose.
         samus.CommitPoseHistory();
 
-        samus.HorizontalSpeed.BaseSpeed = 0;
-        samus.HorizontalSpeed.BaseSubspeed = 0;
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
+        samus.HorizontalSpeed.BaseSpeed = default;
+        samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
         samus.MorphBallBounceState = SamusBallBounceState.None;
         samus.HorizontalSpeed.AccelerationMode = 0;

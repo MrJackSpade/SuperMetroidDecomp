@@ -241,13 +241,10 @@ internal sealed class SamusPoseMetadata
             _samus.WritePreviousYPosition(_samus.Kinematics.Position.Y.Whole);
         }
 
-        _samus.HorizontalSpeed.ExtraRunSpeed = 0;
-        _samus.HorizontalSpeed.ExtraRunSubspeed = 0;
-        _samus.HorizontalSpeed.BaseSpeed = 0;
-        _samus.HorizontalSpeed.BaseSubspeed = 0;
+        _samus.HorizontalSpeed.ExtraRunSpeed = default;
+        _samus.HorizontalSpeed.BaseSpeed = default;
         _samus.HorizontalSpeed.AccelerationMode = 0;
-        _samus.Kinematics.YSubspeed = 0;
-        _samus.Kinematics.YSpeed = 0;
+        _samus.Kinematics.YSpeed = default;
         _samus.Kinematics.YDirection = SamusVerticalDirection.None;
         _samus.MorphBallBounceState = SamusBallBounceState.None;
     }

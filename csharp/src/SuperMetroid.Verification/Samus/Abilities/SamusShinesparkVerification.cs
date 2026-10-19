@@ -112,7 +112,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(ShinesparkPhase.Windup, shine.Shinespark.Phase,
         "stored shine installs windup handler");
     AssertEqual(30, shine.Shinespark.StartStopTimer.RawValue, "windup timer is 30");
-    AssertEqual(8, shine.HorizontalSpeed.ExtraRunSpeed,
+    AssertEqual(8, shine.HorizontalSpeed.ExtraRunSpeed.Whole,
         "windup seeds exact 8.0000 extra speed");
     AssertEqual(0x0400, shine.HorizontalSpeed.SpeedBoostCounter,
         "windup republishes stage four");
@@ -170,8 +170,7 @@ internal static void VerifySamusStoredShineAndShinespark()
             $"pose ${(int)targetPose:X2} publishes one launch sound");
         AssertTrue(!directional.Shinespark.ConsumeLaunchSoundRequest(),
             $"pose ${(int)targetPose:X2} launch sound is one-shot");
-        directional.Kinematics.YAcceleration = 0;
-        directional.Kinematics.YSubacceleration = 0x2800;
+        directional.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x2800);
         uint directionalXBefore = directional.Kinematics.Position.X.RawValue;
         uint directionalYBefore = directional.Kinematics.Position.Y.RawValue;
         directional.Shinespark.Step(new SamusTerrain { Level = directionLevel }, directional, new ShinesparkFrame { NmiFrameCounter = 0 });
@@ -212,8 +211,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     externallyReversedSpark.Shinespark.BeginDirectionalLaunch(
         externallyReversedSpark,
         SamusPoseId.ShinesparkVerticalRightPose);
-    externallyReversedSpark.Kinematics.YAcceleration = 0;
-    externallyReversedSpark.Kinematics.YSubacceleration = 0x2800;
+    externallyReversedSpark.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x2800);
     externallyReversedSpark.Kinematics.ExtraDisplacement = externallyReversedSpark.Kinematics.ExtraDisplacement.WithWholeY(8).WithFractionY(0);
     uint reversedSparkYBefore = externallyReversedSpark.Kinematics.Position.Y.RawValue;
     externallyReversedSpark.Shinespark.Step(new SamusTerrain { Level = directionLevel }, externallyReversedSpark, new ShinesparkFrame { NmiFrameCounter = 0 });
@@ -284,8 +282,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     horizontal.Shinespark.BeginWindup(horizontal);
     horizontal.Shinespark.BeginDirectionalLaunch(
         horizontal, SamusPoseId.ShinesparkHorizontalRightPose);
-    horizontal.Kinematics.YAcceleration = 0;
-    horizontal.Kinematics.YSubacceleration = 0x2800;
+    horizontal.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x2800);
     var shineBombPlms = new RoomPlmSystem();
 
     uint firstYBefore = horizontal.Kinematics.Position.Y.RawValue;
@@ -318,7 +315,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         "crash setup publishes its paired library-one/library-three event once");
     AssertTrue(!horizontal.Shinespark.ConsumeCrashSoundRequest(),
         "consumed crash sound event cannot replay during the crash orbit");
-    AssertEqual(0, horizontal.HorizontalSpeed.ExtraRunSpeed,
+    AssertEqual(0, horizontal.HorizontalSpeed.ExtraRunSpeed.Whole,
         "crash clears horizontal spark velocity");
 
     ushort crashCenterX = horizontal.Position.X.Whole;
@@ -431,8 +428,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         fixture.Shinespark.BeginWindup(fixture);
         fixture.Shinespark.BeginDirectionalLaunch(
             fixture, SamusPoseId.ShinesparkHorizontalRightPose);
-        fixture.Kinematics.YAcceleration = 0;
-        fixture.Kinematics.YSubacceleration = 0;
+        fixture.Kinematics.YAcceleration = default;
         fixture.Shinespark.Step(new SamusTerrain { Level = fixtureLevel }, fixture, new ShinesparkFrame { NmiFrameCounter = 0, ProjectileCounter = projectileCounter });
         for (ushort frame = 1; frame <= 71; frame++)
         {
@@ -490,8 +486,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         samus.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
         samus.Shinespark.BeginWindup(samus);
         samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
-        samus.Kinematics.YAcceleration = 0;
-        samus.Kinematics.YSubacceleration = 0;
+        samus.Kinematics.YAcceleration = default;
 
         // Four short of the largest travel, so the first orbiting call wraps it to zero.
         int seededTravel = SamusShinesparkState.LargestCrashAngularTravel - 3;

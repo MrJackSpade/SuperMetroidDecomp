@@ -25,10 +25,10 @@ public static class KiHunterMotionDefinitions
     public const ushort RightSwoopAccelerationFraction = 0x2000;
 
     /// <summary>The detached wing orbit's offset angle, seven-eighths of a byte-angle turn.</summary>
-    public const byte DetachedOrbitOffsetAngle = 0xe0;
+    public static SnesByteAngle DetachedOrbitOffsetAngle { get; } = new(0xe0);
 
     /// <summary>The detached wing's falling-arc offset angle, five-eighths of a byte-angle turn.</summary>
-    public const byte FallingArcOffsetAngle = 0xa0;
+    public static SnesByteAngle FallingArcOffsetAngle { get; } = new(0xa0);
 
     /// <summary>The detached wing orbit's starting 16-bit angle, an eighth of a turn below zero.</summary>
     public const ushort DetachedOrbitStartAngle = 0xe000;

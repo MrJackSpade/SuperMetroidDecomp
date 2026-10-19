@@ -355,8 +355,7 @@ public static class SamusGroundedMovement
         // deliberately left `$0B3C` set until this movement handler. Then `$90:A689-$A68C`
         // perform the separately observable zero writes to the two extra-speed words.
         speed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
-        speed.ExtraRunSpeed = 0;
-        speed.ExtraRunSubspeed = 0;
+        speed.ExtraRunSpeed = default;
         return new GroundedMovementResult(horizontal, vertical);
     }
 

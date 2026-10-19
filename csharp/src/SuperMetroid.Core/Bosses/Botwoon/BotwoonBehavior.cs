@@ -343,9 +343,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonHoleDefinition hole =
             BotwoonNavigationDefinitions.HoleAt(state.TargetHoleIndex);
         Offset16<RoomPixels> delta = hole.Target - head.Position.Whole;
-        byte angle = EnemyMath.CalculateCartridgeAngle(new(
+        SnesBearing bearing = EnemyMath.CalculateCartridgeAngle(new(
             ClampBotwoonTargetDelta(delta.X), ClampBotwoonTargetDelta(delta.Y)));
-        state.MovementAngle = SnesAngle.NormalizeTableIndex(SnesAngle.QuarterTurn.TableIndex - angle);
+        state.MovementAngle = bearing.ToTableAngle().ToAngle();
 
         if (state.InsideHole == state.PreviousInsideHole)
         {
@@ -495,7 +495,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     extraAngle = unchecked((ushort)(extraAngle + 512));
             }
 
-            ushort angle = unchecked((ushort)(extraAngle + EnemyMath.CalculateCartridgeAngle(new(dx, dy))));
+            ushort angle = unchecked((ushort)(extraAngle + EnemyMath.CalculateCartridgeAngle(new(dx, dy)).RawValue));
             segment.DirectionParameter = unchecked((ushort)(2 * (angle >> 5)));
         }
     }
@@ -586,7 +586,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 head.Layer = 2;
                 // `$B3:9E10` (AND #$FBFF) restores collision once the head is outside.
                 head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-                program = BotwoonHeadProgram.MovingToward(EnemyMath.CalculateCartridgeAngle(new(dx, dy)));
+                program = BotwoonHeadProgram.MovingToward(EnemyMath.CalculateCartridgeAngle(new(dx, dy)).RawValue);
             }
             InstallBotwoonHeadProgram(head, state, program);
         }
@@ -605,10 +605,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         head.Layer = 2;
-        byte angle = EnemyMath.CalculateCartridgeAngle(
+        SnesBearing bearing = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - head.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - head.Position.Y.Whole))));
-        InstallBotwoonHeadProgram(head, state, BotwoonHeadProgram.SpittingToward(angle));
-        state.SpitAngle = SnesAngle.NormalizeTableIndex(SnesAngle.QuarterTurn.TableIndex - angle);
+        InstallBotwoonHeadProgram(head, state, BotwoonHeadProgram.SpittingToward(bearing.RawValue));
+        state.SpitAngle = bearing.ToTableAngle().ToAngle();
         state.HeadFunction = state.Function == BotwoonEnemyFunction.SpitWhileHidden
             ? BotwoonHeadFunction.WaitForSpitFrame
             : BotwoonHeadFunction.SpawnImmediateVolley;

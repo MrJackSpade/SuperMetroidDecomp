@@ -130,8 +130,8 @@ internal static void VerifySamusAerialTurnsAndWallJump()
             Position = FixedPosition<RoomPixels>.FromWhole(new(32, 48)),
         };
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.HorizontalSpeed.BaseSpeed = 1;
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+        samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(1);
+        samus.HorizontalSpeed.ExtraRunSpeed = samus.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x8000);
         SamusPoseId genericTarget = jumping
             ? targetFacesLeft ? SamusPoseId.TurningRightToLeftJumpPose : SamusPoseId.TurningLeftToRightJumpPose
             : targetFacesLeft ? SamusPoseId.TurningRightToLeftFallingPose : SamusPoseId.TurningLeftToRightFallingPose;
@@ -152,11 +152,11 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     SeedAerialTurnDryVerticalAcceleration(bus);
     var turn = new SamusState { Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 48)) };
     turn.PoseMetadata.RefreshCollisionRadii();
-    turn.HorizontalSpeed.BaseSpeed = 1;
-    turn.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+    turn.HorizontalSpeed.BaseSpeed = turn.HorizontalSpeed.BaseSpeed.WithWhole(1);
+    turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x8000);
     turn.Kinematics.YDirection = SamusVerticalDirection.Up;
-    turn.Kinematics.YSpeed = 2;
-    turn.Kinematics.YSubacceleration = 0x2800;
+    turn.Kinematics.YSpeed = turn.Kinematics.YSpeed.WithWhole(2);
+    turn.Kinematics.YAcceleration = turn.Kinematics.YAcceleration.WithFraction(0x2800);
     AssertTrue(turn.PoseTransitions.TryApplyAerialTurn(level, SamusPoseId.TurningRightToLeftJumpPose, 0), "diagonal-up aerial turn installs");
     uint turnXBefore = turn.Kinematics.Position.X.RawValue;
     SamusAerialMovement.StepTurningInAir(level, turn, 0);
@@ -190,17 +190,16 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         var endpoint = new SamusState { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) };
         endpoint.PoseMetadata.RefreshCollisionRadii();
         endpoint.Presentation.InitializeAnimation();
-        endpoint.HorizontalSpeed.BaseSubspeed = 0x4800;
+        endpoint.HorizontalSpeed.BaseSpeed = endpoint.HorizontalSpeed.BaseSpeed.WithFraction(0x4800);
         endpoint.HorizontalSpeed.AccelerationMode = 1;
-        endpoint.HorizontalSpeed.ExtraRunSpeed = SnesFixedPosition.WholeOf(unchecked((int)extra));
-        endpoint.HorizontalSpeed.ExtraRunSubspeed = (ushort)extra;
+        endpoint.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(SnesFixedPosition.WholeOf(unchecked((int)extra)), (ushort)extra);
         for (int tick = 0; tick < 6; tick++)
             endpoint.Presentation.AnimateNoFx(new SamusAnimationStep());
         AssertTrue(endpoint.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "turn endpoint command consumed");
         AssertEqual(extra == 0 ? 0 : 2, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "turn endpoint retains base speed");
-        AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)extra)), endpoint.HorizontalSpeed.ExtraRunSpeed, "turn endpoint retains whole dash speed");
-        AssertEqual((ushort)extra, endpoint.HorizontalSpeed.ExtraRunSubspeed, "turn endpoint retains fractional dash speed");
+        AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)extra)), endpoint.HorizontalSpeed.ExtraRunSpeed.Whole, "turn endpoint retains whole dash speed");
+        AssertEqual((ushort)extra, endpoint.HorizontalSpeed.ExtraRunSpeed.Fraction, "turn endpoint retains fractional dash speed");
 
         endpoint.Pose = source;
         endpoint.Presentation.InitializeAnimation();
@@ -356,8 +355,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     // Bank $91:F2D3 clears only base speed; bank $90:9949 installs Y launch speed and
     // likewise leaves the Dash pair/flag alone. Seed a visible fractional value here so
     // an over-broad wall-jump cleanup cannot masquerade as a harmless zero-state write.
-    eligible.HorizontalSpeed.ExtraRunSpeed = 1;
-    eligible.HorizontalSpeed.ExtraRunSubspeed = 0x7000;
+    eligible.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0x7000);
     eligible.HorizontalSpeed.HasRunningMomentum = true;
     eligible.LiquidPhysics.BeginFrameSoundRequests();
     eligible.PoseTransitions.ApplyWallJumpTrigger();
@@ -370,10 +368,10 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     AssertEqual(eligible.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(eligible.Pose) - 1, wallDust.Position.Y,
         "wall dust is anchored at last occupied bottom pixel");
     AssertEqual(SamusPoseId.WallJumpRightPose, eligible.Pose, "right-facing spin selects right wall-jump pose");
-    AssertEqual(4, eligible.Kinematics.YSpeed, "wall jump reads whole launch speed");
-    AssertEqual(0xa000, eligible.Kinematics.YSubspeed, "wall jump reads fractional launch speed");
-    AssertEqual(1, eligible.HorizontalSpeed.ExtraRunSpeed, "wall jump preserves Dash whole speed");
-    AssertEqual(0x7000, eligible.HorizontalSpeed.ExtraRunSubspeed, "wall jump preserves Dash fraction");
+    AssertEqual(4, eligible.Kinematics.YSpeed.Whole, "wall jump reads whole launch speed");
+    AssertEqual(0xa000, eligible.Kinematics.YSpeed.Fraction, "wall jump reads fractional launch speed");
+    AssertEqual(1, eligible.HorizontalSpeed.ExtraRunSpeed.Whole, "wall jump preserves Dash whole speed");
+    AssertEqual(0x7000, eligible.HorizontalSpeed.ExtraRunSpeed.Fraction, "wall jump preserves Dash fraction");
     AssertTrue(eligible.HorizontalSpeed.HasRunningMomentum, "wall jump preserves Dash momentum flag");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6), eligible.LiquidPhysics.SoundRequests.Single(),
         "ordinary wall trigger queues library-three sound five max six");
@@ -415,8 +413,8 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
         samus.Presentation.InitializeAnimation(0);
         samus.AnimationFrame = animationFrame;
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-        samus.Kinematics.YSpeed = 2;
-        samus.Kinematics.YSubacceleration = 0x2800;
+        samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
+        samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x2800);
         return samus;
     }
 
@@ -432,8 +430,8 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
         samus.Presentation.InitializeAnimation(0);
         samus.AnimationFrame = animationFrame;
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-        samus.Kinematics.YSpeed = 2;
-        samus.Kinematics.YSubacceleration = 0x2800;
+        samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
+        samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x2800);
         return samus;
     }
 
@@ -530,8 +528,8 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual(1, samus.HurtFlashCounter,
         "knockback command starts shared hurt-flash palette counter");
     AssertTrue(samus.KnockbackActive, "special knockback handler installed");
-    AssertEqual(5, samus.Kinematics.YSpeed, "knockback dry-air whole speed");
-    AssertEqual(0, samus.Kinematics.YSubspeed, "knockback dry-air subspeed");
+    AssertEqual(5, samus.Kinematics.YSpeed.Whole, "knockback dry-air whole speed");
+    AssertEqual(0, samus.Kinematics.YSpeed.Fraction, "knockback dry-air subspeed");
 
     // Intro Rinkas publish eleven in `$18AA` before the shared command-one initializer.
     // That initializer must consume the producer-owned value rather than replacing it with
@@ -596,8 +594,8 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual(unchecked((int)0xfffb0000), unchecked((int)(samus.Kinematics.Position.Y.RawValue - hurtYBefore)),
         "knockback moves by old 5.0000 vertical speed");
     AssertEqual(91, samus.Position.Y.Whole, "knockback upward whole position");
-    AssertEqual(4, samus.Kinematics.YSpeed, "knockback gravity next whole speed");
-    AssertEqual(0xe400, samus.Kinematics.YSubspeed, "knockback gravity next subspeed");
+    AssertEqual(4, samus.Kinematics.YSpeed.Whole, "knockback gravity next whole speed");
+    AssertEqual(0xe400, samus.Kinematics.YSpeed.Fraction, "knockback gravity next subspeed");
 
     // Held forward selects down-right direction four. Place the radius-21 body flush with a
     // square floor so `$90:923F`'s no-speed down probe collides immediately. The special
@@ -616,8 +614,8 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     SamusKnockbackMovement.Start(downKnockback, controllerInput: SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left });
     // The no-speed-calculation down probe does not change the vertical words, so the
     // impact speed seen by `$91:F078` is the live speed entering this frame.
-    int impactYSpeed = downKnockback.Kinematics.YSpeed;
-    int impactYSubspeed = downKnockback.Kinematics.YSubspeed;
+    int impactYSpeed = downKnockback.Kinematics.YSpeed.Whole;
+    int impactYSubspeed = downKnockback.Kinematics.YSpeed.Fraction;
     KnockbackMovementResult downImpact = SamusKnockbackMovement.Step(
 floorLevel, downKnockback, nmiFrameCounter: 0);
     AssertTrue(downImpact.Landed, "downward knockback collision publishes landing");
@@ -625,7 +623,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         "downward knockback enters collision with whole impact speed 5");
     AssertEqual(0, impactYSubspeed,
         "downward knockback enters collision with fractional impact speed 0");
-    AssertEqual(0, downKnockback.Kinematics.YSpeed,
+    AssertEqual(0, downKnockback.Kinematics.YSpeed.Whole,
         "downward knockback clears live whole speed after snapshot");
 
     // The prospective type change does not re-run jump initialization in alpha.
@@ -642,8 +640,8 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
     AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
     AssertEqual(SamusKnockbackDirection.UpRight, samus.KnockbackDirection, "damage boost preserves knockback direction");
     AssertEqual(4, samus.KnockbackTimer.RawValue, "damage boost preserves hurt timer");
-    AssertEqual(4, samus.Kinematics.YSpeed, "damage boost retains whole speed");
-    AssertEqual(0xe400, samus.Kinematics.YSubspeed, "damage boost retains subspeed");
+    AssertEqual(4, samus.Kinematics.YSpeed.Whole, "damage boost retains whole speed");
+    AssertEqual(0xe400, samus.Kinematics.YSpeed.Fraction, "damage boost retains subspeed");
 
     // A direct initializer only preserves supplied velocity. Expiry priority is tested
     // by the full-runtime/native sweep, not by bypassing that dispatcher here.
@@ -659,7 +657,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         SamusPoseId.DamageBoostLeftPose);
     AssertEqual(SamusPoseId.DamageBoostLeftPose, finalHurtFrameBoost.Pose,
         "final hurt-frame damage boost uses captured source pose");
-    AssertEqual(0, finalHurtFrameBoost.Kinematics.YSpeed,
+    AssertEqual(0, finalHurtFrameBoost.Kinematics.YSpeed.Whole,
         "direct damage-boost initializer does not invent vertical velocity");
 
     uint boostYBefore = samus.Kinematics.Position.Y.RawValue;
@@ -671,20 +669,20 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         nmiFrameCounter: 1);
     AssertEqual(unchecked((int)0xfffb1c00), unchecked((int)(samus.Kinematics.Position.Y.RawValue - boostYBefore)),
         "damage boost reuses ordinary old-speed jumping movement");
-    AssertEqual(4, samus.Kinematics.YSpeed, "damage boost gravity next whole speed");
-    AssertEqual(0xc800, samus.Kinematics.YSubspeed, "damage boost gravity next subspeed");
+    AssertEqual(4, samus.Kinematics.YSpeed.Whole, "damage boost gravity next whole speed");
+    AssertEqual(0xc800, samus.Kinematics.YSpeed.Fraction, "damage boost gravity next subspeed");
 
     // Jump alone (`$0080`) exits right-facing `$50` to neutral-jump `$4D`. This is an ordinary pose
     // change inside movement type two, so the already-live 16.16 trajectory must survive.
-    int preservedYSpeed = samus.Kinematics.YSpeed;
-    int preservedYSubspeed = samus.Kinematics.YSubspeed;
+    int preservedYSpeed = samus.Kinematics.YSpeed.Whole;
+    int preservedYSubspeed = samus.Kinematics.YSpeed.Fraction;
     SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
         samus,
         SamusPoseId.NeutralJumpRightPose,
         SnesButton.A);
     AssertEqual(SamusPoseId.NeutralJumpRightPose, samus.Pose, "damage-boost neutral exit pose");
-    AssertEqual(preservedYSpeed, samus.Kinematics.YSpeed, "damage-boost exit preserves whole Y speed");
-    AssertEqual(preservedYSubspeed, samus.Kinematics.YSubspeed, "damage-boost exit preserves Y subspeed");
+    AssertEqual(preservedYSpeed, samus.Kinematics.YSpeed.Whole, "damage-boost exit preserves whole Y speed");
+    AssertEqual(preservedYSubspeed, samus.Kinematics.YSpeed.Fraction, "damage-boost exit preserves Y subspeed");
 
     // Damage-boost pose definitions store shot direction `$FF`. `$91:E95D` handles that
     // sentinel before the aimed-landing table and selects ordinary `$A4/$A5` from X
@@ -819,17 +817,17 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         "expired morphed knockback retains rolling timer");
     AssertEqual(SamusBallBounceState.None, ballExpires.MorphBallBounceState,
         "expired morphed knockback clears bounce state");
-    AssertEqual(0, ballExpires.Kinematics.YSpeed,
+    AssertEqual(0, ballExpires.Kinematics.YSpeed.Whole,
         "expired morphed knockback clears whole Y speed");
-    AssertEqual(0, ballExpires.Kinematics.YSubspeed,
+    AssertEqual(0, ballExpires.Kinematics.YSpeed.Fraction,
         "expired morphed knockback clears fractional Y speed");
     AssertEqual(SamusVerticalDirection.Down, ballExpires.Kinematics.YDirection,
         "expired morphed knockback resumes with direction two");
 
     // Command one skips the proposed pose, so its same-pose bottom alignment is zero.
-    AssertEqual(0, expires.Kinematics.YSpeed,
+    AssertEqual(0, expires.Kinematics.YSpeed.Whole,
         "expired humanoid knockback clears whole Y speed");
-    AssertEqual(0, expires.Kinematics.YSubspeed,
+    AssertEqual(0, expires.Kinematics.YSpeed.Fraction,
         "expired humanoid knockback clears fractional Y speed");
     AssertEqual(SamusVerticalDirection.Down, expires.Kinematics.YDirection,
         "expired humanoid knockback publishes falling direction two");
@@ -854,8 +852,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         KnockbackTimer = NativeCountdown.Start(0),
     };
     floorClipOverlap.Kinematics.Position = floorClipOverlap.Kinematics.Position.WithFractionX(0xffff).WithFractionY(0xffff);
-    floorClipOverlap.Kinematics.YSpeed = 0xffff;
-    floorClipOverlap.Kinematics.YSubspeed = 0xac00;
+    floorClipOverlap.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(0xffff, 0xac00);
     floorClipOverlap.Kinematics.YDirection = SamusVerticalDirection.None;
     floorClipOverlap.PoseHistory.PreviousPose =
         SamusPoseId.TurningLeftToRightJumpAimDownPose;
@@ -869,9 +866,9 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         "floor-clip bottom alignment preserves native Y subposition");
     AssertEqual(10, floorClipOverlap.Kinematics.Radius.Y,
         "floor-clip command retains compact target radius");
-    AssertEqual(0, floorClipOverlap.Kinematics.YSpeed,
+    AssertEqual(0, floorClipOverlap.Kinematics.YSpeed.Whole,
         "floor-clip command clears whole hurt Y speed after alignment");
-    AssertEqual(0, floorClipOverlap.Kinematics.YSubspeed,
+    AssertEqual(0, floorClipOverlap.Kinematics.YSpeed.Fraction,
         "floor-clip command clears fractional hurt Y speed after alignment");
     AssertEqual(SamusVerticalDirection.Down, floorClipOverlap.Kinematics.YDirection,
         "floor-clip command resumes downward direction");

@@ -131,10 +131,8 @@ internal static class DoorAlignmentVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
-        samus.HorizontalSpeed.BaseSpeed = 1;
-        samus.HorizontalSpeed.BaseSubspeed = 0x8000;
-        samus.HorizontalSpeed.ExtraRunSpeed = 2;
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
+        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
+        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0x4000);
         samus.HorizontalSpeed.HasRunningMomentum = true;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
@@ -177,13 +175,13 @@ internal static class DoorAlignmentVerification
         AssertEqual(56, runtime.GameTime.Seconds, "door transition excludes game-time seconds");
         AssertEqual(34, runtime.GameTime.Minutes, "door transition excludes game-time minutes");
         AssertEqual(12, runtime.GameTime.Hours, "door transition excludes game-time hours");
-        AssertEqual((ushort)1, samus.HorizontalSpeed.BaseSpeed,
+        AssertEqual((ushort)1, samus.HorizontalSpeed.BaseSpeed.Whole,
             "door transition retains base running speed");
-        AssertEqual((ushort)0x8000, samus.HorizontalSpeed.BaseSubspeed,
+        AssertEqual((ushort)0x8000, samus.HorizontalSpeed.BaseSpeed.Fraction,
             "door transition retains base running subspeed");
-        AssertEqual((ushort)2, samus.HorizontalSpeed.ExtraRunSpeed,
+        AssertEqual((ushort)2, samus.HorizontalSpeed.ExtraRunSpeed.Whole,
             "door transition retains extra running speed");
-        AssertEqual((ushort)0x4000, samus.HorizontalSpeed.ExtraRunSubspeed,
+        AssertEqual((ushort)0x4000, samus.HorizontalSpeed.ExtraRunSpeed.Fraction,
             "door transition retains extra running subspeed");
         AssertTrue(samus.HorizontalSpeed.HasRunningMomentum,
             "door transition retains the running-momentum flag");

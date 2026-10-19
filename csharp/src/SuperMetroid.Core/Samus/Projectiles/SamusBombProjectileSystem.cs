@@ -683,7 +683,7 @@ public sealed class SamusBombProjectileSystem
         // Gravity adds with the fraction carrying into the whole word and the whole word wrapping at sixteen bits,
         // which is the signed 16.16 value's wrapping addition.
         slot.BombSpreadVerticalVelocity += SnesSignedSixteenSixteen.FromParts(
-            unchecked((short)samus.YAcceleration), samus.YSubacceleration);
+            unchecked((short)samus.YAcceleration.Whole), samus.YAcceleration.Fraction);
 
         ushort previousY = slot.Position.Y.Whole;
         ushort previousYSub = slot.Position.Y.Fraction;

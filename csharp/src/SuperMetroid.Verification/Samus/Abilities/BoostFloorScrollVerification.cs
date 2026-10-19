@@ -35,8 +35,8 @@ internal static class BoostFloorScrollVerification
         // Seed an already established boost at the reported floor, avoiding the
         // unrelated bomb-tunnel approach. All subsequent movement/contacts are live.
         samus.HorizontalSpeed.HasRunningMomentum = true;
-        samus.HorizontalSpeed.BaseSpeed = 2;
-        samus.HorizontalSpeed.ExtraRunSpeed = 7;
+        samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(2);
+        samus.HorizontalSpeed.ExtraRunSpeed = samus.HorizontalSpeed.ExtraRunSpeed.WithWhole(7);
         samus.HorizontalSpeed.SpeedBoostCounter = SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage | 1;
         for (int tick = 0; tick < 420; tick++)
         {

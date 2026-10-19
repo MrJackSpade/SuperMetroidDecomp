@@ -361,7 +361,7 @@ internal sealed class SamusPresentation
                 // whether the transition walked off a ledge.
                 SamusEquipmentFlags itemMask = (SamusEquipmentFlags)SnesLittleEndian.Word(ReadAnimationByte(unchecked((ushort)(_samus.AnimationFrame + 1))), ReadAnimationByte(unchecked((ushort)(_samus.AnimationFrame + 2))));
                 bool itemEquipped = (_samus.EquippedItems & itemMask) != 0;
-                bool movingVertically = _samus.Kinematics.YSpeed != 0 || _samus.Kinematics.YSubspeed != 0;
+                bool movingVertically = _samus.Kinematics.YSpeed.Whole != 0 || _samus.Kinematics.YSpeed.Fraction != 0;
                 ushort targetOffset = itemEquipped
                     ? movingVertically ? (ushort)6 : (ushort)5
                     : movingVertically ? (ushort)4 : (ushort)3;
@@ -375,7 +375,7 @@ internal sealed class SamusPresentation
                 // nonzero. Retail has no reachable active pose using this instruction, but
                 // preserving it completes the actual sixteen-entry interpreter instead of
                 // treating valid cartridge bytecode as corrupt data.
-                bool faMovingVertically = _samus.Kinematics.YSpeed != 0 || _samus.Kinematics.YSubspeed != 0;
+                bool faMovingVertically = _samus.Kinematics.YSpeed.Whole != 0 || _samus.Kinematics.YSpeed.Fraction != 0;
                 _samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
                     unchecked((ushort)(_samus.AnimationFrame + (faMovingVertically ? 2 : 1))));
                 return;

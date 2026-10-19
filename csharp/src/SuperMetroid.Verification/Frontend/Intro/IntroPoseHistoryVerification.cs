@@ -42,7 +42,7 @@ internal static class IntroPoseHistoryVerification
         AssertEqual(4, history.LastDifferentDirectionAndMovement, "intro run transition shifts prior metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "intro run transition commits current pose");
         AssertEqual(0x0104, history.PreviousDirectionAndMovement, "intro run transition commits running metadata");
-        samus.HorizontalSpeed.BaseSpeed = 2;
+        samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(2);
         history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
         history.LastDifferentDirectionAndMovement = 0x0308;
         IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 2);

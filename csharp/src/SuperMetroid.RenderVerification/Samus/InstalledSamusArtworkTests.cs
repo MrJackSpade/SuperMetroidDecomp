@@ -74,9 +74,9 @@ internal static class InstalledSamusArtworkTests
         samus.AnimationFrame, samus.AnimationFrameTimer, samus.AnimationFrameBuffer,
         samus.InvincibilityTimer, samus.KnockbackTimer, samus.EquippedItems,
         samus.EquippedBeams, samus.Kinematics.Position.X.Fraction, samus.Kinematics.Position.Y.Fraction,
-        samus.HorizontalSpeed.BaseSpeed, samus.HorizontalSpeed.BaseSubspeed,
-        samus.HorizontalSpeed.ExtraRunSpeed, samus.HorizontalSpeed.ExtraRunSubspeed,
-        samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed,
+        samus.HorizontalSpeed.BaseSpeed.Whole, samus.HorizontalSpeed.BaseSpeed.Fraction,
+        samus.HorizontalSpeed.ExtraRunSpeed.Whole, samus.HorizontalSpeed.ExtraRunSpeed.Fraction,
+        samus.Kinematics.YSpeed.Whole, samus.Kinematics.YSpeed.Fraction,
         samus.Kinematics.Radius.X, samus.Kinematics.Radius.Y);
 
     /// <summary>Raises a focused artwork fixture failure when an expected property changes.</summary>

@@ -278,9 +278,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ResetOrientation();
         RoomEnemySlot owner = OwnerSlot(state);
-        byte angle = EnemyMath.CalculateCartridgeAngle(
+        // The orbit angle takes the bearing's byte unconverted, as the cartridge does.
+        SnesBearing bearing = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(slot.Position.X.Whole - owner.Position.X.Whole)), unchecked((short)(slot.Position.Y.Whole - owner.Position.Y.Whole))));
-        SnesAngle target = SnesAngle.FromTableIndex(angle);
+        SnesAngle target = SnesAngle.FromTableIndex(bearing.RawValue);
         target = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != 0
             ? target.AddRaw(-SnesAngle.QuarterTurn.RawValue)
             : target.AddRaw(SnesAngle.QuarterTurn.RawValue);

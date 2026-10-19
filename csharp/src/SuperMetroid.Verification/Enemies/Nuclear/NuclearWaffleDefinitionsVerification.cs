@@ -147,7 +147,7 @@ internal static class NuclearWaffleDefinitionsVerification
         }
 
         AssertEqual(486, state.CurrentAngle, "Nuclear Waffle angle advances once more on the finishing update");
-        AssertEqual(state.Origin + EnemyMath.CircleOffset(endAngle, radius), slot.Position.Whole, "Nuclear Waffle head is clamped to the end angle");
+        AssertEqual(state.Origin + EnemyMath.CircleOffset(new SnesByteAngle(unchecked((byte)endAngle)), radius), slot.Position.Whole, "Nuclear Waffle head is clamped to the end angle");
         Console.WriteLine("  Nuclear Waffle sweep: the 16.16 angle carries, both turns latch with the rising sound only, and the last link ends the sweep.");
 
         static ClockedEnemyAiFrame Frame() => new(

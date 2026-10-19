@@ -526,10 +526,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // CMP #4 ($A9:F238) leaves carry = (Y speed >= 4, unsigned) through the clamp and
         // the shake-table loads; $A9:F24D adds Samus's X with no CLC, so that carry is one
         // extra pixel. BMI reads only the sign of the difference.
-        int ySpeed = samus.Kinematics.YSpeed;
+        int ySpeed = samus.Kinematics.YSpeed.Whole;
         int xCarry = ySpeed >= 4 ? 1 : 0;
         if (unchecked((short)unchecked((ushort)(ySpeed - 4))) >= 0)
-            samus.Kinematics.YSpeed = 2;
+            samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
 
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
         slot.Position = slot.Position.WithWhole(
@@ -695,10 +695,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
             SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
             state.Velocity += new EightEightVector<RoomPixels>(
-                new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(64, angle.TableIndex)),
+                new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(64, angle.ToByteAngle())),
                 new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
                     64,
-                    angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)));
+                    angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle())));
             return;
         }
 
@@ -741,10 +741,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (magnitude >= 240)
             magnitude = 240;
         state.Velocity += new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(magnitude, angle.TableIndex)),
+            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(magnitude, angle.ToByteAngle())),
             new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
                 magnitude,
-                angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)));
+                angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle())));
     }
 
     /// <summary>Ports <c>Shitroid_Powerbomb</c> at <c>$A9:EFBA</c>.</summary>

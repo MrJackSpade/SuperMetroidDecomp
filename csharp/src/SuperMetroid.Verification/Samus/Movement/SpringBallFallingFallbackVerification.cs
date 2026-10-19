@@ -43,20 +43,18 @@ internal static class SpringBallFallingFallbackVerification
         samus.Presentation.InitializeAnimation();
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         // The movie's state entering update 349335: base 1.4000, extra 1.E000, mode two.
-        samus.HorizontalSpeed.BaseSpeed = 1;
-        samus.HorizontalSpeed.BaseSubspeed = 0x4000;
-        samus.HorizontalSpeed.ExtraRunSpeed = 1;
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0xe000;
+        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000);
+        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0xe000);
         samus.HorizontalSpeed.AccelerationMode = 2;
         ushort x0 = samus.Position.X.Whole;
 
         runtime.StepFrame(SnesButton.A);
         AssertEqual(SamusPoseId.SpringBallFallingRightPose, samus.Pose, "Jump alone keeps the falling Spring Ball pose");
         AssertEqual((ushort)(x0 + 2), samus.Position.X.Whole, "the frame's movement still uses the carried speed");
-        AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, "command six clears base speed");
-        AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSubspeed, "command six clears base subspeed");
-        AssertEqual((ushort)0, samus.HorizontalSpeed.ExtraRunSpeed, "command eight clears extra run speed");
-        AssertEqual((ushort)0, samus.HorizontalSpeed.ExtraRunSubspeed, "command eight clears extra run subspeed");
+        AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed.Whole, "command six clears base speed");
+        AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed.Fraction, "command six clears base subspeed");
+        AssertEqual((ushort)0, samus.HorizontalSpeed.ExtraRunSpeed.Whole, "command eight clears extra run speed");
+        AssertEqual((ushort)0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction, "command eight clears extra run subspeed");
         AssertEqual((ushort)0, samus.HorizontalSpeed.AccelerationMode, "command six clears the acceleration mode");
         Console.WriteLine("Spring Ball falling fallback: command six clears horizontal speed after movement.");
     }

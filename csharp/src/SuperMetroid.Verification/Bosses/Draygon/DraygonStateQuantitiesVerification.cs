@@ -72,11 +72,11 @@ internal static class DraygonStateQuantitiesVerification
         state.SwoopVelocity = 0;
         state.GoopYOscillationAngle = SnesAngle.FromTableIndex(byte.MaxValue);
         DraygonBehavior.MoveDraygonAlongGoopPath(state, movingRight: true);
-        AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(byte.MaxValue, 32))), state.Body.Position.Y.Whole,
+        AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
             "the bob reads the phase before advancing it");
         AssertEqual(SnesAngle.Zero, state.GoopYOscillationAngle, "the phase wraps from the last table unit to zero");
         DraygonBehavior.MoveDraygonAlongGoopPath(state, movingRight: true);
-        AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(0, 32))), state.Body.Position.Y.Whole,
+        AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(0), 32))), state.Body.Position.Y.Whole,
             "the next bob reads the wrapped phase");
         AssertEqual(1, (int)state.GoopYOscillationAngle.TableIndex, "the wrapped phase advances by one unit");
     }
@@ -102,8 +102,8 @@ internal static class DraygonStateQuantitiesVerification
         enemies.DraygonBehavior.CarrySamusInDraygonSpiral(state, new SamusState());
 
         Position16<RoomPixels> expectedBody = center + new Offset16<RoomPixels>(
-            unchecked((short)EnemyMath.ReadEightBitCosineProduct(angle, radiusWhole)),
-            unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(angle, radiusWhole >> 2)));
+            unchecked((short)EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(angle), radiusWhole)),
+            unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(new SnesByteAngle(angle), (ushort)(radiusWhole >> 2))));
         AssertEqual(expectedBody, state.Body.Position.Whole, "the body is placed from the angle and radius before they advance");
         uint nativeRadius = unchecked(SnesSixteenSixteen.Compose(radiusWhole, radiusFraction) + 8192u);
         AssertEqual(unchecked((int)nativeRadius), state.SpiralXRadius.RawValue, "the radius grows by one eighth of a pixel, carrying into its whole pixels");

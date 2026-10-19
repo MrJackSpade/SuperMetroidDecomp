@@ -32,7 +32,7 @@ internal static class MockballBoostContactVerification
             var floor = CreateRoom(new(32, 8), blocks, new byte[blocks.Length]);
             var speed = samus.HorizontalSpeed;
             speed.HasRunningMomentum = true;
-            speed.ExtraRunSpeed = 7;
+            speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(7);
             speed.SpeedBoostCounter = 0x0401;
             var enemy = fixture.System.SlotTable.Slots[0];
             enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
@@ -54,7 +54,7 @@ internal static class MockballBoostContactVerification
                 fixture.System.Collision.ResolveOrdinarySamusContact(samus, 0, floor);
                 AssertEqual(500, enemy.Health, $"pose {(int)pose:X2} mockball frame {frame} inflicts native 500 boost damage");
                 AssertEqual(SamusContactDamageIndex.SpeedBooster, speed.ContactDamageIndex, "moving ball republishes Speed Booster contact attack");
-                AssertEqual(7, speed.ExtraRunSpeed, "moving ball retains boost momentum");
+                AssertEqual(7, speed.ExtraRunSpeed.Whole, "moving ball retains boost momentum");
             }
             speed.SpeedBoostCounter = 0x0301;
             speed.ContactDamageIndex = SamusContactDamageIndex.None;

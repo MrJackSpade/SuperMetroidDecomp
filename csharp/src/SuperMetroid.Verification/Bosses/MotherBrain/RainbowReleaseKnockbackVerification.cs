@@ -26,7 +26,7 @@ internal static class RainbowReleaseKnockbackVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x00eb, 0x007d));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
-        samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YSpeed = default;
 
         var rainbow = new MotherBrainRainbowBeamAttackSequence();
         rainbow.StartActiveBeam(samus);

@@ -255,14 +255,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                     .Without(EnemyProperties.IgnoreSamusCollision)
                     .With(EnemyProperties.ProcessOffScreen);
 
-                byte sourceAngle = EnemyMath.CalculateCartridgeAngle(
-                    new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
-                byte velocityAngle = unchecked((byte)-(sourceAngle + EnemyByteAngleDefinitions.HalfTurn));
+                SnesByteAngle velocityAngle = EnemyMath.CalculateCartridgeAngle(
+                    new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue);
                 state.Velocity = new(
                     new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(RinkaSpeed, velocityAngle)),
                     new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
                         RinkaSpeed,
-                        unchecked((byte)(velocityAngle + EnemyByteAngleDefinitions.QuarterTurn)))));
+                        velocityAngle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
                 return;
 
             case RinkaEnemyFunction.Flying:

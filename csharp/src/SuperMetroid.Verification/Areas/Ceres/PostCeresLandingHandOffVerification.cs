@@ -30,17 +30,15 @@ internal static class PostCeresLandingHandOffVerification
         // The escape ends with Samus running: the 13% capture enters the load carrying
         // base speed $1.8000 and extra run speed $0.8000, plus inventory from Ceres.
         SamusState escaped = runtime.Player.IntroducedSamus;
-        escaped.HorizontalSpeed.BaseSpeed = 1;
-        escaped.HorizontalSpeed.BaseSubspeed = 0x8000;
-        escaped.HorizontalSpeed.ExtraRunSpeed = 0;
-        escaped.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+        escaped.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
+        escaped.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(0, 0x8000);
         escaped.Missiles = 7;
         escaped.MaxMissiles = 10;
         runtime.RoomLoader.InitializePostCeresZebesRoom();
         // $82:8057 InitializeSamus clears Samus RAM ($0A02 on) but not the inventory below it.
         SamusState landed = runtime.Player.IntroducedSamus;
         AssertEqual((0u, (ushort)0, (ushort)0),
-            (landed.HorizontalSpeed.BaseFixed, landed.HorizontalSpeed.ExtraRunSpeed, landed.HorizontalSpeed.ExtraRunSubspeed),
+            (landed.HorizontalSpeed.BaseFixed, landed.HorizontalSpeed.ExtraRunSpeed.Whole, landed.HorizontalSpeed.ExtraRunSpeed.Fraction),
             "station load clears the escape's running speeds");
         AssertEqual(((ushort)7, (ushort)10), (landed.Missiles, landed.MaxMissiles),
             "station load keeps the inventory below Samus RAM");

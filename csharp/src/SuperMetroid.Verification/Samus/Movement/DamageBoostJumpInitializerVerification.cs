@@ -21,7 +21,7 @@ internal static class DamageBoostJumpInitializerVerification
         var samus = new SamusState { Pose = SamusPoseId.DamageBoostLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00b6, 0x0082)) };
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
-        samus.HorizontalSpeed.BaseSpeed = 5;
+        samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(5);
         samus.HorizontalSpeed.AccelerationMode = SamusHorizontalAccelerationModes.Decelerating;
 
         SamusKnockbackMovement.ApplyDamageBoostPoseTransition(samus, SamusPoseId.NeutralJumpLeftPose, 0);

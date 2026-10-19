@@ -28,7 +28,7 @@ internal sealed class SamusPoseTransitions
     private void InitializeOrdinaryAerialAcceleration()
     {
         _samus.HorizontalSpeed.AccelerationMode =
-            _samus.HorizontalSpeed.ExtraRunSpeed != 0 || _samus.HorizontalSpeed.ExtraRunSubspeed != 0
+            _samus.HorizontalSpeed.ExtraRunSpeed.Whole != 0 || _samus.HorizontalSpeed.ExtraRunSpeed.Fraction != 0
                 ? SamusHorizontalAccelerationModes.Decelerating
                 : SamusHorizontalAccelerationModes.Accelerating;
     }
@@ -351,8 +351,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // pair at `$0B42/$0B44` or the running-momentum flag at `$0B3C`: a wall jump made
         // out of a Dash therefore carries that speed into movement type $14.
         _samus.HorizontalSpeed.AccelerationMode = 0;
-        _samus.HorizontalSpeed.BaseSpeed = 0;
-        _samus.HorizontalSpeed.BaseSubspeed = 0;
+        _samus.HorizontalSpeed.BaseSpeed = default;
 
         // SolidVerticalCollision_WallJumpTriggered queues library-three sound five with a
         // six-entry threshold after clearing the base-speed words and before pose setup.
@@ -391,8 +390,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // machinery reaches `$90:9949`. Like the non-grapple route, it leaves both the
         // extra-run pair and `$0B3C` intact, so Dash momentum survives this wall launch.
         _samus.HorizontalSpeed.AccelerationMode = 0;
-        _samus.HorizontalSpeed.BaseSpeed = 0;
-        _samus.HorizontalSpeed.BaseSubspeed = 0;
+        _samus.HorizontalSpeed.BaseSpeed = default;
 
         // `$9B:C9CE` uses generic QueueSound: library one, sound seven, maximum fifteen.
         // It also tears down the active beam flare so the wall-jump's charged-contact path
@@ -473,10 +471,8 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // connected grapple never creates it, so preserving the words is the literal rule.
         if (clearMovementSpeed)
         {
-            _samus.HorizontalSpeed.BaseSpeed = 0;
-            _samus.HorizontalSpeed.BaseSubspeed = 0;
-            _samus.Kinematics.YSpeed = 0;
-            _samus.Kinematics.YSubspeed = 0;
+            _samus.HorizontalSpeed.BaseSpeed = default;
+            _samus.Kinematics.YSpeed = default;
         }
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
@@ -511,11 +507,9 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     {
         SamusHorizontalSpeedState speed = _samus.HorizontalSpeed;
         uint combinedSpeed = unchecked(speed.BaseFixed +
-            SnesSixteenSixteen.Compose(speed.ExtraRunSpeed, speed.ExtraRunSubspeed));
-        speed.BaseSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed)));
-        speed.BaseSubspeed = unchecked((ushort)combinedSpeed);
-        speed.ExtraRunSpeed = 0;
-        speed.ExtraRunSubspeed = 0;
+            speed.ExtraRunSpeed.RawValue);
+        speed.BaseSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed))), unchecked((ushort)combinedSpeed));
+        speed.ExtraRunSpeed = default;
         speed.AccelerationMode = 1;
     }
 
@@ -868,8 +862,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         if (_samus.PoseMetadata.ReadMovementType() != SamusMovementType.Falling)
             throw new InvalidOperationException("Falling input fallback requires a falling pose.");
         _samus.HorizontalSpeed.CancelRunningMomentum(_samus.PoseMetadata.ReadFacingDirection());
-        _samus.HorizontalSpeed.ExtraRunSpeed = 0;
-        _samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+        _samus.HorizontalSpeed.ExtraRunSpeed = default;
     }
 
     /// <summary>
@@ -1382,15 +1375,13 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // with two independent 16-bit ADCs and their carry. Use one wrapping 16.16 add to
         // preserve exactly that pair of operations, including overflow at the high word.
         uint combinedSpeed = unchecked(speed.BaseFixed +
-            SnesSixteenSixteen.Compose(speed.ExtraRunSpeed, speed.ExtraRunSubspeed));
-        speed.BaseSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed)));
-        speed.BaseSubspeed = unchecked((ushort)combinedSpeed);
+            speed.ExtraRunSpeed.RawValue);
+        speed.BaseSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed))), unchecked((ushort)combinedSpeed));
 
         // The native handler consumes the extra component and selects acceleration mode
         // one. $90:8EA9 interprets that mode as “move opposite the NEW facing direction”
         // while $90:9A7E decelerates, which is how reversal preserves old momentum.
-        speed.ExtraRunSpeed = 0;
-        speed.ExtraRunSubspeed = 0;
+        speed.ExtraRunSpeed = default;
         speed.AccelerationMode = 1;
 
         ApplySimpleGroundedPoseChange(_samus.Pose, selectedTurnPose, "Grounded turn");
@@ -1800,8 +1791,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         if (_samus.MorphBallBounceState == SamusBallBounceState.None)
             return;
         _samus.MorphBallBounceState = SamusBallBounceState.None;
-        _samus.Kinematics.YSubspeed = 0;
-        _samus.Kinematics.YSpeed = 0;
+        _samus.Kinematics.YSpeed = default;
         _samus.Kinematics.YDirection = SamusVerticalDirection.None;
     }
 
@@ -1908,15 +1898,13 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
             // clears the extra words, and selects mode one so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             uint combined = unchecked(_samus.HorizontalSpeed.BaseFixed +
-                SnesSixteenSixteen.Compose(_samus.HorizontalSpeed.ExtraRunSpeed,
-                    _samus.HorizontalSpeed.ExtraRunSubspeed));
-            _samus.HorizontalSpeed.BaseSpeed = SnesFixedPosition.WholeOf(unchecked((int)combined));
-            _samus.HorizontalSpeed.BaseSubspeed = unchecked((ushort)combined);
+                SnesSixteenSixteen.Compose(_samus.HorizontalSpeed.ExtraRunSpeed.Whole,
+                    _samus.HorizontalSpeed.ExtraRunSpeed.Fraction));
+            _samus.HorizontalSpeed.BaseSpeed = SnesUnsignedSixteenSixteen.FromRaw(combined);
             // `$91:FA4C` invokes `Samus_CancelSpeedBoost` between the 16.16 fold and the
             // explicit extra-word clear. Preserve that ordering even for ordinary Dash.
             _samus.HorizontalSpeed.CancelRunningMomentum(currentDirection);
-            _samus.HorizontalSpeed.ExtraRunSpeed = 0;
-            _samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+            _samus.HorizontalSpeed.ExtraRunSpeed = default;
             _samus.HorizontalSpeed.AccelerationMode = 1;
         }
     }
@@ -1927,8 +1915,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
     /// </summary>
     public void ApplySolidCeilingCollision()
     {
-        _samus.Kinematics.YSpeed = 0;
-        _samus.Kinematics.YSubspeed = 0;
+        _samus.Kinematics.YSpeed = default;
         _samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     }
 
@@ -1945,12 +1932,11 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         // The cartridge tests the sign of a word subtraction, not an unsigned
         // magnitude. Moonfall's negative velocity therefore lands without a rebound.
         if (_samus.MorphBallBounceState == SamusBallBounceState.None &&
-            unchecked((short)(_samus.Kinematics.YSpeed - SamusMovementRomData.FirstBallBounceMinimumSpeed)) >= 0)
+            unchecked((short)(_samus.Kinematics.YSpeed.Whole - SamusMovementRomData.FirstBallBounceMinimumSpeed)) >= 0)
         {
             _samus.MorphBallBounceState = SamusBallBounceState.FirstRebound;
             _samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            _samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed;
-            _samus.Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
+            _samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(SamusVerticalMotionDefinitions.BallBounceSpeed, SamusVerticalMotionDefinitions.BallBounceSubspeed);
             return false;
         }
 
@@ -1958,15 +1944,13 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         {
             _samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
             _samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            _samus.Kinematics.YSpeed = unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed - 1));
-            _samus.Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
+            _samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed - 1)), SamusVerticalMotionDefinitions.BallBounceSubspeed);
             return false;
         }
 
         _samus.MorphBallBounceState = SamusBallBounceState.None;
         _samus.Kinematics.YDirection = SamusVerticalDirection.None;
-        _samus.Kinematics.YSpeed = 0;
-        _samus.Kinematics.YSubspeed = 0;
+        _samus.Kinematics.YSpeed = default;
         SamusPoseId groundedPose = _samus.PoseMetadata.IsFacingLeft()
             ? SamusPoseId.MorphBallGroundLeftPose
             : SamusPoseId.MorphBallGroundRightPose;
@@ -1974,8 +1958,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         // $91:F02D-$F033 clears base momentum only when the bounce handler returns
         // carry clear. Both airborne rebounds above retain their horizontal speed.
         _samus.HorizontalSpeed.AccelerationMode = 0;
-        _samus.HorizontalSpeed.BaseSpeed = 0;
-        _samus.HorizontalSpeed.BaseSubspeed = 0;
+        _samus.HorizontalSpeed.BaseSpeed = default;
         return true;
     }
 
@@ -2003,12 +1986,11 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         // $91:F26E dispatches on the low (rebound) byte only, so an ordinary-ball
         // rebound left over from a Spring Ball toggle selects the same rebound step.
         if (_samus.MorphBallBounceState == SamusBallBounceState.None &&
-            unchecked((short)(_samus.Kinematics.YSpeed - SamusMovementRomData.FirstBallBounceMinimumSpeed)) >= 0)
+            unchecked((short)(_samus.Kinematics.YSpeed.Whole - SamusMovementRomData.FirstBallBounceMinimumSpeed)) >= 0)
         {
             _samus.MorphBallBounceState = SamusBallBounceState.SpringBallFirstRebound;
             _samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            _samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed;
-            _samus.Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
+            _samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(SamusVerticalMotionDefinitions.BallBounceSpeed, SamusVerticalMotionDefinitions.BallBounceSubspeed);
             return false;
         }
 
@@ -2016,15 +1998,13 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         {
             _samus.MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound;
             _samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            _samus.Kinematics.YSpeed = unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed - 1));
-            _samus.Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
+            _samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed - 1)), SamusVerticalMotionDefinitions.BallBounceSubspeed);
             return false;
         }
 
         _samus.MorphBallBounceState = SamusBallBounceState.None;
         _samus.Kinematics.YDirection = SamusVerticalDirection.None;
-        _samus.Kinematics.YSpeed = 0;
-        _samus.Kinematics.YSubspeed = 0;
+        _samus.Kinematics.YSpeed = default;
         SamusPoseId groundPose = _samus.PoseMetadata.IsFacingLeft()
             ? SamusPoseId.SpringBallGroundLeftPose
             : SamusPoseId.SpringBallGroundRightPose;
@@ -2032,8 +2012,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         // The common landing caller clears base speed when the bounce routine
         // returns carry clear. Spring Ball shares this with ordinary ball landing.
         _samus.HorizontalSpeed.AccelerationMode = 0;
-        _samus.HorizontalSpeed.BaseSpeed = 0;
-        _samus.HorizontalSpeed.BaseSubspeed = 0;
+        _samus.HorizontalSpeed.BaseSpeed = default;
         return true;
     }
 
@@ -2086,8 +2065,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         SamusPoseId fallingPose = _samus.PoseMetadata.IsFacingLeft()
             ? springBall ? SamusPoseId.SpringBallFallingLeftPose : SamusPoseId.MorphBallFallingLeftPose
             : springBall ? SamusPoseId.SpringBallFallingRightPose : SamusPoseId.MorphBallFallingRightPose;
-        _samus.Kinematics.YSpeed = 0;
-        _samus.Kinematics.YSubspeed = 0;
+        _samus.Kinematics.YSpeed = default;
         _samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         SamusAerialMovement.ConfigureEnvironmentGravity(_samus);
         ApplyMorphBallPoseChange(fallingPose);
@@ -2142,8 +2120,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         if (_samus.Kinematics.YDirection != SamusVerticalDirection.Up)
         {
             _samus.MorphBallBounceState = SamusBallBounceState.None;
-            _samus.Kinematics.YSpeed = 0;
-            _samus.Kinematics.YSubspeed = 0;
+            _samus.Kinematics.YSpeed = default;
             _samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         }
         SamusAerialMovement.ConfigureEnvironmentGravity(_samus);
@@ -2315,10 +2292,8 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // Its short held-Jump window is evaluated next alpha, not during landing.
         if (!_samus.InputLocked) _samus.InputSnapshot.AutoJumpInputPending = true;
         _samus.HorizontalSpeed.AccelerationMode = 0;
-        _samus.HorizontalSpeed.BaseSpeed = 0;
-        _samus.HorizontalSpeed.BaseSubspeed = 0;
-        _samus.Kinematics.YSpeed = 0;
-        _samus.Kinematics.YSubspeed = 0;
+        _samus.HorizontalSpeed.BaseSpeed = default;
+        _samus.Kinematics.YSpeed = default;
 
         // `$91:F433` reloads the normal suit palette whenever a pose change leaves spin or
         // wall-jump movement while Screw Attack is equipped. The host palette copy occurs

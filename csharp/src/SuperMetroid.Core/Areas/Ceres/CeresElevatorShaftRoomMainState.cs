@@ -153,8 +153,8 @@ public sealed class CeresElevatorShaftRoomMainState
         samus.Position.X.Whole <= 144 &&
         samus.Position.Y.Whole >= 75 &&
         samus.Position.Y.Whole < 128 &&
-        samus.Kinematics.YSpeed == 0 &&
-        samus.Kinematics.YSubspeed == 0;
+        samus.Kinematics.YSpeed.Whole == 0 &&
+        samus.Kinematics.YSpeed.Fraction == 0;
 
     /// <summary>Publishes the current Mode 7 matrix and this call's departure edge to the dispatcher.</summary>
     private CeresElevatorShaftRoomMainResult Snapshot(bool matrixChanged) => new(

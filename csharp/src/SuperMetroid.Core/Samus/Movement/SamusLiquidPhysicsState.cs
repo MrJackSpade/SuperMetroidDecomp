@@ -331,8 +331,7 @@ public sealed class SamusLiquidPhysicsState
                 // the two extra-run words are then cleared explicitly by the FX handler.
                 // Acid deliberately skips all three writes.
                 samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
-                samus.HorizontalSpeed.ExtraRunSpeed = 0;
-                samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+                samus.HorizontalSpeed.ExtraRunSpeed = default;
             }
 
             if (fxKind == RoomFxType.Lava && gravitySuit)

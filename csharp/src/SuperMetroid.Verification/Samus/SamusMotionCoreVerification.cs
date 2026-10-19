@@ -148,21 +148,21 @@ internal static void VerifySamusHorizontalSpeed()
             speedBoosterEquipped: false));
     AssertTrue(speed.HasRunningMomentum, "ordinary Dash establishes native momentum flag");
     AssertEqual(0, speed.SpeedBoostCounter, "ordinary Dash leaves booster stage zero");
-    AssertEqual(2, speed.ExtraRunSpeed, "ordinary Dash whole-speed cap");
-    AssertEqual(0, speed.ExtraRunSubspeed, "ordinary Dash fractional-speed cap");
+    AssertEqual(2, speed.ExtraRunSpeed.Whole, "ordinary Dash whole-speed cap");
+    AssertEqual(0, speed.ExtraRunSpeed.Fraction, "ordinary Dash fractional-speed cap");
     speed.HandleExtraRunSpeed(SamusMovementType.Running, SnesButton.B, speedBoosterEquipped: false);
-    AssertEqual(2, speed.ExtraRunSpeed, "ordinary Dash remains clamped on next call");
+    AssertEqual(2, speed.ExtraRunSpeed.Whole, "ordinary Dash remains clamped on next call");
 
     // B release and an airborne movement type both take `$90:9808`; a set momentum flag
     // bypasses the numeric clear. Only the separately invoked cancel routine clears the
     // flag/counter, after which another non-running call clears the retained pair.
     speed.HandleExtraRunSpeed(SamusMovementType.Running, controllerInput: 0, speedBoosterEquipped: false);
     speed.HandleExtraRunSpeed(SamusMovementType.SpinJumping, controllerInput: 0, speedBoosterEquipped: false);
-    AssertEqual(2, speed.ExtraRunSpeed, "Dash release and spin jump retain extra speed");
+    AssertEqual(2, speed.ExtraRunSpeed.Whole, "Dash release and spin jump retain extra speed");
     speed.CancelRunningMomentum(SamusFacingDirection.Right);
     AssertTrue(!speed.HasRunningMomentum, "CancelSpeedBoost clears ordinary momentum flag");
     speed.HandleExtraRunSpeed(SamusMovementType.SpinJumping, controllerInput: 0, speedBoosterEquipped: false);
-    AssertEqual(0, speed.ExtraRunSpeed, "post-cancel airborne handler clears extra speed");
+    AssertEqual(0, speed.ExtraRunSpeed.Whole, "post-cancel airborne handler clears extra speed");
 
     // Ordinary Dash uses the compiled native ten-frame, two-tick cadence. Do not
     // rewrite the cartridge pointer/delay ROM in the fake bus: gameplay now reads
@@ -202,8 +202,8 @@ internal static void VerifySamusHorizontalSpeed()
             controllerInput: SnesButton.B,
             speedBoosterEquipped: true);
     }
-    AssertEqual(7, booster.ExtraRunSpeed, "Speed Booster reaches exact 7.0000 cap");
-    AssertEqual(0, booster.ExtraRunSubspeed, "Speed Booster cap has zero fraction");
+    AssertEqual(7, booster.ExtraRunSpeed.Whole, "Speed Booster reaches exact 7.0000 cap");
+    AssertEqual(0, booster.ExtraRunSpeed.Fraction, "Speed Booster cap has zero fraction");
 
     ushort boostFrame = 1;
     for (int command = 0; command < 4; command++)
@@ -240,14 +240,14 @@ internal static void VerifySamusHorizontalSpeed()
         var retainedBoost = new SamusHorizontalSpeedState
         {
             HasRunningMomentum = true,
-            ExtraRunSpeed = 7,
+            ExtraRunSpeed = new SnesUnsignedSixteenSixteen(7, 0),
             SpeedBoostCounter = activeStage ? (ushort)0x0401 : (ushort)0x0301,
             ContactDamageIndex = SamusContactDamageIndex.None,
         };
         retainedBoost.HandleExtraRunSpeed(movement, 0, true, liquidImpeded: liquid);
         AssertEqual(activeStage ? SamusContactDamageIndex.SpeedBooster : SamusContactDamageIndex.None, retainedBoost.ContactDamageIndex,
             "retained boost publishes contact protection only in active stage");
-        AssertEqual(7, retainedBoost.ExtraRunSpeed, "released boost retains numeric speed");
+        AssertEqual(7, retainedBoost.ExtraRunSpeed.Whole, "released boost retains numeric speed");
     }
 
     // The active suit/phase pointer lists are compiled. Distinct first/second
@@ -423,26 +423,23 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");
 
     var boostedJump = new SamusState { EquippedItems = (SamusEquipmentFlags)0x2000 };
-    boostedJump.Kinematics.YSpeed = 4;
-    boostedJump.Kinematics.YSubspeed = 0xe000;
-    boostedJump.HorizontalSpeed.ExtraRunSpeed = 3;
-    boostedJump.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
+    boostedJump.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(4, 0xe000);
+    boostedJump.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
     SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(boostedJump);
-    AssertEqual(5, boostedJump.Kinematics.YSpeed, "boosted jump adds half whole extra speed");
-    AssertEqual(0x2000, boostedJump.Kinematics.YSubspeed,
+    AssertEqual(5, boostedJump.Kinematics.YSpeed.Whole, "boosted jump adds half whole extra speed");
+    AssertEqual(0x2000, boostedJump.Kinematics.YSpeed.Fraction,
         "boosted jump wraps fractional addition without carrying");
 
     // $90:E4E6 caps a nonsensically large divisor at four. Extra run speed is added before
     // that shift; 2.0 + 2.0 therefore becomes 0.4000 when divisor $1234 is stored.
-    speed.ExtraRunSpeed = 2;
-    speed.ExtraRunSubspeed = 0;
+    speed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0);
     speed.SpeedDivisor = 0x1234;
     AssertEqual(0x00004000u, speed.CalculateTotalSpeed(0x00020000), "total speed divisor caps at four");
-    AssertEqual(0x4000, speed.TotalSubspeed, "total subspeed publication");
+    AssertEqual(0x4000, speed.TotalSpeed.Fraction, "total subspeed publication");
 
     // The displacement clamp replaces only the signed whole word and preserves the low
     // fraction. These deliberately oversized values catch a tempting floating-point clamp.
-    speed.ExtraRunSpeed = 0;
+    speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(0);
     speed.SpeedDivisor = 0;
     AssertEqual(0x000f1234, speed.CalculateRightDisplacement(0x00101234), "right displacement +15 clamp");
     // Negation happens before clamping, so 0 - $0010:1234 is $FFEF:EDCC. The clamp
@@ -549,8 +546,7 @@ internal static void VerifySamusExtraDisplacement()
     };
     rising.Kinematics.Radius = new(5, 19);
     rising.Kinematics.YDirection = SamusVerticalDirection.Up;
-    rising.Kinematics.YSpeed = 1;
-    rising.Kinematics.YSubspeed = 0;
+    rising.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);
     rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
     uint risingYBefore = rising.Kinematics.Position.Y.RawValue;
     AerialMovementResult reversed = SamusAerialMovement.StepNormalJump(
@@ -573,8 +569,7 @@ internal static void VerifySamusExtraDisplacement()
     };
     bouncingBall.Kinematics.Radius = new(5, 7);
     bouncingBall.Kinematics.YDirection = SamusVerticalDirection.Up;
-    bouncingBall.Kinematics.YSpeed = 3;
-    bouncingBall.Kinematics.YSubspeed = 0x4000;
+    bouncingBall.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
     bouncingBall.Kinematics.ExtraDisplacement = bouncingBall.Kinematics.ExtraDisplacement.WithWholeY(-1).WithFractionY(0x8000); // -0.8000
     MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(
 
@@ -584,9 +579,9 @@ internal static void VerifySamusExtraDisplacement()
         nmiFrameCounter: 0);
     AssertEqual(unchecked((int)0xffff8000), displacedBounce.Vertical.AcceptedDisplacement,
         "external Y replaces an active Morph Ball rebound rather than joining gravity");
-    AssertEqual(0, bouncingBall.Kinematics.YSpeed,
+    AssertEqual(0, bouncingBall.Kinematics.YSpeed.Whole,
         "external Morph Ball bounce override clears whole rebound speed");
-    AssertEqual(0, bouncingBall.Kinematics.YSubspeed,
+    AssertEqual(0, bouncingBall.Kinematics.YSpeed.Fraction,
         "external Morph Ball bounce override clears fractional rebound speed");
     AssertEqual(SamusVerticalDirection.Down, bouncingBall.Kinematics.YDirection,
         "external Morph Ball bounce override forces native direction word two");

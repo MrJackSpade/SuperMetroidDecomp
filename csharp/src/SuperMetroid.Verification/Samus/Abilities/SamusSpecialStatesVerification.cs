@@ -126,10 +126,10 @@ internal static void VerifySamusCrystalFlash()
     AssertTrue(!samus.CrystalFlash.TryBegin(samus, chord | SnesButton.A),
         "Crystal Flash rejects extra held input");
     AssertEqual(96, samus.InvincibilityTimer.RawValue, "rejected Crystal Flash preserves hit immunity");
-    samus.Kinematics.YSubspeed = 1;
+    samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(1);
     AssertTrue(!samus.CrystalFlash.TryBegin(samus, chord),
         "Crystal Flash rejects fractional vertical movement");
-    samus.Kinematics.YSubspeed = 0;
+    samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(0);
     AssertEqual(SamusPoseId.SpinJumpLeftPose, samus.PoseHistory.LastDifferentPose,
         "rejected Crystal Flash must not shift history");
     AssertTrue(samus.CrystalFlash.TryBegin(samus, chord),
@@ -657,8 +657,7 @@ internal static void VerifySamusXray()
         var sample = new SamusState { Pose = pose };
         sample.PoseMetadata.RefreshCollisionRadii();
         sample.Presentation.InitializeAnimation();
-        sample.Kinematics.YSpeed = ySpeed;
-        sample.Kinematics.YSubspeed = ySubspeed;
+        sample.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(ySpeed, ySubspeed);
         return sample;
     }
 

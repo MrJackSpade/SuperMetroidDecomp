@@ -2141,7 +2141,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         // nine-word gradient table. The compiled definition includes those exact setup
         // instruction bytes; do not clamp the final shot to the last authored gradient.
         short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(checked((ushort)projectile.DirectionParameter));
-        byte angle = EnemyMath.CalculateCartridgeAngle(new(-64, gradient));
+        byte angle = EnemyMath.CalculateCartridgeAngle(new(-64, gradient)).RawValue;
         // The native angle starts at up, not right: Y uses negative cosine.
         projectile.Velocity = CalculateCrocomireProjectileVelocity(angle);
         projectile.PreInstruction =

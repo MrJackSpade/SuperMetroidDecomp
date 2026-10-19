@@ -82,10 +82,8 @@ internal static class MochtroidBotwoonClipVerification
         samus.Position = samus.Position.WithWhole(expected.Samus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(0, 0, 0, 0);
-        samus.HorizontalSpeed.BaseSpeed = 0;
-        samus.HorizontalSpeed.BaseSubspeed = 0;
-        samus.HorizontalSpeed.ExtraRunSpeed = 0;
-        samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+        samus.HorizontalSpeed.BaseSpeed = default;
+        samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.HasRunningMomentum = false;
         samus.HorizontalSpeed.AccelerationMode = 0;
         samus.Pose = SamusPoseId.CrouchingAimUpRightPose;

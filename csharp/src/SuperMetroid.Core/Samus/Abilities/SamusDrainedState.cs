@@ -318,8 +318,8 @@ public sealed class SamusDrainedState
 
         // Generic Y movement has already applied gravity when it reports the collision.
         // Capture the exact magnitude before `$90:94E5-$94E8` erases it for on-floor art.
-        int impactYSpeed = samus.Kinematics.YSpeed;
-        int impactYSubspeed = samus.Kinematics.YSubspeed;
+        int impactYSpeed = samus.Kinematics.YSpeed.Whole;
+        int impactYSubspeed = samus.Kinematics.YSpeed.Fraction;
 
         if (vertical.Collided)
         {
@@ -327,8 +327,7 @@ public sealed class SamusDrainedState
             // frame seven for eight ticks, and clears both velocity halves. It does not
             // clear Y direction and it does not select a new pose.
             samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 7, timer: 8);
-            samus.Kinematics.YSpeed = 0;
-            samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YSpeed = default;
             Phase = DrainedSamusPhase.OnFloor;
         }
 
@@ -423,10 +422,8 @@ public sealed class SamusDrainedState
     /// <summary>Erases horizontal base speed and both halves of vertical speed during drained pose changes.</summary>
     private static void ClearBaseAndVerticalSpeed(SamusState samus)
     {
-        samus.HorizontalSpeed.BaseSpeed = 0;
-        samus.HorizontalSpeed.BaseSubspeed = 0;
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
+        samus.HorizontalSpeed.BaseSpeed = default;
+        samus.Kinematics.YSpeed = default;
     }
 
 }

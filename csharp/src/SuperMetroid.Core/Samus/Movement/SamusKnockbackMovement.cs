@@ -205,7 +205,7 @@ level, targetPose, nmiFrameCounter, plms))
         samus.HurtFlashCounter = 1;
 
         // Hurt launch retains the native bottom-edge and Gravity-Suit selection.
-        (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
+        samus.Kinematics.YSpeed =
             SamusVerticalMotionDefinitions.Knockback(samus.LiquidPhysics.DetermineMovementMedium(samus));
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
@@ -254,8 +254,8 @@ level, targetPose, nmiFrameCounter, plms))
         // clears them. Preserve the impact snapshot in the typed result so the runtime can
         // execute the shared landing-presentation routine at the same logical seam.
         bool landed = samus.KnockbackDirection is SamusKnockbackDirection.DownLeft or SamusKnockbackDirection.DownRight && vertical.Collided;
-        int impactYSpeed = samus.Kinematics.YSpeed;
-        int impactYSubspeed = samus.Kinematics.YSubspeed;
+        int impactYSpeed = samus.Kinematics.YSpeed.Whole;
+        int impactYSubspeed = samus.Kinematics.YSpeed.Fraction;
 
         if (vertical.Collided)
         {
@@ -263,10 +263,8 @@ level, targetPose, nmiFrameCounter, plms))
             // contact alone does not clear these vertical words. Bottom alignment is already
             // represented by bank-$94's accepted displacement against the current radius.
             speed.AccelerationMode = 0;
-            speed.BaseSpeed = 0;
-            speed.BaseSubspeed = 0;
-            samus.Kinematics.YSpeed = 0;
-            samus.Kinematics.YSubspeed = 0;
+            speed.BaseSpeed = default;
+            samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.None;
         }
 
@@ -411,8 +409,7 @@ level, targetPose, nmiFrameCounter, plms))
         samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.MorphBallBounceState = SamusBallBounceState.None;
-        samus.Kinematics.YSubspeed = 0;
-        samus.Kinematics.YSpeed = 0;
+        samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         return new KnockbackMovementResult();
     }

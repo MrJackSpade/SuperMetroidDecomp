@@ -46,9 +46,8 @@ internal static class WallJumpSpinExitVerification
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            samus.Kinematics.YSpeed = 3;
-            samus.HorizontalSpeed.BaseSpeed = 1;
-            samus.HorizontalSpeed.BaseSubspeed = 0x6000;
+            samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(3);
+            samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x6000);
             samus.HorizontalSpeed.AccelerationMode = 2;
 
             runtime.StepFrame(0);
@@ -57,8 +56,8 @@ internal static class WallJumpSpinExitVerification
                     ? samus.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose
                     : samus.Pose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose,
                 $"{label}: input-free wall jump falls back to the expected spin art");
-            AssertEqual(speedKept ? (ushort)1 : (ushort)0, samus.HorizontalSpeed.BaseSpeed, $"{label}: base speed");
-            AssertEqual(speedKept ? (ushort)0x6000 : (ushort)0, samus.HorizontalSpeed.BaseSubspeed, $"{label}: base subspeed");
+            AssertEqual(speedKept ? (ushort)1 : (ushort)0, samus.HorizontalSpeed.BaseSpeed.Whole, $"{label}: base speed");
+            AssertEqual(speedKept ? (ushort)0x6000 : (ushort)0, samus.HorizontalSpeed.BaseSpeed.Fraction, $"{label}: base subspeed");
             AssertEqual(speedKept ? (ushort)2 : (ushort)0, samus.HorizontalSpeed.AccelerationMode, $"{label}: acceleration mode");
         }
     }

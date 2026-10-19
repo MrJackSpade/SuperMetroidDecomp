@@ -41,17 +41,15 @@ internal static class SamusVerticalDefinitionsVerification
             ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6 + medium * 2));
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
-                samus.HorizontalSpeed.ExtraRunSpeed = (ushort)raw;
-                samus.HorizontalSpeed.ExtraRunSubspeed = (ushort)raw;
-                samus.Kinematics.YAcceleration = 999;
-                samus.Kinematics.YSubacceleration = 999;
+                samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen((ushort)raw, (ushort)raw);
+                samus.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(999, 999);
                 if (launch == 2) SamusAerialMovement.InitializeDryAirJump(guard, samus);
                 else if (launch == 1) SamusAerialMovement.InitializeWallJump(samus);
                 else SamusAerialMovement.InitializeJump(samus);
-                AssertEqual(unchecked((ushort)(whole + (boost ? raw >> 1 : 0))), samus.Kinematics.YSpeed, "Native independent whole launch addition");
-                AssertEqual(unchecked((ushort)(fraction + (boost ? raw : 0))), samus.Kinematics.YSubspeed, "Native fractional overflow does not carry");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea7 + medium * 2)), samus.Kinematics.YAcceleration, "Native gravity whole word");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), samus.Kinematics.YSubacceleration, "Native gravity fractional word");
+                AssertEqual(unchecked((ushort)(whole + (boost ? raw >> 1 : 0))), samus.Kinematics.YSpeed.Whole, "Native independent whole launch addition");
+                AssertEqual(unchecked((ushort)(fraction + (boost ? raw : 0))), samus.Kinematics.YSpeed.Fraction, "Native fractional overflow does not carry");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea7 + medium * 2)), samus.Kinematics.YAcceleration.Whole, "Native gravity whole word");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), samus.Kinematics.YAcceleration.Fraction, "Native gravity fractional word");
                 AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.YDirection, "Launch remains upward");
                 cases++;
             }

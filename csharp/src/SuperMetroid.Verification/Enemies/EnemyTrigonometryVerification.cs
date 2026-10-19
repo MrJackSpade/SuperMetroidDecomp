@@ -675,12 +675,12 @@ internal static class EnemyTrigonometryVerification
             words[i] = rom.ReadCartridgeWord(address);
         }
 
-        var pixel = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitSineProduct);
-        var fixedProduct = new Func<ushort, ushort, SnesSignedSixteenSixteen>(EnemyMath.ReadEightBitSineFixedProduct);
-        var cosine = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitCosineProduct);
-        var negative = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitNegativeSineProduct);
-        var fixedCosine = new Func<ushort, ushort, SnesSignedSixteenSixteen>(EnemyMath.ReadEightBitCosineFixedProduct);
-        var fixedNegative = new Func<ushort, ushort, SnesSignedSixteenSixteen>(EnemyMath.ReadEightBitNegativeSineFixedProduct);
+        var pixel = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitSineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
+        var fixedProduct = new Func<ushort, ushort, SnesSignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitSineFixedProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
+        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
+        var negative = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
+        var fixedCosine = new Func<ushort, ushort, SnesSignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitCosineFixedProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
+        var fixedNegative = new Func<ushort, ushort, SnesSignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitNegativeSineFixedProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
         var sbugSigned = new Func<byte, byte, int, SbugVelocityWords>(SbugBehavior.CalculateSignedSbugComponent);
         var sbugUnsigned = new Func<byte, byte, int, SbugVelocityWords>(SbugBehavior.CalculateUnsignedSbugMagnitude);
         var unsigned = new Func<ushort, ushort, ushort, int>(EnemyMath.ReadUnsignedSineMagnitudeProduct);

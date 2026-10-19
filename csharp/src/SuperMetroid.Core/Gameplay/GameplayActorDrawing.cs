@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -42,6 +43,9 @@ internal sealed class GameplayActorDrawing
     private readonly FrameClock _clock;
     /// <summary>Receives actor sprites in cartridge drawing order.</summary>
     private readonly OamBuffer _oam;
+
+    /// <summary>The gameplay OBJ character page enemy-format sprites draw from, as the table's bindings show it.</summary>
+    private SpriteArtwork ObjectPage => _artwork.GameplayObjectPage(_enemies.ObjCharacters);
     /// <summary>Receives Samus's whole-frame draws in the same order as the OAM sprites around them.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Supplies Samus pose, palettes, grapple state, and movement effects.</summary>
@@ -99,12 +103,12 @@ internal sealed class GameplayActorDrawing
             // $1000 selected by Draw_HighPriority_EnemyProjectile at `$86:8390`.
             // That named pass occurs here, before enemy layers zero through two and
             // Samus; lower OAM indices retain their native same-priority overlap win.
-            _room.CeresElevatorArrival?.Draw(_oam, _room.Camera.PixelPosition);
+            _room.CeresElevatorArrival?.Draw(_sprites, ObjectPage, _room.Camera.PixelPosition);
             if (_enemies.IsLoaded)
             {
                 _enemies.Projectiles.DrawHighPriorityEnemyProjectiles(
-                    _oam,
-                    _room.Camera.PixelPosition,                     _freeze.TimeIsFrozen);
+                    _sprites, ObjectPage,
+                    _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
             }
         }
 
@@ -112,7 +116,10 @@ internal sealed class GameplayActorDrawing
         // call to DrawSamusAndProjectiles. Landing Site's gunship definition selects
         // layer two, so its hull correctly precedes (and can sit behind) Samus OAM.
         if (!deathOwnsSamus && _enemies.IsLoaded)
-            _enemies.Drawing.DrawLayers(_oam, _room.Camera.PixelPosition, 0, 2);
+        {
+            _enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 0, 2);
+            _enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 0, 2);
+        }
 
         if (advanceSamusPalette)
         {
@@ -408,19 +415,23 @@ internal sealed class GameplayActorDrawing
         {
             // At phase three Samus/projectiles are emitted before enemy layer three;
             // ordinary enemy layers four and five follow without another insertion.
-            _enemies.Drawing.DrawLayers(_oam, _room.Camera.PixelPosition, 3, 5);
+            _enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 3, 5);
+            _enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 3, 5);
         }
 
         if (!deathOwnsSamus && _enemies.IsLoaded &&
             _player.Samus?.Xray.AreEnemyProjectilesSuspended != true)
         {
             _enemies.Projectiles.DrawLowPriorityEnemyProjectiles(
-                _oam,
-                _room.Camera.PixelPosition,                 _freeze.TimeIsFrozen);
+                _sprites, ObjectPage,
+                _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
         }
 
         if (!deathOwnsSamus && _enemies.IsLoaded)
-            _enemies.Drawing.DrawLayers(_oam, _room.Camera.PixelPosition, 6, 7);
+        {
+            _enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 6, 7);
+            _enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 6, 7);
+        }
 
         if (!deathOwnsSamus && _enemies.IsLoaded && _enemies.DisplaySources.Draygon is { } draygon)
         {

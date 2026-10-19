@@ -3040,7 +3040,7 @@ internal static class EnemySpritemapArtworkVerification
             slot.Timer = NativeCountdown.Start(9);
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
             var oam = new OamBuffer();
-            enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 0);
+            enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
             inspect?.Invoke(slot);
             return oam;
         }
@@ -3091,7 +3091,7 @@ internal static class EnemySpritemapArtworkVerification
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =
             (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
         Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =
-            (owner, oam, camera) => owner.SpriteObjects.DrawRoomSpriteObjects(oam, camera);
+            (owner, oam, camera) => owner.SpriteObjects.DrawRoomSpriteObjectsAsOam(oam, camera);
         AssertTrue(spawn(enemies, new(0x0040, 0x0080), kind, 0x0e00) is not null,
             "installed room sprite object allocated");
         var oam = new OamBuffer();

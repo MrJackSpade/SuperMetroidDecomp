@@ -124,7 +124,10 @@ public sealed class VramWriteQueue
     /// the NMI consumer does at <c>$80:8CC9</c>. Every native-source record names cartridge artwork, which the
     /// installed artwork must resolve; a record it does not resolve fails rather than reading memory.
     /// </summary>
-    public void DrainTo(SnesVram vram, IVramAssetProvider? assets = null)
+    /// <param name="vram">VRAM receiving the transfers.</param>
+    /// <param name="assets">Resolves installed artwork transfers.</param>
+    /// <param name="objects">Records what each transfer that reaches the OBJ character table shows, when gameplay draws from it.</param>
+    public void DrainTo(SnesVram vram, IVramAssetProvider? assets = null, ObjCharacterUploads? objects = null)
     {
         Ensure.NotNull(vram);
 
@@ -146,6 +149,8 @@ public sealed class VramWriteQueue
                     throw new InvalidOperationException(
                         $"Queued VRAM transfer of {entry.SizeInBytes} bytes from ${entry.SourceAddress:X6} has no installed artwork.");
                 vram.ExecuteQueuedAssetWrite(selected.Span, entry.Destination.Encoded);
+                objects?.RecordUpload(entry.Destination, entry.SizeInBytes,
+                    ObjCharacterSource.FromTransfer(entry.SourceAddress, entry.SizeInBytes));
             }
             else
             {
@@ -154,6 +159,7 @@ public sealed class VramWriteQueue
                 if (data.Length != entry.SizeInBytes)
                     throw new InvalidDataException($"VRAM asset {entry.AssetId} has {data.Length} bytes; queued transfer requires {entry.SizeInBytes}.");
                 vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
+                objects?.RecordUpload(entry.Destination, entry.SizeInBytes, ObjCharacterSource.FromAsset(entry.AssetId));
             }
         }
 

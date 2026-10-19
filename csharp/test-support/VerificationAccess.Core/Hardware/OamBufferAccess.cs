@@ -50,5 +50,19 @@ internal static class OamBufferAccess
             self.WriteAttributes(lowOffset, attributes);
             self.NextByteOffset += 4;
         }
+        /// <summary>Draws an installed enemy frame without reading visual records from ROM.</summary>
+        public void AddEnemySpritemap(
+            ReadOnlySpan<EnemySpritemapPart> parts,
+            Position16<OamPixels> origin,
+            ushort paletteBits,
+            ushort baseTileIndex,
+            bool clipVerticalWrap = false,
+            bool originYIsOnScreen = true)
+        {
+            _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+            foreach (EnemySpritemapPart part in parts)
+                self.AppendEnemySpritemapPart(part, origin, paletteBits,
+                    baseTileIndex, clipVerticalWrap, originYIsOnScreen);
+        }
     }
 }

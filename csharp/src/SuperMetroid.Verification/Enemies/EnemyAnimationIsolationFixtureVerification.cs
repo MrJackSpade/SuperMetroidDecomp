@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Programs;
 using System.Reflection;
@@ -112,7 +113,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         {
             var oam = new OamBuffer();
             oam.BeginFrame();
-            Enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 7);
+            Enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 7);
             Enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
         }

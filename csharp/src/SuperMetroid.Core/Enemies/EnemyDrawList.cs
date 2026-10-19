@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -58,27 +59,27 @@ internal sealed class EnemyDrawList
     /// <summary>Queues an enemy, by native index, for its draw layer.</summary>
     internal void Enqueue(int layer, int nativeIndex) => _drawQueues[layer].Add(nativeIndex);
 
+    /// <summary>The draws <see cref="AdvanceLayers"/> prepared for the layer range <see cref="DrawLayers"/> publishes next.</summary>
+    [NonSerialized] private List<PreparedEnemyDraw>? _prepared;
+    /// <summary>The inclusive layer range <see cref="_prepared"/> covers.</summary>
+    [NonSerialized] private (int First, int Last) _preparedLayers;
+
     /// <summary>
-    /// Writes queued enemies for an inclusive layer range using native slot order.
+    /// The simulation half of <c>WriteEnemyOams</c> for an inclusive layer range, in native slot order: each queued
+    /// enemy's shake tick is consumed while its origin is formed, and an extended enemy's installed BG2 frame is
+    /// applied. These run whenever the cartridge's draw pass runs, whether or not the frame is shown.
     /// </summary>
-    /// <remarks>Drawing consumes each emitted actor's shake timer and may apply installed extended-frame BG2 presentation changes; it is a native draw phase, not a side-effect-free snapshot render.</remarks>
-    /// <param name="oam">OAM buffer receiving the selected actors' ordinary, extended, and supplemental sprites.</param>
     /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="firstLayer">First native draw layer, inclusively, in the range 0..7.</param>
     /// <param name="lastLayer">Last native draw layer, inclusively, in the range 0..7 and not below firstLayer.</param>
-    /// <exception cref="ArgumentNullException">The OAM buffer is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The inclusive layer range is invalid.</exception>
-    public void DrawLayers(
-        OamBuffer oam,
-        Position16<RoomPixels> camera,
-        int firstLayer,
-        int lastLayer)
+    public void AdvanceLayers(Position16<RoomPixels> camera, int firstLayer, int lastLayer)
     {
-        Ensure.NotNull(oam);
         _room.EnsureLoaded();
         if ((uint)firstLayer > 7 || (uint)lastLayer > 7 || firstLayer > lastLayer)
             throw new ArgumentOutOfRangeException(nameof(firstLayer));
 
+        var prepared = new List<PreparedEnemyDraw>();
         foreach (int layer in Enumerable.Range(firstLayer, lastLayer - firstLayer + 1))
         {
             foreach (int nativeIndex in _drawQueues[layer])
@@ -108,10 +109,6 @@ internal sealed class EnemyDrawList
                     slot.ShakeTimer = slot.ShakeTimer.Decrement().Remaining;
                 }
                 ushort drawPaletteIndex = SelectCommonEnemyDrawPalette(slot);
-                // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
-                // and wings), preserving both that OAM order and the enemy's normal layer queue.
-                if (slot.Entity is IEnemyDrawHooks drawHooks)
-                    drawHooks.DrawBeforeBody(oam, camera);
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
@@ -121,7 +118,7 @@ internal sealed class EnemyDrawList
                         !CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(slot.Definition.Bank, EnemyFrames.Spritemap(frame)))
                         throw new InvalidDataException(
                             $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} in bank ${slot.Definition.Bank:X2} has no common empty frame.");
-                    _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = frame, Origin = origin.ToOam(), PaletteBits = drawPaletteIndex, BaseTileIndex = checked((ushort)slot.VramTilesIndex) });
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, frame, null));
                     continue;
                 }
 
@@ -135,25 +132,79 @@ internal sealed class EnemyDrawList
                     ushort selected = _room.Artwork.ExtendedFrames.GetDisplayPointer(
                         slot.Definition.Bank, EnemyFrames.Spritemap(slot.Frame));
                     _instructions.ApplyInstalledEnemyBg2Frame(slot, selected);
-                    // This installed frame owns only the composite's visual offsets
-                    // and OAM parts. Collision still uses the original engine-owned
-                    // extended hitbox records, never the editable JSON geometry.
-                    foreach (EnemyExtendedDrawComponent component in installed.Span)
-                    {
-                        Position16<OamPixels> componentOrigin = origin.ToOam() + component.Offset;
-                        if (((componentOrigin.X + 128) & EnemyDrawMasks.OffscreenBits) != 0 ||
-                            ((componentOrigin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
-                            continue;
-                        oam.AddEnemySpritemap(component.Parts, componentOrigin, drawPaletteIndex, checked((ushort)slot.VramTilesIndex),
-                            clipVerticalWrap: true,
-                            originYIsOnScreen: (SnesLittleEndian.HighByte(componentOrigin.Y)) == 0);
-                    }
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, null, installed));
                     continue;
                 }
 
                 throw new InvalidDataException(
                     $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} extended frame " +
                     $"${slot.Definition.Bank:X2}:{slot.Frame} has no installed presentation.");
+            }
+        }
+        _prepared = prepared;
+        _preparedLayers = (firstLayer, lastLayer);
+    }
+
+    /// <summary>
+    /// Publishes the draws <see cref="AdvanceLayers"/> prepared for the same layer range, in native slot order, as
+    /// whole-frame entries over the gameplay OBJ page. An occupant's supplemental sprites and the layer-five boss hooks
+    /// still write OAM between them, in the cartridge's order.
+    /// </summary>
+    /// <param name="sprites">The frame's sprite description; the occupant and boss hooks write its OAM.</param>
+    /// <param name="objects">The gameplay OBJ character page.</param>
+    /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
+    /// <param name="firstLayer">First native draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
+    /// <param name="lastLayer">Last native draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
+    /// <exception cref="InvalidOperationException">The range was not prepared by <see cref="AdvanceLayers"/>.</exception>
+    public void DrawLayers(
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
+        Position16<RoomPixels> camera,
+        int firstLayer,
+        int lastLayer)
+    {
+        Ensure.NotNull(sprites);
+        Ensure.NotNull(objects);
+        if (_prepared is not { } prepared || _preparedLayers != (firstLayer, lastLayer))
+            throw new InvalidOperationException($"Enemy layers {firstLayer}..{lastLayer} were not advanced before drawing.");
+        _prepared = null;
+
+        int next = 0;
+        foreach (int layer in Enumerable.Range(firstLayer, lastLayer - firstLayer + 1))
+        {
+            for (; next < prepared.Count && prepared[next].Layer == layer; next++)
+            {
+                PreparedEnemyDraw draw = prepared[next];
+                RoomEnemySlot slot = draw.Slot;
+                var source = new SpriteSource(SpriteSourceKind.Enemy, draw.NativeIndex / RoomEnemySystem.NativeSlotSize);
+                // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
+                // and wings), preserving both that OAM order and the enemy's normal layer queue.
+                if (slot.Entity is IEnemyDrawHooks drawHooks)
+                    drawHooks.DrawBeforeBody(sprites.Oam, camera);
+                if (draw.Frame is { } frame)
+                {
+                    _presentation.PublishEnemySpritemap(sprites, objects, source, new EnemySpritemapDraw
+                    {
+                        Frame = frame, Origin = draw.Origin.ToOam(), PaletteBits = draw.PaletteBits,
+                        BaseTileIndex = checked((ushort)slot.VramTilesIndex),
+                    });
+                    continue;
+                }
+
+                // This installed frame owns only the composite's visual offsets and parts.
+                // Collision still uses the original engine-owned extended hitbox records,
+                // never the editable JSON geometry.
+                foreach (EnemyExtendedDrawComponent component in (draw.Components ?? throw new InvalidOperationException(
+                             "An extended enemy draw was prepared without its components.")).Span)
+                {
+                    Position16<OamPixels> componentOrigin = draw.Origin.ToOam() + component.Offset;
+                    if (((componentOrigin.X + 128) & EnemyDrawMasks.OffscreenBits) != 0 ||
+                        ((componentOrigin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
+                        continue;
+                    EnemyPresentation.PublishParts(sprites, objects, source,
+                        EnemySpriteFrames.Frame(component.Parts, checked((ushort)slot.VramTilesIndex), checked((ushort)draw.PaletteBits)),
+                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), checked((ushort)draw.PaletteBits));
+                }
             }
 
             // EnemyGraphicsDrawnHook runs after the complete ordinary enemy queue. Mother
@@ -162,11 +213,22 @@ internal sealed class EnemyDrawList
             // the frontend's disjoint low/high-priority layer ranges.
             if (layer == 5)
             {
-                _motherBrainBehavior.DrawMotherBrainHook(oam, camera);
-                _deadTorizoBehavior.DrawDeadTorizoHook(oam, camera);
+                _motherBrainBehavior.DrawMotherBrainHook(sprites.Oam, camera);
+                _deadTorizoBehavior.DrawDeadTorizoHook(sprites.Oam, camera);
             }
         }
     }
+
+    /// <summary>One queued enemy's draw, formed by <see cref="AdvanceLayers"/>.</summary>
+    /// <param name="Layer">The native draw layer it was queued on.</param>
+    /// <param name="Slot">The enemy.</param>
+    /// <param name="NativeIndex">The enemy's native index.</param>
+    /// <param name="Origin">Its shaken screen origin.</param>
+    /// <param name="PaletteBits">The common draw palette selected for this frame.</param>
+    /// <param name="Frame">An ordinary enemy's frame; null for an extended enemy.</param>
+    /// <param name="Components">An extended enemy's installed components; null for an ordinary enemy.</param>
+    private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot, int NativeIndex,
+        Position16<ScreenPixels> Origin, int PaletteBits, EnemyFrameId? Frame, ReadOnlyMemory<EnemyExtendedDrawComponent>? Components);
 
     /// <summary>
     /// Ports the palette selection at <c>$A0:9473-$A0:949A</c>, immediately before

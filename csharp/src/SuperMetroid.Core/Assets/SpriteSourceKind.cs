@@ -32,4 +32,12 @@ public enum SpriteSourceKind
     SamusChargeFlare,
     /// <summary>One side of a projectile trail; the instance is its trail slot times two plus left (0) or right (1).</summary>
     SamusProjectileTrail,
+    /// <summary>An enemy, or one component of an extended enemy; the instance is its enemy slot.</summary>
+    Enemy,
+    /// <summary>An enemy projectile; the instance is its enemy-projectile slot.</summary>
+    EnemyProjectile,
+    /// <summary>A room sprite object (explosion, dust, splash); the instance is its sprite-object slot.</summary>
+    RoomSpriteObject,
+    /// <summary>A Ceres elevator arrival actor; the instance is 0 for the moving pad and 1 for the platform.</summary>
+    CeresElevatorArrival,
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -61,8 +62,8 @@ internal static class ProjectileQuakeVerification
             var actual = new OamBuffer();
             actual.BeginFrame();
             if (priority == EnemyProjectileDrawPriority.High)
-                enemies.Projectiles.DrawHighPriorityEnemyProjectiles(actual, new(0, 0), frozen);
-            else enemies.Projectiles.DrawLowPriorityEnemyProjectiles(actual, new(0, 0), frozen);
+                enemies.Projectiles.DrawHighPriorityEnemyProjectilesAsOam(actual, new(0, 0), frozen);
+            else enemies.Projectiles.DrawLowPriorityEnemyProjectilesAsOam(actual, new(0, 0), frozen);
             actual.FinalizeFrame();
             string quakeCase = $"type={type}, timer={timer}, priority={priority}, origin={position}";
             AssertSameBytes(expected.LowTable, actual.LowTable, $"native quake OAM low table: {quakeCase}");

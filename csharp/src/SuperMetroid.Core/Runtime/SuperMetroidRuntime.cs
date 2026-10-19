@@ -133,7 +133,7 @@ public sealed class SuperMetroidRuntime
     internal RuntimeArtwork Artwork { get; }
 
     /// <summary>Executes the queued video transfers from the installed artwork.</summary>
-    private void DrainQueuedVramWrites() => VramWrites.DrainTo(Vram, Artwork);
+    private void DrainQueuedVramWrites() => VramWrites.DrainTo(Vram, Artwork, Enemies.ObjCharacters);
 
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>

@@ -112,21 +112,6 @@ public sealed class OamBuffer
         NextByteOffset += 4;
     }
 
-    /// <summary>Draws an installed enemy frame without reading visual records from ROM.</summary>
-    public void AddEnemySpritemap(
-        ReadOnlySpan<EnemySpritemapPart> parts,
-        Position16<OamPixels> origin,
-        ushort paletteBits,
-        ushort baseTileIndex,
-        bool clipVerticalWrap = false,
-        bool originYIsOnScreen = true)
-    {
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
-        foreach (EnemySpritemapPart part in parts)
-            AppendEnemySpritemapPart(part, origin, paletteBits,
-                baseTileIndex, clipVerticalWrap, originYIsOnScreen);
-    }
-
     /// <summary>Appends an immutable calculated enemy composition in its original drawing order.</summary>
     public void AddEnemySpritemap(EnemySpritemapParts parts,
         Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
@@ -140,7 +125,7 @@ public sealed class OamBuffer
     }
 
     /// <summary>Packs an enemy part after adding its tile base, palette, and optional vertical clipping.</summary>
-    private void AppendEnemySpritemapPart(EnemySpritemapPart part,
+    internal void AppendEnemySpritemapPart(EnemySpritemapPart part,
         Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap, bool originYIsOnScreen)
     {

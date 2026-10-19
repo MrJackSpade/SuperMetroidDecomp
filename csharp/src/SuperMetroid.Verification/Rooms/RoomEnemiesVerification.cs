@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -156,6 +157,16 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0200, specialGraphics.StagingOffset, "high-bit enemy encoded staging offset");
     AssertEqual(2, specialGraphics.VramTilesIndex,
         "second enemy tile index includes first definition size");
+    // Room load stages the tiles; they reach VRAM, and the OBJ characters' record, through the NMI queue.
+    var tileQueue = new VramWriteQueue();
+    enemies.PopulationLoader.QueueGraphicsUploads(tileQueue);
+    var seededTiles = new SeededEnemyTileTransfers(new Dictionary<int, byte[]>
+    {
+        [0xa29100] = primaryTileBytes,
+        [0xa39320] = specialTileBytes,
+    });
+    tileQueue.DrainTo(vram, seededTiles, enemies.ObjCharacters);
+    AssertEqual(2, enemies.ObjCharacters.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
     AssertEqual(0x80, vram.ReadByte(0xe000), "ordinary enemy first tile byte");
     AssertEqual(0xbf, vram.ReadByte(0xe03f), "ordinary enemy final tile byte");
     AssertEqual(0xc0, vram.ReadByte(0xda00), "special enemy first tile byte");
@@ -203,6 +214,9 @@ internal static void VerifyRoomEnemyLoading()
     var installedVram = new SnesVram();
     var installedCgram = new SnesCgram();
     installedEnemies.Load(new RoomEnemyLoadRequest(new EnemyTileSourceReadGuard(bus), bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), installedVram, installedCgram, new StandaloneRoomEnemyServices(() => 0x9999)));
+    var installedQueue = new VramWriteQueue();
+    installedEnemies.PopulationLoader.QueueGraphicsUploads(installedQueue);
+    installedQueue.DrainTo(installedVram, seededTiles, installedEnemies.ObjCharacters);
     AssertTrue(vram.ImageEquals(installedVram),
         "installed enemy PNGs preserve both native ordinary and high-bit VRAM placements");
     AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(installedCgram)),
@@ -569,7 +583,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.FrameCounter = 0;
     ripper.ShakeTimer = NativeCountdown.Start(2);
     shakenOam.BeginFrame();
-    enemies.Drawing.DrawLayers(shakenOam, new(0, 0), 0, 7);
+    enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
     AssertEqual(89, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one clear adds one X pixel");
@@ -578,7 +592,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.FrameCounter = 2;
     ripper.ShakeTimer = NativeCountdown.Start(2);
     shakenOam.BeginFrame();
-    enemies.Drawing.DrawLayers(shakenOam, new(0, 0), 0, 7);
+    enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
     AssertEqual(87, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one set subtracts one X pixel");
@@ -1771,4 +1785,34 @@ static void SeedCeresRidleyRoomEntryCartridge(
         Suite(nameof(VerifyCeresRidleyRoomEntry), () => VerifyCeresRidleyRoomEntry());
         return 0;
     }
+}
+
+/// <summary>Serves the loading fixture's seeded enemy tiles at their seeded addresses: the bytes installed artwork
+/// would hold for those definitions.</summary>
+/// <param name="tiles">Each seeded tile block by its 24-bit source address.</param>
+internal sealed class SeededEnemyTileTransfers(IReadOnlyDictionary<int, byte[]> tiles)
+    : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver
+{
+    /// <summary>Rejects typed assets, which the fixture never queues.</summary>
+    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => throw new InvalidOperationException($"The loading fixture queues no asset {asset}.");
+
+    /// <summary>Serves a seeded block whose size matches the transfer.</summary>
+    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
+    {
+        bool found = tiles.TryGetValue(sourceAddress, out byte[]? block) && block.Length == byteCount;
+        data = found ? block : ReadOnlyMemory<byte>.Empty;
+        return found;
+    }
+
+    /// <summary>Rejects typed assets, which the fixture never binds.</summary>
+    public ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset) => Resolve(asset);
+
+    /// <summary>Resolves a recorded seeded transfer.</summary>
+    public ReadOnlyMemory<byte> ResolveTransfer(int sourceAddress, int byteCount) =>
+        TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
+            : throw new InvalidOperationException($"The loading fixture seeded no {byteCount} tile bytes at ${sourceAddress:X6}.");
+
+    /// <summary>Rejects skeleton chunks, which the fixture never binds.</summary>
+    public ReadOnlyMemory<byte> ResolveCrocomireSkeletonChunk(int entry) =>
+        throw new InvalidOperationException($"The loading fixture binds no skeleton chunk {entry}.");
 }

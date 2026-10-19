@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Fx;
@@ -56,7 +57,7 @@ internal static class CeresElevatorArrivalVerification
 
         var oam = new OamBuffer();
         oam.BeginFrame();
-        arrival.Draw(oam, camera: Position16<RoomPixels>.Zero);
+        arrival.DrawAsOam(oam, camera: Position16<RoomPixels>.Zero);
 
         VerificationAssert.AssertEqual(8, oam.NextByteOffset,
             "Ceres pad and level-data concealer each emitted one OBJ");

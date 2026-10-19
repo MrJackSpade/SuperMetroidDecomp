@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
@@ -224,7 +225,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.SpritemapPointer = pointer;
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
-            enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 0);
+            enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
             return (oam, vram.Bytes.ToArray());
         }
     }

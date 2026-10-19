@@ -1364,6 +1364,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         // pixels are editable; the transfer order and VRAM position are not.
         new EnemyVram(_presentation.Vram).CrocomireSkeletonTiles.Load(artwork.Chunk(entry).Span,
             frame.DestinationOffset * sizeof(ushort));
+        _presentation.ObjCharacters.RecordUpload(EnemyVram.CrocomireSkeletonTilesDma(frame.DestinationOffset),
+            artwork.Chunk(entry).Length, ObjCharacterSource.FromCrocomireSkeletonChunk(entry));
         death.SkeletonTileChunk++;
     }
 

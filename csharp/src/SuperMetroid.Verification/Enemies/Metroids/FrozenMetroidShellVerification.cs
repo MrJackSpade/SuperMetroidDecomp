@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Metroids;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -34,7 +35,7 @@ internal static class FrozenMetroidShellVerification
         Require(shell.InstructionPointer == 0xc4ba, "The reproduction must run the native empty shell record.");
         var actual = new OamBuffer();
         actual.BeginFrame();
-        enemies.SpriteObjects.DrawRoomSpriteObjects(actual, Position16<RoomPixels>.Zero);
+        enemies.SpriteObjects.DrawRoomSpriteObjectsAsOam(actual, Position16<RoomPixels>.Zero);
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
             "The reproduction must begin on the native empty shell frame.");
         ushort retainedTimer = shell.InstructionTimer;
@@ -54,7 +55,7 @@ internal static class FrozenMetroidShellVerification
             Require(shell.InstructionTimer == retainedTimer && shell.DisableFlags == 1,
                 "Freezing must preserve the native animation timer while disabling advancement.");
             actual.BeginFrame();
-            enemies.SpriteObjects.DrawRoomSpriteObjects(actual, Position16<RoomPixels>.Zero);
+            enemies.SpriteObjects.DrawRoomSpriteObjectsAsOam(actual, Position16<RoomPixels>.Zero);
             Require(actual.NextByteOffset == expected.NextByteOffset &&
                 actual.ImageEquals(expected),
                 "Frozen shell OAM must match every authored part and frozen palette attribute.");

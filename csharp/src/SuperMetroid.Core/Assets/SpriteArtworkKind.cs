@@ -24,4 +24,6 @@ public enum SpriteArtworkKind
     ProjectileObjects,
     /// <summary>The intro's OBJ page: its intro sheet with the cinematic characters over its tail.</summary>
     IntroObjects,
+    /// <summary>The gameplay OBJ character table as its uploads bind it, which enemy-format sprites draw from.</summary>
+    GameplayObjects,
 }

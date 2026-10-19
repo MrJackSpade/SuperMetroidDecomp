@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
@@ -47,12 +48,12 @@ internal static class PowerBombDeathDrawingVerification
             // explicit damage call represents the later runtime power-bomb phase.
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true });
             var before = new OamBuffer();
-            enemies.Drawing.DrawLayers(before, new(0, 0), 0, 7);
+            enemies.Drawing.DrawLayersAsOam(before, new(0, 0), 0, 7);
             AssertTrue(before.NextByteOffset != 0, "live enemy was queued and drawn before power-bomb damage");
             AssertEqual(1, enemies.Collision.ResolveOrdinaryPowerBombHits(new(128, 128), 64),
                 "power bomb reaches the queued enemy");
             var after = new OamBuffer();
-            enemies.Drawing.DrawLayers(after, new(0, 0), 0, 7);
+            enemies.Drawing.DrawLayersAsOam(after, new(0, 0), 0, 7);
             if (lethal)
             {
                 AssertEqual(respawns ? EnemyDefinitionId.Respawn : (ushort)0,
@@ -68,7 +69,7 @@ internal static class PowerBombDeathDrawingVerification
                 AssertEqual(before.NextByteOffset, after.NextByteOffset, "survivor keeps its sprite count");
                 AssertTrue(before.ImageEquals(after), "survivor keeps its sprite composition");
                 actor.SpritemapPointer = 0;
-                AssertThrows<InvalidDataException>(() => enemies.Drawing.DrawLayers(new OamBuffer(), new(0, 0), 0, 7),
+                AssertThrows<InvalidDataException>(() => enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 7),
                     "a live actor's missing composition must not be silently hidden");
             }
         }

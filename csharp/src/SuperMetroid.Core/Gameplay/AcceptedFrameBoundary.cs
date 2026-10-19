@@ -169,6 +169,10 @@ internal sealed class AcceptedFrameBoundary
             CaptureXrayRevealTilemap());
         _artwork.PublishReboundHudArtwork();
         _drainQueuedVramWrites();
+        // The displayed enemy-format draws show the OBJ characters this frame's uploads bound, as the OAM it latched
+        // reads the VRAM those uploads wrote.
+        if (_displayedSprites.Shows(SpriteArtworkKind.GameplayObjects))
+            _displayedSprites.RebindArtwork(SpriteArtworkKind.GameplayObjects, _artwork.GameplayObjectPage(_enemies.ObjCharacters));
         // A rebound snapshot may retain old CGRAM and legacy queued transfers.
         // Apply current content only at this accepted NMI, after those writes.
         _artwork.PublishReboundBeamPalette();

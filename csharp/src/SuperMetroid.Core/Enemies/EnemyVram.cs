@@ -28,6 +28,13 @@ public readonly struct EnemyVram(SnesVram vram)
     /// <summary>Queued-DMA destination <paramref name="wordOffset"/> words into the enemy graphics-set characters.</summary>
     public static VramDmaDestination EnemyTilesDma(int wordOffset) => VramDmaDestination.At(EnemyVramLayout.EnemyTiles, wordOffset);
 
+    /// <summary>Destination of Draygon's opening Evir character sheet.</summary>
+    public static VramDmaDestination DraygonEvirTilesDma => VramDmaDestination.At(EnemyVramLayout.DraygonEvirTiles);
+
+    /// <summary>Destination of one Crocomire skeleton chunk <paramref name="wordOffset"/> words into the OBJ characters.</summary>
+    /// <param name="wordOffset">The chunk's word offset from the OBJ character base.</param>
+    public static VramDmaDestination CrocomireSkeletonTilesDma(int wordOffset) => VramDmaDestination.At(EnemyVramLayout.CrocomireSkeletonTiles, wordOffset);
+
     /// <summary>The BG3 characters Kraid's death restores.</summary>
     public VramRegion KraidBg3Restore => new(vram, EnemyVramLayout.KraidBg3Restore);
 

@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
@@ -105,11 +108,15 @@ public sealed class CeresElevatorArrivalState
     /// <summary>
     /// Emits the low-priority bank-$8D spritemaps selected by the live instruction lists.
     /// </summary>
-    public void Draw(OamBuffer oam, Position16<RoomPixels> camera)
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="objects">The gameplay OBJ character page.</param>
+    /// <param name="camera">Layer-one camera position in whole room pixels.</param>
+    public void Draw(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
     {
-        Ensure.NotNull(oam);
-        DrawProjectile(pad, oam, camera);
-        DrawProjectile(platform, oam, camera);
+        Ensure.NotNull(sprites);
+        Ensure.NotNull(objects);
+        DrawProjectile(pad, 0, sprites, objects, camera);
+        DrawProjectile(platform, 1, sprites, objects, camera);
     }
 
     /// <summary>The moving pad's position: Samus's whole position, <c>MovingPadYOffset</c> lower.</summary>
@@ -158,7 +165,9 @@ public sealed class CeresElevatorArrivalState
     /// <summary>Draws an active on-screen projectile through its installed bank-8D composition.</summary>
     private void DrawProjectile(
         CeresElevatorProjectile projectile,
-        OamBuffer oam,
+        int instance,
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
         Position16<RoomPixels> camera)
     {
         if (!projectile.Active || projectile.Pose is not { } pose)
@@ -173,12 +182,10 @@ public sealed class CeresElevatorArrivalState
 
         var installed = projectileSpritemaps ?? throw new InvalidOperationException(
             "Ceres elevator projectiles require installed sprite artwork.");
-        oam.AddEnemySpritemap(installed.Get(CeresElevatorArrivalDefinitions.Spritemap(pose)).Span,
-            screen.ToOam(),
-            new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits,
-            unchecked((byte)projectile.GraphicsIndex),
-            clipVerticalWrap: true,
-            originYIsOnScreen: (SnesLittleEndian.HighByteInPlace(screen.Y)) == 0);
+        ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
+        EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
+            EnemySpriteFrames.Frame(installed.Get(CeresElevatorArrivalDefinitions.Spritemap(pose)), unchecked((byte)projectile.GraphicsIndex), paletteBits),
+            screen, paletteBits);
     }
 
     /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>

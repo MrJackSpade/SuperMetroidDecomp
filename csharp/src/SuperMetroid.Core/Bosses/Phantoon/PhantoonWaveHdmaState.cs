@@ -7,10 +7,13 @@ public sealed class PhantoonWaveHdmaState
     private bool _pendingSetup;
     /// <summary>Wave mode captured for the next channel setup: the introductory or final-death wave, never zero.</summary>
     private int _pendingMode;
-    /// <summary>Reusable short or long wave-cycle scroll words; death initialization fills the full range.</summary>
-    internal ushort[] Cycle = new ushort[PhantoonWaveRomData.LongHalfCycle * 2];
-    /// <summary>Selected wave cycle length, set only when pending setup executes.</summary>
-    internal int CycleLength;
+    /// <summary>The mode the channel's last setup selected; zero before any setup.</summary>
+    private int _setupMode;
+    /// <summary>
+    /// The phase, amplitude and base scroll the channel's data last held (#1353): its last pass, or the death fill as a
+    /// flat zero-amplitude wave. Setup and deletion keep them, as native keeps its data words.
+    /// </summary>
+    private (int Phase, int Amplitude, int BaseScroll) _built;
     /// <summary>Whether an HDMA setup has run and the channel has not subsequently observed eye parameter one equal to zero; scheduling Begin alone does not activate it.</summary>
     public bool Active { get; private set; }
     /// <summary>
@@ -20,16 +23,19 @@ public sealed class PhantoonWaveHdmaState
     /// masked advance is the same whether it is reached through sixteen-bit or ordinary arithmetic.
     /// </summary>
     public int Phase { get; private set; }
-    /// <summary>Last display-latched array of 192 wrapped whole-pixel BG2 horizontal-scroll words, starting below the 32-line HUD; null when a latch observes no active channel.</summary>
-    public ushort[]? DisplayedScrolls { get; private set; }
+    /// <summary>The wave the last display latch observed (#1353); null when it observed no active channel.</summary>
+    public PhantoonWave? DisplayedWave { get; private set; }
+
+    /// <summary>The wave the channel's data now holds; null before any setup.</summary>
+    internal PhantoonWave? CurrentWave => _setupMode == 0 ? null : new(_setupMode, _built.Phase, _built.Amplitude, _built.BaseScroll);
 
     /// <summary>
     /// $A7:D446-D451 fills the native $200-byte WavyPhantoonBG2XScrollHDMADataTable
-    /// on a fatal hit. Initialize every modeled cycle sample, including the half
-    /// unused by the intro, without advancing setup or changing the latched display.
+    /// on a fatal hit: every line shows the base scroll, a wave of zero amplitude, without
+    /// advancing setup or changing the latched display.
     /// </summary>
-    /// <param name="bg2HorizontalScroll">Base BG2 horizontal-scroll word in whole pixels, copied to every modeled cycle sample.</param>
-    public void InitializeDeathScroll(ushort bg2HorizontalScroll) => Array.Fill(Cycle, bg2HorizontalScroll);
+    /// <param name="bg2HorizontalScroll">Base BG2 horizontal-scroll word in whole pixels every line shows.</param>
+    public void InitializeDeathScroll(ushort bg2HorizontalScroll) => _built = (_built.Phase, 0, bg2HorizontalScroll);
 
     /// <summary>$88:E487 schedules a new channel; its instruction setup runs at the next HDMA pass.</summary>
     /// <param name="mode">Nonzero native eye-parameter-one value; bit zero selects a 128-line cycle instead of 64 lines. A new request replaces any pending mode.</param>
@@ -43,14 +49,13 @@ public sealed class PhantoonWaveHdmaState
 
     /// <summary>Runs one bank-$88 owner pass: pending setup consumes the call; later active passes delete on zero mode or advance the phase and rebuild scroll data.</summary>
     /// <param name="boss">Owning Phantoon state with initialized eye and mouth slots; their mode, phase delta, amplitude, and base BG2 scroll remain boss-owned inputs.</param>
-    /// <remarks>Does not publish display scrolls. Deletion retains the last cycle words, and a new setup does not clear them; LatchDisplay owns the accepted-NMI snapshot.</remarks>
+    /// <remarks>Does not publish the wave. Deletion retains the last data, and a new setup does not clear it; LatchDisplay owns the accepted-NMI snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {
         if (_pendingSetup)
         {
             boss.Parts[boss.Eye.SlotIndex].WaveMode = _pendingMode;
-            CycleLength = ((_pendingMode & PhantoonWaveRomData.LongWaveModeBit) != 0
-                ? PhantoonWaveRomData.LongHalfCycle : PhantoonWaveRomData.ShortHalfCycle) * 2;
+            _setupMode = _pendingMode;
             Phase = PhantoonWaveRomData.InitialPhase;
             Active = true;
             _pendingSetup = false;
@@ -63,18 +68,11 @@ public sealed class PhantoonWaveHdmaState
             return;
         }
         Phase = (Phase + 2 * boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta) & PhantoonWaveRomData.PhaseMask;
-        PhantoonWaveTable.Build(checked((ushort)boss.Parts[boss.Eye.SlotIndex].WaveMode), checked((ushort)Phase), checked((ushort)boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude),
-            boss.Bg2Scroll.X, Cycle.AsSpan(0, CycleLength));
+        if (boss.Parts[boss.Eye.SlotIndex].WaveMode != _setupMode)
+            throw new InvalidOperationException($"Phantoon's wave mode {boss.Parts[boss.Eye.SlotIndex].WaveMode} changed from its setup mode {_setupMode}.");
+        _built = (Phase, boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude, boss.Bg2Scroll.X);
     }
 
-    /// <summary>Latch the completed HDMA data with the accepted NMI's other presentation state.</summary>
-    public void LatchDisplay()
-    {
-        if (!Active) { DisplayedScrolls = null; return; }
-        int lines = SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels;
-        var scrolls = new ushort[lines];
-        for (int i = 0; i < lines; i++)
-            scrolls[i] = Cycle[(i + SnesPpuLayout.GameplayHudHeightPixels) % CycleLength];
-        DisplayedScrolls = scrolls;
-    }
+    /// <summary>Latch the completed wave with the accepted NMI's other presentation state.</summary>
+    public void LatchDisplay() => DisplayedWave = Active ? CurrentWave : null;
 }

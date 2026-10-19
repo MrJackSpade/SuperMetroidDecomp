@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Verification access to <see cref="PhantoonWaveHdmaState"/> members production does not use.</summary>
 internal static class PhantoonWaveHdmaStateAccess
 {
-    /// <summary>Reads the active portion of Phantoon's circular wave-scroll table.</summary>
+    /// <summary>Reads the cycle of horizontal scrolls Phantoon's wave now holds (#1353).</summary>
     extension(PhantoonWaveHdmaState self)
     {
-        /// <summary>Only the initialized prefix of the room's wave-scroll cycle.</summary>
-        internal ReadOnlySpan<ushort> ScrollCycle => self.Cycle.AsSpan(0, self.CycleLength);
+        /// <summary>One cycle of the wave's per-line scrolls, built from its current model.</summary>
+        internal ushort[] ScrollCycle => (self.CurrentWave ?? throw new InvalidOperationException("Phantoon's wave has no setup yet.")).Cycle();
     }
 }

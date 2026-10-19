@@ -221,6 +221,7 @@ internal sealed class AcceptedFrameBoundary
         return new(
             ridley,
             Displays?.KraidBody,
+            Displays?.EnemyBg2,
             Displays?.CrocomireBg2Scroll,
             motherBrain is { HasBg2ScrollOverride: true },
             motherBrain is { DeathBg2Hidden: true });

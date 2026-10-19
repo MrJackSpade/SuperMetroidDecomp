@@ -30,6 +30,9 @@ internal interface IEnemyDisplaySources
     /// <summary>Kraid's body on BG2 while he owns it (#1352); otherwise null.</summary>
     BossBg2Layer? KraidBody { get; }
 
+    /// <summary>The enemy BG2 image a boss draws its body into, once one attaches it (#1353); otherwise null.</summary>
+    EnemyBg2ImageSnapshot? EnemyBg2 { get; }
+
     /// <summary>Crocomire's BG2 scroll while Crocomire is loaded; otherwise null.</summary>
     Position16<Bg2Pixels>? CrocomireBg2Scroll { get; }
 

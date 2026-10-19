@@ -37,22 +37,22 @@ internal static class PhantoonWaveVerification
             AssertEqual(first, wave.ScrollCycle[0], "original-CPU first scroll word");
         }
         wave.LatchDisplay();
-        ushort[] savedDisplay = (wave.DisplayedScrolls ?? throw new InvalidOperationException("Verification requires wave.DisplayedScrolls.")).ToArray();
+        ushort[] savedDisplay = (wave.DisplayedWave?.GameplayScrolls().ToArray() ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.")).ToArray();
         wave.Step(boss);
-        AssertTrue(savedDisplay.SequenceEqual(wave.DisplayedScrolls), "live HDMA step leaves latched display immutable");
+        AssertTrue(savedDisplay.SequenceEqual(wave.DisplayedWave?.GameplayScrolls().ToArray()), "live HDMA step leaves latched display immutable");
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, wave);
         stream.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonWaveHdmaState>(stream);
         AssertEqual(wave.Phase, restored.Phase, "wave phase survives exact debugger state");
         AssertTrue(wave.ScrollCycle.SequenceEqual(restored.ScrollCycle), "wave data survives exact debugger state");
-        AssertTrue(savedDisplay.SequenceEqual(restored.DisplayedScrolls), "latched wave survives debugger state");
+        AssertTrue(savedDisplay.SequenceEqual(restored.DisplayedWave?.GameplayScrolls().ToArray()), "latched wave survives debugger state");
         boss.Parts[boss.Eye.SlotIndex].WaveMode = 0;
         var retained = wave.ScrollCycle.ToArray();
         wave.Step(boss);
         AssertTrue(!wave.Active && retained.SequenceEqual(wave.ScrollCycle), "native deletion retains data");
         wave.LatchDisplay();
-        AssertTrue(wave.DisplayedScrolls is null, "deleted wave stops on next display latch");
+        AssertTrue(wave.DisplayedWave is null, "deleted wave stops on next display latch");
         Suite(nameof(VerifyPhantoonBlendingLifecycle), () => VerifyPhantoonBlendingLifecycle(boss));
         Suite(nameof(VerifyPhantoonFadeColors), () => VerifyPhantoonFadeColors());
         Suite(nameof(VerifyPhantoonDeathMosaicSizes), () => VerifyPhantoonDeathMosaicSizes());

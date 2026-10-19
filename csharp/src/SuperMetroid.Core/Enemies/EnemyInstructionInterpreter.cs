@@ -138,7 +138,12 @@ internal sealed class EnemyInstructionInterpreter
             for (int index = 0; index < words.Length; index++)
                 bg2[destinationWord + index] = words[index];
         }
-        new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words, destinationWord);
+        // A boss that owns the enemy BG2 image draws into it (#1353); the others still upload into VRAM until their
+        // bodies are published (#1354-#1357).
+        if (_presentation.Bg2Image is { } image)
+            image.Write(destinationWord, words);
+        else
+            new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words, destinationWord);
     }
 
     /// <summary>

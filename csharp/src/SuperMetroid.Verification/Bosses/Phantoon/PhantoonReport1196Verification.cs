@@ -87,11 +87,11 @@ internal static class PhantoonReport1196Verification
         var map = new ushort[1024];
         for (int row = 0; row < 32; row++) map[row * 32 + 8] = 1;
         vram.ExecuteWordTransfer(map, 0x4800, 1);
-        var pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x4800, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(13, 32), Size = new Extent16<ScreenPixels>(256, 192), TilemapSize = new Extent16<TilemapCells>(32, 32), HorizontalScrollByLine = wave.DisplayedScrolls });
+        var pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x4800, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(13, 32), Size = new Extent16<ScreenPixels>(256, 192), TilemapSize = new Extent16<TilemapCells>(32, 32), HorizontalScrollByLine = wave.DisplayedWave?.GameplayScrolls().ToArray() });
         for (int line = 0; line < 192; line++)
             AssertEqual(new Rgba32(255, 0, 0, 255), pixels[line * 256 + 51],
                 $"first death-wave BG2 stripe stays aligned on rendered scanline {line}");
-        AssertTrue((wave.DisplayedScrolls ?? throw new InvalidOperationException("Verification requires wave.DisplayedScrolls.")).All(scroll => scroll == 13), "every first-frame death scroll equals native BG2 X");
+        AssertTrue((wave.DisplayedWave?.GameplayScrolls().ToArray() ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.")).All(scroll => scroll == 13), "every first-frame death scroll equals native BG2 X");
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         wave.Step(boss);
         AssertEqual((ushort)14, wave.Phase, "following HDMA pass resumes native phase advancement");

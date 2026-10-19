@@ -80,13 +80,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             BackgroundTilemapPrepared = true,
         };
 
-        // Native clears all $1000 bytes of the enemy BG2 working image to tile $0338.
-        // This renderer keeps the visible mirror in VRAM, so one exact word transfer gives
-        // ProcessExtendedTilemap the same clean surface used by the subsequent body maps.
-        VramRegion bg2 = new EnemyVram(_presentation.Vram).EnemyBg2Tilemap;
-        ushort[] clearedTilemap = new ushort[bg2.WordCount];
-        Array.Fill(clearedTilemap, PhantoonBg2FrameDefinitions.BlankTile);
-        bg2.Write(clearedTilemap);
+        // Native clears all $1000 bytes of the enemy BG2 working image to tile $0338. Phantoon owns that image
+        // (#1353): ProcessExtendedTilemap draws the body maps into it and it publishes as his body on BG2.
+        _presentation.AttachBg2Image(new EnemyBg2Image(PhantoonBg2FrameDefinitions.BlankTile));
 
         // Target BG palette seven is black at fight start. In the software PPU CGRAM is the
         // renderer-visible incarnation of native current/target palette storage; clearing
@@ -1698,7 +1694,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         ushort[] clearedTilemap = new ushort[512];
         Array.Fill(clearedTilemap, PhantoonBg2FrameDefinitions.BlankTile);
-        new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(clearedTilemap);
+        _presentation.RequireBg2Image().Write(0, clearedTilemap);
     }
 
     /// <summary>Enables the cleared Wrecked Ship room and its post-boss state.</summary>

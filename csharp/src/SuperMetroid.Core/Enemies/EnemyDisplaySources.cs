@@ -10,44 +10,34 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The display sources over the owning species.</summary>
-/// <param name="motherBrain">Mother Brain's encounter.</param>
-/// <param name="draygon">Draygon.</param>
-/// <param name="phantoon">Phantoon.</param>
-/// <param name="ridley">Ridley's encounter.</param>
-/// <param name="kraid">Kraid.</param>
-/// <param name="crocomire">Crocomire.</param>
-/// <param name="morphBallEye">The morph-ball eye.</param>
-internal sealed class EnemyDisplaySources(
-    MotherBrainEncounter motherBrain,
-    DraygonBehavior draygon,
-    PhantoonBehavior phantoon,
-    RidleyEncounter ridley,
-    KraidBehavior kraid,
-    CrocomireBehavior crocomire,
-    MorphBallEyeBehavior morphBallEye) : IEnemyDisplaySources
+/// <summary>The display sources over the owning species of a room's enemies.</summary>
+/// <param name="enemies">The room's enemies: their boss encounters, the morph-ball eye and their presentation.</param>
+internal sealed class EnemyDisplaySources(RoomEnemySystem enemies) : IEnemyDisplaySources
 {
     /// <inheritdoc/>
-    public MotherBrainEnemyState? MotherBrain => motherBrain.MotherBrain;
+    public MotherBrainEnemyState? MotherBrain => enemies.MotherBrainEncounter.MotherBrain;
 
     /// <inheritdoc/>
-    public DraygonEnemyState? Draygon => draygon.Draygon;
+    public DraygonEnemyState? Draygon => enemies.DraygonBehavior.Draygon;
 
     /// <inheritdoc/>
-    public PhantoonEnemyState? Phantoon => phantoon.Phantoon;
+    public PhantoonEnemyState? Phantoon => enemies.PhantoonBehavior.Phantoon;
 
     /// <inheritdoc/>
-    public RidleyEnemyState? CeresRidley => ridley.CeresRidley;
+    public RidleyEnemyState? CeresRidley => enemies.RidleyEncounter.CeresRidley;
 
     /// <inheritdoc/>
-    public BossBg2Layer? KraidBody => kraid.CaptureBodyLayer();
+    public BossBg2Layer? KraidBody => enemies.KraidBehavior.CaptureBodyLayer();
 
     /// <inheritdoc/>
-    public Position16<Bg2Pixels>? CrocomireBg2Scroll => crocomire.Crocomire is not null ? crocomire.CrocomireBg2Scroll : null;
+    public EnemyBg2ImageSnapshot? EnemyBg2 => enemies.Presentation.Bg2Image?.Publish();
 
     /// <inheritdoc/>
-    public MorphBallEyeBeamState MorphBallEyeBeam => morphBallEye.MorphBallEyeBeam;
+    public Position16<Bg2Pixels>? CrocomireBg2Scroll => enemies.CrocomireBehavior.Crocomire is not null ? enemies.CrocomireBehavior.CrocomireBg2Scroll : null;
 
     /// <inheritdoc/>
-    public IReadOnlyList<MorphBallEyeEnemyState?> MorphBallEyeStates => morphBallEye.MorphBallEyeStates;
+    public MorphBallEyeBeamState MorphBallEyeBeam => enemies.MorphBallEyeBehavior.MorphBallEyeBeam;
+
+    /// <inheritdoc/>
+    public IReadOnlyList<MorphBallEyeEnemyState?> MorphBallEyeStates => enemies.MorphBallEyeBehavior.MorphBallEyeStates;
 }

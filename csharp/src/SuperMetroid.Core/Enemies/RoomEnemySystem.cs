@@ -525,8 +525,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
     /// <summary>The live enemy state the display latch and drawing read.</summary>
     [field: NonSerialized]
-    internal IEnemyDisplaySources DisplaySources => field ??= new EnemyDisplaySources(MotherBrainEncounter, DraygonBehavior,
-        PhantoonBehavior, RidleyEncounter, KraidBehavior, CrocomireBehavior, MorphBallEyeBehavior);
+    internal IEnemyDisplaySources DisplaySources => field ??= new EnemyDisplaySources(this);
 
     /// <summary>Grapple endpoint resolution against the room's enemies.</summary>
     internal IGrappleTargets GrappleTargets => GrappleBehavior;

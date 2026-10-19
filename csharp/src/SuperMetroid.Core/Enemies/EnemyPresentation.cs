@@ -84,6 +84,19 @@ internal sealed class EnemyPresentation
         Vram = backgrounds.Vram;
     }
 
+    /// <summary>
+    /// The enemy BG2 image the room's boss draws its body into (#1353), once a boss that owns it attaches it; bosses
+    /// not yet converted (#1354-#1357) draw into VRAM instead.
+    /// </summary>
+    internal EnemyBg2Image? Bg2Image { get; private set; }
+
+    /// <summary>A boss's initialization: attaches the cleared enemy BG2 image it draws its body into.</summary>
+    internal void AttachBg2Image(EnemyBg2Image image) => Bg2Image = Ensure.NotNull(image);
+
+    /// <summary>The attached enemy BG2 image.</summary>
+    internal EnemyBg2Image RequireBg2Image() =>
+        Bg2Image ?? throw new InvalidOperationException("No boss has attached the enemy BG2 image.");
+
     /// <summary>Room load: binds the CGRAM the room's enemy palettes write.</summary>
     internal void BindCgram(SnesCgram cgram) => Cgram = Ensure.NotNull(cgram);
     /// <summary>

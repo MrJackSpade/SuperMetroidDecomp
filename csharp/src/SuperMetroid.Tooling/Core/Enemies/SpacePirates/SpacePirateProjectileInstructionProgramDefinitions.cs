@@ -1,5 +1,4 @@
-
-namespace SuperMetroid.Core.Enemies.SpacePirates;
+﻿namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The shared Pirate/Mother Brain laser and Ninja Pirate claw lists' entries; <see cref="SpacePirateProjectileAnimation"/>

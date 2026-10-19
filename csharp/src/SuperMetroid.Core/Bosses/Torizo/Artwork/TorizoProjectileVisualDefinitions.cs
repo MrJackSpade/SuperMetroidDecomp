@@ -10,30 +10,6 @@ namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 /// </summary>
 internal static class TorizoProjectileVisualDefinitions
 {
-    /// <summary>The native list ExplosionLowHealthInitial starts, at $86:A3CB, which projectile definitions name.</summary>
-    internal const ushort ExplosionLowHealthInitialList = 0xa3cb;
-    /// <summary>The native list ExplosionDeathInitial starts, at $86:A3FA, which projectile definitions name.</summary>
-    internal const ushort ExplosionDeathInitialList = 0xa3fa;
-    /// <summary>The native list DroolNoDelay starts, at $86:A472, which projectile definitions name.</summary>
-    internal const ushort DroolNoDelayList = 0xa472;
-    /// <summary>The native list SwipeInitial starts, at $86:A4AA, which projectile definitions name.</summary>
-    internal const ushort SwipeInitialList = 0xa4aa;
-    /// <summary>The native list StatueFragment8 starts, at $86:A54B, which projectile definitions name.</summary>
-    internal const ushort StatueFragment8List = 0xa54b;
-    /// <summary>The native list ChozoOrbMovingLeft starts, at $86:AB15, which projectile definitions name.</summary>
-    internal const ushort ChozoOrbMovingLeftList = 0xab15;
-    /// <summary>The native list SonicBoomFiredLeft starts, at $86:ADBF, which projectile definitions name.</summary>
-    internal const ushort SonicBoomFiredLeftList = 0xadbf;
-    /// <summary>The native list LandingDustRightFoot starts, at $86:AF9D, which projectile definitions name.</summary>
-    internal const ushort LandingDustRightFootList = 0xaf9d;
-    /// <summary>The native list LandingDustLeftFoot starts, at $86:AFB5, which projectile definitions name.</summary>
-    internal const ushort LandingDustLeftFootList = 0xafb5;
-    /// <summary>The native list EggBouncingLeft starts, at $86:B104, which projectile definitions name.</summary>
-    internal const ushort EggBouncingLeftList = 0xb104;
-    /// <summary>The native list SuperMissileRightInitial starts, at $86:B293, which projectile definitions name.</summary>
-    internal const ushort SuperMissileRightInitialList = 0xb293;
-    /// <summary>The native list EyeBeamNormal starts, at $86:B410, which projectile definitions name.</summary>
-    internal const ushort EyeBeamNormalList = 0xb410;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<TorizoProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

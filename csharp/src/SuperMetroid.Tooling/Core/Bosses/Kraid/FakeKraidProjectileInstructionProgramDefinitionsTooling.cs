@@ -36,7 +36,7 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling 
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
         bool sleep = index % 2 != 0;
-        ushort address = (ushort)(FakeKraidProjectileInstructionProgramDefinitions.Spit + PoseListByteCount * (index / 2) + (sleep ? 4 : 0));
+        ushort address = (ushort)(FakeKraidProjectileInstructionProgramToolingDefinitions.Spit + PoseListByteCount * (index / 2) + (sleep ? 4 : 0));
         return new(address, sleep
             ? (ushort)EnemyProjectileInstruction.Sleep
             : checked((ushort)FakeKraidProjectileInstructionProgramDefinitions.PoseDuration));
@@ -47,7 +47,7 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling 
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)
             return false;
-        int offset = (ushort)address - FakeKraidProjectileInstructionProgramDefinitions.Spit;
+        int offset = (ushort)address - FakeKraidProjectileInstructionProgramToolingDefinitions.Spit;
         return (uint)offset < 18 && offset % 6 is 0 or 1 or 4 or 5;
     }
 }

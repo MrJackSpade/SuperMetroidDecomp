@@ -72,7 +72,7 @@ internal static class OldTourianEscapeShaftWallVerification
 
         var start = programs.Steps(OldTourianWallExplosionProgram.Start);
         AssertEqual(3, start.Count, "the setup has three steps");
-        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.InitialInstructionList, (ushort)0xb443, "the setup starts the list");
+        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsConstants.InitialInstructionList, (ushort)0xb443, "the setup starts the list");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.ClearPreInstruction, Word(0xb443), "the list first clears the movement");
         AssertEqual(OldTourianWallExplosionCue.ClearPreInstruction, start[0].PublishedCue, "the setup clears the movement");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");

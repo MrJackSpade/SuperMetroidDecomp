@@ -9,11 +9,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 internal static class PhantoonFlameVisualDefinitions
 {
 
-    /// <summary><c>InstList_EnemyProjectile_PhantoonDestroyableFlame_Idle</c> at $86:975C.</summary>
-    internal const ushort DestroyableIdleProgram = 0x975c;
-    /// <summary><c>InstList_EnemyProjectile_PhantoonStartingFlames</c> at $86:97E8.</summary>
-    internal const ushort StartingFlameProgram = 0x97e8;
-
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<PhantoonFlameFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<PhantoonFlameFrame, EnemyProjectileFrameId>

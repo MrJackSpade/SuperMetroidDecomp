@@ -14,9 +14,6 @@ internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefini
     /// <summary>$86:B4B0, the header's bare-RTS pre-instruction.</summary>
     internal const EnemyProjectilePreInstruction PreInstruction = EnemyProjectilePreInstruction.RTS_86B4B0;
 
-    /// <summary>$86:B443, <c>InstList_EnemyProj_OldTourianEscapeShaftFakeWallExplosion_0</c>.</summary>
-    internal const ushort InitialInstructionList = 0xb443;
-
     /// <summary>$86:B4A0/$B4A6: the wall-middle X/Y written to position and Var0/Var1.</summary>
     internal const ushort XPosition = 0x0110;
     /// <summary>$86:B4A6 wall-middle Y used by both the projectile position and Var1.</summary>

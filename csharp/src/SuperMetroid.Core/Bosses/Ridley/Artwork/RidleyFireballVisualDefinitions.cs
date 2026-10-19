@@ -10,14 +10,6 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// </summary>
 internal static class RidleyFireballVisualDefinitions
 {
-    /// <summary><c>InstList_EnemyProjectile_RidleysFireball_0</c> at $86:9552.</summary>
-    internal const ushort FireballProgram = 0x9552;
-    /// <summary><c>InstList_EnemyProjectile_HorizontalAfterburn_Center</c> at $86:95A0.</summary>
-    internal const ushort HorizontalCenterProgram = 0x95a0;
-    /// <summary><c>InstList_EnemyProjectile_VerticalAfterburn_Center</c> at $86:95D3.</summary>
-    internal const ushort VerticalCenterProgram = 0x95d3;
-    /// <summary><c>InstList_EnemyProjectile_Afterburn</c> at $86:9606.</summary>
-    internal const ushort DirectionalAfterburnProgram = 0x9606;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<RidleyFireballFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

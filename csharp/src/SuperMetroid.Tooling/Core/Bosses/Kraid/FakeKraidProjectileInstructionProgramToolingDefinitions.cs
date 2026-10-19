@@ -9,4 +9,6 @@ internal static class FakeKraidProjectileInstructionProgramToolingDefinitions
     internal const ushort SpikeLeftOperand = 0x9de2;
     /// <summary>The right spike pose's installed visual operand, two bytes into its list at $86:9DE8.</summary>
     internal const ushort SpikeRightOperand = 0x9de8;
+    /// <summary><c>InstList_EnemyProjectile_MiniKraidSpit</c> at $86:9DDA.</summary>
+    internal const ushort Spit = 0x9dda;
 }

@@ -15,15 +15,15 @@ internal static class TourianStatueProjectileAnimationsVerification
     internal static readonly (TourianStatueProjectileProgram Program, ushort Entry)[] Entries =
     [
         (TourianStatueProjectileProgram.Delete, TourianStatueProjectileInstructionProgramToolingDefinitions.Delete),
-        (TourianStatueProjectileProgram.Splash, TourianStatueProjectileInstructionProgramDefinitions.Splash),
-        (TourianStatueProjectileProgram.EyeGlow, TourianStatueProjectileInstructionProgramDefinitions.EyeGlow),
+        (TourianStatueProjectileProgram.Splash, TourianStatueProjectileInstructionProgramDefinitionsConstants.Splash),
+        (TourianStatueProjectileProgram.EyeGlow, TourianStatueProjectileInstructionProgramDefinitionsConstants.EyeGlow),
         (TourianStatueProjectileProgram.Particle, TourianStatueProjectileInstructionProgramDefinitions.Particle),
         (TourianStatueProjectileProgram.Tail, TourianStatueProjectileInstructionProgramDefinitions.Tail),
         (TourianStatueProjectileProgram.Soul, TourianStatueProjectileInstructionProgramDefinitions.Soul),
-        (TourianStatueProjectileProgram.BaseDecoration, TourianStatueProjectileInstructionProgramDefinitions.BaseDecoration),
+        (TourianStatueProjectileProgram.BaseDecoration, TourianStatueProjectileInstructionProgramDefinitionsConstants.BaseDecoration),
         (TourianStatueProjectileProgram.BaseDecorationLoop, BaseDecorationLoop),
-        (TourianStatueProjectileProgram.Ridley, TourianStatueProjectileInstructionProgramDefinitions.Ridley),
-        (TourianStatueProjectileProgram.Phantoon, TourianStatueProjectileInstructionProgramDefinitions.Phantoon),
+        (TourianStatueProjectileProgram.Ridley, TourianStatueProjectileInstructionProgramDefinitionsConstants.Ridley),
+        (TourianStatueProjectileProgram.Phantoon, TourianStatueProjectileInstructionProgramDefinitionsConstants.Phantoon),
     ];
 
     /// <summary>$86:B862, where the base decoration's list rests after installing its movement.</summary>

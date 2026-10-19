@@ -7,11 +7,6 @@ namespace SuperMetroid.Core.Enemies.Gunship.Artwork;
 /// <summary>The gunship liftoff dust clouds' installed frames and the projectile definition's native list identity.</summary>
 internal static class GunshipDustVisualDefinitions
 {
-    /// <summary>
-    /// <c>InstList_EnemyProjectile_GunshipLiftoffDustClouds_Index0_0</c> at $86:A197: the list the dust's projectile definition
-    /// names. Spawning starts the parameter's typed program instead.
-    /// </summary>
-    internal const ushort DefinitionList = 0xa197;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<GunshipDustFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

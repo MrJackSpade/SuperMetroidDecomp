@@ -61,11 +61,11 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         var cases = new[]
         {
             (Kind: RoomEnemyProjectileKind.FakeKraidSpit, Pose: FakeKraidProjectilePose.Spit,
-                List: FakeKraidProjectileInstructionProgramDefinitions.Spit),
+                List: FakeKraidProjectileInstructionProgramToolingDefinitions.Spit),
             (Kind: RoomEnemyProjectileKind.FakeKraidSpikeLeft, Pose: FakeKraidProjectilePose.SpikeLeft,
-                List: FakeKraidProjectileInstructionProgramDefinitions.SpikeLeft),
+                List: FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeLeft),
             (Kind: RoomEnemyProjectileKind.FakeKraidSpikeRight, Pose: FakeKraidProjectilePose.SpikeRight,
-                List: FakeKraidProjectileInstructionProgramDefinitions.SpikeRight),
+                List: FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
         };
 
         foreach (var testCase in cases)

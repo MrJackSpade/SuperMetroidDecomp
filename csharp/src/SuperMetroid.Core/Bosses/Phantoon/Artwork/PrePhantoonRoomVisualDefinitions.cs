@@ -1,9 +1,0 @@
-namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
-
-/// <summary>The presentation boundary of the pre-Phantoon room projectile (#641).</summary>
-internal static class PrePhantoonRoomVisualDefinitions
-{
-    /// <summary><c>InstList_EnemyProjectile_PrePhantoonRoom</c> at $86:A3AA.</summary>
-    internal const ushort Program = 0xa3aa;
-
-}

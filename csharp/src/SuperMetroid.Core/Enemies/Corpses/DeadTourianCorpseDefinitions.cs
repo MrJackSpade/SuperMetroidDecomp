@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <summary>Calculated initializer and corpse-rotting metadata for dead Tourian enemies.</summary>
 internal static class DeadTourianCorpseDefinitions
 {
-    /// <summary>$A9:DD88 begins eight consecutive16-byte corpse configuration records.</summary>
-    private const ushort FirstConfiguration = 0xdd88;
     /// <summary>$7E:92C0 begins the five64-byte Zoomer/Ripper rotting work areas.</summary>
     private const ushort FirstWideRottingArea = 0x92c0;
     /// <summary>$7E:9140 begins the three128-byte Skree rotting work areas.</summary>
@@ -17,10 +15,6 @@ internal static class DeadTourianCorpseDefinitions
     private const ushort FirstWideMove = 0xe66a;
     /// <summary>$A9:E926 begins three94-byte paired Skree move/copy routines; copy begins53 bytes later.</summary>
     private const ushort FirstSkreeMove = 0xe926;
-    /// <summary>$A9:E24C/E252/E258 are the Zoomer/Ripper/Skree row-offset lists, six bytes apart because the preceding Zoomer/Ripper lists each contain three offsets.</summary>
-    private const ushort FirstRotation = 0xe24c;
-    /// <summary>$A9:DC08, CorpseRotEntryFinishedHook_Normal: shared completion callback.</summary>
-    private const ushort Finish = 0xdc08;
 
     /// <summary>The corpse pose program of the eight Zoomer, Ripper and Skree variants, in native configuration order.</summary>
     private static DeadTourianProgram CorpseProgram(int ordinal) => ordinal switch

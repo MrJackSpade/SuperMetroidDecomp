@@ -1,5 +1,4 @@
-
-namespace SuperMetroid.Core.Bosses.MotherBrain;
+﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The four falling ceiling-tube lists' entries in Mother Brain's fake-death sequence;

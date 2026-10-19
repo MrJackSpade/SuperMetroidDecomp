@@ -24,8 +24,8 @@ internal static class CeresFallingDebrisAnimationsVerification
         foreach ((CeresFallingDebrisProgram program, RoomEnemyProjectileKind kind, ushort entry) in Entries)
         {
             AssertEqual(entry, program == CeresFallingDebrisProgram.Light
-                ? CeresFallingDebrisVisualDefinitions.LightDefinitionList
-                : CeresFallingDebrisVisualDefinitions.DarkDefinitionList, $"the {program} tile definition names its native list");
+                ? CeresFallingDebrisVisualDefinitionsConstants.LightDefinitionList
+                : CeresFallingDebrisVisualDefinitionsConstants.DarkDefinitionList, $"the {program} tile definition names its native list");
             var enemies = new RoomEnemySystem();
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,

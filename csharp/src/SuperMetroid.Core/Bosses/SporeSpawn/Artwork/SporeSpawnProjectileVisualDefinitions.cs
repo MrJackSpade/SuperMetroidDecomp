@@ -10,12 +10,6 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 /// </summary>
 internal static class SporeSpawnProjectileVisualDefinitions
 {
-    /// <summary>The closed ceiling emitter's list at $86:DC00.</summary>
-    internal const ushort SpawnerClosedProgram = 0xdc00;
-    /// <summary>The falling spore's list at $86:DC1E.</summary>
-    internal const ushort SporeProgram = 0xdc1e;
-    /// <summary>The stalk segment's list at $86:DC2E.</summary>
-    internal const ushort StalkProgram = 0xdc2e;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<SporeSpawnProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

@@ -27,6 +27,18 @@ using SuperMetroid.TestSupport.VerificationOracles;
 /// <summary>Checks statically identified enemy definition conversions against ROM and installed artwork.</summary>
 internal static class EnemyDefinitionBoundaryVerification
 {
+    /// <summary>Names the first low- or high-table byte where two OAM images differ.</summary>
+    private static string OamDifference(OamBuffer expected, OamBuffer actual)
+    {
+        for (int index = 0; index < expected.LowTableBytes.Length; index++)
+            if (expected.LowTableBytes[index] != actual.LowTableBytes[index])
+                return $"low byte {index} (entry {index / 4}) expected ${expected.LowTableBytes[index]:X2}, got ${actual.LowTableBytes[index]:X2}";
+        for (int index = 0; index < expected.HighTableBytes.Length; index++)
+            if (expected.HighTableBytes[index] != actual.HighTableBytes[index])
+                return $"high byte {index} expected ${expected.HighTableBytes[index]:X2}, got ${actual.HighTableBytes[index]:X2}";
+        return "images agree";
+    }
+
     /// <summary>Verifies only the already statically identified enemy-reader conversions; no gameplay read discovery.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEnemyDefinitionBoundary(string sourceRom)
@@ -57,10 +69,13 @@ internal static class EnemyDefinitionBoundaryVerification
                 ushort cy = unchecked((ushort)(y + (short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 2))));
                 if (((cx + 128) & 0xfe00) != 0 || ((cy + 128) & 0xfe00) != 0)
                     continue;
-                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitions.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (SnesLittleEndian.HighByte(cy)) == 0 });
+                // The cartridge's extended clip parks wrapped parts at Y=$F0; #1308 drops that presentation quirk, so the
+                // reference keeps the parts at their wrapped coordinates as the whole-frame draws do.
+                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitions.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0 });
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
-            AssertTrue(expected.ImageEquals(actual), "Torizo composed OAM bytes and origin arithmetic");
+            AssertTrue(expected.ImageEquals(actual),
+                $"Torizo composed OAM bytes and origin arithmetic, frame ${frame:X4} at ({x}, {y}): {OamDifference(expected, actual)}");
             drawCases++;
         }
         AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, TorizoFrameDefinitions.Bank, 0x87d0, new(128, 96)),

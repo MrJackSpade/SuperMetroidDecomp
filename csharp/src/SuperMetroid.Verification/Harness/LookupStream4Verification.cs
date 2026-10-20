@@ -1734,7 +1734,7 @@ internal static class LookupStream4Verification
             .Count();
         AssertEqual(nativeLists.Count, compiledLists, "Components select one compiled list per distinct native hitbox list");
         foreach (int invalid in new[] { -1, nativeFrames.Count })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
+            AssertThrows<IndexOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
     }
 
     /// <summary>Checks beam palette relations and installed CGRAM and VRAM output against native data.</summary>

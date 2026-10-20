@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Projectiles;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
@@ -100,6 +102,21 @@ internal sealed class IntroMotherBrainSpriteState
         bool normalPalette = (hurtFlashTimer.RawValue & 1) != 0;
         new FrontendPalettes(cgram).WriteIntroMotherBrain(introPalette, flashWhite: !normalPalette);
         hurtFlashTimer = hurtFlashTimer.Decrement().Remaining;
+    }
+
+    /// <summary>
+    /// Pre-instruction <c>$8B:B786</c>'s missile test: the highest missile left of X=$54 is killed and counted as a hit.
+    /// The fourth hit installs <c>$B80F</c>, which tests no missiles, so from then on every missile passes through.
+    /// </summary>
+    /// <param name="impacts">The flashback projectile system's enemy impacts, which kill the missile.</param>
+    /// <param name="sharedProjectiles">The flashback's bombs and power-bomb explosion, which the kill consults.</param>
+    /// <returns>Whether this hit was the fourth, which starts the explosion.</returns>
+    public bool TakeMissileHit(ProjectileEnemyImpacts impacts, SamusBombProjectileSystem sharedProjectiles)
+    {
+        Ensure.NotNull(impacts);
+        if (ExplosionStarted)
+            return false;
+        return impacts.TryImpactIntroMotherBrainMissile(sharedProjectiles) && RegisterMissileHit();
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>

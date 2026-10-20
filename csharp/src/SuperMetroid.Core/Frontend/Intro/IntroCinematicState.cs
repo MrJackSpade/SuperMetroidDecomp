@@ -612,14 +612,10 @@ public sealed class IntroCinematicState
             // the next dispatch on.
             if (!flashbackMotherBrain.IsVisible)
                 flashbackSamusDisplay = IntroSamusDisplay.Hidden;
-            if (flashbackProjectiles.EnemyImpacts.TryImpactIntroMotherBrainMissile(flashbackBombProjectiles))
+            if (flashbackMotherBrain.TakeMissileHit(flashbackProjectiles.EnemyImpacts, flashbackBombProjectiles))
             {
-                bool fourthHit = flashbackMotherBrain.RegisterMissileHit();
-                if (fourthHit)
-                {
-                    flashbackMotherBrainExplosions = new IntroMotherBrainExplosionSystem();
-                    flashbackMotherBrainExplosions.SpawnFourthHitExplosions();
-                }
+                flashbackMotherBrainExplosions = new IntroMotherBrainExplosionSystem();
+                flashbackMotherBrainExplosions.SpawnFourthHitExplosions();
             }
         }
 

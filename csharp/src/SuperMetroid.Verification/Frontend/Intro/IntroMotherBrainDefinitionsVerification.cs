@@ -9,6 +9,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks intro Mother Brain actor and explosion definitions against retail timing and placements.</summary>
 internal static class IntroMotherBrainDefinitionsVerification
@@ -160,11 +162,38 @@ internal static class IntroMotherBrainDefinitionsVerification
                 >= 0x8bb9fd and < 0x8bba0f,
             address => $"Intro Mother Brain reread compiled byte ${address:X6}.");
 
+    /// <summary>
+    /// #1385: each of the first four missiles left of X=$54 is killed and counted, the fourth starting the explosion;
+    /// after it, pre-instruction <c>$B80F</c> tests no missiles, so a fifth is neither killed nor counted.
+    /// </summary>
+    internal static void VerifyIntroMotherBrainMissilesAfterFourthHit()
+    {
+        var motherBrain = new IntroMotherBrainSpriteState();
+        var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None)
+        {
+            Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
+        };
+        var bombs = new SamusBombProjectileSystem();
+        SamusProjectileSlot missile = shots.Slots[0];
+        for (int hit = 1; hit <= 5; hit++)
+        {
+            missile.Type = 0x0100;
+            missile.Position = missile.Position.WithWhole(new(0x40, 0x80));
+            bool fourth = motherBrain.TakeMissileHit(shots.EnemyImpacts, bombs);
+            AssertEqual(hit == 4, fourth, $"missile {hit} starts the explosion only on the fourth hit");
+            AssertEqual(hit <= 4, missile.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion),
+                $"missile {hit} is killed only while $8B:B786 tests missiles");
+            AssertEqual(Math.Min(hit, 4), motherBrain.HitCount, $"missile {hit} leaves the hit count at most four");
+        }
+        Console.WriteLine("Intro Mother Brain: four missiles hit and the fourth starts the explosion; a fifth passes through uncounted.");
+    }
+
     /// <summary>Runs intro Mother Brain definition comparison from the command dispatcher.</summary>
     [VerificationCommand("--intro-mother-brain-definitions")]
     internal static int IntroMotherBrainDefinitionsCommand()
     {
         Suite(nameof(VerifyIntroMotherBrainDefinitions), () => VerifyIntroMotherBrainDefinitions());
+        Suite(nameof(VerifyIntroMotherBrainMissilesAfterFourthHit), () => VerifyIntroMotherBrainMissilesAfterFourthHit());
         return 0;
     }
 

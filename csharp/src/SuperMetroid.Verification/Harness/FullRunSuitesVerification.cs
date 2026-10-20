@@ -746,6 +746,7 @@ internal static class FullRunSuitesVerification
         .. IntroCinematicArtworkSuites(),
         new(nameof(VerifyIntroGameplayFlashbackVerticalScroll), () => VerifyIntroGameplayFlashbackVerticalScroll()),
         new(nameof(VerifyIntroMotherBrainDefinitions), () => VerifyIntroMotherBrainDefinitions()),
+        new(nameof(VerifyIntroMotherBrainMissilesAfterFourthHit), () => VerifyIntroMotherBrainMissilesAfterFourthHit()),
         new(nameof(VerifyIntroRinkaDefinitions), () => VerifyIntroRinkaDefinitions()),
         new(nameof(VerifyIntroBabyActorDefinitions), () => VerifyIntroBabyActorDefinitions()),
         new(nameof(VerifyIntroEggEffectDefinitions), () => VerifyIntroEggEffectDefinitions()),

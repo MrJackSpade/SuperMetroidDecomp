@@ -83,7 +83,6 @@ internal static class PowerBombFuseVerification
     /// <summary>Checks that cleanup and a later allocation preserve the native radius-speed word.</summary>
     private static void VerifyPowerBombRetainedRadiusSpeed()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombFixedColors };
         explosion.Arm();
         explosion.Spawn(new(128, 128));

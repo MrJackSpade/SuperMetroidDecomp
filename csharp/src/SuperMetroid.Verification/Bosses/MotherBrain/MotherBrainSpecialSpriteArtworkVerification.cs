@@ -217,7 +217,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static void VerifyMotherBrainInstalledTransferBoundary(
         EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         EscapeTimerTileAtlas timer = EscapeTimerTileAtlas.Load(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom)));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {

@@ -46,8 +46,6 @@ public sealed class SamusReserveAutoRecoveryState
             throw new InvalidOperationException("Reserve recovery has not begun.");
 
         bool refillSoundRequested = samus.ReserveEnergy != 0 && (nmiFrameCounter & 7) == 0;
-        int healthBefore = samus.Health;
-        int reserveBefore = samus.ReserveEnergy;
 
         if (samus.ReserveEnergy != 0)
         {

@@ -19,7 +19,6 @@ internal static class EndingSetupNmiWaitsVerification
     /// </summary>
     internal static void VerifyEndingSetupNmiWaits()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.runtime;

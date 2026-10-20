@@ -91,7 +91,6 @@ internal static class ProjectileRadiiVerification
             0x93a12d, 0x93a135, 0x93a141, 0x93a149, 0x93a151, 0x93a15d, 0x93a165, 0x93a171, 0x93a179, 0x93a181, 0x93a189, 0x93a191,
             0x93a199,
         ];
-        var guard = NewProjectileRadiusReadGuard(rom, addresses);
         foreach (int address in addresses)
         {
             Extent16<RoomPixels> radius = SamusProjectileProgramsVerification.RecordAt((ushort)(address - 4)).Radius;

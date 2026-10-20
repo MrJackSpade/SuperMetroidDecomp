@@ -125,7 +125,6 @@ internal static class HeroShotRuntimeVerification
     /// <summary>Checks that landing pose correction changes previous Y once without disturbing camera X or fractions.</summary>
     private static void VerifyPoseCollisionCameraCheckpoint()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var blocks = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) blocks[31 * 16 + x] = 0x8000;
         var level = CreateRoom(new(16, 32), blocks, new byte[blocks.Length]);

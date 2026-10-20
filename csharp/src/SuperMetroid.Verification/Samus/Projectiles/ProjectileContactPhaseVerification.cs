@@ -18,7 +18,6 @@ internal static class ProjectileContactPhaseVerification
     /// <summary>Compares three runtime frames with a native trace of floor snapping and knockback activation.</summary>
     internal static void VerifyProjectileRuntimePhase()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -71,7 +70,6 @@ internal static class ProjectileContactPhaseVerification
     /// <summary>Checks suit-scaled damage, five-frame hurt request, invincibility, and projectile deletion on contact.</summary>
     internal static void VerifyProjectileContactPhase(bool verifyPhase)
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var failures = new List<string>();
         foreach (SamusEquipmentFlags suit in new[] { SamusEquipmentFlags.None, SamusEquipmentFlags.VariaSuit, SamusEquipmentFlags.GravitySuit })
         {

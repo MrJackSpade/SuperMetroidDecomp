@@ -10,7 +10,6 @@ internal static class PlasmaPenetrationVerification
     /// <summary>Applies two impacts to each charged and uncharged Plasma combination without consuming the shot.</summary>
     internal static void VerifyPlasmaEnemyPenetration()
     {
-        var bus = new TestAddressSpace();
         foreach (bool charged in new[] { false, true })
         for (ushort combination = 0; combination < 8; combination++)
         {

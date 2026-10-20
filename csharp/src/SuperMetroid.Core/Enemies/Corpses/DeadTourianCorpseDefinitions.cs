@@ -11,10 +11,6 @@ internal static class DeadTourianCorpseDefinitions
     private const ushort FirstWideTransfer = 0xe134;
     /// <summary>$A9:E18E begins three34-byte Skree DMA lists.</summary>
     private const ushort FirstSkreeTransfer = 0xe18e;
-    /// <summary>$A9:E66A begins five140-byte paired Zoomer/Ripper move/copy routines; copy begins79 bytes later.</summary>
-    private const ushort FirstWideMove = 0xe66a;
-    /// <summary>$A9:E926 begins three94-byte paired Skree move/copy routines; copy begins53 bytes later.</summary>
-    private const ushort FirstSkreeMove = 0xe926;
 
     /// <summary>The corpse pose program of the eight Zoomer, Ripper and Skree variants, in native configuration order.</summary>
     private static DeadTourianProgram CorpseProgram(int ordinal) => ordinal switch
@@ -45,9 +41,7 @@ internal static class DeadTourianCorpseDefinitions
         int ordinal = first+variantIndex;
         bool skree = species == DeadTourianCorpseSpecies.Skree;
         int layout = skree ? variantIndex : ordinal;
-        ushort move = (ushort)((skree ? FirstSkreeMove : FirstWideMove)+(skree ? 94 : 140)*layout);
         int rowTiles = skree ? 2 : 3;
-        int rotationIndex = species == DeadTourianCorpseSpecies.Zoomer ? 0 : species == DeadTourianCorpseSpecies.Ripper ? 1 : 2;
         return new(
             CorpseProgram(ordinal),
             (ushort)((skree ? FirstSkreeRottingArea : FirstWideRottingArea)+(skree ? 128 : 64)*layout),

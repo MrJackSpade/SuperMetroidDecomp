@@ -50,7 +50,6 @@ internal static class DraygonGrabVerification
     private static (SuperMetroidRuntime Runtime, SamusState Samus, DraygonEnemyState Draygon) GrabSamus(
         ushort spiralYFraction, SamusPoseId? pendingPose)
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

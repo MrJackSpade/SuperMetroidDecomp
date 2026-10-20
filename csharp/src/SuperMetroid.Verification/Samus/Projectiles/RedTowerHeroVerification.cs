@@ -23,7 +23,6 @@ internal static class RedTowerHeroVerification
     {
         foreach (bool followShot in new[] { false, true })
         {
-            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();

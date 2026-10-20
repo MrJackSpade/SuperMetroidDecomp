@@ -36,18 +36,16 @@ internal static class MetroidBehaviorDefinitionsVerification
                 $"Metroid random cry {index}");
         }
 
-        Suite(nameof(VerifyMetroidEscapeConsumer), () => VerifyMetroidEscapeConsumer(rom));
+        Suite(nameof(VerifyMetroidEscapeConsumer), () => VerifyMetroidEscapeConsumer());
         Suite(nameof(VerifyMetroidCryConsumer), () => VerifyMetroidCryConsumer(rom));
         Console.WriteLine(
             "Metroid behavior definitions: eight displacement words, eight cry words, all 65,536 escape selectors and all eight production instruction selections pass with source tables forbidden.");
     }
 
     /// <summary>Checks every ushort escape timer for wrapped displacement, countdown, and homing handoff.</summary>
-    private static void VerifyMetroidEscapeConsumer(SuperMetroidAddressSpace rom)
+    private static void VerifyMetroidEscapeConsumer()
     {
-        var guarded = NewMetroidBehaviorReadGuard(rom);
         // One system serves every timer: the escape step is static and keeps no per-call state.
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         for (int timer = 0; timer <= ushort.MaxValue; timer++)
         {

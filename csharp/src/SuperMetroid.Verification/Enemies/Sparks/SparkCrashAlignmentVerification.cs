@@ -12,7 +12,6 @@ internal static class SparkCrashAlignmentVerification
     /// <summary>Confirms the delayed standing pose shifts whole Y by two pixels, retains the fraction, and consumes its previous-position checkpoint once.</summary>
     internal static void VerifySparkCrashAlignment()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (SamusPoseId pose in new SamusPoseId[] { SamusPoseId.ShinesparkDiagonalRightPose, SamusPoseId.ShinesparkDiagonalLeftPose })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(700, 35)) };

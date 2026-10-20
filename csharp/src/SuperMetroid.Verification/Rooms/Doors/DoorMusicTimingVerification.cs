@@ -23,7 +23,6 @@ internal static class DoorMusicTimingVerification
     /// <summary>Checks post-scroll stop, upload, and destination-track delays plus unchanged and zero-track handling.</summary>
     internal static void VerifyDoorMusicTiming()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new CartridgeRandom();
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -69,7 +68,7 @@ internal static class DoorMusicTimingVerification
             var phase = game.DoorTransitionPhaseForVerification;
             if (phase == DoorTransitionPhase.WaitForMusicQueue && musicWaitFrame < 0)
                 musicWaitFrame = frame;
-            var output = game.Step(0);
+            game.Step(0);
             // Bank loads and music-port writes are published in the update the CPU issues them.
             foreach (var audioEvent in game.AudioEventsForVerification)
             {

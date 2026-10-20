@@ -16,7 +16,6 @@ internal static class EndingFlyawayArtworkVerification
     internal static void VerifyEndingFlyawayArtwork(GameInstallation installation)
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var installedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var guard = NewIntroArtworkSourceReadGuard(installedBus);
         var nativeAudio = new CartridgeAudioState();

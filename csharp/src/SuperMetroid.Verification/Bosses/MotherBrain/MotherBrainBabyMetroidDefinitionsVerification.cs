@@ -42,7 +42,6 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             population.DefinitionPointer,
             "Mother Brain Baby population definition");
 
-        var guarded = NewMotherBrainBabyPopulationReadGuard(rom);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.Presentation.BindCgram(new SnesCgram());
 

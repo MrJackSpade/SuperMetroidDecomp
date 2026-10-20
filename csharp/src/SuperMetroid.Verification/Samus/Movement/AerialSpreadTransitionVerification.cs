@@ -16,7 +16,6 @@ internal static class AerialSpreadTransitionVerification
     /// </summary>
     internal static void VerifyAerialSpreadTransitions(bool wallRoute = false)
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool left in new[] { false, true })
         for (int timingCase = 0; timingCase < BombSpreadTransitionScenario.TimingCaseCount(wallRoute); timingCase++)
         {

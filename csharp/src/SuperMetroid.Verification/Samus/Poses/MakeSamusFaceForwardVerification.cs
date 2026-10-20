@@ -12,7 +12,6 @@ internal static class MakeSamusFaceForwardVerification
     /// </summary>
     internal static void VerifyMakeSamusFaceForward()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseId.StandingAimUpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x7b, 0x8b)) };
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
         samus.PoseMetadata.RefreshCollisionRadii();

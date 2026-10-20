@@ -8,18 +8,6 @@ namespace SuperMetroid.Core.Map;
 /// <summary>Bank $81 SRAM packing calculated from immutable stock map occupancy.</summary>
 internal static class ExploredMapPackingDefinitions
 {
-    /// <summary>$81:8146, SRAMMapData_crateria, native sparse map-byte order.</summary>
-    private const ushort CrateriaSource = 0x8146;
-    /// <summary>$81:8196, SRAMMapData_brinstar, native sparse map-byte order.</summary>
-    private const ushort BrinstarSource = 0x8196;
-    /// <summary>$81:81E6, SRAMMapData_norfair, native sparse map-byte order.</summary>
-    private const ushort NorfairSource = 0x81e6;
-    /// <summary>$81:8236, SRAMMapData_wreckedShip, native sparse map-byte order.</summary>
-    private const ushort WreckedShipSource = 0x8236;
-    /// <summary>$81:8256, SRAMMapData_maridia, native sparse map-byte order.</summary>
-    private const ushort MaridiaSource = 0x8256;
-    /// <summary>$81:82A6, SRAMMapData_tourian, native sparse map-byte order.</summary>
-    private const ushort TourianSource = 0x82a6;
 
     /// <summary>
     /// SaveMap/LoadMap omit Ceres. Each retained byte describes eight adjacent tiles;
@@ -34,16 +22,6 @@ internal static class ExploredMapPackingDefinitions
         int offset = 0;
         for (int previous = 0; previous < area; previous++)
             offset += new OccupiedByteIndexes(maps.Get((AreaId)previous)).Count;
-        ushort source = (AreaId)area switch
-        {
-            AreaId.Crateria => CrateriaSource,
-            AreaId.Brinstar => BrinstarSource,
-            AreaId.Norfair => NorfairSource,
-            AreaId.WreckedShip => WreckedShipSource,
-            AreaId.Maridia => MaridiaSource,
-            AreaId.Tourian => TourianSource,
-            _ => throw new ArgumentOutOfRangeException(nameof(area)),
-        };
         return new(checked((ushort)offset), new(maps.Get((AreaId)area)));
     }
 

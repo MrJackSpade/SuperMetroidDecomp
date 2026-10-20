@@ -15,7 +15,6 @@ internal static class RetailElevatorCaptureTests
     /// <summary>Compares captured and direct frames from Ceres fade through landing and 60 released-control frames.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
         var legacy = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);

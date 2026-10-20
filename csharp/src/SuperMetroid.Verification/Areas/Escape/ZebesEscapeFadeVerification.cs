@@ -14,7 +14,6 @@ internal static class ZebesEscapeFadeVerification
     /// <remarks>#1269: the earlier transition froze time and dimmed every second call, halting Samus's rise and RNG advancement in the 100% movie.</remarks>
     internal static void VerifyZebesEscapeFade()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.runtime;

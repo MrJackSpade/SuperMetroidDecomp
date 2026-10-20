@@ -806,7 +806,6 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "death pose retains two-tick delay");
 
     var cgram = new SnesCgram();
-    var writes = new VramWriteQueue();
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
         step = samus.DeathSequence.Step(samus, cgram, artwork);

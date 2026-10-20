@@ -14,7 +14,6 @@ internal static class ZeroDistanceJumpContactVerification
     /// <summary>Confirms tangency clears Y subposition without fabricating movement, then checks crouch-to-hurt radius timing.</summary>
     internal static void VerifyZeroDistanceJumpContact()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         foreach (bool left in new[] { false, true })
         foreach (bool frozen in new[] { false, true })
@@ -34,7 +33,7 @@ internal static class ZeroDistanceJumpContactVerification
                     Properties: EnemyPropertyWord.FromNativeWord((ushort)((ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)))),
             ];
             uint initialX = unchecked((uint)samus.Kinematics.Position.X.RawValue);
-            var result = SamusAerialMovement.StepNormalJump(level, samus, SnesButton.A, 0);
+            SamusAerialMovement.StepNormalJump(level, samus, SnesButton.A, 0);
             AssertEqual(initialX, unchecked((uint)samus.Kinematics.Position.X.RawValue), "zero-distance jump leaves both X words unchanged");
             AssertEqual(100, samus.Position.Y.Whole, "zero-distance contact leaves whole Y unchanged");
             AssertEqual(gap == 0 ? 0 : 0xffff, samus.Kinematics.Position.Y.Fraction,

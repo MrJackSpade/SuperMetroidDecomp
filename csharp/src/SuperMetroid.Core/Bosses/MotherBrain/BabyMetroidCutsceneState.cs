@@ -224,8 +224,7 @@ public sealed class BabyMetroidCutsceneState
             throw new InvalidOperationException("The cutscene Baby Metroid has not been initialized.");
 
         BabyMetroidCutscenePhase phaseBefore = Phase;
-        BabyMetroidCutscenePoint before = Capture();
-        bool brainCollision = false;
+        bool brainCollision;
         bool bodyStumbleRequested = false;
         bool latchSoundQueued = false;
         // `$A9:C98C-C9C2` emits three independent `$86:E509` allocations when the Baby
@@ -402,7 +401,6 @@ public sealed class BabyMetroidCutsceneState
                     wrongWayOffScreenXSpeed: 1024,
                     layer1);
                 bool ceilingCollision = CollidesWithRectangle(target, TargetRadius);
-                brainCollision = ceilingCollision;
                 if (ceilingCollision)
                 {
                     samus.Drained.PutCrouchingOrFalling(samus);
@@ -1084,9 +1082,6 @@ public sealed class BabyMetroidCutsceneState
         Velocity = Velocity.WithX(default);
         return true;
     }
-
-    /// <summary>Creates the empty compatibility point included in the cutscene step result.</summary>
-    private static BabyMetroidCutscenePoint Capture() => new();
 
     /// <summary>The 4x4 half-extent rectangle every route and staging target is tested with.</summary>
     private static Extent16<RoomPixels> TargetRadius => new(4, 4);

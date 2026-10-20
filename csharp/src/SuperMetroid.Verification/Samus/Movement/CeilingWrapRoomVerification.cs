@@ -21,7 +21,6 @@ internal static class CeilingWrapRoomVerification
         string[] native = File.ReadLines(path).Skip(1).ToArray();
         int expectedFrames = beams == 11 ? (dash ? 349 : 412) : 900;
         AssertEqual(expectedFrames, native.Length, "Native Speedway setup trace length");
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -51,7 +50,6 @@ internal static class CeilingWrapRoomVerification
     /// <summary>Checks that a full forty-slot PLM pool permits native speed-block entry without breaking the block.</summary>
     internal static void VerifyFrogSpeedwayPoolCollision()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

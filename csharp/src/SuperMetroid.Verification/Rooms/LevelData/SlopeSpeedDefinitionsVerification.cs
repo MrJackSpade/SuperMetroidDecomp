@@ -13,7 +13,6 @@ internal static class SlopeSpeedDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for slope speeds")]
     internal static void VerifyCompiledSlopeSpeeds(SuperMetroidAddressSpace rom)
     {
-        var bus = NewSlopeHeightNoReadBus();
         var multipliers = new ushort[32];
         for (int shape = 0; shape < multipliers.Length; shape++)
         {

@@ -3828,8 +3828,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         MotherBrainTurretDefinition definition =
             MotherBrainTurretDefinitions.ForTurret(parameter);
         MotherBrainTurretDirection direction = definition.InitialDirection;
-        MotherBrainTurretDirectionDefinition directionDefinition =
-            MotherBrainTurretDefinitions.ForDirection(direction);
         turret.DirectionParameter = parameter;
         turret.Position = turret.Position.WithWhole(definition.Position);
 

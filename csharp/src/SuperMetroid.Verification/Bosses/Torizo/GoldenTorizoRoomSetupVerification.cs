@@ -28,7 +28,7 @@ internal static class GoldenTorizoRoomSetupVerification
         }
         for (int frame = 0; frame < 450; frame++)
         {
-            FrontendFrame expected = native.Step(0);
+            native.Step(0);
             FrontendFrame actual = installed.Step(0);
             AssertEqual(SuperMetroidGameState.MainGameplay, actual.GameState,
                 $"Golden Torizo turn preparation remains active at frame {frame}");

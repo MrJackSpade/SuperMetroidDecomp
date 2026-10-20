@@ -16,7 +16,6 @@ internal static class PhantoonPositionVerification
     /// <summary>Verifies NTSC speed caps and 1400 frames of live, NMI, and captured BG2 position handoff.</summary>
     internal static void VerifyPhantoonPosition()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // The native NTSC negative caps must hold at -8 and -6 pixels/frame.
         // PAL thresholds used here previously allowed continued acceleration.
         var capEnemies = new RoomEnemySystem(new EnemySession());

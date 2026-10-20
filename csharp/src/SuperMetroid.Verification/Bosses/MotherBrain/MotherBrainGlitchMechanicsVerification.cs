@@ -20,7 +20,6 @@ internal static class MotherBrainGlitchMechanicsVerification
     /// </summary>
     internal static void VerifyMotherBrainGlitchMechanics()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         // $91:E571 writes only $0A1C: the spin jump's $0A1E/$0A1F stay in force.
         var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) };

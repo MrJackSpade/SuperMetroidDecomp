@@ -566,7 +566,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // $A3:EF31 records the drop origin, EnemyDeath ($A3:EF4B) spawns the explosion, and only then
                 // $A3:EF74 spawns the five drops.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
-                MetroidEnemyState dyingMetroid = RequireMetroidState(enemy);
                 FinishMetroidDeath(enemy, c.Samus);
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 4);
                 RequestMetroidDrops(dropOrigin);

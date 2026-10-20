@@ -23,7 +23,6 @@ internal static class MotherBrainHeadHitboxVerification
     /// </summary>
     internal static void VerifyMotherBrainHeadHitbox()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

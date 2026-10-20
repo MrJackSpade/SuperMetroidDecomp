@@ -46,7 +46,6 @@ public static class SamusHurtFlashPalette
             return new SamusHurtFlashPaletteStepResult();
         }
 
-        int? paletteAddress = null;
 
         // `$91:D8B3-$D8D4` plays the impact sound exactly on call two. Cinematics and the
         // Mother-Brain drained `$54` handler are the two native exceptions; the latter is
@@ -67,18 +66,14 @@ public static class SamusHurtFlashPalette
             if ((counterBefore & 1) != 0)
             {
                 LoadPresentation(SamusHurtColorVariant.Hurt);
-                paletteAddress = SamusPaletteRomData.HurtFlash.Colors;
             }
             else if (samus.LiquidPhysics.CinematicFunctionActive)
             {
                 LoadPresentation(SamusHurtColorVariant.Intro);
-                paletteAddress = SamusPaletteRomData.HurtFlash.IntroColors;
             }
             else
             {
-                ushort palettePointer = SamusNormalSuitPalette.Load(
-                    cgram, samus.EquippedItems, samus.Presentation.SuitColors);
-                paletteAddress = SamusPaletteRomData.Banks.Palette | palettePointer;
+                SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.Presentation.SuitColors);
             }
         }
 
@@ -88,14 +83,12 @@ public static class SamusHurtFlashPalette
         int counterAfter = (counterBefore + 1) % HurtFlashCounterPeriod;
         samus.HurtFlashCounter = counterAfter;
 
-        SamusHurtFlashRecoveryAction recovery = SamusHurtFlashRecoveryAction.None;
         if (counterAfter == 40)
-            recovery = RecoverInterruptedSound(samus, controllerInput);
+            RecoverInterruptedSound(samus, controllerInput);
 
         if (unchecked((short)(counterAfter - 60)) >= 0)
         {
             samus.HurtFlashCounter = 0;
-            counterAfter = 0;
         }
 
         return new SamusHurtFlashPaletteStepResult();

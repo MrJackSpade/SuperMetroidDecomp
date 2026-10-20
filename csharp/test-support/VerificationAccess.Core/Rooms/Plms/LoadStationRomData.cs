@@ -1,9 +1,8 @@
-namespace SuperMetroid.Core.Rooms.Plms;
+﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Native bank-$80 addresses retained only for load-station parity diagnostics.</summary>
 public static class LoadStationRomData
 {
-
     /// <summary>Number of bytes in one native room/door/camera/Samus placement record.</summary>
     public const int EntryByteCount = 14;
 

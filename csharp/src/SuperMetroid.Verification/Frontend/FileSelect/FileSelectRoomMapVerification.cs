@@ -105,7 +105,6 @@ internal static class FileSelectRoomMapVerification
     /// <summary>Checks the retained room frame and native center-window exposure during cancellation back to the area map.</summary>
     internal static void VerifyMapCancelPresentation()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.MapStationBytes[4] = 1;

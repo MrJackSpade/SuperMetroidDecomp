@@ -517,7 +517,6 @@ internal static void VerifyFrameRuntime()
     AssertEqual((ushort)3, pickupDuringLoan.Missiles,
         "idempotent loan reconciliation preserves ammunition collected during the frame");
 
-    var bus = new TestAddressSpace();
     var runtime = CreateRetailRuntimeFixture();
     // Gameplay frames run in a loaded room; its queued transfers drain ahead of this one.
     runtime.RoomLoader.InitializeStartingCeresRoom();

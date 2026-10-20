@@ -21,7 +21,6 @@ internal static class MotherBrainPlasmaImpactVerification
     /// <summary>Confirms one accepted hit, recoil, immunity, first-form restriction, and later Hyper Beam behavior.</summary>
     internal static int VerifyMotherBrainPlasmaImpact()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var head = enemies.SlotTable.Slots[1];
         head.Bind(EnemyDefinitionId.MotherBrainHead, head.Definition);
@@ -35,7 +34,6 @@ internal static class MotherBrainPlasmaImpactVerification
         enemies.MotherBrainEncounter.MotherBrain = state;
         ((List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes).Add(head.NativeIndex);
         var samus = new SamusState();
-        var installation = RepositoryInstallation.Installation;
         var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
         var bombs = new SamusBombProjectileSystem();
         var shot = shots.Slots[0];

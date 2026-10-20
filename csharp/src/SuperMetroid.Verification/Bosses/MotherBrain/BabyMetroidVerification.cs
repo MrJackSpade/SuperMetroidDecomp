@@ -112,7 +112,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         BabyPoint(),
         "Baby first curve fixed-point displacement");
 
-    BabyMetroidCutsceneStepResult latch = default;
+    BabyMetroidCutsceneStepResult latch;
     bool sawBodyStumbleRequest = false;
     bool sawMotherBrainInterrupt = false;
     bool sawLatchSound = false;

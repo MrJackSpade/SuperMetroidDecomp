@@ -40,7 +40,6 @@ internal static class RoomFxRecordDefinitionsVerification
     {
         LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Ceres station has no room.")).Pointer);
-        var guarded = NewRoomFxRecordReadGuard(bus);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();
         var nativeCgram = new SnesCgram();
@@ -50,9 +49,9 @@ internal static class RoomFxRecordDefinitionsVerification
         RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(bus)));
         var nativeFxSession = new RoomFxSession{ PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
-        var nativeFx = new RoomLayer3FxState(nativeFxSession);
+        RoomLayer3FxState nativeFx;
         var compiledFxSession = new RoomFxSession{ PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
-        var compiledFx = new RoomLayer3FxState(compiledFxSession);
+        RoomLayer3FxState compiledFx;
         nativeFx = RoomLayer3FxState.ForRoom(nativeFxSession, nativeCgram, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
         compiledFx = RoomLayer3FxState.ForRoom(compiledFxSession, compiledCgram, room.State.Fx,
@@ -71,9 +70,9 @@ internal static class RoomFxRecordDefinitionsVerification
             "Ceres compiled FX retains CGRAM output");
 
         var nativePaletteSession = new PaletteFxSessionState();
-        var nativePalette = new RoomPaletteFxSystem(nativePaletteSession);
+        RoomPaletteFxSystem nativePalette;
         var compiledPaletteSession = new PaletteFxSessionState();
-        var compiledPalette = new RoomPaletteFxSystem(compiledPaletteSession);
+        RoomPaletteFxSystem compiledPalette;
         nativePalette = RoomPaletteFxSystem.ForRoom(nativePaletteSession, room.State.Fx, station.Door,
             room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
         compiledPalette = RoomPaletteFxSystem.ForRoom(compiledPaletteSession, room.State.Fx, station.Door,

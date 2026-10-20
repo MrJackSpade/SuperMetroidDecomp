@@ -23,7 +23,6 @@ internal static class SamusTerrainMovementVerification
 /// <summary>Slope, block, grounded, reversal, moonwalk, and wall-contact verification.</summary>
 internal static void VerifySamusSlopePhysics()
 {
-    var bus = new TestAddressSpace();
 
     // Shape $12 selects multiplier-table word index 2*$12+1 = $25. Retail ROM stores
     // $00C0 there, causing a grounded 1.0 displacement to become 0.C000.
@@ -977,7 +976,7 @@ internal static void VerifySamusGroundedReversal()
             airborneCrouchedTurn.Kinematics.YDirection = SamusVerticalDirection.Up;
             airborneCrouchedTurn.Kinematics.YSpeed = airborneCrouchedTurn.Kinematics.YSpeed.WithWhole(1);
             uint airborneYBefore = airborneCrouchedTurn.Kinematics.Position.Y.RawValue;
-            AerialMovementResult airborneResult = SamusAerialMovement.StepTurningInAir(
+            SamusAerialMovement.StepTurningInAir(
 
                 aimedLevel,
                 airborneCrouchedTurn,

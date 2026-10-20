@@ -13,7 +13,6 @@ internal static class ShinesparkEnemyStopVerification
     /// <summary>Checks exact crash position at a four-pixel gap and continued vertical flight at a twenty-pixel gap.</summary>
     internal static void VerifyShinesparkEnemyStop()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         foreach (bool frozen in new[] { false, true })
         foreach (int gap in new[] { 4, 20 })

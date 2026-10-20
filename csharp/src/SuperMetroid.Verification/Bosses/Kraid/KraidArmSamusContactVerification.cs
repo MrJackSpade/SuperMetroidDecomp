@@ -22,7 +22,6 @@ internal static class KraidArmSamusContactVerification
     /// </summary>
     internal static void VerifyKraidArmSamusContact()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

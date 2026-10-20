@@ -15,7 +15,6 @@ internal static class ShallowWaterJumpVerification
     /// <summary>Checks water contact, ceiling apex, and every recorded pose and motion row for issue #1258.</summary>
     internal static void VerifyShallowWaterJump()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var scenario = new ShallowWaterJumpScenario(CreateRetailRuntimeFixture(playerInvincibilityEnabled: true));
         var samus = scenario.Samus;
         AssertEqual(447, samus.Kinematics.BottomPixel.Y, "standing feet occupy the pixel below the water surface");

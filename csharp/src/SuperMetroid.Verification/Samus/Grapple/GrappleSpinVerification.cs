@@ -20,7 +20,6 @@ internal static class GrappleSpinVerification
         foreach (bool left in new[] { false, true })
         foreach (bool held in new[] { false, true })
         {
-            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();

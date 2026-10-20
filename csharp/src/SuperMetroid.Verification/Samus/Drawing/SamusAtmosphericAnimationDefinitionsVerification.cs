@@ -96,10 +96,9 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                 effects.SetSlot(0, type, frame, animationTimer: 1, anchor: new(100, drawY));
                 var oamFrame = new SpriteFrameBuffer();
                 oamFrame.BeginFrame();
-                OamBuffer oam;
                 effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: drawY,
                     directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
-                oam = oamFrame.FinalizeAsOam();
+                oamFrame.FinalizeAsOam();
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer.RawValue,
                     $"production atmospheric type {type} frame {frame} expiry timer");
                 AssertEqual(frame + 1 == frameCount ? 0 : frame + 1,
@@ -112,7 +111,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                 oamFrame.BeginFrame();
                 effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: drawY,
                     directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
-                oam = oamFrame.FinalizeAsOam();
+                oamFrame.FinalizeAsOam();
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer.RawValue,
                     $"production atmospheric type {type} frame {frame} delayed timer");
                 AssertEqual(frame, effects.Slots[0].AnimationFrame,

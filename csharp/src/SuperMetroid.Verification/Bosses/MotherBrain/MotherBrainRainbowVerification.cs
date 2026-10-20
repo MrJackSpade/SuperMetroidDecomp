@@ -142,7 +142,6 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
 /// </summary>
 internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 {
-    TestAddressSpace bus = CreateRainbowBeamAttackSequenceCartridge();
 
     var samus = new SamusState
     {

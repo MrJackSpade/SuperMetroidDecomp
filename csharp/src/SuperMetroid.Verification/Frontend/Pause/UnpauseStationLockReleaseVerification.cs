@@ -25,7 +25,6 @@ internal static class UnpauseStationLockReleaseVerification
     /// </summary>
     internal static void VerifyUnpauseStationLockRelease()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new CartridgeRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

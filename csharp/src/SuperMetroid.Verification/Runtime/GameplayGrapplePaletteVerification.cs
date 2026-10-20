@@ -25,7 +25,6 @@ internal static class GameplayGrapplePaletteVerification
     internal static void VerifyGameplayGrapplePalette()
     {
         var installation=RepositoryInstallation.Installation;
-        var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var projectiles=installation.LoadProjectiles();
         InstalledFixtures.BindGame(game);

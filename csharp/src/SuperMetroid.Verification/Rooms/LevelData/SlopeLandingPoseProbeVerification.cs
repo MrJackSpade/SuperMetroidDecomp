@@ -20,7 +20,6 @@ internal static class SlopeLandingPoseProbeVerification
     /// </summary>
     internal static void VerifySlopeLandingZeroDistanceProbe()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const int Width = 16, Height = 32;
         var foreground = new ushort[Width * Height];
         var behavior = new byte[Width * Height];

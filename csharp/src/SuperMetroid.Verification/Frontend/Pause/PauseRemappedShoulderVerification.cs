@@ -25,7 +25,6 @@ internal static class PauseRemappedShoulderVerification
     /// </summary>
     internal static void VerifyPauseRemappedShoulder()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach ((SnesButton held, bool opensEquipment) in new[] { (SnesButton.R, true), (SnesButton.L, false) })
         {
             var random = new CartridgeRandom();

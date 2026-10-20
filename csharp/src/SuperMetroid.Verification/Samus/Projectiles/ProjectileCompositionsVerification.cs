@@ -121,7 +121,6 @@ internal static class ProjectileCompositionsVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyProjectileCompositionOwners(ProjectileSpriteCatalog content)
     {
-        var forbidden = NewProjectileCompositionForbiddenBus();
         int comparisons = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         foreach (ushort coordinate in new ushort[] { 0, 100, 223, 255, 256, 303, 304, 0xffcf, 0xffd0 })

@@ -19,7 +19,6 @@ internal static class RetailAttractTests
     {
         // Attract scenes are compiled stock definitions, so the fixture tours the stock first
         // demo set; a cartridge edit can no longer shorten it.
-        byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {

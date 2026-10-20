@@ -89,9 +89,7 @@ public sealed class SamusArmCannonState
             ToggleFlag = incremented < 3 ? incremented : 2;
         }
 
-        int frameBefore = Frame;
-        bool transitionStarted = false;
-        if (CloseFlag != 0 || (transitionStarted = TryStartTransition(samus.SelectedHudItem)))
+        if (CloseFlag != 0 || TryStartTransition(samus.SelectedHudItem))
             AdvanceFrame();
 
         ushort drawingData = PoseDrawingData((int)samus.Pose);

@@ -29,7 +29,6 @@ internal static class GroundedSpreadTransitionVerification
     /// <summary>Runs one 120-frame input path through the retail runtime in an isolated flat clearing.</summary>
     private static void VerifyGroundedSpreadTransitionCase(bool left, int scenario, StreamReader? trace)
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

@@ -93,7 +93,6 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialJapanese).Address,
         GameOptionsRomData.TilemapByteCount,
         0);
-    var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture());
     StepOptionsUntil(options, GameOptionsPhase.Main);
 

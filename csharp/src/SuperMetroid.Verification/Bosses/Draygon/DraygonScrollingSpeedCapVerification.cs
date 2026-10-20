@@ -18,7 +18,6 @@ internal static class DraygonScrollingSpeedCapVerification
     /// </summary>
     internal static void VerifyDraygonScrollingSpeedCap()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var checkpoint = FixedPosition<RoomPixels>.FromWords(0x0190, 0, 0x0170, 0);
 
         // Down 33 and right 8: Y is capped twelve beyond Samus, X is under the threshold.

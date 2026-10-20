@@ -16,7 +16,6 @@ internal static class YardAirborneVerification
     /// <summary>Confirms the per-frame Samus distance includes native pixel bias and fractional camera movement.</summary>
     internal static void VerifyYardRuntimeDistancePublication()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(0);

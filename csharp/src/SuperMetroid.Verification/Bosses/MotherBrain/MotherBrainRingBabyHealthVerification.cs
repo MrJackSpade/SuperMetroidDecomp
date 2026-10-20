@@ -20,7 +20,6 @@ internal static class MotherBrainRingBabyHealthVerification
     /// </summary>
     internal static void VerifyMotherBrainRingBabyHealth()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

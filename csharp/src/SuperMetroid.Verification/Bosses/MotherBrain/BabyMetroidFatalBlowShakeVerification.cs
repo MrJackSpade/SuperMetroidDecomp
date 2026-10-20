@@ -14,7 +14,6 @@ internal static class BabyMetroidFatalBlowShakeVerification
     /// </summary>
     internal static void VerifyBabyMetroidFatalBlowShake()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
         var motherBrain = new MotherBrainRainbowBeamAttackSequence();
         var baby = new BabyMetroidCutsceneState();

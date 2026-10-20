@@ -348,7 +348,7 @@ internal sealed class SamusPoseTransitionPhase
                         "Ran-into-wall probe requires active room level data."),
                     prospectiveRunningPose,
                     currentRunHitWall,
-                    out BlockMoveResult? onePixelProbe,
+                    out _,
                     plms);
         }
 

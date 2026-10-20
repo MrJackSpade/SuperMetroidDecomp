@@ -66,7 +66,7 @@ public static class SamusBombJumpMovement
                 $"Active bomb jump has invalid native direction ${samus.BombJumpDirection:X4}.");
         }
 
-        BlockMoveResult? horizontal = null;
+        BlockMoveResult? horizontal;
         if (direction != 2)
         {
             // `$90:8EF4` bypasses the normal movement-type pointer and feeds `$90:9F25`

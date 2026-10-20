@@ -18,7 +18,6 @@ internal static class FrontendRenderCaptureTestsVerification
     /// <summary>Compares frame pixels, state, audio, and retained packet identity through the intro transition.</summary>
     internal static void VerifyFrontendRenderCapture()
     {
-        byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         var captured = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
@@ -86,8 +85,8 @@ internal static class FrontendRenderCaptureTestsVerification
                 AssertTrue(held is not null && heldPixels is not null && heldPixels.SequenceEqual(
                     SoftwareFrameSnapshotRenderer.Render(held)), "retained title packet survives scene handoffs");
                 // Switching back to the compatibility entry point must also work.
-                FrontendFrame legacyNext = legacy.Step(0);
-                FrontendFrame capturedNext = captured.Step(0);
+                legacy.Step(0);
+                captured.Step(0);
                 AssertTrue(legacy.PublishedPixels().SequenceEqual(captured.PublishedPixels()), "legacy Step after captured Step");
                 Console.WriteLine($"  Frontend capture: {packetCount} packet frames preserve state/audio/pixels through title/file/options and intro handoff.");
                 return;

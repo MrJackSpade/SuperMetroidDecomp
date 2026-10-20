@@ -47,8 +47,8 @@ internal static class HostIndependentAudioAcknowledgementsVerification
 
         void StepAll()
         {
-            FrontendFrame silentFrame = silent.Step(0);
-            FrontendFrame playingFrame = playing.Step(0);
+            silent.Step(0);
+            playing.Step(0);
             AssertSequenceEqual(silent.AudioEventsForVerification, playing.AudioEventsForVerification, $"published audio events after update {update}");
             AssertEqual(silent.AudioAcknowledgementsForVerification, playing.AudioAcknowledgementsForVerification,
                 $"session acknowledgements after update {update}");
@@ -91,7 +91,6 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     /// <summary>Builds a retail gameplay session standing in the Landing Site with a reset audio queue.</summary>
     private static SuperMetroidGame CreateLandingSiteSession()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new CartridgeRandom();
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

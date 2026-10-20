@@ -38,7 +38,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
     /// <summary>Confirms an unboosted downward contact remains solid and releases the temporary setup slot without changing terrain.</summary>
     private static void VerifyInactiveSpeedBlockRemainsSolid()
     {
-        (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
+        (_, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
             CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0e), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: false);
 
@@ -99,7 +99,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
     /// <summary>Confirms stage-four wall contact selects the permanent PLM and leaves its block as air after the crumble frames.</summary>
     private static void VerifyBoostedWallContactRunsPermanentPlm()
     {
-        (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
+        (_, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
             CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0f), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
         samus.Position = samus.Position.WithWhole(new(34, 72));
@@ -134,7 +134,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
 
         foreach ((byte bts, SpeedBoosterBlockPlmDefinition expected) in cases)
         {
-            (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
+            (_, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
                 CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(bts), AreaId.Brinstar);
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
             BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });

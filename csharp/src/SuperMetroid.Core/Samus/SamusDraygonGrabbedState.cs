@@ -171,7 +171,6 @@ public sealed class SamusDraygonGrabbedState
 
         // Native tests the signed difference only on a newly counted D-pad edge.
         bool released = counted && ReachedEscapeTarget(EscapeButtonCounter);
-        SamusPoseId poseBeforeRelease = samus.Pose;
         if (released)
             Release(samus);
 

@@ -19,7 +19,6 @@ internal static class MotherBrainMissileWalkResetVerification
     /// </summary>
     internal static void VerifyMotherBrainMissileWalkReset()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

@@ -367,7 +367,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // A malformed callback-table entry (SpaceTime) stores raw bytes straight
             // into bank-$80's progression owners during this pass, so later
             // consumers this frame, and saves, observe them.
-            SamusProjectileFrameResult projectileFrame = room.Projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms,
+            room.Projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms,
                 Progression = _system }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: room.BombProjectiles.SoundSuppressedBeforeProjectileHandling);
 
             if (!_freeze.TimeIsFrozen)

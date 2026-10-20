@@ -14,7 +14,6 @@ internal static class SpringBallBounceVerification
     /// <summary>Confirms $90:A6F1 chooses morphed bounce at $90:91D1 while the bounce state is nonzero, preserving the one-pixel rise before gravity.</summary>
     internal static void VerifySpringBallBounce()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = CreateRoom(new(16, 32), new ushort[16 * 32], new byte[16 * 32]);
         foreach (SamusBallBounceState bounceState in new[] { SamusBallBounceState.SpringBallFirstRebound, SamusBallBounceState.None })
         {

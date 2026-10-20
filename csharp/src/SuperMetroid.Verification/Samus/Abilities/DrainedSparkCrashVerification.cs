@@ -23,7 +23,6 @@ internal static class DrainedSparkCrashVerification
     /// </summary>
     internal static void VerifyDrainedSparkCrash()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

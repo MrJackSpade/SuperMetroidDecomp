@@ -23,7 +23,6 @@ internal static class UnpauseElevatorFlagsVerification
     /// </summary>
     internal static void VerifyUnpauseElevatorFlags()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new CartridgeRandom();
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

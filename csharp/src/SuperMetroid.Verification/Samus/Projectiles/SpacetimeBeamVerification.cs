@@ -307,7 +307,6 @@ internal static class SpacetimeBeamVerification
     private static void VerifySpacetimeBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
         var artwork = InstalledFixtures.Projectiles.BeamTiles;
         byte[] nativeTiles = ReadRetailSpacetimeGraphicsOracle(bus);
         AssertTrue(artwork.TryResolve(SpacetimeBeamGraphicsDefinitions.TileSource, 256, out _),

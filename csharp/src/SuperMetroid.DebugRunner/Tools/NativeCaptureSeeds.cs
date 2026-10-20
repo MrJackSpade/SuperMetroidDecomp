@@ -14,7 +14,6 @@ internal static class NativeCaptureSeeds
     /// </summary>
     internal static int WriteBombSpreadTrace(string outputPath, bool wallRoute)
     {
-        var bus = RepositoryRom.Load();
         using var output = new StreamWriter(new FileStream(outputPath, FileMode.CreateNew));
         output.WriteLine(BombSpreadTransitionScenario.TraceHeader);
         int frames = 0, bombRows = 0;
@@ -43,7 +42,6 @@ internal static class NativeCaptureSeeds
     /// <summary>Exports issue #1258's room, takeoff seed and production jump rows for the native capture.</summary>
     internal static int ExportShallowWaterJumpSeed()
     {
-        var bus = RepositoryRom.Load();
         var scenario = new ShallowWaterJumpScenario(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
         var level = scenario.Runtime.Room.LoadedLevelData;
         string output = Path.GetFullPath("csharp/test-temp/issue-1258-water-jump");

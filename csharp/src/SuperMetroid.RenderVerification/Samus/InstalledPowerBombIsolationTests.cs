@@ -211,7 +211,6 @@ internal static class InstalledPowerBombIsolationTests
     private static void CheckStateRestoration(PowerBombFixedColorCatalog colors)
     {
         int currentRestores = 0, legacyRestores = 0;
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         foreach (bool crystalFlash in new[] { false, true })
         {
             var state = Create(colors, crystalFlash);
@@ -259,7 +258,6 @@ internal static class InstalledPowerBombIsolationTests
         historical.PresentationColors = reboundColors;
         var color = Colors(edited);
         int remaining = Math.Max(color.Red, Math.Max(color.Green, color.Blue)) + 1;
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         for (int frame = 1; frame <= remaining; frame++)
             Require(historical.StepFrame() == (frame == remaining),
                 context + ": modded legacy capture did not preserve its historical cleanup frame");
@@ -272,7 +270,6 @@ internal static class InstalledPowerBombIsolationTests
     {
         var baseline = Restore(state, legacy: false, out _);
         baseline.PresentationColors = colors;
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         int frames = 0;
         do
         {

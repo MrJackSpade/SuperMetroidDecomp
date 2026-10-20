@@ -18,7 +18,6 @@ internal static class XrayControlsVerification
     /// <summary>Checks default and remapped Run/Shoot bindings through activation, held scanning, release, and resumed fire.</summary>
     internal static void VerifyXrayControls()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool remapped in new[] { false, true })
         {
             var runtime = CreateRetailRuntimeFixture();

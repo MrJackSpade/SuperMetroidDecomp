@@ -25,7 +25,6 @@ internal static class WrapShotWidthsVerification
         for (int beam = 0; beam < 3; beam++)
         for (int offset = -1; offset <= 1; offset++)
         {
-            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             int width = widths[room], height = heights[room], target = targets[room];
             bool left = room == 2;
             var words = new ushort[width * height];

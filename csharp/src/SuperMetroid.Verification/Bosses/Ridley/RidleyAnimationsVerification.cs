@@ -233,14 +233,14 @@ internal static class RidleyAnimationsVerification
     /// <summary>A right-facing Ridley starting a left-facing entry runs its right-facing program in the same update.</summary>
     private static void VerifyFacingBranch()
     {
-        (RoomEnemySystem enemies, RidleyEnemyState state, RoomEnemySlot body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Right);
+        (_, RidleyEnemyState state, RoomEnemySlot body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Right);
         CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.OpeningRoar);
         Pass(body, samus: null);
         AssertEqual(RidleyBodyProgram.OpeningRoarFacingRight, state.BodyProgram.Program, "a right-facing Ridley roars facing right");
         AssertEqual((ushort)RidleyCollisionDefinitions.BodyFrame.Right, body.SpritemapPointer, "the right-facing roar shows its first frame at once");
         AssertEqual((ushort)6, body.InstructionTimer.RawValue, "the right-facing roar's first frame lasts six updates");
 
-        (enemies, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
+        (_, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
         CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.OpeningRoar);
         Pass(body, samus: null);
         AssertEqual(RidleyBodyProgram.OpeningRoar, state.BodyProgram.Program, "a left-facing Ridley keeps the left-facing roar");
@@ -253,7 +253,7 @@ internal static class RidleyAnimationsVerification
     /// </summary>
     private static void VerifyLowEnergyBranch()
     {
-        (RoomEnemySystem enemies, RidleyEnemyState state, RoomEnemySlot body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
+        (_, RidleyEnemyState state, RoomEnemySlot body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
         state.Roaring = true;
         CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
         Pass(body, new SamusState { Health = 29 });
@@ -262,12 +262,12 @@ internal static class RidleyAnimationsVerification
         AssertTrue(!state.Roaring, "the fireballing tail clears the roaring flag");
         AssertEqual((ushort)RidleyCollisionDefinitions.BodyFrame.Left, body.SpritemapPointer, "the tail shows the standing pose");
 
-        (enemies, state, body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
+        (_, state, body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
         CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
         Pass(body, new SamusState { Health = 30 });
         AssertEqual(RidleyBodyProgram.Fireballing, state.BodyProgram.Program, "thirty energy keeps the full fireballing");
 
-        (enemies, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
+        (_, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
         CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
         Pass(body, new SamusState { Health = 1 });
         AssertEqual(RidleyBodyProgram.Fireballing, state.BodyProgram.Program, "Lower Norfair Ridley ignores Samus's energy");

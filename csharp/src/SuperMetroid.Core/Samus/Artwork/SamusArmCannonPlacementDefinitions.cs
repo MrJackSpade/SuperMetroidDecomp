@@ -38,7 +38,7 @@ internal static class SamusArmCannonPlacementDefinitions
         int sourcePhase = phase;
         int direction;
         int joinX = 0, joinY = 0;
-        bool left = false;
+        bool left;
         switch (pose)
         {
             // Constant horizontal profiles use their first body picture, including

@@ -75,7 +75,7 @@ public static class SamusMorphBallMovement
 
         BlockMoveResult vertical;
         bool landed = false;
-        bool hitCeiling = false;
+        bool hitCeiling;
         if (samus.Kinematics.YDirection != SamusVerticalDirection.None)
         {
             // `Simple_Samus_Y_Movement` handles a rebound already in progress through the

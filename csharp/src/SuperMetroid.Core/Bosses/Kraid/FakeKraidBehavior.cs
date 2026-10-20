@@ -351,7 +351,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void KillFakeKraid(RoomEnemySlot slot)
     {
         Position16<RoomPixels> origin = slot.Position.Whole;
-        ushort chancePointer = slot.Definition.ItemDropChancesPointer;
         _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: 3);
         SpawnFakeKraidDeathDrops(origin);
     }

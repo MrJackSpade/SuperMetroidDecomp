@@ -149,7 +149,6 @@ public static class AudioInputReplaySmokeTest
         if (!CryptographicOperations.FixedTimeEquals(actualRomDigest, recording.RomSha256))
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         var game = new SuperMetroidGame(SuperMetroid.Core.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioClips());
         for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)

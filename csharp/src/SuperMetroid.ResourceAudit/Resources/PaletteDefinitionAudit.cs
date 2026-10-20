@@ -84,7 +84,7 @@ internal static class PaletteDefinitionAudit
         byte[] roomDocument = RoomPaletteFxPresentationExtractor.Extract(recorder);
         RoomPaletteFxPresentation room = RoomPaletteFxPresentation.Load(new MemoryStream(roomDocument));
         byte[] titleDocument = TitlePaletteExtractor.Extract(recorder);
-        TitlePalettePresentation title = TitlePalettePresentation.Load(new MemoryStream(titleDocument));
+        TitlePalettePresentation.Load(new MemoryStream(titleDocument));
         // Import once / install at multiple identities is legitimate. Use the
         // loaders' actual key sets, including aliases and the separate title provider.
         for (int index = 0; index < recorder.Reads.Count; index += 2)

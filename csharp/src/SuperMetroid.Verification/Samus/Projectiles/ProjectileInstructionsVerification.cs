@@ -101,7 +101,6 @@ internal static class ProjectileInstructionsVerification
             else if (value < 0x8000) words.Add(a + 6);
         }
         AssertEqual(1816, words.Count, "All authored duration/trail/control words inventoried");
-        var guard = NewProjectileInstructionReadGuard(rom, words);
         var trailFrame = new Func<SamusProjectileSlot, ushort>(ProjectileTrails.GetTrailAnimationFrame);
         var trailSlot = new SamusProjectileSlot(0);
         // A trail reads the word just before the shot's next list position: the last record's animation frame, or the

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>The prospective pose and command chosen by <c>HandleTransitionTableLookupFailure</c>.</summary>
+/// <summary>The prospective pose chosen by <c>HandleTransitionTableLookupFailure</c>; its command is applied by the pose-transition phase.</summary>
 public readonly record struct SamusLookupFailurePose(SamusPoseId ProspectivePose)
 {
     /// <summary>
@@ -18,13 +18,9 @@ public readonly record struct SamusLookupFailurePose(SamusPoseId ProspectivePose
         SamusPoseId definitionFallbackPose,
         bool hasBaseXSpeed)
     {
-        SamusProspectivePoseChangeCommand command = SamusPoseChangeCommandDefinitions.ForLookupFailure(movementType);
-        if (command == SamusProspectivePoseChangeCommand.Decelerate)
-        {
-            if (hasBaseXSpeed)
-                return new SamusLookupFailurePose(currentPose);
-            command = SamusProspectivePoseChangeCommand.Stop;
-        }
+        if (hasBaseXSpeed &&
+            SamusPoseChangeCommandDefinitions.ForLookupFailure(movementType) == SamusProspectivePoseChangeCommand.Decelerate)
+            return new SamusLookupFailurePose(currentPose);
         SamusPoseId pose = definitionFallbackPose == SamusMovementRomData.Poses.RetainCurrentPoseFallback
             ? currentPose
             : definitionFallbackPose;

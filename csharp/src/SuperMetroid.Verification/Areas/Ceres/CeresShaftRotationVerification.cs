@@ -17,7 +17,6 @@ internal static class CeresShaftRotationVerification
         // actual per-frame publication only.
         var scratch = new RoomMainScratchState();
         var state = new CeresElevatorShaftRoomMainState(active: true, scratch);
-        var empty = new TestAddressSpace();
         ushort phaseWord = 34, timer = 60;
         int updates = 0;
         // Four full sweeps: compare every held frame as well as every matrix

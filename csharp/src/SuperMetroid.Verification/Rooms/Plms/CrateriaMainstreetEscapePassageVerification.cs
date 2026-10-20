@@ -17,7 +17,6 @@ internal static class CrateriaMainstreetEscapePassageVerification
     {
         RoomLevelData Load(bool crittersEscaped)
         {
-            var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();

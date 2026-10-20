@@ -121,7 +121,7 @@ internal static class KraidAnimationsVerification
     /// </summary>
     private static void VerifyArmSpeedSwitch()
     {
-        (RoomEnemySystem enemies, KraidEnemyState state, RoomEnemySlot body, RoomEnemySlot arm) = NewKraid();
+        (_, KraidEnemyState state, RoomEnemySlot body, RoomEnemySlot arm) = NewKraid();
         body.Health = 104;
         state.Parts[1].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
         arm.InstructionTimer = NativeCountdown.Start(1);

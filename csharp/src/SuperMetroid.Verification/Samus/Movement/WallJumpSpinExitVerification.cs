@@ -24,7 +24,6 @@ internal static class WallJumpSpinExitVerification
 
         static void Confirm(SamusEquipmentFlags items, bool speedKept)
         {
-            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();

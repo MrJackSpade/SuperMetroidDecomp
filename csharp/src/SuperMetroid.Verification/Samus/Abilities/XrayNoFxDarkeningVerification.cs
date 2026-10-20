@@ -23,8 +23,6 @@ internal static class XrayNoFxDarkeningVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyXrayNoFxDarkening()
     {
-        var installation = RepositoryInstallation.Installation;
-        var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);

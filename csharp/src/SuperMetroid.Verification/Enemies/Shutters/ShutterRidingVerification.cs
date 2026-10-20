@@ -17,7 +17,6 @@ internal static class ShutterRidingVerification
     /// <summary>Uses real bomb activation to check the upper stop, rider alignment, and roll-off in both slots.</summary>
     internal static void VerifyShutterRiding()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (int slot in new[] { 0, 1 })
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);

@@ -12,7 +12,6 @@ internal static class KnockbackHorizontalStopVerification
     /// <summary>Exercises both directions against a nearby solid enemy, then checks the next clear step moves 1.5 pixels.</summary>
     internal static void VerifyKnockbackHorizontalStop()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         foreach (bool right in new[] { false, true })
         {

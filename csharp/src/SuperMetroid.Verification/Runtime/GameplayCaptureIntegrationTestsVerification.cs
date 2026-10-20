@@ -24,8 +24,6 @@ internal static class GameplayCaptureIntegrationTestsVerification
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     internal static void VerifyGameplayCaptureIntegration()
     {
-        byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();

@@ -69,7 +69,7 @@ internal static class RoomFxTextureDriftVerification
             PaletteBlendColors = presentation.RoomFxPaletteBlends,
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
-        var state = new RoomLayer3FxState(stateSession);
+        RoomLayer3FxState state;
         var record = new RoomFxRecordDefinition(Door: null, Terminates: false, BaseYPosition: 100, TargetYPosition: 100,
             PackedYVelocity: 0, Timer: 0, Type: (byte)type, DefaultLayerBlend: (byte)blend, Layer3LayerBlend: (byte)blend,
             LiquidOptions: checked((byte)options.ToNativeWord()), PaletteFxBitset: 0, AnimatedTileBitset: 0, PaletteBlend: 0);

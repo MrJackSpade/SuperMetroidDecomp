@@ -407,7 +407,6 @@ internal static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
 /// </summary>
 internal static void VerifyRoomScrollGridAndBoundaryCamera()
 {
-    var bus = new TestAddressSpace();
     byte[] source = AllBlueExplicitScrollTable();
 
     // The logical 3x2 grid begins fully blue. Give the five copied padding bytes distinct
@@ -424,7 +423,6 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     // logical second row. Those bytes are not corrupt enum values: bank $80 compares them
     // only with zero (blocked) and one (blue alignment), treating every other nonzero byte
     // like the conventional green value. Preserve that exact cartridge behavior.
-    var shortTableBus = new TestAddressSpace();
     byte[] shortTableAndFollowingHeader = [2, 2, 2, 2, 0x1f, 0x02, 0x1d, 0x04];
     RoomScrollGrid shortTableGrid = LoadExplicitScrollFixture(
         shortTableAndFollowingHeader,

@@ -125,11 +125,8 @@ internal static class CinematicSnapshotTestsVerification
     /// <summary>Compares full intro snapshots with an independent legacy display owner while both scenes advance.</summary>
     private static void VerifyIntroDisplayCapture()
     {
-        byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         // Each owner keeps its own music queue, which the Ceres flight waits on; the game runs
         // the queue handler after every dispatch.
-        var legacyBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        var capturedBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var legacyAudio = new CartridgeAudioState();
         var capturedAudio = new CartridgeAudioState();
         var legacy = CreateRetailIntroFixture(legacyAudio);

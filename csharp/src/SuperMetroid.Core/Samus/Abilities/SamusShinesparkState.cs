@@ -393,7 +393,6 @@ public sealed class SamusShinesparkState
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
 
-        ShinesparkPhase phaseAtStart = Phase;
         if (Phase == ShinesparkPhase.Windup)
         {
             // DEC/BEQ/BMI at `$90:D068`: exact zero and signed underflow both launch up.

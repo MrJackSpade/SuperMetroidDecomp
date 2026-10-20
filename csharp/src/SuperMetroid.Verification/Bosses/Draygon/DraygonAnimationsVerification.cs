@@ -158,7 +158,7 @@ internal static class DraygonAnimationsVerification
     /// </summary>
     private static void VerifyReset()
     {
-        (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
+        (_, DraygonEnemyState state) = NewDraygon();
         state.SetCursor(state.Body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingRightReset));
         state.Body.InstructionTimer = NativeCountdown.Start(1);
         Pass(state.Body);

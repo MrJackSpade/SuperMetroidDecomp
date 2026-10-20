@@ -1854,7 +1854,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // The pair coordinates its next launch through the other actor's previous
         // velocity and spawn flag. Read that actor before overwriting this one's state.
         int siblingIndex = nail.SlotIndex == 6 ? 7 : 6;
-        RoomEnemySlot sibling = _slotTable.Slots[siblingIndex];
         KraidPartState siblingPart = RequireKraidState(nail).Parts[siblingIndex];
         int random = _room.Random.Read();
         (ushort xFraction, ushort xWhole, ushort yFraction, ushort yWhole) =

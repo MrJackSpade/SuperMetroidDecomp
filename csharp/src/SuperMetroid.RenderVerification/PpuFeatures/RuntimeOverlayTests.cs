@@ -19,7 +19,6 @@ internal static class RuntimeOverlayTests
     /// <summary>Combines Power Bomb, message, and suit layers, then replays retained packets after updates.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(0);

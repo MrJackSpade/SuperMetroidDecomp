@@ -24,7 +24,6 @@ internal static class RetailDoorCaptureTests
     {
         foreach (bool left in new[] { false, true })
         {
-            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = RepositoryInstallation.CreateRuntime();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
             runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();

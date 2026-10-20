@@ -33,8 +33,6 @@ public static class LoadStationDefinitions
                 $"{areaIndex} has {count} load-station slots.");
         int preceding = 0;
         for (int index = 0; index < area; index++) preceding += Count((AreaId)index);
-        ushort listPointer = checked((ushort)((LoadStationRomData.DataStart & 0xffff) +
-            LoadStationRomData.EntryByteCount * preceding));
         LoadStationDefinition entry = areaIndex == AreaId.Ceres
             ? new(RoomHeaderDefinitions.CeresElev, DoorDefinitions.FallingTile0, Position16<RoomPixels>.Zero, new(0, (short)(stationIndex == 0 ? 72 : 64)))
             : Placement(areaIndex, stationIndex);

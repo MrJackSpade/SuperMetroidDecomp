@@ -14,7 +14,6 @@ internal static class MotherBrainDeathHandoffVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainDeathHandoff()
     {
-        var bus = new TestAddressSpace();
         var vram = new SnesVram();
         const int textAddress = 0xa68000;
         // The installed program keeps the same glyphs and destination; delay two is engine-owned.

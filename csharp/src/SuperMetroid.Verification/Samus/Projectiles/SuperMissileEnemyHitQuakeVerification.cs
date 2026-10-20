@@ -20,7 +20,6 @@ internal static class SuperMissileEnemyHitQuakeVerification
     /// </summary>
     internal static void VerifySuperMissileEnemyHitQuake()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = CreateRoom(new(64, 16), new ushort[64 * 16], new byte[64 * 16]);
         var samus = new SamusState
         {

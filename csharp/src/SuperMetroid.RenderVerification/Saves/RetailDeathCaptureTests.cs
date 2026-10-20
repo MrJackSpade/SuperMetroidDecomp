@@ -27,7 +27,6 @@ internal static class RetailDeathCaptureTests
     /// <summary>Checks frame state, audio commands, PCM, and rendered pixels through the selected death path.</summary>
     private static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, bool reserveRecovery)
     {
-        byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
         var legacy = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);

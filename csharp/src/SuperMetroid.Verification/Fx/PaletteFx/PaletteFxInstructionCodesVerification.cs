@@ -104,11 +104,6 @@ internal static class PaletteFxInstructionCodesVerification
     private static void VerifyPaletteFxDeleteDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        ushort[] pointers =
-        [
-            PaletteFxDeleteDefinitionsConstants.CinematicDelete,
-            PaletteFxDeleteDefinitionsConstants.EmptyRoomEffect,
-        ];
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
@@ -955,11 +950,6 @@ internal static class PaletteFxInstructionCodesVerification
     {
         int presentationReads = 0;
         int presentationReadsBefore = presentationReads;
-        int first = RoomFxRomData.Banks.PaletteFx |
-            PaletteFxHeatInstructionListDefinitions.GravitySourceTable;
-        int lastExclusive = RoomFxRomData.Banks.PaletteFx |
-            unchecked((ushort)(PaletteFxHeatInstructionListDefinitions.PowerSourceTable +
-                PaletteFxHeatInstructionListDefinitions.PhaseCount * sizeof(ushort)));
         SnesAddress source = SnesAddress.FromBusAddress(address);
 
         if (source.Bank == 0x8d)

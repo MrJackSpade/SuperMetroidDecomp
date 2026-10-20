@@ -26,7 +26,6 @@ internal static class XrayGameStateVerification
     /// </summary>
     internal static void VerifyXrayGameState()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) CreateWithXraySelected()
         {
             var random = new CartridgeRandom();

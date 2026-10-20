@@ -26,7 +26,6 @@ internal static class DoorEntryShotBindingVerification
     /// </summary>
     internal static void VerifyDoorEntryShotBinding()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ControllerBindings lowc = ControllerBindings.Default with
         {
             Shoot = SnesButton.Y, ItemSelect = SnesButton.X, ItemCancel = SnesButton.Select,

@@ -664,7 +664,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         "direct damage-boost initializer does not invent vertical velocity");
 
     uint boostYBefore = samus.Kinematics.Position.Y.RawValue;
-    AerialMovementResult boostFrame = SamusAerialMovement.StepDamageBoost(
+    SamusAerialMovement.StepDamageBoost(
 
         empty,
         samus,

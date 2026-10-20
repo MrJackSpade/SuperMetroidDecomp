@@ -136,7 +136,7 @@ internal sealed class PlmPopulationLoader
         PlmSlot slot,
         RoomPlmPlacement placement)
     {
-        (RoomLevelData level, BgArtworkBindings backgrounds, Bank80SystemState system, AreaId areaIndex) =
+        (RoomLevelData level, _, Bank80SystemState system, AreaId areaIndex) =
             (room.Level, room.Backgrounds, room.System, room.AreaIndex);
         PlmHeaderId header = record.HeaderPointer;
         if (DoorPlms.TryIdentifyColoredDoor(

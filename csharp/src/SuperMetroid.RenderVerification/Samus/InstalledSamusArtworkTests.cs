@@ -24,7 +24,6 @@ internal static class InstalledSamusArtworkTests
         D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var check = new ArtworkPixelCheck(device, renderer);
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         int transfers = CheckBodyTransfers(fixture, check);
         int poses = CheckPoseDrawing(fixture, check);
         int queued = CheckQueuedTransfers(fixture, check);

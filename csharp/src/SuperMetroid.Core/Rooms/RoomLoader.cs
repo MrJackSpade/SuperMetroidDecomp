@@ -681,8 +681,6 @@ internal sealed class RoomLoader
     /// </summary>
     internal InitialViewportResult LoadPendingDoorDestinationForTransition(FixedPosition<RoomPixels> sourceSamus)
     {
-        CartridgeDoorHeader door = PendingDoorTransition
-            ?? throw new InvalidOperationException("No pending door destination exists.");
         return LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor, sourceSamus);
     }
 

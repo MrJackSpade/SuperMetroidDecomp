@@ -58,7 +58,6 @@ internal static class IntroPoseHistoryVerification
     /// <summary>Tracks flashback transitions, collision-radius handoff, and preservation of the persistent Samus owner.</summary>
     private static void VerifyIntroScenePoseHistory()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var intro = CreateRetailIntroFixture();
         var failures = new List<string>();
         int transitions = 0;

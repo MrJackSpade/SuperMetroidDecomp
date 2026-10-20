@@ -19,7 +19,6 @@ internal static class MotherBrainBodyHitboxesVerification
     /// <remarks>#1269: extended hitbox list $A504 and shot callback $A9:B503 govern the body; a header-radius check let the movie's arm hit reach the head.</remarks>
     internal static void VerifyMotherBrainBodyHitboxes()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

@@ -87,7 +87,7 @@ internal static class BossDisplayBindingsStockVerification
     /// <summary>Resolves one Crocomire, Phantoon, or Draygon frame's installed BG2 writes.</summary>
     private static ReadOnlyMemory<EnemyBg2TilemapWrite> StockBossWrites(EnemyTileArtworkCatalog catalog, EnemyExtendedFrameDefinition frame)
     {
-        ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
+        ReadOnlyMemory<EnemyBg2TilemapWrite> writes;
         bool exists = frame.Bank switch
         {
             CrocomireBg2FrameDefinitions.Bank => (catalog.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.CrocomireBg2Frames.")).TryGet(frame.Pointer, out writes),

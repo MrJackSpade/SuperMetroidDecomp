@@ -22,9 +22,7 @@ internal static class MotherBrainTankBackgroundVerification
     internal static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
         var installation = RepositoryInstallation.Installation;
-        var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
-        var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime=game.Session.runtime;

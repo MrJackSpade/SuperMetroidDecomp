@@ -13,7 +13,6 @@ internal static class ShutterMorphApproachesVerification
     /// </summary>
     internal static void VerifyShutterMorphBombArc()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         string[] nativeArc = File.ReadAllLines(Path.Combine(ShutterBombArcScenario.FixtureDirectory, "bomb-arc.csv"));
         AssertEqual(ShutterBombArcScenario.FrameCount - ShutterBombArcScenario.FirstArcFrame, nativeArc.Length,
             "native-checked shutter trajectory covers frames 117..259");

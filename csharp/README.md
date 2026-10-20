@@ -426,11 +426,11 @@ loop boundary, which is the intentional seam that makes arbitrary replacement au
 dotnet run --project src/SuperMetroid.DesktopVerification -- --managed-audio-audit
 ```
 
-For a non-device smoke test that loads the private ROM, runs the real initial upload/music
-sequence, and proves the mixer produced nonzero PCM:
+For a non-device smoke test that runs the real initial upload/music sequence from the installed
+audio and proves the mixer produced nonzero PCM:
 
 ```powershell
-dotnet run --project src/SuperMetroid.DesktopVerification -- --audio-audit "..\Super Metroid.smc"
+dotnet run --project src/SuperMetroid.DesktopVerification -- --audio-audit
 ```
 
 To exercise the Windows `waveOut` queue beyond its six-buffer capacity without a ROM or an

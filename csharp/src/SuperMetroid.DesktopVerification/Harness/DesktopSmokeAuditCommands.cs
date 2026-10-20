@@ -212,11 +212,9 @@ internal static class DesktopSmokeAuditCommands
 
         if (args.Length != 0 && args[0].Equals("--audio-audit", StringComparison.OrdinalIgnoreCase))
         {
-            string[] audioRomArguments = args.Length == 2 ? [args[1]] : [];
-            if (args.Length > 2)
-                throw new ArgumentException("--audio-audit accepts one optional private ROM path.");
-            string audioRomPath = PrivateRomPath.Resolve(audioRomArguments);
-            CartridgeAudioSmokeTestResult result = CartridgeAudioSmokeTest.Run(audioRomPath);
+            if (args.Length != 1)
+                throw new ArgumentException("--audio-audit does not accept additional arguments.");
+            CartridgeAudioSmokeTestResult result = CartridgeAudioSmokeTest.Run();
             Console.WriteLine(
                 $"Cartridge audio passed: {result.FramesGenerated} frames, " +
                 $"{result.NonZeroSamples} music samples, peak {result.PeakAmplitude}; " +

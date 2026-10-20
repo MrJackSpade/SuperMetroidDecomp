@@ -25,7 +25,6 @@ internal static class UnpauseReserveBlackoutVerification
     /// </summary>
     internal static void VerifyUnpauseReserveBlackout()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         (SuperMetroidGame Game, SuperMetroidRuntime Runtime) Create()
         {
             var random = new CartridgeRandom();

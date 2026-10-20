@@ -18,7 +18,6 @@ internal static class SamusImpulseDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus impulse definitions")]
     internal static void VerifySamusImpulseDefinitions(SuperMetroidAddressSpace rom)
     {
-        var noReads = NewSlopeHeightNoReadBus();
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
         // native collision radius, so the liquid threshold is that pose's bottom edge.
         var bomb = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
@@ -50,7 +49,6 @@ internal static class SamusImpulseDefinitionsVerification
             bombCases++;
         }
 
-        var poseOnly = NewImpulsePoseReadGuard(rom);
         SamusPoseId[] poses = [SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
             SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallGroundLeftPose];
         int hurtCases = 0;

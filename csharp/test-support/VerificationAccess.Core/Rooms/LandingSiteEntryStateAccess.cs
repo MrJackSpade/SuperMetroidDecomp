@@ -41,12 +41,6 @@ internal static class LandingSiteEntryStateAccess
                     $"{RoomIdentities.LandingSite}.");
             }
 
-            CartridgeRoomState state = RoomStateSelectionDefinitions.Select(
-                RoomHeaderDefinitions.LandingSite, default);
-            LibraryBackgroundInstruction transfer =
-                LibraryBackgroundProgramDefinitions.GetDoorTransfer(
-                    unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
-                    doorPointer);
             return new LandingSiteEntryState(
                 RoomIdentity: roomIdentity,
                 RoomMapPosition: room.MapPosition,

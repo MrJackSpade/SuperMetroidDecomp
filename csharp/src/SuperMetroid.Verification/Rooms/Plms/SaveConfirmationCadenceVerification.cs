@@ -11,7 +11,6 @@ internal static class SaveConfirmationCadenceVerification
     /// <remarks>#1269: native $85:84BA waits twice and $85:8532 adds the redraw wait. Missing it shifted the gunship's A read in the 100% movie.</remarks>
     internal static void VerifySaveConfirmationCadence()
     {
-        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var box = CreateGameplayMessageFixture();
         box.Begin(GameplayMessageId.GunshipSaveConfirmation, 0);
         int guard = 0;

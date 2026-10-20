@@ -24,7 +24,6 @@ internal static class FileMapSnapshotTestsVerification
     internal static void VerifyFileMapSnapshots()
     {
         VerifyWindowedSceneContract();
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {
@@ -58,8 +57,7 @@ internal static class FileMapSnapshotTestsVerification
                 "map fixture reaches expansion and room map");
             AssertTrue(cancel ? legacy.OptionsRequested : legacy.LoadRequested, "map fixture completes requested route");
         }
-        byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var leftBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom); var rightBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
+         
         SuperMetroid.Core.Saves.SaveSlotStore Saves()
         {
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };

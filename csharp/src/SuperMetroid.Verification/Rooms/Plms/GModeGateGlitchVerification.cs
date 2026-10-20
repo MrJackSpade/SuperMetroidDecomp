@@ -171,7 +171,6 @@ internal static class GModeGateGlitchVerification
     /// <summary>Checks that suspended quicksand setup fills forty PLM slots and stops adding sink displacement at capacity.</summary>
     private static void VerifyGModeSandOverload()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -235,7 +234,6 @@ internal static class GModeGateGlitchVerification
     /// <summary>Checks that an exhausted PLM pool prevents a blue-door opening actor and its block mutation.</summary>
     private static void VerifyGModeBlueDoorAllocation()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const int width = 4;
         const int height = 4;
         const int doorIndex = 5;

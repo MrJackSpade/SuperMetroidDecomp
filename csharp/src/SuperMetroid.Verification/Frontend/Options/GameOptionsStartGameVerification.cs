@@ -18,7 +18,6 @@ internal static class GameOptionsStartGameVerification
     /// </summary>
     internal static void VerifyGameOptionsStartGame()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach ((SaveLoadingGameState route, GameOptionsPhase afterPress) in new[]
         {
             (SaveLoadingGameState.MainGame, GameOptionsPhase.StartGame),

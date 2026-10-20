@@ -95,7 +95,7 @@ internal static class MapSpriteCasesVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native map spritemap pointers")]
     internal static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCatalog catalog)
     {
-        var native = new OamBuffer(); var installed = ScreenSpritesFixtures.Blank();
+        OamBuffer native; var installed = ScreenSpritesFixtures.Blank();
         foreach (var frame in MapSpriteRoleOracle())
         {
             int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

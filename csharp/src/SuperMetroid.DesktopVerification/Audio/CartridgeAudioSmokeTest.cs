@@ -7,13 +7,11 @@ namespace SuperMetroid.DesktopVerification.Audio;
 public static class CartridgeAudioSmokeTest
 {
     /// <summary>Renders title music for the requested update count, then checks the isolated power-beam sound's request/clear handshake and nonzero PCM.</summary>
-    /// <param name="romPath">Retail cartridge loaded for the cartridge audio-queue path.</param>
     /// <param name="frames">Positive number of title-music audio updates, separate from the thirty-update power-beam check.</param>
-    public static CartridgeAudioSmokeTestResult Run(string romPath, int frames = 240)
+    public static CartridgeAudioSmokeTestResult Run(int frames = 240)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frames);
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var queue = new CartridgeAudioState();
         queue.QueueMusicDelayed8(MusicCommand.LoadData(0x03));
         queue.QueueMusicDelayed8(MusicCommand.SelectTrack(5));

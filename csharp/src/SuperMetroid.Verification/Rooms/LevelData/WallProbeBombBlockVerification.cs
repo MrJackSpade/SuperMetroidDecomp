@@ -16,7 +16,6 @@ internal static class WallProbeBombBlockVerification
         const int width = 8;
         const int height = 8;
         const ushort fraction = 0x2fff;
-        var bus = new TestAddressSpace();
 
         foreach (var (pose, breaks) in new (SamusPoseId, bool)[]
             { (SamusPoseId.ScrewAttackRightPose, true), (SamusPoseId.FacingRightNormalPose, false) })

@@ -137,7 +137,6 @@ public sealed class SamusDeathSequenceState
         if (!IsActive)
             throw new InvalidOperationException("Samus death sequence has not begun.");
 
-        SamusDeathSequencePhase phaseAtStart = Phase;
         bool paletteChanged = false;
         bool whiteoutChanged = false;
         bool drawPose = false;

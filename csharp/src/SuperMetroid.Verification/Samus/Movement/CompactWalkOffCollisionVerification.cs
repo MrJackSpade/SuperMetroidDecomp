@@ -12,7 +12,6 @@ internal static class CompactWalkOffCollisionVerification
     /// pose, radius timing, vertical speed, and corrected Y position.</summary>
     internal static void VerifyCompactWalkOffCollision()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var words = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) words[16 * 16 + x] = 0x8000;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[8]);

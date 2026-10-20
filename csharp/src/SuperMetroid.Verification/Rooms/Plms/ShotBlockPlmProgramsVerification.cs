@@ -37,7 +37,6 @@ internal static class ShotBlockPlmProgramsVerification
         for (byte behavior = 0; behavior < 8; behavior++)
         {
             ShotBlockFixture fixture = NewShotBlockFixture(behavior);
-            var memory = new SuperMetroidAddressSpace();
             fixture.Plms.Step(fixture.Level);
             AssertEqual((ushort)0x0053,
                 fixture.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,

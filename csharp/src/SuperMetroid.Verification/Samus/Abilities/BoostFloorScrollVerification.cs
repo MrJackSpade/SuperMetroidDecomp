@@ -18,13 +18,11 @@ internal static class BoostFloorScrollVerification
     /// <summary>Verifies the opened shaft stays scrollable, Samus remains in view, and both reach the retail bottom alignment.</summary>
     internal static void VerifyBoostFloorScroll()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Dachora, camera: new Position16<RoomPixels>(1024, 0));
-        var level = runtime.Room.LevelData;
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
@@ -52,7 +50,7 @@ internal static class BoostFloorScrollVerification
                 Console.WriteLine($"frame={tick} Samus={samus.Position.X.Whole}/{samus.Position.Y.Whole} camera={runtime.Room.LoadedCamera.PixelPosition.X}/{runtime.Room.LoadedCamera.PixelPosition.Y}");
         }
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var frame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+        GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
 
         AssertTrue(samus.Position.Y.Whole > 1000, "fixture breaks through the actual speed floor and falls down the shaft");
         AssertTrue(runtime.Room.LoadedCamera.PixelPosition.Y > 900,

@@ -41,7 +41,6 @@ internal static class GameplayDisplayFrameTestsVerification
     /// <summary>Runs the repaint, immutability and per-input NMI timing confirmations.</summary>
     internal static void VerifyGameplayDisplayFrame()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(0);

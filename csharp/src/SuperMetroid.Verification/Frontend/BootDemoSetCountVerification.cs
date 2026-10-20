@@ -14,7 +14,6 @@ internal static class BootDemoSetCountVerification
     /// </summary>
     internal static void VerifyBootDemoSetCount()
     {
-        var bus = new TestAddressSpace();
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
         saveRam.SetGameCompleted(true);
         AssertTrue(saveRam.ReadSlot(0) is null && saveRam.ReadSlot(1) is null && saveRam.ReadSlot(2) is null,

@@ -32,7 +32,6 @@ internal static class ChargeFlareProductionVerification
         AreaMapPresentationCatalog maps)
     {
         var placement = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
-        var guarded = NewChargeFlareCompositionGuard(bus);
         int ticks = 0;
         foreach (SamusPoseId pose in new[]
         {

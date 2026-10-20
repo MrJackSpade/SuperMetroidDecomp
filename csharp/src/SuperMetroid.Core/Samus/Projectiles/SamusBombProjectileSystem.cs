@@ -147,19 +147,16 @@ public sealed class SamusBombProjectileSystem
         if (samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
             StepCooldown(samus.Xray.TimeIsFrozen);
 
-        int? placedSlot = null;
-        bool bombSpreadStarted = false;
         bool beamChargeConsumed = false;
         var soundRequests = new List<SamusSoundRequest>();
         if (samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
             BombSpreadAdmission spread = HandleBombSpreadInput(samus, controllerInput);
-            bombSpreadStarted = spread == BombSpreadAdmission.Spawned;
             beamChargeConsumed = spread is
                 BombSpreadAdmission.Spawned or BombSpreadAdmission.ChargeCancelled;
             if (spread == BombSpreadAdmission.NotApplicable)
             {
-                placedSlot = TryPlaceBomb(
+                TryPlaceBomb(
                     samus,
                     controllerInput,
                     controllerNewInput,

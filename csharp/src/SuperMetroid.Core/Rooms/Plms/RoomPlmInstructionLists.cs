@@ -9,12 +9,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public static class RoomPlmInstructionLists
 {
 
-    /// <summary>Wrecked Ship west-entry treadmill list at $84:AD38.</summary>
-    public const ushort WreckedShipEntranceTreadmillFromWest = 0xad38;
-
-    /// <summary>Wrecked Ship east-entry treadmill list at $84:AD4D.</summary>
-    public const ushort WreckedShipEntranceTreadmillFromEast = 0xad4d;
-
     /// <summary>Idle save-pod draw entry at $84:AFE8, before its trigger sleeps.</summary>
     public const ushort SaveStationIdleDraw = 0xafe8;
 

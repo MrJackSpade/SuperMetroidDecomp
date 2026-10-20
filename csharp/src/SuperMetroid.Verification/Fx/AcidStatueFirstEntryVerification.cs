@@ -115,9 +115,7 @@ internal static class AcidStatueFirstEntryVerification
         for (int frame = 0; frame < 8; frame++)
         {
             runtime.StepFrame(0);
-            Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(
-                GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
-
+            runtime.PublishDisplayFrame();
         }
         AssertEqual(drainedAcidY, runtime.RoomLayer3Fx.Surface.Y,
             $"completed Chozo event restores the drained acid height (transition ended at ${transitionEndY:X4})");

@@ -41,15 +41,14 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         FixedPosition<RoomPixels> before = Capture(samus);
         bool reachedWall = MoveHorizontallyTowardWall(samus, velocity: 4096);
-        ushort yVelocity = 0;
-        bool reachedVerticalBoundary = false;
+        ushort yVelocity;
 
         if (!reachedWall)
         {
             // `$86:C272` adds $40 before indexing the sine table. Its multiplication returns
             // product bits 8..23, i.e. a signed 8.8 component for the supplied 8.8 speed.
             yVelocity = CalculateYVelocity(speed: 4096, RainbowBeamAngle);
-            reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(samus, yVelocity);
+            MoveVerticallyTowardCeilingOrFloor(samus, yVelocity);
 
             // `$A9:BBCD` unconditionally clears carry after the vertical helper. The caller
             // can therefore observe only the wall result; keep the clamp witness separately
@@ -106,7 +105,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // the negative speed crosses into $0000..$7FFF it is clamped to exact zero.
         short acceleratedX = unchecked((short)(CustomVelocity.X.SignedRawValue + 2));
         CustomVelocity = CustomVelocity.WithX(SnesSignedEightEight.FromSignedRaw(acceleratedX < 0 ? acceleratedX : (short)0));
-        bool reachedWall = MoveHorizontallyTowardWall(samus, unchecked((ushort)CustomVelocity.X.SignedRawValue));
+        MoveHorizontallyTowardWall(samus, unchecked((ushort)CustomVelocity.X.SignedRawValue));
 
         CustomVelocity += new EightEightVector<RoomPixels>(0, 24);
         bool reachedVerticalBoundary =

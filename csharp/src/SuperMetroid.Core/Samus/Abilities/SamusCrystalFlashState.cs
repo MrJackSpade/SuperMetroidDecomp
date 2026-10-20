@@ -213,10 +213,6 @@ public sealed class SamusCrystalFlashState
             throw new InvalidOperationException("Crystal Flash has no installed movement handler.");
 
         CrystalFlashPhase phaseAtStart = Phase;
-        int healthAtStart = samus.Health;
-        int missilesAtStart = samus.Missiles;
-        int supersAtStart = samus.SuperMissiles;
-        int powerBombsAtStart = samus.PowerBombs;
 
         switch (Phase)
         {

@@ -20,7 +20,6 @@ internal static class PauseReserveArrowRebindVerification
     /// </summary>
     internal static void VerifyPauseReserveArrowRebindKeepsLatch()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var catalog = RetailPresentationFixture();
         var samus = new SamusState { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog });

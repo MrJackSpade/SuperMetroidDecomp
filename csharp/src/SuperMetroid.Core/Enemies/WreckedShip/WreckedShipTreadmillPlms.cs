@@ -47,14 +47,6 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             _ => throw new ArgumentOutOfRangeException(
                 nameof(direction), direction, "Unknown Wrecked Ship treadmill direction."),
         };
-        ushort instructionList = direction switch
-        {
-            WreckedShipTreadmillDirection.Rightwards =>
-                RoomPlmInstructionLists.WreckedShipEntranceTreadmillFromWest,
-            WreckedShipTreadmillDirection.Leftwards =>
-                RoomPlmInstructionLists.WreckedShipEntranceTreadmillFromEast,
-            _ => throw new ArgumentOutOfRangeException(nameof(direction)),
-        };
 
         int origin = level.GetBlockIndex(
             new(WreckedShipTreadmillPlmRomData.BlockX, WreckedShipTreadmillPlmRomData.BlockY));

@@ -966,7 +966,7 @@ internal static void VerifySamusLiquidPhysics()
     };
     fallingRelease.Grapple.ReleasedMovementActive = true;
     SamusAerialMovement.ConfigureEnvironmentGravity(fallingRelease);
-    var fallingResult = SamusAerialMovement.StepReleasedFromGrapple(
+    SamusAerialMovement.StepReleasedFromGrapple(
 CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(SamusVerticalCollisionResult.Falling, fallingRelease.SolidVerticalCollisionResult,
         "downward release publishes the falling result");

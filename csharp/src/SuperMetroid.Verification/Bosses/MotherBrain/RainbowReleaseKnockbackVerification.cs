@@ -17,7 +17,6 @@ internal static class RainbowReleaseKnockbackVerification
     /// <remarks>#1269: the locked beta $E8D9 holds Samus at Y $7D; the unlocked frame must let her fall as in the 100% movie.</remarks>
     internal static void VerifyRainbowReleaseKnockback()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

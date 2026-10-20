@@ -15,7 +15,6 @@ internal static class MoonwalkRanIntoWallVerification
     /// </summary>
     internal static void VerifyMoonwalkRanIntoWall()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseId.MoonwalkAimUpLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00eb, 0x00c3)) };
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();

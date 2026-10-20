@@ -889,7 +889,6 @@ public static class SamusBlockCollision
             {
                 if (selectedSolid)
                 {
-                    collide = true;
                     goto Clip;
                 }
             }
@@ -953,7 +952,6 @@ public static class SamusBlockCollision
             {
                 if (selectedSolid)
                 {
-                    collide = true;
                     goto Clip;
                 }
             }

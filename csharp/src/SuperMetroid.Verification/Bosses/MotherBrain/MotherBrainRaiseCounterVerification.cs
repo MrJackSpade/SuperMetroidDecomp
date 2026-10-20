@@ -17,7 +17,6 @@ internal static class MotherBrainRaiseCounterVerification
     /// </summary>
     internal static void VerifyMotherBrainRaiseCounter()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

@@ -13,7 +13,6 @@ internal static class EvirInitTimerVerification
     /// <summary>Confirms $A8:8811 indexes Enemy.init1+1 by speed offset, so room $D4C2's three bodies inherit high bytes from neighboring slots.</summary>
     internal static void VerifyEvirInitTimer()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

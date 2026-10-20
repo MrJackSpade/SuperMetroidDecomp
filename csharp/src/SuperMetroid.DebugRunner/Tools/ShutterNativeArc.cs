@@ -17,7 +17,6 @@ internal static class ShutterNativeArc
     /// </summary>
     internal static int ExportShutterBombArc()
     {
-        var bus = RepositoryRom.Load();
         var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
         var arc = new List<string>();
         string directory = ShutterBombArcScenario.FixtureDirectory;
@@ -46,7 +45,6 @@ internal static class ShutterNativeArc
     /// <summary>Prints the reproduced case's per-frame Samus and shutter state for native comparison.</summary>
     internal static int TraceShutterBombArc()
     {
-        var bus = RepositoryRom.Load();
         var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
         var shutter = scenario.Runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
@@ -66,7 +64,6 @@ internal static class ShutterNativeArc
     /// </summary>
     internal static int SweepShutterMorphApproaches()
     {
-        var bus = RepositoryRom.Load();
         int cases = 0, worstGap = 0;
         foreach (int slotIndex in new[] { 0, 1 })
         foreach (bool approach in new[] { false, true })

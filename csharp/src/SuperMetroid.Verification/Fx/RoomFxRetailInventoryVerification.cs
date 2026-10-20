@@ -802,7 +802,7 @@ internal static class RoomFxRetailInventoryVerification
         ushort doorPointer)
     {
         var fxSession = CreateRetailFxSession(bus);
-        var fx = new RoomLayer3FxState(fxSession);
+        RoomLayer3FxState fx;
         var vram = new SnesVram();
         fx = RoomLayer3FxState.ForRoom(fxSession, new SnesCgram(),
             room.State.Fx,

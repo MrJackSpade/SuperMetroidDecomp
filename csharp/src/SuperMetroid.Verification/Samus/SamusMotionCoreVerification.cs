@@ -21,7 +21,6 @@ internal static class SamusMotionCoreVerification
 /// <summary>Checks ordered pose-input matches, extra held bits, self-pose suppression, and fallback paths.</summary>
 internal static void VerifySamusPoseTransitionMatching()
 {
-    var bus = new TestAddressSpace();
     SamusPoseId fixturePose = SamusPoseId.FacingRightNormalPose;
 
     // The authored standing-right table at $91:A0EC demonstrates priority and subset
@@ -529,7 +528,7 @@ internal static void VerifySamusExtraDisplacement()
     transition.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(0xffff, 0x8000, 0, 0x4000); // -0.8000 // +0.4000
     uint transitionXBefore = transition.Kinematics.Position.X.RawValue;
     uint transitionYBefore = transition.Kinematics.Position.Y.RawValue;
-    AerialMovementResult transitionResult = SamusAerialMovement.StepNormalJump(
+    SamusAerialMovement.StepNormalJump(
 
         level,
         transition,
@@ -550,7 +549,7 @@ internal static void VerifySamusExtraDisplacement()
     rising.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);
     rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
     uint risingYBefore = rising.Kinematics.Position.Y.RawValue;
-    AerialMovementResult reversed = SamusAerialMovement.StepNormalJump(
+    SamusAerialMovement.StepNormalJump(
 
         level,
         rising,

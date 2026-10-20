@@ -1001,7 +1001,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c> at $A4:91C1.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state)
     {
-        CrocomireDeathState death = RequireCrocomireDeath();
         FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
         state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
         UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
@@ -1045,7 +1044,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Byte-for-byte fixed-point rise from $A4:92D8.</summary>
     internal void RunCrocomireRise(CrocomireEnemyState state)
     {
-        CrocomireDeathState death = RequireCrocomireDeath();
         FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
         RoomEnemySlot body = state.Body;
         if (unchecked((short)(body.Position.Y.Whole - 218)) < 0)

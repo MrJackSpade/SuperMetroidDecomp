@@ -141,7 +141,7 @@ public static class SamusAerialMovement
         }
 
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
-        BlockMoveResult horizontalMove = MoveNormalAerialX(
+        MoveNormalAerialX(
 
             level,
             samus,
@@ -304,7 +304,7 @@ public static class SamusAerialMovement
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidMedium.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
-        BlockMoveResult horizontal = MoveNormalAerialX(
+        MoveNormalAerialX(
 
             level,
             samus,
@@ -342,7 +342,7 @@ public static class SamusAerialMovement
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidMedium.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
-        BlockMoveResult horizontal = MoveNormalAerialX(
+        MoveNormalAerialX(
 
             level,
             samus,
@@ -445,7 +445,7 @@ public static class SamusAerialMovement
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidMedium.Air);
 
-        BlockMoveResult horizontal = MoveNormalAerialX(
+        MoveNormalAerialX(
 
             level,
             samus,
@@ -535,7 +535,7 @@ public static class SamusAerialMovement
             // `$90:94AA-$94B4` clears both persistent base words and the frame displacement.
             speed.BaseSpeed = default;
             // This branch bypasses $90:E4E6; retain the previous total-speed pair.
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, state, new HorizontalBlockMove { Displacement = 0 });
+            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, state, new HorizontalBlockMove { Displacement = 0 });
         }
         else
         {

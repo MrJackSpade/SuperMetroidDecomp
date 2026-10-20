@@ -226,13 +226,12 @@ public sealed class SamusProjectileSystem
 
                 // The installed path compiles the two pointer levels for bounded native
                 // offsets. Restored non-catalog offsets still execute both indirect reads.
-                ushort palettePointer = 0;
                 bool catalogued = samus.Presentation.ChargeColors is not null &&
                     (pseudoScrew
                         ? SamusChargePaletteDefinitions.TryPseudoScrew(
-                            suitOffset, checked((ushort)Charge.SamusChargePaletteIndex), out palettePointer)
+                            suitOffset, checked((ushort)Charge.SamusChargePaletteIndex), out _)
                         : SamusChargePaletteDefinitions.TryChargedBeam(
-                            suitOffset, checked((ushort)Charge.SamusChargePaletteIndex), out palettePointer));
+                            suitOffset, checked((ushort)Charge.SamusChargePaletteIndex), out _));
                 if (!catalogued)
                     throw new InvalidDataException(
                         $"Charge palette offset {Charge.SamusChargePaletteIndex} is not compiled.");
@@ -272,7 +271,7 @@ public sealed class SamusProjectileSystem
             Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
             if (Charge.ChargedShotGlowTimer.IsZero)
             {
-                ushort normalPointer = ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
+                ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
                 LastBeamChargePaletteStep = new(
                     SamusBeamChargePaletteAction.RestoredNormalSuit);
                 return LastBeamChargePaletteStep;
@@ -306,15 +305,14 @@ public sealed class SamusProjectileSystem
             // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
             // already-`$8000` timer and returns carry so `$D717` performs the suit copy.
             Charge.ChargedShotGlowTimer = NativeCountdown.Start(0);
-            ushort normalPointer = ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
+            ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.RestoredNormalSuit);
             return LastBeamChargePaletteStep;
         }
 
-        ushort hyperPointer = 0;
         bool cataloguedHyper = samus.Presentation.ChargeColors is not null &&
-            SamusChargePaletteDefinitions.TryHyperShot(tableOffset, out hyperPointer);
+            SamusChargePaletteDefinitions.TryHyperShot(tableOffset, out _);
         if (!cataloguedHyper)
             throw new InvalidDataException($"Hyper Beam palette offset {tableOffset} is not compiled.");
         int hyperPaletteIndex = (20 - tableOffset) / 2;

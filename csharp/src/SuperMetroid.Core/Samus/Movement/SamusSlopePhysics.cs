@@ -100,8 +100,6 @@ public static class SamusSlopePhysics
             return new SlopeAlignmentResult(position, Adjusted: false);
 
         bool adjusted = false;
-        RoomCollisionBlock? floorBlock = null;
-        RoomCollisionBlock? ceilingBlock = null;
 
         // $94:87F4 first probes the center-X block containing Samus's bottom pixel. Only
         // type 1, shapes >=5, and BTS bit $80 clear participate as floor slopes.
@@ -110,7 +108,6 @@ public static class SamusSlopePhysics
             bottom.CollisionType == RoomCollisionType.Slope &&
             bottom.Bts.IsNonSquareSlope)
         {
-            floorBlock = bottom;
             if (!bottom.Bts.SlopeFlipsVertically)
             {
                 int height = ReadAlignmentHeight(bottom.Bts, xPosition);
@@ -131,7 +128,6 @@ public static class SamusSlopePhysics
             top.CollisionType == RoomCollisionType.Slope &&
             top.Bts.IsNonSquareSlope)
         {
-            ceilingBlock = top;
             if (top.Bts.SlopeFlipsVertically)
             {
                 int height = ReadAlignmentHeight(top.Bts, xPosition);

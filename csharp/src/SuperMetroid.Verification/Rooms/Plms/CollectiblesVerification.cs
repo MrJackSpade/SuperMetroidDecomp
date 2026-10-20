@@ -420,7 +420,6 @@ internal static class CollectiblesVerification
     /// <summary>Checks SRAM round-trip of edge item bits, Chozo and door bits, events, bosses, and independent beam words.</summary>
     private static void VerifyCollectedItemSaveRoundTrip()
     {
-        var bus = new TestAddressSpace();
         var sourceSystem = new Bank80SystemState();
         sourceSystem.SetCollectedItemBit(0);
         sourceSystem.SetCollectedItemBit(91);

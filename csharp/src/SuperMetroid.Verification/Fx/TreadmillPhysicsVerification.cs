@@ -14,7 +14,6 @@ internal static class TreadmillPhysicsVerification
     /// conveyor direction and the resulting production horizontal motion.</summary>
     internal static void VerifyTreadmillPhysics()
     {
-        var bus = new TestAddressSpace();
         ushort[] words = new ushort[16];
         byte[] bts = new byte[16];
         for (int i = 8; i < 12; i++) { words[i] = 0x30ff; bts[i] = 8; }

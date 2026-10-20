@@ -9,6 +9,6 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <!-- LibraryImport source generators emit unsafe pointer stubs behind the managed API. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <WarningsAsErrors>$(WarningsAsErrors);nullable;CS1591;CS1570;CS1572;CS1573;CS1574;CS1580;CS1584;CS1587;CS1658</WarningsAsErrors>
+    <WarningsAsErrors>$(WarningsAsErrors);nullable;CS1591;CS1570;CS1572;CS1573;CS1574;CS1580;CS1584;CS1587;CS1658;CS0652;CS0675;CS8509;CS8524;CS0162;CS0168;CS0219;CS0169;CS0414;CS0649;CS1717;CS0665;CS0252;CS0253;CS0108</WarningsAsErrors>
   </PropertyGroup>
 </Project>

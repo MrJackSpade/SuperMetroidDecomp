@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Distinct bank-$8C frame identities consumed by the eight explosion actors.</summary>
@@ -37,7 +39,7 @@ public static class EndingExplosionSpriteDefinitions
     private const int PlanetRecordCount = 10;
 
     /// <summary>Ordered asset identities, calculated on demand without a stored frame array.</summary>
-    public static IReadOnlyList<EndingExplosionSpriteFrameDefinition> Frames { get; } = new FrameView();
+    public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameView();
 
     /// <summary>One of the ten consecutive four-part planet records from $8C:A396, in
     /// published order: four damage, four flash and two lava poses.</summary>
@@ -66,7 +68,7 @@ public static class EndingExplosionSpriteDefinitions
     }
 
     /// <summary>Maps the published frame order to its JSON name, cartridge pointer, and stock part count.</summary>
-    private static EndingExplosionSpriteFrameDefinition Get(int index)
+    private static SpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < PlanetRecordCount)
@@ -96,14 +98,14 @@ public static class EndingExplosionSpriteDefinitions
     private static int RecordBytes(int parts) => sizeof(ushort) + 5 * parts;
 
     /// <summary>Exposes the fixed frame order without allocating a parallel definition array.</summary>
-    private sealed class FrameView : IReadOnlyList<EndingExplosionSpriteFrameDefinition>
+    private sealed class FrameView : IReadOnlyList<SpriteFrameDefinition>
     {
         /// <summary>The ten planet records and six remaining cinematic poses.</summary>
         public int Count => FrameCount;
         /// <summary>Calculates a definition for its position in the cinematic asset order.</summary>
-        public EndingExplosionSpriteFrameDefinition this[int index] => Get(index);
+        public SpriteFrameDefinition this[int index] => Get(index);
         /// <summary>Visits the calculated frame definitions in published order.</summary>
-        public IEnumerator<EndingExplosionSpriteFrameDefinition> GetEnumerator()
+        public IEnumerator<SpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }

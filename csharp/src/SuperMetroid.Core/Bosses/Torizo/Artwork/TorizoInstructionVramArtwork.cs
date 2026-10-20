@@ -42,7 +42,7 @@ public sealed class TorizoInstructionVramArtwork
     {
         for (int index = 0; index < pages.Length; index++)
         {
-            TorizoInstructionTileSheetDefinition page =
+            TileSheetDefinition page =
                 TorizoInstructionVramArtworkDefinitions.All[index];
             int offset = sourceAddress - page.SourceAddress;
             if (offset < 0 || byteCount <= 0 ||

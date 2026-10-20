@@ -274,15 +274,12 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     private static void InstallLowerNorfairRioInstructionList(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state,
-        LowerNorfairRioProgram instructionList)
-    {
-        if (state.InstalledProgram == instructionList)
-            return;
-        state.InstalledProgram = instructionList;
-        state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(instructionList);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
-    }
+        LowerNorfairRioProgram instructionList) =>
+        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, instructionList, installed =>
+        {
+            state.InstalledProgram = installed;
+            state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(installed);
+        });
 
     /// <summary>Finds the parent slot immediately before a flame follower, rejecting slot zero.</summary>
     private RoomEnemySlot GetPrecedingLowerNorfairRioSlot(RoomEnemySlot follower)

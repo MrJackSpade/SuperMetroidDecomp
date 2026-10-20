@@ -106,6 +106,25 @@ internal static class EnemyProgramAnimation
         write(state, cursor);
     }
 
+    /// <summary>
+    /// Installs <paramref name="program"/> unless it is already the installed one: <paramref name="install"/> records it
+    /// on the species state, and its first instruction runs on the next frame.
+    /// </summary>
+    /// <param name="slot">The enemy.</param>
+    /// <param name="installed">The program the species state last installed, or null before the first.</param>
+    /// <param name="program">The program to install.</param>
+    /// <param name="install">Records the program and its starting cursor on the species state.</param>
+    internal static void InstallOnce<TProgram>(RoomEnemySlot slot, TProgram? installed, TProgram program, Action<TProgram> install)
+        where TProgram : struct, Enum
+    {
+        Ensure.NotNull(slot);
+        if (installed is { } current && EqualityComparer<TProgram>.Default.Equals(current, program))
+            return;
+        install(program);
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
+    }
+
     /// <summary>Runs a program set whose lists publish no cues, after the slot's frame expired.</summary>
     internal static void Run<TProgram, TFrame>(
         RoomEnemySlot slot,

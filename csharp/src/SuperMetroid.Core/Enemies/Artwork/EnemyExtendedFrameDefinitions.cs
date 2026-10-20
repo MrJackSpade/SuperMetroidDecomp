@@ -152,12 +152,12 @@ internal static class EnemyExtendedFrameDefinitions
     internal static EnemyExtendedFrameSequence Frames => new(0, ExpectedFrameCount);
 
     /// <summary>These native roots contain BG2 streams only; stock legitimately has no OAM components.</summary>
-    internal static bool IsBg2Only(EnemyExtendedFrameDefinition frame) =>
+    internal static bool IsBg2Only(EnemySpritemapDefinition frame) =>
         frame.Bank == PhantoonBg2FrameDefinitions.Bank && PhantoonBg2FrameDefinitions.IsFrame(frame.Pointer) ||
         frame.Bank == DraygonBg2FrameDefinitions.Bank && DraygonBg2FrameDefinitions.IsFrame(frame.Pointer);
 
     /// <summary>Skeleton fragmentation needs thirteen components; all other OAM families retain their existing bound.</summary>
-    internal static int MaximumOamComponents(EnemyExtendedFrameDefinition frame) =>
+    internal static int MaximumOamComponents(EnemySpritemapDefinition frame) =>
         CrocomireSkeletonVisualDefinitions.IsFrame(frame.Bank, frame.Pointer)
             ? CrocomireSkeletonVisualDefinitions.MaximumComponents : MaximumComponents;
 
@@ -165,12 +165,12 @@ internal static class EnemyExtendedFrameDefinitions
     /// Instruction-selected families keep first-seen identity order; local sets
     /// deduplicate selection without caching frame definitions. Prefix counts
     /// preserve legacy schema boundaries and are checked during enumeration.</summary>
-    internal static IEnumerable<EnemyExtendedFrameDefinition> EnumerateFrames()
+    internal static IEnumerable<EnemySpritemapDefinition> EnumerateFrames()
     {
         var seen = new HashSet<ushort>();
         int count = 0;
         var torizoFrames = new HashSet<ushort>();
-        EnemyExtendedFrameDefinition Emit(EnemyExtendedFrameDefinition frame)
+        EnemySpritemapDefinition Emit(EnemySpritemapDefinition frame)
         {
             count++;
             if (frame.Bank == TorizoFrameDefinitions.Bank) torizoFrames.Add(frame.Pointer);
@@ -182,7 +182,7 @@ internal static class EnemyExtendedFrameDefinitions
                 continue;
             if (count == WalkingFrameCount)
                 throw new InvalidDataException("Walking Pirate has more frames than names.");
-            yield return Emit(new EnemyExtendedFrameDefinition(Bank, pointer,
+            yield return Emit(new EnemySpritemapDefinition(Bank, pointer,
                 PirateArtworkNameDefinitions.Walking(count)));
         }
         if (count != WalkingFrameCount)
@@ -195,7 +195,7 @@ internal static class EnemyExtendedFrameDefinitions
                 continue;
             if (wallCount == WallFrameCount)
                 throw new InvalidDataException("Wall Pirate has more frames than names.");
-            yield return Emit(new EnemyExtendedFrameDefinition(Bank, pointer,
+            yield return Emit(new EnemySpritemapDefinition(Bank, pointer,
                 PirateArtworkNameDefinitions.Wall(wallCount++)));
         }
         if (wallCount != WallFrameCount ||
@@ -210,7 +210,7 @@ internal static class EnemyExtendedFrameDefinitions
             // Ninja programs reuse many selected frames in different attacks.
             // The bank-local frame identity is a stable, unambiguous author key
             // without assigning a possibly misleading attack-specific name.
-            yield return Emit(new EnemyExtendedFrameDefinition(Bank, pointer,
+            yield return Emit(new EnemySpritemapDefinition(Bank, pointer,
                 $"ninja_pirate_{pointer:X4}"));
             ninjaCount++;
         }
@@ -220,7 +220,7 @@ internal static class EnemyExtendedFrameDefinitions
         for (int index = 0; index < RidleyFrameCount; index++)
         {
             ushort pointer = BossOamFrameDefinitions.RidleyPointer(index);
-            yield return Emit(new EnemyExtendedFrameDefinition(0xa6, pointer,
+            yield return Emit(new EnemySpritemapDefinition(0xa6, pointer,
                 $"ridley_body_{pointer:X4}"));
         }
         if (count != PreDraygonFrameCount)
@@ -228,13 +228,13 @@ internal static class EnemyExtendedFrameDefinitions
         for (int index = 0; index < DraygonOamFrameCount; index++)
         {
             ushort pointer = BossOamFrameDefinitions.DraygonPointer(index);
-            yield return Emit(new EnemyExtendedFrameDefinition(0xa5, pointer,
+            yield return Emit(new EnemySpritemapDefinition(0xa5, pointer,
                 $"draygon_oam_{pointer:X4}"));
         }
         for (int index = 0; index < SporeSpawnOamFrameCount; index++)
         {
             ushort pointer = BossOamFrameDefinitions.SporeSpawnPointer(index);
-            yield return Emit(new EnemyExtendedFrameDefinition(0xa5, pointer,
+            yield return Emit(new EnemySpritemapDefinition(0xa5, pointer,
                 $"spore_spawn_oam_{pointer:X4}"));
         }
         if (count != PreCeresSteamFrameCount ||
@@ -243,7 +243,7 @@ internal static class EnemyExtendedFrameDefinitions
         for (int index = 0; index < CeresSteamCollisionDefinitions.FramePointers.Length; index++)
         {
             ushort pointer = CeresSteamCollisionDefinitions.FramePointers[index];
-            yield return Emit(new EnemyExtendedFrameDefinition(CeresSteamCollisionDefinitions.Bank,
+            yield return Emit(new EnemySpritemapDefinition(CeresSteamCollisionDefinitions.Bank,
                 pointer, $"ceres_steam_oam_{pointer:X4}"));
         }
         if (count != PreOumFrameCount ||
@@ -252,7 +252,7 @@ internal static class EnemyExtendedFrameDefinitions
         for (int index = 0; index < MaridiaLargeSnailCollisionDefinitions.FramePointers.Length; index++)
         {
             ushort pointer = MaridiaLargeSnailCollisionDefinitions.FramePointers[index];
-            yield return Emit(new EnemyExtendedFrameDefinition(
+            yield return Emit(new EnemySpritemapDefinition(
                 MaridiaLargeSnailCollisionDefinitions.Bank, pointer, $"oum_oam_{pointer:X4}"));
         }
         if (count != PreCrocomireFrameCount ||
@@ -262,28 +262,28 @@ internal static class EnemyExtendedFrameDefinitions
         for (int index = 0; index < CrocomireTongueCollisionDefinitions.FrameCount; index++)
         {
             ushort pointer = CrocomireTongueCollisionDefinitions.FramePointer(index);
-            yield return Emit(new EnemyExtendedFrameDefinition(
+            yield return Emit(new EnemySpritemapDefinition(
                 CrocomireTongueCollisionDefinitions.Bank,
                 pointer, $"crocomire_oam_{pointer:X4}"));
         }
         if (count != PreCrocomireBodyFrameCount)
             throw new InvalidDataException("Crocomire body frame prefix changed.");
         foreach (ushort pointer in CrocomireBodyVisualDefinitions.Frames)
-            yield return Emit(new EnemyExtendedFrameDefinition(
+            yield return Emit(new EnemySpritemapDefinition(
                 CrocomireBodyVisualDefinitions.Bank,
                 pointer, $"crocomire_body_oam_{pointer:X4}"));
         if (count != PreBombTorizoFrameCount)
             throw new InvalidDataException("Bomb Torizo extended-frame prefix changed.");
-        yield return Emit(new EnemyExtendedFrameDefinition(0xaa, 0x87d0,
+        yield return Emit(new EnemySpritemapDefinition(0xaa, 0x87d0,
             "bomb_torizo_dormant"));
-        yield return Emit(new EnemyExtendedFrameDefinition(0xaa, 0xaa30,
+        yield return Emit(new EnemySpritemapDefinition(0xaa, 0xaa30,
             "golden_torizo_initial"));
         var kraidArmPointers = new HashSet<ushort>();
         foreach (ushort pointer in KraidAnimations.Spritemaps(KraidPartProgram.ArmNormal, KraidPartProgram.ArmNormalPause,
                      KraidPartProgram.ArmSlow, KraidPartProgram.ArmRisingOrSinking, KraidPartProgram.ArmDyingOrPreparingToLunge))
         {
             if (kraidArmPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(0xa7, pointer,
+                yield return Emit(new EnemySpritemapDefinition(0xa7, pointer,
                     $"kraid_arm_oam_{pointer:X4}"));
         }
         if (kraidArmPointers.Count != KraidArmFrameCount)
@@ -300,7 +300,7 @@ internal static class EnemyExtendedFrameDefinitions
                      TorizoBodyProgram.GoldenInitial3))
         {
             if (goldenAwakeningPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
+                yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_awake_{pointer:X4}"));
         }
         if (goldenAwakeningPointers.Count - 1 != GoldenTorizoAwakeningFrameCount)
@@ -315,7 +315,7 @@ internal static class EnemyExtendedFrameDefinitions
                      TorizoBodyProgram.GoldenWalkingLeftLeftLegMoving))
         {
             if (goldenWalkingPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
+                yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_walk_left_{pointer:X4}"));
         }
         if (goldenWalkingPointers.Count != GoldenTorizoWalkingFrameCount)
@@ -332,7 +332,7 @@ internal static class EnemyExtendedFrameDefinitions
                      TorizoBodyProgram.GoldenWalkingRightRightLegMoving))
         {
             if (goldenRightwardPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
+                yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_rightward_{pointer:X4}"));
         }
         if (goldenRightwardPointers.Count != GoldenTorizoRightwardFrameCount)
@@ -355,7 +355,7 @@ internal static class EnemyExtendedFrameDefinitions
                      TorizoBodyProgram.FacingRightJumpBackwardsLandLeftFootFwd4))
         {
             if (jumpBackPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
+                yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"torizo_jump_back_{pointer:X4}"));
         }
         if (jumpBackPointers.Count != TorizoJumpBackFrameCount)
@@ -370,7 +370,7 @@ internal static class EnemyExtendedFrameDefinitions
                      TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd1))
         {
             if (rightOrbPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
+                yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_right_orb_{pointer:X4}"));
         }
         if (rightOrbPointers.Count != GoldenTorizoRightOrbFrameCount)
@@ -389,7 +389,7 @@ internal static class EnemyExtendedFrameDefinitions
                      TorizoBodyProgram.GoldenSonicBoomsFacingRightRightFootFwd1))
         {
             if (rightSonicPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
+                yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_right_sonic_{pointer:X4}"));
         }
         if (rightSonicPointers.Count - 1 != GoldenTorizoRightSonicFrameCount)
@@ -401,7 +401,7 @@ internal static class EnemyExtendedFrameDefinitions
         // The falling-left lists show one pose throughout.
         ushort fallingLeftPointer = TorizoAnimations.Spritemaps(TorizoBodyProgram.FacingLeftFalling0,
             TorizoBodyProgram.FacingLeftFalling1, TorizoBodyProgram.FacingLeftFalling2).Distinct().Single();
-        yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, fallingLeftPointer,
+        yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank, fallingLeftPointer,
             $"torizo_falling_left_{fallingLeftPointer:X4}"));
         // The opening ABEC pose is the sonic attack's existing editable frame.
         var leftFootOrbPointers = new HashSet<ushort> { 0xabec };
@@ -410,7 +410,7 @@ internal static class EnemyExtendedFrameDefinitions
                      TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd1))
         {
             if (leftFootOrbPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
+                yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_left_foot_orb_{pointer:X4}"));
         }
         if (leftFootOrbPointers.Count - 1 != GoldenTorizoLeftFootOrbFrameCount)
@@ -434,7 +434,7 @@ internal static class EnemyExtendedFrameDefinitions
                      TorizoBodyProgram.FacingLeftJumpingBackwardRightFootFwd4))
         {
             if (leftJumpBackPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
+                yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"torizo_jump_back_left_{pointer:X4}"));
         }
         if (leftJumpBackPointers.Count - 1 != TorizoJumpBackLeftNewFrameCount)
@@ -451,7 +451,7 @@ internal static class EnemyExtendedFrameDefinitions
                      TorizoBodyProgram.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1))
         {
             if (leftOrbPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
+                yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_left_orb_{pointer:X4}"));
         }
         if (leftOrbPointers.Count != GoldenTorizoLeftOrbFrameCount)
@@ -463,7 +463,7 @@ internal static class EnemyExtendedFrameDefinitions
         foreach (ushort pointer in TorizoAnimations.Spritemaps(TorizoAnimations.AllPrograms))
         {
             if (torizoFrames.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank,
+                yield return Emit(new EnemySpritemapDefinition(TorizoFrameDefinitions.Bank,
                     pointer, $"torizo_combat_{pointer:X4}"));
         }
         if (count != PreMotherBrainBodyFrameCount)
@@ -475,13 +475,13 @@ internal static class EnemyExtendedFrameDefinitions
         for (int index = 0; index < PhantoonBg2FrameDefinitions.FrameCount; index++)
         {
             var frame = PhantoonBg2FrameDefinitions.Frame(index);
-            yield return Emit(new EnemyExtendedFrameDefinition(PhantoonBg2FrameDefinitions.Bank,
+            yield return Emit(new EnemySpritemapDefinition(PhantoonBg2FrameDefinitions.Bank,
                 frame.Pointer, $"phantoon_bg2_{frame.Pointer:X4}"));
         }
         for (int index = 0; index < DraygonBg2FrameDefinitions.FrameCount; index++)
         {
             var frame = DraygonBg2FrameDefinitions.Frame(index);
-            yield return Emit(new EnemyExtendedFrameDefinition(DraygonBg2FrameDefinitions.Bank, frame.Pointer, frame.Name));
+            yield return Emit(new EnemySpritemapDefinition(DraygonBg2FrameDefinitions.Bank, frame.Pointer, frame.Name));
         }
         if (count != PreCrocomireSkeletonFrameCount)
             throw new InvalidDataException("BG2-only boss display-binding coverage changed.");

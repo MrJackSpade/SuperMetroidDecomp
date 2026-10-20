@@ -574,7 +574,7 @@ internal static class LookupStream5Verification
     /// <summary>Checks the Ceres visual transfer source pages selected by compiled definitions.</summary>
     internal static void VerifyLookupStream5CeresSourcePages()
     {
-        CeresEscapeTileSheetDefinition[] tilePages = [new(0xb7da00, 0x900, "ceres-escape-warning-tiles.png"), new(0xb0ba00, 0x600, "ceres-escape-door-tiles.png")];
+        TileSheetDefinition[] tilePages = [new(0xb7da00, 0x900, "ceres-escape-warning-tiles.png"), new(0xb0ba00, 0x600, "ceres-escape-door-tiles.png")];
         AssertTrue(tilePages.SequenceEqual(CeresEscapeTileArtworkDefinitions.All), "Original named character page order/source/extent/file");
         foreach (var page in tilePages)
         {
@@ -714,7 +714,7 @@ internal static class LookupStream5Verification
     {
         int componentCount = 0;
         var lists = new HashSet<ushort>();
-        foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (SpritemapFrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             int root = 0xa70000 | frame.Pointer;
             var components = PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);

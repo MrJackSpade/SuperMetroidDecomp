@@ -35,7 +35,7 @@ public static class RoomPlmLinkedRestoreVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmLinkedRestoreVisualCatalog>(VisualFileName, "Linked restore", RoomPlmLinkedRestoreDrawDefinitions.All, RoomPlmLinkedRestoreDrawDefinitions.VisualId, entries => new RoomPlmLinkedRestoreVisualCatalog(entries.Select(entry =>
-                new RoomPlmLinkedRestoreVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Checks only installed stock restoration visuals through <see cref="Load"/>, without overrides, cartridge access, or writes.</summary>
     /// <param name="directory">Linked-restoration family directory with stock JSON and manifest.</param>

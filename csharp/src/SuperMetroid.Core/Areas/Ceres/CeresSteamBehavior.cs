@@ -220,7 +220,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                  CeresSteamCollisionDefinitions.Frames.Of(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (CeresSteamCollisionHitbox hitbox in
+            foreach (EnemyHitboxRectangle hitbox in
                      component.Hitboxes)
             {
                 ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));

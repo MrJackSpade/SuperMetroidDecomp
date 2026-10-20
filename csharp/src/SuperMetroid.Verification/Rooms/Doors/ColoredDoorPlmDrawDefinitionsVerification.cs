@@ -33,13 +33,13 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             ColoredDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
-        RoomPlmColoredDoorVisualEntry[] entries = lists.Select(draw =>
-            new RoomPlmColoredDoorVisualEntry(
+        RoomPlmVisualEntry[] entries = lists.Select(draw =>
+            new RoomPlmVisualEntry(
                 ColoredDoorPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
         RoomPlmColoredDoorVisualCatalog stock = RoomPlmColoredDoorVisualCatalog.Stock();
-        RoomPlmColoredDoorVisualEntry editedFrame = entries.Single(entry =>
+        RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "green-left-frame-0");
         ushort originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = 0x0053;

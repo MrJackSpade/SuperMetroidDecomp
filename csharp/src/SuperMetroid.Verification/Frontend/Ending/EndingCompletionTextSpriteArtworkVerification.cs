@@ -19,7 +19,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
     internal static void VerifyEndingCompletionTextSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
-        foreach (EndingCompletionTextSpriteFrameDefinition frame in
+        foreach (SpriteFrameDefinition frame in
             EndingCompletionTextSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })

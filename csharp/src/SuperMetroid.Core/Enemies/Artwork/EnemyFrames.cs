@@ -24,7 +24,7 @@ internal static class EnemyFrames
         };
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
             words.Add(Identity(frame.Name), frame.Pointer);
-        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
             words.Add(Identity(frame.Name), frame.Pointer);
         return words;
     }
@@ -35,7 +35,7 @@ internal static class EnemyFrames
         var banks = new Dictionary<EnemyFrameId, byte>();
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
             banks.Add(Identity(frame.Name), frame.Bank);
-        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
             banks.Add(Identity(frame.Name), frame.Bank);
         return banks;
     }

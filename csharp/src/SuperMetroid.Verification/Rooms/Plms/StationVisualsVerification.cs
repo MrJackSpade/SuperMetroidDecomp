@@ -25,15 +25,15 @@ internal static class StationVisualsVerification
     internal static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmStationVisualCatalog stock = RoomPlmStationVisualCatalog.Stock();
-        RoomPlmStationVisualEntry[] entries = RoomPlmStationDrawDefinitions.All
-            .Select(list => new RoomPlmStationVisualEntry(
+        RoomPlmVisualRunEntry[] entries = RoomPlmStationDrawDefinitions.All
+            .Select(list => new RoomPlmVisualRunEntry(
                 RoomPlmStationDrawDefinitions.VisualId(list.Pointer),
                 list.Runs.Span
                     .SelectToArray(run => run.LevelWords.Span
                         .SelectToArray(word => new RoomLevelWord(word).VisualWord))
                     ))
             .ToArray();
-        RoomPlmStationVisualEntry first = entries.Single(entry => entry.Id == "map-frame-0");
+        RoomPlmVisualRunEntry first = entries.Single(entry => entry.Id == "map-frame-0");
         first.Runs[0][0] = 0x0053;
         var edited = new RoomPlmStationVisualCatalog(entries);
         first.Runs[0][0] = 0x0054;

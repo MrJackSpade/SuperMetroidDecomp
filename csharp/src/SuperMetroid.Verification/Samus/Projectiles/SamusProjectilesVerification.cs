@@ -36,6 +36,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Projectile fixtures covering native shot production, flight, impact, artwork, and camera edges.</summary>
 internal static class SamusProjectilesVerification
@@ -1281,7 +1282,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0000),
         "resident red door receives power-beam family for native rejection");
     residentDoorPlms.Step(residentDoorLevel);
-    AssertTrue(residentDoorPlms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, 6)),
+    AssertTrue(residentDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(SoundEffectLibrary2Sounds.DoorOpening, 6)),
         "wrong colored-door weapon queues native dud sound");
     AssertEqual(0, residentDoorPlms.ColoredDoors.Single().HitCounter,
         "wrong colored-door weapon does not advance threshold counter");
@@ -1355,7 +1356,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
         "shared BTS $44 collision publishes power-beam hit to grey door");
     greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
-    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, 6)),
+    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(SoundEffectLibrary2Sounds.DoorOpening, 6)),
         "locked enemy-quota grey door consumes shot with native dud sound");
     AssertTrue(!greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
         "below-quota grey door does not publish Zebes-awake event");
@@ -1379,7 +1380,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "post-unlock shot selects cartridge opening list");
     AssertTrue(greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
         "grey-door one-hit instruction persists sanitized room argument");
-    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x07), 6)),
+    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x07), 6)),
         "grey-door opening stream queues native library-three sound seven");
 
     var reloadedGreyWords = new ushort[16 * 16];
@@ -1461,7 +1462,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     blueDoorPlms.Step(blueDoor);
     AssertTrue(blueDoorPlms.Sounds.SoundRequests.Any(request =>
-            request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x07), 6)),
+            request == new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x07), 6)),
         "blue-door list queues library-three opening sound seven");
     for (int frame = 1; frame < 19; frame++)
         blueDoorPlms.Step(blueDoor);

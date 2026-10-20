@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Fx;
@@ -663,7 +662,7 @@ internal sealed class CeresDestructionCinematicState
 
     /// <summary>Creates a small blast at a camera-relative authored offset with its initial instruction delay.</summary>
     private void SpawnCeresExplosion(
-        CeresExplosionActorDefinition definition,
+        CinematicActorDefinition definition,
         CeresExplosionPlacement placement)
     {
         var actor = new IntroDiscoverySprite(
@@ -855,7 +854,7 @@ internal sealed class CeresDestructionCinematicState
         }
         else if (usesMode7)
         {
-            var (a, b, c, d) = CalculateMatrix();
+            var (a, b, c, d) = Mode7RotationMatrix.Calculate(angle, zoom);
             var mode7 = new Mode7RenderRegisters(a, b, c, d,
                 Phase <= CeresDestructionPhase.FadeOutCeres
                     ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
@@ -900,20 +899,4 @@ internal sealed class CeresDestructionCinematicState
         objects.FinishFrame();
     }
 
-    /// <summary>Builds the Mode-7 rotation and scale matrix from signed cartridge sine samples.</summary>
-    private (short A, short B, short C, short D) CalculateMatrix()
-    {
-        short cosine = ReadSine(angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
-        short sine = ReadSine(angle.TableIndex);
-        short a = Scale(cosine, zoom);
-        short b = Scale(sine, zoom);
-        return (a, b, unchecked((short)-b), a);
-    }
-
-    /// <summary>Reads the compiled signed sine quadrant used by Ceres Mode-7 motion.</summary>
-    internal static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(new SnesByteAngle(index));
-
-    /// <summary>Applies 8.8 matrix scaling with signed 16-bit truncation; the scale stays below 32768.</summary>
-    private static short Scale(short component, int scalar) =>
-        unchecked((short)(SnesEightEight.Multiply(component, scalar)));
 }

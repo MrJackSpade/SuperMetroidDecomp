@@ -39,7 +39,7 @@ internal static class LinkedRestoreVisualsVerification
             }
             native.Add(frame.Pointer, words.ToArray());
         }
-        var entries = frames.Select(frame => new RoomPlmLinkedRestoreVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmLinkedRestoreVisualCatalog.Stock();
         var imported = new RoomPlmLinkedRestoreVisualCatalog(entries);
         string expectedHash = SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmLinkedRestoreVisualCatalog), native);
@@ -103,7 +103,7 @@ internal static class LinkedRestoreVisualsVerification
                 "stock crumble restore selects cartridge block 0BC");
             AssertThrows<InvalidDataException>(
                 () => new RoomPlmLinkedRestoreVisualCatalog(
-                    [new RoomPlmLinkedRestoreVisualEntry("bomb-horizontal",
+                    [new RoomPlmVisualEntry("bomb-horizontal",
                         new ushort[2])]),
                 "restore catalog rejects missing linked layouts");
 
@@ -156,9 +156,9 @@ internal static class LinkedRestoreVisualsVerification
     internal static void VerifyLinkedRestoreVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden, bool bomb)
     {
-        RoomPlmLinkedRestoreVisualEntry[] entries =
+        RoomPlmVisualEntry[] entries =
             RoomPlmLinkedRestoreDrawDefinitions.All.Select(draw =>
-                new RoomPlmLinkedRestoreVisualEntry(
+                new RoomPlmVisualEntry(
                     RoomPlmLinkedRestoreDrawDefinitions.VisualId(draw.Pointer),
                     draw.VisualWords()))
                 .ToArray();

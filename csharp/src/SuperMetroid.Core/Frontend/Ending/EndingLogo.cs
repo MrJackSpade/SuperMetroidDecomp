@@ -32,7 +32,7 @@ internal sealed class EndingLogo
         this.paletteArtwork = paletteArtwork;
         for (int i = 0; i < actors.Length; i++)
         {
-            EndingLogoActorDefinition definition = EndingLogoDefinitions.Actor(i);
+            CinematicActorDefinition definition = EndingLogoDefinitions.Actor(i);
             actors[i] = new IntroDiscoverySprite(
                 EndingLogoDefinitions.Origin(i),
                 SnesObjPalettes.Palette(7).Raw,

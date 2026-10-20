@@ -33,7 +33,7 @@ internal sealed class GatePlms : IPlmFamilySource
     /// <summary>Spawn and close requests published by gate PLMs for the projectile system.</summary>
     private readonly List<DownwardGateProjectileRequest> _downwardGateProjectileRequests = new();
     /// <summary>Rejected-shot sounds buffered until the room's sound publication stage.</summary>
-    private readonly List<PlmSoundRequest> _pendingDownwardGateSounds = new();
+    private readonly List<SoundRequest> _pendingDownwardGateSounds = new();
 
     /// <summary>
     /// Returns and clears projectile work published by gate setup/list execution. Room load

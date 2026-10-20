@@ -69,7 +69,7 @@ internal static class IntroEggEffectDefinitionsVerification
     private static void VerifyIntroEggEffectActor(
         SuperMetroidAddressSpace retail,
         ushort definitionPointer,
-        IntroEggEffectActorDefinition actual,
+        CinematicActorDefinition actual,
         string name)
     {
         // The six-byte header's first word (initialization callback) has no compiled owner.

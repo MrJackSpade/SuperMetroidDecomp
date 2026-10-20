@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Rooms;
 
@@ -9,7 +9,7 @@ internal readonly record struct Bg2CatalogAccess
     public required Func<ushort, bool> IsFrame { get; init; }
 
     /// <summary>Frame at.</summary>
-    public required Func<int, EnemyBg2FrameDefinition> FrameAt { get; init; }
+    public required Func<int, SpritemapFrameDefinition> FrameAt { get; init; }
 
     /// <summary>Extract.</summary>
     public required Func<byte[]> Extract { get; init; }

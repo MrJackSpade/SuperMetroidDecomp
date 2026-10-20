@@ -158,22 +158,8 @@ public sealed class CrocomireColorCatalog
             destination.Write(color, Get(band, color));
     }
     /// <summary>Validates a band's length and RGB5 range before packing its color words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
-    {
-        if (source is null || source.Length != count)
-            throw new InvalidDataException($"Crocomire {name} requires {count} RGB5 colors.");
-        var compiled = new Bgr555[count];
-        for (int color = 0; color < count; color++)
-        {
-            PaletteRgb5? rgb = source[color];
-            if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
-                (uint)rgb.Blue > 31)
-                throw new InvalidDataException(
-                    $"Crocomire {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = rgb.ToBgr555();
-        }
-        return compiled;
-    }
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
+        Rgb5Rows.Compile(source, count, $"Crocomire {name}");
 
     /// <summary>Rejects ambiguous property names before deserializing the palette document.</summary>
     private static void RejectDuplicates(JsonElement value) =>

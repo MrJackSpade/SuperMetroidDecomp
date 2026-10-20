@@ -285,16 +285,12 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallNorfairRioInstructionList(
         RoomEnemySlot slot,
         NorfairRioEnemyState state,
-        NorfairRioProgram program)
-    {
-        if (state.InstalledProgram == program)
-            return;
-
-        state.InstalledProgram = program;
-        state.Program = AnimationProgramCursor<NorfairRioProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
-    }
+        NorfairRioProgram program) =>
+        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
+        {
+            state.InstalledProgram = installed;
+            state.Program = AnimationProgramCursor<NorfairRioProgram>.Start(installed);
+        });
 
     /// <summary>Returns the physical slot immediately before a follower, rejecting slot zero.</summary>
     private RoomEnemySlot GetPrecedingNorfairRioSlot(RoomEnemySlot follower)

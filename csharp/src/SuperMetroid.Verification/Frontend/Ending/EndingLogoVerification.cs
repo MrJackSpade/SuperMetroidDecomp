@@ -101,7 +101,7 @@ internal static class EndingLogoVerification
 
     /// <summary>Checks calculated logo sprite relationships while preserving supplied edits and native OAM placement.</summary>
     private static void VerifyEndingLogoRelatedParts(ISnesAddressSpace bus, int frame,
-        EndingLogoSpriteFrameDefinition definition, SpriteComposition upper, SpriteComposition completeRight)
+        SpriteFrameDefinition definition, SpriteComposition upper, SpriteComposition completeRight)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
             definition.Pointer, definition.StockPartCount, definition.Name);
@@ -175,7 +175,7 @@ internal static class EndingLogoVerification
 
         for (int index = 0; index < EndingLogoDefinitions.ActorCount; index++)
         {
-            EndingLogoActorDefinition actual = EndingLogoDefinitions.Actor(index);
+            CinematicActorDefinition actual = EndingLogoDefinitions.Actor(index);
             int spawn = 0x8be554 + index * 6;
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn), "native LDY actor definition" );
             ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn + 1));

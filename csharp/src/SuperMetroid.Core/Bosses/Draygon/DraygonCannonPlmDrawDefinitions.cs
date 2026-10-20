@@ -16,35 +16,35 @@ internal static class DraygonCannonPlmDrawDefinitions
     /// Shield frames advance two tiles; damaged frames advance one. Lower tiles
     /// are one tileset row (32 tiles) below their upper partners. Right art mirrors X.
     /// </summary>
-    internal readonly record struct Draw(bool Right, bool Shield, int Frame)
+    internal readonly record struct Draw(bool Right, bool Shield, int Frame) : IPlmRunDrawShape
     {
         /// <summary>Right frames draw two horizontal runs; left frames split the first row.</summary>
-        internal int RunCount => Right ? 2 : 3;
+        public int RunCount => Right ? 2 : 3;
         /// <summary>Rejects a draw-run index outside this frame's native write order.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
         /// <summary>Counts cells in a horizontal cannon row or split left-side run.</summary>
-        internal int WordCount(int run)
+        public int WordCount(int run)
         {
             CheckRun(run);
             return Right || run == 2 ? 2 : 1;
         }
         /// <summary>Moves left between split top-row cells and otherwise keeps the X cursor.</summary>
-        internal sbyte NextX(int run)
+        public sbyte NextX(int run)
         {
             CheckRun(run);
             return !Right && run < 2 ? (sbyte)-1 : (sbyte)0;
         }
         /// <summary>Advances to the lower row after the right row or left split pair.</summary>
-        internal sbyte NextY(int run)
+        public sbyte NextY(int run)
         {
             CheckRun(run);
             return run == (Right ? 0 : 1) ? (sbyte)1 : (sbyte)0;
         }
         /// <summary>Calculates a cannon cell's collision nibble, mirror bit, and shield or damage tile.</summary>
-        internal ushort WordAt(int run, int cell)
+        public ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             int row = Right ? run : run == 2 ? 1 : 0;
@@ -97,28 +97,11 @@ internal static class DraygonCannonPlmDrawDefinitions
         }
     }
     /// <summary>Builds a temporary artwork draw-list DTO; runtime drawing calculates cells directly.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(pointer, out var draw)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var words = new ushort[draw.WordCount(run)];
-            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
-            runs[run] = new((ushort)words.Length, words, new(draw.NextX(run), draw.NextY(run)));
-        }
-        list = new(pointer, runs);
-        return true;
-    }
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(pointer, TryDescribe, out list);
     /// <summary>Finds a reachable cannon draw list by its editable visual ID.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (ushort pointer in Pointers())
-            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal)) return TryGet(pointer, out list);
-        list = default;
-        return false;
-    }
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Pointers(), VisualId, TryGet, id, out list);
     /// <summary>Maps a native cannon draw pointer to its facing, condition, and pose ID.</summary>
     internal static string VisualId(ushort pointer) =>
         ClosedNativeWords.Decode<DraygonCannonDraw>(pointer, "Draygon cannon draw with a visual ID") switch

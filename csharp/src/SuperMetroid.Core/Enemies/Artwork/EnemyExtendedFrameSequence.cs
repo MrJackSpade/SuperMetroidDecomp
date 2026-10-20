@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Ordered view of the extended-frame catalog without a generated lookup cache.
 /// Ranges preserve the historical schema prefixes; entries are emitted by their owners.</summary>
-internal readonly record struct EnemyExtendedFrameSequence(int Start, int Length) : IEnumerable<EnemyExtendedFrameDefinition>
+internal readonly record struct EnemyExtendedFrameSequence(int Start, int Length) : IEnumerable<EnemySpritemapDefinition>
 {
     /// <summary>Creates a range-relative subview without materializing or copying frame definitions.</summary>
     internal EnemyExtendedFrameSequence this[Range range]
@@ -17,7 +17,7 @@ internal readonly record struct EnemyExtendedFrameSequence(int Start, int Length
     }
 
     /// <summary>Streams only the selected ordinal span while owners enumerate their compiled frames.</summary>
-    public IEnumerator<EnemyExtendedFrameDefinition> GetEnumerator()
+    public IEnumerator<EnemySpritemapDefinition> GetEnumerator()
     {
         int index = 0;
         foreach (var frame in EnemyExtendedFrameDefinitions.EnumerateFrames())

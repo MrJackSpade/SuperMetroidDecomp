@@ -226,15 +226,12 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallRioInstructionList(
         RoomEnemySlot slot,
         RioEnemyState state,
-        RioProgram program)
-    {
-        if (state.InstalledProgram == program)
-            return;
-        state.InstalledProgram = program;
-        state.Program = AnimationProgramCursor<RioProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
-    }
+        RioProgram program) =>
+        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
+        {
+            state.InstalledProgram = installed;
+            state.Program = AnimationProgramCursor<RioProgram>.Start(installed);
+        });
 
     /// <summary>Reverses vertical velocity after collision and enters the rebound phase.</summary>
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)

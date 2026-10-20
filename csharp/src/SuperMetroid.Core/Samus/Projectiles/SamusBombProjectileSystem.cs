@@ -148,7 +148,7 @@ public sealed class SamusBombProjectileSystem
             StepCooldown(samus.Xray.TimeIsFrozen);
 
         bool beamChargeConsumed = false;
-        var soundRequests = new List<SamusSoundRequest>();
+        var soundRequests = new List<SoundRequest>();
         if (samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
             BombSpreadAdmission spread = HandleBombSpreadInput(samus, controllerInput);
@@ -165,7 +165,7 @@ public sealed class SamusBombProjectileSystem
             }
             if (beamChargeConsumed)
             {
-                soundRequests.Add(new SamusSoundRequest(
+                soundRequests.Add(new SoundRequest(
                     SoundEffectLibrary1Sounds.CancelAll,
                     MaximumQueued: 9,
                     SoundSuppressed: PowerBombExplosion.IsActive));
@@ -203,7 +203,7 @@ public sealed class SamusBombProjectileSystem
                 // `$90:C128` publishes this exact Max6 request for every normal bomb
                 // whose fuse expires. Keep the append-only shape because several spread
                 // bombs can expire during one Samus projectile pass.
-                soundRequests.Add(new SamusSoundRequest(
+                soundRequests.Add(new SoundRequest(
                     SoundEffectLibrary2Sounds.BombExplosion,
                     MaximumQueued: 6,
                     SoundSuppressed: PowerBombExplosion.IsActive));
@@ -214,7 +214,7 @@ public sealed class SamusBombProjectileSystem
                 // Max15 entry immediately before setting explosion status `$8000` and
                 // allocating the two HDMA objects. Publish it from the same frame that
                 // Spawn installs the semantic bank-$88 owner.
-                soundRequests.Add(new SamusSoundRequest(
+                soundRequests.Add(new SoundRequest(
                     SoundEffectLibrary1Sounds.PowerBombExplosion,
                     MaximumQueued: 15,
                     SoundSuppressed: soundSuppressedBeforePreInstruction));

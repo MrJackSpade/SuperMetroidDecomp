@@ -180,7 +180,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool DeadTorizoCustomHitboxOverlaps(RoomEnemySlot slot, SamusState samus)
     {
         SamusKinematicsState kinematics = samus.Kinematics;
-        foreach (DeadCorpseTouchHitbox hitbox in DeadMonsterRottingDefinitions.TorizoTouchHitboxes)
+        foreach (EnemyHitboxRectangle hitbox in DeadMonsterRottingDefinitions.TorizoTouchHitboxes)
         {
             // The cartridge takes the magnitude of whichever signed edge faces Samus, so each edge
             // acts as a reach on its own side of the corpse origin.
@@ -238,7 +238,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         StagingByteView tiles = _room.Staging.CorpseTiles;
         for (int row = 0; row < DeadTorizoGeometryDefinitions.Rows; row++)
         {
-            DeadTorizoGraphicsCopy copy = DeadTorizoGeometryDefinitions.InitialCopy(row);
+            CorpseGraphicsCopy copy = DeadTorizoGeometryDefinitions.InitialCopy(row);
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
             {
                 int sourceOffset = copy.SourceOffset + byteIndex;

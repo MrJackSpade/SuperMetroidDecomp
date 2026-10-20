@@ -4,7 +4,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 
@@ -192,7 +191,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         ReadOnlySpan<byte> installedTiles)
     {
         StagingByteView tiles = _room.Staging.CorpseTiles;
-        foreach (DeadTourianCorpseGraphicsCopy copy in variant.InitialGraphicsCopies)
+        foreach (CorpseGraphicsCopy copy in variant.InitialGraphicsCopies)
         {
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
             {
@@ -239,13 +238,8 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTourianCorpseEnemyState state)
     {
         state.FinishedEntryCount++;
-        int random = _room.Random.Read();
-        _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
-            MiscDustAnimation.CorpseDustCloud);
+        _deadMonsters.SpawnCorpseRowDust(slot, _room.Random.Read(), _projectiles, _frameContext.RandomEnemyCounter);
         state.DustSpawnCount++;
-        if ((_frameContext.RandomEnemyCounter & 7) == 0)
-            _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
     }
 
     /// <summary>Rejects uninitialized slots and slots whose corpse state belongs to another enemy.</summary>
@@ -274,13 +268,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     internal sealed record DeadTourianCorpseVariant(
         int MaximumY,
         ushort[] ColumnWordOffsets,
-        DeadTourianCorpseGraphicsCopy[] InitialGraphicsCopies);
-
-    /// <summary>Copies a contiguous tile run from the installed sheet into corpse work RAM.</summary>
-    internal readonly record struct DeadTourianCorpseGraphicsCopy(
-        int SourceOffset,
-        int DestinationOffset,
-        int Length);
+        CorpseGraphicsCopy[] InitialGraphicsCopies);
 
     /// <summary>Routes bomb hits through the shared shot callback, which begins decomposition.</summary>
     internal static void RegisterDeadTourianBombReactions(EnemySharedReactions table)

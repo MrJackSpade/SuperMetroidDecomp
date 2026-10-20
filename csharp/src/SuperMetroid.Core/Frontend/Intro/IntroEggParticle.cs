@@ -12,7 +12,7 @@ internal sealed class IntroEggParticle
     /// <summary>Spawns one of six shell fragments at its compiled native position with its selected instruction list.</summary>
     public IntroEggParticle(byte index)
     {
-        IntroEggEffectActorDefinition definition = IntroEggEffectDefinitions.Particle(index);
+        CinematicActorDefinition definition = IntroEggEffectDefinitions.Particle(index);
         // $A958 indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
         // the two fixed biases. The compiled catalog is independently checked against all
         // twelve native words so this physical spawn does not require a cartridge read.

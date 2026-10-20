@@ -66,7 +66,7 @@ public static class EndingObjectArtworkFiles
             EndingObjectArtworkFormat.PostShotLogoMapByteCount);
 
         var cloudFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (EndingCloudSpriteFrameDefinition definition in EndingCloudSpriteDefinitions.Frames)
+        foreach (SpriteFrameDefinition definition in EndingCloudSpriteDefinitions.Frames)
             cloudFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
                 bus, definition.Pointer, definition.StockPartCount, definition.Name));
         using (var sprites = new MemoryStream())
@@ -84,7 +84,7 @@ public static class EndingObjectArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
         var explosionFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (EndingExplosionSpriteFrameDefinition definition in
+        foreach (SpriteFrameDefinition definition in
             EndingExplosionSpriteDefinitions.Frames)
             explosionFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
                 bus, definition.Pointer, definition.StockPartCount, definition.Name));
@@ -104,7 +104,7 @@ public static class EndingObjectArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
         var completionFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (EndingCompletionTextSpriteFrameDefinition definition in
+        foreach (SpriteFrameDefinition definition in
             EndingCompletionTextSpriteDefinitions.Frames)
             completionFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
                 bus, definition.Pointer, definition.StockPartCount, definition.Name));
@@ -124,7 +124,7 @@ public static class EndingObjectArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
         var rewardFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (EndingRewardSpriteFrameDefinition definition in EndingRewardSpriteDefinitions.Frames)
+        foreach (SpriteFrameDefinition definition in EndingRewardSpriteDefinitions.Frames)
             rewardFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
                 bus, definition.Pointer, definition.StockPartCount, definition.Name));
         using (var sprites = new MemoryStream())
@@ -143,7 +143,7 @@ public static class EndingObjectArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
         var logoFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (EndingLogoSpriteFrameDefinition definition in EndingLogoSpriteDefinitions.Frames)
+        foreach (SpriteFrameDefinition definition in EndingLogoSpriteDefinitions.Frames)
             logoFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
                 bus, definition.Pointer, definition.StockPartCount, definition.Name));
         using (var sprites = new MemoryStream())

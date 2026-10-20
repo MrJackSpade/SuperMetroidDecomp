@@ -33,7 +33,7 @@ internal static class LookupCrocomireStockVerification
             }
             native.Add(frame.Pointer, words.ToArray());
         }
-        var entries = frames.Select(frame => new RoomPlmCrocomireVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmCrocomireVisualCatalog.Stock();
         var imported = new RoomPlmCrocomireVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(

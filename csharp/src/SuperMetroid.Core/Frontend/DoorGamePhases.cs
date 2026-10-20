@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Rooms.Doors;
@@ -99,13 +98,13 @@ internal sealed class DoorGamePhases(FrontendSession session)
     {
         // This coroutine completes no ordinary gameplay publication. Only the
         // owners run by its enemy/draw pass may refill the rings before the test.
-        foreach (EnemySoundRequest request in source.Room.LoadedScope.Enemies.Audio.SoundRequests)
+        foreach (SoundRequest request in source.Room.LoadedScope.Enemies.Audio.SoundRequests)
             session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
-        foreach (EnemyMusicRequest request in source.Room.LoadedScope.Enemies.Audio.MusicRequests)
+        foreach (DelayedMusicRequest request in source.Room.LoadedScope.Enemies.Audio.MusicRequests)
             session.audio.QueueMusicDelayed(request.Command, request.Delay);
         if (source.Player.Samus is { } samus)
-            foreach (SamusSoundRequest request in samus.LiquidPhysics.SoundRequests)
+            foreach (SoundRequest request in samus.LiquidPhysics.SoundRequests)
                 session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                     soundSuppressed: request.SoundSuppressed);
     }

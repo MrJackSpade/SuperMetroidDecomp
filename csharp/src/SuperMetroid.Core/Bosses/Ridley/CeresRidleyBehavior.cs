@@ -1465,7 +1465,7 @@ internal sealed class CeresRidleyBehavior
             Position16<RoomPixels> componentOrigin = slot.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;
             ushort componentY = componentOrigin.Y;
-            foreach (RidleyCollisionHitbox hitbox in component.Hitboxes)
+            foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
             {
                 int left = unchecked((ushort)(componentX + hitbox.Left));
                 int top = unchecked((ushort)(componentY + hitbox.Top));

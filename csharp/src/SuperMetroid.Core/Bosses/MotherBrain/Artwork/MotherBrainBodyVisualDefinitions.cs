@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -38,7 +39,7 @@ internal static class MotherBrainBodyVisualDefinitions
     /// <summary>Calculates the published OAM identity. Native record strides are
     /// two header bytes plus eight bytes per component; explicit run boundaries
     /// preserve the shorter crouched/dummy frames and skipped unselected roots.</summary>
-    internal static EnemyExtendedFrameDefinition Frame(int index)
+    internal static EnemySpritemapDefinition Frame(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = (ushort)(index == 0 ? Standing
@@ -61,7 +62,7 @@ internal static class MotherBrainBodyVisualDefinitions
 
     /// <summary>BG2 uses the same pose identity with its published BG2 prefix,
     /// omitting the OAM-only dummy at OAM index twelve.</summary>
-    internal static EnemyBg2FrameDefinition Bg2Frame(int index)
+    internal static SpritemapFrameDefinition Bg2Frame(int index)
     {
         if ((uint)index >= Bg2FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         var frame = Frame(index < 12 ? index : index + 1);

@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
-﻿using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Corpses;
 
@@ -24,6 +26,19 @@ internal sealed class DeadMonsterFrame
 
     /// <summary>The dust sound requested by a completed sidehopper or corpse row this frame, or null.</summary>
     public SoundEffectId? LastSoundEffect { get; internal set; }
+
+    /// <summary>
+    /// Spawns the dust cloud a finished corpse row raises, spread by <paramref name="random"/> across the corpse, and
+    /// queues the dust sound on every eighth enemy frame.
+    /// </summary>
+    internal void SpawnCorpseRowDust(RoomEnemySlot slot, int random, EnemyProjectileEngine projectiles, int randomEnemyCounter)
+    {
+        projectiles.SpawnRoomGraphicsDustExplosion(
+            new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
+            MiscDustAnimation.CorpseDustCloud);
+        if ((randomEnemyCounter & 7) == 0)
+            LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
+    }
 
     /// <summary>Drops this frame's transfers and sound request.</summary>
     internal void Clear()

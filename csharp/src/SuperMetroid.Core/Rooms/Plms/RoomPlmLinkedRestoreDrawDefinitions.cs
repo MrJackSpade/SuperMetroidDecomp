@@ -39,17 +39,6 @@ internal static class RoomPlmLinkedRestoreDrawDefinitions
 
     /// <summary>Finds the compiled restoration draw whose stable visual key equals the supplied identifier.</summary>
     internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in All)
-        {
-            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
-            {
-                list = candidate;
-                return true;
-            }
-        }
-        list = default;
-        return false;
-    }
+        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out list);
 }

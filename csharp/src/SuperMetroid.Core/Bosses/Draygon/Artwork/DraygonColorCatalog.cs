@@ -173,22 +173,8 @@ public sealed class DraygonColorCatalog
         for (int color = 0; color < count; color++) destination.Write(color, resolve(color));
     }
     /// <summary>Checks a named RGB5 array's required length and channel bounds before packing its colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
-    {
-        if (source is null || source.Length != count)
-            throw new InvalidDataException($"Draygon {name} requires {count} RGB5 colors.");
-        var compiled = new Bgr555[count];
-        for (int color = 0; color < count; color++)
-        {
-            PaletteRgb5? rgb = source[color];
-            if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
-                (uint)rgb.Blue > 31)
-                throw new InvalidDataException(
-                    $"Draygon {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = rgb.ToBgr555();
-        }
-        return compiled;
-    }
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
+        Rgb5Rows.Compile(source, count, $"Draygon {name}");
 
     /// <summary>Rejects repeated case-sensitive Draygon JSON property names before deserialization.</summary>
     private static void RejectDuplicates(JsonElement value) =>

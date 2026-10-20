@@ -34,26 +34,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Carries out one cue of Skree's animations: the wind-up's attack-ready flag and the dive's off-screen processing.</summary>
-    private static SkreeMetareeProgram? ApplySkreeCue(RoomEnemySlot slot, SkreeEnemyState state, SkreeMetareeCue cue)
-    {
-        switch (cue.Kind)
-        {
-            case SkreeMetareeCueKind.SetAttackReady:
-                state.AttackReady = true;
-                break;
-            case SkreeMetareeCueKind.ProcessOffScreen:
-                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
-                break;
-            case SkreeMetareeCueKind.StopProcessingOffScreen:
-                slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SkreeMetareeCueKind)} {cue.Kind}.");
-        }
-        return null;
-    }
-
     /// <summary>Starts a Skree in its idle function and initial shared instruction list.</summary>
     internal static void InitializeSkree(RoomEnemySlot slot)
     {
@@ -189,7 +169,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceSkreeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Programs, SkreeMetareeFrameDefinitions.ShownFrames.Of,
             static (SkreeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplySkreeCue(slot, state, cue));
+            (state, cue, _) => SkreeMetareeCues.Apply(slot, cue, () => state.AttackReady = true));
 
 
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>

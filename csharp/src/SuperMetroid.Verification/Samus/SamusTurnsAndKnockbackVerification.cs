@@ -12,6 +12,7 @@ namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Constructed pose-stream checks for aerial turns, wall jumps, hurt movement, and damage boosts.</summary>
 internal static class SamusTurnsAndKnockbackVerification
@@ -376,7 +377,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     AssertEqual(1, eligible.HorizontalSpeed.ExtraRunSpeed.Whole, "wall jump preserves Dash whole speed");
     AssertEqual(0x7000, eligible.HorizontalSpeed.ExtraRunSpeed.Fraction, "wall jump preserves Dash fraction");
     AssertTrue(eligible.HorizontalSpeed.HasRunningMomentum, "wall jump preserves Dash momentum flag");
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6), eligible.LiquidPhysics.SoundRequests.Single(),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6), eligible.LiquidPhysics.SoundRequests.Single(),
         "ordinary wall trigger queues library-three sound five max six");
     // Pose $83's native stream starts 05,05,FB,03; the FB branch occurs
     // after ten ticks, not the old synthetic eight-tick delay.

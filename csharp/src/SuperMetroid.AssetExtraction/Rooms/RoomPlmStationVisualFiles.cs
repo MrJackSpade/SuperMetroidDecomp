@@ -47,7 +47,7 @@ public static class RoomPlmStationVisualFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
-        RoomPlmStationVisualEntry[] entries = ReadAndVerifyNative(bus);
+        RoomPlmVisualRunEntry[] entries = ReadAndVerifyNative(bus);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new VisualDocument(FormatVersion, entries), JsonOptions);
         using (var output = new FileStream(Path.Combine(directory, VisualFileName),
@@ -100,9 +100,9 @@ public static class RoomPlmStationVisualFiles
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>Checks each native station draw run's shape, words, and continuation offset before extracting its twelve-bit visuals.</summary>
-    private static RoomPlmStationVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
+    private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
-        var entries = new List<RoomPlmStationVisualEntry>();
+        var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
                  RoomPlmStationDrawDefinitions.All.OrderBy(item => item.Pointer))
         {
@@ -134,7 +134,7 @@ public static class RoomPlmStationVisualFiles
                 visuals.Add(visualWords);
             }
 
-            entries.Add(new RoomPlmStationVisualEntry(
+            entries.Add(new RoomPlmVisualRunEntry(
                 RoomPlmStationDrawDefinitions.VisualId(list.Pointer), visuals.ToArray()));
         }
 
@@ -194,5 +194,5 @@ public static class RoomPlmStationVisualFiles
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
     /// <summary>Versioned set of named station draw layouts exported from the source cartridge.</summary>
-    private sealed record VisualDocument(int Version, RoomPlmStationVisualEntry[] Entries);
+    private sealed record VisualDocument(int Version, RoomPlmVisualRunEntry[] Entries);
 }

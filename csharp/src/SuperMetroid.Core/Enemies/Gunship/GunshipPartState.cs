@@ -100,6 +100,7 @@ internal sealed class GunshipPartState
         slot.SpeciesState<GunshipPartState>() ?? throw new InvalidOperationException("A gunship slot has no state.");
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    [IntendedDuplicate("each state clears its own native words; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {
         _functionTimerWord = 0;

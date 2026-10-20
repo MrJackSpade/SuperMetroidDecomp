@@ -19,35 +19,35 @@ internal static class ElevatorPlatformPlmDefinitions
     /// frame; lower art advances two, mirrored about the platform centre.
     /// Continuations are absolute offsets (3,0), (0,1), then the terminator.
     /// </summary>
-    internal readonly record struct Draw(ushort Pointer, int Frame)
+    internal readonly record struct Draw(ushort Pointer, int Frame) : IPlmRunDrawShape
     {
         /// <summary>Gets the three native strips, or zero for an uninitialized descriptor.</summary>
-        internal int RunCount => Pointer == 0 ? 0 : 3;
+        public int RunCount => Pointer == 0 ? 0 : 3;
         /// <summary>Rejects a strip index outside this platform draw.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
         /// <summary>Gets one edge cell or four lower-row cells for a selected strip.</summary>
-        internal int WordCount(int run)
+        public int WordCount(int run)
         {
             CheckRun(run);
             return run == 2 ? 4 : 1;
         }
         /// <summary>Gets the next strip's absolute horizontal offset from the PLM origin.</summary>
-        internal sbyte NextX(int run)
+        public sbyte NextX(int run)
         {
             CheckRun(run);
             return run == 0 ? (sbyte)3 : (sbyte)0;
         }
         /// <summary>Gets the next strip's absolute vertical offset from the PLM origin.</summary>
-        internal sbyte NextY(int run)
+        public sbyte NextY(int run)
         {
             CheckRun(run);
             return run == 1 ? (sbyte)1 : (sbyte)0;
         }
         /// <summary>Calculates a solid platform tile word, mirroring right-side artwork where needed.</summary>
-        internal ushort WordAt(int run, int cell)
+        public ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             bool right = run == 1 || run == 2 && cell >= 2;
@@ -106,18 +106,6 @@ internal static class ElevatorPlatformPlmDefinitions
     }
 
     /// <summary>Materializes an artwork DTO; gameplay calculates platform cells directly.</summary>
-    internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(pointer, out var draw)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var words = new ushort[draw.WordCount(run)];
-            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
-            runs[run] = new((ushort)words.Length, words, new(draw.NextX(run), draw.NextY(run)));
-        }
-        list = new(pointer, runs);
-        return true;
-    }
+    internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(pointer, TryDescribe, out list);
 }

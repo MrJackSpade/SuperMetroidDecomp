@@ -230,18 +230,7 @@ internal static class EyeDoorPlmDrawDefinitions
 
     /// <summary>Resolves an exact editable visual identifier to its native draw list.</summary>
     internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in Editable)
-        {
-            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
-            {
-                list = candidate;
-                return true;
-            }
-        }
-        list = default;
-        return false;
-    }
+        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Editable, VisualId, id, out list);
 
 }

@@ -159,7 +159,7 @@ internal static class EndingExplosionSpriteArtworkVerification
     {
         Suite(nameof(VerifyEndingExplosionFrameCatalog), () => VerifyEndingExplosionFrameCatalog(bus));
 
-        foreach (EndingExplosionSpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)
+        foreach (SpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {

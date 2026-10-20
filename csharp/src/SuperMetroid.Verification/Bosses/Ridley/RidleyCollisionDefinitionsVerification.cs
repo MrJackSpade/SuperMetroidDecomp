@@ -32,8 +32,8 @@ internal static class RidleyCollisionDefinitionsVerification
 
         // Each native list pointer a component names must map to exactly one compiled list, and each compiled list to
         // exactly one native pointer, so the components share lists exactly where the cartridge's do.
-        var listByNativePointer = new Dictionary<ushort, RidleyCollisionHitbox[]>();
-        var nativePointerByList = new Dictionary<RidleyCollisionHitbox[], ushort>(ReferenceEqualityComparer.Instance);
+        var listByNativePointer = new Dictionary<ushort, EnemyHitboxRectangle[]>();
+        var nativePointerByList = new Dictionary<EnemyHitboxRectangle[], ushort>(ReferenceEqualityComparer.Instance);
         int componentsChecked = 0;
         int boxesChecked = 0;
         int probes = 0;
@@ -57,8 +57,8 @@ internal static class RidleyCollisionDefinitionsVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), component.Offset.Y,
                     "Ridley native component Y");
                 ushort nativeList = rom.ReadCartridgeWord((record + 6));
-                RidleyCollisionHitbox[] compiledList = component.Hitboxes;
-                if (listByNativePointer.TryGetValue(nativeList, out RidleyCollisionHitbox[]? sharedList))
+                EnemyHitboxRectangle[] compiledList = component.Hitboxes;
+                if (listByNativePointer.TryGetValue(nativeList, out EnemyHitboxRectangle[]? sharedList))
                     AssertTrue(ReferenceEquals(sharedList, compiledList),
                         $"Ridley $A6:{frame:X4} component {componentIndex} shares the list of native $A6:{nativeList:X4}");
                 else
@@ -80,7 +80,7 @@ internal static class RidleyCollisionDefinitionsVerification
             {
                 compiledSlot.Position = compiledSlot.Position.WithWhole(new(originX, originY));
                 foreach (RidleyCollisionComponent component in components)
-                foreach (RidleyCollisionHitbox hitbox in component.Hitboxes)
+                foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
                 {
                     ushort componentX = unchecked((ushort)(originX + component.Offset.X));
                     ushort componentY = unchecked((ushort)(originY + component.Offset.Y));
@@ -139,13 +139,13 @@ internal static class RidleyCollisionDefinitionsVerification
             "every compiled Ridley hitbox list belongs to a selected body frame");
         AssertEqual(listByNativePointer.Count, nativePointerByList.Count,
             "Ridley components select one compiled list per native list");
-        foreach ((ushort list, RidleyCollisionHitbox[] hitboxes) in listByNativePointer)
+        foreach ((ushort list, EnemyHitboxRectangle[] hitboxes) in listByNativePointer)
         {
             AssertEqual(rom.ReadCartridgeWord((0xa60000 | list)), (ushort)hitboxes.Length,
                 $"Ridley $A6:{list:X4} native hitbox count");
             for (int index = 0; index < hitboxes.Length; index++)
             {
-                RidleyCollisionHitbox box = hitboxes[index];
+                EnemyHitboxRectangle box = hitboxes[index];
                 int record = 0xa60000 | unchecked((ushort)(list + 2 + index * 12));
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord(record)), box.Left,
                     "Ridley native left bound");

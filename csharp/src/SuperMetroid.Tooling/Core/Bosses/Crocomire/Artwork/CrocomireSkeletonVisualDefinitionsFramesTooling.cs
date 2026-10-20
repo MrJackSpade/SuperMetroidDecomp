@@ -9,7 +9,7 @@ internal static class CrocomireSkeletonVisualDefinitionsFramesTooling
     extension(CrocomireSkeletonVisualDefinitions)
     {
         /// <summary>Materializes every defined frame in native index order without changing its artwork.</summary>
-        internal static EnemyExtendedFrameDefinition[] Frames =>
+        internal static EnemySpritemapDefinition[] Frames =>
             [.. Enumerable.Range(0, CrocomireSkeletonVisualDefinitions.FrameCount).Select(CrocomireSkeletonVisualDefinitions.Frame)];
     }
 }

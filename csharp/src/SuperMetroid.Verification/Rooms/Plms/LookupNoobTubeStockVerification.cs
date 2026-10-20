@@ -32,7 +32,7 @@ internal static class LookupNoobTubeStockVerification
             }
             native.Add(frame.Pointer, runs.ToArray());
         }
-        var entries = frames.Select(frame => new RoomPlmNoobTubeVisualEntry(frame.Id,
+        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id,
             native[frame.Pointer].SelectMany(run => run).ToArray())).ToArray();
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = RoomPlmNoobTubeVisualCatalog.Stock();

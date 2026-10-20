@@ -409,15 +409,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Clamps the signed whole word of homing speed to three pixels while retaining in-range fractions.</summary>
-    private static int ClampMetroidVelocity(int velocity)
-    {
-        short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
-        if (whole >= MetroidMaximumVelocity)
-            return SnesSixteenSixteen.FromWhole(MetroidMaximumVelocity);
-        if (whole < -MetroidMaximumVelocity)
-            return SnesSixteenSixteen.FromWhole(-MetroidMaximumVelocity);
-        return velocity;
-    }
+    private static int ClampMetroidVelocity(int velocity) => EnemyMath.ClampWholeVelocity(velocity, MetroidMaximumVelocity);
 
     /// <summary>Stores the raw signed 16.16 recoil or homing X speed.</summary>
     private static void StoreMetroidXVelocity(MetroidEnemyState state, int velocity) =>

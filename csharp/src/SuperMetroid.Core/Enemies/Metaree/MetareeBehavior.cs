@@ -27,28 +27,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Carries out one cue of Metaree's animations: the wind-up's attack-ready flag and the dive's off-screen processing.</summary>
-    private static SkreeMetareeProgram? ApplyMetareeCue(RoomEnemySlot slot, MetareeEnemyState state, SkreeMetareeCue cue)
-    {
-        switch (cue.Kind)
-        {
-            case SkreeMetareeCueKind.SetAttackReady:
-                // The wind-up sleeps immediately after publishing this flag. Main AI consumes it on the following
-                // enemy frame and starts the dive, exactly matching the native instruction/AI hand-off.
-                state.AttackReady = true;
-                break;
-            case SkreeMetareeCueKind.ProcessOffScreen:
-                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
-                break;
-            case SkreeMetareeCueKind.StopProcessingOffScreen:
-                slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SkreeMetareeCueKind)} {cue.Kind}.");
-        }
-        return null;
-    }
-
     /// <summary>Maximum strict horizontal separation for starting a dive, regardless of Samus's vertical side.</summary>
     private const ushort MetareeHorizontalActivationDistance = 72;
     /// <summary>Unsigned Y separation divisor used to choose NTSC dive speed.</summary>
@@ -247,7 +225,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceMetareeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Programs, SkreeMetareeFrameDefinitions.ShownFrames.Of,
             static (MetareeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
-            (state, cue, _) => ApplyMetareeCue(slot, state, cue));
+            (state, cue, _) => SkreeMetareeCues.Apply(slot, cue, () => state.AttackReady = true));
 
     /// <summary>Last library-two Metaree dive ($5B) or floor-impact ($5C) sound this enemy pass, using the Max6 queue entry; cleared before the next pass.</summary>
     public SoundEffectId? LastMetareeSoundEffect { get; private set; }

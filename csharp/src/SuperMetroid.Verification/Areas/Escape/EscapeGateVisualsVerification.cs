@@ -27,17 +27,17 @@ internal static class EscapeGateVisualsVerification
     /// <summary>Checks cloned closed and half-closed frames, rejected physical bits, and live and installed edits.</summary>
     internal static void VerifyEscapeGateVisuals(SuperMetroidAddressSpace rom)
     {
-        RoomPlmEscapeGateVisualEntry[] entries =
+        RoomPlmVisualEntry[] entries =
             MotherBrainEscapeGatePlmDrawDefinitions.All
                 .OrderBy(draw => draw.Pointer)
-                .Select(draw => new RoomPlmEscapeGateVisualEntry(
+                .Select(draw => new RoomPlmVisualEntry(
                     MotherBrainEscapeGatePlmDrawDefinitions.VisualId(draw.Pointer),
                     draw.Runs.Span[0].LevelWords.Span
                         .SelectToArray(word => new RoomLevelWord(word).VisualWord)))
                 .ToArray();
-        RoomPlmEscapeGateVisualEntry closed = entries.Single(entry =>
+        RoomPlmVisualEntry closed = entries.Single(entry =>
             entry.Id == "closed");
-        RoomPlmEscapeGateVisualEntry halfClosed = entries.Single(entry =>
+        RoomPlmVisualEntry halfClosed = entries.Single(entry =>
             entry.Id == "half-closed");
         ushort stockClosed = closed.Blocks[0];
         ushort stockHalfClosed = halfClosed.Blocks[0];

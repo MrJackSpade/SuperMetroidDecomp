@@ -14,12 +14,15 @@ internal static class GreyDoorPlmDrawDefinitions
     internal const int DrawListBytes = 12;
 
     /// <summary>One of twenty twelve-byte records at $84:A677..A766.</summary>
-    internal readonly record struct Draw(int Orientation, int Frame)
+    internal readonly record struct Draw(int Orientation, int Frame) : IPlmCapDrawShape
     {
         /// <summary>Left and right caps use a vertical four-cell run.</summary>
         internal bool Vertical => Orientation < 2;
         /// <summary>Encodes four blocks and the native vertical-run flag for the draw interpreter.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
+
+        /// <summary>The cap run\'s native direction-and-count word.</summary>
+        public ushort DirectionAndCountWord() => DirectionAndCount;
 
         /// <summary>
         /// Four cells in native run order. Frame -1 clears collision; frame zero
@@ -29,7 +32,7 @@ internal static class GreyDoorPlmDrawDefinitions
         /// horizontal tiles alternate tileset rows, advancing two every two frames.
         /// Mirror bits follow orientation and the cell's half of the cap.
         /// </summary>
-        internal ushort WordAt(int cell)
+        public ushort WordAt(int cell)
         {
             if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
             bool inner = cell is 1 or 2;
@@ -71,15 +74,8 @@ internal static class GreyDoorPlmDrawDefinitions
     }
 
     /// <summary>Builds a temporary import or export draw list; runtime calculates physical cells directly.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(pointer, out var draw)) return false;
-        var words = new ushort[4];
-        for (int cell = 0; cell < 4; cell++) words[cell] = draw.WordAt(cell);
-        list = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(draw.DirectionAndCount, words, new(0, 0)) });
-        return true;
-    }
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(pointer, TryDescribe, out list);
 
     /// <summary>Names a supported clear or grey animation frame by direction and frame number.</summary>
     internal static string VisualId(ushort pointer)

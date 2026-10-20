@@ -38,6 +38,6 @@ internal static class EnemyProjectileFrames
         : throw new ArgumentOutOfRangeException(nameof(frame), frame, "No installed program frame shows this projectile frame.");
 
     /// <summary>The parts <paramref name="frame"/> draws from installed projectile <paramref name="artwork"/>.</summary>
-    internal static ReadOnlyMemory<EnemySpritemapPart> Parts(EnemyProjectileSpritemapCatalog artwork, EnemyProjectileFrameId frame) =>
+    internal static ReadOnlyMemory<SpritemapPart> Parts(EnemyProjectileSpritemapCatalog artwork, EnemyProjectileFrameId frame) =>
         Compositions.TryGetValue(frame, out ushort spritemap) ? artwork.Get(spritemap) : artwork.GetProgramFrame(ProgramFrameKey(frame));
 }

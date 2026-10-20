@@ -24,6 +24,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Exercises the Glass Tunnel PLM's two-stage trigger, break sequence, and reload state.</summary>
 internal static class NoobTubePlmVerification
@@ -104,7 +105,7 @@ internal static class NoobTubePlmVerification
         StepNoobTube(plms, level);
         AssertEqual(0, plms.PopulationSlots.Single().LoopTimer, "resident consumes grapple notification once");
         AssertTrue(!brokenEvent && projectiles.Count == 0, "grapple must not shatter the power-bomb-only tube");
-        AssertTrue(plms.Sounds.SoundRequests.Contains(new PlmSoundRequest(
+        AssertTrue(plms.Sounds.SoundRequests.Contains(new SoundRequest(
             SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, NoobTubePlmRomData.IneffectiveShotSound), 6)),
             "resident emits its cartridge ineffective-shot response to grapple");
 
@@ -113,7 +114,7 @@ internal static class NoobTubePlmVerification
         AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, 0x0100),
             "n00b-tube collision block locates its resident PLM");
         StepNoobTube(plms, level);
-        AssertTrue(plms.Sounds.SoundRequests.Contains(new PlmSoundRequest(
+        AssertTrue(plms.Sounds.SoundRequests.Contains(new SoundRequest(
                 SoundEffectId.FromCartridge(
                     SoundEffectLibrary.Library2,
                     NoobTubePlmRomData.IneffectiveShotSound),

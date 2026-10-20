@@ -134,22 +134,8 @@ public sealed class PhantoonColorCatalog
             : throw new ArgumentOutOfRangeException(nameof(band));
 
     /// <summary>Checks a palette row's length and five-bit channels before converting it to hardware color words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
-    {
-        if (source is null || source.Length != count)
-            throw new InvalidDataException($"Phantoon {name} requires {count} RGB5 colors.");
-        var compiled = new Bgr555[count];
-        for (int color = 0; color < count; color++)
-        {
-            PaletteRgb5? rgb = source[color];
-            if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
-                (uint)rgb.Blue > 31)
-                throw new InvalidDataException(
-                    $"Phantoon {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = rgb.ToBgr555();
-        }
-        return compiled;
-    }
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
+        Rgb5Rows.Compile(source, count, $"Phantoon {name}");
 
     /// <summary>Rejects duplicate JSON members before deserialization can hide an authored color value.</summary>
     private static void RejectDuplicates(JsonElement value) =>

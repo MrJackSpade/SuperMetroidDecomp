@@ -25,16 +25,8 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
     /// <param name="paletteBits">Packed OBJ palette bits inherited by applicable parts.</param>
     /// <param name="originIsOnScreen">Whether the origin uses on-screen wrapping rules.</param>
     public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen)
-    {
-        if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
-            throw new InvalidDataException(
-                $"Ending reward sprite frame $8C:{pointer:X4} is not installed.");
-        if (originIsOnScreen)
-            frame.Draw(objects, origin, paletteBits);
-        else
-            frame.DrawOffScreen(objects, origin, paletteBits);
-    }
+        ushort paletteBits, bool originIsOnScreen) =>
+        SpriteComposition.DrawInstalled(frames, "Ending reward sprite", pointer, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads and validates all 37 named post-credits Samus visual frames.</summary>
     public static EndingRewardSpritePresentation Load(Stream json)
@@ -53,14 +45,14 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
         {
             throw new InvalidDataException("Invalid ending reward sprite JSON.", error);
         }
-        IReadOnlyList<EndingRewardSpriteFrameDefinition> definitions =
+        IReadOnlyList<SpriteFrameDefinition> definitions =
             EndingRewardSpriteDefinitions.Frames;
         if (document.Version != EndingRewardSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(
                 $"Ending reward requires exactly {definitions.Count} named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (EndingRewardSpriteFrameDefinition definition in definitions)
+        foreach (SpriteFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)

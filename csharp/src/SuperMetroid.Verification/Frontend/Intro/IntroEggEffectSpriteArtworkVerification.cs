@@ -25,7 +25,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
     {
         const ushort x = 120;
         ushort palette = IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
-        foreach (IntroEggEffectSpriteFrameDefinition definition in
+        foreach (SpritemapFrameDefinition definition in
             IntroEggEffectSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })

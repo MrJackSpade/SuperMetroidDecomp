@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Checks Bomb Torizo's hand PLM from inventory gating through debris, VRAM transfer, and deletion.</summary>
 internal static class BombTorizoHandVerification
@@ -143,7 +144,7 @@ internal static class BombTorizoHandVerification
         AssertEqual(1, plms.BombTorizoHand.MusicRequests.Count,
             "terminal hand pass queues one music command");
         AssertEqual(
-            new PlmMusicRequest(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames),
+            new DelayedMusicRequest(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames),
             plms.BombTorizoHand.MusicRequests[0],
             "terminal hand music request");
 

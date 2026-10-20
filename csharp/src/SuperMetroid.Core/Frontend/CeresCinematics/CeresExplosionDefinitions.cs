@@ -75,22 +75,22 @@ internal static class CeresExplosionDefinitions
     };
     /// <summary><c>$8B:CEBB</c>, first delayed small-explosion actor.</summary>
     /// <remarks>Native list $8B:CCDB..CCF4 displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
-    public static CeresExplosionActorDefinition InitialActor =>
+    public static CinematicActorDefinition InitialActor =>
         new(CinematicSpritePreInstruction.CeresExplosion, CinematicSpriteProgram.CeresSmallExplosion);
 
     /// <summary><c>$8B:CEC1</c>, cyclic repeating small-explosion actor.</summary>
     /// <remarks>Native list $8B:CCF5..CD1A repeats six duration-3 frames and a duration-16 blank six times, then deletes. It runs as a typed cinematic sprite program.</remarks>
-    public static CeresExplosionActorDefinition RepeatingActor =>
+    public static CinematicActorDefinition RepeatingActor =>
         new(CinematicSpritePreInstruction.CeresExplosion, CinematicSpriteProgram.CeresRepeatingSmallExplosion);
 
     /// <summary><c>$8B:CEC7</c>, final delayed large-explosion actor.</summary>
     /// <remarks>Native list $8B:CD1B..CD38 repeats four duration-5 frames and a duration-8 blank seven times, then deletes. It runs as a typed cinematic sprite program.</remarks>
-    public static CeresExplosionActorDefinition FinalWaveActor =>
+    public static CinematicActorDefinition FinalWaveActor =>
         new(CinematicSpritePreInstruction.CeresExplosion, CinematicSpriteProgram.CeresLargeExplosion);
 
     /// <summary><c>$8B:CF2D</c>, final station blast actor created by <c>$8B:C345</c>.</summary>
     /// <remarks>Native list $8B:CE1B..CE34 displays six duration-5 station-blast frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
-    public static CeresExplosionActorDefinition StationBlastActor =>
+    public static CinematicActorDefinition StationBlastActor =>
         new(CinematicSpritePreInstruction.CeresExplosion, CinematicSpriteProgram.CeresStationBlast);
 
     /// <summary>

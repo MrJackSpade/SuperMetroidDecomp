@@ -5,7 +5,6 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 
@@ -525,13 +524,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state)
     {
         state.FinishedEntryCount++;
-        int random = _room.Random.Read();
-        _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
-            MiscDustAnimation.CorpseDustCloud);
+        _deadMonsters.SpawnCorpseRowDust(slot, _room.Random.Read(), _projectiles, _frameContext.RandomEnemyCounter);
         state.DustSpawnCount++;
-        if ((_frameContext.RandomEnemyCounter & 7) == 0)
-            _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
     }
 
     /// <summary>Appends the variant's corpse tile uploads after a rotting step.</summary>

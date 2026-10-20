@@ -35,12 +35,12 @@ public sealed class RoomPlmTourianAccessVisualCatalog
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
     /// <exception cref="InvalidDataException">Coverage, uniqueness, layout identity, block-array dimensions, or presentation-only word bits are invalid.</exception>
     public RoomPlmTourianAccessVisualCatalog(
-        IEnumerable<RoomPlmTourianAccessVisualEntry> entries)
+        IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmTourianAccessVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !TourianAccessPlmDrawDefinitions.TryGetByVisualId(entry.Id,

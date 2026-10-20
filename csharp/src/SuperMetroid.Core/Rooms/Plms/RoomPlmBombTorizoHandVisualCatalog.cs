@@ -36,12 +36,12 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats a frame, changes a compiled identity/shape, or leaves coverage incomplete.</exception>
     public RoomPlmBombTorizoHandVisualCatalog(
-        IEnumerable<RoomPlmBombTorizoHandVisualEntry> entries)
+        IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmBombTorizoHandVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !BombTorizoHandPlmDrawDefinitions.TryGetByVisualId(entry.Id,

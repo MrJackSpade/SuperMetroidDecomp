@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
@@ -31,7 +32,7 @@ internal static class DraygonBg2FrameDefinitions
 
     /// <summary>Each facing has seventeen ten-byte extended frames: a two-byte
     /// count and one eight-byte component. Preserve the published pointer-based key.</summary>
-    internal static EnemyBg2FrameDefinition Frame(int index)
+    internal static SpritemapFrameDefinition Frame(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = (ushort)(index < 17 ? FacingLeftStart + 10 * index

@@ -64,7 +64,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
         AssertTrue(EnemyExtendedFrameDefinitions.Frames.Any(
                 frame => frame.Bank != EnemyExtendedFrameDefinitions.Bank),
             "shared extended artwork catalog also contains non-Pirate boss frames");
-        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
             // The artwork manifest now contains Ridley, Draygon, and Spore Spawn
             // frames as well. Their physical hitboxes belong to their own banks,

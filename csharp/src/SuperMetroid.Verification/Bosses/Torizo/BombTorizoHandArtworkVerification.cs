@@ -27,7 +27,7 @@ internal static class BombTorizoHandArtworkVerification
         {
             EnemyTileArtworkFiles.Extract(importer, directory, SupportedCartridge.Sha256);
             EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
-            TorizoInstructionTileSheetDefinition page = TorizoInstructionVramArtworkDefinitions.ChozoDebris;
+            TileSheetDefinition page = TorizoInstructionVramArtworkDefinitions.ChozoDebris;
             AssertTrue(stock.TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> bytes),
                 "installed Chozo debris page exists");
             for (int index = 0; index < bytes.Length; index++)
@@ -47,7 +47,7 @@ internal static class BombTorizoHandArtworkVerification
     /// <summary>Checks a PNG override reaches an already queued DMA request and preserves other tile bytes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyBombTorizoDebrisOverride(string directory,
-        EnemyTileArtworkCatalog stock, TorizoInstructionTileSheetDefinition page)
+        EnemyTileArtworkCatalog stock, TileSheetDefinition page)
     {
         string overrides = Path.Combine(directory, "overrides");
         Directory.CreateDirectory(overrides);

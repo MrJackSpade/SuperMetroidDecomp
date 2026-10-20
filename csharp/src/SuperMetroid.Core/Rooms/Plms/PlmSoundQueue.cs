@@ -6,19 +6,19 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal sealed class PlmSoundQueue
 {
     /// <summary>Retains PLM sound requests from the current handler pass until frame publication.</summary>
-    private readonly List<PlmSoundRequest> _soundRequests = new();
+    private readonly List<SoundRequest> _soundRequests = new();
 
     /// <summary>Queues <paramref name="soundEffect"/> under the native queue cap.</summary>
     internal void Queue(SoundEffectId soundEffect, int MaximumQueued) => _soundRequests.Add(CreateSoundRequest(soundEffect, MaximumQueued));
 
     /// <summary>Queues requests built earlier, in order.</summary>
-    internal void QueueAll(IEnumerable<PlmSoundRequest> requests) => _soundRequests.AddRange(requests);
+    internal void QueueAll(IEnumerable<SoundRequest> requests) => _soundRequests.AddRange(requests);
 
     /// <summary>Frame start and room reset: drops the previous pass's requests.</summary>
     internal void Clear() => _soundRequests.Clear();
 
     /// <summary>Sound commands emitted during the most recent handler pass.</summary>
-    public IReadOnlyList<PlmSoundRequest> SoundRequests => _soundRequests;
+    public IReadOnlyList<SoundRequest> SoundRequests => _soundRequests;
 
     /// <summary>Live explosion state consulted when each request is created, then rebound after restores.</summary>
     [NonSerialized]
@@ -31,6 +31,6 @@ internal sealed class PlmSoundQueue
     /// Captures the explosion guard when the PLM queues a sound, as native QueueSfx does;
     /// a later change to that guard cannot alter the pending gate sound.
     /// </summary>
-    internal PlmSoundRequest CreateSoundRequest(SoundEffectId soundEffect, int MaximumQueued) =>
+    internal SoundRequest CreateSoundRequest(SoundEffectId soundEffect, int MaximumQueued) =>
         new(soundEffect, MaximumQueued, SoundSuppressed: _audioPowerBomb?.IsActive == true);
 }

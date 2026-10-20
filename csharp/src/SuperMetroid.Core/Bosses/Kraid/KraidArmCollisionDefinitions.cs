@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -41,7 +42,7 @@ internal static class KraidArmCollisionDefinitions
     /// <summary>Native byte stride of a five-component extended frame, including its count word.</summary>
     internal const int GeneralFrameBytes = 2 + 5 * 8;
     /// <summary>Ordered physical rectangles; callbacks are calculated separately from the index.</summary>
-    private static readonly KraidArmCollisionGeometry[] Geometry =
+    private static readonly EnemyHitboxRectangle[] Geometry =
     [
         new(-13, -11, -3, -5),
         new(-9, -5, 1, 2),
@@ -92,10 +93,10 @@ internal static class KraidArmCollisionDefinitions
     }
 
     /// <summary>Combines one indexed rectangle's bounds with its arm/background touch and arm-shot reactions.</summary>
-    internal static KraidArmCollisionHitbox Rectangle(int index)
+    internal static KraidCollisionHitbox Rectangle(int index)
     {
         if ((uint)index >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(index));
-        KraidArmCollisionGeometry geometry = Geometry[index];
+        EnemyHitboxRectangle geometry = Geometry[index];
         return new(geometry.Left, geometry.Top, geometry.Right, geometry.Bottom,
             TouchCallback(index), ShotCallback(index));
     }
@@ -149,9 +150,9 @@ internal static class KraidArmCollisionDefinitions
     /// single-component records are anchored at the enemy origin. All22 native
     /// zero-coordinate pairs are independently confirmed for #1165; the remaining
     /// articulated positions have separate, unfinished review scope.</remarks>
-    internal static KraidArmCollisionComponent Component(int pose, int component)
+    internal static KraidCollisionComponent Component(int pose, int component)
     {
-        ImmutableArray<KraidArmCollisionHitbox> hitbox = HitboxesAt(ComponentHitbox(pose, component));
+        ImmutableArray<KraidCollisionHitbox> hitbox = HitboxesAt(ComponentHitbox(pose, component));
         // The central body component and both single-component poses are anchored
         // at the enemy origin. Only the four articulated positions are stored.
         if (pose >= 10 || component == 2) return new(Offset16<RoomPixels>.Zero, hitbox);
@@ -177,7 +178,7 @@ internal static class KraidArmCollisionDefinitions
 
     /// <summary>Normalizes either ten-frame artwork group to its shared physical pose and recognizes the two one-component dying frames.</summary>
     internal static bool TryGetComponents(ushort pointer,
-        out ImmutableArray<KraidArmCollisionComponent> components)
+        out ImmutableArray<KraidCollisionComponent> components)
     {
         // Both five-component groups select the same physical pose ordinal. Their
         // artwork identities differ, so this normalization applies only to collision.
@@ -207,8 +208,8 @@ internal static class KraidArmCollisionDefinitions
     /// domain, not native byte offsets; lengths match each original count word.
     /// Shape7, B..E, foot/lint lists, record interiors and every other ushort
     /// identity remain rejected. Rectangle-edge data has a separate disposition.</remarks>
-    internal static ImmutableArray<KraidArmCollisionHitbox> HitboxesAt(ushort pointer) =>
-        HitboxLists.TryGetValue(pointer, out ImmutableArray<KraidArmCollisionHitbox> list)
+    internal static ImmutableArray<KraidCollisionHitbox> HitboxesAt(ushort pointer) =>
+        HitboxLists.TryGetValue(pointer, out ImmutableArray<KraidCollisionHitbox> list)
             ? list
             : throw new InvalidDataException($"Kraid-arm hitbox list $A7:{pointer:X4} is not compiled.");
 
@@ -234,10 +235,10 @@ internal static class KraidArmCollisionDefinitions
     ];
 
     /// <summary>Each compiled hitbox list's rectangles in collision order, keyed by list pointer.</summary>
-    private static readonly Dictionary<ushort, ImmutableArray<KraidArmCollisionHitbox>> HitboxLists = HitboxListSlices.ToDictionary(
+    private static readonly Dictionary<ushort, ImmutableArray<KraidCollisionHitbox>> HitboxLists = HitboxListSlices.ToDictionary(
         slice => slice.List, slice => Enumerable.Range(slice.First, slice.Count).Select(Rectangle).ToImmutableArray());
 
     /// <summary>Each physical pose's components in native order: five for the ten shared poses, one for the two dying poses.</summary>
-    private static readonly ImmutableArray<KraidArmCollisionComponent>[] PoseComponents =
+    private static readonly ImmutableArray<KraidCollisionComponent>[] PoseComponents =
         [.. Enumerable.Range(0, 12).Select(pose => Enumerable.Range(0, pose < 10 ? 5 : 1).Select(component => Component(pose, component)).ToImmutableArray())];
 }

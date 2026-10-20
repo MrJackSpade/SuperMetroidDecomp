@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
@@ -33,7 +34,7 @@ internal static class PhantoonBg2FrameDefinitions
     /// <summary>Sixteen body/eye frames at ten-byte stride, three tentacle frames
     /// at eighteen-byte stride, then three mouth frames at ten-byte stride. The
     /// count word plus eight bytes per component explains both record sizes.</summary>
-    internal static EnemyBg2FrameDefinition Frame(int index)
+    internal static SpritemapFrameDefinition Frame(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = (ushort)(index < 16 ? BodyEyeStart + 10 * index

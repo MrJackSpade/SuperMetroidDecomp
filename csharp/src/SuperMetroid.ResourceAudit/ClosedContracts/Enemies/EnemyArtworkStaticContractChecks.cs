@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -19,7 +20,7 @@ internal static class EnemyArtworkStaticContractChecks
             .Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
-        CeresEscapeTileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
+        TileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
         CeresEscapeOverlayTilemapDefinition overlay = CeresEscapeOverlayTilemapDefinitions.Emergency;
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
             using SuperMetroid.Core.Enemies.Artwork;

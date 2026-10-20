@@ -23,7 +23,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
     {
         const ushort x = 120;
         ushort palette = IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
-        foreach (IntroDiscoveryActorSpriteFrameDefinition definition in
+        foreach (IntroSpriteFrameDefinition definition in
             IntroDiscoveryActorSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })

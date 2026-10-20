@@ -1,7 +1,4 @@
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Enemies;
@@ -20,13 +17,13 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="ShitroidPlms">The Shitroid's wall mutations.</param>
 public readonly record struct EnemyRoomEffectRequests(
     PlmHeaderId? BotwoonWall,
-    SporeSpawnPlmRequest? SporeSpawnCeiling,
-    IReadOnlyList<CrocomirePlmRequest> CrocomirePlms,
-    IReadOnlyList<KraidPlmRequest> KraidPlms,
+    PlmSpawnRequest? SporeSpawnCeiling,
+    IReadOnlyList<PlmSpawnRequest> CrocomirePlms,
+    IReadOnlyList<PlmSpawnRequest> KraidPlms,
     MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep,
     int MotherBrainFxEntry,
-    IReadOnlyList<MotherBrainPlmRequest> MotherBrainPlms,
-    IReadOnlyList<ShitroidPlmRequest> ShitroidPlms)
+    IReadOnlyList<PlmSpawnRequest> MotherBrainPlms,
+    IReadOnlyList<PlmSpawnRequest> ShitroidPlms)
 {
 
     /// <summary>Two request sets are equal when every value and every list's contents, in order, are equal.</summary>

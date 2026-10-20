@@ -31,12 +31,12 @@ public sealed class RoomPlmEscapeGateVisualCatalog
     /// <param name="entries">Exactly one four-word, visual-only entry for each compiled gate frame.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
-    public RoomPlmEscapeGateVisualCatalog(IEnumerable<RoomPlmEscapeGateVisualEntry> entries)
+    public RoomPlmEscapeGateVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmEscapeGateVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !MotherBrainEscapeGatePlmDrawDefinitions.TryGetByVisualId(entry.Id, out var draw) ||

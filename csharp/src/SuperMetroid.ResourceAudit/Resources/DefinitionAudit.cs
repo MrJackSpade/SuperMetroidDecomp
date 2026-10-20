@@ -34,7 +34,7 @@ internal static class DefinitionAudit
             exports.Add(ResourceDomains.EnemySimple, key);
             exports.Add(ResourceDomains.EnemyDisplay, key);
         }
-        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
             string key = ResourceIndex.Address(frame.Bank, frame.Pointer);
             exports.Add(ResourceDomains.EnemyExtended, key);

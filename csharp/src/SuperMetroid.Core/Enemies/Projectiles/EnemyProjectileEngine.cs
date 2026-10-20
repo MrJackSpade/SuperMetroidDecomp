@@ -399,7 +399,7 @@ internal sealed class EnemyProjectileEngine
 
             var artwork = _room.Artwork?.ProjectileSpritemaps ?? throw new InvalidOperationException(
                 "Room enemy projectiles require installed sprite artwork.");
-            ReadOnlyMemory<EnemySpritemapPart> parts = EnemyProjectileFrames.Parts(artwork, frame);
+            ReadOnlyMemory<SpritemapPart> parts = EnemyProjectileFrames.Parts(artwork, frame);
             ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
             EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
                 EnemySpriteFrames.Frame(parts, unchecked((byte)projectile.GraphicsIndex), paletteBits), screen, paletteBits);

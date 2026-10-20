@@ -62,7 +62,7 @@ public sealed class IntroCaretSpritePresentation
             throw new InvalidDataException("Opening caret requires its one visible sprite frame.");
 
         var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (IntroCaretFrameDefinition definition in definitions)
+        foreach (IntroSpriteFrameDefinition definition in definitions)
         {
             string sourceName = previousVersion
                 ? IntroCaretSpriteDefinitions.PreviousFrameNames[0] : definition.Name;

@@ -17,7 +17,7 @@ internal sealed class IntroEggSlimeDrop
         if (index >= IntroEggEffectDefinitions.SlimeDropCount)
             throw new ArgumentOutOfRangeException(nameof(index));
 
-        IntroEggEffectActorDefinition definition = IntroEggEffectDefinitions.SlimeDrop;
+        CinematicActorDefinition definition = IntroEggEffectDefinitions.SlimeDrop;
 
         // $AA9A copies the confused baby's slot coordinates rather than using a separate
         // literal position table. Its low timer byte remains the horizontal trajectory ID.

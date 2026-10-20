@@ -35,7 +35,7 @@ internal static class KraidSinkScheduleVerification
 
     /// <summary>Compares one inline PLM field across the six mutating callbacks and excludes the empty RTS.</summary>
     private static void VerifyKraidSinkPlmField(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks,
-        int offset, Func<KraidPlmRequest, ushort> field)
+        int offset, Func<PlmSpawnRequest, ushort> field)
     {
         int count = 0;
         foreach (ushort callback in callbacks.Distinct())
@@ -44,7 +44,7 @@ internal static class KraidSinkScheduleVerification
             var request = KraidPlmDefinitions.ForSinkCallback(KraidNativeListAddresses.NativeSinkCallbacks[callback]);
             if (KraidSinkPlmFieldRomByte(rom, code) == 0x60)
             {
-                AssertEqual<KraidPlmRequest?>(null, request, "Native empty RTS emits no request");
+                AssertEqual<PlmSpawnRequest?>(null, request, "Native empty RTS emits no request");
                 continue;
             }
             ushort expected = offset == 19
@@ -136,7 +136,7 @@ internal static class KraidSinkScheduleVerification
             AssertEqual(crumble ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None), "Exact native rock count");
             if (!crumble) continue;
             int code = 0xa70000 | callback;
-            AssertEqual(new KraidPlmRequest(new(KraidSinkScheduleRomByte(rom, code + 17), KraidSinkScheduleRomByte(rom, code + 18)), (PlmHeaderId)Word(code + 19)), requests[0], "Native callback inline PLM arguments");
+            AssertEqual(new PlmSpawnRequest(new(KraidSinkScheduleRomByte(rom, code + 17), KraidSinkScheduleRomByte(rom, code + 18)), (PlmHeaderId)Word(code + 19)), requests[0], "Native callback inline PLM arguments");
         }
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");
     }

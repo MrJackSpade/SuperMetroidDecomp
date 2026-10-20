@@ -58,11 +58,11 @@ public sealed class RoomPlmKraidVisualCatalog
     /// <param name="entries">Exactly one visual-only entry per compiled role, with one block for individual stages or fifteen/twenty-two for the clearing layouts.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats a role, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    public RoomPlmKraidVisualCatalog(IEnumerable<RoomPlmKraidVisualEntry> entries)
+    public RoomPlmKraidVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         int count = 0;
-        foreach (RoomPlmKraidVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !KraidRoomPlmDrawDefinitions.TryGetByVisualId(

@@ -36,13 +36,13 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             GreyDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
-        RoomPlmGreyDoorVisualEntry[] entries = lists.Select(draw =>
-            new RoomPlmGreyDoorVisualEntry(
+        RoomPlmVisualEntry[] entries = lists.Select(draw =>
+            new RoomPlmVisualEntry(
                 GreyDoorPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
         RoomPlmGreyDoorVisualCatalog stock = RoomPlmGreyDoorVisualCatalog.Stock();
-        RoomPlmGreyDoorVisualEntry editedFrame = entries.Single(entry =>
+        RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "grey-right-frame-0");
         ushort originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = 0x0053;
@@ -255,10 +255,10 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     /// <summary>Checks that an edited clear tile reaches shared blue-door streaming without changing physical door behavior.</summary>
     private static void VerifySharedDoorClearVisual(
         SuperMetroidAddressSpace rom,
-        RoomPlmGreyDoorVisualEntry[] entries,
+        RoomPlmVisualEntry[] entries,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists)
     {
-        RoomPlmGreyDoorVisualEntry clear = entries.Single(entry =>
+        RoomPlmVisualEntry clear = entries.Single(entry =>
             entry.Id == "clear-right");
         ushort original = clear.Blocks[0];
         clear.Blocks[0] = 0x0054;

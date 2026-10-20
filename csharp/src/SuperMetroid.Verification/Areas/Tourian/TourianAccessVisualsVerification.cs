@@ -112,7 +112,7 @@ internal static class TourianAccessVisualsVerification
                     0x840000 | (frame.Pointer + index / 4 * 12 + index % 4 * 2 + 2)) & 0xfff);
             native.Add(frame.Pointer, words);
         }
-        var entries = frames.Select(frame => new RoomPlmTourianAccessVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmTourianAccessVisualCatalog.Stock();
         var imported = new RoomPlmTourianAccessVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(

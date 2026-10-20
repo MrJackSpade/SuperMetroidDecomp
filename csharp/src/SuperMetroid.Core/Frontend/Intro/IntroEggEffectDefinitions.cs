@@ -43,7 +43,7 @@ internal static class IntroEggEffectDefinitions
     /// The generic OAM reader consumes the count, X, Y, and attribute word
     /// in that order; the bounded selector reaches only these six records.
     /// </remarks>
-    public static IntroEggEffectActorDefinition Particle(int index)
+    public static CinematicActorDefinition Particle(int index)
     {
         if ((uint)index >= ParticleCount)
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -69,6 +69,6 @@ internal static class IntroEggEffectDefinitions
     /// These are authored artwork choices; preserve the five bounded tile
     /// identities and do not infer a sixth frame from adjacent ROM data.
     /// </remarks>
-    public static IntroEggEffectActorDefinition SlimeDrop =>
+    public static CinematicActorDefinition SlimeDrop =>
         new(CinematicSpritePreInstruction.MetroidEggSlimeDrops, CinematicSpriteProgram.MetroidEggParticle7);
 }

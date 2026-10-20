@@ -29,12 +29,12 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             BlueDoorPlmDrawDefinitionsTooling.All.OrderBy(list => list.Pointer).ToArray();
-        RoomPlmBlueDoorVisualEntry[] entries = BlueDoorPlmDrawDefinitions.Editable.Select(draw =>
-            new RoomPlmBlueDoorVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Pointer),
+        RoomPlmVisualEntry[] entries = BlueDoorPlmDrawDefinitions.Editable.Select(draw =>
+            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
         RoomPlmBlueDoorVisualCatalog stock = RoomPlmBlueDoorVisualCatalog.Stock();
-        RoomPlmBlueDoorVisualEntry editedFrame = entries.Single(entry =>
+        RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "left-frame-1");
         ushort originalVisual = editedFrame.Blocks[0];
         editedFrame.Blocks[0] = 0x0053;

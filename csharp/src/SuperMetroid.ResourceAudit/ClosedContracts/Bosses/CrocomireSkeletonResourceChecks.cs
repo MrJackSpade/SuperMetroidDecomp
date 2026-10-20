@@ -23,7 +23,7 @@ internal static class CrocomireSkeletonResourceChecks
     /// <summary>Preserves thirteen ordered collapse components while rejecting a fourteenth and keeping ordinary bounds.</summary>
     private static void ConfirmFragmentationCapacity()
     {
-        EnemyExtendedFrameDefinition frame = CrocomireSkeletonVisualDefinitions.Frames
+        EnemySpritemapDefinition frame = CrocomireSkeletonVisualDefinitions.Frames
             .Single(item => item.Pointer == CrocomireSkeletonVisualDefinitions.FirstThirteenComponentFrame);
         int count = CrocomireSkeletonVisualDefinitions.MaximumComponents;
         var source = ConstructedComponentSource(frame, count);
@@ -69,7 +69,7 @@ internal static class CrocomireSkeletonResourceChecks
 
     /// <summary>Synthetic import bytes for exactly one root; unspecified reads, including hitboxes, fail.</summary>
     [CpuBusBoundary("exact bus test: lays out one native extended-frame root and its components at their cartridge addresses")]
-    private static SyntheticCartridge ConstructedComponentSource(EnemyExtendedFrameDefinition frame, int count)
+    private static SyntheticCartridge ConstructedComponentSource(EnemySpritemapDefinition frame, int count)
     {
         var source = new SyntheticCartridge(
             address => new InvalidDataException($"Unexpected synthetic composition read {address:X6}."));

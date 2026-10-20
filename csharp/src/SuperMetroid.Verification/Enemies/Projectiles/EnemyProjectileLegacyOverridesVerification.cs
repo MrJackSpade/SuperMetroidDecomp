@@ -78,7 +78,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
             using var json = fixture.Json(value);
             return EnemyProjectileSpritemapCatalog.Load(json, baseline);
         }
-        static void AssertParts(SpriteVisualPart[] expected, ReadOnlySpan<EnemySpritemapPart> actual, string context)
+        static void AssertParts(SpriteVisualPart[] expected, ReadOnlySpan<SpritemapPart> actual, string context)
         {
             // Check each encoded field, including signed offsets and flip bits.
             AssertEqual(expected.Length, actual.Length, context + " ordered part count");

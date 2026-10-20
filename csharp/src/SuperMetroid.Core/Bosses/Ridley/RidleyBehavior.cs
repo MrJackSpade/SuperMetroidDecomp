@@ -1677,7 +1677,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;
             ushort componentY = componentOrigin.Y;
-            foreach (RidleyCollisionHitbox hitbox in component.Hitboxes)
+            foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
             {
                 ushort left = unchecked((ushort)(componentX + hitbox.Left));
                 ushort top = unchecked((ushort)(componentY + hitbox.Top));

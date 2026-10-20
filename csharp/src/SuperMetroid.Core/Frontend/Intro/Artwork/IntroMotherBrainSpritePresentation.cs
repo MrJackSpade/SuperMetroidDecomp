@@ -51,13 +51,13 @@ public sealed class IntroMotherBrainSpritePresentation
         {
             throw new InvalidDataException("Invalid intro Mother Brain sprite JSON.", error);
         }
-        IReadOnlyList<IntroMotherBrainSpriteFrameDefinition> definitions =
+        IReadOnlyList<SpritemapFrameDefinition> definitions =
             IntroMotherBrainSpriteDefinitions.Frames;
         if (document.Version != IntroMotherBrainSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro Mother Brain requires three named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (IntroMotherBrainSpriteFrameDefinition definition in definitions)
+        foreach (SpritemapFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)

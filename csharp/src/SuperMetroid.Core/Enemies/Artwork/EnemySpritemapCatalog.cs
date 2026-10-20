@@ -155,13 +155,13 @@ public sealed class EnemySpritemapCatalog
     }
 
     /// <summary>Validates OAM capacity, offsets, tile bounds, palette, size, and priority before packing ordinary or extended frame pieces.</summary>
-    internal static EnemySpritemapPart[] CompileParts(
+    internal static SpritemapPart[] CompileParts(
         SpriteVisualPart[] visual, string frameName)
     {
         if (visual.Length > EnemySpritemapDefinitions.MaximumParts)
             throw new InvalidDataException(
                 $"Enemy composition {frameName} exceeds OAM part capacity.");
-        var parts = new EnemySpritemapPart[visual.Length];
+        var parts = new SpritemapPart[visual.Length];
         for (int index = 0; index < parts.Length; index++)
         {
             SpriteVisualPart? part = visual[index];
@@ -175,7 +175,7 @@ public sealed class EnemySpritemapCatalog
             SnesTileFlipFlags flips =
                 (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
                 (part.FlipY ? SnesTileFlipFlags.Vertical : 0);
-            parts[index] = new EnemySpritemapPart(
+            parts[index] = new SpritemapPart(
                 SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
                 SnesSpritemapYByte.Create(part.OffsetY),
                 SnesObjAttributeWord.Create(

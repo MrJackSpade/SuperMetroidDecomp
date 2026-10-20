@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
@@ -22,7 +23,7 @@ internal static class KraidGrowthPlmMappingsVerification
 
     /// <summary>Reads each callback field at the requested native offset and checks indexed and enumerated PLM requests.</summary>
     private static void VerifyKraidGrowthPlmField(SuperMetroidAddressSpace rom, int offset,
-        Func<KraidPlmRequest, ushort> field)
+        Func<PlmSpawnRequest, ushort> field)
     {
         ushort Word(int address) => SnesLittleEndian.Word(KraidGrowthPlmFieldRomByte(rom, address), KraidGrowthPlmFieldRomByte(rom, address + 1));
         var requests = KraidPlmDefinitions.GrowthCeiling;

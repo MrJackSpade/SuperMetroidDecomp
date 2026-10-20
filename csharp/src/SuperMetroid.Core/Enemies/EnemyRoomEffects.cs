@@ -1,9 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Escape;
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
@@ -108,7 +104,7 @@ internal sealed class EnemyRoomEffects
     /// </summary>
     internal void ApplyPendingSporeSpawnCeilingPlm(EnemyRoomEffectRequests requests, RoomPlmSystem plms)
     {
-        if (requests.SporeSpawnCeiling is not SporeSpawnPlmRequest request)
+        if (requests.SporeSpawnCeiling is not PlmSpawnRequest request)
             return;
         if (_room.LevelData is null)
         {
@@ -141,7 +137,7 @@ internal sealed class EnemyRoomEffects
                 "Crocomire published an arena PLM without an active room level.");
         }
 
-        foreach (CrocomirePlmRequest request in requests.CrocomirePlms)
+        foreach (PlmSpawnRequest request in requests.CrocomirePlms)
         {
             // SpawnHardcodedPLM silently loses a request when all forty native slots are
             // occupied. TrySpawnCrocomireArenaMutation deliberately mirrors that result.
@@ -163,7 +159,7 @@ internal sealed class EnemyRoomEffects
         if (_room.LevelData is null)
             throw new InvalidOperationException("Kraid published room PLMs without active level data.");
 
-        foreach (KraidPlmRequest request in requests.KraidPlms)
+        foreach (PlmSpawnRequest request in requests.KraidPlms)
         {
             plms.BossRoomMutations.TrySpawnKraidRoomMutation(
                 _room.LevelData,
@@ -209,7 +205,7 @@ internal sealed class EnemyRoomEffects
                 "Mother Brain published a room PLM without active room level data.");
         }
 
-        foreach (MotherBrainPlmRequest request in requests.MotherBrainPlms)
+        foreach (PlmSpawnRequest request in requests.MotherBrainPlms)
         {
             plms.BossRoomMutations.TrySpawnMotherBrainMutation(
                 _room.LevelData,
@@ -232,7 +228,7 @@ internal sealed class EnemyRoomEffects
                 "Shitroid published wall PLMs without active room level data.");
         }
 
-        foreach (ShitroidPlmRequest request in requests.ShitroidPlms)
+        foreach (PlmSpawnRequest request in requests.ShitroidPlms)
         {
             plms.BossRoomMutations.TrySpawnShitroidWallMutation(
                 _room.LevelData,

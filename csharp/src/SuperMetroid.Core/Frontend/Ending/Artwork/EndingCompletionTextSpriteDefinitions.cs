@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
@@ -29,7 +31,7 @@ public static class EndingCompletionTextSpriteDefinitions
     private const int FrameCount = PrefixCount + 11;
 
     /// <summary>Stable 56-frame catalog: 15 THE OPERATION WAS prefixes at $8C:A69D, 21 COMPLETED SUCCESSFULLY prefixes at $AB6B, nine CLEAR TIME prefixes at $B49B, then ten digits at $B67B and the colon at $B66F.</summary>
-    public static IReadOnlyList<EndingCompletionTextSpriteFrameDefinition> Frames { get; } = new FrameView();
+    public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameView();
 
     /// <summary>Sum preceding records: two header bytes and two five-byte OAM parts
     /// per revealed letter. Shared with the generated typewriter instructions.</summary>
@@ -38,7 +40,7 @@ public static class EndingCompletionTextSpriteDefinitions
     internal static ushort DigitMap(int digit) => (ushort)(ZeroMap + digit * (2 + 2 * 5));
 
     /// <summary>Projects a catalog ordinal into a phrase stage, decimal digit, or colon composition.</summary>
-    private static EndingCompletionTextSpriteFrameDefinition Get(int index)
+    private static SpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < OperationLetters) return Prefix("operation", OperationMap, index);
@@ -49,20 +51,20 @@ public static class EndingCompletionTextSpriteDefinitions
     }
 
     /// <summary>Names one progressively revealed phrase stage and calculates its native OAM part count.</summary>
-    private static EndingCompletionTextSpriteFrameDefinition Prefix(string family, ushort first, int stage) =>
+    private static SpriteFrameDefinition Prefix(string family, ushort first, int stage) =>
         new(Key(family, stage), PrefixMap(first, stage), 2 * (stage + 1));
     /// <summary>Formats stable two-digit JSON keys for phrase stages and decimal digits.</summary>
     private static string Key(string family, int stage) => family + "-" + stage.ToString("D2", System.Globalization.CultureInfo.InvariantCulture);
 
     /// <summary>Calculates frame definitions on demand instead of storing fifty-six duplicate records.</summary>
-    private sealed class FrameView : IReadOnlyList<EndingCompletionTextSpriteFrameDefinition>
+    private sealed class FrameView : IReadOnlyList<SpriteFrameDefinition>
     {
         /// <summary>Phrase prefixes, digits, and colon included in the installed catalog.</summary>
         public int Count => FrameCount;
         /// <summary>Resolves a native frame pointer and stock part count for one catalog ordinal.</summary>
-        public EndingCompletionTextSpriteFrameDefinition this[int index] => Get(index);
+        public SpriteFrameDefinition this[int index] => Get(index);
         /// <summary>Visits all completion-text frames in native presentation order.</summary>
-        public IEnumerator<EndingCompletionTextSpriteFrameDefinition> GetEnumerator()
+        public IEnumerator<SpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }

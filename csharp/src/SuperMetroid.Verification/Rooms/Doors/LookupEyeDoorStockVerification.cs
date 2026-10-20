@@ -40,7 +40,7 @@ internal static class LookupEyeDoorStockVerification
             for (int cell = 0; cell < 4; cell++)
                 AssertEqual((ushort)(words[0x9c4f][cell] ^ 0x400),catalog.GetWord(0x9bf7,cell),"Eye door shared custom clear mirror");
         }
-        var entries = frames.Select(frame => new RoomPlmEyeDoorVisualEntry(frame.Id,native[frame.Pointer].ToArray())).ToArray();
+        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id,native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmEyeDoorVisualCatalog.Stock();
         foreach (var catalog in new[] {stock,installed,new RoomPlmEyeDoorVisualCatalog(entries.Reverse())})
         {
@@ -66,7 +66,7 @@ internal static class LookupEyeDoorStockVerification
         Compare(mixed,expected);
         AssertThrows<InvalidDataException>(() => new RoomPlmEyeDoorVisualCatalog(entries[..1]),"Eye door missing import");
         AssertThrows<InvalidDataException>(() => new RoomPlmEyeDoorVisualCatalog(entries.Append(entries[0])),"Eye door duplicate import");
-        foreach (RoomPlmEyeDoorVisualEntry bad in new RoomPlmEyeDoorVisualEntry[]
+        foreach (RoomPlmVisualEntry bad in new RoomPlmVisualEntry[]
             {new("LEFT-EYE-FRAME-0",[0,0]),new("unknown",[0,0]),
              new(entries[0].Id,[0]),new(entries[0].Id,[0xf055,0])})
         {

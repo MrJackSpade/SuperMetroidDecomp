@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Checks audio requests emitted by Phantoon's casual-flame and materialization callbacks.</summary>
 internal static class PhantoonFlameSoundVerification
@@ -19,7 +20,7 @@ internal static class PhantoonFlameSoundVerification
         callback(enemies.SlotTable.Slots[3], PhantoonPartCue.SpawnCasualFlame);
         collect();
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "casual flame emits one sound request");
-        var flameSound = new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x1d), 6);
+        var flameSound = new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x1d), 6);
         AssertEqual(flameSound, enemies.Audio.SoundRequests[0], "native A7:CF68/CF6B queues library three sound 1D with Max6");
         AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(item => item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame),
             "sound accompanies the actual casual-flame spawn");
@@ -31,7 +32,7 @@ internal static class PhantoonFlameSoundVerification
         collect();
         AssertEqual(2, enemies.Audio.SoundRequests.Count(request => request == flameSound),
             "distinct flame callbacks retain their separate native queue calls");
-        AssertTrue(enemies.Audio.SoundRequests.Contains(new EnemySoundRequest(
+        AssertTrue(enemies.Audio.SoundRequests.Contains(new SoundRequest(
             SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x79), 6)),
             "flame audio does not overwrite the independent materialization sound");
         Console.WriteLine("Phantoon casual flame: actual spawn emits library 3 / 1D / Max6; materialization audio remains independent.");

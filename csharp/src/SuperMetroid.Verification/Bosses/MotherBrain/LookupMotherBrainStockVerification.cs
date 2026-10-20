@@ -43,7 +43,7 @@ internal static class LookupMotherBrainStockVerification
             widths.Add(frame.Pointer, counts.ToArray());
         }
         AssertEqual(230, native.Values.Sum(words => words.Length), "Mother Brain original visual cell count");
-        var entries = frames.Select(frame => new RoomPlmMotherBrainFakeDeathVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmMotherBrainFakeDeathVisualCatalog.Stock();
         var imported = new RoomPlmMotherBrainFakeDeathVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(

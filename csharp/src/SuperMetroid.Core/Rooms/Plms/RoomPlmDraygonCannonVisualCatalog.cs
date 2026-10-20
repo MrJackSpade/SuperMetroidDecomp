@@ -36,12 +36,12 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves reachable frame coverage incomplete.</exception>
     public RoomPlmDraygonCannonVisualCatalog(
-        IEnumerable<RoomPlmDraygonCannonVisualEntry> entries)
+        IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmDraygonCannonVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !DraygonCannonPlmDrawDefinitions.TryGetByVisualId(entry.Id,

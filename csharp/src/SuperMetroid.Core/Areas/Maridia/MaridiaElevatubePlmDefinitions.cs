@@ -39,14 +39,6 @@ internal static class MaridiaElevatubePlmDefinitions
 
     /// <summary>Resolves the extracted elevatube artwork by its stable asset identity.</summary>
     internal static bool TryGetDrawByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList draw)
-    {
-        if (string.Equals(id, VisualId, StringComparison.Ordinal))
-        {
-            draw = Draw;
-            return true;
-        }
-        draw = default;
-        return false;
-    }
+        out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId([Draw], _ => VisualId, id, out draw);
 }

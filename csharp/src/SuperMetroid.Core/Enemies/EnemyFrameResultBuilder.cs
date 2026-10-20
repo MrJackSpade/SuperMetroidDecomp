@@ -1,7 +1,4 @@
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Rooms.Plms;
@@ -39,13 +36,13 @@ internal sealed class EnemyFrameResultBuilder
     internal PlmHeaderId? BotwoonWall { get; set; }
 
     /// <summary>Spore Spawn's ceiling PLM.</summary>
-    internal SporeSpawnPlmRequest? SporeSpawnCeiling { get; set; }
+    internal PlmSpawnRequest? SporeSpawnCeiling { get; set; }
 
     /// <summary>Crocomire's arena mutations, in publication order.</summary>
-    internal List<CrocomirePlmRequest> CrocomirePlms { get; } = [];
+    internal List<PlmSpawnRequest> CrocomirePlms { get; } = [];
 
     /// <summary>Kraid's ceiling and platform mutations, in publication order.</summary>
-    internal List<KraidPlmRequest> KraidPlms { get; } = [];
+    internal List<PlmSpawnRequest> KraidPlms { get; } = [];
 
     /// <summary>Mother Brain's death-sequence step.</summary>
     internal MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep { get; set; }
@@ -57,10 +54,10 @@ internal sealed class EnemyFrameResultBuilder
     internal int MotherBrainFxEntry { get; set; }
 
     /// <summary>Mother Brain's room mutations, in publication order.</summary>
-    internal List<MotherBrainPlmRequest> MotherBrainPlms { get; } = [];
+    internal List<PlmSpawnRequest> MotherBrainPlms { get; } = [];
 
     /// <summary>The Shitroid's wall mutations, in publication order.</summary>
-    internal List<ShitroidPlmRequest> ShitroidPlms { get; } = [];
+    internal List<PlmSpawnRequest> ShitroidPlms { get; } = [];
 
     /// <summary>Clears every result before a pass or a room load.</summary>
     internal void Begin()

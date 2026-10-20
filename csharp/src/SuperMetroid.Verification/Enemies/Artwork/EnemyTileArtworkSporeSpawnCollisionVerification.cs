@@ -33,7 +33,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         var seenLists = new HashSet<ushort>();
         int frameCount = 0;
         int callbackComparisons = 0;
-        foreach (EnemyExtendedFrameDefinition frame in
+        foreach (EnemySpritemapDefinition frame in
                  EnemyExtendedFrameDefinitions.Frames)
         {
             if (frame.Bank != DraygonBg2FrameDefinitions.Bank ||

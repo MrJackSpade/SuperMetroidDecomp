@@ -22,11 +22,11 @@ internal static class BossDisplayBindingsVerification
         var stock = new BossDisplayDocuments(edited: false);
         var edits = new BossDisplayDocuments(edited: true);
         int frames = 0, hitSamples = 0, hits = 0;
-        foreach ((EnemyDefinitionId definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
+        foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
         {
             var baseline = new BossDisplayFixture(definition, stock.Build());
             var replacement = new BossDisplayFixture(definition, edits.Build());
-            foreach (EnemyExtendedFrameDefinition frame in family)
+            foreach (EnemySpritemapDefinition frame in family)
             {
                 frames++;
                 baseline.SetFrame(frame.Pointer, fresh: true); replacement.SetFrame(frame.Pointer, fresh: true);

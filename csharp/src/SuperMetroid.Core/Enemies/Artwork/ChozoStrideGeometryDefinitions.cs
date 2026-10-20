@@ -58,7 +58,7 @@ internal static class ChozoStrideGeometryDefinitions
         int left = -1, right = -1;
         for (int index = 0; index < supplied.Count; index++)
         {
-            EnemySpritemapPart part = supplied[index];
+            SpritemapPart part = supplied[index];
             if (!Enum.IsDefined((FootGlyph)part.Attributes.TileNumber))
                 continue;
             switch ((FootGlyph)part.Attributes.TileNumber)
@@ -84,10 +84,10 @@ internal static class ChozoStrideGeometryDefinitions
     private readonly record struct FootAppearance(ushort XFlags, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
     {
         /// <summary>Separates the glyph's non-position X flags from its current horizontal coordinate.</summary>
-        internal static FootAppearance From(EnemySpritemapPart part) =>
+        internal static FootAppearance From(SpritemapPart part) =>
             new((ushort)(part.X.Raw & ~0x1ff), part.Y, part.Attributes);
         /// <summary>Reconstructs the glyph at a new X coordinate with its other appearance bits intact.</summary>
-        internal EnemySpritemapPart At(int x) =>
+        internal SpritemapPart At(int x) =>
             new(new SnesSpritemapXWord((ushort)(XFlags | (x & 0x1ff))), Y, Attributes);
     }
 
@@ -95,7 +95,7 @@ internal static class ChozoStrideGeometryDefinitions
     private sealed class FootParts : EnemySpritemapParts
     {
         /// <summary>All supplied parts other than the two relocated support-foot glyphs.</summary>
-        private readonly EnemySpritemapPart[] otherParts;
+        private readonly SpritemapPart[] otherParts;
         /// <summary>The preserved appearances of the left and right support-foot glyphs.</summary>
         private readonly FootAppearance left, right;
         /// <summary>The stride phase and original indices used to reinsert the two foot glyphs.</summary>
@@ -109,7 +109,7 @@ internal static class ChozoStrideGeometryDefinitions
             this.rightIndex = rightIndex;
             left = FootAppearance.From(supplied[leftIndex]);
             right = FootAppearance.From(supplied[rightIndex]);
-            otherParts = new EnemySpritemapPart[supplied.Count - 2];
+            otherParts = new SpritemapPart[supplied.Count - 2];
             int output = 0;
             for (int index = 0; index < supplied.Count; index++)
                 if (index != leftIndex && index != rightIndex) otherParts[output++] = supplied[index];
@@ -117,7 +117,7 @@ internal static class ChozoStrideGeometryDefinitions
         /// <summary>Gets the original part count, including both relocated support feet.</summary>
         public override int Count => otherParts.Length + 2;
         /// <summary>Returns the original part at this index or its relocated support-foot equivalent.</summary>
-        public override EnemySpritemapPart this[int index]
+        public override SpritemapPart this[int index]
         {
             get
             {

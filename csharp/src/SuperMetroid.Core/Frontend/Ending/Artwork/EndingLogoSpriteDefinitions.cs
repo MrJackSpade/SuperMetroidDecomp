@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Cartridge OAM identities paired with the four $8B:EE5D..EE9A logo lists.</summary>
@@ -22,7 +24,7 @@ public static class EndingLogoSpriteDefinitions
     }
 
     /// <summary>Gets the two letter segments followed by three right-wrap and three left-wrap stages.</summary>
-    public static IReadOnlyList<EndingLogoSpriteFrameDefinition> Frames { get; } = new FrameView();
+    public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameView();
 
     /// <summary>Walks the variable-size OAM records from $8C:B97F to locate one ending-logo frame.</summary>
     internal static ushort FramePointer(int index)
@@ -51,7 +53,7 @@ public static class EndingLogoSpriteDefinitions
     private static int RecordBytes(int parts) => sizeof(ushort) + parts * 5;
 
     /// <summary>Pairs the calculated cartridge pointer with the JSON name and expected part count.</summary>
-    private static EndingLogoSpriteFrameDefinition Get(int index)
+    private static SpriteFrameDefinition Get(int index)
     {
         ushort pointer = FramePointer(index);
         if (index < 2) return new(index == 0 ? "s-upper" : "s-lower", pointer, SParts);
@@ -62,14 +64,14 @@ public static class EndingLogoSpriteDefinitions
     }
 
     /// <summary>Exposes the eight calculated frame identities without a stored pointer table.</summary>
-    private sealed class FrameView : IReadOnlyList<EndingLogoSpriteFrameDefinition>
+    private sealed class FrameView : IReadOnlyList<SpriteFrameDefinition>
     {
         /// <summary>The script uses two S sections and six circle stages.</summary>
         public int Count => FrameCount;
         /// <summary>Resolves the selected stage to its cartridge pointer and JSON key.</summary>
-        public EndingLogoSpriteFrameDefinition this[int index] => Get(index);
+        public SpriteFrameDefinition this[int index] => Get(index);
         /// <summary>Visits all frame definitions in cinematic instruction order.</summary>
-        public IEnumerator<EndingLogoSpriteFrameDefinition> GetEnumerator()
+        public IEnumerator<SpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }

@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Audits retail room-FX selection, visible liquid layers, animation, and transition behavior across named states and doors.</summary>
 internal static class RoomFxRetailInventoryVerification
@@ -723,7 +724,7 @@ internal static class RoomFxRetailInventoryVerification
         RoomShakeFrameResult firstActiveShake = runtime.Enemies.Earthquake.LastRoomShake;
         AssertEqual(1, runtime.RoomLayer3Fx.SoundRequests.Count,
             "room $02/$28 first wait frame emits one earthquake sound");
-        RoomFxSoundRequest sound = runtime.RoomLayer3Fx.SoundRequests[0];
+        SoundRequest sound = runtime.RoomLayer3Fx.SoundRequests[0];
         AssertEqual(SoundEffectLibrary2Sounds.Earthquake, sound.SoundEffect,
             "room $02/$28 earthquake sound identity");
         AssertEqual(6, sound.MaximumQueued,

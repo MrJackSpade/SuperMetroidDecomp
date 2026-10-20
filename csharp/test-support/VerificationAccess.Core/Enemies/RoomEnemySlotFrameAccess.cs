@@ -18,7 +18,7 @@ internal static class RoomEnemySlotFrameAccess
         var identities = new Dictionary<(byte Bank, ushort Word), EnemyFrameId>();
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
             identities.TryAdd((frame.Bank, frame.Pointer), Identity(frame.Name));
-        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
             identities.TryAdd((frame.Bank, frame.Pointer), Identity(frame.Name));
         return identities;
     }

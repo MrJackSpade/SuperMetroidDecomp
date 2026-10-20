@@ -82,7 +82,7 @@ internal static class KraidFootCollisionDefinitions
 
     /// <summary>Maps an initial or 18-byte extended frame pointer to its two collision components.</summary>
     internal static bool TryGetComponents(ushort pointer,
-        out ImmutableArray<KraidFootCollisionComponent> components)
+        out ImmutableArray<KraidCollisionComponent> components)
     {
         if (pointer == InitialFrame)
         {
@@ -103,11 +103,11 @@ internal static class KraidFootCollisionDefinitions
     }
 
     /// <summary>The single shared rectangle every foot component collides with.</summary>
-    internal static ImmutableArray<KraidFootCollisionHitbox> SharedHitboxes { get; } =
+    internal static ImmutableArray<KraidCollisionHitbox> SharedHitboxes { get; } =
         [new(-6, -6, 6, 6, KraidHitboxTouch.Background, KraidHitboxShot.Inert)];
 
     /// <summary>Each walk frame's fixed and moving components, both colliding with the shared rectangle.</summary>
-    private static readonly ImmutableArray<KraidFootCollisionComponent>[] FrameComponents =
-        [.. Enumerable.Range(0, FrameCount).Select(frame => ImmutableArray.Create<KraidFootCollisionComponent>(
+    private static readonly ImmutableArray<KraidCollisionComponent>[] FrameComponents =
+        [.. Enumerable.Range(0, FrameCount).Select(frame => ImmutableArray.Create<KraidCollisionComponent>(
             new(new(FirstX(frame), FirstY(frame)), SharedHitboxes), new(new(SecondX(frame), SecondY(frame)), SharedHitboxes)))];
 }

@@ -54,12 +54,12 @@ internal sealed class StationPlms : IPlmFamilySource
     /// acceptance runs at the message-close boundary, which completes no gameplay audio publication, so the sound
     /// cannot ride the PLM sound list: the next PLM pass would clear it unheard.
     /// </summary>
-    private PlmSoundRequest? _pendingSavingSound;
+    private SoundRequest? _pendingSavingSound;
 
     /// <summary>Returns and clears the saving sound an accepted save queued, once.</summary>
-    internal PlmSoundRequest? ConsumeSavingSoundRequest()
+    internal SoundRequest? ConsumeSavingSoundRequest()
     {
-        PlmSoundRequest? request = _pendingSavingSound;
+        SoundRequest? request = _pendingSavingSound;
         _pendingSavingSound = null;
         return request;
     }

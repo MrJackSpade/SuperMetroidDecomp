@@ -99,7 +99,7 @@ internal sealed class SelectedPresentationHash
         Append(label, identity is null ? ReadOnlySpan<byte>.Empty : Convert.FromHexString(identity));
 
     /// <summary>Preserves OAM part order, offsets, size, flips, priority, palette and tile selection.</summary>
-    public void AppendEnemyParts(ReadOnlySpan<SuperMetroid.Core.Hardware.EnemySpritemapPart> parts)
+    public void AppendEnemyParts(ReadOnlySpan<SuperMetroid.Core.Hardware.SpritemapPart> parts)
     {
         Append("parts", parts.Length);
         foreach (var part in parts)

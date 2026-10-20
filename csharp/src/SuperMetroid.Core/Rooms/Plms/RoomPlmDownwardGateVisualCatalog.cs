@@ -37,12 +37,12 @@ public sealed class RoomPlmDownwardGateVisualCatalog
     /// <param name="entries">One entry per compiled layout, retaining its exact run count and word counts with visual-only payloads.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    public RoomPlmDownwardGateVisualCatalog(IEnumerable<RoomPlmDownwardGateVisualEntry> entries)
+    public RoomPlmDownwardGateVisualCatalog(IEnumerable<RoomPlmVisualRunEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[][]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmDownwardGateVisualEntry entry in entries)
+        foreach (RoomPlmVisualRunEntry entry in entries)
         {
             if (entry is null || entry.Runs is null ||
                 !DownwardGatePlmDrawDefinitions.TryGetByVisualId(entry.Id, out var definition) ||

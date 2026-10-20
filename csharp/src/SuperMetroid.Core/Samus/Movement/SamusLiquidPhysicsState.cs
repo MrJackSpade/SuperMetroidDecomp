@@ -24,7 +24,7 @@ public sealed class SamusLiquidPhysicsState
     private const ushort BreathBubbleHeldTimer = SamusAtmosphericEffectsState.DelayedStartMarker | 2;
 
     /// <summary>Audio requests published by movement, liquid effects, and landing during one Samus handler frame.</summary>
-    private readonly List<SamusSoundRequest> _soundRequests = [];
+    private readonly List<SoundRequest> _soundRequests = [];
     /// <summary>Transient Power Bomb state that suppresses selected sounds without entering saved Samus state.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
 
@@ -70,7 +70,7 @@ public sealed class SamusLiquidPhysicsState
     /// Sound-library requests emitted by the current Samus animation call. A host audio
     /// backend may consume these without moving sound policy out of the translated routines.
     /// </summary>
-    public IReadOnlyList<SamusSoundRequest> SoundRequests => _soundRequests;
+    public IReadOnlyList<SoundRequest> SoundRequests => _soundRequests;
 
     /// <summary>
     /// Starts one native Samus-handler sound-publication window. Runtime calls this before
@@ -768,7 +768,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>Publishes a bounded sound request marked for suppression while a Power Bomb is active.</summary>
     private void QueueSound(SoundEffectId soundEffect, int maximumQueued) =>
-        _soundRequests.Add(new SamusSoundRequest(soundEffect, maximumQueued,
+        _soundRequests.Add(new SoundRequest(soundEffect, maximumQueued,
             SoundSuppressed: _audioPowerBomb?.IsActive == true));
 
     /// <summary>

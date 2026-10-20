@@ -125,15 +125,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Caps a signed 16.16 velocity by its whole-pixel component at three pixels.</summary>
-    private static int ClampMochtroidVelocity(int velocity)
-    {
-        short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
-        if (whole >= MochtroidMaximumVelocity)
-            return SnesSixteenSixteen.FromWhole(MochtroidMaximumVelocity);
-        if (whole < -MochtroidMaximumVelocity)
-            return SnesSixteenSixteen.FromWhole(-MochtroidMaximumVelocity);
-        return velocity;
-    }
+    private static int ClampMochtroidVelocity(int velocity) => EnemyMath.ClampWholeVelocity(velocity, MochtroidMaximumVelocity);
 
     /// <summary>Moves one pixel per axis toward Samus, resolving X before Y while attached.</summary>
     private void RunMochtroidAttachedFlight(
@@ -193,15 +185,12 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void SetMochtroidProgram(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
-        MochtroidProgram program)
-    {
-        if (state.InstalledProgram == program)
-            return;
-        state.InstalledProgram = program;
-        state.Program = AnimationProgramCursor<MochtroidProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
-    }
+        MochtroidProgram program) =>
+        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
+        {
+            state.InstalledProgram = installed;
+            state.Program = AnimationProgramCursor<MochtroidProgram>.Start(installed);
+        });
 
     /// <summary>Ports the family-specific portion of <c>EnemyTouch_Mochtroid</c>.</summary>
     private void ResolveMochtroidTouch(

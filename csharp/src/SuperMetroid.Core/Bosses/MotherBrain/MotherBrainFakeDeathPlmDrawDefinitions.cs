@@ -48,20 +48,8 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
 
     /// <summary>Finds a compiled physical draw by its case-sensitive editable visual ID.</summary>
     internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList draw)
-    {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in All)
-        {
-            if (string.Equals(VisualId(candidate.Pointer), id,
-                    StringComparison.Ordinal))
-            {
-                draw = candidate;
-                return true;
-            }
-        }
-        draw = default;
-        return false;
-    }
+        out RoomPlmShotBlockDrawDefinitions.DrawList draw) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out draw);
 
     /// <summary>
     /// Native 84:966D..9716: two thirteen-cell solid fill rows and six tube

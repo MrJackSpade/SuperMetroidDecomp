@@ -103,7 +103,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 compiledSlot.Position = compiledSlot.Position.WithWhole(new(originX, originY));
                 // Probe every rectangle boundary and the fully hidden frames.
                 // Shot and touch use different strict/inclusive comparisons.
-                ReadOnlySpan<CeresSteamCollisionHitbox> boxes =
+                ReadOnlySpan<EnemyHitboxRectangle> boxes =
                     CeresSteamCollisionDefinitions.HitboxesAt(component.HitboxPointer);
                 ushort[] xs = boxes.IsEmpty
                     ? [originX, unchecked((ushort)(originX + 12))]
@@ -132,13 +132,13 @@ internal static class CeresSteamCollisionDefinitionsVerification
             "every compiled Ceres steam hitbox list belongs to a selected frame");
         foreach (ushort list in CeresSteamCollisionDefinitions.HitboxPointers)
         {
-            ReadOnlySpan<CeresSteamCollisionHitbox> boxes =
+            ReadOnlySpan<EnemyHitboxRectangle> boxes =
                 CeresSteamCollisionDefinitions.HitboxesAt(list);
             AssertEqual(rom.ReadCartridgeWord((0xa60000 | list)), (ushort)boxes.Length,
                 $"Ceres steam $A6:{list:X4} native hitbox count");
             for (int index = 0; index < boxes.Length; index++)
             {
-                CeresSteamCollisionHitbox box = boxes[index];
+                EnemyHitboxRectangle box = boxes[index];
                 int record = 0xa60000 | unchecked((ushort)(list + 2 + index * 12));
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord(record)), box.Left, "steam left");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top, "steam top");

@@ -176,7 +176,7 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, EnemyExtendedFrameDefinitions.FileName),
             extendedJson);
         var torizoInstructionHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (TorizoInstructionTileSheetDefinition page in
+        foreach (TileSheetDefinition page in
                  TorizoInstructionVramArtworkDefinitions.All)
         {
             byte[] png = ExtractTorizoInstructionPage(bus, page);
@@ -185,7 +185,7 @@ public static class EnemyTileArtworkFiles
                 Convert.ToHexString(SHA256.HashData(png)));
         }
         var ceresEscapeTileHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (CeresEscapeTileSheetDefinition page in
+        foreach (TileSheetDefinition page in
                  CeresEscapeTileArtworkDefinitions.All)
         {
             byte[] png = IndexedTilePageExtractor.Extract(bus, page.SourceAddress,
@@ -722,7 +722,7 @@ public static class EnemyTileArtworkFiles
             TorizoInstructionVramArtworkDefinitions.All.Length];
         for (int index = 0; index < torizoPages.Length; index++)
         {
-            TorizoInstructionTileSheetDefinition page =
+            TileSheetDefinition page =
                 TorizoInstructionVramArtworkDefinitions.All[index];
             if (!manifest.TorizoInstructionTilesSha256.TryGetValue(page.FileName,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
@@ -746,7 +746,7 @@ public static class EnemyTileArtworkFiles
             CeresEscapeTileArtworkDefinitions.All.Length];
         for (int index = 0; index < ceresEscapePages.Length; index++)
         {
-            CeresEscapeTileSheetDefinition page =
+            TileSheetDefinition page =
                 CeresEscapeTileArtworkDefinitions.All[index];
             if (!manifest.CeresEscapeTilesSha256.TryGetValue(page.FileName,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
@@ -1253,7 +1253,7 @@ public static class EnemyTileArtworkFiles
 
     /// <summary>Exports one Torizo instruction tile page with its definition's source range.</summary>
     private static byte[] ExtractTorizoInstructionPage(ISnesAddressSpace bus,
-        TorizoInstructionTileSheetDefinition page) =>
+        TileSheetDefinition page) =>
         IndexedTilePageExtractor.Extract(bus, page.SourceAddress, page.ByteCount,
             $"Torizo instruction page {page.FileName}");
 

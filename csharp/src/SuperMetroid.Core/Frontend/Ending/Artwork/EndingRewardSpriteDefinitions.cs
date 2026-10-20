@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
@@ -11,7 +13,7 @@ public static class EndingRewardSpriteDefinitions
     /// <summary>The native reward list publishes thirty-seven distinct OAM records.</summary>
     private const int FrameCount = 37;
     /// <summary>Gets the 37 published asset roles in installation order.</summary>
-    public static IReadOnlyList<EndingRewardSpriteFrameDefinition> Frames { get; } = new FrameView();
+    public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameView();
 
     /// <summary>Advances through variable-length native OAM records to locate one reward pose.</summary>
     internal static ushort FramePointer(EndingRewardSpriteFrame frame)
@@ -67,7 +69,7 @@ public static class EndingRewardSpriteDefinitions
     };
 
     /// <summary>Maps a published asset slot to its stable JSON name and native OAM pose.</summary>
-    private static EndingRewardSpriteFrameDefinition Get(int index)
+    private static SpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index is >= 2 and <= 9)
@@ -145,18 +147,18 @@ public static class EndingRewardSpriteDefinitions
     }
 
     /// <summary>Combines a stable asset name with its computed native pointer and stock part count.</summary>
-    private static EndingRewardSpriteFrameDefinition Define(string name, EndingRewardSpriteFrame frame) =>
+    private static SpriteFrameDefinition Define(string name, EndingRewardSpriteFrame frame) =>
         new(name, FramePointer(frame), Parts(frame));
 
     /// <summary>Exposes the calculated published frame sequence without an eagerly stored table.</summary>
-    private sealed class FrameView : IReadOnlyList<EndingRewardSpriteFrameDefinition>
+    private sealed class FrameView : IReadOnlyList<SpriteFrameDefinition>
     {
         /// <summary>The thirty-seven published reward asset roles.</summary>
         public int Count => FrameCount;
         /// <summary>Resolves a role index to its named native OAM identity.</summary>
-        public EndingRewardSpriteFrameDefinition this[int index] => Get(index);
+        public SpriteFrameDefinition this[int index] => Get(index);
         /// <summary>Visits all asset roles in installation order.</summary>
-        public IEnumerator<EndingRewardSpriteFrameDefinition> GetEnumerator()
+        public IEnumerator<SpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }

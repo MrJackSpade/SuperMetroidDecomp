@@ -8,5 +8,5 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public readonly record struct SamusProjectileFrameResult(
     SoundEffectId? QueuedSoundEffect,
     int QueuedSoundMaximum,
-    IReadOnlyList<SamusSoundRequest>? AdditionalSoundRequests = null,
+    IReadOnlyList<SoundRequest>? AdditionalSoundRequests = null,
     bool QueuedSoundSuppressed = false);

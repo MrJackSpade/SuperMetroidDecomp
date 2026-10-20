@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
@@ -55,8 +56,8 @@ internal static class CrocomireBodyVisualsVerification
     {
         var pointers = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body)
             .Where(CrocomireBodyVisualDefinitions.HasBg2));
-        EnemyBg2FrameDefinition[] expected = pointers.Select(pointer =>
-            new EnemyBg2FrameDefinition(pointer, $"crocomire_body_bg2_{pointer:X4}")).ToArray();
+        SpritemapFrameDefinition[] expected = pointers.Select(pointer =>
+            new SpritemapFrameDefinition(pointer, $"crocomire_body_bg2_{pointer:X4}")).ToArray();
         AssertEqual(42, expected.Length, "native Crocomire BG2 catalog size");
         AssertEqual(expected.Length, CrocomireBg2FrameDefinitions.Frames.Length, "generated BG2 definition count");
         for (int i = 0; i < expected.Length; i++)
@@ -115,7 +116,7 @@ internal static class CrocomireBodyVisualsVerification
             }
         }
 
-        foreach (EnemyBg2FrameDefinition frame in CrocomireBg2FrameDefinitions.Frames)
+        foreach (SpritemapFrameDefinition frame in CrocomireBg2FrameDefinitions.Frames)
         {
             AssertTrue((stock.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires stock.CrocomireBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
@@ -173,7 +174,7 @@ internal static class CrocomireBodyVisualsVerification
         var authored = RequiredJson.Deserialize<EnemyBg2FrameDocument>(
             File.ReadAllBytes(source),
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        EnemyBg2FrameDefinition editedFrame = CrocomireBg2FrameDefinitions.Frames[0];
+        SpritemapFrameDefinition editedFrame = CrocomireBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument lastWrite = authored.Frames[editedFrame.Name][^1];
         lastWrite.Tiles[0] ^= 1;
         string overridePath = Path.Combine(overrideDirectory,

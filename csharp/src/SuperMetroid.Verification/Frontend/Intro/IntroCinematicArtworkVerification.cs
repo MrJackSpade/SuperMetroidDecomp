@@ -663,7 +663,7 @@ internal static class IntroCinematicArtworkVerification
         const ushort originX = 8;
         const ushort originY = 24;
         ushort paletteBits = IntroCinematicRomData.Objects.ScientistPalette.Raw;
-        foreach (IntroCaretFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
+        foreach (IntroSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
             native.BeginFrame();
@@ -799,7 +799,7 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
-        foreach (IntroMotherBrainSpriteFrameDefinition definition in
+        foreach (SpritemapFrameDefinition definition in
             IntroMotherBrainSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
@@ -881,7 +881,7 @@ internal static class IntroCinematicArtworkVerification
         const ushort x = 120;
         const ushort y = 100;
         ushort palette = IntroCinematicRomData.Objects.ExplosionPalette.Raw;
-        foreach (IntroMotherBrainExplosionSpriteFrameDefinition definition in
+        foreach (IntroSpriteFrameDefinition definition in
             IntroMotherBrainExplosionSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
@@ -977,7 +977,7 @@ internal static class IntroCinematicArtworkVerification
     {
         if (blocked.HasFlag(IntroArtworkSources.CeresFlightSprites))
         {
-            foreach (CeresFlightSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
+            foreach (SpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
             {
                 int start = (int)new SnesAddress(
                     IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
@@ -1043,7 +1043,7 @@ internal static class IntroCinematicArtworkVerification
             return $"Cinematic reread a native cinematic sprite list ${address:X6}.";
         int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
             IntroEyeAnimationDefinitions.FrameStartPointer);
-        foreach (IntroCaretFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)
+        foreach (IntroSpriteFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)
         {
             int sourceAddress = (int)new SnesAddress(
                 IntroCinematicRomData.Banks.Spritemaps, caret.Pointer);

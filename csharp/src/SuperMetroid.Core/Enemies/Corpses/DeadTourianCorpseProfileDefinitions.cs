@@ -46,7 +46,7 @@ internal static class DeadTourianCorpseProfileDefinitions
             var columnWords = new ushort[columns];
             for (int column = 0; column < columns; column++)
                 columnWords[column] = (ushort)(block / 2 + tileWords * column);
-            var copies = new DeadTourianBehavior.DeadTourianCorpseGraphicsCopy[rows];
+            var copies = new CorpseGraphicsCopy[rows];
             for (int row = 0; row < rows; row++)
                 copies[row] = new(sheetSources[variant] + sheetRowBytes * row,
                     block + columns * tileBytes * row, columns * tileBytes);

@@ -77,7 +77,7 @@ internal static class CeresFlightArtworkExtractor
         });
         byte[] paletteFile = paletteJson.ToArray();
         var spriteFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (CeresFlightSpriteFrameDefinition definition in CeresFlightSpriteDefinitions.Frames)
+        foreach (SpriteFrameDefinition definition in CeresFlightSpriteDefinitions.Frames)
             spriteFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
                 bus, definition.Pointer, definition.StockPartCount, definition.Name));
         using var spritesJson = new MemoryStream();

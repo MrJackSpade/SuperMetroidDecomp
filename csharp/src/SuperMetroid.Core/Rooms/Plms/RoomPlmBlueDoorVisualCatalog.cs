@@ -30,12 +30,12 @@ public sealed class RoomPlmBlueDoorVisualCatalog
     /// <param name="entries">Exactly one entry for every editable frame, each retaining the native four-block run geometry.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is null, changes an identity/shape, has invalid visual words, repeats a frame, or leaves coverage incomplete.</exception>
-    public RoomPlmBlueDoorVisualCatalog(IEnumerable<RoomPlmBlueDoorVisualEntry> entries)
+    public RoomPlmBlueDoorVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmBlueDoorVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !BlueDoorPlmDrawDefinitions.TryGetByVisualId(entry.Id, out var draw) ||

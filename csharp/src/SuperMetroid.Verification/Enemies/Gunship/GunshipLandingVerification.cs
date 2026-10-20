@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Post-Ceres gunship descent, landing, entry-sound, and escape-takeoff fixtures.</summary>
 internal static class GunshipLandingVerification
@@ -76,7 +77,7 @@ internal static class GunshipLandingVerification
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, cameraY), TimeIsFrozen = false, Samus = samus });
             frames++;
             observedEngineSound |= enemies.Audio.SoundRequests.Contains(
-                new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4d), MaximumQueued: 6));
+                new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4d), MaximumQueued: 6));
 
             if (GunshipPartState.Of(top).Function == GunshipFunction.DescendAfterCeres)
             {
@@ -116,7 +117,7 @@ internal static class GunshipLandingVerification
                 AssertEqual(checkpoint.WithX(checkpoint.X.WithWhole(samus.Position.X.Whole)),
                     samus.ApplyPreviousPositionWrites(checkpoint),
                     "landing writes SamusPreviousXPosition with Samus X");
-                AssertTrue(enemies.Audio.SoundRequests.Contains(new EnemySoundRequest(
+                AssertTrue(enemies.Audio.SoundRequests.Contains(new SoundRequest(
                         SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6)),
                     "landing queues QueueSound_Lib3_Max6($14)");
                 // EnemyMain starts the pad-opening program, then this same slot's ordinary
@@ -145,7 +146,7 @@ internal static class GunshipLandingVerification
         AssertTrue(!samus.Control.AlphaLocked, "gunship completion restores Samus input handler");
         AssertEqual(0x0440, samus.Position.Y.Whole, "gunship raises Samus to deck standing Y");
 
-        var openingSound = new EnemySoundRequest(
+        var openingSound = new SoundRequest(
             SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6);
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus });
         AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),

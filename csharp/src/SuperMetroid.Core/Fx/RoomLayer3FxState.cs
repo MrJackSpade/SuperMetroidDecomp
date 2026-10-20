@@ -115,7 +115,7 @@ public sealed class RoomLayer3FxState
     /// <summary>Current liquid rise or fall state selected by the FX record.</summary>
     private LiquidRisePhase liquidRisePhase;
     /// <summary>Audio requests emitted in native order during the current effect pass.</summary>
-    private readonly List<RoomFxSoundRequest> soundRequests = [];
+    private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Rebound sound recipient for effect requests after a debugger restore.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
     /// <summary>Countdown between quake sound requests in earthquake FX rooms.</summary>
@@ -171,7 +171,7 @@ public sealed class RoomLayer3FxState
     /// Sound requests emitted by the current bank-$88 effect pass in cartridge queue order.
     /// The list is cleared at the beginning of every <see cref="Step"/> call.
     /// </summary>
-    public IReadOnlyList<RoomFxSoundRequest> SoundRequests => soundRequests;
+    public IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
 
     /// <summary>
     /// Global earthquake words requested by the current effect pass. The timer value is a
@@ -328,7 +328,7 @@ public sealed class RoomLayer3FxState
         if (!lavaSoundTimer.IsZero)
             return;
         lavaSoundTimer = NativeCountdown.Start(RoomFxRomData.LavaAcid.AmbientSoundPeriod);
-        soundRequests.Add(new RoomFxSoundRequest(
+        soundRequests.Add(new SoundRequest(
             RoomFxRomData.LavaAcid.AmbientSound(random),
             RoomFxRomData.LavaAcid.AmbientSoundMaximumQueued,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
@@ -695,7 +695,7 @@ public sealed class RoomLayer3FxState
         if ((uint)earthquakeSoundSequenceIndex >= (uint)baseTimers.Length)
             earthquakeSoundSequenceIndex = 0;
 
-        soundRequests.Add(new RoomFxSoundRequest(
+        soundRequests.Add(new SoundRequest(
             SoundEffectLibrary2Sounds.Earthquake,
             MaximumQueued: 6,
             SoundSuppressed: audioPowerBomb?.IsActive == true));

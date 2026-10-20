@@ -219,16 +219,12 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     private static void InstallNorfairLavaJumpingEnemyProgram(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state,
-        NorfairLavaJumperProgram program)
-    {
-        if (state.InstalledProgram == program)
-            return;
-
-        state.InstalledProgram = program;
-        state.Program = AnimationProgramCursor<NorfairLavaJumperProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
-    }
+        NorfairLavaJumperProgram program) =>
+        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
+        {
+            state.InstalledProgram = installed;
+            state.Program = AnimationProgramCursor<NorfairLavaJumperProgram>.Start(installed);
+        });
 
     /// <summary>Ports NorfairLavaJumpingEnemy's initialization AI.</summary>
     internal void RunNorfairLavaJumpingEnemyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)

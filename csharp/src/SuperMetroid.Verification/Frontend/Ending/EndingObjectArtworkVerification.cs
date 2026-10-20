@@ -163,7 +163,7 @@ internal static class EndingObjectArtworkVerification
         Suite(nameof(VerifyEndingCloudDefinitions), () => VerifyEndingCloudDefinitions(bus));
         for (int index = 0; index < EndingCloudSpriteDefinitions.Frames.Count; index++)
         {
-            EndingCloudSpriteFrameDefinition definition = EndingCloudSpriteDefinitions.Frames[index];
+            SpriteFrameDefinition definition = EndingCloudSpriteDefinitions.Frames[index];
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =

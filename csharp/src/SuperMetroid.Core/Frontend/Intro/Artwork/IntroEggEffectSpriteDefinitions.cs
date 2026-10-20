@@ -1,4 +1,5 @@
 using System.Collections;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -17,14 +18,14 @@ internal static class IntroEggEffectSpriteDefinitions
         return (ushort)(Start + frame * 7);
     }
     /// <summary>Ordered six shell fragments, one moving slime frame, and four impact frames.</summary>
-    internal static IReadOnlyList<IntroEggEffectSpriteFrameDefinition> Frames { get; } = new FrameList();
+    internal static IReadOnlyList<SpritemapFrameDefinition> Frames { get; } = new FrameList();
     /// <summary>Calculates native pointers and asset names without a stored frame array.</summary>
-    private sealed class FrameList : IReadOnlyList<IntroEggEffectSpriteFrameDefinition>
+    private sealed class FrameList : IReadOnlyList<SpritemapFrameDefinition>
     {
         /// <summary>Six fragments and five slime-drop states occupy eleven consecutive records.</summary>
         public int Count => 11;
         /// <summary>Maps an indexed seven-byte record to its shell or slime asset identity.</summary>
-        public IntroEggEffectSpriteFrameDefinition this[int index]
+        public SpritemapFrameDefinition this[int index]
         {
             get
             {
@@ -33,7 +34,7 @@ internal static class IntroEggEffectSpriteDefinitions
             }
         }
         /// <summary>Visits the eleven native records in pointer order.</summary>
-        public IEnumerator<IntroEggEffectSpriteFrameDefinition> GetEnumerator()
+        public IEnumerator<SpritemapFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }

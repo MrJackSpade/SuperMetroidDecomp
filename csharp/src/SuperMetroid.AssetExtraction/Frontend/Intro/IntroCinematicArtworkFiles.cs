@@ -253,7 +253,7 @@ public static class IntroCinematicArtworkFiles
         void WriteCaretSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroCaretFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
+            foreach (IntroSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
                     definition.Pointer, definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
@@ -272,7 +272,7 @@ public static class IntroCinematicArtworkFiles
         void WriteMotherBrainSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroMotherBrainSpriteFrameDefinition definition in
+            foreach (SpritemapFrameDefinition definition in
                 IntroMotherBrainSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
                     definition.Pointer, IntroMotherBrainSpriteDefinitions.StockPartCount,
@@ -293,7 +293,7 @@ public static class IntroCinematicArtworkFiles
         void WriteMotherBrainExplosionSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroMotherBrainExplosionSpriteFrameDefinition definition in
+            foreach (IntroSpriteFrameDefinition definition in
                 IntroMotherBrainExplosionSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
                     definition.Pointer, definition.StockPartCount, definition.Name));
@@ -315,7 +315,7 @@ public static class IntroCinematicArtworkFiles
         void WriteRinkaSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroRinkaSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
+            foreach (SpritemapFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
                     definition.Pointer, IntroRinkaSpriteDefinitions.StockPartCount,
                     definition.Name));
@@ -336,7 +336,7 @@ public static class IntroCinematicArtworkFiles
         void WriteEggEffectSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroEggEffectSpriteFrameDefinition definition in
+            foreach (SpritemapFrameDefinition definition in
                 IntroEggEffectSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
                     definition.Pointer, IntroEggEffectSpriteDefinitions.StockPartCount,
@@ -358,7 +358,7 @@ public static class IntroCinematicArtworkFiles
         void WriteDiscoveryActorSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroDiscoveryActorSpriteFrameDefinition definition in
+            foreach (IntroSpriteFrameDefinition definition in
                 IntroDiscoveryActorSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
                     definition.Pointer, definition.StockPartCount, definition.Name));
@@ -380,7 +380,7 @@ public static class IntroCinematicArtworkFiles
         void WriteScientistSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroScientistSpriteFrameDefinition definition in
+            foreach (IntroSpriteFrameDefinition definition in
                 IntroScientistSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
                     definition.Pointer, definition.StockPartCount, definition.Name));

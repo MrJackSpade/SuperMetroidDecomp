@@ -28,7 +28,7 @@ internal static class CeresEscapeTileArtworkVerification
     {
         AssertTrue(stock.CeresEscapeTiles is not null,
             "installed Ceres escape warning and door PNGs exist");
-        foreach (CeresEscapeTileSheetDefinition page in
+        foreach (TileSheetDefinition page in
                  CeresEscapeTileArtworkDefinitions.All)
         {
             AssertTrue((stock.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires stock.CeresEscapeTiles.")).TryResolve(page.SourceAddress,
@@ -85,7 +85,7 @@ internal static class CeresEscapeTileArtworkVerification
         AssertTrue(nativeVram.ImageEquals(installedVram),
             "all Ceres timer and door VRAM bytes match the cartridge without source reads");
 
-        CeresEscapeTileSheetDefinition warning =
+        TileSheetDefinition warning =
             CeresEscapeTileArtworkDefinitions.WarningText;
         string overrideDirectory = Path.Combine(stockDirectory,
             "ceres-escape-tile-overrides");

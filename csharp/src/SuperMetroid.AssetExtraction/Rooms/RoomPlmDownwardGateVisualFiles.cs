@@ -47,7 +47,7 @@ public static class RoomPlmDownwardGateVisualFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
-        RoomPlmDownwardGateVisualEntry[] entries = ReadAndVerifyNative(bus);
+        RoomPlmVisualRunEntry[] entries = ReadAndVerifyNative(bus);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new VisualDocument(FormatVersion, entries), JsonOptions);
         using (var output = new FileStream(Path.Combine(directory, VisualFileName),
@@ -100,9 +100,9 @@ public static class RoomPlmDownwardGateVisualFiles
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>Reads each downward-gate draw list, verifying native shape and level words before retaining only visual bits.</summary>
-    private static RoomPlmDownwardGateVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
+    private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
-        var entries = new List<RoomPlmDownwardGateVisualEntry>();
+        var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
                  DownwardGatePlmDrawDefinitions.All.OrderBy(item => item.Pointer))
         {
@@ -134,7 +134,7 @@ public static class RoomPlmDownwardGateVisualFiles
                 visuals.Add(visualWords);
             }
 
-            entries.Add(new RoomPlmDownwardGateVisualEntry(
+            entries.Add(new RoomPlmVisualRunEntry(
                 DownwardGatePlmDrawDefinitions.VisualId(list.Pointer), visuals.ToArray()));
         }
 
@@ -193,5 +193,5 @@ public static class RoomPlmDownwardGateVisualFiles
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
     /// <summary>Versioned set of named downward-gate visual runs stored in JSON.</summary>
-    private sealed record VisualDocument(int Version, RoomPlmDownwardGateVisualEntry[] Entries);
+    private sealed record VisualDocument(int Version, RoomPlmVisualRunEntry[] Entries);
 }

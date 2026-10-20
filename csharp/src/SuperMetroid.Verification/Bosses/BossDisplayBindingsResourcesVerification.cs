@@ -17,9 +17,9 @@ internal static class BossDisplayBindingsResourcesVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyBossDisplayResources(BossDisplayDocuments stock, BossDisplayDocuments edits)
     {
-        foreach ((EnemyDefinitionId definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
+        foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
         {
-            EnemyExtendedFrameDefinition frame = family.First(frame => edits.Writes(frame.Bank, edits.Selected(frame).Pointer).Length != 0);
+            EnemySpritemapDefinition frame = family.First(frame => edits.Writes(frame.Bank, edits.Selected(frame).Pointer).Length != 0);
             var missing = new BossDisplayFixture(definition, edits.Build(omitBg2Bank: frame.Bank));
             missing.SetFrame(frame.Pointer, fresh: true);
             byte[] unchanged = missing.Vram.Bytes.ToArray();
@@ -44,7 +44,7 @@ internal static class BossDisplayBindingsResourcesVerification
             "BG2 bindings cannot select another boss's visuals");
         // Version 26 retains every prior user edit/binding and inherits the 56 new
         // stock roots. It must not discard or silently synthesize the new bindings.
-        EnemyExtendedFrameDefinition[] old = EnemyExtendedFrameDefinitions.Frames.ToArray()[..EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount];
+        EnemySpritemapDefinition[] old = EnemyExtendedFrameDefinitions.Frames.ToArray()[..EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount];
         var legacy = edits.Oam with
         {
             Version = (int)EnemyExtendedFrameSchema.PreBg2BossBindings,
@@ -61,7 +61,7 @@ internal static class BossDisplayBindingsResourcesVerification
         AssertEqual(merged.ContentIdentity, EnemyExtendedFrameCatalog.Load(json.Json(legacy), baseline).ContentIdentity,
             "schema-26 merge persists identically across reload");
         // Later schema versions also add ordinary OAM roots; only BG2-only roots must stay empty.
-        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames[EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount..])
+        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames[EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount..])
         {
             AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var inherited), "legacy file inherits each newly declared root");
             if (EnemyExtendedFrameDefinitions.IsBg2Only(frame))

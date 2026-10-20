@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
@@ -22,7 +23,7 @@ internal static class KraidDefeatedPlmMappingsVerification
 
     /// <summary>Checks the selected field in native request order and rejects indexes outside the two operations.</summary>
     private static void VerifyKraidDefeatedPlmField(SuperMetroidAddressSpace rom, int offset,
-        Func<KraidPlmRequest, ushort> field)
+        Func<PlmSpawnRequest, ushort> field)
     {
         int[] arguments = [0xa7c16c, 0xa7c175];
         var requests = KraidPlmDefinitions.DefeatedRoom;

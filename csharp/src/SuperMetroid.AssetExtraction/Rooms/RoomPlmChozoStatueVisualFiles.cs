@@ -30,7 +30,7 @@ public static class RoomPlmChozoStatueVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmChozoStatueVisualCatalog>(VisualFileName, "Chozo statue", ChozoStatuePlmDrawDefinitions.All, ChozoStatuePlmDrawDefinitions.VisualId, entries => new RoomPlmChozoStatueVisualCatalog(entries.Select(entry =>
-                new RoomPlmChozoStatueVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Checks stock Chozo provenance, digest, schema, complete layout coverage, and equality with compiled visual words; ignores overrides.</summary>
     /// <param name="directory">Installed stock Chozo directory.</param>

@@ -27,7 +27,7 @@ internal static class IntroRinkaDefinitions
     /// four-quadrant construction; the frame program selects no other
     /// spritemaps or adjacent visual data.
     /// </remarks>
-    public static IntroRinkaActorDefinition RinkaActor =>
+    public static CinematicActorDefinition RinkaActor =>
         new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.IntroRinka);
 
     /// <summary><c>$8B:CF27</c>, Rinka-spawner no-op callbacks and initial list.</summary>
@@ -43,7 +43,7 @@ internal static class IntroRinkaDefinitions
     /// policy; retain the explicit bounded schedule rather than fit a
     /// recurrence or infer a third wave from adjacent data.
     /// </remarks>
-    public static IntroRinkaActorDefinition SpawnerActor =>
+    public static CinematicActorDefinition SpawnerActor =>
         new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.IntroRinkaSpawner);
 
     /// <summary>

@@ -37,12 +37,12 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     public RoomPlmElevatorPlatformVisualCatalog(
-        IEnumerable<RoomPlmElevatorPlatformVisualEntry> entries)
+        IEnumerable<RoomPlmVisualRunEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[][]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmElevatorPlatformVisualEntry entry in entries)
+        foreach (RoomPlmVisualRunEntry entry in entries)
         {
             if (entry is null || entry.Runs is null ||
                 !ElevatorPlatformPlmDefinitions.TryGetByVisualId(entry.Id, out var definition) ||

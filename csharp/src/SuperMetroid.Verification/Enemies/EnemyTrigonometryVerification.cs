@@ -281,12 +281,11 @@ using static SuperMetroid.Verification.Enemies.Zoa.ZoaSpeedDefinitionsVerificati
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Registers compiled enemy math and instruction checks against pinned cartridge data.</summary>
 internal static class EnemyTrigonometryVerification
@@ -738,7 +737,7 @@ internal static class EnemyTrigonometryVerification
             return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
         Func<byte, short>[] cinematicReaders =
-            [CeresDestructionCinematicState.ReadSine, EndingCreditsPresentation.ReadSine, IntroCeresFlightState.ReadSine];
+            [Mode7RotationMatrix.ReadSine, EndingCreditsPresentation.ReadSine];
         for (int index = 0; index < 320; index++)
         {
             short expected = Reference(index);

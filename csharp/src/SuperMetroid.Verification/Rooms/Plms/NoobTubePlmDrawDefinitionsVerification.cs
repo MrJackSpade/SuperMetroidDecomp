@@ -33,11 +33,11 @@ internal static class NoobTubePlmDrawDefinitionsVerification
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             NoobTubePlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
-        RoomPlmNoobTubeVisualEntry[] entries = lists.Select(draw =>
-            new RoomPlmNoobTubeVisualEntry(
+        RoomPlmVisualEntry[] entries = lists.Select(draw =>
+            new RoomPlmVisualEntry(
                 NoobTubePlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.VisualWords())).ToArray();
-        RoomPlmNoobTubeVisualEntry cleared = entries.Single(entry =>
+        RoomPlmVisualEntry cleared = entries.Single(entry =>
             entry.Id == "cleared");
         ushort originalWord = cleared.Blocks[24];
         cleared.Blocks[24] = 0x0059;

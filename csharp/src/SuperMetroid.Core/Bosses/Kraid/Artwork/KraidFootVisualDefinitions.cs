@@ -18,7 +18,7 @@ internal static class KraidFootVisualDefinitions
     /// <summary>Selected moving roots use eighteen-byte records (two count bytes
     /// plus two eight-byte components). Native ordinal $21 is never selected by
     /// the compiled programs; skip it and append the separate initial root.</summary>
-    internal static EnemyExtendedFrameDefinition Frame(int index)
+    internal static EnemySpritemapDefinition Frame(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = index == FrameCount - 1 ? InitialFrame

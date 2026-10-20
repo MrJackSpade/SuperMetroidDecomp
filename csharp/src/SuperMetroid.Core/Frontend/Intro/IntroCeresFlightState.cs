@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -203,7 +202,7 @@ internal sealed class IntroCeresFlightState
         }
         else
         {
-            var (a, b, c, d) = CalculateMatrix();
+            var (a, b, c, d) = Mode7RotationMatrix.Calculate(angle, zoom);
             layers.Add(new Mode7RenderLayer(new(a, b, c, d,
                 new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
                 background.Whole.AsSignedRegister())));
@@ -450,25 +449,6 @@ internal sealed class IntroCeresFlightState
             IntroCinematicMotion.AddEightEight(background.X, velocity),
             IntroCinematicMotion.AddEightEight(background.Y, velocity));
     }
-
-    /// <summary>Builds the rotated Mode 7 scale matrix from the signed sine table and current zoom.</summary>
-    private (short A, short B, short C, short D) CalculateMatrix()
-    {
-        // $8532 reads signed 8-bit sine words from $A0:B443 and keeps product bits 8..23.
-        // Reading the retail table makes the rotation agree at every one of 256 angles.
-        short cosine = ReadSine(angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
-        short sine = ReadSine(angle.TableIndex);
-        short a = Scale(cosine, zoom);
-        short b = Scale(sine, zoom);
-        return (a, b, unchecked((short)-b), a);
-    }
-
-    /// <summary>Reads the native signed sine sample for a Mode 7 angle index.</summary>
-    internal static short ReadSine(byte tableIndex) => EnemyTrigonometryTables.SignedSine(new SnesByteAngle(tableIndex));
-
-    /// <summary>Multiplies a signed trigonometric component by the scene's 8.8 scale.</summary>
-    private static short Scale(short component, int scalar) =>
-        unchecked((short)(SnesEightEight.Multiply(component, checked((short)scalar))));
 
     /// <summary>Rejects installed art streams shorter than the native transfer size.</summary>
     private static void RequireMinimum(int length, int minimum, string name)

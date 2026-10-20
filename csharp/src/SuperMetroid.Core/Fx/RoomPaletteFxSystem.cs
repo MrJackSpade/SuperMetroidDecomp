@@ -29,11 +29,11 @@ public sealed class RoomPaletteFxSystem
         .Select(_ => new PaletteFxSlot())
         .ToArray();
     /// <summary>Momentary sound publications cleared at the start of each handler pass.</summary>
-    private readonly List<PaletteFxSoundRequest> soundRequests = [];
+    private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress palette-FX sound requests.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
     /// <summary>Momentary music publications cleared at the start of each handler pass.</summary>
-    private readonly List<PaletteFxMusicRequest> musicRequests = [];
+    private readonly List<DelayedMusicRequest> musicRequests = [];
     /// <summary>The handler enable bit and heat palette phases, which outlive each room's slots.</summary>
     private readonly PaletteFxSessionState _session;
 
@@ -47,10 +47,10 @@ public sealed class RoomPaletteFxSystem
     public bool HandlerEnabled => _session.HandlerEnabled;
 
     /// <summary>Sound calls published by palette bytecode during the current frame.</summary>
-    public IReadOnlyList<PaletteFxSoundRequest> SoundRequests => soundRequests;
+    public IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
 
     /// <summary>Music calls published by palette bytecode during the current frame.</summary>
-    public IReadOnlyList<PaletteFxMusicRequest> MusicRequests => musicRequests;
+    public IReadOnlyList<DelayedMusicRequest> MusicRequests => musicRequests;
 
     /// <summary>Whether a particular cartridge definition currently owns a native slot.</summary>
     public bool IsDefinitionActive(PaletteFxObject definition) =>
@@ -323,7 +323,7 @@ public sealed class RoomPaletteFxSystem
             if ((nmiFrameCounter & 7) == 0 &&
                 samus.Health > PaletteFxHeatData.DamageSoundEnergyThreshold)
             {
-                soundRequests.Add(new PaletteFxSoundRequest(
+                soundRequests.Add(new SoundRequest(
                     SoundEffectLibrary3Sounds.EnvironmentalDamage,
                     PaletteFxHeatData.DamageSoundMaximumQueued,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
@@ -391,7 +391,7 @@ public sealed class RoomPaletteFxSystem
                 _session.SamusInHeatPaletteIndex = cue.HeatPhase;
                 return;
             case PaletteFxCueKind.QueueSoundLibrary2:
-                soundRequests.Add(new PaletteFxSoundRequest(
+                soundRequests.Add(new SoundRequest(
                     cue.Sound ?? throw new InvalidDataException(
                         $"Palette-FX object {slot.Object} queued a library-2 sound cue without a sound."),
                     PaletteFxAudioQueueLimits.SoundEffects,

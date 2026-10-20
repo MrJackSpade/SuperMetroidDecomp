@@ -24,16 +24,8 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
     /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
     /// <param name="originIsOnScreen">Whether the anchor is already in screen space rather than the off-screen cinematic space.</param>
     public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen)
-    {
-        if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
-            throw new InvalidDataException(
-                $"Intro scientist baby frame $8C:{pointer:X4} is not installed.");
-        if (originIsOnScreen)
-            frame.Draw(objects, origin, paletteBits);
-        else
-            frame.DrawOffScreen(objects, origin, paletteBits);
-    }
+        ushort paletteBits, bool originIsOnScreen) =>
+        SpriteComposition.DrawInstalled(frames, "Intro scientist baby", pointer, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads and validates all ten baby-Metroid visual frames for the scientist scenes.</summary>
     /// <param name="json">The caller-owned stream containing the editable sprite document.</param>
@@ -55,13 +47,13 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
         {
             throw new InvalidDataException("Invalid intro scientist sprite JSON.", error);
         }
-        IReadOnlyList<IntroScientistSpriteFrameDefinition> definitions =
+        IReadOnlyList<IntroSpriteFrameDefinition> definitions =
             IntroScientistSpriteDefinitions.Frames;
         if (document.Version != IntroScientistSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro scientist scenes require ten named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (IntroScientistSpriteFrameDefinition definition in definitions)
+        foreach (IntroSpriteFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)

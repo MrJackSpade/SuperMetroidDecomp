@@ -48,7 +48,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
             var expected = new Offset16<RoomPixels>(unchecked((short)ReadKraidArmInstructionWord(rom, record)),
                 unchecked((short)ReadKraidArmInstructionWord(rom, (ushort)(record + 2))));
             AssertTrue(KraidArmCollisionDefinitions.TryGetComponents(frame, out var components), "Stationary arm frame exists");
-            KraidArmCollisionComponent actual = components[stationary];
+            KraidCollisionComponent actual = components[stationary];
             AssertEqual(expected, actual.Offset, "Native stationary arm component anchor");
             checkedPositions++;
         }

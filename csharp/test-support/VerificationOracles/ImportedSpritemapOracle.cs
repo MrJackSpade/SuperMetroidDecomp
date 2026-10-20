@@ -54,14 +54,14 @@ internal static class ImportedSpritemapOracle
         DrawEnemy(source, oam, new NativeEnemySpritemapDraw { Bank = 0x8d, Pointer = bank8dSpritemapPointer, Origin = origin, PaletteBits = new SnesObjAttributeWord(graphicsIndex).PaletteBits, BaseTileIndex = unchecked((byte)graphicsIndex), ClipVerticalWrap = true, OriginYIsOnScreen = originYIsOnScreen });
 
     /// <summary>Reads a packed enemy spritemap's part count and five-byte records from its data bank.</summary>
-    private static EnemySpritemapPart[] ReadEnemyParts(IImportCartridgeSource source,
+    private static SpritemapPart[] ReadEnemyParts(IImportCartridgeSource source,
         byte bank, ushort pointer)
     {
         Ensure.NotNull(source);
         byte Byte(int offset) => source.ReadCartridgeByte(
             ((int)new SnesAddress(bank, checked((ushort)(SnesAddressMath.OffsetInBank(pointer + offset))))));
         ushort Word(int offset) => SnesLittleEndian.Word(Byte(offset), Byte(offset + 1));
-        var parts = new EnemySpritemapPart[Word(0)];
+        var parts = new SpritemapPart[Word(0)];
         for (int part = 0; part < parts.Length; part++)
         {
             int offset = 2 + part * 5;

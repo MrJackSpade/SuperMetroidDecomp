@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainGeneratedVisualCatalogsVerification
 {
     /// <summary>Pinned bank A9 body frame addresses and names, including the initial dummy pose.</summary>
-    private static readonly EnemyExtendedFrameDefinition[] OriginalMotherBrainFrames =
+    private static readonly EnemySpritemapDefinition[] OriginalMotherBrainFrames =
     [
         new(0xa9, 0x9fa0, "mother_brain_body_oam_standing"),
         new(0xa9, 0x9fea, "mother_brain_body_oam_walking_0"),
@@ -58,8 +59,8 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
     /// <summary>Checks 16 BG2 frames, excluding the dummy, and parity of generated extraction JSON.</summary>
     internal static void VerifyMotherBrainGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
-        EnemyBg2FrameDefinition[] expected = OriginalMotherBrainFrames.Where(frame => frame.Pointer != 0xa320)
-            .Select(frame => new EnemyBg2FrameDefinition(frame.Pointer,
+        SpritemapFrameDefinition[] expected = OriginalMotherBrainFrames.Where(frame => frame.Pointer != 0xa320)
+            .Select(frame => new SpritemapFrameDefinition(frame.Pointer,
                 frame.Name.Replace("_oam_", "_bg2_", StringComparison.Ordinal))).ToArray();
         AssertEqual(16, MotherBrainBodyVisualDefinitions.Bg2Frames.Length, "Mother Brain BG2 count");
         for (int i = 0; i < expected.Length; i++)

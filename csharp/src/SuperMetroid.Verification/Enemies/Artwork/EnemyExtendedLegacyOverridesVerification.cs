@@ -12,9 +12,9 @@ internal static class EnemyExtendedLegacyOverridesVerification
     internal static void VerifyEnemyExtendedLegacyOverrides()
     {
         var fixture = new EnemyIdentityFixture();
-        EnemyExtendedFrameDefinition[] definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
+        EnemySpritemapDefinition[] definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
         EnemyExtendedFrameDocument stockDocument = fixture.ExtendedDocument();
-        EnemyExtendedFrameDefinition native = definitions[0], selected = definitions[1], inherited = definitions[2];
+        EnemySpritemapDefinition native = definitions[0], selected = definitions[1], inherited = definitions[2];
         (stockDocument.DisplayFrames ?? throw new InvalidOperationException("Verification requires stockDocument.DisplayFrames."))[native.Name] = inherited.Name;
         stockDocument.Frames[inherited.Name][0] = stockDocument.Frames[inherited.Name][0] with { OffsetX = 19 };
         EnemyExtendedFrameCatalog stock = Load(stockDocument);
@@ -44,7 +44,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
             if (hasBindings) (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[native.Name] = selected.Name;
             EnemyExtendedFrameCatalog merged = Load(document, stock);
             string prefix = $"extended enemy schema {version}: ";
-            foreach (EnemyExtendedFrameDefinition frame in definitions)
+            foreach (EnemySpritemapDefinition frame in definitions)
             {
                 string key = expectedNames.GetValueOrDefault(frame.Name) ?? frame.Name;
                 EnemyExtendedVisualComponent[] art = document.Frames.GetValueOrDefault(key) ?? stockDocument.Frames[frame.Name];
@@ -91,7 +91,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
             using var json = fixture.Json(value);
             return EnemyExtendedFrameCatalog.Load(json, baseline);
         }
-        static string AuthoredName(EnemyExtendedFrameDefinition frame, int version) =>
+        static string AuthoredName(EnemySpritemapDefinition frame, int version) =>
             version == (int)EnemyExtendedFrameSchema.PreSporeIdentity && frame.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
                 ? $"draygon_oam_{frame.Pointer:X4}" : frame.Name;
         static void AssertComponents(EnemyExtendedVisualComponent[] expected, ReadOnlySpan<EnemyExtendedDrawComponent> actual, string context)

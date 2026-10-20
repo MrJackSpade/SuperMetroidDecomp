@@ -143,23 +143,8 @@ public sealed class BabyMetroidCutsceneColorCatalog
     }
 
     /// <summary>Validates an RGB5 row's length and channels before copying it to packed colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name)
-    {
-        if (source is null || source.Length != required)
-            throw new InvalidDataException(
-                $"Cutscene Baby {name} requires {required} RGB5 colors.");
-        var compiled = new Bgr555[required];
-        for (int color = 0; color < required; color++)
-        {
-            PaletteRgb5? rgb = source[color];
-            if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
-                (uint)rgb.Blue > 31)
-                throw new InvalidDataException(
-                    $"Cutscene Baby {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = rgb.ToBgr555();
-        }
-        return compiled;
-    }
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name) =>
+        Rgb5Rows.Compile(source, required, $"Cutscene Baby {name}");
 
     /// <summary>Rejects ambiguous property names before deserializing the artwork document.</summary>
     private static void RejectDuplicates(JsonElement value) =>

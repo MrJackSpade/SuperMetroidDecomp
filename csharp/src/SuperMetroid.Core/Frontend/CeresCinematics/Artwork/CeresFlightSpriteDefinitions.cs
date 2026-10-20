@@ -1,4 +1,5 @@
 using System.Collections;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
@@ -21,7 +22,7 @@ public static class CeresFlightSpriteDefinitions
     internal const ushort VortexOdd = 0x93d1;
 
     /// <summary>Immutable six-name bank-$8C catalog in stable stars, large-asteroid, station, small-asteroid, and two-vortex order; maps editable composition names to native visual identities and descriptive stock OAM counts, not instruction timing.</summary>
-    public static IReadOnlyList<CeresFlightSpriteFrameDefinition> Frames { get; } = new FrameList();
+    public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameList();
 
     /// <summary>Stable ordinal positions of the six published Ceres flight compositions.</summary>
     private enum Visual
@@ -41,12 +42,12 @@ public static class CeresFlightSpriteDefinitions
     }
 
     /// <summary>Projects stable visual ordinals to native pointers and stock OAM counts.</summary>
-    private sealed class FrameList : IReadOnlyList<CeresFlightSpriteFrameDefinition>
+    private sealed class FrameList : IReadOnlyList<SpriteFrameDefinition>
     {
         /// <summary>Four single-frame streams and the vortex stream's two alternating frames.</summary>
         public int Count => 6;
         /// <summary>Pairs a visual ordinal with its published name, native pointer, and stock part count.</summary>
-        public CeresFlightSpriteFrameDefinition this[int index]
+        public SpriteFrameDefinition this[int index]
         {
             get
             {
@@ -64,7 +65,7 @@ public static class CeresFlightSpriteDefinitions
             }
         }
         /// <summary>Yields the six compositions in published catalog order.</summary>
-        public IEnumerator<CeresFlightSpriteFrameDefinition> GetEnumerator()
+        public IEnumerator<SpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }

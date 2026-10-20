@@ -55,7 +55,7 @@ internal static class OamBufferAccess
         }
         /// <summary>Draws an installed enemy frame without reading visual records from ROM.</summary>
         public void AddEnemySpritemap(
-            ReadOnlySpan<EnemySpritemapPart> parts,
+            ReadOnlySpan<SpritemapPart> parts,
             Position16<OamPixels> origin,
             ushort paletteBits,
             ushort baseTileIndex,
@@ -63,7 +63,7 @@ internal static class OamBufferAccess
             bool originYIsOnScreen = true)
         {
             _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
-            foreach (EnemySpritemapPart part in parts)
+            foreach (SpritemapPart part in parts)
                 self.AppendEnemySpritemapPart(part, origin, paletteBits,
                     baseTileIndex, clipVerticalWrap, originYIsOnScreen);
         }
@@ -83,7 +83,7 @@ internal static class OamBufferAccess
 
         /// <summary>Packs an enemy part after adding its tile base, palette, and optional vertical clipping.</summary>
         [PpuLayoutBoundary("exact hardware test: native OAM oracle for enemy parts")]
-        internal void AppendEnemySpritemapPart(EnemySpritemapPart part,
+        internal void AppendEnemySpritemapPart(SpritemapPart part,
             Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
             bool clipVerticalWrap, bool originYIsOnScreen)
         {

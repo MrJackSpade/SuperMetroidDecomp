@@ -36,12 +36,12 @@ public sealed class RoomPlmStationVisualCatalog
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
     /// <exception cref="InvalidDataException">Coverage, uniqueness, frame identity, array shape, or presentation-only word bits are invalid.</exception>
     public RoomPlmStationVisualCatalog(
-        IEnumerable<RoomPlmStationVisualEntry> entries)
+        IEnumerable<RoomPlmVisualRunEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[][]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmStationVisualEntry entry in entries)
+        foreach (RoomPlmVisualRunEntry entry in entries)
         {
             if (entry is null || entry.Runs is null ||
                 !RoomPlmStationDrawDefinitions.TryGetByVisualId(entry.Id, out var definition) ||

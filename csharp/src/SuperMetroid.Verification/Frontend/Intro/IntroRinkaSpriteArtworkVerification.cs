@@ -35,7 +35,7 @@ internal static class IntroRinkaSpriteArtworkVerification
     {
         const ushort x = 120;
         ushort palette = IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
-        foreach (IntroRinkaSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
+        foreach (SpritemapFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {

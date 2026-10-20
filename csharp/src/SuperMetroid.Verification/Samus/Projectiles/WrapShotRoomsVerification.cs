@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Checks remote blue-door caps hit by wrapped shots in three retail rooms.</summary>
 internal static class WrapShotRoomsVerification
@@ -52,7 +53,7 @@ internal static class WrapShotRoomsVerification
                 if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))
                     firstHit = frame;
                 runtime.Plms.Step(level);
-                openingSound |= runtime.Plms.Sounds.SoundRequests.Any(request => request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
+                openingSound |= runtime.Plms.Sounds.SoundRequests.Any(request => request == new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
                 if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.X).CollisionType == RoomCollisionType.Air))
                     firstClear = frame;
             }

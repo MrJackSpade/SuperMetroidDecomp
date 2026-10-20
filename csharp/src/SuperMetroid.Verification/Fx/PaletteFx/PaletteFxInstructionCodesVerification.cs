@@ -17,6 +17,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Checks compiled palette-FX instruction vocabularies and program mechanics against retail bank $8D.</summary>
 internal static class PaletteFxInstructionCodesVerification
@@ -902,7 +903,7 @@ internal static class PaletteFxInstructionCodesVerification
         {
             paletteFx.Step(cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, EnemyZeroIsDead = false, AreaMiniBossDefeated = false, Samus = samus, NmiFrameCounter = frame });
             damageSoundCount += paletteFx.SoundRequests.Count;
-            foreach (PaletteFxSoundRequest request in paletteFx.SoundRequests)
+            foreach (SoundRequest request in paletteFx.SoundRequests)
             {
                 AssertEqual(SoundEffectLibrary3Sounds.EnvironmentalDamage,
                     request.SoundEffect,
@@ -1569,7 +1570,7 @@ internal static class PaletteFxInstructionCodesVerification
         paletteFx.SpawnDefinition(definition: 0xf781, equippedItems: 0);
 
         int soundFrame = -1;
-        PaletteFxSoundRequest soundRequest = default;
+        SoundRequest soundRequest = default;
         for (int frame = 0; frame < 256; frame++)
         {
             paletteFx.Step(cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });

@@ -49,11 +49,11 @@ internal static class AnalyzerTests
 
     /// <summary>Requires a fixture to compile cleanly, then compares its analyzer output with one expected diagnostic or none.</summary>
     internal static void VerifySnippet(string source, string? expectedId = null, string? expectedMessage = null,
-        DiagnosticAnalyzer? analyzer = null)
+        DiagnosticAnalyzer? analyzer = null, string assemblyName = "EnsureAnalyzerCase")
     {
         var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview));
         var compilation = CSharpCompilation.Create(
-            "EnsureAnalyzerCase",
+            assemblyName,
             [tree],
             References,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
@@ -274,6 +274,42 @@ internal static class AnalyzerTests
         // Both sides naming the same direction unflipped is a shared order, not a mirror.
         Expect("class C { int left; int right; int MatchLeft(int h) { if (h == 1) return left; return right; } int MatchRight(int h) { if (h == 1) return left; return right; } }");
         Expect(attribute + " class C { int x; [MirroredAsymmetry(\"the left wall has no ledge\")] void StepLeft() { x -= 2; } void StepRight() { x += 2; } }");
+    }
+
+    /// <summary>Checks that a clone group and a clone record are reported, and a near-miss and a justified copy are not (#1371).</summary>
+    internal static void VerifyStructuralCloneAnalyzer()
+    {
+        var analyzer = new StructuralCloneAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer, assemblyName: StructuralCloneAnalyzer.ComparedAssembly);
+        const string attribute = "[System.AttributeUsage(System.AttributeTargets.All)] sealed class IntendedDuplicateAttribute(string reason) : System.Attribute { }";
+        const string body = "{ int total = 0; total += a; total += b; if (total > 9) total = 9; if (total < 0) total = 0; return total; }";
+
+        // SME6419: the same body in two types, differing only in their own member names and string contents.
+        Expect("class Alpha { int a; int b; int Sum() " + body + " } class Beta { int a; int b; int Combine() " + body + " }",
+            StructuralCloneAnalyzer.StructuralCloneId, "Alpha.Sum, Beta.Combine");
+        Expect("class Gamma { int g; void Check(int v) { if (v < 0) throw new System.Exception(\"gamma low\"); if (v > 9) throw new System.Exception(\"gamma high\"); g = v; g++; g--; } } " +
+            "class Delta { int d; void Check(int v) { if (v < 0) throw new System.Exception(\"delta low\"); if (v > 9) throw new System.Exception(\"delta high\"); d = v; d++; d--; } }",
+            StructuralCloneAnalyzer.StructuralCloneId);
+        // A near-miss with a real behavioural difference, a short body, a copy within one type, and a justified copy pass.
+        Expect("class Alpha { int a; int b; int Sum() " + body + " } class Beta { int a; int b; int Combine() { int total = 0; total += a; total -= b; if (total > 9) total = 9; if (total < 0) total = 0; return total; } }");
+        Expect("class Alpha { int a; int Get() { return a; } } class Beta { int a; int Get() { return a; } }");
+        Expect("class Alpha { int a; int b; int Sum() " + body + " int Again() " + body + " }");
+        Expect(attribute + " class Alpha { int a; int b; int Sum() " + body + " } class Beta { int a; int b; [IntendedDuplicate(\"the copy runs on another thread\")] int Combine() " + body + " }");
+
+        // SME6420: two member-free positional records with the same parameters.
+        Expect("record KraidEntry(string Id, ushort[] Blocks); record CrocomireEntry(string Id, ushort[] Blocks);",
+            StructuralCloneAnalyzer.CloneRecordId, "KraidEntry, CrocomireEntry");
+        // Different parameter names, one-field typed identities, a record with members of its own, and a justified record pass.
+        Expect("record struct DachoraFrame(int Pose); record struct AtomicFrame(int Pose);");
+        // Parameter attributes (a serializer converter, for instance) make the records differ.
+        Expect("[System.AttributeUsage(System.AttributeTargets.All)] sealed class ConverterAttribute : System.Attribute { } " +
+            "record PartA(int X, int Y); record PartB([property: Converter] int X, int Y);");
+        Expect("record KraidEntry(string Id, ushort[] Blocks); record CrocomireEntry(string Id, ushort[] Runs);");
+        Expect("record KraidEntry(string Id, ushort[] Blocks); record CrocomireEntry(string Id, ushort[] Blocks) { public int Count => Blocks.Length; }");
+        Expect(attribute + " record KraidEntry(string Id, ushort[] Blocks); [IntendedDuplicate(\"serialized under its own schema\")] record CrocomireEntry(string Id, ushort[] Blocks);");
+        // Other assemblies are not compared.
+        VerifySnippet("record KraidEntry(string Id, ushort[] Blocks); record CrocomireEntry(string Id, ushort[] Blocks);", null, null, analyzer, assemblyName: "Other");
     }
 
     /// <summary>Checks that every pragma warning disable is reported and the sanctioned per-site form is not (#1396).</summary>

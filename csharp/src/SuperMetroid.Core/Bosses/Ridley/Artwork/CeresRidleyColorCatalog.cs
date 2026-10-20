@@ -195,21 +195,8 @@ public sealed class CeresRidleyColorCatalog
     }
 
     /// <summary>Converts an exact-width RGB5 row to BGR555 after rejecting missing colors and channels outside five-bit range.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string name)
-    {
-        if (colors is null || colors.Length != count)
-            throw new InvalidDataException($"Ceres Ridley {name} requires {count} colors.");
-        var compiled = new Bgr555[count];
-        for (int color = 0; color < count; color++)
-        {
-            PaletteRgb5? rgb = colors[color];
-            if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
-                (uint)rgb.Blue > 31)
-                throw new InvalidDataException($"Ceres Ridley {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = rgb.ToBgr555();
-        }
-        return compiled;
-    }
+    private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string name) =>
+        Rgb5Rows.Compile(colors, count, $"Ceres Ridley {name}");
 
     /// <summary>Rejects repeated JSON keys with ordinal name comparison before deserialization could discard an earlier value.</summary>
     private static void RejectDuplicates(JsonElement value) =>

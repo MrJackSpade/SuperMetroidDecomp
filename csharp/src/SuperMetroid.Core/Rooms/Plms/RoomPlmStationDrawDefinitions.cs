@@ -53,10 +53,10 @@ internal static class RoomPlmStationDrawDefinitions
     /// tile. Map access mirrors by side; resource access changes trigger to solid
     /// on extension. These rules cover only the twenty native owned draw pointers.
     /// </summary>
-    internal readonly record struct Draw(StationDraw Pointer, LayoutKind Kind, int Frame, bool Left = false, bool Extended = false)
+    internal readonly record struct Draw(StationDraw Pointer, LayoutKind Kind, int Frame, bool Left = false, bool Extended = false) : IPlmRunDrawShape
     {
         /// <summary>Number of origin-relative draw runs for this station layout and extension state.</summary>
-        internal int RunCount => Kind switch
+        public int RunCount => Kind switch
         {
             LayoutKind.Save => 6,
             LayoutKind.MapAccess => Extended ? 1 : 2,
@@ -70,9 +70,9 @@ internal static class RoomPlmStationDrawDefinitions
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
         /// <summary>Save rows write two adjacent cells; other station runs write one.</summary>
-        internal int WordCount(int run) { CheckRun(run); return Kind == LayoutKind.Save ? 2 : 1; }
+        public int WordCount(int run) { CheckRun(run); return Kind == LayoutKind.Save ? 2 : 1; }
         /// <summary>Horizontal origin-relative offset for the next run, including map leftward and access-side spacing.</summary>
-        internal sbyte NextX(int run)
+        public sbyte NextX(int run)
         {
             CheckRun(run);
             if (run != 0) return 0;
@@ -80,14 +80,14 @@ internal static class RoomPlmStationDrawDefinitions
                 ? Left ? (sbyte)3 : (sbyte)-3 : (sbyte)0;
         }
         /// <summary>Vertical origin-relative offset for save rows and resource upper cells.</summary>
-        internal sbyte NextY(int run)
+        public sbyte NextY(int run)
         {
             CheckRun(run);
             return Kind == LayoutKind.Save ? run < 5 ? (sbyte)(-run - 1) : (sbyte)0
                 : Kind is LayoutKind.Energy or LayoutKind.Missile && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
         /// <summary>Builds one native level word from the station's frame, tile, flip, and collision rules.</summary>
-        internal ushort WordAt(int run, int cell)
+        public ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             int tile, collision, flip = 0;
@@ -166,20 +166,8 @@ internal static class RoomPlmStationDrawDefinitions
         }
     }
     /// <summary>Constructs a temporary artwork draw-list DTO for a station pointer; runtime drawing calculates cells directly.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(pointer, out var draw)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var words = new ushort[draw.WordCount(run)];
-            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
-            runs[run] = new((ushort)words.Length, words, new(draw.NextX(run), draw.NextY(run)));
-        }
-        list = new(pointer, runs);
-        return true;
-    }
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(pointer, TryDescribe, out list);
 
     /// <summary>
     /// Published ordinal artwork IDs: three numbered frames per map/resource

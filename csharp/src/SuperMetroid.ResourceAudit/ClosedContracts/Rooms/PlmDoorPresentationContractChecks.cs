@@ -97,19 +97,19 @@ internal static class PlmDoorPresentationContractChecks
     private static void ConfirmConstructorCoverage()
     {
         ConfirmCoverage(BlueDoorPlmDrawDefinitions.Editable, frame =>
-            new RoomPlmBlueDoorVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
+            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmBlueDoorVisualCatalog(entries));
         ConfirmCoverage(ColoredDoorPlmDrawDefinitions.All, frame =>
-            new RoomPlmColoredDoorVisualEntry(ColoredDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
+            new RoomPlmVisualEntry(ColoredDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmColoredDoorVisualCatalog(entries));
         ConfirmCoverage(GreyDoorPlmDrawDefinitions.All, frame =>
-            new RoomPlmGreyDoorVisualEntry(GreyDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
+            new RoomPlmVisualEntry(GreyDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmGreyDoorVisualCatalog(entries));
         ConfirmCoverage(EyeDoorPlmDrawDefinitions.Editable, frame =>
-            new RoomPlmEyeDoorVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
+            new RoomPlmVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmEyeDoorVisualCatalog(entries));
         ConfirmCoverage(MotherBrainEscapeGatePlmDrawDefinitions.All, frame =>
-            new RoomPlmEscapeGateVisualEntry(MotherBrainEscapeGatePlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
+            new RoomPlmVisualEntry(MotherBrainEscapeGatePlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmEscapeGateVisualCatalog(entries));
         RoomPlmShotBlockDrawDefinitions.DrawList[] itemShapes =
             (PlmVisualDomainDefinitions.Get((typeof(RoomPlmCollectibleVisualCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(RoomPlmCollectibleVisualCatalog).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(RoomPlmCollectibleVisualCatalog).FullName ?? thr...."));
@@ -124,13 +124,13 @@ internal static class PlmDoorPresentationContractChecks
         // Confirm the reviewed reuse mappings against production GetWord, not
         // just the source adapter. The constructed catalog contains no ROM art.
         var blue = new RoomPlmBlueDoorVisualCatalog(BlueDoorPlmDrawDefinitions.Editable.Select(frame =>
-            new RoomPlmBlueDoorVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0])));
+            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0])));
         foreach (var frame in BlueDoorPlmDrawDefinitionsTooling.All.Where(frame => BlueDoorPlmDrawDefinitions.VisualSource(frame.Pointer) != frame.Pointer))
             Require(Enumerable.Range(0, frame.Runs.Span[0].LevelWords.Length).All(word =>
                 blue.GetWord(frame.Pointer, word) == blue.GetWord(BlueDoorPlmDrawDefinitions.VisualSource(frame.Pointer), word)),
                 "each compiled closed cap resolves to its required opening artwork");
         var eye = new RoomPlmEyeDoorVisualCatalog(EyeDoorPlmDrawDefinitions.Editable.Select(frame =>
-            new RoomPlmEyeDoorVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0])));
+            new RoomPlmVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0])));
         ushort mirrored = EyeDoorPlmDrawDefinitions.MirroredOpeningClear;
         Require(Enumerable.Range(0, 4).All(word => eye.GetWord(mirrored, word) ==
             (eye.GetWord(EyeDoorPlmDrawDefinitions.VisualSource(mirrored), word) ^ (ushort)LevelBlockFlipFlags.Horizontal)),

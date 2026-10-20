@@ -43,9 +43,9 @@ internal static class KraidFootCollisionDefinitionsVerification
             AssertTrue(KraidFootCollisionDefinitions.TryGetComponents(selectedFrame, out _),
                 $"Kraid foot frame $A7:{selectedFrame:X4} is a compiled physical frame");
 
-        System.Collections.Immutable.ImmutableArray<KraidFootCollisionHitbox> hitboxes =
+        System.Collections.Immutable.ImmutableArray<KraidCollisionHitbox> hitboxes =
             KraidFootCollisionDefinitionsConstants.HitboxesAt(KraidFootCollisionDefinitionsConstants.HitboxList);
-        KraidFootCollisionHitbox box = hitboxes[0];
+        KraidCollisionHitbox box = hitboxes[0];
 
         int probes = 0;
         // A foot shows only installed frames; the catalog's stride also spans $8F35, which no composition shows.
@@ -59,7 +59,7 @@ internal static class KraidFootCollisionDefinitionsVerification
             installedFoot.SpritemapPointer = frame;
             installedFoot.Position = installedFoot.Position.WithWhole(new(originX, originY));
             KraidFootCollisionDefinitions.TryGetComponents(frame, out var components);
-            foreach (KraidFootCollisionComponent component in components)
+            foreach (KraidCollisionComponent component in components)
             {
                 ushort componentX = unchecked((ushort)(originX + component.Offset.X));
                 ushort componentY = unchecked((ushort)(originY + component.Offset.Y));

@@ -28,7 +28,7 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     IReadOnlyList<PaletteFxObject> EscapePaletteFxRequests,
     bool EscapeTypewriterSetupRequested,
     bool TimeBombSetSubtitleSpawnRequested,
-    MotherBrainEscapeDoorExplosionRequest? EscapeDoorExplosion,
+    DustExplosionRequest? EscapeDoorExplosion,
     bool TimerHandlingEnableRequested,
     bool MotherBrainEscapeTimerStartRequested,
     bool MotherBrainBossBitRequested,

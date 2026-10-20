@@ -24,10 +24,10 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
     /// <exception cref="InvalidDataException">Entry count, identity, block count, or presentation-only word bits do not match the compiled reveal.</exception>
     public RoomPlmSpeedBoosterVisualCatalog(
-        IEnumerable<RoomPlmSpeedBoosterVisualEntry> entries)
+        IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
-        RoomPlmSpeedBoosterVisualEntry[] selected = entries.ToArray();
+        RoomPlmVisualEntry[] selected = entries.ToArray();
         if (selected.Length != 1 || selected[0] is null ||
             !SpeedBoosterBlockPlmDrawDefinitions.TryGetByVisualId(
                 selected[0].Id, out _) ||

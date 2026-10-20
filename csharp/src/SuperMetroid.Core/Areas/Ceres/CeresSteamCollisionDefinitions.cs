@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -19,7 +20,7 @@ internal static class CeresSteamCollisionDefinitions
     /// The 21 hitbox lists: the shared empty list selected by both hidden poses, then five plume rectangles per
     /// direction. Each direction's rectangles are fitted to its drawing and are not exact rotations of another direction.
     /// </summary>
-    internal static readonly CeresSteamCollisionHitbox[][] Lists =
+    internal static readonly EnemyHitboxRectangle[][] Lists =
     [
         [],
         [new(-8, -16, 7, -1)],

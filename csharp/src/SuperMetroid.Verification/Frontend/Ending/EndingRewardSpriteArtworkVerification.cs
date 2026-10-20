@@ -20,7 +20,7 @@ internal static class EndingRewardSpriteArtworkVerification
     internal static void VerifyEndingRewardSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
-        foreach (EndingRewardSpriteFrameDefinition frame in EndingRewardSpriteDefinitions.Frames)
+        foreach (SpriteFrameDefinition frame in EndingRewardSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {

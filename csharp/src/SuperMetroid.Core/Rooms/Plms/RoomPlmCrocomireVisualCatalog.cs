@@ -35,12 +35,12 @@ public sealed class RoomPlmCrocomireVisualCatalog
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmCrocomireVisualCatalog(
-        IEnumerable<RoomPlmCrocomireVisualEntry> entries)
+        IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmCrocomireVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !CrocomireArenaPlmDrawDefinitions.TryGetByVisualId(

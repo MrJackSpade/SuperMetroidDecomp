@@ -14,7 +14,7 @@ internal static class CrocomireSkeletonFrameGeometryVerification
     internal static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var selected = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Skeleton));
-        var expected = selected.Select(pointer => new EnemyExtendedFrameDefinition(0xa4, pointer,
+        var expected = selected.Select(pointer => new EnemySpritemapDefinition(0xa4, pointer,
             $"crocomire_skeleton_oam_{pointer:X4}")).ToArray();
         AssertEqual(33, expected.Length, "native selected skeleton roots");
         AssertEqual(33, CrocomireSkeletonVisualDefinitions.Frames.Length, "skeleton sequence count");

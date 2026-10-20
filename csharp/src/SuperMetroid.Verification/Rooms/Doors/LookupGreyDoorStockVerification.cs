@@ -25,7 +25,7 @@ internal static class LookupGreyDoorStockVerification
                 words[row] = (ushort)(ReadSamusEaterPlmWord(rom, 0x840000 | (frame.Pointer + 2 + row * 2)) & 0xfff);
             native.Add(frame.Pointer, words);
         }
-        var entries = frames.Select(frame => new RoomPlmGreyDoorVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmGreyDoorVisualCatalog.Stock();
         var imported = new RoomPlmGreyDoorVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(

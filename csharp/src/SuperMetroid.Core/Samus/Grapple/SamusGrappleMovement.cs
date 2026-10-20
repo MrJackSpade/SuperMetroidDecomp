@@ -1518,7 +1518,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Adds a grapple sound request to Samus's movement sound queue.</summary>
-    private static void QueueGrappleSound(SamusState samus, SamusSoundRequest request) =>
+    private static void QueueGrappleSound(SamusState samus, SoundRequest request) =>
         samus.LiquidPhysics.QueueMovementSound(request.SoundEffect, request.MaximumQueued);
 
     /// <summary>Places Samus at the pendulum body position and updates rope art, flare, and slow-scroll state.</summary>

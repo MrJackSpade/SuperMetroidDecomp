@@ -9,7 +9,7 @@ internal static class KraidFootVisualDefinitionsFramesTooling
     extension(KraidFootVisualDefinitions)
     {
         /// <summary>Materializes every catalog frame in native index order for development audits.</summary>
-        internal static EnemyExtendedFrameDefinition[] Frames =>
+        internal static EnemySpritemapDefinition[] Frames =>
             [.. Enumerable.Range(0, KraidFootVisualDefinitions.FrameCount).Select(KraidFootVisualDefinitions.Frame)];
     }
 }

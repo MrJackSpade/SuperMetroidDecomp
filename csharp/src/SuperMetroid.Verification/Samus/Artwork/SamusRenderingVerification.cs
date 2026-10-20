@@ -22,6 +22,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Verifies Samus body, arm cannon, visor, and hurt palette rendering with cartridge-shaped fixtures.</summary>
 internal static class SamusRenderingVerification
@@ -795,7 +796,7 @@ internal static void VerifySamusHurtFlashPalette()
         {
             AssertEqual(soundsBefore + 1, samus.LiquidPhysics.SoundRequests.Count,
                 "hurt call two publishes impact SFX");
-            AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x35), 6),
+            AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x35), 6),
                 samus.LiquidPhysics.SoundRequests[^1],
                 "hurt impact uses library one sound $35 maximum six");
         }
@@ -838,7 +839,7 @@ internal static void VerifySamusHurtFlashPalette()
         cgram, spinning, controllerInput: 0);
     AssertEqual(1, spinning.LiquidPhysics.SoundRequests.Count,
         "counter forty restores Screw Attack sound");
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x33), 9),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x33), 9),
         spinning.LiquidPhysics.SoundRequests[^1],
         "Screw Attack recovery uses library one maximum nine");
 
@@ -863,7 +864,7 @@ internal static void VerifySamusHurtFlashPalette()
         "post-draw handler queues held charging sound");
     AssertEqual(ResumeChargingBeamSoundLatch.Clear, charging.ResumeChargingBeamSound,
         "post-draw handler clears charging recovery flag");
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x41), 9),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x41), 9),
         charging.LiquidPhysics.SoundRequests[^1],
         "charging recovery queues library one sound $41 maximum nine");
 
@@ -875,7 +876,7 @@ internal static void VerifySamusHurtFlashPalette()
         cgram, grapple, controllerInput: 0);
     AssertEqual(1, grapple.LiquidPhysics.SoundRequests.Count,
         "counter forty restores pre-cancel grapple sound");
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x06), 9),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x06), 9),
         grapple.LiquidPhysics.SoundRequests[^1],
         "grapple recovery uses library one sound six maximum nine");
 

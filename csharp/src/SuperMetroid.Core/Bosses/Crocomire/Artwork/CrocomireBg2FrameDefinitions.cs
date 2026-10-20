@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
@@ -22,7 +23,7 @@ internal static class CrocomireBg2FrameDefinitions
 
     /// <summary>The first 42 selected body roots have BG2 components. Preserve
     /// their published artwork keys with an uppercase four-digit native pointer.</summary>
-    internal static EnemyBg2FrameDefinition Frame(int index)
+    internal static SpritemapFrameDefinition Frame(int index)
     {
         if ((uint)index >= CrocomireBodyVisualDefinitions.MixedBg2FrameCount)
             throw new ArgumentOutOfRangeException(nameof(index));

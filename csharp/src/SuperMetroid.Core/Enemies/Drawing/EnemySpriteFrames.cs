@@ -32,22 +32,22 @@ internal static class EnemySpriteFrames
     /// <param name="baseTileIndex">Packed tile base added to every part's attribute word.</param>
     /// <param name="paletteBits">Palette bits ORed into every part's attribute word.</param>
     /// <exception cref="ArgumentException">The composition is not array-backed.</exception>
-    public static SpriteFrame Frame(ReadOnlyMemory<EnemySpritemapPart> parts, ushort baseTileIndex, ushort paletteBits)
+    public static SpriteFrame Frame(ReadOnlyMemory<SpritemapPart> parts, ushort baseTileIndex, ushort paletteBits)
     {
-        if (!MemoryMarshal.TryGetArray(parts, out ArraySegment<EnemySpritemapPart> segment) || segment.Array is null)
+        if (!MemoryMarshal.TryGetArray(parts, out ArraySegment<SpritemapPart> segment) || segment.Array is null)
             throw new ArgumentException("Enemy spritemap compositions are array-backed installed data.", nameof(parts));
         return Frames.GetValue(segment.Array, _ => new()).GetOrAdd((segment.Offset, segment.Count, baseTileIndex, paletteBits),
             key => Compile(parts.Span, key.Base, key.Palette));
     }
 
     /// <summary>Forms each part's final attribute word and places it as a whole-frame part.</summary>
-    private static SpriteFrame Compile(ReadOnlySpan<EnemySpritemapPart> parts, ushort baseTileIndex, ushort paletteBits)
+    private static SpriteFrame Compile(ReadOnlySpan<SpritemapPart> parts, ushort baseTileIndex, ushort paletteBits)
     {
         SnesObjAttributeWord palette = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         var framed = new SpriteFramePart[parts.Length];
         for (int index = 0; index < parts.Length; index++)
         {
-            EnemySpritemapPart part = parts[index];
+            SpritemapPart part = parts[index];
             SnesObjAttributeWord attributes = part.Attributes.AddPackedTileBase(baseTileIndex).Or(palette);
             framed[index] = ObjPartFrames.Part(part.X, part.Y, attributes, firstCharacter: 0);
         }

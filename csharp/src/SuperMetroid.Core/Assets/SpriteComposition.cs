@@ -58,6 +58,22 @@ public sealed class SpriteComposition
             sprites.AddPart(part.X, part.Y, part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, origin);
     }
 
+    /// <summary>
+    /// Draws the installed composition <paramref name="pointer"/> names, choosing the native on-screen or off-screen
+    /// origin clipping; <paramref name="owner"/> names the presentation in a rejection.
+    /// </summary>
+    /// <exception cref="InvalidDataException">No composition is installed for <paramref name="pointer"/>.</exception>
+    internal static void DrawInstalled(IReadOnlyDictionary<ushort, SpriteComposition> frames, string owner, ushort pointer,
+        ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits, bool originIsOnScreen)
+    {
+        if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
+            throw new InvalidDataException($"{owner} frame $8C:{pointer:X4} is not installed.");
+        if (originIsOnScreen)
+            frame.Draw(objects, origin, paletteBits);
+        else
+            frame.DrawOffScreen(objects, origin, paletteBits);
+    }
+
     /// <summary>Places all parts as sprite entries using the native off-screen origin's reversed vertical-wrap clipping (#1358).</summary>
     public void DrawOffScreen(ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
     {

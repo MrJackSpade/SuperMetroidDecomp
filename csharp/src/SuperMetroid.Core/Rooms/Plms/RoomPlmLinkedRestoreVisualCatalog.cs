@@ -33,12 +33,12 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
     /// <param name="entries">One visual-only entry per compiled layout with two words per native run and complete identity coverage.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    public RoomPlmLinkedRestoreVisualCatalog(IEnumerable<RoomPlmLinkedRestoreVisualEntry> entries)
+    public RoomPlmLinkedRestoreVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmLinkedRestoreVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !RoomPlmLinkedRestoreDrawDefinitions.TryGetByVisualId(entry.Id, out var draw) ||

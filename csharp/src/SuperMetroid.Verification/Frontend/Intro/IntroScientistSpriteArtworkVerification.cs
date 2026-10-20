@@ -22,7 +22,7 @@ internal static class IntroScientistSpriteArtworkVerification
     {
         const ushort x = 120;
         ushort palette = IntroBabyActorDefinitions.DeliveredBaby.PaletteBits;
-        foreach (IntroScientistSpriteFrameDefinition definition in
+        foreach (IntroSpriteFrameDefinition definition in
             IntroScientistSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })

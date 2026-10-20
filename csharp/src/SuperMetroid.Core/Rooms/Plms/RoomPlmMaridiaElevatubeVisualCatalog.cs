@@ -25,10 +25,10 @@ public sealed class RoomPlmMaridiaElevatubeVisualCatalog
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">The sequence does not contain exactly one valid single-block elevatube entry.</exception>
     public RoomPlmMaridiaElevatubeVisualCatalog(
-        IEnumerable<RoomPlmMaridiaElevatubeVisualEntry> entries)
+        IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
-        RoomPlmMaridiaElevatubeVisualEntry[] selected = entries.ToArray();
+        RoomPlmVisualEntry[] selected = entries.ToArray();
         if (selected.Length != 1 || selected[0] is null ||
             !MaridiaElevatubePlmDefinitions.TryGetDrawByVisualId(
                 selected[0].Id, out _) ||

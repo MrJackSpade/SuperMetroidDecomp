@@ -38,7 +38,7 @@ internal static class EnemyDisplayArtworkContractChecks
         var extendedDocument = new EnemyExtendedFrameDocument {
             Version = (int)EnemyExtendedFrameSchema.Current, Frames = extendedFrames, DisplayFrames = extendedBindings };
         EnemyExtendedFrameCatalog extended = EnemyExtendedFrameCatalog.Load(Json(extendedDocument));
-        EnemyExtendedFrameDefinition extendedId = EnemyExtendedFrameDefinitions.Frames.First();
+        EnemySpritemapDefinition extendedId = EnemyExtendedFrameDefinitions.Frames.First();
         Require(extended.TryGetDisplay(extendedId.Bank, extendedId.Pointer, out var components) && components.Length == 1 &&
             extended.TryGetDisplay(0xa5, CommonEnemyEmptyExtendedFrameDefinitions.Frame, out components) && components.IsEmpty,
             "installed extended binding and compiled empty fallback");
@@ -48,7 +48,7 @@ internal static class EnemyDisplayArtworkContractChecks
     }
 
     /// <summary>Compiles representative call sites and source mutations to confirm when the audit may classify display lookups.</summary>
-    private static void ConfirmStaticCalls(EnemySpritemapDefinition simple, EnemyExtendedFrameDefinition extended)
+    private static void ConfirmStaticCalls(EnemySpritemapDefinition simple, EnemySpritemapDefinition extended)
     {
         var trees = EnemyDisplayArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();

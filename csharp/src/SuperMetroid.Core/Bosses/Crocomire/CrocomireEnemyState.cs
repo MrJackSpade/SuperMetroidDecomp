@@ -203,6 +203,7 @@ public sealed class CrocomireEnemyState
     }
 
     /// <summary>Empties the values the cartridge keeps in the body's common record.</summary>
+    [IntendedDuplicate("each state clears its own native words; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {
         _deathPhaseWord = 0;

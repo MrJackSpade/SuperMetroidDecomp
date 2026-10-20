@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Checks that firing grapple into any blue-door cap opens the door.</summary>
 internal static class GrappleDoorsVerification
@@ -53,7 +54,7 @@ internal static class GrappleDoorsVerification
             for (int frame = 0; frame < 19; frame++)
             {
                 plms.Step(level);
-                heardOpening |= plms.Sounds.SoundRequests.Any(r => r == new PlmSoundRequest(
+                heardOpening |= plms.Sounds.SoundRequests.Any(r => r == new SoundRequest(
                     SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
             }
             AssertTrue(heardOpening, "grapple-opened blue door emits its native opening sound");

@@ -81,7 +81,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(stock.ExtendedFrames is not null,
             "installed enemy catalog contains extended visual compositions");
         var guard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> guardBlockFrame);
-        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
             guardBlockFrame(frame.Bank, frame.Pointer);
             AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGet(frame.Bank, frame.Pointer, out _),
@@ -115,7 +115,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("ninja_pirate_", StringComparison.Ordinal)),
             "all ninja-Pirate visual frame identities are installed");
-        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
             foreach ((ushort x, ushort y) in new (ushort, ushort)[]
                      {
@@ -402,7 +402,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                    versionTwoWall.LowTable.SequenceEqual(movedWall.LowTable),
             "v2 override preserves both walking and wall-Pirate art edits");
 
-        EnemyExtendedFrameDefinition ninjaFrame = EnemyExtendedFrameDefinitions
+        EnemySpritemapDefinition ninjaFrame = EnemyExtendedFrameDefinitions
             .Frames.First(frame => frame.Name.StartsWith(
                 "ninja_pirate_", StringComparison.Ordinal));
         string ninjaName = ninjaFrame.Name;
@@ -1109,7 +1109,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         OamBuffer closedSpore = DrawExtendedForBank(stock, 0xa5, 0xee65, new(0x0040, 0x0080));
-        EnemyExtendedFrameDefinition[] visiblyDifferentSporeFrames =
+        EnemySpritemapDefinition[] visiblyDifferentSporeFrames =
             EnemyExtendedFrameDefinitions.Frames
                 .Where(frame => frame.Name.StartsWith("spore_spawn_oam_",
                     StringComparison.Ordinal))
@@ -1121,7 +1121,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 }).ToArray();
         AssertTrue(visiblyDifferentSporeFrames.Length > 0,
             "Spore Spawn visual remap fixture has a visibly different frame");
-        EnemyExtendedFrameDefinition targetSporeFrame = visiblyDifferentSporeFrames[0];
+        EnemySpritemapDefinition targetSporeFrame = visiblyDifferentSporeFrames[0];
         (sporeVisualRemap.DisplayFrames ?? throw new InvalidOperationException("Verification requires sporeVisualRemap.DisplayFrames."))["spore_spawn_oam_EE65"] =
             targetSporeFrame.Name;
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -1384,7 +1384,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// <summary>Selects walking, ninja, or wall Pirate ownership from a compiled extended-frame identity.</summary>
     private static EnemyDefinitionId PirateDefinitionForFrame(ushort pointer)
     {
-        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
             if (frame.Pointer != pointer)
                 continue;

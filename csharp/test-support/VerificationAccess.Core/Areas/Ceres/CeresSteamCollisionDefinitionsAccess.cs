@@ -10,8 +10,8 @@ internal static class CeresSteamCollisionDefinitionsAccess
     private const ushort FirstList = 0xf25a;
 
     /// <summary>The hitbox lists laid over their native run.</summary>
-    private static readonly CollisionRecordRuns<CeresSteamCollisionHitbox> NativeLists =
-        CollisionRecordRuns<CeresSteamCollisionHitbox>.HitboxLists(new CollisionRecordRun<CeresSteamCollisionHitbox>(FirstList, CeresSteamCollisionDefinitions.Lists));
+    private static readonly CollisionRecordRuns<EnemyHitboxRectangle> NativeLists =
+        CollisionRecordRuns<EnemyHitboxRectangle>.HitboxLists(new CollisionRecordRun<EnemyHitboxRectangle>(FirstList, CeresSteamCollisionDefinitions.Lists));
 
     /// <summary>Native views of the catalog.</summary>
     extension(CeresSteamCollisionDefinitions)
@@ -26,8 +26,8 @@ internal static class CeresSteamCollisionDefinitionsAccess
                 : throw new InvalidDataException($"Ceres steam frame $A6:{frame:X4} has no compiled collision.");
 
         /// <summary>The hitbox list at native address <paramref name="list"/>.</summary>
-        internal static ReadOnlySpan<CeresSteamCollisionHitbox> HitboxesAt(ushort list) =>
-            NativeLists.TryGet(list, out CeresSteamCollisionHitbox[] hitboxes)
+        internal static ReadOnlySpan<EnemyHitboxRectangle> HitboxesAt(ushort list) =>
+            NativeLists.TryGet(list, out EnemyHitboxRectangle[] hitboxes)
                 ? hitboxes
                 : throw new InvalidDataException($"Ceres steam hitbox list $A6:{list:X4} is not compiled.");
     }

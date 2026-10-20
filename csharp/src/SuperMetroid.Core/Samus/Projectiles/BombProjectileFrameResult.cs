@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public readonly record struct BombProjectileFrameResult(
     SamusBombJumpDirection PublishedBombJumpDirection,
     bool BeamChargeConsumed = false,
-    IReadOnlyList<SamusSoundRequest>? SoundRequests = null);
+    IReadOnlyList<SoundRequest>? SoundRequests = null);

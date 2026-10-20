@@ -74,7 +74,7 @@ public sealed class MotherBrainEnemyState
     public NativeCountdown TubeCollapseTimer { get; internal set; }
 
     /// <summary>Exact delayed music writes made during the most recent enemy frame.</summary>
-    public IReadOnlyList<MotherBrainMusicRequest> MusicRequests => _musicRequests;
+    public IReadOnlyList<DelayedMusicRequest> MusicRequests => _musicRequests;
 
     /// <summary>Last library-two fake-death/tube sound emitted during this enemy frame.</summary>
     public SoundEffectId? LastSoundEffect { get; internal set; }
@@ -377,7 +377,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>Native parameter identities for the twelve turrets requested at room entry.</summary>
     private readonly ushort[] _initialTurretParameters = new ushort[12];
     /// <summary>Music commands emitted during the current enemy frame.</summary>
-    private readonly List<MotherBrainMusicRequest> _musicRequests = new();
+    private readonly List<DelayedMusicRequest> _musicRequests = new();
 
     /// <summary>Records all twelve turret parameter identities for encounter initialization.</summary>
     internal void RecordInitialTurretRequests()
@@ -398,5 +398,5 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Queues one typed music command with its authored delay for this frame.</summary>
     internal void RequestMusic(MusicCommand command, MusicCommandDelay delay) =>
-        _musicRequests.Add(new MotherBrainMusicRequest(command, delay));
+        _musicRequests.Add(new DelayedMusicRequest(command, delay));
 }

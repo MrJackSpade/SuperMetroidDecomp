@@ -63,7 +63,7 @@ internal static class CeresExplosionDefinitionsVerification
         static void VerifyActor(
             SuperMetroidAddressSpace source,
             ushort definitionPointer,
-            CeresExplosionActorDefinition definition,
+            CinematicActorDefinition definition,
             string name)
         {
             // The six-byte header's first word (initialization callback) has no compiled owner.

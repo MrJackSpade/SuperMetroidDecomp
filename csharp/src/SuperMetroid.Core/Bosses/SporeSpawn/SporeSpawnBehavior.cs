@@ -330,7 +330,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requests the arena ceiling PLM at its fixed room block position.</summary>
     private void PublishSporeSpawnPlm(PlmHeaderId header) =>
-        _frameResults.SporeSpawnCeiling = new SporeSpawnPlmRequest(new(7, 30), header);
+        _frameResults.SporeSpawnCeiling = new PlmSpawnRequest(new(7, 30), header);
 
     /// <summary>Routes accepted bomb hits through the boss-specific post-damage response.</summary>
     internal void RegisterSporeSpawnBombReactions(EnemySharedReactions table)

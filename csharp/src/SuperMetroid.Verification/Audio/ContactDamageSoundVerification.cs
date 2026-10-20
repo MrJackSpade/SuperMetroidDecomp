@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Checks the Sciser contact-damage sound that delayed a door transition in the 13% recording.</summary>
 internal static class ContactDamageSoundVerification
@@ -34,7 +35,7 @@ internal static class ContactDamageSoundVerification
         runtime.Enemies.Collision.ResolveNormalEnemyTouch(sciser, samus, false);
 
         AssertTrue(sciser.Health < healthBefore, "the speed booster damages the Sciser");
-        EnemySoundRequest request = runtime.Enemies.Audio.SoundRequests.Single();
+        SoundRequest request = runtime.Enemies.Audio.SoundRequests.Single();
         AssertEqual(SoundEffectLibrary2Sounds.EnemyContactDamaged, request.SoundEffect, "the hit queues library-two $0B");
         AssertEqual(1, request.MaximumQueued, "through QueueSound_Lib2_Max1");
         Console.WriteLine("  Contact-damage sound: Samus's damaging touch queues library-two $0B.");

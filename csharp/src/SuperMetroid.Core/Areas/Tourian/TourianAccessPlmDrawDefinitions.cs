@@ -66,19 +66,8 @@ internal static class TourianAccessPlmDrawDefinitions
 
     /// <summary>Finds a compiled floor draw by its case-sensitive visual identity.</summary>
     internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList candidate in All)
-        {
-            if (!string.Equals(VisualId(candidate.Pointer), id,
-                    StringComparison.Ordinal))
-                continue;
-            list = candidate;
-            return true;
-        }
-        list = default;
-        return false;
-    }
+        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out list);
 
     /// <summary>Builds four-air-cell runs for a supported draw, including all six rows of the final clear.</summary>
     internal static bool TryGet(ushort pointer,

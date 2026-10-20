@@ -29,7 +29,7 @@ public static class RoomPlmSporeSpawnCeilingVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmSporeSpawnCeilingVisualCatalog>(VisualFileName, "Spore Spawn ceiling", SporeSpawnCeilingPlmDrawDefinitions.All, SporeSpawnCeilingPlmDrawDefinitions.VisualId, entries => new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Select(entry =>
-                new RoomPlmSporeSpawnCeilingVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Spore Spawn ceiling visuals.</summary>
     /// <param name="directory">Stock Spore Spawn ceiling directory; overrides are ignored.</param>

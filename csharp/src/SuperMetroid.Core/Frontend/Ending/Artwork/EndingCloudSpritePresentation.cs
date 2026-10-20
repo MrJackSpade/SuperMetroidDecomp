@@ -25,16 +25,8 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
     /// <param name="paletteBits">SNES OAM attribute bits to combine with each part.</param>
     /// <param name="originIsOnScreen">Whether the origin is already in the visible coordinate range.</param>
     public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen)
-    {
-        if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
-            throw new InvalidDataException(
-                $"Ending cloud sprite frame $8C:{pointer:X4} is not installed.");
-        if (originIsOnScreen)
-            frame.Draw(objects, origin, paletteBits);
-        else
-            frame.DrawOffScreen(objects, origin, paletteBits);
-    }
+        ushort paletteBits, bool originIsOnScreen) =>
+        SpriteComposition.DrawInstalled(frames, "Ending cloud sprite", pointer, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads and validates the six named atmospheric cloud compositions from JSON.</summary>
     /// <param name="json">Stream containing an ending-cloud sprite document.</param>
@@ -55,7 +47,7 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
         {
             throw new InvalidDataException("Invalid ending cloud sprite JSON.", error);
         }
-        IReadOnlyList<EndingCloudSpriteFrameDefinition> definitions =
+        IReadOnlyList<SpriteFrameDefinition> definitions =
             EndingCloudSpriteDefinitions.Frames;
         if (document.Version != EndingCloudSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
@@ -63,7 +55,7 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
         var frames = new Dictionary<ushort, SpriteComposition>();
         for (int index = 0; index < definitions.Count; index++)
         {
-            EndingCloudSpriteFrameDefinition definition = definitions[index];
+            SpriteFrameDefinition definition = definitions[index];
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException($"Ending cloud sprite {definition.Name} is missing.");

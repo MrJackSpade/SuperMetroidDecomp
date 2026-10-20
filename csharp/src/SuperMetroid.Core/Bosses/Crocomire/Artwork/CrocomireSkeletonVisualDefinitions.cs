@@ -54,7 +54,7 @@ internal static class CrocomireSkeletonVisualDefinitions
     }
 
     /// <summary>Names an indexed skeleton OAM root by its native pointer for installed artwork lookup.</summary>
-    internal static EnemyExtendedFrameDefinition Frame(int index)
+    internal static EnemySpritemapDefinition Frame(int index)
     {
         ushort pointer = FramePointer(index);
         return new(Bank, pointer, $"crocomire_skeleton_oam_{pointer:X4}");

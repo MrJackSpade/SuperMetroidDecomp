@@ -36,6 +36,7 @@ namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped
@@ -993,7 +994,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley final body-fade row reaches OBJ palette one");
     AssertTrue(!ridley.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         "Ceres Ridley becomes tangible after body fade");
-    AssertTrue(enemies.Audio.MusicRequests.Contains(new EnemyMusicRequest(
+    AssertTrue(enemies.Audio.MusicRequests.Contains(new DelayedMusicRequest(
             MusicCommand.SelectTrack(5),
             MusicCommandDelay.EightFrames)),
         "Ceres Ridley final body fade queues battle/escape track five");
@@ -1012,7 +1013,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         observedRoarSound |= enemies.Audio.SoundRequests.Contains(
-            new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x59), MaximumQueued: 6));
+            new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x59), MaximumQueued: 6));
         battleEntryFrames++;
     }
     AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
@@ -1207,7 +1208,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.Presentation.EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng);
     }
     AssertTrue(enemies.Audio.SoundRequests.Contains(
-            new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4e), MaximumQueued: 6)),
+            new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4e), MaximumQueued: 6)),
         "handoff frame's first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
     void GetawayFrame()
     {

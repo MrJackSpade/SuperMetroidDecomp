@@ -43,7 +43,7 @@ internal static class GunshipInstalledCompositionsVerification
             "#1154 gunship exports its two hull and eleven pad compositions");
         foreach (EnemySpritemapDefinition frame in shipFrames)
         {
-            EnemySpritemapPart[] native = EnemySpritemapCatalog.CompileParts(
+            SpritemapPart[] native = EnemySpritemapCatalog.CompileParts(
                 EnemySpritemapFiles.ExtractParts(imported, frame.Bank, frame.Pointer), frame.Name);
             AssertTrue(compositions.TryGetDisplay(frame.Bank, frame.Pointer, out var installed),
                 $"#1154 installed gunship composition {frame.Name} is resolvable");

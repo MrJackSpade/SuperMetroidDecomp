@@ -30,12 +30,12 @@ public sealed class RoomPlmGreyDoorVisualCatalog
     /// <param name="entries">Exactly one four-word visual-only entry for each compiled orientation and frame identity.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves coverage incomplete.</exception>
-    public RoomPlmGreyDoorVisualCatalog(IEnumerable<RoomPlmGreyDoorVisualEntry> entries)
+    public RoomPlmGreyDoorVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmGreyDoorVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !GreyDoorPlmDrawDefinitions.TryGetByVisualId(entry.Id, out var draw) ||

@@ -12,7 +12,7 @@ internal static class LookupElevatubeStockVerification
         RoomPlmMaridiaElevatubeVisualCatalog installed)
     {
         ushort original = (ushort)(ReadSamusEaterPlmWord(rom, 0x849369) & 0xfff);
-        var entry = new RoomPlmMaridiaElevatubeVisualEntry("elevatube-block", [original]);
+        var entry = new RoomPlmVisualEntry("elevatube-block", [original]);
         var stock = RoomPlmMaridiaElevatubeVisualCatalog.Stock();
         var imported = new RoomPlmMaridiaElevatubeVisualCatalog([entry]);
         string Hash(ushort word) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(

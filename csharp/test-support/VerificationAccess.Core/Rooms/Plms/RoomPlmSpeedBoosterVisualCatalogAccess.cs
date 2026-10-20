@@ -9,7 +9,7 @@ internal static class RoomPlmSpeedBoosterVisualCatalogAccess
     {
         /// <summary>Builds the bomb-reveal visual from the first physical speed-block draw word.</summary>
         internal static RoomPlmSpeedBoosterVisualCatalog Stock() => new(
-            [new RoomPlmSpeedBoosterVisualEntry(
+            [new RoomPlmVisualEntry(
                 SpeedBoosterBlockPlmDrawDefinitions.BombRevealVisualId,
                 [new RoomLevelWord(SpeedBoosterBlockPlmDrawDefinitions.BombReveal
                     .Runs.Span[0].LevelWords.Span[0]).VisualWord])]);

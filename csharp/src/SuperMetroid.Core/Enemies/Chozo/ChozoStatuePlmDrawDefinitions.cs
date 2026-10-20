@@ -16,37 +16,37 @@ internal static class ChozoStatuePlmDrawDefinitions
     /// Clearing leaves slope endpoints; blocking makes the access solid, with
     /// spikes across the long row except its final cell. The hand is one air cell.
     /// </summary>
-    internal readonly record struct Draw(ushort Pointer)
+    internal readonly record struct Draw(ushort Pointer) : IPlmRunDrawShape
     {
         /// <summary>Lower Norfair hand clearing is one air cell; Wrecked Ship slope access has five runs.</summary>
         private bool Hand => Pointer == (ushort)ChozoStatueDraw.LowerNorfairClearedHand;
         /// <summary>Distinguishes the single hand cell from the five-run Wrecked Ship slope layout.</summary>
-        internal int RunCount => Hand ? 1 : 5;
+        public int RunCount => Hand ? 1 : 5;
         /// <summary>Rejects run indexes outside the selected hand or slope geometry.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
         /// <summary>Uses a fourteen-cell ledge, nine-cell fill, two-cell transition, and two single-cell stair runs.</summary>
-        internal int WordCount(int run)
+        public int WordCount(int run)
         {
             CheckRun(run);
             return Hand ? 1 : run switch { 0 => 14, 1 => 9, 2 => 2, _ => 1 };
         }
         /// <summary>Moves five cells right between interior slope-access runs.</summary>
-        internal sbyte NextX(int run)
+        public sbyte NextX(int run)
         {
             CheckRun(run);
             return !Hand && run is > 0 and < 4 ? (sbyte)5 : (sbyte)0;
         }
         /// <summary>Offsets each slope-access run downward from the draw origin; the final run stays level.</summary>
-        internal sbyte NextY(int run)
+        public sbyte NextY(int run)
         {
             CheckRun(run);
             return !Hand && run < 4 ? (sbyte)(run + 5) : (sbyte)0;
         }
         /// <summary>Combines shared visual tiles with air, slope-endpoint, spike, or solid collision words for the selected statue state.</summary>
-        internal ushort WordAt(int run, int cell)
+        public ushort WordAt(int run, int cell)
         {
             int count = WordCount(run);
             if ((uint)cell >= (uint)count) throw new ArgumentOutOfRangeException(nameof(cell));
@@ -94,28 +94,11 @@ internal static class ChozoStatuePlmDrawDefinitions
         }
     }
     /// <summary>Builds a temporary run record from calculated cells; runtime evaluates the physical cells directly.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(pointer, out var draw)) return false;
-        var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
-        for (int run = 0; run < runs.Length; run++)
-        {
-            var words = new ushort[draw.WordCount(run)];
-            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
-            runs[run] = new((ushort)words.Length, words, new(draw.NextX(run), draw.NextY(run)));
-        }
-        list = new(pointer, runs);
-        return true;
-    }
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(pointer, TryDescribe, out list);
     /// <summary>Finds a compiled statue draw by its published visual resource identity.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (ushort pointer in Pointers())
-            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal)) return TryGet(pointer, out list);
-        list = default;
-        return false;
-    }
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Pointers(), VisualId, TryGet, id, out list);
 
     /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>
     internal static string VisualId(ushort pointer) =>

@@ -78,7 +78,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Track three, queued with the native eight-frame delay after wall cleanup.</summary>
-    public BotwoonMusicRequest? LastBotwoonMusicRequest { get; private set; }
+    public DelayedMusicRequest? LastBotwoonMusicRequest { get; private set; }
 
     /// <summary>Ports <c>Botwoon_Init</c> at <c>$B3:9583</c>.</summary>
     private void InitializeBotwoon(RoomEnemySlot head)
@@ -774,7 +774,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
             // `$B3:9B32` invokes QueueMusic_Delayed8(3) only after the complete 192-frame
             // wall-explosion phase, not when health first reaches zero.
-            LastBotwoonMusicRequest = new BotwoonMusicRequest(
+            LastBotwoonMusicRequest = new DelayedMusicRequest(
                 MusicCommand.SelectTrack(3),
                 MusicCommandDelay.EightFrames);
             return;

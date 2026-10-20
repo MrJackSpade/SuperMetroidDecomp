@@ -37,11 +37,11 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             MotherBrainGlassPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
-        RoomPlmMotherBrainGlassVisualEntry[] entries = lists.Select(draw =>
-            new RoomPlmMotherBrainGlassVisualEntry(
+        RoomPlmVisualEntry[] entries = lists.Select(draw =>
+            new RoomPlmVisualEntry(
                 MotherBrainGlassPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.VisualWords())).ToArray();
-        RoomPlmMotherBrainGlassVisualEntry shatter = entries.Single(entry =>
+        RoomPlmVisualEntry shatter = entries.Single(entry =>
             entry.Id == "shatter-1");
         ushort originalWord = shatter.Blocks[6];
         shatter.Blocks[6] = 0x0057;

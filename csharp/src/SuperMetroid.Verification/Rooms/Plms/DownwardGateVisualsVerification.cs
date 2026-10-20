@@ -20,8 +20,8 @@ internal static class DownwardGateVisualsVerification
     internal static void VerifyDownwardGateVisuals()
     {
         RoomPlmDownwardGateVisualCatalog stock = RoomPlmDownwardGateVisualCatalog.Stock();
-        RoomPlmDownwardGateVisualEntry[] entries = DownwardGatePlmDrawDefinitions.All
-            .Select(list => new RoomPlmDownwardGateVisualEntry(
+        RoomPlmVisualRunEntry[] entries = DownwardGatePlmDrawDefinitions.All
+            .Select(list => new RoomPlmVisualRunEntry(
                 DownwardGatePlmDrawDefinitions.VisualId(list.Pointer),
                 list.Runs.Span
                     .SelectToArray(run => run.LevelWords.Span
@@ -30,10 +30,10 @@ internal static class DownwardGateVisualsVerification
             .ToArray();
         // The synthetic population's header begins at the opening list, which
         // selects the sixth resident column frame before its gate pre-instruction.
-        RoomPlmDownwardGateVisualEntry column = entries.Single(entry =>
+        RoomPlmVisualRunEntry column = entries.Single(entry =>
             entry.Id == "column-frame-5");
         column.Runs[0][1] = 0x0053;
-        RoomPlmDownwardGateVisualEntry trigger = entries.Single(entry =>
+        RoomPlmVisualRunEntry trigger = entries.Single(entry =>
             entry.Id == "blue-left-trigger");
         trigger.Runs[1][0] = 0x0053;
         var edited = new RoomPlmDownwardGateVisualCatalog(entries);

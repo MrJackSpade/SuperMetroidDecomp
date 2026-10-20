@@ -3,6 +3,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -24,7 +25,7 @@ internal static class EnemyBg2FrameFiles
     {
         Ensure.NotNull(bus);
         var frames = new Dictionary<string, EnemyBg2WriteDocument[]>(StringComparer.Ordinal);
-        foreach (EnemyBg2FrameDefinition frame in definitions)
+        foreach (SpritemapFrameDefinition frame in definitions)
         {
             int root = ((int)new SnesAddress(bank, frame.Pointer));
             int componentCount = bus.ReadCartridgeByte(root);

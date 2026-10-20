@@ -14,7 +14,7 @@ internal static class DeadMonsterRottingDefinitions
     /// <summary>CorpseRottingVRAMTransferDefinitions_Skree_Param1_0 at $A9:E18E; three34-byte variant lists.</summary>
     internal const ushort SkreeTransfers = 0xe18e;
     /// <summary>Dead Torizo's seven asymmetric touch rectangles at $A9:D77C..D7B5.</summary>
-    private static readonly DeadCorpseTouchHitbox[] TorizoHitboxRecords =
+    private static readonly EnemyHitboxRectangle[] TorizoHitboxRecords =
     [
         new(Left: -31, Top: 37, Right: -11, Bottom: 43),
         new(Left: 16, Top: 37, Right: 38, Bottom: 43),
@@ -26,7 +26,7 @@ internal static class DeadMonsterRottingDefinitions
     ];
 
     /// <summary>Publishes Dead Torizo's seven asymmetric corpse touch rectangles in native order.</summary>
-    internal static ReadOnlySpan<DeadCorpseTouchHitbox> TorizoTouchHitboxes => TorizoHitboxRecords;
+    internal static ReadOnlySpan<EnemyHitboxRectangle> TorizoTouchHitboxes => TorizoHitboxRecords;
 
     /// <summary>
     /// Five tile rows copied by CorpseRottingInit_Sidehopper_Param1_0/2 at $A9:DEC1/DF08.

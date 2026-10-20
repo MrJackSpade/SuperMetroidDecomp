@@ -775,7 +775,7 @@ internal static class FrontendRomFreeVerification
     private static void BlockFrontendExtendedBg2Streams(HashSet<int> blockedPresentationBytes,
         ISnesAddressSpace catalogueSource, byte bank, EnemyBg2FrameDefinitionSequence frames)
     {
-        foreach (EnemyBg2FrameDefinition frame in frames)
+        foreach (SpritemapFrameDefinition frame in frames)
         {
             int root = ((int)new SnesAddress(bank, frame.Pointer));
             int components = catalogueSource.ReadCartridgeByte(root);

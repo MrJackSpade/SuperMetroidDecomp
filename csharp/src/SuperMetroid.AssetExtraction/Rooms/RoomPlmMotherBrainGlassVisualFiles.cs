@@ -36,7 +36,7 @@ public static class RoomPlmMotherBrainGlassVisualFiles
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", MotherBrainGlassPlmDrawDefinitions.All, MotherBrainGlassPlmDrawDefinitions.VisualId, entries => new RoomPlmMotherBrainGlassVisualCatalog(entries.Select(entry =>
-                new RoomPlmMotherBrainGlassVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Runs stock glass manifest, integrity, schema, and compiled-appearance checks without overrides, cartridge reads, or file writes.</summary>
     /// <param name="stockDirectory">Glass family directory containing both required stock files.</param>

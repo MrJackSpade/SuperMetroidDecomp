@@ -30,7 +30,7 @@ public static class RoomPlmEscapeGateVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmEscapeGateVisualCatalog>(VisualFileName, "Escape-gate", MotherBrainEscapeGatePlmDrawDefinitions.All, MotherBrainEscapeGatePlmDrawDefinitions.VisualId, entries => new RoomPlmEscapeGateVisualCatalog(entries.Select(entry =>
-                new RoomPlmEscapeGateVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, _, block) => catalog.GetWord(pointer, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, _, block) => catalog.GetWord(pointer, block)));
 
     /// <summary>Checks stock escape-gate provenance, digest, schema, three-frame coverage, and equality with compiled visual words; ignores overrides.</summary>
     /// <param name="directory">Installed stock escape-gate directory.</param>

@@ -120,7 +120,7 @@ internal static class SamusEaterVisualsVerification
             native.Add(frame.Pointer, words.ToArray());
             counts.Add(frame.Pointer, runs.ToArray());
         }
-        var entries = frames.Select(frame => new RoomPlmSamusEaterVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmSamusEaterVisualCatalog.Stock();
         var imported = new RoomPlmSamusEaterVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(

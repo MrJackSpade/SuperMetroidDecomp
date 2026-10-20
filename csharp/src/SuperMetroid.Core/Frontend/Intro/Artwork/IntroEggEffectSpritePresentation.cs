@@ -25,16 +25,8 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
     /// <param name="originIsOnScreen">Whether to use the ordinary origin clipping path; false preserves the negative-origin Y-wrap clipping used by cinematic sprites.</param>
     /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
     public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen)
-    {
-        if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
-            throw new InvalidDataException(
-                $"Intro egg effect frame $8C:{pointer:X4} is not installed.");
-        if (originIsOnScreen)
-            frame.Draw(objects, origin, paletteBits);
-        else
-            frame.DrawOffScreen(objects, origin, paletteBits);
-    }
+        ushort paletteBits, bool originIsOnScreen) =>
+        SpriteComposition.DrawInstalled(frames, "Intro egg effect", pointer, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Validates and compiles all eleven named egg-effect frames from editable JSON into independently owned visual compositions.</summary>
     /// <param name="json">Readable JSON stream at its current position; the caller retains ownership and it is left open.</param>
@@ -57,14 +49,14 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
         {
             throw new InvalidDataException("Invalid intro egg effect sprite JSON.", error);
         }
-        IReadOnlyList<IntroEggEffectSpriteFrameDefinition> definitions =
+        IReadOnlyList<SpritemapFrameDefinition> definitions =
             IntroEggEffectSpriteDefinitions.Frames;
         if (document.Version != IntroEggEffectSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(
                 "Intro egg effects require eleven named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (IntroEggEffectSpriteFrameDefinition definition in definitions)
+        foreach (SpritemapFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)

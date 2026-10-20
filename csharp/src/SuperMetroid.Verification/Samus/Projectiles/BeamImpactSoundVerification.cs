@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Checks the sound queued when a beam reaches a wall and becomes an explosion.</summary>
 internal static class BeamImpactSoundVerification
@@ -55,7 +56,7 @@ internal static class BeamImpactSoundVerification
             if (!exploding && runtime.Projectiles.Slots[0].PackedType.IsFamily(SamusProjectileFamily.BeamExplosion))
             {
                 AssertTrue(runtime.Projectiles.ImpactAudio.ImpactSoundRequests.Contains(
-                        new SamusSoundRequest(SoundEffectLibrary2Sounds.BeamImpact, 6)),
+                        new SoundRequest(SoundEffectLibrary2Sounds.BeamImpact, 6)),
                     "the frame a beam hits the wall queues library-two $0C with Max6");
                 Console.WriteLine("  Beam impact sound: a wall hit queues library-two $0C (Max6).");
                 return;

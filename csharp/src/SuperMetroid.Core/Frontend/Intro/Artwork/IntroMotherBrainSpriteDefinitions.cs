@@ -1,4 +1,5 @@
 using System.Collections;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -17,17 +18,17 @@ internal static class IntroMotherBrainSpriteDefinitions
         return (ushort)(FrameZero + frame * (2 + 5 * StockPartCount));
     }
     /// <summary>Lazy definitions for the intro's three native Mother Brain OAM frames.</summary>
-    internal static IReadOnlyList<IntroMotherBrainSpriteFrameDefinition> Frames { get; } = new FrameList();
+    internal static IReadOnlyList<SpritemapFrameDefinition> Frames { get; } = new FrameList();
     /// <summary>Computes each frame's native pointer and stable artwork key without storing duplicate definitions.</summary>
-    private sealed class FrameList : IReadOnlyList<IntroMotherBrainSpriteFrameDefinition>
+    private sealed class FrameList : IReadOnlyList<SpritemapFrameDefinition>
     {
         /// <summary>The three consecutive frames selected by the intro instruction lists.</summary>
         public int Count => 3;
         /// <summary>Returns the native OAM pointer and artwork key for a validated frame index.</summary>
-        public IntroMotherBrainSpriteFrameDefinition this[int index] =>
+        public SpritemapFrameDefinition this[int index] =>
             new(FramePointer(index), $"mother-brain-frame-{index}");
         /// <summary>Yields all three definitions in native frame order.</summary>
-        public IEnumerator<IntroMotherBrainSpriteFrameDefinition> GetEnumerator()
+        public IEnumerator<SpritemapFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }

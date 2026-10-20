@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Retail write and collision comparisons for Phantoon's installed BG2 frame artwork.</summary>
 internal static class EnemyTileArtworkPhantoonBg2FramesVerification
@@ -30,7 +31,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertTrue(stock.PhantoonBg2Frames is not null,
             "installed enemy art includes Phantoon BG2 frames");
         var identities = new HashSet<ushort>();
-        foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (SpritemapFrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             AssertTrue(identities.Add(frame.Pointer),
                 $"Phantoon frame {frame.Name} has a distinct physical selector");
@@ -149,7 +150,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock, EnemyTileArtworkCatalog edited)
     {
         var checkedLists = new HashSet<ushort>();
-        foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (SpritemapFrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, frame.Pointer));
             System.Collections.Immutable.ImmutableArray<PhantoonCollisionComponent> components =

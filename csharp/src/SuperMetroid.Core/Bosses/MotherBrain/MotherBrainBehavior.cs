@@ -166,7 +166,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requests a bank-$84 PLM spawn at a foreground room-block coordinate for this pass.</summary>
     private void RequestMotherBrainPlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
-        _frameResults.MotherBrainPlms.Add(new MotherBrainPlmRequest(block, header));
+        _frameResults.MotherBrainPlms.Add(new PlmSpawnRequest(block, header));
 
     /// <summary>Applies the installed room-entry palette for glass and tube artwork.</summary>
     internal void LoadMotherBrainRoomEntryColors()
@@ -1326,7 +1326,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> origin)
     {
         Offset16<RoomPixels> fromOrigin = samus.Position.Whole - origin;
-        foreach (MotherBrainContactHitbox hitbox in
+        foreach (EnemyHitboxRectangle hitbox in
             MotherBrainContactHitboxDefinitions.Get(contactPart))
         {
             bool belowOrigin = fromOrigin.Y >= 0;

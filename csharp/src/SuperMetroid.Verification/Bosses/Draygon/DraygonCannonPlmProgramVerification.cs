@@ -57,7 +57,7 @@ internal static class DraygonCannonPlmProgramVerification
         var disabled = new List<DraygonCannonControlWord>();
         var plms = PlmFixtures.Unbound();
         var entries = DraygonCannonPlmDrawDefinitions.All.Select(draw =>
-            new RoomPlmDraygonCannonVisualEntry(
+            new RoomPlmVisualEntry(
                 DraygonCannonPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.VisualWords())).ToArray();
         entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = 0x0053;

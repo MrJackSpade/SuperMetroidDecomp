@@ -26,7 +26,7 @@ internal static class MotherBrainHitboxCallbacksVerification
         int rectangles = 0;
         for (int index = 0; index < MotherBrainBodyVisualDefinitions.FrameCount; index++)
         {
-            EnemyExtendedFrameDefinition frame = MotherBrainBodyVisualDefinitions.Frame(index);
+            EnemySpritemapDefinition frame = MotherBrainBodyVisualDefinitions.Frame(index);
             int root = (int)new SnesAddress(frame.Bank, frame.Pointer);
             ReadOnlySpan<MotherBrainCollisionComponent> components = MotherBrainCollisionDefinitions.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadCartridgeByte(root), components.Length, $"frame {frame.Name} component count");

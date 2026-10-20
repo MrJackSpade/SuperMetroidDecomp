@@ -2887,10 +2887,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Kraid's foot art is replaceable, but each native extended frame
         // still places two physical components against one shared hitbox list.
-        foreach (KraidFootCollisionComponent component in footComponents)
+        foreach (KraidCollisionComponent component in footComponents)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (KraidFootCollisionHitbox hitbox in component.Hitboxes)
+            foreach (KraidCollisionHitbox hitbox in component.Hitboxes)
             {
                 ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
                 ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
@@ -2921,12 +2921,12 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Kraid's arm art is editable, but the native extended spritemap
         // also carries a separate, ordered physical component stream.
         // Read that stream from the immutable cartridge definition catalog.
-        foreach (KraidArmCollisionComponent component in kraidComponents)
+        foreach (KraidCollisionComponent component in kraidComponents)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;
             ushort componentY = componentOrigin.Y;
-            foreach (KraidArmCollisionHitbox hitbox in component.Hitboxes)
+            foreach (KraidCollisionHitbox hitbox in component.Hitboxes)
             {
                 ushort left = unchecked((ushort)(componentX + hitbox.Left));
                 ushort top = unchecked((ushort)(componentY + hitbox.Top));

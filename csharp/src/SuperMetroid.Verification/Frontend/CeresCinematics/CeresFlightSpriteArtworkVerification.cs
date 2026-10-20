@@ -17,7 +17,7 @@ internal static class CeresFlightSpriteArtworkVerification
     internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
         SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock)
     {
-        foreach (CeresFlightSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
+        foreach (SpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {

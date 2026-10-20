@@ -89,6 +89,78 @@ internal static class RoomPlmShotBlockDrawDefinitions
         }
     }
 
+    /// <summary>A lookup of a compiled draw list by its bank-$84 pointer.</summary>
+    internal delegate bool DrawListLookup(ushort pointer, out DrawList list);
+
+    /// <summary>Finds the draw list among <paramref name="candidates"/> whose published visual resource identity is <paramref name="id"/>.</summary>
+    internal static bool FindByVisualId(IEnumerable<DrawList> candidates, Func<ushort, string> visualId, string? id, out DrawList found)
+    {
+        foreach (DrawList candidate in candidates)
+        {
+            if (string.Equals(visualId(candidate.Pointer), id, StringComparison.Ordinal))
+            {
+                found = candidate;
+                return true;
+            }
+        }
+        found = default;
+        return false;
+    }
+
+    /// <summary>Compiles the draw list of the first of <paramref name="pointers"/> whose visual resource identity is <paramref name="id"/>.</summary>
+    internal static bool FindByVisualId(IEnumerable<ushort> pointers, Func<ushort, string> visualId, DrawListLookup lookup, string? id, out DrawList found)
+    {
+        foreach (ushort pointer in pointers)
+        {
+            if (string.Equals(id, visualId(pointer), StringComparison.Ordinal))
+                return lookup(pointer, out found);
+        }
+        found = default;
+        return false;
+    }
+
+    /// <summary>Describes a compiled draw shape by its bank-$84 pointer.</summary>
+    internal delegate bool ShapeLookup<TShape>(ushort pointer, out TShape shape);
+
+    /// <summary>Builds the draw list of the run-shaped draw <paramref name="describe"/> finds for <paramref name="pointer"/>.</summary>
+    internal static bool TryCompile<TShape>(ushort pointer, ShapeLookup<TShape> describe, out DrawList list) where TShape : IPlmRunDrawShape
+    {
+        list = default;
+        if (!describe(pointer, out TShape shape)) return false;
+        list = Compile(pointer, shape);
+        return true;
+    }
+
+    /// <summary>Builds the draw list of the door cap <paramref name="describe"/> finds for <paramref name="pointer"/>.</summary>
+    internal static bool TryCompileCap<TShape>(ushort pointer, ShapeLookup<TShape> describe, out DrawList list) where TShape : IPlmCapDrawShape
+    {
+        list = default;
+        if (!describe(pointer, out TShape shape)) return false;
+        list = CompileCap(pointer, shape);
+        return true;
+    }
+
+    /// <summary>Builds the run-by-run draw list a compiled draw shape describes.</summary>
+    private static DrawList Compile<TShape>(ushort pointer, TShape shape) where TShape : IPlmRunDrawShape
+    {
+        var runs = new Run[shape.RunCount];
+        for (int run = 0; run < runs.Length; run++)
+        {
+            var words = new ushort[shape.WordCount(run)];
+            for (int cell = 0; cell < words.Length; cell++) words[cell] = shape.WordAt(run, cell);
+            runs[run] = new((ushort)words.Length, words, new(shape.NextX(run), shape.NextY(run)));
+        }
+        return new(pointer, runs);
+    }
+
+    /// <summary>Builds the one four-word run of a door cap draw.</summary>
+    private static DrawList CompileCap<TShape>(ushort pointer, TShape shape) where TShape : IPlmCapDrawShape
+    {
+        var words = new ushort[4];
+        for (int cell = 0; cell < 4; cell++) words[cell] = shape.WordAt(cell);
+        return new(pointer, new Run[] { new(shape.DirectionAndCountWord(), words, new(0, 0)) });
+    }
+
     /// <summary>Recognizes a breakup frame or restoration pointer and returns its calculated draw.</summary>
     internal static bool TryGet(ushort pointer, out Draw draw)
     {

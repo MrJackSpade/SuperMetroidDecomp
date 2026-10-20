@@ -36,12 +36,12 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     public RoomPlmMotherBrainGlassVisualCatalog(
-        IEnumerable<RoomPlmMotherBrainGlassVisualEntry> entries)
+        IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmMotherBrainGlassVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !MotherBrainGlassPlmDrawDefinitions.TryGetByVisualId(entry.Id,

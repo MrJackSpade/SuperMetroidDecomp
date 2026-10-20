@@ -110,7 +110,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     public CrocomireDeathState? CrocomireDeath { get; internal set; }
 
     /// <summary>Delayed music publication from the current Crocomire frame.</summary>
-    public CrocomireMusicRequest? LastCrocomireMusicRequest { get; private set; }
+    public DelayedMusicRequest? LastCrocomireMusicRequest { get; private set; }
 
 
     /// <summary>Literal BG2 scroll owned by Crocomire while its extended tilemap is active.</summary>
@@ -471,7 +471,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
     /// <summary>Queues a native PLM block change for later room processing.</summary>
     private void PublishCrocomirePlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
-        _frameResults.CrocomirePlms.Add(new CrocomirePlmRequest(block, header));
+        _frameResults.CrocomirePlms.Add(new PlmSpawnRequest(block, header));
 
     /// <summary>
     /// Ports the bridge effects in $A4:8D5E, staged at Crocomire X $0600, $0610 and $0620.
@@ -1233,7 +1233,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.DeathSequenceIndex != CrocomireDeathPhase.WaitForSamusAtWall)
             return;
 
-        LastCrocomireMusicRequest = new CrocomireMusicRequest(
+        LastCrocomireMusicRequest = new DelayedMusicRequest(
             MusicCommand.SelectTrack(6),
             MusicCommandDelay.EightFrames);
         state.DeathSequenceIndex = CrocomireDeathPhase.RiverSkeletonDetour;
@@ -1269,7 +1269,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null || unchecked((short)(samus.Position.X.Whole - 640)) >= 0)
             return;
 
-        LastCrocomireMusicRequest = new CrocomireMusicRequest(
+        LastCrocomireMusicRequest = new DelayedMusicRequest(
             MusicCommand.SelectTrack(5),
             MusicCommandDelay.EightFrames);
         _room.Services.RoomScroll.Write(3, RoomScrollState.RedBoundary);
@@ -1449,7 +1449,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks Crocomire's boss encounter complete and releases the death-scene presentation.</summary>
     private void CompleteCrocomireBoss(CrocomireEnemyState state)
     {
-        LastCrocomireMusicRequest = new CrocomireMusicRequest(
+        LastCrocomireMusicRequest = new DelayedMusicRequest(
             MusicCommand.SelectTrack(6),
             MusicCommandDelay.EightFrames);
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking; // $A4:9B8D

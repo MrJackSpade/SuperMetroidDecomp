@@ -8,7 +8,7 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     bool LatchSoundQueued,
     IReadOnlyList<BabyMetroidReleaseDustRequest> ReleaseDustClouds,
     bool AmbientCrySoundQueued,
-    BabyMetroidDeathExplosionRequest? DeathExplosion,
+    DustExplosionRequest? DeathExplosion,
     BabyMetroidPaletteTransferRequest? BabyPaletteTransfer,
     MotherBrainSpriteTileTransferRequest? AttackTileTransfer,
     MotherBrainBackgroundPaletteTransferRequest? BackgroundPaletteTransfer)

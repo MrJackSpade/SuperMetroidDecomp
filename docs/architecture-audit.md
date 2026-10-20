@@ -149,6 +149,17 @@ that shape. Samus's left-facing pose rules and predicates are their right-facing
 `SamusPoseMirror` and the Left/Right button exchange. A deliberate, behaviourally distinct asymmetry says so at its
 site with `[MirroredAsymmetry(reason)]`.
 
+## Helpers are written once, not once per species
+
+**SME6419** reports, in `SuperMetroid.Core`, a method body of at least five statements (nested statements counted,
+blocks not) that is the same token sequence as a method in a different type once references to its declaring type's
+own members, every type argument and every string literal's contents are normalised (#1371). Each clone group is
+reported once and names every member; it becomes one shared implementation that takes what differs as data.
+**SME6420** reports positional records with two or more parameters of the same names, types and attributes and no
+members of their own: they are one record type. A one-field record is a typed identity, such as each species' pose
+type, whose distinct type is its purpose, and is not compared. A copy that must stay separate says why at its site
+with `[IntendedDuplicate(reason)]`.
+
 ## Diagnostics are resolved, not disabled
 
 **SME6414** reports every `#pragma warning disable`, whatever diagnostic it names and whatever reason follows it

@@ -29,16 +29,8 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
     /// <param name="paletteBits">Encoded OBJ palette bits applied only to parts authored to inherit the drawing owner's palette.</param>
     /// <param name="originIsOnScreen">True for ordinary on-screen origin clipping; false for the native off-screen path with opposite Y-wrap clipping for negative origins.</param>
     public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen)
-    {
-        if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
-            throw new InvalidDataException(
-                $"Ceres flight sprite frame $8C:{pointer:X4} is not installed.");
-        if (originIsOnScreen)
-            frame.Draw(objects, origin, paletteBits);
-        else
-            frame.DrawOffScreen(objects, origin, paletteBits);
-    }
+        ushort paletteBits, bool originIsOnScreen) =>
+        SpriteComposition.DrawInstalled(frames, "Ceres flight sprite", pointer, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads exactly the six named visual compositions, rejecting duplicate properties, unsupported versions, missing frames, and invalid OAM parts; compiles selected artwork without importing actor timing or motion.</summary>
     /// <param name="json">Caller-owned UTF-8 JSON stream containing the versioned Ceres flight sprite document.</param>
@@ -59,13 +51,13 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
         {
             throw new InvalidDataException("Invalid Ceres flight sprite JSON.", error);
         }
-        IReadOnlyList<CeresFlightSpriteFrameDefinition> definitions =
+        IReadOnlyList<SpriteFrameDefinition> definitions =
             CeresFlightSpriteDefinitions.Frames;
         if (document.Version != CeresFlightSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Ceres flight requires exactly six named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (CeresFlightSpriteFrameDefinition definition in definitions)
+        foreach (SpriteFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)

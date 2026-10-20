@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Rooms;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks generated Phantoon and Draygon BG2 frame catalogs against native stream roots.</summary>
 internal static class GeneratedBossBg2CatalogsVerification
@@ -14,7 +15,7 @@ internal static class GeneratedBossBg2CatalogsVerification
     /// <summary>Checks Phantoon identities, multi-component tentacles, and loaded BG2 streams.</summary>
     internal static void VerifyPhantoonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
-        EnemyBg2FrameDefinition[] expected =
+        SpritemapFrameDefinition[] expected =
         [
         new(0xdedd, "body_invulnerable"),
         new(0xdee7, "body_full_hitbox"),
@@ -50,7 +51,7 @@ internal static class GeneratedBossBg2CatalogsVerification
     /// <summary>Checks Draygon identities, selector coverage, and loaded BG2 streams.</summary>
     internal static void VerifyDraygonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
-        EnemyBg2FrameDefinition[] expected =
+        SpritemapFrameDefinition[] expected =
         [
         new(0xa31b, "draygon_bg2_A31B"),
         new(0xa325, "draygon_bg2_A325"),
@@ -96,7 +97,7 @@ internal static class GeneratedBossBg2CatalogsVerification
                 "Draygon generated catalog loads native stream");
     }
     /// <summary>Compares one family's exact frame domain, native stream markers, and extracted JSON bytes.</summary>
-    private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank, string family, EnemyBg2FrameDefinition[] expected, EnemyBg2FrameDefinitionSequence frames, Bg2CatalogAccess access)
+    private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank, string family, SpritemapFrameDefinition[] expected, EnemyBg2FrameDefinitionSequence frames, Bg2CatalogAccess access)
     {
         ushort Word(int address) => SnesLittleEndian.Word(GeneratedBg2CatalogRomByte(rom, address), GeneratedBg2CatalogRomByte(rom, address + 1));
         AssertEqual(expected.Length, frames.Length, $"{family} catalog count");

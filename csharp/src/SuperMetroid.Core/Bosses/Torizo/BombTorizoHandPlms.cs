@@ -28,7 +28,7 @@ internal sealed class BombTorizoHandPlms
     private readonly List<BombTorizoStatueProjectileRequest>
         _bombTorizoStatueProjectileRequests = [];
     /// <summary>Delayed track-selection commands queued by the hand program for this frame.</summary>
-    private readonly List<PlmMusicRequest> _musicRequests = [];
+    private readonly List<DelayedMusicRequest> _musicRequests = [];
 
     /// <summary>Raw seven-byte VRAM queue entries emitted during the latest PLM pass.</summary>
     public IReadOnlyList<PlmVramWriteRequest> VramWriteRequests => _vramWriteRequests;
@@ -38,7 +38,7 @@ internal sealed class BombTorizoHandPlms
         BombTorizoStatueProjectileRequests => _bombTorizoStatueProjectileRequests;
 
     /// <summary>Delayed music commands emitted during the latest PLM pass.</summary>
-    public IReadOnlyList<PlmMusicRequest> MusicRequests => _musicRequests;
+    public IReadOnlyList<DelayedMusicRequest> MusicRequests => _musicRequests;
 
     /// <summary>
     /// Tests the physical PLM header array exactly as enemy code such as
@@ -108,7 +108,7 @@ internal sealed class BombTorizoHandPlms
     /// <c>$84:D3C7</c>: despite its name, always queues gameplay track six with the shared eight-frame delay.
     /// </summary>
     internal void QueueMusic() =>
-        _musicRequests.Add(new PlmMusicRequest(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames));
+        _musicRequests.Add(new DelayedMusicRequest(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames));
 
     /// <summary>Room width in blocks used to turn the hand's linear PLM block index into fragment spawn coordinates.</summary>
     private int _bombTorizoHandRoomWidth;

@@ -132,7 +132,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         TorizoState is { IsGolden: true } ? TorizoState : null;
 
     /// <summary>Last delayed music request emitted by awakening/death bytecode.</summary>
-    public BombTorizoMusicRequest? LastBombTorizoMusicRequest { get; private set; }
+    public DelayedMusicRequest? LastBombTorizoMusicRequest { get; private set; }
 
     /// <summary>
     /// Ports shared <c>Torizo_Init</c> at $AA:C87F for the area-zero Bomb and area-two
@@ -304,7 +304,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_room.Services.Plms.HasActiveHeader(PlmHeaderId.BombTorizoHand))
                     return;
 
-                LastBombTorizoMusicRequest = new BombTorizoMusicRequest(
+                LastBombTorizoMusicRequest = new DelayedMusicRequest(
                     MusicCommand.SelectTrack(6),
                     MusicCommandDelay.EightFrames);
                 torizo.Properties = torizo.Properties.Without(EnemyProperties.SolidToSamus);
@@ -612,7 +612,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             yBase: state.IsGolden ? (ushort)288 : (ushort)96,
             yMask: TorizoRandomDefinitions.DropYMask);
         state.ItemDropRequested = true;
-        LastBombTorizoMusicRequest = new BombTorizoMusicRequest(
+        LastBombTorizoMusicRequest = new DelayedMusicRequest(
             MusicCommand.SelectTrack(3),
             MusicCommandDelay.EightFrames);
     }
@@ -977,7 +977,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCueKind.StartBombTorizoFight:
-                LastBombTorizoMusicRequest = new BombTorizoMusicRequest(
+                LastBombTorizoMusicRequest = new DelayedMusicRequest(
                     MusicCommand.SelectTrack(5),
                     MusicCommandDelay.EightFrames);
                 return null;
@@ -1134,7 +1134,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCueKind.StartGoldenTorizoFight:
-                LastBombTorizoMusicRequest = new BombTorizoMusicRequest(
+                LastBombTorizoMusicRequest = new DelayedMusicRequest(
                     MusicCommand.SelectTrack(5),
                     MusicCommandDelay.EightFrames);
                 torizo.Radius = new(18, 48);

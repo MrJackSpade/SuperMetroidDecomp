@@ -233,7 +233,7 @@ public sealed class BabyMetroidCutsceneState
         var releaseDustClouds = new List<BabyMetroidReleaseDustRequest>(capacity: 3);
         bool ambientCrySoundQueued = false;
         bool samusRainbowActivated = false;
-        BabyMetroidDeathExplosionRequest? deathExplosion = null;
+        DustExplosionRequest? deathExplosion = null;
         BabyMetroidPaletteTransferRequest? babyPaletteTransfer = null;
         MotherBrainSpriteTileTransferRequest? attackTileTransfer = null;
         MotherBrainBackgroundPaletteTransferRequest? backgroundPaletteTransfer = null;
@@ -865,7 +865,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Emits a dust explosion every five calls using the shared Ridley scatter pattern.</summary>
-    private BabyMetroidDeathExplosionRequest? StepDeathExplosion()
+    private DustExplosionRequest? StepDeathExplosion()
     {
         DeathExplosionTimer = DeathExplosionTimer.Decrement().Remaining;
         if (!DeathExplosionTimer.IsNegative)
@@ -877,7 +877,7 @@ public sealed class BabyMetroidCutsceneState
             DeathExplosionPatternIndex = 0;
         // `$A9:CDFC` holds the scatter shared with Ridley's death. The handler increments its
         // index before looking up a pair, so a freshly cleared counter begins at entry one.
-        return new BabyMetroidDeathExplosionRequest(
+        return new DustExplosionRequest(
             Position: Position.Whole + DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex),
             Animation: MiscDustAnimation.SmallExplosion,
             SoundEffect: MotherBrainSoundDefinitions.Explosion);

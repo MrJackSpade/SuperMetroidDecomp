@@ -29,16 +29,8 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
     /// <param name="paletteBits">Packed OBJ palette bits used only by parts whose editable palette is null.</param>
     /// <param name="originIsOnScreen">True for ordinary origin clipping, false for the native off-screen Y-wrap path.</param>
     public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen)
-    {
-        if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
-            throw new InvalidDataException(
-                $"Ceres destruction sprite frame $8C:{pointer:X4} is not installed.");
-        if (originIsOnScreen)
-            frame.Draw(objects, origin, paletteBits);
-        else
-            frame.DrawOffScreen(objects, origin, paletteBits);
-    }
+        ushort paletteBits, bool originIsOnScreen) =>
+        SpriteComposition.DrawInstalled(frames, "Ceres destruction sprite", pointer, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads version-1 <c>ceres-destruction-sprites.json</c>, requiring all 23 named compositions and validating each ordered part's offset, atlas region, size, palette, and priority.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>

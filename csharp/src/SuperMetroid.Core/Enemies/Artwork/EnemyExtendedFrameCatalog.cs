@@ -193,7 +193,7 @@ public sealed class EnemyExtendedFrameCatalog
 
         var frames = new Dictionary<int, EnemyExtendedDrawComponent[]>();
         var identities = new Dictionary<string, int>(StringComparer.Ordinal);
-        foreach (EnemyExtendedFrameDefinition definition in expected)
+        foreach (EnemySpritemapDefinition definition in expected)
         {
             string authoredName = schema == EnemyExtendedFrameSchema.PreSporeIdentity &&
                 definition.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
@@ -215,7 +215,7 @@ public sealed class EnemyExtendedFrameCatalog
                     component.Parts is null)
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} component {index} is invalid.");
-                EnemySpritemapPart[] parts = EnemySpritemapCatalog.CompileParts(
+                SpritemapPart[] parts = EnemySpritemapCatalog.CompileParts(
                     component.Parts, $"{definition.Name} component {index}");
                 totalParts += parts.Length;
                 if (totalParts > EnemySpritemapDefinitions.MaximumParts)

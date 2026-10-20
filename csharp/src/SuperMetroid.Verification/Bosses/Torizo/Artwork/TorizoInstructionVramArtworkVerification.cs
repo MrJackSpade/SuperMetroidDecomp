@@ -90,7 +90,7 @@ internal static class TorizoInstructionVramArtworkVerification
                 $"native Torizo $814B descriptor $AA:{address:X4} is catalogued");
         }
 
-        TorizoInstructionTileSheetDefinition golden =
+        TileSheetDefinition golden =
             TorizoInstructionVramArtworkDefinitions.GoldenAwakening;
         string overrideDirectory = Path.Combine(stockDirectory,
             "torizo-instruction-tile-overrides");

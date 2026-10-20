@@ -8,7 +8,7 @@ internal static class MotherBrainBodyVisualDefinitionsAccess
     extension(MotherBrainBodyVisualDefinitions)
     {
         /// <summary>Materializes the indexed frame definitions in animation order.</summary>
-        internal static EnemyExtendedFrameDefinition[] Frames =>
+        internal static EnemySpritemapDefinition[] Frames =>
             [.. Enumerable.Range(0, MotherBrainBodyVisualDefinitions.FrameCount).Select(MotherBrainBodyVisualDefinitions.Frame)];
     }
 }

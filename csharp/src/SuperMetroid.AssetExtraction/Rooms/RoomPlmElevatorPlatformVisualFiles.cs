@@ -48,7 +48,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
-        RoomPlmElevatorPlatformVisualEntry[] entries = ReadAndVerifyNative(bus);
+        RoomPlmVisualRunEntry[] entries = ReadAndVerifyNative(bus);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new VisualDocument(FormatVersion, entries), JsonOptions);
         using (var output = new FileStream(Path.Combine(directory, VisualFileName),
@@ -101,9 +101,9 @@ public static class RoomPlmElevatorPlatformVisualFiles
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>Checks bank 84 run headers, physical words, and offsets before extracting editable visual bits.</summary>
-    private static RoomPlmElevatorPlatformVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
+    private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
-        var entries = new List<RoomPlmElevatorPlatformVisualEntry>();
+        var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
                  ElevatorPlatformPlmDefinitions.DrawLists.OrderBy(item => item.Pointer))
         {
@@ -135,7 +135,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
                 visuals.Add(visualWords);
             }
 
-            entries.Add(new RoomPlmElevatorPlatformVisualEntry(
+            entries.Add(new RoomPlmVisualRunEntry(
                 ElevatorPlatformPlmDefinitions.VisualId(list.Pointer), visuals.ToArray()));
         }
 
@@ -194,5 +194,5 @@ public static class RoomPlmElevatorPlatformVisualFiles
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
     /// <summary>Contains the three editable elevator frame entries and their schema version.</summary>
-    private sealed record VisualDocument(int Version, RoomPlmElevatorPlatformVisualEntry[] Entries);
+    private sealed record VisualDocument(int Version, RoomPlmVisualRunEntry[] Entries);
 }

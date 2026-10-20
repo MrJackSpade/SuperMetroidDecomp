@@ -11,12 +11,15 @@ internal static class ColoredDoorPlmDrawDefinitions
     internal const int DrawListBytes = 12;
 
     /// <summary>Color, direction, and animation phase decoded from one native cap pointer.</summary>
-    internal readonly record struct Draw(int Color, int Orientation, int Frame)
+    internal readonly record struct Draw(int Color, int Orientation, int Frame) : IPlmCapDrawShape
     {
         /// <summary>Left and right caps draw a vertical four-cell run in native list orientation.</summary>
         internal bool Vertical => Orientation < 2;
         /// <summary>Encodes the native run direction and four-cell count.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
+
+        /// <summary>The cap run\'s native direction-and-count word.</summary>
+        public ushort DirectionAndCountWord() => DirectionAndCount;
 
         /// <summary>
         /// Tiles advance four per color, one per vertical frame, or alternate
@@ -25,7 +28,7 @@ internal static class ColoredDoorPlmDrawDefinitions
         /// Final middle cells clear for every left cap, green/red right caps
         /// and yellow down caps; the other final caps remain solid.
         /// </summary>
-        internal ushort WordAt(int cell)
+        public ushort WordAt(int cell)
         {
             if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
             bool inner = cell is 1 or 2;
@@ -63,15 +66,8 @@ internal static class ColoredDoorPlmDrawDefinitions
     }
 
     /// <summary>Builds an import/export draw-list DTO while runtime collision cells remain calculated.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        list = default;
-        if (!TryDescribe(pointer, out var draw)) return false;
-        var words = new ushort[4];
-        for (int cell = 0; cell < 4; cell++) words[cell] = draw.WordAt(cell);
-        list = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(draw.DirectionAndCount, words, new(0, 0)) });
-        return true;
-    }
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(pointer, TryDescribe, out list);
 
     /// <summary>Names a compiled cap frame by color, direction, and phase for editable artwork.</summary>
     internal static string VisualId(ushort pointer)

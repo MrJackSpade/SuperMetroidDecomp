@@ -27,15 +27,15 @@ internal static class ElevatorPlatformVisualsVerification
     {
         RoomPlmElevatorPlatformVisualCatalog stock =
             RoomPlmElevatorPlatformVisualCatalog.Stock();
-        RoomPlmElevatorPlatformVisualEntry[] entries =
+        RoomPlmVisualRunEntry[] entries =
             ElevatorPlatformPlmDefinitions.DrawLists.Select(list =>
-                new RoomPlmElevatorPlatformVisualEntry(
+                new RoomPlmVisualRunEntry(
                     ElevatorPlatformPlmDefinitions.VisualId(list.Pointer),
                     list.Runs.Span.SelectToArray(run =>
                         run.LevelWords.Span.SelectToArray(word =>
                             new RoomLevelWord(word).VisualWord))))
                 .ToArray();
-        RoomPlmElevatorPlatformVisualEntry first = entries.Single(entry =>
+        RoomPlmVisualRunEntry first = entries.Single(entry =>
             entry.Id == "first-frame");
         first.Runs[0][0] = 0x0053;
         var edited = new RoomPlmElevatorPlatformVisualCatalog(entries);

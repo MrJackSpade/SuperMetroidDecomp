@@ -46,14 +46,6 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
 
     /// <summary>Resolves the one exported visual identity to its calculated draw record.</summary>
     internal static bool TryGetByVisualId(string id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        if (string.Equals(id, BombRevealVisualId, StringComparison.Ordinal))
-        {
-            list = BombReveal;
-            return true;
-        }
-        list = default;
-        return false;
-    }
+        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId([BombReveal], _ => BombRevealVisualId, id, out list);
 }

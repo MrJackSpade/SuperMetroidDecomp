@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks installed Draygon BG2 frames and collision components against native streams and live drawing.</summary>
 internal static class EnemyTileArtworkDraygonBg2FramesVerification
@@ -33,7 +34,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             "installed enemy art includes Draygon BG2 frames");
         var noCartridge = NewFrontendCartridgeReadGuard(rom);
         int writeCount = 0;
-        foreach (EnemyBg2FrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
+        foreach (SpritemapFrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
             AssertTrue((stock.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.DraygonBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
@@ -99,7 +100,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         EnemyBg2FrameDocument document =
             RequiredJson.Deserialize<EnemyBg2FrameDocument>(original,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        EnemyBg2FrameDefinition editedIdentity = DraygonBg2FrameDefinitions.Frames[0];
+        SpritemapFrameDefinition editedIdentity = DraygonBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument first = document.Frames[editedIdentity.Name][0];
         int changedTile = first.Tiles[0] ^ 1;
         int[] editedTiles = (int[])first.Tiles.Clone();
@@ -144,7 +145,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         SuperMetroidAddressSpace rom)
     {
         var nativeLists = new Dictionary<ushort, IReadOnlyList<DraygonCollisionHitbox>>();
-        foreach (EnemyBg2FrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
+        foreach (SpritemapFrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
             int root = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, frame.Pointer));
             DraygonCollisionComponent[] components =

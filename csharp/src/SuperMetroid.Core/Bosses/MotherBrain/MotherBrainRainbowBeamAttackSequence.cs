@@ -976,7 +976,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Emits the next four-frame escape-door blast from its repeating native position table.
     /// Returns no request on frames before the shared interval timer expires.
     /// </summary>
-    private MotherBrainEscapeDoorExplosionRequest? GenerateEscapeDoorExplosion(
+    private DustExplosionRequest? GenerateEscapeDoorExplosion(
         Func<int>? nextRandomNumber)
     {
         // `$B346` shares the old death-explosion interval word but replaces its cadence with
@@ -1014,7 +1014,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // values retain the preloaded small explosion ($03).
         int random = nextRandomNumber();
         MiscDustAnimation animation = random < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
-        return new MotherBrainEscapeDoorExplosionRequest(
+        return new DustExplosionRequest(
             Position: position,
             Animation: animation,
             SoundEffect: SoundEffectLibrary2Sounds.SmallExplosion);
@@ -1179,7 +1179,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         var escapePaletteFxRequests = new List<PaletteFxObject>(capacity: 4);
         bool escapeTypewriterSetupRequested = false;
         bool timeBombSetSubtitleSpawnRequested = false;
-        MotherBrainEscapeDoorExplosionRequest? escapeDoorExplosion = null;
+        DustExplosionRequest? escapeDoorExplosion = null;
         bool timerHandlingEnableRequested = false;
         bool motherBrainEscapeTimerStartRequested = false;
         bool motherBrainBossBitRequested = false;

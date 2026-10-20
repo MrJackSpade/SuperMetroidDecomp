@@ -32,7 +32,7 @@ internal static class LookupElevatorPlatformStockVerification
             }
             native.Add(frame.Pointer, runs.ToArray());
         }
-        var entries = frames.Select(frame => new RoomPlmElevatorPlatformVisualEntry(frame.Id,
+        var entries = frames.Select(frame => new RoomPlmVisualRunEntry(frame.Id,
             native[frame.Pointer].Select(run => run.ToArray()).ToArray())).ToArray();
         var original = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].Select(run => run.ToArray()).ToArray());
         var stock = RoomPlmElevatorPlatformVisualCatalog.Stock();

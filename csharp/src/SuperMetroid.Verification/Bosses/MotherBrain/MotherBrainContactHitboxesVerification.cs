@@ -35,7 +35,7 @@ internal static class MotherBrainContactHitboxesVerification
             for (int index = 0; index < hitboxes.Count; index++)
             {
                 int record = address + 2 + index * 8;
-                MotherBrainContactHitbox hitbox = hitboxes[index];
+                EnemyHitboxRectangle hitbox = hitboxes[index];
                 AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(record)), hitbox.Left,
                     $"Mother Brain {part} hitbox {index} left");
                 AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), hitbox.Top,
@@ -98,7 +98,7 @@ internal static class MotherBrainContactHitboxesVerification
         Offset16<RoomPixels> delta,
         Extent16<RoomPixels> radius)
     {
-        foreach (MotherBrainContactHitbox hitbox in MotherBrainContactHitboxDefinitions.Get(part))
+        foreach (EnemyHitboxRectangle hitbox in MotherBrainContactHitboxDefinitions.Get(part))
         {
             int yExtent = delta.Y >= 0 ? hitbox.Bottom : hitbox.Top;
             if (radius.Y + Math.Abs(yExtent) - Math.Abs((int)delta.Y) < 0)

@@ -117,6 +117,7 @@ public sealed class KraidPartState
     }
 
     /// <summary>Empties the values the cartridge keeps in the part's common record.</summary>
+    [IntendedDuplicate("each state clears its own native words; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {
         _functionWord = 0;

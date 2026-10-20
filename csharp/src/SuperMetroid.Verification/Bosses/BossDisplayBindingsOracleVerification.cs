@@ -17,7 +17,7 @@ internal static class BossDisplayBindingsOracleVerification
     /// <summary>Independent bounded decode of the already inventoried native visual and collision records.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for native boss extended OAM and BG2 display records")]
     internal static (EnemyExtendedDrawComponent[] Oam, EnemyBg2TilemapWrite[] Bg2) ReadBossDisplayOracle(
-        CartridgeImportAddressSpace source, EnemyExtendedFrameDefinition frame, HashSet<int> checkedLists)
+        CartridgeImportAddressSpace source, EnemySpritemapDefinition frame, HashSet<int> checkedLists)
     {
         int Address(ushort pointer) => ((int)new SnesAddress(frame.Bank, pointer));
         int root = Address(frame.Pointer), count = source.ReadCartridgeByte(root);
@@ -67,14 +67,14 @@ internal static class BossDisplayBindingsOracleVerification
             }
             int sprites = source.ReadCartridgeWord(Address(visual));
             AssertTrue(sprites <= EnemySpritemapDefinitions.MaximumParts, "native oracle OAM count is bounded");
-            var parts = new EnemySpritemapPart[sprites];
+            var parts = new SpritemapPart[sprites];
             for (int index = 0; index < sprites; index++)
             {
                 int address = Address(visual) + 2 + index * 5;
                 var nativeX = new SnesSpritemapXWord(source.ReadCartridgeWord(address));
                 // Native unused X bits are not presentation; compare the canonical
                 // signed offset and size that actually reach packed OAM.
-                parts[index] = new EnemySpritemapPart(SnesSpritemapXWord.Create(nativeX.SignedOffset, nativeX.IsLarge),
+                parts[index] = new SpritemapPart(SnesSpritemapXWord.Create(nativeX.SignedOffset, nativeX.IsLarge),
                     new SnesSpritemapYByte(source.ReadCartridgeByte(address + 2)), new SnesObjAttributeWord(source.ReadCartridgeWord((address + 3))));
             }
             oam.Add(new EnemyExtendedDrawComponent(new(x, y), EnemySpritemapParts.FromOwnedArray(parts)));
@@ -83,7 +83,7 @@ internal static class BossDisplayBindingsOracleVerification
     }
 
     /// <summary>Selects compiled component offsets and each component's hitbox records for the frame's boss family.</summary>
-    private static (short X, short Y, ushort[][] Boxes)[] BossPhysicalComponents(EnemyExtendedFrameDefinition frame) => frame.Bank switch
+    private static (short X, short Y, ushort[][] Boxes)[] BossPhysicalComponents(EnemySpritemapDefinition frame) => frame.Bank switch
     {
         CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer)
             .SelectToArray(part => (part.Offset.X, part.Offset.Y,

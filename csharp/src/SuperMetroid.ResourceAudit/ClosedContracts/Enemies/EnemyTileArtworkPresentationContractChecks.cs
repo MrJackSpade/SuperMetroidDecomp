@@ -76,7 +76,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         Require(catalog.TryResolve(first.SourceAddress, first.ByteCount, out ReadOnlyMemory<byte> bytes) &&
             bytes.Length == first.ByteCount, "copied native DMA alias");
         Require(!catalog.TryResolve(0, int.MinValue, out _), "unowned source remains a false query");
-        CeresEscapeTileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
+        TileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
         Require(catalog.TryResolve(warning.SourceAddress + 1, 1, out bytes) && bytes.Length == 1,
             "bounded Ceres tile slice");
         CeresEscapeOverlayTilemapDefinition overlay = CeresEscapeOverlayTilemapDefinitions.Emergency;

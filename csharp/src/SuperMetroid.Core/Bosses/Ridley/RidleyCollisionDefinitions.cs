@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
@@ -60,46 +61,46 @@ internal static class RidleyCollisionDefinitions
     private const short ForwardYOffset = -6;
 
     /// <summary>Hitbox_Ridley_FacingLeft_MouthClosed: the closed-mouth head of left-facing Ridley.</summary>
-    private static readonly RidleyCollisionHitbox[] LeftHeadMouthClosed =
+    private static readonly EnemyHitboxRectangle[] LeftHeadMouthClosed =
         [new(-12, -26, 11, 13), new(-24, 3, -13, 21)];
     /// <summary>The half-open-mouth head of left-facing Ridley.</summary>
-    private static readonly RidleyCollisionHitbox[] LeftHeadMouthHalfOpen =
+    private static readonly EnemyHitboxRectangle[] LeftHeadMouthHalfOpen =
         [new(-41, -19, -21, -9), new(-20, -29, 11, 5)];
     /// <summary>The open-mouth head of left-facing Ridley.</summary>
-    private static readonly RidleyCollisionHitbox[] LeftHeadMouthOpen =
+    private static readonly EnemyHitboxRectangle[] LeftHeadMouthOpen =
         [new(-37, -40, -14, -31), new(-25, -31, 9, 6)];
     /// <summary>Hitbox_Ridley_FacingLeft_LegsNotExtended: left-facing standing legs.</summary>
-    private static readonly RidleyCollisionHitbox[] LeftLegsNotExtended = [new(-15, -10, 7, 2)];
+    private static readonly EnemyHitboxRectangle[] LeftLegsNotExtended = [new(-15, -10, 7, 2)];
     /// <summary>Left-facing legs half extended.</summary>
-    private static readonly RidleyCollisionHitbox[] LeftLegsHalfExtended = [new(-17, -9, 6, 15)];
+    private static readonly EnemyHitboxRectangle[] LeftLegsHalfExtended = [new(-17, -9, 6, 15)];
     /// <summary>Left-facing legs extended.</summary>
-    private static readonly RidleyCollisionHitbox[] LeftLegsExtended = [new(-14, -1, 10, 23)];
+    private static readonly EnemyHitboxRectangle[] LeftLegsExtended = [new(-14, -1, 10, 23)];
     /// <summary>Hitbox_Ridley_FacingLeft_Hand.</summary>
-    private static readonly RidleyCollisionHitbox[] LeftHand = [new(-15, -2, -1, 8)];
+    private static readonly EnemyHitboxRectangle[] LeftHand = [new(-15, -2, -1, 8)];
     /// <summary>Hitbox_Ridley_FacingLeft_Torso.</summary>
-    private static readonly RidleyCollisionHitbox[] LeftTorso = [new(-16, -20, 12, 21)];
+    private static readonly EnemyHitboxRectangle[] LeftTorso = [new(-16, -20, 12, 21)];
     /// <summary>Hitbox_Ridley_FacingForward: the whole body of the front-facing turn pose.</summary>
-    private static readonly RidleyCollisionHitbox[] Forward =
+    private static readonly EnemyHitboxRectangle[] Forward =
         [new(-16, -32, 16, 34), new(-8, -45, 8, -33)];
     /// <summary>The closed-mouth head of right-facing Ridley, fitted to the right-facing drawing rather than mirrored.</summary>
-    private static readonly RidleyCollisionHitbox[] RightHeadMouthClosed =
+    private static readonly EnemyHitboxRectangle[] RightHeadMouthClosed =
         [new(-12, -25, 11, 13), new(12, 5, 24, 20)];
     /// <summary>The half-open-mouth head of right-facing Ridley.</summary>
-    private static readonly RidleyCollisionHitbox[] RightHeadMouthHalfOpen =
+    private static readonly EnemyHitboxRectangle[] RightHeadMouthHalfOpen =
         [new(-13, -29, 20, 5), new(21, -18, 39, -8)];
     /// <summary>The open-mouth head of right-facing Ridley.</summary>
-    private static readonly RidleyCollisionHitbox[] RightHeadMouthOpen =
+    private static readonly EnemyHitboxRectangle[] RightHeadMouthOpen =
         [new(-10, -31, 25, 8), new(13, -42, 35, -32)];
     /// <summary>Right-facing standing legs.</summary>
-    private static readonly RidleyCollisionHitbox[] RightLegsNotExtended = [new(-10, -10, 17, 2)];
+    private static readonly EnemyHitboxRectangle[] RightLegsNotExtended = [new(-10, -10, 17, 2)];
     /// <summary>Right-facing legs half extended.</summary>
-    private static readonly RidleyCollisionHitbox[] RightLegsHalfExtended = [new(-9, -8, 17, 15)];
+    private static readonly EnemyHitboxRectangle[] RightLegsHalfExtended = [new(-9, -8, 17, 15)];
     /// <summary>Right-facing legs extended.</summary>
-    private static readonly RidleyCollisionHitbox[] RightLegsExtended = [new(-11, -8, 14, 23)];
+    private static readonly EnemyHitboxRectangle[] RightLegsExtended = [new(-11, -8, 14, 23)];
     /// <summary>Right-facing hand.</summary>
-    private static readonly RidleyCollisionHitbox[] RightHand = [new(1, -2, 14, 9)];
+    private static readonly EnemyHitboxRectangle[] RightHand = [new(1, -2, 14, 9)];
     /// <summary>Right-facing torso.</summary>
-    private static readonly RidleyCollisionHitbox[] RightTorso = [new(-13, -22, 14, 21)];
+    private static readonly EnemyHitboxRectangle[] RightTorso = [new(-13, -22, 14, 21)];
 
     /// <summary>Authored origins for left-facing legs, hand, torso, and head; right-facing frames negate X.</summary>
     private static readonly Offset16<RoomPixels>[] LeftBase =
@@ -116,7 +117,7 @@ internal static class RidleyCollisionDefinitions
         if (frame == BodyFrame.Forward) return new(new(0, ForwardYOffset), Forward);
         bool right = frame is BodyFrame.Right or BodyFrame.RightMouthHalfOpen or BodyFrame.RightMouthOpen
             or BodyFrame.RightLegsHalfExtended or BodyFrame.RightLegsExtended;
-        RidleyCollisionHitbox[] hitboxes = component switch
+        EnemyHitboxRectangle[] hitboxes = component switch
         {
             0 => frame switch
             {

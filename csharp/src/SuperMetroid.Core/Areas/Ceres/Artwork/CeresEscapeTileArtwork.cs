@@ -42,7 +42,7 @@ public sealed class CeresEscapeTileArtwork
     {
         for (int index = 0; index < pages.Length; index++)
         {
-            CeresEscapeTileSheetDefinition page =
+            TileSheetDefinition page =
                 CeresEscapeTileArtworkDefinitions.All[index];
             int offset = sourceAddress - page.SourceAddress;
             if (offset < 0 || byteCount <= 0 ||

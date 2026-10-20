@@ -61,7 +61,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public SoundEffectId? LastShitroidSoundEffectLibrary2 { get; private set; }
 
     /// <summary>Last delayed music command queued during this Shitroid frame.</summary>
-    public ShitroidMusicRequest? LastShitroidMusicRequest { get; private set; }
+    public DelayedMusicRequest? LastShitroidMusicRequest { get; private set; }
 
     /// <summary>Clears frame-local wall, camera, sound, and music requests before AI dispatch.</summary>
     internal void BeginShitroidFrame()
@@ -186,7 +186,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShitroidAiFunction.EntranceDelay:
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    LastShitroidMusicRequest = new ShitroidMusicRequest(
+                    LastShitroidMusicRequest = new DelayedMusicRequest(
                         MusicCommand.SelectTrack(5),
                         MusicCommandDelay.EightFrames);
                     state.Function = ShitroidAiFunction.FlyToSidehopper;
@@ -409,8 +409,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Requests the two room-column wall PLMs at the authored Tourian positions.</summary>
     private void QueueShitroidWallPlms(PlmHeaderId header)
     {
-        _frameResults.ShitroidPlms.Add(new ShitroidPlmRequest(new(48, 3), header));
-        _frameResults.ShitroidPlms.Add(new ShitroidPlmRequest(new(31, 3), header));
+        _frameResults.ShitroidPlms.Add(new PlmSpawnRequest(new(48, 3), header));
+        _frameResults.ShitroidPlms.Add(new PlmSpawnRequest(new(31, 3), header));
     }
 
     /// <summary>Accelerates to the Sidehopper's head and enters the latched feeding animation on arrival.</summary>
@@ -501,7 +501,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.SpecialSuperPaletteFlags = 0;
             samus.Drained.LetFall(samus);
             state.CryEnabled = false;
-            LastShitroidMusicRequest = new ShitroidMusicRequest(
+            LastShitroidMusicRequest = new DelayedMusicRequest(
                 MusicCommand.SelectTrack(7),
                 MusicCommandDelay.EightFrames);
             return;

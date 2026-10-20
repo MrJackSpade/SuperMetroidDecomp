@@ -1,4 +1,5 @@
 using System.Collections;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -15,16 +16,16 @@ internal static class IntroRinkaSpriteDefinitions
         return (ushort)(First + frame * (2 + 5 * StockPartCount));
     }
     /// <summary>Ordered view of the three native intro Rinka frame identities.</summary>
-    internal static IReadOnlyList<IntroRinkaSpriteFrameDefinition> Frames { get; } = new FrameList();
+    internal static IReadOnlyList<SpritemapFrameDefinition> Frames { get; } = new FrameList();
     /// <summary>Calculates each pointer and stable asset name from its checked native frame index.</summary>
-    private sealed class FrameList : IReadOnlyList<IntroRinkaSpriteFrameDefinition>
+    private sealed class FrameList : IReadOnlyList<SpritemapFrameDefinition>
     {
         /// <summary>Exactly three compositions are present in the intro sequence.</summary>
         public int Count => 3;
         /// <summary>Pairs a checked native pointer with its stable <c>rinka-N</c> asset name.</summary>
-        public IntroRinkaSpriteFrameDefinition this[int index] => new(FramePointer(index), $"rinka-{index}");
+        public SpritemapFrameDefinition this[int index] => new(FramePointer(index), $"rinka-{index}");
         /// <summary>Yields the native compositions in their three-frame order.</summary>
-        public IEnumerator<IntroRinkaSpriteFrameDefinition> GetEnumerator()
+        public IEnumerator<SpritemapFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }

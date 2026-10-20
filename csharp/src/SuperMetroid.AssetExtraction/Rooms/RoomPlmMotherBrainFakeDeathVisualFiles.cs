@@ -38,7 +38,7 @@ public static class RoomPlmMotherBrainFakeDeathVisualFiles
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmMotherBrainFakeDeathVisualCatalog>(VisualFileName, "Mother Brain fake-death room", MotherBrainFakeDeathPlmDrawDefinitions.All, MotherBrainFakeDeathPlmDrawDefinitions.VisualId, entries => new RoomPlmMotherBrainFakeDeathVisualCatalog(
                 entries.Select(entry =>
-                    new RoomPlmMotherBrainFakeDeathVisualEntry(
+                    new RoomPlmVisualEntry(
                         entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Checks stock fake-death room assets through <see cref="Load"/> without selecting overrides, reading a cartridge, or writing files.</summary>

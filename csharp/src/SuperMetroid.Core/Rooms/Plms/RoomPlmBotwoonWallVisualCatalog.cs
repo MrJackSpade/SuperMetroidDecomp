@@ -29,10 +29,10 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">The entry count, identity, block count, or visual-only word payload is invalid.</exception>
     public RoomPlmBotwoonWallVisualCatalog(
-        IEnumerable<RoomPlmBotwoonWallVisualEntry> entries)
+        IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
-        RoomPlmBotwoonWallVisualEntry[] selected = entries.ToArray();
+        RoomPlmVisualEntry[] selected = entries.ToArray();
         if (selected.Length != 1 || selected[0] is null ||
             selected[0].Id != BotwoonWallPlmDrawDefinitions.VisualId(
                 BotwoonWallPlmDrawDefinitions.ClearPointer) ||

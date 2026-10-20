@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyAudioQueue
 {
     /// <summary>Append-only per-frame sound calls so multiple enemy actors retain publication order.</summary>
-    private readonly List<EnemySoundRequest> _soundRequests = [];
+    private readonly List<SoundRequest> _soundRequests = [];
     /// <summary>Append-only per-frame music calls from enemy AI.</summary>
-    private readonly List<EnemyMusicRequest> _musicRequests = [];
+    private readonly List<DelayedMusicRequest> _musicRequests = [];
 
     /// <summary>
     /// The power-bomb explosion bound for the current enemy frame. Runtime frame bindings are not duplicate
@@ -28,16 +28,16 @@ internal sealed class EnemyAudioQueue
     }
 
     /// <summary>Records one enemy-owned <c>QueueMusic_Delayed*</c> call.</summary>
-    internal void QueueMusic(EnemyMusicRequest request) => _musicRequests.Add(request);
+    internal void QueueMusic(DelayedMusicRequest request) => _musicRequests.Add(request);
 
     /// <summary>
     /// Exact bank-$A0/$A6/$A9 sound-queue calls published by the current enemy frame.
     /// The frontend drains these only after all enemy AI and draw instructions have run.
     /// </summary>
-    public IReadOnlyList<EnemySoundRequest> SoundRequests => _soundRequests;
+    public IReadOnlyList<SoundRequest> SoundRequests => _soundRequests;
 
     /// <summary>Exact music-queue calls published by the current enemy frame.</summary>
-    public IReadOnlyList<EnemyMusicRequest> MusicRequests => _musicRequests;
+    public IReadOnlyList<DelayedMusicRequest> MusicRequests => _musicRequests;
 
     /// <summary>Transient room-load music calls consumed in the same update outside EnemyMain's frame window.</summary>
     /// <remarks>The requests do not survive an update boundary or enter debugger snapshots.</remarks>
@@ -69,7 +69,7 @@ internal sealed class EnemyAudioQueue
         if (maximumQueued == 0)
             throw new ArgumentOutOfRangeException(nameof(maximumQueued), maximumQueued, "Queue capacity must be nonzero.");
 
-        _soundRequests.Add(new EnemySoundRequest(soundEffect, maximumQueued,
+        _soundRequests.Add(new SoundRequest(soundEffect, maximumQueued,
             SoundSuppressed: PowerBomb?.IsActive == true));
     }
 
@@ -84,6 +84,6 @@ internal sealed class EnemyAudioQueue
     internal void QueueLegacyMusic(MusicCommand? command, MusicCommandDelay? delay)
     {
         if (command is MusicCommand value && delay is MusicCommandDelay wait)
-            _musicRequests.Add(new EnemyMusicRequest(value, wait));
+            _musicRequests.Add(new DelayedMusicRequest(value, wait));
     }
 }

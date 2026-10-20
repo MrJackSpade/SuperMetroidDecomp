@@ -36,7 +36,7 @@ internal static class LookupDownwardGateStockVerification
             }
             native.Add(frame.Pointer, runs.ToArray());
         }
-        var entries = frames.Select(frame => new RoomPlmDownwardGateVisualEntry(frame.Id,
+        var entries = frames.Select(frame => new RoomPlmVisualRunEntry(frame.Id,
             native[frame.Pointer].Select(run => run.ToArray()).ToArray())).ToArray();
         var stock = RoomPlmDownwardGateVisualCatalog.Stock();
         var imported = new RoomPlmDownwardGateVisualCatalog(entries.Reverse());

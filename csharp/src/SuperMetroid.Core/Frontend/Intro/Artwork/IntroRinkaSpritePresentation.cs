@@ -25,15 +25,8 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
     /// <param name="originIsOnScreen">Whether to use ordinary origin clipping; false selects the cinematic negative-origin Y-wrap clipping path.</param>
     /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
     public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
-        ushort paletteBits, bool originIsOnScreen)
-    {
-        if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
-            throw new InvalidDataException($"Intro Rinka frame $8C:{pointer:X4} is not installed.");
-        if (originIsOnScreen)
-            frame.Draw(objects, origin, paletteBits);
-        else
-            frame.DrawOffScreen(objects, origin, paletteBits);
-    }
+        ushort paletteBits, bool originIsOnScreen) =>
+        SpriteComposition.DrawInstalled(frames, "Intro Rinka", pointer, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Validates and compiles all three named intro Rinka frames into independently owned visual compositions.</summary>
     /// <param name="json">Readable JSON stream at its current position; it remains open and caller-owned.</param>
@@ -56,12 +49,12 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
         {
             throw new InvalidDataException("Invalid intro Rinka sprite JSON.", error);
         }
-        IReadOnlyList<IntroRinkaSpriteFrameDefinition> definitions = IntroRinkaSpriteDefinitions.Frames;
+        IReadOnlyList<SpritemapFrameDefinition> definitions = IntroRinkaSpriteDefinitions.Frames;
         if (document.Version != IntroRinkaSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro Rinkas require three named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (IntroRinkaSpriteFrameDefinition definition in definitions)
+        foreach (SpritemapFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)

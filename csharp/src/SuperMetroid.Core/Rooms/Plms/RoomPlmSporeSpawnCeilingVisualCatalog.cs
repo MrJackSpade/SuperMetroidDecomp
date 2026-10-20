@@ -34,12 +34,12 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
     /// <exception cref="InvalidDataException">A frame is missing, duplicated, null, unknown, incorrectly shaped, or contains collision bits in its visual words.</exception>
     public RoomPlmSporeSpawnCeilingVisualCatalog(
-        IEnumerable<RoomPlmSporeSpawnCeilingVisualEntry> entries)
+        IEnumerable<RoomPlmVisualEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
-        foreach (RoomPlmSporeSpawnCeilingVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
         {
             if (entry is null || entry.Blocks is null ||
                 !SporeSpawnCeilingPlmDrawDefinitions.TryGetByVisualId(

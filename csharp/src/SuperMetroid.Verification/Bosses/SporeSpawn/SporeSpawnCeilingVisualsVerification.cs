@@ -113,7 +113,7 @@ internal static class SporeSpawnCeilingVisualsVerification
                     0x840000 | (frame.Pointer + index / 2 * 8 + index % 2 * 2 + 2)) & 0xfff);
             native.Add(frame.Pointer, words);
         }
-        var entries = frames.Select(frame => new RoomPlmSporeSpawnCeilingVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
+        var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmSporeSpawnCeilingVisualCatalog.Stock();
         var imported = new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Reverse());
         // Hash flattened visual frames by native draw pointer for catalog identity comparison.

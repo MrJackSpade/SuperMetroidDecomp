@@ -59,7 +59,7 @@ internal static class ImportedSpritemapsVerification
         ushort operand = expectedOperand ?? throw new InvalidOperationException("An executed typed frame names its native operand.");
         ushort nativePointer = SnesLittleEndian.Word(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand), ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1))));
         executedOperands.Add(operand);
-        ReadOnlyMemory<EnemySpritemapPart> parts;
+        ReadOnlyMemory<SpritemapPart> parts;
         if (projectile.PresentationOperandAddress != 0)
         {
             AssertEqual(operand, projectile.PresentationOperandAddress,

@@ -117,12 +117,6 @@ internal static class DownwardGatePlmDrawDefinitions
     }
 
     /// <summary>Looks up a published visual name against supported native column and trigger draws.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        foreach (ushort pointer in Pointers())
-            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal))
-                return TryGet(pointer, out list);
-        list = default;
-        return false;
-    }
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Pointers(), VisualId, TryGet, id, out list);
 }

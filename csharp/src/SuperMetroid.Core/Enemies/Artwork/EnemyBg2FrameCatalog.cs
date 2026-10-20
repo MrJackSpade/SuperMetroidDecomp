@@ -71,7 +71,7 @@ internal sealed class EnemyBg2FrameCatalog
                 $"{family} BG2 frames require the current version and every named frame.");
 
         var frames = new Dictionary<ushort, EnemyBg2TilemapWrite[]>();
-        foreach (EnemyBg2FrameDefinition frame in definitions)
+        foreach (SpritemapFrameDefinition frame in definitions)
         {
             if (!document.Frames.TryGetValue(frame.Name, out EnemyBg2WriteDocument[]? source) ||
                 source is null || source.Length is < 1 or >

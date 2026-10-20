@@ -49,13 +49,13 @@ internal static class KraidArmCollisionDefinitionsVerification
         int hitboxCount = 0;
         foreach (ushort pointer in original)
         {
-            System.Collections.Immutable.ImmutableArray<KraidArmCollisionHitbox> compiled =
+            System.Collections.Immutable.ImmutableArray<KraidCollisionHitbox> compiled =
                 KraidArmCollisionDefinitions.HitboxesAt(pointer);
             AssertEqual(ReadKraidArmInstructionWord(rom, pointer), compiled.Length,
                 $"Kraid arm hitbox count $A7:{pointer:X4}");
             for (int index = 0; index < compiled.Length; index++)
             {
-                KraidArmCollisionHitbox hitbox = compiled[index];
+                KraidCollisionHitbox hitbox = compiled[index];
                 ushort record = unchecked((ushort)(pointer + 2 + index * 12));
                 AssertEqual(unchecked((short)ReadKraidArmInstructionWord(rom, record)),
                     hitbox.Left, $"Kraid arm hitbox left $A7:{record:X4}");

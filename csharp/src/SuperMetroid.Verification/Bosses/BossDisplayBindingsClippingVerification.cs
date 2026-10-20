@@ -13,9 +13,9 @@ internal static class BossDisplayBindingsClippingVerification
     internal static void VerifyBossDisplayClipping()
     {
         int checks = 0;
-        foreach ((EnemyDefinitionId definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
+        foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
         {
-            EnemyExtendedFrameDefinition? bg2 = family.Cast<EnemyExtendedFrameDefinition?>()
+            EnemySpritemapDefinition? bg2 = family.Cast<EnemySpritemapDefinition?>()
                 .FirstOrDefault(frame => frame.HasValue && EnemyExtendedFrameDefinitions.IsBg2Only(frame.Value));
             if (bg2 is not { } frame) continue;
             var author = new BossDisplayDocuments(edited: true);

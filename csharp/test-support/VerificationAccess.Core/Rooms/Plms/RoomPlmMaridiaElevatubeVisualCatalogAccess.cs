@@ -10,7 +10,7 @@ internal static class RoomPlmMaridiaElevatubeVisualCatalogAccess
     {
         /// <summary>Builds the stock elevatube appearance from its single physical level word.</summary>
         internal static RoomPlmMaridiaElevatubeVisualCatalog Stock() => new(
-            [new RoomPlmMaridiaElevatubeVisualEntry(
+            [new RoomPlmVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId,
                 [new RoomLevelWord(MaridiaElevatubePlmDefinitions.PhysicalWord).VisualWord])]);
     }

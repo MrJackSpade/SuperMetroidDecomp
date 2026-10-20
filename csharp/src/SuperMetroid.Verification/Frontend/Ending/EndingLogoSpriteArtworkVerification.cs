@@ -16,7 +16,7 @@ internal static class EndingLogoSpriteArtworkVerification
     internal static void VerifyEndingLogoSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
-        foreach (EndingLogoSpriteFrameDefinition frame in EndingLogoSpriteDefinitions.Frames)
+        foreach (SpriteFrameDefinition frame in EndingLogoSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {

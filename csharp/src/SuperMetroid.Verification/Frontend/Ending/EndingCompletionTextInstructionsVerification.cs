@@ -68,7 +68,7 @@ internal static class EndingCompletionTextInstructionsVerification
     }
 
     /// <summary>Checks calculated stock composition, on- and off-screen OAM, and retention of independent artwork edits.</summary>
-    private static void VerifyEndingCompletionTextParts(ISnesAddressSpace bus, int frame, EndingCompletionTextSpriteFrameDefinition definition)
+    private static void VerifyEndingCompletionTextParts(ISnesAddressSpace bus, int frame, SpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, definition.Pointer, definition.StockPartCount, definition.Name);
         SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);

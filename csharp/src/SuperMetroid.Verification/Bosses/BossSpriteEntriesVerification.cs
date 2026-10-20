@@ -113,7 +113,7 @@ internal static class BossSpriteEntriesVerification
             "Ridley publishes the tail tip, then segments five to the base, then the wings");
         AssertEqual(new Position16<ScreenPixels>(140, 138), sprites.Draws[0].Origin, "The tail tip sits at its segment's screen point");
 
-        CeresEscapeTileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
+        TileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
         CeresEscapeTileCharacters characters = CeresEscapeTileCharacters.ForTransfer(warning.SourceAddress + 64, 128)
             ?? throw new InvalidOperationException("The warning page holds the transfer.");
         AssertEqual(new CeresEscapeTileCharacters(0, 64, 128), characters, "A warning-text transfer names its page range");

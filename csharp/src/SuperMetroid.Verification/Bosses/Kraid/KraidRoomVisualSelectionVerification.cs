@@ -20,7 +20,7 @@ internal static class KraidRoomVisualSelectionVerification
             (0x939d, "clear-ceiling", 15), (0x93bf, "clear-spikes", 22),
         ];
         var expected = new Dictionary<ushort, ushort[]>();
-        var entries = new List<RoomPlmKraidVisualEntry>();
+        var entries = new List<RoomPlmVisualEntry>();
         for (int frame = 0; frame < definitions.Length; frame++)
         {
             var definition = definitions[frame];
@@ -34,7 +34,7 @@ internal static class KraidRoomVisualSelectionVerification
         AssertEqual(expectedHash, catalog.ContentIdentity, "Kraid visual selection preserves sorted legacy identity");
         AssertEqual(expectedHash, new RoomPlmKraidVisualCatalog(entries).ContentIdentity,
             "Kraid visual selection ignores input ordering");
-        foreach (RoomPlmKraidVisualEntry entry in entries)
+        foreach (RoomPlmVisualEntry entry in entries)
             Array.Fill(entry.Blocks, (ushort)0);
         foreach (var definition in definitions)
         {

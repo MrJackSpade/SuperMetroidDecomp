@@ -4,10 +4,10 @@ using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVer
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbFramesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Checks that replacing enemy display sequences leaves compiled gameplay timelines intact.</summary>
 internal static class EnemyAnimationIsolationVerification
@@ -108,7 +108,7 @@ internal static class EnemyAnimationIsolationVerification
             if (firstBossBitFrame < 0 && stock.BossBitCalls != 0) firstBossBitFrame = frame;
             if (frame == deathPublicationFrame)
             {
-                AssertEqual(new BombTorizoMusicRequest(MusicCommand.SelectTrack(3), MusicCommandDelay.EightFrames),
+                AssertEqual(new DelayedMusicRequest(MusicCommand.SelectTrack(3), MusicCommandDelay.EightFrames),
                     (stock.Enemies.BombTorizoBehavior.LastBombTorizoMusicRequest ?? throw new InvalidOperationException("Verification requires stock.Enemies.BombTorizoBehavior.LastBombTorizoMusicRequest.")), "death publishes the actual return-music command at its compiled frame");
                 AssertTrue(stock.Enemies.Projectiles.EnemyProjectiles.Any(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
                     "death actually allocates pickups, rather than merely setting a debugger flag");

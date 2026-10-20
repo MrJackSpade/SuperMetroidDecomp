@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
@@ -45,10 +47,10 @@ public static class EndingCloudSpriteDefinitions
     }
 
     /// <summary>Gets the ordered upper, lower, right, and left cloud roles used by the ending actors.</summary>
-    public static IReadOnlyList<EndingCloudSpriteFrameDefinition> Frames { get; } = new FrameView();
+    public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameView();
 
     /// <summary>Maps an actor-list role to the corresponding native cloud record.</summary>
-    private static EndingCloudSpriteFrameDefinition Get(int index) => (Role)index switch
+    private static SpriteFrameDefinition Get(int index) => (Role)index switch
     {
         Role.UpperPattern => Define("scene-b-upper-a", Record.TopPattern),
         Role.UpperEdge => Define("scene-b-upper-b", Record.TopEdge),
@@ -60,7 +62,7 @@ public static class EndingCloudSpriteDefinitions
     };
 
     /// <summary>Computes a cloud record pointer from preceding 16- and 32-part native records.</summary>
-    private static EndingCloudSpriteFrameDefinition Define(string name, Record record)
+    private static SpriteFrameDefinition Define(string name, Record record)
     {
         int index = (int)record;
         int horizontalRecords = Math.Min(index, 4);
@@ -70,14 +72,14 @@ public static class EndingCloudSpriteDefinitions
     }
 
     /// <summary>Calculated view of the six cloud records in actor order.</summary>
-    private sealed class FrameView : IReadOnlyList<EndingCloudSpriteFrameDefinition>
+    private sealed class FrameView : IReadOnlyList<SpriteFrameDefinition>
     {
         /// <summary>Four horizontal and two side-cloud actor roles.</summary>
         public int Count => FrameCount;
         /// <summary>Selects one cloud identity in cinematic actor order.</summary>
-        public EndingCloudSpriteFrameDefinition this[int index] => Get(index);
+        public SpriteFrameDefinition this[int index] => Get(index);
         /// <summary>Enumerates all calculated cloud identities without caching an array.</summary>
-        public IEnumerator<EndingCloudSpriteFrameDefinition> GetEnumerator()
+        public IEnumerator<SpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }

@@ -26,7 +26,7 @@ internal static class EnemyExtendedFrameFiles
         Ensure.NotNull(bus);
         var frames = new Dictionary<string, EnemyExtendedVisualComponent[]>(
             StringComparer.Ordinal);
-        foreach (EnemyExtendedFrameDefinition definition in
+        foreach (EnemySpritemapDefinition definition in
                  EnemyExtendedFrameDefinitions.Frames)
         {
             if (!frames.TryAdd(definition.Name, ExtractComponents(bus, definition)))
@@ -47,7 +47,7 @@ internal static class EnemyExtendedFrameFiles
 
     /// <summary>Decodes one declared visual root without importing its gameplay-owned hitboxes.</summary>
     internal static EnemyExtendedVisualComponent[] ExtractComponents(
-        ISnesAddressSpace bus, EnemyExtendedFrameDefinition definition)
+        ISnesAddressSpace bus, EnemySpritemapDefinition definition)
     {
         Ensure.NotNull(bus);
         byte bank = definition.Bank;

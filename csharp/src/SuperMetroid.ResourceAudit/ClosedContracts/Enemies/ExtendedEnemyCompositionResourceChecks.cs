@@ -9,18 +9,18 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 internal static class ExtendedEnemyCompositionResourceChecks
 {
     /// <summary>Checks newly added frames load from stock and inherit correctly when older edited catalogs are merged.</summary>
-    internal static void Run(string family, EnemyExtendedFrameDefinition[] selected,
+    internal static void Run(string family, EnemySpritemapDefinition[] selected,
         int previousVersion, int previousCount)
     {
-        EnemyExtendedFrameDefinition[] expected = EnemyExtendedFrameDefinitions.Frames.ToArray();
+        EnemySpritemapDefinition[] expected = EnemyExtendedFrameDefinitions.Frames.ToArray();
         EnemyExtendedFrameDocument document = CreateDocument();
         EnemyExtendedFrameCatalog stock = Load(document);
         foreach (var frame in selected) Confirm(stock, frame);
         Require(expected.Skip(previousCount).Take(selected.Length).SequenceEqual(selected),
             "schema append must contain exactly the statically identified frame set");
 
-        EnemyExtendedFrameDefinition edited = expected[0];
-        EnemyExtendedFrameDefinition alternate = expected[1];
+        EnemySpritemapDefinition edited = expected[0];
+        EnemySpritemapDefinition alternate = expected[1];
         var previous = expected[..previousCount];
         var legacy = document with
         {
@@ -73,7 +73,7 @@ internal static class ExtendedEnemyCompositionResourceChecks
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
 
     /// <summary>Checks a selected frame resolves to its expected component offset and single OAM part.</summary>
-    private static void Confirm(EnemyExtendedFrameCatalog catalog, EnemyExtendedFrameDefinition frame)
+    private static void Confirm(EnemyExtendedFrameCatalog catalog, EnemySpritemapDefinition frame)
     {
         Require(catalog.TryGetDisplay(frame.Bank, frame.Pointer, out var components),
             $"extended sprite {frame.Bank:X2}:{frame.Pointer:X4} must have an installed display binding");

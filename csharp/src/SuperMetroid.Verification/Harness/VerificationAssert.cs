@@ -1346,7 +1346,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(1, IntroCaretSpriteDefinitions.Frames.Count, "Caret registration count");
         VerifyIntroCaretNativePartCount(rom);
-        AssertEqual(new IntroCaretFrameDefinition(0x8d68, "caret-visible", 1), IntroCaretSpriteDefinitions.Frames.Single(), "Caret identity and enumeration");
+        AssertEqual(new IntroSpriteFrameDefinition(0x8d68, "caret-visible", 1), IntroCaretSpriteDefinitions.Frames.Single(), "Caret identity and enumeration");
         foreach (int invalid in new[] { -1, 1, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = IntroCaretSpriteDefinitions.Frames[invalid], "Caret index bounds");
         Console.WriteLine("Caret registration: native part count, identity, enumeration and bounds pass.");

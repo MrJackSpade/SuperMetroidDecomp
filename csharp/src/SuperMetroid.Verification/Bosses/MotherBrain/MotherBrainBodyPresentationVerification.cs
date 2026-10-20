@@ -44,7 +44,7 @@ internal static class MotherBrainBodyPresentationVerification
         for (int index = 0; index < mixed.Length; index++)
             (editedOam.DisplayFrames ?? throw new InvalidOperationException("Verification requires editedOam.DisplayFrames."))[mixed[index].Name] = mixed[(index + 1) % mixed.Length].Name;
         var replacement = new MotherBrainPresentationFixture(Build(editedOam, editedBg2));
-        foreach (EnemyExtendedFrameDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
         {
             baseline.SetFrame(frame.Pointer, fresh: true);
             replacement.SetFrame(frame.Pointer, fresh: true);
@@ -97,7 +97,7 @@ internal static class MotherBrainBodyPresentationVerification
         {
             EnemyExtendedFrameDocument document = author.ExtendedDocument();
             int index = 0;
-            foreach (EnemyExtendedFrameDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
+            foreach (EnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
             {
                 SpriteVisualPart part = document.Frames[frame.Name][0].Parts[0] with
                 { OffsetX = 2, OffsetY = 3, Size = 16, TileColumn = index % 16, TileRow = index / 16,
@@ -166,7 +166,7 @@ internal static class MotherBrainBodyPresentationVerification
         EnemyExtendedFrameCatalog oam = EnemyExtendedFrameCatalog.Load(new MemoryStream(
             EnemyExtendedFrameFiles.Extract(source), writable: false));
         int limbs = 0, sprites = 0, runs = 0, tiles = 0;
-        foreach (EnemyExtendedFrameDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
         {
             AssertTrue(oam.TryGet(frame.Bank, frame.Pointer, out var parts), frame.Name + " imports its OAM half");
             limbs += parts.Length;

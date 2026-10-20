@@ -19,6 +19,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Focused cartridge comparisons for aerial motion, jump poses, liquid drag, and
@@ -364,7 +365,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         AssertEqual(expectedSound ? 1 : 0, ordinary.LiquidPhysics.SoundRequests.Count,
             $"ordinary spin sound cinematic={cinematic}, submerged={submerged}, gravity={gravity}");
         if (expectedSound)
-            AssertEqual(new SamusSoundRequest(SoundEffectLibrary1Sounds.SpinJump, 6),
+            AssertEqual(new SoundRequest(SoundEffectLibrary1Sounds.SpinJump, 6),
                 ordinary.LiquidPhysics.SoundRequests[0], "ordinary spin uses native max-six queue");
         ordinary.LiquidPhysics.BeginFrameSoundRequests();
         ordinary.PoseTransitions.ApplySpinJumpDirectionTransition(SamusPoseId.SpinJumpLeftPose);
@@ -379,7 +380,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         bool endsSpin = previous != SamusMovementType.Running && currentPose == SamusPoseId.NormalJumpGunExtendedRightPose;
         AssertEqual(endsSpin ? 1 : 0, endingSpin.LiquidPhysics.SoundRequests.Count, "post-draw spin exit classification");
         if (endsSpin)
-            AssertEqual(new SamusSoundRequest(SoundEffectLibrary1Sounds.StopSpinJump, 15),
+            AssertEqual(new SoundRequest(SoundEffectLibrary1Sounds.StopSpinJump, 15),
                 endingSpin.LiquidPhysics.SoundRequests[0], "post-draw stop uses native max-fifteen queue");
     }
     var resumeCharge = new SamusState
@@ -392,7 +393,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     AssertEqual(1, resumeCharge.LiquidPhysics.SoundRequests.Count, "only stop is queued on spin exit");
     resumeCharge.LiquidPhysics.BeginFrameSoundRequests();
     SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.NormalJumping, SnesButton.X);
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x41), 9),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x41), 9),
         resumeCharge.LiquidPhysics.SoundRequests.Single(), "next frame resumes charge after stop");
     resumeCharge.LiquidPhysics.BeginFrameSoundRequests();
     resumeCharge.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.SignedLatch;
@@ -666,7 +667,7 @@ empty, screwRepeat, SnesButton.A, 0, SnesButton.A);
         "full liquid physics suppresses charged-spin contact damage");
     AssertEqual(1, submergedSpin.LiquidPhysics.SoundRequests.Count,
         "underwater Space Jump sound frame publishes once");
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2f), 6), submergedSpin.LiquidPhysics.SoundRequests[0],
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2f), 6), submergedSpin.LiquidPhysics.SoundRequests[0],
         "underwater Space Jump uses library-one sound $2F max six");
 
     screwRepeat.AnimationFrame = 4;
@@ -1070,14 +1071,14 @@ internal static void VerifySamusAtmosphericEffects()
     AssertEqual(2, entrySplash.AnimationTimer.RawValue, "diving splash initial timer");
     AssertEqual(100, entrySplash.Position.X, "diving splash Samus X");
     AssertEqual(110, entrySplash.Position.Y, "diving splash surface Y");
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0d), 6),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0d), 6),
         samus.LiquidPhysics.SoundRequests.Single(), "water-entry library-two sound");
 
     // Leaving water produces sound `$0E` and replaces the slot through the same movement-
     // type table. A spin/wall-jump-only `$30` request is correctly absent for type one.
     samus.LiquidPhysics.ConfigureWater(surfaceY: 112);
     samus.LiquidPhysics.PrepareAnimationFrame(samus, new CartridgeRandom(), nmiFrameCounter: 2);
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0e), 6),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0e), 6),
         samus.LiquidPhysics.SoundRequests.Single(), "water-exit library-two sound");
 
     // Bubble admission samples top-24, every 128th accepted NMI, and slot two availability.
@@ -1183,7 +1184,7 @@ internal static void VerifySamusAtmosphericEffects()
     runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
     runner.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(1);
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1);
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 6), 6),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 6), 6),
         runner.LiquidPhysics.SoundRequests.Single(), "boost palette timer does not suppress footsteps");
     // #1386: $90:A409 reads the live boss ID; the same footstep in a boss room queues no sound.
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1, bossPresent: true);
@@ -1212,9 +1213,9 @@ internal static void VerifySamusAtmosphericEffects()
         landing.Kinematics.YSpeed);
     AssertEqual(2, landing.LiquidPhysics.SoundRequests.Count,
         "spin landing publishes termination and impact sounds");
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32), 6),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32), 6),
         landing.LiquidPhysics.SoundRequests[0], "ordinary spin termination sound");
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6),
         landing.LiquidPhysics.SoundRequests[1], "sub-five soft landing sound");
     AssertEqual(SamusAtmosphericEffectType.Dust, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "Norfair landing creates right dust slot");
@@ -1236,9 +1237,9 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.WallJumping, previousPose: SamusPoseId.ScrewAttackRightPose,
         landing.Kinematics.YSpeed);
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x34), 6),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x34), 6),
         landing.LiquidPhysics.SoundRequests[0], "Screw Attack termination sound");
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x04), 6),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x04), 6),
         landing.LiquidPhysics.SoundRequests[1], "speed-five hard landing sound");
     // #1389: `$91:F07D` compares signed, so a whole speed of $8005 or more is below five; a sub-five
     // whole speed with no sub-speed returns before sound and graphics, as zero does.
@@ -1254,7 +1255,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         new SnesUnsignedSixteenSixteen(0x8005, 1));
-    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6),
+    AssertEqual(new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6),
         landing.LiquidPhysics.SoundRequests.Single(), "whole speed $8005 is below five as a signed word");
     landing.LiquidPhysics.CinematicFunctionActive = true;
     landing.LiquidPhysics.BeginFrameSoundRequests();

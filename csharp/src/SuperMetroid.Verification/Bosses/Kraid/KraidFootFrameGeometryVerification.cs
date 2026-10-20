@@ -17,7 +17,7 @@ internal static class KraidFootFrameGeometryVerification
                      KraidPartProgram.FootWalkingForwardFinished, KraidPartProgram.FootLungeForward, KraidPartProgram.FootLungeForwardFinished,
                      KraidPartProgram.FootWalkingBackward, KraidPartProgram.FootWalkingBackwardLoop));
         AssertEqual(35, selected.Count, "original selected Kraid foot roots");
-        var expected = selected.Select(pointer => new EnemyExtendedFrameDefinition(0xa7, pointer,
+        var expected = selected.Select(pointer => new EnemySpritemapDefinition(0xa7, pointer,
             $"kraid_foot_oam_{pointer:X4}")).ToArray();
         AssertEqual(expected.Length, KraidFootVisualDefinitions.Frames.Length, "Kraid foot sequence length");
         for (int index = 0; index < expected.Length; index++)

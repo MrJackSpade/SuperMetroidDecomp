@@ -414,7 +414,7 @@ public sealed class SamusProjectileSystem
             SlotTable.Slots[initialCollisionSlot].PackedType.IsFamily(
                 SamusProjectileFamily.BeamExplosion);
         bool projectileDeleted = false;
-        List<SamusSoundRequest>? comboSounds = null;
+        List<SoundRequest>? comboSounds = null;
 
         // `$90:AECE` walks the complete ten-slot arrays from byte index $12 down to zero.
         // Bombs were handled by the companion class first; preserve the ordinary half's
@@ -447,7 +447,7 @@ public sealed class SamusProjectileSystem
                 else comboSound = Combos.StepSpazerCombo(samus, slot, sharedProjectiles, layer1.Y);
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound != 0)
-                    (comboSounds ??= []).Add(new SamusSoundRequest(
+                    (comboSounds ??= []).Add(new SoundRequest(
                         SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, comboSound), 6,
                         SoundSuppressed: sharedProjectiles.PowerBombExplosion.IsActive));
             }

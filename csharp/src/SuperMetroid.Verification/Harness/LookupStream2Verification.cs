@@ -937,7 +937,7 @@ internal static class LookupStream2Verification
             int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 2) - 0xa800;
             int destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 5) - 0x2000;
             int length = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 8) + 1;
-            AssertEqual(new DeadTorizoGraphicsCopy(source, destination, length),
+            AssertEqual(new CorpseGraphicsCopy(source, destination, length),
                 DeadTorizoGeometryDefinitions.InitialCopy(row), "Dead Torizo native MVN descriptor");
             ReadDeadTorizoRomBytes(rom, 0xb7a800 + source, length).CopyTo(expected, destination);
         }
@@ -1149,7 +1149,7 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo page dispatch")]
     internal static void VerifyLookupStream2TorizoPageDispatch(ISnesAddressSpace rom)
     {
-        TorizoInstructionTileSheetDefinition[] original =
+        TileSheetDefinition[] original =
         [
             TorizoInstructionVramArtworkDefinitions.SharedDeath, TorizoInstructionVramArtworkDefinitions.StatueCrumble,
             TorizoInstructionVramArtworkDefinitions.LeftAttack, TorizoInstructionVramArtworkDefinitions.RightAttack,
@@ -2145,7 +2145,7 @@ internal static class LookupStream2Verification
     {
         var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
         var document = new EnemyIdentityFixture().ExtendedDocument();
-        var selected = new EnemyExtendedFrameDefinition[10];
+        var selected = new EnemySpritemapDefinition[10];
         int nativeBodyParts = 0;
         for (int phase = 0; phase < 10; phase++)
         {

@@ -160,72 +160,72 @@ internal static class PlmPresentationContractChecks
             new RoomPlmShotBlockVisualEntry(frame.Pointer, VisualRuns(frame)),
             entries => _ = new RoomPlmShotBlockVisualCatalog(entries));
         ConfirmCoverage(RoomPlmStationDrawDefinitions.All, frame =>
-            new RoomPlmStationVisualEntry(RoomPlmStationDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)),
+            new RoomPlmVisualRunEntry(RoomPlmStationDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)),
             entries => _ = new RoomPlmStationVisualCatalog(entries));
         ConfirmCoverage(BombTorizoHandPlmDrawDefinitions.All, frame =>
-            new RoomPlmBombTorizoHandVisualEntry(BombTorizoHandPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(BombTorizoHandPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmBombTorizoHandVisualCatalog(entries));
         ConfirmCoverage(MotherBrainGlassPlmDrawDefinitions.All, frame =>
-            new RoomPlmMotherBrainGlassVisualEntry(MotherBrainGlassPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(MotherBrainGlassPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmMotherBrainGlassVisualCatalog(entries));
         ConfirmCoverage(NoobTubePlmDrawDefinitions.All, frame =>
-            new RoomPlmNoobTubeVisualEntry(NoobTubePlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(NoobTubePlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmNoobTubeVisualCatalog(entries));
         ConfirmCoverage(DownwardGatePlmDrawDefinitions.All, frame =>
-            new RoomPlmDownwardGateVisualEntry(DownwardGatePlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)),
+            new RoomPlmVisualRunEntry(DownwardGatePlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)),
             entries => _ = new RoomPlmDownwardGateVisualCatalog(entries));
         ConfirmCoverage(ElevatorPlatformPlmDefinitions.DrawLists, frame =>
-            new RoomPlmElevatorPlatformVisualEntry(ElevatorPlatformPlmDefinitions.VisualId(frame.Pointer), VisualRuns(frame)),
+            new RoomPlmVisualRunEntry(ElevatorPlatformPlmDefinitions.VisualId(frame.Pointer), VisualRuns(frame)),
             entries => _ = new RoomPlmElevatorPlatformVisualCatalog(entries));
         ConfirmCoverage(DraygonCannonPlmDrawDefinitions.All, frame =>
-            new RoomPlmDraygonCannonVisualEntry(DraygonCannonPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(DraygonCannonPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmDraygonCannonVisualCatalog(entries));
         ConfirmCoverage(ChozoStatuePlmDrawDefinitions.All, frame =>
-            new RoomPlmChozoStatueVisualEntry(ChozoStatuePlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(ChozoStatuePlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmChozoStatueVisualCatalog(entries));
         ConfirmCoverage(RoomPlmLinkedRestoreDrawDefinitions.All, frame =>
-            new RoomPlmLinkedRestoreVisualEntry(RoomPlmLinkedRestoreDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(RoomPlmLinkedRestoreDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmLinkedRestoreVisualCatalog(entries));
         ConfirmCoverage(TourianAccessPlmDrawDefinitions.All, frame =>
-            new RoomPlmTourianAccessVisualEntry(TourianAccessPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(TourianAccessPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmTourianAccessVisualCatalog(entries));
         ConfirmCoverage(SpeedBoosterBlockPlmDrawDefinitions.All, frame =>
-            new RoomPlmSpeedBoosterVisualEntry(SpeedBoosterBlockPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(SpeedBoosterBlockPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmSpeedBoosterVisualCatalog(entries));
         ConfirmCoverage(MaridiaElevatubePlmDefinitions.AllDraws, frame =>
-            new RoomPlmMaridiaElevatubeVisualEntry(MaridiaElevatubePlmDefinitions.DrawVisualId(frame.Pointer),
+            new RoomPlmVisualEntry(MaridiaElevatubePlmDefinitions.DrawVisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmMaridiaElevatubeVisualCatalog(entries));
         ConfirmCoverage(SporeSpawnCeilingPlmDrawDefinitions.All, frame =>
-            new RoomPlmSporeSpawnCeilingVisualEntry(SporeSpawnCeilingPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(SporeSpawnCeilingPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmSporeSpawnCeilingVisualCatalog(entries));
         ConfirmCoverage(SamusEaterPlmDrawDefinitions.All, frame =>
-            new RoomPlmSamusEaterVisualEntry(SamusEaterPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(SamusEaterPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmSamusEaterVisualCatalog(entries));
         ConfirmCoverage(BotwoonWallPlmDrawDefinitions.All, frame =>
-            new RoomPlmBotwoonWallVisualEntry(BotwoonWallPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(BotwoonWallPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmBotwoonWallVisualCatalog(entries));
         ConfirmCoverage(KraidRoomPlmDrawDefinitions.All, frame =>
-            new RoomPlmKraidVisualEntry(KraidRoomPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(KraidRoomPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmKraidVisualCatalog(entries));
         ConfirmCoverage(CrocomireArenaPlmDrawDefinitions.All, frame =>
-            new RoomPlmCrocomireVisualEntry(CrocomireArenaPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(CrocomireArenaPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmCrocomireVisualCatalog(entries));
         ConfirmCoverage(MotherBrainFakeDeathPlmDrawDefinitions.All, frame =>
-            new RoomPlmMotherBrainFakeDeathVisualEntry(MotherBrainFakeDeathPlmDrawDefinitions.VisualId(frame.Pointer),
+            new RoomPlmVisualEntry(MotherBrainFakeDeathPlmDrawDefinitions.VisualId(frame.Pointer),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = new RoomPlmMotherBrainFakeDeathVisualCatalog(entries));
     }

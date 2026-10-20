@@ -7,6 +7,20 @@
 internal static class EnemyMath
 {
     /// <summary>
+    /// Clamps a signed 16.16 velocity to plus or minus <paramref name="maximum"/> whole pixels: a whole part at or past
+    /// the maximum becomes exactly the maximum, one below its negation exactly the negation.
+    /// </summary>
+    internal static int ClampWholeVelocity(int velocity, int maximum)
+    {
+        short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
+        if (whole >= maximum)
+            return SnesSixteenSixteen.FromWhole(maximum);
+        if (whole < -maximum)
+            return SnesSixteenSixteen.FromWhole(-maximum);
+        return velocity;
+    }
+
+    /// <summary>
     /// Ports <c>CalculateAngleOf_12_14_Offset</c> at $A0:C0AF. Zero points upward and the
     /// result advances clockwise in 256 units per turn, matching bank-$A0 enemy callers.
     /// </summary>

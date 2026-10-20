@@ -12,12 +12,12 @@ public sealed class EnemyProjectileSpritemapCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-projectile-oam-v1", content =>
         {
-            foreach ((ushort frame, EnemySpritemapPart[] parts) in frames.OrderBy(pair => pair.Key))
+            foreach ((ushort frame, SpritemapPart[] parts) in frames.OrderBy(pair => pair.Key))
             {
                 content.Append("frame", frame);
                 content.AppendEnemyParts(parts);
             }
-            foreach ((ushort operand, EnemySpritemapPart[] parts) in programFrames.OrderBy(pair => pair.Key))
+            foreach ((ushort operand, SpritemapPart[] parts) in programFrames.OrderBy(pair => pair.Key))
             {
                 content.Append("program-operand", operand);
                 content.AppendEnemyParts(parts);
@@ -25,30 +25,30 @@ public sealed class EnemyProjectileSpritemapCatalog
         });
 
     /// <summary>Installed ordered OAM parts keyed by bank-$8D spritemap pointer.</summary>
-    private readonly Dictionary<ushort, EnemySpritemapPart[]> frames;
+    private readonly Dictionary<ushort, SpritemapPart[]> frames;
     /// <summary>Installed timed-frame OAM parts keyed by bank-$86 visual operand address.</summary>
-    private readonly Dictionary<ushort, EnemySpritemapPart[]> programFrames;
+    private readonly Dictionary<ushort, SpritemapPart[]> programFrames;
 
     /// <summary>Retains independently validated compositions and timed-program visual bindings.</summary>
-    private EnemyProjectileSpritemapCatalog(Dictionary<ushort, EnemySpritemapPart[]> frames,
-        Dictionary<ushort, EnemySpritemapPart[]> programFrames)
+    private EnemyProjectileSpritemapCatalog(Dictionary<ushort, SpritemapPart[]> frames,
+        Dictionary<ushort, SpritemapPart[]> programFrames)
     {
         this.frames = frames;
         this.programFrames = programFrames;
     }
 
     /// <summary>Gets ordered compiled OAM parts by bank-$8D spritemap identity; the native $8000 zero-entry map returns no parts, while an uninstalled nonblank identity is rejected.</summary>
-    public ReadOnlyMemory<EnemySpritemapPart> Get(ushort pointer) =>
+    public ReadOnlyMemory<SpritemapPart> Get(ushort pointer) =>
         pointer == EnemyProjectileSpritemapDefinitions.BlankSpritemap
-            ? ReadOnlyMemory<EnemySpritemapPart>.Empty
-            : frames.TryGetValue(pointer, out EnemySpritemapPart[]? parts)
+            ? ReadOnlyMemory<SpritemapPart>.Empty
+            : frames.TryGetValue(pointer, out SpritemapPart[]? parts)
             ? parts
             : throw new InvalidDataException(
                 $"Installed enemy projectile has no composition at $8D:{pointer:X4}.");
 
     /// <summary>Draws a timed program frame without reading its bank-$86/$8D visual operands.</summary>
-    public ReadOnlyMemory<EnemySpritemapPart> GetProgramFrame(ushort operandAddress) =>
-        programFrames.TryGetValue(operandAddress, out EnemySpritemapPart[]? parts)
+    public ReadOnlyMemory<SpritemapPart> GetProgramFrame(ushort operandAddress) =>
+        programFrames.TryGetValue(operandAddress, out SpritemapPart[]? parts)
             ? parts
             : throw new InvalidDataException(
                 $"Installed enemy projectile has no frame for $86:{operandAddress:X4}.");
@@ -88,11 +88,11 @@ public sealed class EnemyProjectileSpritemapCatalog
         // Older overrides retain their edited Ceres/debris frames. Newly introduced
         // shared-program frames come only from the hash-checked stock installation.
         var compiled = stock is not null && legacyOverride
-            ? new Dictionary<ushort, EnemySpritemapPart[]>(stock.frames)
-            : new Dictionary<ushort, EnemySpritemapPart[]>();
+            ? new Dictionary<ushort, SpritemapPart[]>(stock.frames)
+            : new Dictionary<ushort, SpritemapPart[]>();
         var compiledPrograms = stock is not null && legacyOverride
-            ? new Dictionary<ushort, EnemySpritemapPart[]>(stock.programFrames)
-            : new Dictionary<ushort, EnemySpritemapPart[]>();
+            ? new Dictionary<ushort, SpritemapPart[]>(stock.programFrames)
+            : new Dictionary<ushort, SpritemapPart[]>();
         foreach ((ushort pointer, string name) in
                  EnemyProjectileSpritemapDefinitions.Frames.Take(expectedFrames))
         {
@@ -159,12 +159,12 @@ public sealed class EnemyProjectileSpritemapCatalog
     }
 
     /// <summary>Validates ordered editable sprite parts against OBJ bounds and packs X, Y, tile, palette, priority and flip words.</summary>
-    private static EnemySpritemapPart[] CompileParts(string name, SpriteVisualPart[] visual)
+    private static SpritemapPart[] CompileParts(string name, SpriteVisualPart[] visual)
     {
         if (visual.Length > EnemyProjectileSpritemapDefinitions.MaximumParts)
             throw new InvalidDataException(
                 $"Enemy-projectile composition {name} is oversized.");
-        var parts = new EnemySpritemapPart[visual.Length];
+        var parts = new SpritemapPart[visual.Length];
         for (int index = 0; index < visual.Length; index++)
         {
             SpriteVisualPart? part = visual[index];
@@ -178,7 +178,7 @@ public sealed class EnemyProjectileSpritemapCatalog
             SnesTileFlipFlags flips =
                 (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
                 (part.FlipY ? SnesTileFlipFlags.Vertical : 0);
-            parts[index] = new EnemySpritemapPart(
+            parts[index] = new SpritemapPart(
                 SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
                 SnesSpritemapYByte.Create(part.OffsetY),
                 SnesObjAttributeWord.Create(

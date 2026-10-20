@@ -42,7 +42,7 @@ internal static class DeadTorizoGeometryDefinitions
     }
 
     /// <summary>Calculate each native MVN's source, destination and length from the stock sprite tile union.</summary>
-    internal static DeadTorizoGraphicsCopy InitialCopy(int row)
+    internal static CorpseGraphicsCopy InitialCopy(int row)
     {
         var bounds = Bounds;
         if ((uint)row >= bounds.Bottom - bounds.Top) throw new ArgumentOutOfRangeException(nameof(row));

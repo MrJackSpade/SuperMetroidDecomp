@@ -13,9 +13,9 @@ internal static class IntroCaretSpriteDefinitions
         ["caret-still", "caret-blink-1", "caret-blink-2", "caret-blink-3"];
 
     /// <summary>$8C:8D68: the one-part visible caret; blink control selects visibility separately.</summary>
-    internal static IntroCaretFrameDefinition Visible => new(Still, "caret-visible", 1);
+    internal static IntroSpriteFrameDefinition Visible => new(Still, "caret-visible", 1);
 
     /// <summary>Exposes only the visible caret; blink frames are a visibility decision, not separate art.</summary>
-    internal static IReadOnlyList<IntroCaretFrameDefinition> Frames { get; } = [Visible];
+    internal static IReadOnlyList<IntroSpriteFrameDefinition> Frames { get; } = [Visible];
 
 }

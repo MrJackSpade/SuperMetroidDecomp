@@ -58,7 +58,7 @@ internal static class EndingRewardInstructionsVerification
     }
 
     /// <summary>Checks a reward frame's calculated layout against its extracted composition, including independent edits and OAM clipping.</summary>
-    private static void VerifyEndingRewardCalculatedParts(ISnesAddressSpace bus, EndingRewardSpriteFrameDefinition definition)
+    private static void VerifyEndingRewardCalculatedParts(ISnesAddressSpace bus, SpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
             definition.Pointer, definition.StockPartCount, definition.Name);

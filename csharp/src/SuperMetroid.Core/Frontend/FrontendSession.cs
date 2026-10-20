@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
@@ -13,7 +12,6 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -229,7 +227,7 @@ internal sealed class FrontendSession
 
         if (runtime.Player.Samus is { } samus)
         {
-            // These state machines predate the shared SamusSoundRequest list. Consume their
+            // These state machines predate the shared SoundRequest list. Consume their
             // one-shot publications here, retaining the exact native library and MaxN entry.
             if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
                 audio.QueueSound(SoundEffectLibrary3Sounds.SpeedBoosterEcho, maximumQueued: 6);
@@ -267,18 +265,18 @@ internal sealed class FrontendSession
                 soundSuppressed: runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundSuppressed);
         }
 
-        foreach (SamusSoundRequest request in
+        foreach (SoundRequest request in
             runtime.Room.LoadedScope.Projectiles.LastFrameResult.AdditionalSoundRequests ?? [])
         {
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         }
 
-        foreach (SamusSoundRequest request in runtime.Room.LoadedScope.Projectiles.ImpactAudio.ImpactSoundRequests)
+        foreach (SoundRequest request in runtime.Room.LoadedScope.Projectiles.ImpactAudio.ImpactSoundRequests)
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
 
-        foreach (SamusSoundRequest request in
+        foreach (SoundRequest request in
             runtime.Room.LoadedScope.BombProjectiles.LastFrameResult.SoundRequests ?? [])
         {
             audio.QueueSoundAndGetAccumulator(
@@ -287,18 +285,18 @@ internal sealed class FrontendSession
                 soundSuppressed: request.SoundSuppressed);
         }
 
-        foreach (PlmSoundRequest request in runtime.Room.LoadedScope.Plms.Sounds.SoundRequests)
+        foreach (SoundRequest request in runtime.Room.LoadedScope.Plms.Sounds.SoundRequests)
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
-        foreach (PlmMusicRequest request in runtime.Room.LoadedScope.Plms.BombTorizoHand.MusicRequests)
+        foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.Plms.BombTorizoHand.MusicRequests)
             audio.QueueMusicDelayed(request.Command, request.Delay);
         if (runtime.Room.LoadedScope.Plms.CollectiblePlms.ConsumeCollectibleFanfareRequest())
             audio.QueuePermanentItemFanfare();
 
-        foreach (EnemySoundRequest request in runtime.Room.LoadedScope.Enemies.Audio.SoundRequests)
+        foreach (SoundRequest request in runtime.Room.LoadedScope.Enemies.Audio.SoundRequests)
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
-        foreach (EnemyMusicRequest request in runtime.Room.LoadedScope.Enemies.Audio.MusicRequests)
+        foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.Enemies.Audio.MusicRequests)
             audio.QueueMusicDelayed(request.Command, request.Delay);
     }
     /// <summary>

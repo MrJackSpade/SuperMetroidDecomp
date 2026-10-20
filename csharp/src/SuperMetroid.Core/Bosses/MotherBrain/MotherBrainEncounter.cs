@@ -151,9 +151,9 @@ internal sealed class MotherBrainEncounter
     {
         if (MotherBrain is not null)
         {
-            foreach (MotherBrainMusicRequest request in MotherBrain.MusicRequests)
+            foreach (DelayedMusicRequest request in MotherBrain.MusicRequests)
             {
-                audio.QueueMusic(new EnemyMusicRequest(request.Command, request.Delay));
+                audio.QueueMusic(new DelayedMusicRequest(request.Command, request.Delay));
             }
         }
     }

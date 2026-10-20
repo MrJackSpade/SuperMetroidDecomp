@@ -122,22 +122,8 @@ public sealed class ShitroidColorCatalog
     }
 
     /// <summary>Checks one authored color row for its required length and RGB5 channel range before packing it.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name)
-    {
-        if (source is null || source.Length != required)
-            throw new InvalidDataException($"Shitroid {name} requires {required} RGB5 colors.");
-        var compiled = new Bgr555[required];
-        for (int color = 0; color < required; color++)
-        {
-            PaletteRgb5? rgb = source[color];
-            if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
-                (uint)rgb.Blue > 31)
-                throw new InvalidDataException(
-                    $"Shitroid {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = rgb.ToBgr555();
-        }
-        return compiled;
-    }
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name) =>
+        Rgb5Rows.Compile(source, required, $"Shitroid {name}");
 
     /// <summary>Shares the target's symmetric dimming curve only when it matches all eight supplied pulse phases.</summary>
     internal sealed class ColorPulse

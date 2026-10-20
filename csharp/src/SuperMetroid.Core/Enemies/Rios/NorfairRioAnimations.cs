@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Rios.NorfairRioCueKind;
 using P = SuperMetroid.Core.Enemies.Rios.NorfairRioProgram;
-using SuperMetroid.Core.Enemies.Rios.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Rios;
 

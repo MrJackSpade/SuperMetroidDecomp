@@ -2,8 +2,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Abilities;
-using SuperMetroid.Verification.Harness;
-
 /// <summary>Checks how drained Samus poses advance prior-pose metadata.</summary>
 internal static class DrainedPoseHistoryVerification
 {

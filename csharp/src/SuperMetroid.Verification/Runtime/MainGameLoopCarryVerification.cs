@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using System.Reflection;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Saves;

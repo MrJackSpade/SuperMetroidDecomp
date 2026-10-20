@@ -1,15 +1,12 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 using SuperMetroid.Verification.Harness;
 

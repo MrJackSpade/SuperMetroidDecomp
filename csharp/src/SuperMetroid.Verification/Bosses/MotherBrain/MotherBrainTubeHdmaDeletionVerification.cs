@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Runtime;
-using System.Reflection;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;

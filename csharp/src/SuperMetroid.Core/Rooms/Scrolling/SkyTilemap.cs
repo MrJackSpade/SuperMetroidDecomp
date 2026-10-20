@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicSpriteNativeListAddresses;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Frontend.Intro;

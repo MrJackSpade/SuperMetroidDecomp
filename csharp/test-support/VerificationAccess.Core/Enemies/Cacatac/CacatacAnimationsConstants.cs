@@ -1,8 +1,5 @@
 ﻿using SuperMetroid.Core.Programs;
-using K = SuperMetroid.Core.Enemies.Cacatac.CacatacCueKind;
-using P = SuperMetroid.Core.Enemies.Cacatac.CacatacProgram;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 

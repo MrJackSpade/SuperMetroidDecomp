@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
@@ -11,9 +10,9 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Pause;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Fx;
 
 /// <summary>Checks Samus's refill-station lock release when the pause menu closes.</summary>
 internal static class UnpauseStationLockReleaseVerification

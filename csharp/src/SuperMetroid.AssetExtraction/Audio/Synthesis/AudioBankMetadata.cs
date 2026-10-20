@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Decoded, human-readable metadata derived from one common-plus-music APU image.</summary>

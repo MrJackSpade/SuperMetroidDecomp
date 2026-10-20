@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.Doors.BlueDoorProgram, SuperMetroid.Core.Rooms.Doors.BlueDoorFrame, SuperMetroid.Core.Rooms.Doors.BlueDoorCue>;
 
 namespace SuperMetroid.Core.Rooms.Doors;

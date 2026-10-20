@@ -1,6 +1,5 @@
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Hardware;
-using System.Reflection;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.SpriteObjects;

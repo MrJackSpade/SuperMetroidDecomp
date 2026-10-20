@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Enemies.FallingSparks.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="FallingSparkFrameDefinitions"/> that only verification read.</summary>

@@ -15,7 +15,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;

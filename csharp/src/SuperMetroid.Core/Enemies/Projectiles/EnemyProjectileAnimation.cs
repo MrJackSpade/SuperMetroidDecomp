@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus;
-
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>

@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseReserveHudVerificatio
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveManualVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveTanksVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;

@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>The part of a background plane a viewport shows: its scroll, screen size, tilemap dimensions and optional per-line horizontal scroll (#633).</summary>

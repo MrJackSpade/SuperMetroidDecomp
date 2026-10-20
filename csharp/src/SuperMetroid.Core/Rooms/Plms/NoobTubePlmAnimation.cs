@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>Native KiHunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>

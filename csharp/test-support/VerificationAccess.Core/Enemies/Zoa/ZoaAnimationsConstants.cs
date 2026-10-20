@@ -1,8 +1,5 @@
 ﻿using SuperMetroid.Core.Programs;
-using K = SuperMetroid.Core.Enemies.Zoa.ZoaCueKind;
-using P = SuperMetroid.Core.Enemies.Zoa.ZoaProgram;
 using SuperMetroid.Core.Enemies.Zoa.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Zoa;
 

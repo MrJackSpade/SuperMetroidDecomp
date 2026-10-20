@@ -11,7 +11,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.Core.Frontend.Pause;

@@ -3,8 +3,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoNativeListAddresses;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Enemies;
 

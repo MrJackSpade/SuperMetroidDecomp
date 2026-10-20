@@ -1,7 +1,6 @@
 using SuperMetroid.Verification.Input;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using System.Reflection;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryCollisionVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

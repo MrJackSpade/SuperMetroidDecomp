@@ -1,7 +1,3 @@
-using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;

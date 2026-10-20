@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Samus.Movement.RunningCadenceVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>Fixed initialization metadata for one of Shaktool's seven linked segments.</summary>

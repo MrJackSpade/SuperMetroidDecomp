@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 

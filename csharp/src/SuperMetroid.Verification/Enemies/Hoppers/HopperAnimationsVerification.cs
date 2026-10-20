@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Enemies.Hoppers.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Hoppers;
 

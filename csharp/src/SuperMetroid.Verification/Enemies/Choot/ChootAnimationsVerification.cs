@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Choot.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Choot;
 

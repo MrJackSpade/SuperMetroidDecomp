@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.SamusEaterProgram, SuperMetroid.Core.Rooms.Plms.SamusEaterDraw, SuperMetroid.Core.Rooms.Plms.SamusEaterCue>;
 
 namespace SuperMetroid.Core.Rooms.Plms;

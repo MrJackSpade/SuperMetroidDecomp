@@ -1,36 +1,4 @@
-using SuperMetroid.Core.Enemies.Gunship.Artwork;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Bosses.SporeSpawn;
-using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Enemies.Alcoon;
-using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Dragon;
-using SuperMetroid.Core.Enemies.FallingSparks;
-using SuperMetroid.Core.Enemies.FuneNamihe;
-using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Enemies.KiHunters;
-using SuperMetroid.Core.Enemies.Magdollite;
-using SuperMetroid.Core.Enemies.Nuclear;
-using SuperMetroid.Core.Enemies.Polyp;
-using SuperMetroid.Core.Enemies.Powamp;
-using SuperMetroid.Core.Enemies.Shaktool;
-using SuperMetroid.Core.Enemies.Skree;
-using SuperMetroid.Core.Enemies.SpacePirates;
-using SuperMetroid.Core.Enemies.Stoke;
-using SuperMetroid.Core.Enemies.WorkRobots;
-using SuperMetroid.Core.Enemies.YappingMaws;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 

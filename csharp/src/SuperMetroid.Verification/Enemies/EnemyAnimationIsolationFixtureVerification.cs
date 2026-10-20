@@ -13,8 +13,8 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Fx;
 
 /// <summary>Provides matching cartridge-free enemy rooms and mechanical state comparisons.</summary>
 internal static class EnemyAnimationIsolationFixtureVerification

@@ -1,11 +1,7 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Areas.Escape;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 

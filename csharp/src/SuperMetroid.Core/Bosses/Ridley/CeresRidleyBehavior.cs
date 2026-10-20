@@ -1,13 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;

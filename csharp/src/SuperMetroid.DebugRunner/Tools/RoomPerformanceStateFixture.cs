@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;

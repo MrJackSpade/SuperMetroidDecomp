@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.MotherBrain.RinkaCueKind;
 using P = SuperMetroid.Core.Bosses.MotherBrain.RinkaProgram;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

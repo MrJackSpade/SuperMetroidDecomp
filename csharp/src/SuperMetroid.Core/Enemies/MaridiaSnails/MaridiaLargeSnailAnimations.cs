@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailCueKind;
 using P = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailProgram;
-using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 

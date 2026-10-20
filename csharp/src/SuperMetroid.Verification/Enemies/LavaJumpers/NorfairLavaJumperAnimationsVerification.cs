@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.LavaJumpers;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.LavaJumpers;
 

@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -11,9 +9,9 @@ using SuperMetroid.RenderVerification.Device;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Rooms;
+
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RenderFixtures;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Compares captured Ceres door transitions with direct retail-frame rendering.</summary>

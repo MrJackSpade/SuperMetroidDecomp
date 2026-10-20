@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Beetom.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Beetom.Artwork;
 
 /// <summary>Development-tool members of <see cref="BeetomFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class BeetomFrameToolingDefinitions

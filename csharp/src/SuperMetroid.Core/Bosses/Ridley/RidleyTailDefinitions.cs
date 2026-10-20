@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Initial articulated-tail angular geometry from InitializeTailParts at $A6:D2D6.</summary>

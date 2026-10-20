@@ -1,7 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
-using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;

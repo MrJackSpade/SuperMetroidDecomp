@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="WorkRobotLaserFrameDefinitions"/> that only development tools read.</summary>

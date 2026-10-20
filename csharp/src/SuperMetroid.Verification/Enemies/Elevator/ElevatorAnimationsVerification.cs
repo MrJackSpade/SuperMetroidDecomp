@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Elevator;
 

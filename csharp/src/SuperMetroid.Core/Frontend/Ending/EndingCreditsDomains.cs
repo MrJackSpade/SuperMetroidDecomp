@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend.Ending.Artwork;
-
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Domain operations over the ending's closed phase and sprite-role sets.</summary>

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Ending;

@@ -6,7 +6,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
-using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;

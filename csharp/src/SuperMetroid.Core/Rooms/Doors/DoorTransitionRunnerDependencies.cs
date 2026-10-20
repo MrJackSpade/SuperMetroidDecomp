@@ -1,14 +1,9 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Rooms.Doors;

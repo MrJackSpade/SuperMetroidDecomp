@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Samus.Projectiles;
@@ -8,14 +7,12 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Enemies.Animals;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Samus.SamusAtmosphereArtworkBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareCompositionsVerification;
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTimerPresentationVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
@@ -29,15 +26,10 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Cacatac;
-using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Dragon;
-using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Metroids;
-using SuperMetroid.Core.Enemies.Nuclear;
-using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.Core.Enemies.Powamp;
-using SuperMetroid.Core.Enemies.Puyo;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
@@ -56,10 +48,9 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Harness;
+
 using SuperMetroid.Verification.Enemies;
-using SuperMetroid.Core.Progression;
 
 /// <summary>Cartridge-oracle checks for the first group of compiled gameplay and presentation catalogs.</summary>
 internal static class LookupStream1Verification

@@ -8,12 +8,11 @@ using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Fx;
 
 /// <summary>Checks that the pause menu reads physical buttons whatever the gameplay bindings are.</summary>
 internal static class PauseRemappedShoulderVerification

@@ -1,10 +1,3 @@
-using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Botwoon;
-using SuperMetroid.Core.Rooms.Plms;
-
 namespace SuperMetroid.Verification.Rooms.Plms;
 /// <summary>The native bank-$84 routines of the boss-room PLM lists that became typed cues (#1296), by address.</summary>
 internal enum BossRoomPlmNativeRoutine : ushort

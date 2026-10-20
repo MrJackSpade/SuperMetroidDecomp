@@ -1,11 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Movement;
-using SuperMetroid.Verification.Harness;
-
 /// <summary>Checks Samus's standalone speed records and retained mutable low-bank aliases.</summary>
 internal static class SamusStandaloneSpeedsVerification
 {

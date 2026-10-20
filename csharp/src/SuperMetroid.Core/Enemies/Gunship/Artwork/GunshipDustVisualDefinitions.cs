@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 
-using P = SuperMetroid.Core.Enemies.Gunship.GunshipDustProgram;
-
 namespace SuperMetroid.Core.Enemies.Gunship.Artwork;
 
 /// <summary>The gunship liftoff dust clouds' installed frames and the projectile definition's native list identity.</summary>

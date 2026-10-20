@@ -1,5 +1,4 @@
 using System.Globalization;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Audio;
 

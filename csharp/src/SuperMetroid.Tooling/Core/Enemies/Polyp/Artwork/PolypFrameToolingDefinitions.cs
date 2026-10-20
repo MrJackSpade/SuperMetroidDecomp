@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Polyp.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Polyp.Artwork;
 
 /// <summary>Development-tool members of <see cref="PolypFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class PolypFrameToolingDefinitions

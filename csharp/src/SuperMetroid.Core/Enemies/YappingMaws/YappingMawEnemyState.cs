@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.SpriteObjects;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 

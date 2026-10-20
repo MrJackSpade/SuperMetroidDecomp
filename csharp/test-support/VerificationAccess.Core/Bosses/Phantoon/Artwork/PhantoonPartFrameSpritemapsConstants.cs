@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-
-namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="PhantoonPartFrameSpritemaps"/> that only verification reads.</summary>
 internal static class PhantoonPartFrameSpritemapsConstants

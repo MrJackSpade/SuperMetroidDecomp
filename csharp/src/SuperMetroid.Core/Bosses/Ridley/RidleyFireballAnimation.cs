@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 

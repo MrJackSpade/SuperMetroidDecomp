@@ -12,8 +12,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Verification.Frontend.Intro;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
 /// <summary>Checks installed Ceres destruction and Zebes reveal art against cartridge transfers and live cinematic rendering.</summary>

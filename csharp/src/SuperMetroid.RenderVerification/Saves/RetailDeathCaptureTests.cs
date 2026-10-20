@@ -1,9 +1,7 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.RenderVerification.Hud;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;

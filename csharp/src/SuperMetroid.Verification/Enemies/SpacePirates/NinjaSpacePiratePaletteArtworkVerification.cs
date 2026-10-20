@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Tooling;
-using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
@@ -11,7 +9,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 

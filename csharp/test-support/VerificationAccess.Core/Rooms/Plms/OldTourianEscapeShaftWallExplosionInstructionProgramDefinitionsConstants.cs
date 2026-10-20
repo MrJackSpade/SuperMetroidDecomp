@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
-
-namespace SuperMetroid.Core.Rooms.Plms;
+﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Cartridge values and helpers of <see cref="OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsConstants

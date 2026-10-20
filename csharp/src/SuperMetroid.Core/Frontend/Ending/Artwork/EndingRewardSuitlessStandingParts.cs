@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
 using SuperMetroid.Core.Assets;

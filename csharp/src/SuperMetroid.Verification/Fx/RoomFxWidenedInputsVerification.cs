@@ -2,9 +2,8 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Fx;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// Checks the room-FX and palette-FX inputs that hold a copy of a cartridge word as a number: each accepts the whole

@@ -1,6 +1,3 @@
-using SuperMetroid.Core;
-using SuperMetroid.Core.Enemies.Drawing;
-
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>

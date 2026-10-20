@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectMapEntryVerification;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectRoomMapVerification;

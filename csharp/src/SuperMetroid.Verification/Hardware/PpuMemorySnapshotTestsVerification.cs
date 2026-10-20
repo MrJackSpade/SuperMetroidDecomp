@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Hardware;

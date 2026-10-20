@@ -1,11 +1,7 @@
-using System.Reflection;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Magdollite.MagdollitePhaseDefinitionsVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Harness;
 

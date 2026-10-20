@@ -1,6 +1,4 @@
-﻿using P = SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeProgram;
-using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
-using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.MorphBallEye;

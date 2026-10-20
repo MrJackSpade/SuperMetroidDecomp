@@ -9,7 +9,6 @@ using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVer
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
-
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Verification access to what a room's level data shows on BG1 (#1346).</summary>

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>

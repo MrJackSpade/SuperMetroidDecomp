@@ -14,7 +14,6 @@ using SuperMetroid.Verification.Enemies.Boulder;
 using SuperMetroid.Verification.Enemies.Bull;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Samus.Movement.AbsoluteTangentDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
 using static SuperMetroid.Verification.Enemies.Atomic.AtomicMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Audio.AudioUploadCatalogVerification;
@@ -70,7 +69,6 @@ using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireSpikeMotionDefi
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGatePlmsVerification;
-using static SuperMetroid.Verification.Enemies.Dragon.DragonFireballAnimationsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonHealthPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonIntroDanceDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
@@ -92,11 +90,9 @@ using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDraygonBg
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDraygonOamCollisionVerification;
 using static SuperMetroid.Verification.Enemies.EnemyTrigonometryVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelectorsVerification;
-using static SuperMetroid.Verification.Enemies.Animals.EscapeEtecoonDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Escape.EscapeGateVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedFrameSequenceVerification;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorPlmDrawDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.EyeDoorProjectileAnimationsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileProgramMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidSpitVelocitiesVerification;
@@ -107,7 +103,6 @@ using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectNavigationL
 using static SuperMetroid.Verification.Enemies.Fireflea.FirefleaFxVerification;
 using static SuperMetroid.Verification.Enemies.Fireflea.FirefleaMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheFireballAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.GameOver.GameOverBabyAnimationVerification;
 using static SuperMetroid.Verification.Frontend.GameOver.GameOverBabyColorsVerification;

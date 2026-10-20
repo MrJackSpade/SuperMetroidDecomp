@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Programs;
-
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>Bounded, pinned bank-$A9 corpse-copy geometry and live-WRAM DMA descriptors.</summary>

@@ -1,6 +1,4 @@
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core;
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>

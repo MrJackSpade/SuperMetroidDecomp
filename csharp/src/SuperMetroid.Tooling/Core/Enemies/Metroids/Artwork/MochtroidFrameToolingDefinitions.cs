@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Metroids.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Metroids.Artwork;
 
 /// <summary>Development-tool members of <see cref="MochtroidFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class MochtroidFrameToolingDefinitions

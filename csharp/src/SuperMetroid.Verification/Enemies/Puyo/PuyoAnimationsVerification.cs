@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Puyo;
 using SuperMetroid.Core.Enemies.Puyo.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Puyo;
 

@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 
 /// <summary>Development-tool members of <see cref="MorphBallEyeFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class MorphBallEyeFrameToolingDefinitions

@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
-
-namespace SuperMetroid.Core.Input;
+﻿namespace SuperMetroid.Core.Input;
 
 /// <summary>Verification access to <see cref="DemoInputState"/> members production does not use.</summary>
 internal static class DemoInputStateAccess

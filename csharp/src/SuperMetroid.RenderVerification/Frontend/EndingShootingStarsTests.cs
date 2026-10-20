@@ -1,6 +1,4 @@
 using SuperMetroid.Core;
-using System.Reflection;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending;

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Development-tool members of <see cref="RoomGridConversions"/>; never linked by player hosts.</summary>

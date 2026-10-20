@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 

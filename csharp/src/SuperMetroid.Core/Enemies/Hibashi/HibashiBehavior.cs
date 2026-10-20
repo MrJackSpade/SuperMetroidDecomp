@@ -3,7 +3,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Hibashi.Artwork;
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>The Hibashi species owner: its per-room state, AI routines and the interactions it registers.</summary>

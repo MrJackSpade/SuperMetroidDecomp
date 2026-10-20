@@ -1,15 +1,10 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Fx;
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
 

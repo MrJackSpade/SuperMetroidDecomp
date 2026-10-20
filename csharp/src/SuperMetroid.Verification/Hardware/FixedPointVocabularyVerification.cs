@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Hardware;

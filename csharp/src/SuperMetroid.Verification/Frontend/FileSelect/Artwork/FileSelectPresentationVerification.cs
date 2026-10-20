@@ -4,11 +4,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
-using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect.Artwork;

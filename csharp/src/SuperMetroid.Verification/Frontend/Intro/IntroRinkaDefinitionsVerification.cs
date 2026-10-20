@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Frontend.Intro.IntroRinkaProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus;

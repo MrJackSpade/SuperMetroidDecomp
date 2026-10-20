@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Rooms.Doors.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="EyeDoorSweatFrameDefinitions"/> that only verification read.</summary>

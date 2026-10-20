@@ -1,7 +1,3 @@
-using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="BotwoonVisualDefinitions"/> that only development tools read.</summary>

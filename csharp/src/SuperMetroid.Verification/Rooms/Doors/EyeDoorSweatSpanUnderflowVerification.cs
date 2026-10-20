@@ -1,6 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Reflection;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;

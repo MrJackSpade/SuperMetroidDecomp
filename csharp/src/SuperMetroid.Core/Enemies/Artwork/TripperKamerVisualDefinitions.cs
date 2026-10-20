@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Platforms;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>

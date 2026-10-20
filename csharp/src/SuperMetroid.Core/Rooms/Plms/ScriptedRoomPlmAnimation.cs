@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Programs;

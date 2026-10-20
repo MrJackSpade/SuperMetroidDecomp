@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Rooms.Plms.DownwardGateProjectileCueKind;
 using P = SuperMetroid.Core.Rooms.Plms.DownwardGateProjectileProgram;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

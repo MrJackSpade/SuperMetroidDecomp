@@ -1,7 +1,4 @@
-﻿using static SuperMetroid.Core.Programs.InstructionItem;
-using SuperMetroid.Tooling;
-using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

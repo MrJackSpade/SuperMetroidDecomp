@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.ResourceAudit.PlmPrograms;
 using SuperMetroid.ResourceAudit.Reports;
 
 namespace SuperMetroid.ResourceAudit.VramDma;

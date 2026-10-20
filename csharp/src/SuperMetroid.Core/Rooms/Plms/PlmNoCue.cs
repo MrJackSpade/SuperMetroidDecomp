@@ -1,7 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The cue type of PLM programs that only draw, loop and delete: they publish no gameplay cues.</summary>

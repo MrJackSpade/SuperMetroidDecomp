@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms;
-
-namespace SuperMetroid.Core.Bosses.SporeSpawn;
+﻿namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>Cartridge values and helpers of <see cref="SporeSpawnCeilingPlmDrawDefinitions"/> that only verification reads.</summary>
 internal static class SporeSpawnCeilingPlmDrawDefinitionsConstants

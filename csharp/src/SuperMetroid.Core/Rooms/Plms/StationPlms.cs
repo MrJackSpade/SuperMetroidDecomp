@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;

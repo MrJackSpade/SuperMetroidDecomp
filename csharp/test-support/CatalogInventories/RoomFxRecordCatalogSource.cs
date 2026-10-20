@@ -1,11 +1,9 @@
 using System.Text;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core;
 

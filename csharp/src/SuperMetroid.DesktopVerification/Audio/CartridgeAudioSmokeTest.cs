@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.DesktopVerification.Audio;
 
 /// <summary>Runs the real title music path without opening an audio device or game window.</summary>

@@ -10,11 +10,9 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;

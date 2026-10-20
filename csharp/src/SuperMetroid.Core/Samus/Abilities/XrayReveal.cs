@@ -3,7 +3,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Xray;
-using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 

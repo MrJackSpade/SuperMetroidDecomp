@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamTileArtworkVerification;
-using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hud;

@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;

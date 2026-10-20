@@ -1,4 +1,3 @@
-using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -10,7 +9,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Fx.Artwork;
@@ -22,8 +20,8 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Doors;
 /// <summary>Runtime checks for Crocomire's spike tile cadence and hidden-wall camera rumble.</summary>
 internal static class CrocomirePresentation1193Verification
 {

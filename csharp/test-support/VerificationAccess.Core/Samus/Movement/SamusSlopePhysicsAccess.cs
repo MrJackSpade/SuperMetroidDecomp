@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms.LevelData;
 

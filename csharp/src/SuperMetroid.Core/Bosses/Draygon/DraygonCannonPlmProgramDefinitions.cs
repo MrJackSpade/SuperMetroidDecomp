@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Draygon.DraygonCannonProgram, SuperMetroid.Core.Bosses.Draygon.DraygonCannonDraw, SuperMetroid.Core.Bosses.Draygon.DraygonCannonCue>;
 
 namespace SuperMetroid.Core.Bosses.Draygon;

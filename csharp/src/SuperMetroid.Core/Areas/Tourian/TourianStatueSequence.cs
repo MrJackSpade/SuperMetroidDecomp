@@ -6,7 +6,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Areas.Tourian;

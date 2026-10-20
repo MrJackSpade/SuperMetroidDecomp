@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;

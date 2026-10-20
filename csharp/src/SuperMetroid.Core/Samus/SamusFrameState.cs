@@ -1,11 +1,8 @@
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Fx.PaletteFx;
 

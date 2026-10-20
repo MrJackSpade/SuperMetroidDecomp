@@ -1,10 +1,6 @@
 using SuperMetroid.Core.Hardware;
-﻿using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 

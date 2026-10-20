@@ -1,6 +1,5 @@
 using P = SuperMetroid.Core.Enemies.Gunship.GunshipProgram;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Gunship;

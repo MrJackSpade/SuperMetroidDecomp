@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using F = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameFrameKind;
 using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameProgram;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 

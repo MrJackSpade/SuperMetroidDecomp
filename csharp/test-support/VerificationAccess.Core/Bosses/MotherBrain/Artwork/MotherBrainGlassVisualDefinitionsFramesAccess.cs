@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="MotherBrainGlassVisualDefinitions"/> that only verification read.</summary>

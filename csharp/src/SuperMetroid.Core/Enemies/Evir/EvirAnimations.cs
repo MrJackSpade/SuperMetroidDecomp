@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Evir.EvirCueKind;
 using P = SuperMetroid.Core.Enemies.Evir.EvirProgram;
-using SuperMetroid.Core.Enemies.Evir.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Evir;
 

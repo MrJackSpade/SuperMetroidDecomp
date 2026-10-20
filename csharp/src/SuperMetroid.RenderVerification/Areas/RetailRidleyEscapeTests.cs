@@ -8,8 +8,8 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Areas;
+
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Native AI-driven escape after staging either retail termination condition at hover.</summary>

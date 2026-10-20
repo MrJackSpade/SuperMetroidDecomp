@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Frontend.Recording;
 using SuperMetroid.Core.Map;

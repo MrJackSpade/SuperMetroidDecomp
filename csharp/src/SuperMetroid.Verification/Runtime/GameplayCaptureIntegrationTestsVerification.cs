@@ -14,7 +14,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Runtime;
-using SuperMetroid.Verification.Samus.Projectiles;
+
 using SuperMetroid.Core.Rooms;
 
 /// <summary>Compares captured render packets with legacy frames during Ceres startup and a room pause cycle.</summary>

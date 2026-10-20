@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Globalization;
 using SuperMetroid.Core.Hardware;

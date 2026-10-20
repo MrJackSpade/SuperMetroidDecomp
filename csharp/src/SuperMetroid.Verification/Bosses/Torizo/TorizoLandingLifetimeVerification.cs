@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -12,7 +11,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 /// <summary>Checks the Bomb Torizo landing earthquake through the full frontend.</summary>

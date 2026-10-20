@@ -1,6 +1,4 @@
-﻿using P = SuperMetroid.Core.Enemies.Kago.KagoProgram;
-using SuperMetroid.Core.Enemies.Kago.Artwork;
-using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Kago;

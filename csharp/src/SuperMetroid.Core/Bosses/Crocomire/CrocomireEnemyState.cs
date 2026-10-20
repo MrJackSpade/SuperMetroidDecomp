@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;

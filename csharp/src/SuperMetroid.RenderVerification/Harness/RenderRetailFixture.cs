@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Map.Artwork;

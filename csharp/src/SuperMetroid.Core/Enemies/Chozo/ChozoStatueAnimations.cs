@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Chozo.ChozoStatueCueKind;
 using P = SuperMetroid.Core.Enemies.Chozo.ChozoStatueProgram;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="ChozoTourianDustFrameDefinitions"/> that only verification read.</summary>

@@ -143,7 +143,6 @@ using static SuperMetroid.Verification.Enemies.Gunship.GunshipMotionDefinitionsV
 using static SuperMetroid.Verification.Hardware.HalfWaveAlgorithmsVerification;
 using static SuperMetroid.Verification.Enemies.Hibashi.HibashiDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
-using static SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroEggMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Kago.KagoAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Kago.KagoBehaviorVerification;

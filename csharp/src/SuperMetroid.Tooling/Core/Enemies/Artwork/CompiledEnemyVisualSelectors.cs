@@ -1,14 +1,9 @@
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
-using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Alcoon;
-using SuperMetroid.Core.Enemies.Atomic;
-using SuperMetroid.Core.Enemies.Boulder;
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Polyp;
-using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies.Artwork;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
 using K = SuperMetroid.Core.Bosses.Ridley.RidleyFireballFrameKind;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;

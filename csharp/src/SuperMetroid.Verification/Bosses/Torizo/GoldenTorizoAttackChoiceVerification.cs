@@ -6,9 +6,9 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Bosses.Torizo;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Fx;
 
 /// <summary>Checks Golden Torizo's landing attack selection with the native 16-bit NMI counter.</summary>
 internal static class GoldenTorizoAttackChoiceVerification

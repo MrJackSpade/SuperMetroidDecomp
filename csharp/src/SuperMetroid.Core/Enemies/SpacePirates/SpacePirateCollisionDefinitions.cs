@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.Artwork;
 using S = SuperMetroid.Core.Enemies.SpacePirates.SpacePirateHitboxShot;
 using T = SuperMetroid.Core.Enemies.SpacePirates.SpacePirateHitboxTouch;

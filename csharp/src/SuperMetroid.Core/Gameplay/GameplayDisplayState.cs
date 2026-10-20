@@ -1,7 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.MorphBallEye;
-using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Gameplay;
 

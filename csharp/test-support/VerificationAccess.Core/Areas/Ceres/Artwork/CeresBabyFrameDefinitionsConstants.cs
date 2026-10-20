@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-
-namespace SuperMetroid.Core.Areas.Ceres.Artwork;
+﻿namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="CeresBabyFrameDefinitions"/> that only verification reads.</summary>
 internal static class CeresBabyFrameDefinitionsConstants

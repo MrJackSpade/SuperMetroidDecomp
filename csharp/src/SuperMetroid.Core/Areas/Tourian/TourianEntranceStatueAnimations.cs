@@ -1,6 +1,4 @@
 using P = SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueProgram;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Areas.Tourian;

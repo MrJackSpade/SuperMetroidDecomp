@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Areas.Ceres;

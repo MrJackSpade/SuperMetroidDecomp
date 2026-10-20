@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Doors;

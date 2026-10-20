@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Owtch.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Owtch.Artwork;
 
 /// <summary>Development-tool members of <see cref="OwtchFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class OwtchFrameToolingDefinitions

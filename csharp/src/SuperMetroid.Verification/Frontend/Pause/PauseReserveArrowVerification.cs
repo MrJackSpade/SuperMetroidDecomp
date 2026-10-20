@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;

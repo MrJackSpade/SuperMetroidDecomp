@@ -1,13 +1,8 @@
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Cacatac;
-using SuperMetroid.Verification.Harness;
-
 /// <summary>Compares compiled Cacatac travel distances and initialized movement bounds with the pinned retail table.</summary>
 internal static class CacatacMovementDefinitionsVerification
 {

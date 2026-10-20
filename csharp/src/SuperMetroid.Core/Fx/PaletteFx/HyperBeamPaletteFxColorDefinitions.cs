@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;

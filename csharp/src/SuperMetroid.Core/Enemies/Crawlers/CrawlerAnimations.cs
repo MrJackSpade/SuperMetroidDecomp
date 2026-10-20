@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Crawlers.CrawlerCueKind;
 using P = SuperMetroid.Core.Enemies.Crawlers.CrawlerProgram;
 using SuperMetroid.Core.Enemies.Crawlers.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Crawlers;
 

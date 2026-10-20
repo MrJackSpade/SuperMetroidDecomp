@@ -1,8 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
-using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Torizo.BombTorizoHandProgram, SuperMetroid.Core.Bosses.Torizo.BombTorizoHandDraw, SuperMetroid.Core.Bosses.Torizo.BombTorizoHandCue>;
-
-namespace SuperMetroid.Core.Bosses.Torizo;
+﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Cartridge values and helpers of <see cref="BombTorizoHandPlmProgramDefinitions"/> that only verification reads.</summary>
 internal static class BombTorizoHandPlmProgramDefinitionsConstants

@@ -1,7 +1,6 @@
 namespace SuperMetroid.TestSupport.VerificationOracles;
+
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core;
 using SuperMetroid.Verification.Enemies;
 
 /// <summary>

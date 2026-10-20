@@ -1,6 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Elevator.ElevatorProgram;
-using SuperMetroid.Core.Enemies.Elevator.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Elevator;

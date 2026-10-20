@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Native swing collision-body placement, independent of the displayed animation frame.</summary>

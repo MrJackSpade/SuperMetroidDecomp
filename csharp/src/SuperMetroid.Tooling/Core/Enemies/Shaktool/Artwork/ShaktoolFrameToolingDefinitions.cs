@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Shaktool.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Shaktool.Artwork;
 
 /// <summary>Development-tool members of <see cref="ShaktoolFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class ShaktoolFrameToolingDefinitions

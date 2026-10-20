@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.SignedSineFixtureVerification;
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;

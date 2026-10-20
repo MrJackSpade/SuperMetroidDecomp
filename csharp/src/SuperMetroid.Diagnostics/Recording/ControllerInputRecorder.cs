@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.Recording;

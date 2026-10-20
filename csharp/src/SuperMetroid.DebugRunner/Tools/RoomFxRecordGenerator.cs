@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.TestSupport.CatalogInventories;
 

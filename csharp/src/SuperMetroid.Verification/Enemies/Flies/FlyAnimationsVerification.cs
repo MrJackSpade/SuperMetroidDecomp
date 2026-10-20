@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Flies;
 using SuperMetroid.Core.Enemies.Flies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Flies;
 

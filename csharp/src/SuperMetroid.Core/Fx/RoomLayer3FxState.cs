@@ -7,7 +7,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Fx;
 

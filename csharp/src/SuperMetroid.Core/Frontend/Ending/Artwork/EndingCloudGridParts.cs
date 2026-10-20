@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using System.Collections;
 using Role = SuperMetroid.Core.Frontend.Ending.Artwork.EndingCloudSpriteDefinitions.Role;
 using SuperMetroid.Core.Assets;

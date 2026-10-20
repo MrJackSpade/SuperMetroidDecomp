@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Per-music-voice state from Super Metroid's SPC driver work RAM.</summary>

@@ -9,7 +9,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Harness;
 

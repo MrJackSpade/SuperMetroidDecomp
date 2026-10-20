@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 

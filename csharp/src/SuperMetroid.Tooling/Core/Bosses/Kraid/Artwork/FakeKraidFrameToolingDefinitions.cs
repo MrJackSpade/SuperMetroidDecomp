@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>Development-tool members of <see cref="FakeKraidFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class FakeKraidFrameToolingDefinitions

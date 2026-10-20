@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;

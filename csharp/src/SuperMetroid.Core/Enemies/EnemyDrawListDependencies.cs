@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Rooms;
 

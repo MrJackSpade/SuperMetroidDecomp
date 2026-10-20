@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Enemies.Powamp.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="PowampSpikeFrameDefinitions"/> that only verification read.</summary>

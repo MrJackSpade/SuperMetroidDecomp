@@ -2,7 +2,6 @@ using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Harness;
 

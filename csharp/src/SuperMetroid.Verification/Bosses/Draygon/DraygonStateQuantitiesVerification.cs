@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Verification.Enemies;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;

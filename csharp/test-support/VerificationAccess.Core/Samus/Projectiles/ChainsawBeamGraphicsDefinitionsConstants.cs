@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Palettes;
-
-namespace SuperMetroid.Core.Samus.Projectiles;
+﻿namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Cartridge values and helpers of <see cref="ChainsawBeamGraphicsDefinitions"/> that only verification reads.</summary>
 internal static class ChainsawBeamGraphicsDefinitionsConstants

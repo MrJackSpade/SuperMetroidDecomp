@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;

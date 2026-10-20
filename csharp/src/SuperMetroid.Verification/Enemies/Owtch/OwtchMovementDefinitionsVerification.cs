@@ -1,14 +1,9 @@
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Owtch;
-using SuperMetroid.Verification.Harness;
-
 /// <summary>Checks Owtch timer and travel-distance definitions through real initialization.</summary>
 internal static class OwtchMovementDefinitionsVerification
 {

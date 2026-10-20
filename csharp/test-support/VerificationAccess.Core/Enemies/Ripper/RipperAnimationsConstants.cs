@@ -1,6 +1,4 @@
-﻿using P = SuperMetroid.Core.Enemies.Ripper.RipperProgram;
-using SuperMetroid.Core.Enemies.Ripper.Artwork;
-using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Ripper;

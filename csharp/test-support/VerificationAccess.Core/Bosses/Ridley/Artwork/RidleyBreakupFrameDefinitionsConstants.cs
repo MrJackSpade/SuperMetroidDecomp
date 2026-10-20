@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-using F = SuperMetroid.Core.Bosses.Ridley.RidleyBreakupFrame;
+﻿using F = SuperMetroid.Core.Bosses.Ridley.RidleyBreakupFrame;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 

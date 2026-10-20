@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -12,8 +11,8 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Rooms;
+
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Focused downward ride, staged on the carrier rather than reached by a multi-room trace.</summary>

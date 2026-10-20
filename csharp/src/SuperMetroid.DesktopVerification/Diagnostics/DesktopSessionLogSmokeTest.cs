@@ -2,8 +2,8 @@ using System.Diagnostics;
 using System.IO.Compression;
 using SuperMetroid.Desktop.Diagnostics;
 namespace SuperMetroid.DesktopVerification.Diagnostics;
+
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Rooms;
 
 /// <summary>Confirms only the requested automatic console-to-ZIP lifecycle, without gameplay.</summary>
 internal static class DesktopSessionLogSmokeTest

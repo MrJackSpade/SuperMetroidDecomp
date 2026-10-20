@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Title;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Native fixed-color arithmetic for the title's BG1/backdrop and winning OBJ.</summary>

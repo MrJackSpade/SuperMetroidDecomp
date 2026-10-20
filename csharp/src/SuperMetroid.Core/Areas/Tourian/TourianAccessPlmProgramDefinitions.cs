@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Areas.Tourian.TourianAccessProgram, SuperMetroid.Core.Areas.Tourian.TourianAccessDraw, SuperMetroid.Core.Areas.Tourian.TourianAccessCue>;
 
 namespace SuperMetroid.Core.Areas.Tourian;

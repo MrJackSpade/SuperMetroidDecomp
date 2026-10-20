@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
-namespace SuperMetroid.Core.Programs;
+﻿namespace SuperMetroid.Core.Programs;
 
 /// <summary>Development-tool instance members of <see cref="InstructionProgramLayout"/>.</summary>
 internal static class InstructionProgramLayoutToolingExtensions

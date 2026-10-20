@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="RidleySupplementalVisualDefinitions"/> that only verification reads.</summary>
 internal static class RidleySupplementalVisualDefinitionsConstants

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Enemies.Sbug.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Sbug;
 

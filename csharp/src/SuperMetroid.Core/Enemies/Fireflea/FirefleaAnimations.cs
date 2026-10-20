@@ -1,6 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Fireflea.FirefleaProgram;
-using SuperMetroid.Core.Enemies.Fireflea.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Fireflea;

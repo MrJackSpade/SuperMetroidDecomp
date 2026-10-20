@@ -5,7 +5,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
-using System.Text;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Movement;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Programs;
 

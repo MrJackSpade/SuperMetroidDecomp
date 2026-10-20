@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend.Ending.Artwork;
-
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Func139–142: rotate the shot graphic, fade Samus, and stage the final logo.</summary>

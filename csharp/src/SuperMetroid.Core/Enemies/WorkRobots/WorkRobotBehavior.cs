@@ -1,10 +1,7 @@
 ﻿using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;

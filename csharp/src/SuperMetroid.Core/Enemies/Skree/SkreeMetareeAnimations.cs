@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Skree.SkreeMetareeCueKind;
 using P = SuperMetroid.Core.Enemies.Skree.SkreeMetareeProgram;
-using SuperMetroid.Core.Enemies.Skree.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Skree;
 

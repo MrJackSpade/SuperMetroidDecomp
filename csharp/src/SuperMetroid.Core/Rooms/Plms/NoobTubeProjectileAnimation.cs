@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

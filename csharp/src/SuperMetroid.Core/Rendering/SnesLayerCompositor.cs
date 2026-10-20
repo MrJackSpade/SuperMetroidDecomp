@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Shared main-screen composition rules for software-rendered SNES layers.</summary>

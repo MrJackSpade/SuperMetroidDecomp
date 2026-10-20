@@ -1,7 +1,5 @@
-using SuperMetroid.Core.Audio;
-﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.Projectiles;

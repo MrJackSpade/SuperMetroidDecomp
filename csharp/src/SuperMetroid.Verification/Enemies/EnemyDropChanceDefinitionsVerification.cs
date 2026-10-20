@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 

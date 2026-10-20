@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>

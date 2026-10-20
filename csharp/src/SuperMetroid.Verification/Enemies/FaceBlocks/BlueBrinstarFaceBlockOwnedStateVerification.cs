@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;

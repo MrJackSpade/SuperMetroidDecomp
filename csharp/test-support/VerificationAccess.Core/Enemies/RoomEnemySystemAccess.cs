@@ -3,6 +3,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Enemies;
+
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -58,7 +59,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Verification access to <see cref="RoomEnemySystem"/> members production does not use.</summary>

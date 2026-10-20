@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Areas.Maridia.LookupElevatubeStockVerific
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubePlmVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Areas.Maridia;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;

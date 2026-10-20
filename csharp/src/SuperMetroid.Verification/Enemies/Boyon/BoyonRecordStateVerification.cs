@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boyon;
 namespace SuperMetroid.Verification.Enemies.Boyon;

@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Rios.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Rios.Artwork;
 
 /// <summary>Development-tool members of <see cref="LowerNorfairRioFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class LowerNorfairRioFrameToolingDefinitions

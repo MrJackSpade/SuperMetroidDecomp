@@ -6,7 +6,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Chozo.LookupChozoStockVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;

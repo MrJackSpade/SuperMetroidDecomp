@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.Core.Enemies.Owtch.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Owtch;
 

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Plms;
-
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>Native Shaktool-room persistence and scroll controller definitions.</summary>

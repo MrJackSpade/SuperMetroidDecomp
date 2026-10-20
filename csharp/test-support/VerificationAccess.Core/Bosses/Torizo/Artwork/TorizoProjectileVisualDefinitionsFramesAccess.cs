@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileProgram;
 
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;

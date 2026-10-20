@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hardware;
 using System.Globalization;
 using SuperMetroid.Core.Frontend;
 using static SuperMetroid.Verification.Harness.NativeSnapshotImportVerification;
@@ -13,7 +12,6 @@ using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Runs complete converted controller timelines against native checkpoints without importing later gameplay state.</summary>

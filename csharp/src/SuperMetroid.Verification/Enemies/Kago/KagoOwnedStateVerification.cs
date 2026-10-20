@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Enemies.Kago.Artwork;

@@ -1,6 +1,5 @@
 using SuperMetroid.Tooling;
 using SuperMetroid.Core;
-using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Areas.Ceres.CeresSteamCollisionDefinitionsVerification;

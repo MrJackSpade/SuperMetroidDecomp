@@ -1,16 +1,10 @@
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Samus.Projectiles;
 using System.Collections.Immutable;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MorphBallEye;

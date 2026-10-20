@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-
-namespace SuperMetroid.Core.Enemies.Projectiles;
+﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The projectile engine's dispatch table: each closed native pre-instruction maps to exactly one handler.

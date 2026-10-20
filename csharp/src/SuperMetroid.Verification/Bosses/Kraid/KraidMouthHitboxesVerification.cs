@@ -1,4 +1,3 @@
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidMouthMappingsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

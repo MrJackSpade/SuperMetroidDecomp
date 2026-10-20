@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Sbug.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Sbug.Artwork;
 
 /// <summary>Development-tool members of <see cref="SbugFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class SbugFrameToolingDefinitions

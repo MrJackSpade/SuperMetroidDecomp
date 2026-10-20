@@ -3,19 +3,17 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonNativeListAddresses;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
+
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core;
 
 /// <summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Frontend;

@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 

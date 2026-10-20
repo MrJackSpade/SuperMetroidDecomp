@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;

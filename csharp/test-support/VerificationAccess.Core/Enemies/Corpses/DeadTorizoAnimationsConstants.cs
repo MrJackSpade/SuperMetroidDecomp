@@ -1,6 +1,4 @@
-﻿using P = SuperMetroid.Core.Enemies.Corpses.DeadTorizoProgram;
-using SuperMetroid.Core.Enemies.Corpses.Artwork;
-using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Corpses;

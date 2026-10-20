@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -8,8 +7,8 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Bosses;
+
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms;
 

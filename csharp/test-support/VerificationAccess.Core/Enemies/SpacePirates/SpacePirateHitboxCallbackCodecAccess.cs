@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The cartridge words of <see cref="SpacePirateHitboxCallbackCodec"/>'s callbacks, for parity oracles.</summary>

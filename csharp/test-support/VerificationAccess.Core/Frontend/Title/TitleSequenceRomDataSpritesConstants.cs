@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Fx.PaletteFx;
-
-namespace SuperMetroid.Core.Frontend.Title;
+﻿namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>Cartridge values and helpers of <see cref="TitleSequenceRomData.Sprites"/> that only verification reads.</summary>
 internal static class TitleSequenceRomDataSpritesConstants

@@ -1,4 +1,3 @@
-using System.Reflection;
 using SuperMetroid.Core.Bosses.MotherBrain;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;

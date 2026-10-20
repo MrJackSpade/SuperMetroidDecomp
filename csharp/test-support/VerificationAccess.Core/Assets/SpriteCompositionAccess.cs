@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 

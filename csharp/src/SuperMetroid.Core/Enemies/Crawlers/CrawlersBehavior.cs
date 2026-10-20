@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;

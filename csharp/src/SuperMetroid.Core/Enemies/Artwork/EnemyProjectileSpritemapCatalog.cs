@@ -2,7 +2,6 @@ using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Artwork;

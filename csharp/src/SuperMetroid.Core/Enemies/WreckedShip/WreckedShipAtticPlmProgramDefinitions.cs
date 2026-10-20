@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Plms;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Enemies.WreckedShip.WreckedShipAtticProgram, SuperMetroid.Core.Rooms.Plms.PlmNoDraw, SuperMetroid.Core.Enemies.WreckedShip.WreckedShipAtticCue>;
 

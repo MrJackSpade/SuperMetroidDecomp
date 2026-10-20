@@ -10,8 +10,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Abilities;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks the Chozo Speed Booster message continuation that starts the room's lava rise.</summary>
 internal static class SpeedBoosterPickupVerification

@@ -4,8 +4,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Verification.Fx;
-using SuperMetroid.Verification.Harness;
-
 /// <summary>Checks conveyor inside-block reactions, standing carry,
 /// Wrecked Ship power gating, and solid-wall clipping.</summary>
 internal static class TreadmillPhysicsVerification

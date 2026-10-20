@@ -12,10 +12,10 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Pause;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Fx;
 
 /// <summary>Checks pause-menu reserve input and HUD DMA timing through the real frontend dispatcher.</summary>
 internal static class PauseReserveHudVerification

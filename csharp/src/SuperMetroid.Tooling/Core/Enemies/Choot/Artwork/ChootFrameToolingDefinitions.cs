@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Choot.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Choot.Artwork;
 
 /// <summary>Development-tool members of <see cref="ChootFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class ChootFrameToolingDefinitions

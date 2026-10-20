@@ -7,11 +7,9 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks the gameplay minimap marker's colors and position through paused HUD updates.</summary>

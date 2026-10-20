@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Waver.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Waver.Artwork;
 
 /// <summary>Development-tool members of <see cref="WaverFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class WaverFrameToolingDefinitions

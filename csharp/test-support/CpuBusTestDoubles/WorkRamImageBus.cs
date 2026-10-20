@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core;
 namespace SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 /// <summary>The runtime's WRAM image as a test bus, for primitives that read and write cells through one.</summary>

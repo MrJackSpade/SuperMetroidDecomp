@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>One Phantoon part frame: what it shows and its pose.</summary>

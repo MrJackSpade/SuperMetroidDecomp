@@ -1,8 +1,5 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;

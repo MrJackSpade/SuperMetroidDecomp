@@ -6,7 +6,6 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 
 namespace SuperMetroid.Verification.Rooms;

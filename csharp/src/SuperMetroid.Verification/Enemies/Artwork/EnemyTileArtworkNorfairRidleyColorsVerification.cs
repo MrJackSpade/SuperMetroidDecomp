@@ -1,5 +1,4 @@
 using SuperMetroid.Tooling;
-using System.Reflection;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
@@ -9,7 +8,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Artwork;

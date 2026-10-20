@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
-
-namespace SuperMetroid.Core.Enemies.PipeBugs;
+﻿namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>Verification access to <see cref="PipeBugEnemyState"/> members production does not use.</summary>
 internal static class PipeBugEnemyStateAccess

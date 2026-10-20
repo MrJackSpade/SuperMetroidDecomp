@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Shared allocation and command state for one of the three SFX libraries.</summary>

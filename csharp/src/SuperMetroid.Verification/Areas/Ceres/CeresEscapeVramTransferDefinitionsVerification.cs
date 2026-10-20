@@ -11,12 +11,10 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Areas.Ceres;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>Checks Ceres escape VRAM descriptors and installed timer and Japanese overlay transfers.</summary>

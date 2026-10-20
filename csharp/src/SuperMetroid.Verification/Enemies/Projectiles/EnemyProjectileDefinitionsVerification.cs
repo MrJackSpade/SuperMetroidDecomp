@@ -3,7 +3,6 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Bosses.Torizo;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -19,9 +18,9 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Fx;
 
 /// <summary>Checks all compiled enemy projectile definitions and their production collision consumers.</summary>
 internal static class EnemyProjectileDefinitionsVerification

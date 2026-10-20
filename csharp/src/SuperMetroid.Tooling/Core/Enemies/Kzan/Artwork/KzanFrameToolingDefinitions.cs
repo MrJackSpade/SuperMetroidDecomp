@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Kzan.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Kzan.Artwork;
 
 /// <summary>Development-tool members of <see cref="KzanFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class KzanFrameToolingDefinitions

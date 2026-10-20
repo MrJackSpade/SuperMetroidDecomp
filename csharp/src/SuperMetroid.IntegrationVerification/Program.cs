@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Recording;
 using SuperMetroid.IntegrationVerification.Android;

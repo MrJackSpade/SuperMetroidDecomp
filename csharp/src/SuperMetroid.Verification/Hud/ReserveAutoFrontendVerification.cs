@@ -13,8 +13,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Hud;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 

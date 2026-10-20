@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Reflection;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;

@@ -1,6 +1,5 @@
 using P = SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostProgram;
 using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;

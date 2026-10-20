@@ -2,7 +2,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamPaletteArtworkVerification;
-using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailArtworkVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -12,10 +11,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 

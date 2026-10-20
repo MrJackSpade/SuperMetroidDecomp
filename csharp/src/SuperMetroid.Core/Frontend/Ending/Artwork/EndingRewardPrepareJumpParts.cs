@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 

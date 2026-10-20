@@ -4,8 +4,8 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
+
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Checks waterfall subscreen priority and subtraction against software and GPU rendering.</summary>

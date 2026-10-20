@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Programs;
 using P = SuperMetroid.Core.Bosses.Draygon.DraygonProjectileProgram;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 

@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms;
-
-namespace SuperMetroid.Core.Areas.Tourian;
+﻿namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>Cartridge values and helpers of <see cref="TourianAccessPlmDrawDefinitions"/> that only verification reads.</summary>
 internal static class TourianAccessPlmDrawDefinitionsConstants

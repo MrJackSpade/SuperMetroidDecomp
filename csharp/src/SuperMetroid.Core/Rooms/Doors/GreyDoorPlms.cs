@@ -1,7 +1,5 @@
 ﻿using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Rooms.Doors;

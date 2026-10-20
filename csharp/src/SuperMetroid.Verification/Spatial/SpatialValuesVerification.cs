@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Verification.Spatial;

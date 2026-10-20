@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -10,11 +9,10 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Artwork;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Fx;
 
 /// <summary>Checks installed Spore Spawn spore, health, and death colors against ROM and live current and target palettes.</summary>
 internal static class EnemyTileArtworkSporeSpawnColorsVerification

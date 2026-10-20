@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
 using SuperMetroid.AssetExtraction.Installation;

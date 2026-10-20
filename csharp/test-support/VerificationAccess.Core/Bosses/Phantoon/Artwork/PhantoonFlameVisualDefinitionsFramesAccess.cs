@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="PhantoonFlameVisualDefinitions"/> that only verification read.</summary>

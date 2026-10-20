@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>One frame of Crocomire's body programs: an index into its body or skeleton visual catalog.</summary>

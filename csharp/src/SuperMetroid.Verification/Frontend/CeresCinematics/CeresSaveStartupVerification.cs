@@ -17,8 +17,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
 

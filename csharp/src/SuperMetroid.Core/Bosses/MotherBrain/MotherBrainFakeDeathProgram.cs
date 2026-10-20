@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Plms;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's twenty-two fake-death room mutation programs (#1296), in authored order.</summary>

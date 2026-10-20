@@ -1,6 +1,5 @@
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Tooling;
-using System.Reflection;
 using System.Text;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;

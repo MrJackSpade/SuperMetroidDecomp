@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Compiles an indexed tile atlas into Mode 7's chunky eight-bit character order.</summary>

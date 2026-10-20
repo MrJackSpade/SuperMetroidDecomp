@@ -1,9 +1,7 @@
 using static SuperMetroid.Verification.Enemies.Skree.SkreeMetareeParticleNativeListAddresses;
 using SuperMetroid.Core.Enemies.Skree;
-using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Skree;

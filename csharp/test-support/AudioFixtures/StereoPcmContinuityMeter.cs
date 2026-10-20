@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core;
 namespace SuperMetroid.TestSupport.AudioFixtures;
 
 /// <summary>

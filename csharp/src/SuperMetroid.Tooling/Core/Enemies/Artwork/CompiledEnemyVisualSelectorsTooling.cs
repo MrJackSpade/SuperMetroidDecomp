@@ -2,13 +2,6 @@ using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
-using SuperMetroid.Core.Enemies.Atomic;
-using SuperMetroid.Core.Enemies.Boulder;
-using SuperMetroid.Core.Enemies.Boyon;
-using SuperMetroid.Core.Enemies.Elevator;
-using SuperMetroid.Core.Enemies.FaceBlocks;
-using SuperMetroid.Core.Enemies.Platforms;
-using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Artwork;

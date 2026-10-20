@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using P = SuperMetroid.Core.Enemies.Cacatac.CacatacProjectileProgram;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 

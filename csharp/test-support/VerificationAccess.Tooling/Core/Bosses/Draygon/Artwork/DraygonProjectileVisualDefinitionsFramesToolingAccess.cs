@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
-
-namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>Verification access to <see cref="DraygonProjectileVisualDefinitionsFramesTooling"/> members production does not use.</summary>
 internal static class DraygonProjectileVisualDefinitionsFramesToolingAccess

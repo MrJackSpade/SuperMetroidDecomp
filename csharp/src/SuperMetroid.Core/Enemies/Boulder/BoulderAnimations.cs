@@ -1,6 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Boulder.BoulderProgram;
-using SuperMetroid.Core.Enemies.Boulder.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Boulder;

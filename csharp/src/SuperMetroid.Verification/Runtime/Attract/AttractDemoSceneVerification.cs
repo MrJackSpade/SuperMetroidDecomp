@@ -9,7 +9,6 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.Verification.Runtime.Attract;

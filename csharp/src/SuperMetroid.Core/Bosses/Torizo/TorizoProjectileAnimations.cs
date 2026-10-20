@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileCueKind;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileProgram;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 

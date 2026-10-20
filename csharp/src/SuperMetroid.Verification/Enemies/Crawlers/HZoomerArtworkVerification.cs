@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 
 /// <summary>Runs the crawler animations, the orange Zoomer's among them, with the installed artwork.</summary>

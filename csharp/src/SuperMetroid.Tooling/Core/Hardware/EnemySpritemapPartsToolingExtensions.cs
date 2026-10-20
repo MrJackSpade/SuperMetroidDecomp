@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace SuperMetroid.Core.Hardware;
+﻿namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Development-tool instance members of <see cref="EnemySpritemapParts"/>.</summary>
 internal static class EnemySpritemapPartsToolingExtensions

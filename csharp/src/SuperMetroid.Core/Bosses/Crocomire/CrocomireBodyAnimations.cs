@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyCueKind;
 using P = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyProgram;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 

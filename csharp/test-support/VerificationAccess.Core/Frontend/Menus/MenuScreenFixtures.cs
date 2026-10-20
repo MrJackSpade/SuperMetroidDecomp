@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Menus;
 

@@ -26,6 +26,7 @@
   <Import Project="../../test-support/SaveMapFixtures.projitems" />
   <Import Project="../../test-support/FrameCapture.projitems" />
   <ItemGroup>
+    <Using Include="SuperMetroid.Core.Audio" />
     <Using Include="SuperMetroid.Core.Spatial" />
   </ItemGroup>
 </Project>

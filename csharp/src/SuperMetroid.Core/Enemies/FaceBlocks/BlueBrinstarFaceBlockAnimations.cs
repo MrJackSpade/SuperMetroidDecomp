@@ -1,6 +1,5 @@
 using P = SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockProgram;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.FaceBlocks;

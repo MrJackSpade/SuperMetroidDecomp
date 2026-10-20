@@ -1,8 +1,5 @@
 ﻿using SuperMetroid.Core.Hardware;
-using SuperMetroid.Tooling;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
-using D = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileInstructionProgramDefinitions;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 

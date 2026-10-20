@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>Compiled fixed behavior definitions for ordinary Metroids.</summary>

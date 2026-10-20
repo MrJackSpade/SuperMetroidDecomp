@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Verification-only room-screen index of a pixel coordinate (#223): a room screen is 256 pixels.</summary>

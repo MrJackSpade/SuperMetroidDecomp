@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.DownwardGateProgram, SuperMetroid.Core.Rooms.Plms.DownwardGateDraw, SuperMetroid.Core.Rooms.Plms.DownwardGateCue>;
 
 namespace SuperMetroid.Core.Rooms.Plms;

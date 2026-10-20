@@ -1,8 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;

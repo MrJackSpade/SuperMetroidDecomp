@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;

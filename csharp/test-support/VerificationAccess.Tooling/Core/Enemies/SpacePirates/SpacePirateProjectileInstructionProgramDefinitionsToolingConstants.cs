@@ -1,8 +1,5 @@
 ﻿using SuperMetroid.Core.Hardware;
-using SuperMetroid.Tooling;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
-using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 

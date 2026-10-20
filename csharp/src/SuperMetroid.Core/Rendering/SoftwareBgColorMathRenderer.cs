@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Reference byte-domain color math from a detached BG plane and register rows.</summary>

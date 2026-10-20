@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
-
-namespace SuperMetroid.Core.Enemies.Alcoon.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Alcoon.Artwork;
 
 /// <summary>Development-tool members of <see cref="AlcoonFireballFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class AlcoonFireballFrameToolingDefinitions

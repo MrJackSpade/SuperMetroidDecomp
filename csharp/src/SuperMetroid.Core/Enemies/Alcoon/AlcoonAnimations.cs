@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Alcoon.AlcoonCueKind;
 using P = SuperMetroid.Core.Enemies.Alcoon.AlcoonProgram;
-using SuperMetroid.Core.Enemies.Alcoon.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Alcoon;
 

@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Rooms;
-
-namespace SuperMetroid.Core.Fx;
+﻿namespace SuperMetroid.Core.Fx;
 
 /// <summary>Development-tool members of <see cref="RoomFxRomData"/>; never linked by player hosts.</summary>
 internal static class RoomFxToolingRomData

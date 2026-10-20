@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Audio;
-﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;

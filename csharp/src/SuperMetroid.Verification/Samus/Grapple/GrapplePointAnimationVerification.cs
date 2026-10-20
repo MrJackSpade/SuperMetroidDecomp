@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Samus.Grapple.GrappleRopeGeometryVerifica
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Samus.Grapple;
 

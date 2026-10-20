@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
-using SuperMetroid.Core.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipMotionDefinitionsVerification;

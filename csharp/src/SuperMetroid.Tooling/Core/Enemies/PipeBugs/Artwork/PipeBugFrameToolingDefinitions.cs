@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.PipeBugs.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 
 /// <summary>Development-tool members of <see cref="PipeBugFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class PipeBugFrameToolingDefinitions

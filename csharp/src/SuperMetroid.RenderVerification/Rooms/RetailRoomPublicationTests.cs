@@ -9,8 +9,8 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.RenderVerification.Rooms;
+
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Checks captured and retained gameplay frames across retail room-local publication fixtures.</summary>

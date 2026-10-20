@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
-
-namespace SuperMetroid.Core.Rooms.Doors;
+﻿namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Development-tool members of <see cref="DoorDefinitions"/>; never linked by player hosts.</summary>
 internal static class DoorToolingDefinitions

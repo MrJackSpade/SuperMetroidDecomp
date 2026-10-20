@@ -1,5 +1,3 @@
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-
 namespace SuperMetroid.Verification.Audio;
 
 /// <summary>

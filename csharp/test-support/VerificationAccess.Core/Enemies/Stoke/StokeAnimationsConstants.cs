@@ -1,8 +1,5 @@
 ﻿using SuperMetroid.Core.Programs;
-using K = SuperMetroid.Core.Enemies.Stoke.StokeCueKind;
-using P = SuperMetroid.Core.Enemies.Stoke.StokeProgram;
 using SuperMetroid.Core.Enemies.Stoke.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Stoke;
 

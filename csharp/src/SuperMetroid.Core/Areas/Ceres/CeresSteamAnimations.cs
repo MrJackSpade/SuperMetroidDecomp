@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Areas.Ceres.CeresSteamCueKind;
 using P = SuperMetroid.Core.Areas.Ceres.CeresSteamProgram;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 

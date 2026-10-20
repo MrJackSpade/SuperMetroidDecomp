@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Enemies.Dragon.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="DragonFireballFrameDefinitions"/> that only verification read.</summary>

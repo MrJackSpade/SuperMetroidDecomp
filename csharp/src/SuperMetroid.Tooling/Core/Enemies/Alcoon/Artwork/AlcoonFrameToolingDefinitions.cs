@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Alcoon.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Alcoon.Artwork;
 
 /// <summary>Development-tool members of <see cref="AlcoonFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class AlcoonFrameToolingDefinitions

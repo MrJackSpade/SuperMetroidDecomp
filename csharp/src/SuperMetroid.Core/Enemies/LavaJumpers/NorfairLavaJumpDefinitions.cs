@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>Compiled launch velocities for the Norfair lava-jumping enemy (Squeept).</summary>

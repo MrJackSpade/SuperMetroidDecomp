@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Grapple;
 

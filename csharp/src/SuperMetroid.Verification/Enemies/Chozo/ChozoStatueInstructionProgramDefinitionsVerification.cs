@@ -1,8 +1,5 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 using SuperMetroid.Verification.Harness;
 

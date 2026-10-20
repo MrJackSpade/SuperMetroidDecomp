@@ -4,7 +4,6 @@ using SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 using SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 using SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 using SuperMetroid.ResourceAudit.EnemyVisualPrograms;
-using SuperMetroid.ResourceAudit.PlmPrograms;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.ResourceAudit.VramDma;

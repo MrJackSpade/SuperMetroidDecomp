@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-
-namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>Development-tool members of <see cref="DraygonFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class DraygonFrameToolingDefinitions

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;

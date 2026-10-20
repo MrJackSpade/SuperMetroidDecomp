@@ -1,8 +1,5 @@
 ﻿using SuperMetroid.Core.Programs;
-using K = SuperMetroid.Core.Enemies.Waver.WaverCueKind;
-using P = SuperMetroid.Core.Enemies.Waver.WaverProgram;
 using SuperMetroid.Core.Enemies.Waver.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Waver;
 

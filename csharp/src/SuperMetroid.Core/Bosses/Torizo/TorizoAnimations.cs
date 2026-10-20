@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodyProgram;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 

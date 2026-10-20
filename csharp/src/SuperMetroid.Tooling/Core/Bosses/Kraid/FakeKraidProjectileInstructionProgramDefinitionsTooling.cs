@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
-using SuperMetroid.Tooling;
+﻿using SuperMetroid.Tooling;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 

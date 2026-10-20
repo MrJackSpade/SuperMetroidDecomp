@@ -1,16 +1,14 @@
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Ceres;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Verification.Enemies;
 
 /// <summary>Checks seven Ceres door initializer variants against their native selectors.</summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Native post-credits star motion and animation data.</summary>

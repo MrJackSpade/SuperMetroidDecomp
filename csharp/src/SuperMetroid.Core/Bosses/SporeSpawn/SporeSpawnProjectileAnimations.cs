@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using C = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileCue;
 using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileProgram;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 

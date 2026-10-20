@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;

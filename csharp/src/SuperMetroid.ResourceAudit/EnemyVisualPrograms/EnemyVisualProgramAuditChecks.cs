@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.Core.Enemies.Projectiles;
 

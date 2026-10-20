@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
-using P = SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisProgram;
-
-namespace SuperMetroid.Core.Areas.Ceres.Artwork;
+﻿namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="CeresFallingDebrisVisualDefinitions"/> that only verification reads.</summary>
 internal static class CeresFallingDebrisVisualDefinitionsConstants

@@ -1,7 +1,5 @@
 ﻿using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Stoke.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;

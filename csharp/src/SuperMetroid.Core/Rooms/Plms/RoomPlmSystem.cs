@@ -8,13 +8,9 @@ using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Rooms.Plms;

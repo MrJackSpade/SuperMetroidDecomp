@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-
-namespace SuperMetroid.Core.Enemies.Chozo;
+﻿namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>Cartridge values and helpers of <see cref="ChozoStatuePlmRomData"/> that only verification reads.</summary>
 internal static class ChozoStatuePlmRomDataConstants

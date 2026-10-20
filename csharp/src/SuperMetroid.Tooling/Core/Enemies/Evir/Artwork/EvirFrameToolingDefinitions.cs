@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Evir.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Evir.Artwork;
 
 /// <summary>Development-tool members of <see cref="EvirFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class EvirFrameToolingDefinitions

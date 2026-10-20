@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Rendering;

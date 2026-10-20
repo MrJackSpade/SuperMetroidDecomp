@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using System.Text;
 
 namespace SuperMetroid.Core.Audio;

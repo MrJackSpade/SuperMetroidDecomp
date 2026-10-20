@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Areas.Ceres.CeresFallingDebrisNativeListAddresses;
 using SuperMetroid.Core.Areas.Ceres;

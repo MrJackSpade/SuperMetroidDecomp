@@ -10,7 +10,6 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Elevator;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 

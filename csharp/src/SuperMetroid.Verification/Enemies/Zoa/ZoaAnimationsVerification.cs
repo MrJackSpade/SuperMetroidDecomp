@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.Core.Enemies.Zoa.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Zoa;
 

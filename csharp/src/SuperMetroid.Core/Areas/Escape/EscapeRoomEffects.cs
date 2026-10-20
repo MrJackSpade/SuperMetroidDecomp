@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Areas.Escape;

@@ -1,6 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Sbug.SbugProgram;
-using SuperMetroid.Core.Enemies.Sbug.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Sbug;

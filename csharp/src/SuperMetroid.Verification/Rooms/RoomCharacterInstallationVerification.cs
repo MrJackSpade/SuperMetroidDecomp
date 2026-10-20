@@ -12,7 +12,6 @@ using static SuperMetroid.Verification.Rooms.RoomVisualLayoutsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayRevealVisualInstallationVerification;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;

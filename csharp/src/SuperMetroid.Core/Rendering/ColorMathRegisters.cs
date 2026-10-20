@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>The colour-math registers one composition uses: CGADSUB's sources and operation, CGWSEL's subscreen-or-fixed operand select, and COLDATA's five-bit fixed colour (#633).</summary>

@@ -12,9 +12,9 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Saves;
+
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Checks every captured frame of a retail save station cycle, including electricity and control release.</summary>

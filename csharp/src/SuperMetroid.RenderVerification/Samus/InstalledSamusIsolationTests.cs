@@ -12,8 +12,8 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.RenderVerification.Samus;
+
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
 

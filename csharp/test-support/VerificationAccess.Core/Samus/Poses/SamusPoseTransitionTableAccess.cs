@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Samus.Poses;
 

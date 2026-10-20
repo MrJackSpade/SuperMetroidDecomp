@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Desktop;
 
 /// <summary>Finds extracted audio beside the working or executable directory for verification hosts.</summary>

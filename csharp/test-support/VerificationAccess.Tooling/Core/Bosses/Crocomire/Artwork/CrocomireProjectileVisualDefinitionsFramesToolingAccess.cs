@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
-
-namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Verification access to <see cref="CrocomireProjectileVisualDefinitionsFramesTooling"/> members production does not use.</summary>
 internal static class CrocomireProjectileVisualDefinitionsFramesToolingAccess

@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Fireflea.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Fireflea.Artwork;
 
 /// <summary>Development-tool members of <see cref="FirefleaFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class FirefleaFrameToolingDefinitions

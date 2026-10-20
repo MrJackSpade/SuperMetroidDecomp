@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Platforms.PlatformCueKind;
 using P = SuperMetroid.Core.Enemies.Platforms.PlatformProgram;
-using SuperMetroid.Core.Enemies.Platforms.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Platforms;
 

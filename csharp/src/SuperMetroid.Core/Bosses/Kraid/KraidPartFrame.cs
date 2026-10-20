@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
-
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>One frame of Kraid's part programs.</summary>

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using System.Reflection;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.Draygon;

@@ -14,8 +14,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks six installed room-FX BG3 tilemap pages against native VRAM output under read guards.</summary>
 internal static class RoomFxLayer3TilemapsVerification

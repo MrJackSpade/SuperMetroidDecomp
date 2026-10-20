@@ -10,7 +10,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Desktop.Diagnostics;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.DesktopVerification.Diagnostics;

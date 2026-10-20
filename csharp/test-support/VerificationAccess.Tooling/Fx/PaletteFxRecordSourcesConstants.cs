@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
-
-namespace SuperMetroid.AssetExtraction.Fx;
+﻿namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Cartridge values and helpers of <see cref="PaletteFxRecordSources"/> that only verification reads.</summary>
 internal static class PaletteFxRecordSourcesConstants

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Areas.Escape.Artwork;

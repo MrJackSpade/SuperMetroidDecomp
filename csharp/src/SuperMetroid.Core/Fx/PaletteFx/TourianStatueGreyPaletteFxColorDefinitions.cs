@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Areas.Tourian;
-
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>

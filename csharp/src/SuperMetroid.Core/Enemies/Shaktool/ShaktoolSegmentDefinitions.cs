@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>Compiled mechanics and callback metadata for Shaktool's linked body records.</summary>

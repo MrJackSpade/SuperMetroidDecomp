@@ -3,7 +3,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Gameplay;

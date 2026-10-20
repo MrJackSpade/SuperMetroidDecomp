@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -10,7 +9,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;

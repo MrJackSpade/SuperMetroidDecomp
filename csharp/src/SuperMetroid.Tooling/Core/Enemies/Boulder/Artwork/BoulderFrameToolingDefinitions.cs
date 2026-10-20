@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Boulder.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Boulder.Artwork;
 
 /// <summary>Development-tool members of <see cref="BoulderFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class BoulderFrameToolingDefinitions

@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Frontend.Title;
 

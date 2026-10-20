@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using System.Reflection;
 using System.IO.Compression;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;

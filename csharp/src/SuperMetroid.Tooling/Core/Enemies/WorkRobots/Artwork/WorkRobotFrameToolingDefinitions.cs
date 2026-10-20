@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.WorkRobots.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 
 /// <summary>Development-tool members of <see cref="WorkRobotFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class WorkRobotFrameToolingDefinitions

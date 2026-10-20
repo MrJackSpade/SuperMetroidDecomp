@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyDeathAccelerationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Software counterpart of the SNES INIDISP master-brightness multiplier.</summary>

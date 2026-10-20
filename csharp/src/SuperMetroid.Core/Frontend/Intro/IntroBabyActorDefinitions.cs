@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Bosses.MotherBrain;
-
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Fixed cinematic-object definitions for the SR388 egg and baby-Metroid scenes.</summary>

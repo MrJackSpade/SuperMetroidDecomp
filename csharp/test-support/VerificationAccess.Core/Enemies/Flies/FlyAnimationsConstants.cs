@@ -1,6 +1,4 @@
-﻿using P = SuperMetroid.Core.Enemies.Flies.FlyProgram;
-using SuperMetroid.Core.Enemies.Flies.Artwork;
-using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies.Flies.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Flies;

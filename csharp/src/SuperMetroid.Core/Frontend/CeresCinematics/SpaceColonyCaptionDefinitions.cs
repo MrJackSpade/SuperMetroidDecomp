@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>English caption in native8C:D629..D66A: emit the non-space characters

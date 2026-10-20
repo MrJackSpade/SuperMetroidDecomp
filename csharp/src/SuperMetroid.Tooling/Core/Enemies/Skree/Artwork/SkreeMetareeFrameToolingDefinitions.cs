@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Skree.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Skree.Artwork;
 
 /// <summary>Development-tool members of <see cref="SkreeMetareeFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class SkreeMetareeFrameToolingDefinitions

@@ -8,8 +8,8 @@ using SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Frontend;
+
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Compares captured title and frontend frames with their retail software renderings and state transitions.</summary>
 internal static class RetailFrontendTests

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Areas.Ceres.CeresBabyCueKind;
 using P = SuperMetroid.Core.Areas.Ceres.CeresBabyProgram;
 using F = SuperMetroid.Core.Areas.Ceres.CeresBabyPose;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 

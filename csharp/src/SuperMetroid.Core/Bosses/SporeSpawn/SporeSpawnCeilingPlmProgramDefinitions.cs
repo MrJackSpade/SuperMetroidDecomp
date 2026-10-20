@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCeilingProgram, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCeilingDraw, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCeilingCue>;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;

@@ -1,14 +1,7 @@
-using static SuperMetroid.Verification.Samus.SamusDamageAndGrabVerification;
-using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx.PaletteFx;
-using SuperMetroid.Verification.Harness;
-
 /// <summary>Checks the compiled Hyper Beam palette cycle against its cartridge control words and restored-pointer domain.</summary>
 internal static class HyperBeamPaletteFxColorDefinitionsVerification
 {

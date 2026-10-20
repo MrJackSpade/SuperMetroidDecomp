@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Waver.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;

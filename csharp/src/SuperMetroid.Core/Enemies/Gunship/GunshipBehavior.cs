@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;

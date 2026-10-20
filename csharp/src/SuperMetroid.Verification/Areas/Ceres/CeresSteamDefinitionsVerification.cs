@@ -1,14 +1,12 @@
 using SuperMetroid.Core.Programs;
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Areas.Ceres;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Verification.Enemies;
 
 /// <summary>Checks Ceres steam selector definitions against native words and actual enemy initialization.</summary>

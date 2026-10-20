@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerifi
 using static SuperMetroid.Verification.Areas.Tourian.TourianAccessPlmProgramsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;

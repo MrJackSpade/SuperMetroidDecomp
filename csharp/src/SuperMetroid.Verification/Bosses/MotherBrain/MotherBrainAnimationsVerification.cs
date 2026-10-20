@@ -11,12 +11,11 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
+
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// #1285: Mother Brain's typed body, brain, Baby, Shitroid, Zebetite, falling-tube and projectile programs against

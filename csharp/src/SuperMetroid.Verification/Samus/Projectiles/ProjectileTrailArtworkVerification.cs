@@ -4,7 +4,6 @@ using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
 using static SuperMetroid.Verification.Samus.Artwork.ProjectileTrailAtlasVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

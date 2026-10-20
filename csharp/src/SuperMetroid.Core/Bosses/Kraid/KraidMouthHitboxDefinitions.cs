@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Programs;
-
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Compiled collision geometry, independent of Kraid's editable head artwork.</summary>

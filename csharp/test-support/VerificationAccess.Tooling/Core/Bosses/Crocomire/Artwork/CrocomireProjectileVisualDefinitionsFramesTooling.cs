@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
-
-namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="CrocomireProjectileVisualDefinitions"/> that only development tools read.</summary>
 internal static class CrocomireProjectileVisualDefinitionsFramesTooling

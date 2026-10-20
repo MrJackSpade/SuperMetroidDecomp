@@ -1,5 +1,4 @@
 using P = SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalProgram;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Areas.Ceres;

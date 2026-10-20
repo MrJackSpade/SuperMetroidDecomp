@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;

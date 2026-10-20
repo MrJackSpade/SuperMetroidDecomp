@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Cacatac.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Cacatac.Artwork;
 
 /// <summary>Development-tool members of <see cref="CacatacFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class CacatacFrameToolingDefinitions

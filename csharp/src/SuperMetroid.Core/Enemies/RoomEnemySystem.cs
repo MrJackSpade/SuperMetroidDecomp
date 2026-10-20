@@ -81,7 +81,6 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Escape.Artwork;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;

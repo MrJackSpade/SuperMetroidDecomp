@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Corpses.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Corpses.Artwork;
 
 /// <summary>Development-tool members of <see cref="DeadTorizoFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class DeadTorizoFrameToolingDefinitions

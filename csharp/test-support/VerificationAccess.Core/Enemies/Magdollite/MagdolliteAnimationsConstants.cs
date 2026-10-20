@@ -1,8 +1,5 @@
 ﻿using SuperMetroid.Core.Programs;
-using K = SuperMetroid.Core.Enemies.Magdollite.MagdolliteCueKind;
-using P = SuperMetroid.Core.Enemies.Magdollite.MagdolliteProgram;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Magdollite;
 

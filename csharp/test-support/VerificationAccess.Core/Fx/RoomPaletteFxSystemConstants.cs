@@ -1,12 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Rooms.Doors;
-
-namespace SuperMetroid.Core.Fx;
+﻿namespace SuperMetroid.Core.Fx;
 
 /// <summary>Cartridge values and helpers of <see cref="RoomPaletteFxSystem"/> that only verification reads.</summary>
 internal static class RoomPaletteFxSystemConstants

@@ -3,11 +3,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Ripper;
 using SuperMetroid.Verification.Harness;
 

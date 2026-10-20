@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using System.Buffers;
 using SuperMetroid.Core.Rooms.Backgrounds;
 

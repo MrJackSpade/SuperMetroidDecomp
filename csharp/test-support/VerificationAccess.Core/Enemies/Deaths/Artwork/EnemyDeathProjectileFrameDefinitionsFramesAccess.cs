@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Enemies.Deaths.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="EnemyDeathProjectileFrameDefinitions"/> that only verification read.</summary>

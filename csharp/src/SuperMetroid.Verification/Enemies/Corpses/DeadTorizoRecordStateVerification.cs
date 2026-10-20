@@ -1,6 +1,4 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Verification.Enemies.Corpses;
 using SuperMetroid.Verification.Harness;

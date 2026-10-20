@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 

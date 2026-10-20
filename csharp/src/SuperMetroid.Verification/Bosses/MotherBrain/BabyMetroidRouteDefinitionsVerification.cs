@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks Baby Metroid's compiled route records against pinned native words and pointer bounds.</summary>

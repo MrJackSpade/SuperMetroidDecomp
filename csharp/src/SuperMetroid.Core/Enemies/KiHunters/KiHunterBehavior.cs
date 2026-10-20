@@ -1,9 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;
-using SuperMetroid.Core.Fx;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;

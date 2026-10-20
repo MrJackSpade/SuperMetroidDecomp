@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;

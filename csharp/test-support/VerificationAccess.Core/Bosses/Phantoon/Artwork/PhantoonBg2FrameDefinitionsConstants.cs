@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 

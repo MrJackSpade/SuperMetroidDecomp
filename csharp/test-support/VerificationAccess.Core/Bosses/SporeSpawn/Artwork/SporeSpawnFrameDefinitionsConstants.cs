@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-
-namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="SporeSpawnFrameDefinitions"/> that only verification reads.</summary>
 internal static class SporeSpawnFrameDefinitionsConstants

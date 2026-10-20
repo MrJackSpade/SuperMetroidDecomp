@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>Fixed Shaktool segment geometry, not editable animation data.</summary>

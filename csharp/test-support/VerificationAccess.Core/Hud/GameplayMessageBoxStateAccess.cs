@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hud.Artwork;
-
-namespace SuperMetroid.Core.Hud;
+﻿namespace SuperMetroid.Core.Hud;
 
 /// <summary>Verification access to <see cref="GameplayMessageBoxState"/> members production does not use.</summary>
 internal static class GameplayMessageBoxStateAccess

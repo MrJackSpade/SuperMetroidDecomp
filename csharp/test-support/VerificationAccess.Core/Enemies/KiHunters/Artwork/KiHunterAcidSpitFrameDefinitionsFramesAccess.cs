@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Enemies.KiHunters.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="KiHunterAcidSpitFrameDefinitions"/> that only verification read.</summary>

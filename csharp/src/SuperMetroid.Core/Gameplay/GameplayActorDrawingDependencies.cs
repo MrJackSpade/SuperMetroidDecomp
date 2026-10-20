@@ -2,9 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Gameplay;
 

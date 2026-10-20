@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>

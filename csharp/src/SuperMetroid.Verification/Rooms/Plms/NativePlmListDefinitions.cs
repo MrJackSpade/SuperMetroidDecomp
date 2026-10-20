@@ -1,13 +1,6 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

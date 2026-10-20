@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Rendering;
 

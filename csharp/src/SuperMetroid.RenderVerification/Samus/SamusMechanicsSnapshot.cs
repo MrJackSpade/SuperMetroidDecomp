@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.RenderVerification.Samus;

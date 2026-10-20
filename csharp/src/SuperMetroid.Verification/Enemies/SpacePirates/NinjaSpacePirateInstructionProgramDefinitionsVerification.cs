@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Fx;
-using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -13,7 +11,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
 

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
-using System.Buffers.Binary;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;

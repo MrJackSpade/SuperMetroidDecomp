@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boulder.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Boulder;
 

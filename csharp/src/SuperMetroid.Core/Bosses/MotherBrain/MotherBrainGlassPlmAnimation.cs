@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;

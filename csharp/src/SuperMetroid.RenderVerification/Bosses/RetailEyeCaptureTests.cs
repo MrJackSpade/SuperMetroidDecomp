@@ -9,8 +9,8 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.RenderVerification.Bosses;
+
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Checks D3D11 output against production rendering during the retail Morph Ball eye-beam sequence.</summary>

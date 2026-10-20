@@ -2,8 +2,6 @@ using SuperMetroid.Core.Programs;
 using F = SuperMetroid.Core.Bosses.Ridley.RidleyCollisionDefinitions.BodyFrame;
 using K = SuperMetroid.Core.Bosses.Ridley.RidleyBodyCueKind;
 using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodyProgram;
-using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 

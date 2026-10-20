@@ -1,6 +1,4 @@
-﻿using P = SuperMetroid.Core.Enemies.Polyp.PolypProgram;
-using SuperMetroid.Core.Enemies.Polyp.Artwork;
-using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Polyp;

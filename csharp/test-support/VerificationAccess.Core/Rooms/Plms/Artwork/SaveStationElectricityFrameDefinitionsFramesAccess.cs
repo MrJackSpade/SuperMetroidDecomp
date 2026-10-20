@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Rooms.Plms.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="SaveStationElectricityFrameDefinitions"/> that only verification read.</summary>

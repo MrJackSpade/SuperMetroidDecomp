@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Enemies.Magdollite.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="MagdolliteLavaFrameDefinitions"/> that only verification read.</summary>

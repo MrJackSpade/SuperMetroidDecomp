@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Verification access to <see cref="ScrollBoundaryCamera"/> members production does not use.</summary>

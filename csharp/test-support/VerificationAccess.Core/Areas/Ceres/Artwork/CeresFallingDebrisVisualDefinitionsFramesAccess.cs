@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
 using P = SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisProgram;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;

@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Progression;
+﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;

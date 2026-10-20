@@ -8,8 +8,8 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Projectiles;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Checks enemy-projectile contact ordering, damage, and delayed hurt movement.</summary>

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Fx;
 

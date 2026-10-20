@@ -6,7 +6,6 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Input;
 

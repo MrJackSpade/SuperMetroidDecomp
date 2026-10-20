@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
 
 /// <summary>Development-tool members of <see cref="MaridiaLargeSnailFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class MaridiaLargeSnailFrameToolingDefinitions

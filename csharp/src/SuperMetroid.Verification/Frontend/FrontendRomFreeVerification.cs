@@ -10,7 +10,6 @@ using static SuperMetroid.Verification.Frontend.FrontendRomFreeCensusVerificatio
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRoomSetupVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -19,7 +18,6 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
@@ -29,9 +27,9 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend;
+
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Assets;
 
 /// <summary>Compares installed ROM-free frontend execution with a cartridge-backed reference.</summary>

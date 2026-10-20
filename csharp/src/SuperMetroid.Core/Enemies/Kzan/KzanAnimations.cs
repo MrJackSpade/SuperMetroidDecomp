@@ -1,6 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Kzan.KzanProgram;
-using SuperMetroid.Core.Enemies.Kzan.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Kzan;

@@ -15,6 +15,7 @@
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
   <Import Project="../../test-support/VerificationAccess.Tooling.projitems" />
   <ItemGroup>
+    <Using Include="SuperMetroid.Core.Audio" />
     <Using Include="SuperMetroid.Core.Spatial" />
   </ItemGroup>
 </Project>

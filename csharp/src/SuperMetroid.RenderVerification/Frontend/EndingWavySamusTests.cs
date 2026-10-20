@@ -1,6 +1,4 @@
 using SuperMetroid.Core;
-using System.Reflection;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending;
@@ -8,8 +6,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Frontend;
+
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Checks post-credits Samus wave HDMA, color addition, and serialized rendering.</summary>

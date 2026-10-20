@@ -1,8 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Samus.Poses;
-
-namespace SuperMetroid.Core.Samus.Abilities;
+﻿namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Verification access to <see cref="SamusSuitPickupState"/> members production does not use.</summary>
 internal static class SamusSuitPickupStateAccess

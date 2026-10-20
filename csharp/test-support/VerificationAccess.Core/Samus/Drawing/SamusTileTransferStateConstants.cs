@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Artwork;
+﻿using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Samus.Drawing;

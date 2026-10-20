@@ -3,8 +3,8 @@ using static SuperMetroid.Verification.Fx.RoomFxRomDataVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Fx;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks the liquid HDMA callback's use of shared RNG across freeze and room reload boundaries.</summary>
 internal static class RoomFxSharedRandomVerification

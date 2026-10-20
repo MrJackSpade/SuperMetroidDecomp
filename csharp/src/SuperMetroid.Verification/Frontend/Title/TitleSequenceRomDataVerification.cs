@@ -6,8 +6,6 @@ using static SuperMetroid.Verification.Frontend.FrontendVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 

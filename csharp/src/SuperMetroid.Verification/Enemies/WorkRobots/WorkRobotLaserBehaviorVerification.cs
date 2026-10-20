@@ -3,8 +3,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Fx;
-using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.WorkRobots;

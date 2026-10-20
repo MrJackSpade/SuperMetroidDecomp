@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
-
-namespace SuperMetroid.Core.Samus.Projectiles;
+﻿namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Cartridge values and helpers of <see cref="SamusProjectileProgramAddresses"/> that only verification reads.</summary>
 internal static class SamusProjectileProgramAddressesConstants

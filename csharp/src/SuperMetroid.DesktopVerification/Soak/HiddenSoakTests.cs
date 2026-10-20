@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;

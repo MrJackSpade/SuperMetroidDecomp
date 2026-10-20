@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
 using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileProgram;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;

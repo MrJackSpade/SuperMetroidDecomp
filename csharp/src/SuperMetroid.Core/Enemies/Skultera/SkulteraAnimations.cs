@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Skultera.SkulteraCueKind;
 using P = SuperMetroid.Core.Enemies.Skultera.SkulteraProgram;
-using SuperMetroid.Core.Enemies.Skultera.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.Skultera;
 

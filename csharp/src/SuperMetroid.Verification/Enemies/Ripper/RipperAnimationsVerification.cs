@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Ripper;
 

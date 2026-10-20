@@ -1,13 +1,8 @@
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Fireflea;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Fireflea;
-using SuperMetroid.Verification.Harness;
-
 /// <summary>Checks compiled Fireflea movement radii and production initialization without ROM table reads.</summary>
 internal static class FirefleaMovementDefinitionsVerification
 {

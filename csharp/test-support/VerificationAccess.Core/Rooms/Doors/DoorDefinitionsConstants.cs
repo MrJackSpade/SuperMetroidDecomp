@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Cartridge values of <see cref="DoorDefinitions"/> that only verification reads.</summary>

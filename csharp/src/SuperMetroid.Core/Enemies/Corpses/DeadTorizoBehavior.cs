@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Enemies.Artwork;

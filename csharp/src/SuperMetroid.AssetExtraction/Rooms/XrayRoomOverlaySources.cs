@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.AssetExtraction.Rooms;

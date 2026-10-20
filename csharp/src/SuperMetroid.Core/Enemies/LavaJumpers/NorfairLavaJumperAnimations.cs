@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperCueKind;
 using P = SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperProgram;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 

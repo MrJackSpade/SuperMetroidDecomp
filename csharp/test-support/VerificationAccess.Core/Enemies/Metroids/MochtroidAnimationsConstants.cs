@@ -1,6 +1,4 @@
-﻿using P = SuperMetroid.Core.Enemies.Metroids.MochtroidProgram;
-using SuperMetroid.Core.Enemies.Metroids.Artwork;
-using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies.Metroids.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Metroids;

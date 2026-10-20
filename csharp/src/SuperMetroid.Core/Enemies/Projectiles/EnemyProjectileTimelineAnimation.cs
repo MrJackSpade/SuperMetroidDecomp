@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 

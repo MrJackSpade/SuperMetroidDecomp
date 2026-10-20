@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Powamp;
 

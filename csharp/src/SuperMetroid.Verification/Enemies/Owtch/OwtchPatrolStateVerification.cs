@@ -1,8 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Owtch;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Enemies.Owtch;
 using SuperMetroid.Verification.Harness;
 

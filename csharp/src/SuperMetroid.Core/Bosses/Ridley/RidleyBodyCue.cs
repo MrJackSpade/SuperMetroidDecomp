@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>One cue of Ridley's body programs, with the operands its native instruction carries.</summary>

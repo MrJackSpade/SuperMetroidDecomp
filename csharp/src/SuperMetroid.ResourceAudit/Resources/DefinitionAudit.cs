@@ -1,14 +1,7 @@
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Boulder;
-using SuperMetroid.Core.Enemies.FaceBlocks;
-using SuperMetroid.Core.Enemies.FuneNamihe;
-using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 using SuperMetroid.ResourceAudit.Reports;

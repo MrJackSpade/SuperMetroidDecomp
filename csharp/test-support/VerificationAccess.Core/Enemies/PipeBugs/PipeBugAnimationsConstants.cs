@@ -1,6 +1,4 @@
-﻿using P = SuperMetroid.Core.Enemies.PipeBugs.PipeBugProgram;
-using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
-using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.PipeBugs;

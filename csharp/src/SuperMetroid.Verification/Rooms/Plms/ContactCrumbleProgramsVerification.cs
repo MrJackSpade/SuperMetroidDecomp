@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefini
 using static SuperMetroid.Verification.Rooms.LevelData.LinkedRestoreVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;

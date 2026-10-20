@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus.Projectiles;
-
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Cartridge values of <see cref="SamusGrappleRomData.Rendering"/> that only verification reads.</summary>

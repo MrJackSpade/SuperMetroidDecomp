@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Explicit CPU pixel access for packet tests, screenshots and software presentation.</summary>

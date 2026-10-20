@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Ripper.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Ripper.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="RipperFrameDefinitions"/> that only verification reads.</summary>
 internal static class RipperFrameDefinitionsConstants

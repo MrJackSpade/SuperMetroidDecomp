@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
-
-namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="DraygonProjectileVisualDefinitions"/> that only development tools read.</summary>
 internal static class DraygonProjectileVisualDefinitionsFramesTooling

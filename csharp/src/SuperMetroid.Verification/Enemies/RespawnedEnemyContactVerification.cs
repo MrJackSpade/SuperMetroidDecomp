@@ -1,11 +1,9 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;

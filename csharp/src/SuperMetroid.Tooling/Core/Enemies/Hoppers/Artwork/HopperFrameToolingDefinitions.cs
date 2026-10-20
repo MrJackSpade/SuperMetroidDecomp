@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Hoppers.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Hoppers.Artwork;
 
 /// <summary>Development-tool members of <see cref="HopperFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class HopperFrameToolingDefinitions

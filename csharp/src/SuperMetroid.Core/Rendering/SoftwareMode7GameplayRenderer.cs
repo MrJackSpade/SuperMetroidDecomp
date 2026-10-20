@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Reference implementation of explicit HUD/Mode-7/Mode-1 scanline bands.</summary>

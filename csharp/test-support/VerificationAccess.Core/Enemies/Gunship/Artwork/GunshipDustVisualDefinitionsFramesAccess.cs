@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
 using P = SuperMetroid.Core.Enemies.Gunship.GunshipDustProgram;
 
 namespace SuperMetroid.Core.Enemies.Gunship.Artwork;

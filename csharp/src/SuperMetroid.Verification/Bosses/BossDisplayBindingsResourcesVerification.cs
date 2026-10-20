@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerifi
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 namespace SuperMetroid.Verification.Bosses;
 

@@ -1,6 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Puyo.PuyoProgram;
-using SuperMetroid.Core.Enemies.Puyo.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Puyo;

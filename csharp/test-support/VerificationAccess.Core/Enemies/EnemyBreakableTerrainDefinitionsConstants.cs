@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.Plms;
-
-namespace SuperMetroid.Core.Enemies;
+﻿namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Cartridge values and helpers of <see cref="EnemyBreakableTerrainDefinitions"/> that only verification reads.</summary>
 internal static class EnemyBreakableTerrainDefinitionsConstants

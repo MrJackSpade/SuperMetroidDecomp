@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.Plms;
-
-namespace SuperMetroid.Core.Enemies.WreckedShip;
+﻿namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>Named bank-$84 callback pointers owned by Wrecked Ship attic PLM $BB05.</summary>
 internal static class WreckedShipAtticPlmRomData

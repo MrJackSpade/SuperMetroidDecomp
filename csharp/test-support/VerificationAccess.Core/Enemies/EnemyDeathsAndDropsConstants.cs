@@ -1,10 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.SpriteObjects;
-using SuperMetroid.Core.Enemies.Deaths;
-using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Samus.Projectiles;
+﻿using SuperMetroid.Core.Enemies.Deaths;
 
 namespace SuperMetroid.Core.Enemies;
 

@@ -1,6 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Shutters.ShutterProgram;
-using SuperMetroid.Core.Enemies.Shutters.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Shutters;

@@ -1,6 +1,3 @@
-using SuperMetroid.Core;
-using SuperMetroid.Core.Rooms;
-
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>

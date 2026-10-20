@@ -16,7 +16,6 @@ using static SuperMetroid.Verification.Bosses.Crocomire.Artwork.CrocomireSkeleto
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkPhantoonBg2FramesVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
-using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonPatternsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
@@ -53,7 +52,6 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Map;
 
 using SuperMetroid.Verification.Bosses.Phantoon;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Core.Rooms.Backgrounds;

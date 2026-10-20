@@ -1,8 +1,5 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -18,7 +15,6 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

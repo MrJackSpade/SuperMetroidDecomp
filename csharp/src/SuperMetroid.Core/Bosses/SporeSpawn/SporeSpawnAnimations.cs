@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using F = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnFrameKind;
 using K = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCueKind;
 using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBodyProgram;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 

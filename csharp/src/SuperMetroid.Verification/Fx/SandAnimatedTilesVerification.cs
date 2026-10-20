@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;

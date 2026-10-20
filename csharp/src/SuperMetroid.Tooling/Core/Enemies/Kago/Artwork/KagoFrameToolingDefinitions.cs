@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Kago.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Kago.Artwork;
 
 /// <summary>Development-tool members of <see cref="KagoFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class KagoFrameToolingDefinitions

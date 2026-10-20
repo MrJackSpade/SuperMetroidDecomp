@@ -7,7 +7,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
-using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.DebugRunner.Tools;
 

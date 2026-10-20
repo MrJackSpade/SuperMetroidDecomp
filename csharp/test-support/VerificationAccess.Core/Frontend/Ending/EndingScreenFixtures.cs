@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend.Ending;

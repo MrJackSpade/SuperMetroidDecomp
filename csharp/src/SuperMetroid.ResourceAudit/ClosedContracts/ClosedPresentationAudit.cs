@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 using SuperMetroid.ResourceAudit.ClosedContracts.Enemies;

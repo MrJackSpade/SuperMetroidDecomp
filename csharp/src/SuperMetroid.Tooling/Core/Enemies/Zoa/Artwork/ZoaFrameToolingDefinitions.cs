@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Zoa.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Zoa.Artwork;
 
 /// <summary>Development-tool members of <see cref="ZoaFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class ZoaFrameToolingDefinitions

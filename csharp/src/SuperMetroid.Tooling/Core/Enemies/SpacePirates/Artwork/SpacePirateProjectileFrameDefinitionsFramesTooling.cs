@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="SpacePirateProjectileFrameDefinitions"/> that only development tools read.</summary>

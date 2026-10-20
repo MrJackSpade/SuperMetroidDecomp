@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Flies.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Flies.Artwork;
 
 /// <summary>Development-tool members of <see cref="FlyFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class FlyFrameToolingDefinitions

@@ -1,6 +1,5 @@
 using P = SuperMetroid.Core.Enemies.Crawlers.MultiviolaProgram;
 using SuperMetroid.Core.Enemies.Crawlers.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Crawlers;

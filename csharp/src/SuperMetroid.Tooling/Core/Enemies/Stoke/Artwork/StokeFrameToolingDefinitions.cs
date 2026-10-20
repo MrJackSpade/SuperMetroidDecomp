@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Stoke.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Stoke.Artwork;
 
 /// <summary>Development-tool members of <see cref="StokeFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class StokeFrameToolingDefinitions

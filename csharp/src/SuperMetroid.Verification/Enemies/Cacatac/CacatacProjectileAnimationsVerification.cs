@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Cacatac;

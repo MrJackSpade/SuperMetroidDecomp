@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Samus.Projectiles;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombCallbackDefinitionsVerification;
@@ -9,7 +8,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Enemies.Artwork;
 

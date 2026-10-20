@@ -5,11 +5,9 @@ using static SuperMetroid.Verification.Enemies.Gunship.GunshipDustNativeListAddr
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Gunship;
 

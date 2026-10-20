@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Bull.Artwork;
 using SuperMetroid.Core.Samus;
 

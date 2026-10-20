@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Ripper.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Ripper.Artwork;
 
 /// <summary>Development-tool members of <see cref="RipperFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class RipperFrameToolingDefinitions

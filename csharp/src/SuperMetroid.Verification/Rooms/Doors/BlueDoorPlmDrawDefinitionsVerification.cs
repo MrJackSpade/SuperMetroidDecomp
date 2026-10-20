@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Rooms.Doors.LookupBlueCapVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupBlueDoorStockVerification;
 using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;

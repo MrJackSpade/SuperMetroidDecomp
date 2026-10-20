@@ -15,8 +15,6 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Verification.Frontend.Intro;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
 /// <summary>Checks installed Ceres flight Mode 7, sprite, actor, and palette art against retail sources.</summary>

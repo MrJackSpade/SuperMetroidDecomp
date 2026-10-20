@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>The state of the cartridge's complete, though retail-unused, horizontal shutter. The values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).</summary>

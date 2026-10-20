@@ -1,4 +1,3 @@
-using System.Reflection;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.MorphBallEye;

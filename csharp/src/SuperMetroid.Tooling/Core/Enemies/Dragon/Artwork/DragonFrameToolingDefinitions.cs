@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies.Dragon.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Dragon.Artwork;
 
 /// <summary>Development-tool members of <see cref="DragonFrameDefinitions"/>; never linked by player hosts.</summary>
 internal static class DragonFrameToolingDefinitions

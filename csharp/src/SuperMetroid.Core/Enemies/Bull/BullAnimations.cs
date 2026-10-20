@@ -1,6 +1,4 @@
 using P = SuperMetroid.Core.Enemies.Bull.BullProgram;
-using SuperMetroid.Core.Enemies.Bull.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Bull;

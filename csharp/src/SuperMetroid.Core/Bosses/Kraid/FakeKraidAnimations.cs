@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Kraid.FakeKraidCueKind;
 using P = SuperMetroid.Core.Bosses.Kraid.FakeKraidProgram;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 

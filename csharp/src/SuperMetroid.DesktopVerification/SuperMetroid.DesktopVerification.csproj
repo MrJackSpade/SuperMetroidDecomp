@@ -19,6 +19,7 @@
   <Import Project="../../test-support/VerificationAccess.Rendering.Direct3D11.projitems" />
   <Import Project="../../test-support/SaveMapFixtures.projitems" />
   <ItemGroup>
+    <Using Include="SuperMetroid.Core.Audio" />
     <Using Include="SuperMetroid.Core.Spatial" />
   </ItemGroup>
 </Project>

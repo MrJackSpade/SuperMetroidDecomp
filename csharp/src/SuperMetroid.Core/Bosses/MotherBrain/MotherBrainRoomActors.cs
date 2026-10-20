@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Rooms;
 

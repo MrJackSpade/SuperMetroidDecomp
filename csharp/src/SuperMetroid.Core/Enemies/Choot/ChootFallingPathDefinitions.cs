@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Programs;
-
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>Compiled physical paths used by Choot after reaching its jump apex.</summary>

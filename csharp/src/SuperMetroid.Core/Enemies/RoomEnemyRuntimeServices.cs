@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;

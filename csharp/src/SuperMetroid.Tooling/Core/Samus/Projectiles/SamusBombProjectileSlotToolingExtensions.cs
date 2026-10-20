@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Development-tool instance members of <see cref="SamusBombProjectileSlot"/>.</summary>

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Compiles native-size indexed artwork into the PPU's 2/4-bpp character format, not a CPU memory image.</summary>

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Cartridge values of <see cref="MotherBrainLegTileTransferDefinitions"/> that only verification reads.</summary>

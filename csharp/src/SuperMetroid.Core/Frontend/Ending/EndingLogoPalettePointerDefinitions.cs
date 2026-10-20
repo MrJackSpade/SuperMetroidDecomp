@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Native ending-logo palette source traversal; RGB5 colors remain editable artwork.</summary>

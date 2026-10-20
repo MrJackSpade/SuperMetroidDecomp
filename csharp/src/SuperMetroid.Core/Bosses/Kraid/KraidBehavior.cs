@@ -2287,7 +2287,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunKraidSecondPhaseWalkToStart(body, foot, part);
                 return;
             case KraidAiFunction.FootSecondPhaseInitialize:
-                SetKraidWalkingRight(foot, part, targetX: 352, thinkTimer: 180);
+                SetKraidWalking(foot, part, targetX: 352, thinkTimer: 180, rightward: true);
                 return;
             case KraidAiFunction.FootSecondPhaseThinking:
                 RunKraidSecondPhaseThinking(body, foot, part);
@@ -2467,37 +2467,24 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         (ushort targetX, ushort thinkTimer) = KraidMovementChoices.Select(body.Position.X.Whole, ReadKraidRandomNumber());
-        if (unchecked((short)(targetX - body.Position.X.Whole)) >= 0)
-            SetKraidWalkingRight(foot, part, targetX, thinkTimer);
-        else
-            SetKraidWalkingLeft(foot, part, targetX, thinkTimer);
+        SetKraidWalking(foot, part, targetX, thinkTimer, rightward: unchecked((short)(targetX - body.Position.X.Whole)) >= 0);
     }
 
-    /// <summary>Stores a rightward target and starts the foot's walking animation.</summary>
-    private void SetKraidWalkingRight(
+    /// <summary>
+    /// Stores a walk target and starts the foot's walking animation: walking right steps the foot backward, walking left
+    /// steps it forward.
+    /// </summary>
+    private void SetKraidWalking(
         RoomEnemySlot foot,
         KraidPartState part,
         ushort targetX,
-        ushort thinkTimer)
+        ushort thinkTimer,
+        bool rightward)
     {
         RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(targetX, 0);
         part.ThinkTimer = NativeCountdown.FromRaw(thinkTimer);
-        Part(foot).Function = KraidAiFunction.FootSecondPhaseWalkingRight;
-        SetKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
-        foot.InstructionTimer = NativeCountdown.Start(1);
-    }
-
-    /// <summary>Stores a leftward target and starts the foot's walking animation.</summary>
-    private void SetKraidWalkingLeft(
-        RoomEnemySlot foot,
-        KraidPartState part,
-        ushort targetX,
-        ushort thinkTimer)
-    {
-        RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(targetX, 0);
-        part.ThinkTimer = NativeCountdown.FromRaw(thinkTimer);
-        Part(foot).Function = KraidAiFunction.FootSecondPhaseWalkingLeft;
-        SetKraidPartProgram(foot, KraidPartProgram.FootWalkingForward);
+        Part(foot).Function = rightward ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft;
+        SetKraidPartProgram(foot, rightward ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward);
         foot.InstructionTimer = NativeCountdown.Start(1);
     }
 

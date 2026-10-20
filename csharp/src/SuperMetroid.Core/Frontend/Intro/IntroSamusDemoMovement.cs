@@ -57,7 +57,7 @@ internal static class IntroSamusDemoMovement
         GroundedMovementResult movement;
         if (SamusPoseMetadata.IsLeftFacingRunningPose(poseAtFrameStart))
         {
-            movement = SamusGroundedMovement.StepRunningLeft(
+            movement = SamusGroundedMovement.StepRunning(
 
                 level,
                 samus,
@@ -68,7 +68,7 @@ internal static class IntroSamusDemoMovement
         {
             // The demo handler has written its held word into the controller input that
             // $90:A3BA tests, so a held shot holds the standing animation here too.
-            movement = SamusGroundedMovement.StepStandingLeft(level, samus, nmiFrameCounter,
+            movement = SamusGroundedMovement.StepStanding(level, samus, nmiFrameCounter,
                 heldInput);
         }
         else

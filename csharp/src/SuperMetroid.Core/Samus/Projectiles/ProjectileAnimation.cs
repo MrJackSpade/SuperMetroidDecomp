@@ -127,7 +127,7 @@ internal sealed class ProjectileAnimation
         if (direction >= 16)
             return;
 
-        DrawFlareComponentWithMetadata(sprites, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Running, PoseYOffset = unchecked((byte)samus.PoseMetadata.ReadGraphicsYOffset()), FacingLeft = samus.PoseMetadata.IsFacingLeft() });
+        DrawFlareComponentWithMetadata(sprites, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Running, PoseYOffset = unchecked((byte)samus.PoseMetadata.ReadGraphicsYOffset()), FacingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left) });
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres Mode-7 center transform, then draws the installed component frame.</summary>

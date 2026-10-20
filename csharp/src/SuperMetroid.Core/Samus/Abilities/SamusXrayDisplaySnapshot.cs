@@ -35,7 +35,7 @@ public readonly record struct SamusXrayDisplaySnapshot(
         bool finished = lastBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish };
         if (samus is null || !samus.Xray.IsActive && !finished) return null;
         return new(finished, samus.Xray.SetupStage, samus.Xray.BeamPhase, samus.Xray.Angle,
-            samus.Xray.AngularWidth, samus.Position.Whole, samus.PoseMetadata.IsFacingLeft(),
+            samus.Xray.AngularWidth, samus.Position.Whole, samus.PoseMetadata.IsFacing(SamusFacingDirection.Left),
             samus.PoseMetadata.ReadMovementType() == SamusMovementType.Crouching);
     }
 }

@@ -13,6 +13,7 @@ SME6414 | Architecture | Error | PragmaWarningDisableAnalyzer
 SME6415 | Design | Error | NumberedSequenceAnalyzer
 SME6416 | Design | Error | NumberedSequenceAnalyzer
 SME6417 | Design | Error | NumberedSequenceAnalyzer
+SME6418 | Design | Error | MirroredMethodPairAnalyzer
 SME6340 | Design | Warning | CartridgeEncodingAnalyzer
 SME6341 | Design | Warning | CartridgeEncodingAnalyzer
 SME6342 | Design | Warning | CartridgeEncodingAnalyzer

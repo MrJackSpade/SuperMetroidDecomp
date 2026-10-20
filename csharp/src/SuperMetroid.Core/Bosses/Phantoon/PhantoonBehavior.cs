@@ -444,10 +444,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (body.SpeedPhase == 0)
         {
-            AddPhantoonSpeed(
+            ChangePhantoonSpeed(
                 body,
                 low: PhantoonMotionDefinitions.SlowFraction,
-                high: PhantoonMotionDefinitions.SlowWhole);
+                high: PhantoonMotionDefinitions.SlowWhole, slowing: false);
             if (unchecked((short)(body.SpeedWhole - PhantoonMotionDefinitions.ForwardSlowCap)) >= 0)
             {
                 body.SpeedWhole = unchecked(PhantoonMotionDefinitions.ForwardSlowCap - 1);
@@ -459,10 +459,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if ((body.SpeedPhase & 1) != 0)
         {
-            AddPhantoonSpeed(
+            ChangePhantoonSpeed(
                 body,
                 PhantoonMotionDefinitions.FastFraction,
-                PhantoonMotionDefinitions.FastWhole);
+                PhantoonMotionDefinitions.FastWhole, slowing: false);
             if (unchecked((short)(body.SpeedWhole - PhantoonMotionDefinitions.ForwardFastCap)) >= 0)
             {
                 body.SpeedWhole = PhantoonMotionDefinitions.ForwardFastCap;
@@ -472,10 +472,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SubtractPhantoonSpeed(
+        ChangePhantoonSpeed(
             body,
             PhantoonMotionDefinitions.FastFraction,
-            PhantoonMotionDefinitions.FastWhole);
+            PhantoonMotionDefinitions.FastWhole, slowing: true);
         ushort minimum = PhantoonMotionDefinitions.ForwardMinimum;
         if (body.SpeedWhole == minimum || unchecked((short)(body.SpeedWhole - minimum)) < 0)
         {
@@ -490,10 +490,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (body.SpeedPhase == 0)
         {
-            SubtractPhantoonSpeed(
+            ChangePhantoonSpeed(
                 body,
                 PhantoonMotionDefinitions.SlowFraction,
-                PhantoonMotionDefinitions.SlowWhole);
+                PhantoonMotionDefinitions.SlowWhole, slowing: true);
             ushort cap = PhantoonMotionDefinitions.ReverseSlowCap;
             if (body.SpeedWhole == cap || unchecked((short)(body.SpeedWhole - cap)) < 0)
             {
@@ -506,10 +506,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if ((body.SpeedPhase & 1) != 0)
         {
-            SubtractPhantoonSpeed(
+            ChangePhantoonSpeed(
                 body,
                 PhantoonMotionDefinitions.FastFraction,
-                PhantoonMotionDefinitions.FastWhole);
+                PhantoonMotionDefinitions.FastWhole, slowing: true);
             ushort cap = PhantoonMotionDefinitions.ReverseFastCap;
             if (body.SpeedWhole == cap || unchecked((short)(body.SpeedWhole - cap)) < 0)
             {
@@ -520,10 +520,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        AddPhantoonSpeed(
+        ChangePhantoonSpeed(
             body,
             PhantoonMotionDefinitions.FastFraction,
-            PhantoonMotionDefinitions.FastWhole);
+            PhantoonMotionDefinitions.FastWhole, slowing: false);
         ushort maximum = PhantoonMotionDefinitions.ReverseMaximum;
         if (unchecked((short)(body.SpeedWhole - maximum)) >= 0)
         {
@@ -533,20 +533,12 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Adds a native two-word speed value to the body motion accumulator.</summary>
-    private static void AddPhantoonSpeed(PhantoonPartState body, ushort low, ushort high)
+    /// <summary>Adds a native two-word speed value to the body motion accumulator, or subtracts it when slowing.</summary>
+    private static void ChangePhantoonSpeed(PhantoonPartState body, ushort low, ushort high, bool slowing)
     {
         uint value = SnesSixteenSixteen.Compose(checked((ushort)body.SpeedWhole), checked((ushort)body.SpeedFraction));
-        value = unchecked(value + (SnesSixteenSixteen.Compose(high, low)));
-        body.SpeedFraction = unchecked((ushort)value);
-        body.SpeedWhole = SnesFixedPosition.WholeOf(unchecked((int)value));
-    }
-
-    /// <summary>Subtracts a native two-word speed value from the body motion accumulator.</summary>
-    private static void SubtractPhantoonSpeed(PhantoonPartState body, ushort low, ushort high)
-    {
-        uint value = SnesSixteenSixteen.Compose(checked((ushort)body.SpeedWhole), checked((ushort)body.SpeedFraction));
-        value = unchecked(value - (SnesSixteenSixteen.Compose(high, low)));
+        uint change = SnesSixteenSixteen.Compose(high, low);
+        value = slowing ? unchecked(value - change) : unchecked(value + change);
         body.SpeedFraction = unchecked((ushort)value);
         body.SpeedWhole = SnesFixedPosition.WholeOf(unchecked((int)value));
     }

@@ -18,7 +18,7 @@ internal static class MoonwalkRanIntoWallVerification
         var samus = new SamusState { Pose = SamusPoseId.MoonwalkAimUpLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00eb, 0x00c3)) };
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
-        AssertTrue(!samus.PoseMetadata.IsFacingLeft(), "moonwalk pose $75 faces right");
+        AssertTrue(!samus.PoseMetadata.IsFacing(SamusFacingDirection.Left), "moonwalk pose $75 faces right");
 
         samus.PoseTransitions.ApplyRanIntoWallPoseChange(SamusPoseId.RanIntoWallLeftPose);
         AssertEqual(SamusPoseId.RanIntoWallLeftPose, samus.Pose, "the proposed left run stops in wall pose $8A");

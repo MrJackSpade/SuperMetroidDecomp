@@ -248,6 +248,34 @@ internal static class AnalyzerTests
             "public IEnumerator<int> GetEnumerator() => ((IEnumerable<int>)items).GetEnumerator(); IEnumerator IEnumerable.GetEnumerator() => GetEnumerator(); }");
     }
 
+    /// <summary>Checks that a mirrored method pair is reported, a genuinely different pair is not, and a justified pair is not (#1370).</summary>
+    internal static void VerifyMirroredMethodPairAnalyzer()
+    {
+        var analyzer = new MirroredMethodPairAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) => VerifySnippet(source, id, message, analyzer);
+        const string attribute = "[System.AttributeUsage(System.AttributeTargets.Method)] sealed class MirroredAsymmetryAttribute(string reason) : System.Attribute { }";
+
+        // SME6418: mirrored identifiers, a sign-flipped literal and mirrored operators.
+        Expect("class Shutter { int x; int leftEnd; int rightEnd; " +
+            "void MoveLeft() { x -= 2; if (x < leftEnd) x = leftEnd; } " +
+            "void MoveRight() { x += 2; if (x > rightEnd) x = rightEnd; } }",
+            MirroredMethodPairAnalyzer.MirroredPairId, "'MoveLeft' and 'MoveRight'");
+        Expect("class Draygon { int v; void AddVelocity(int a) { v = v + a * -1; } void SubtractVelocity(int a) { v = v - a * 1; } }",
+            MirroredMethodPairAnalyzer.MirroredPairId);
+        Expect("enum Pose { SpinRight, SpinLeft, FallRight, FallLeft } static class Poses { " +
+            "static bool IsSpinRight(Pose p) => p is Pose.SpinRight or Pose.FallRight; static bool IsSpinLeft(Pose p) => p is Pose.SpinLeft or Pose.FallLeft; }",
+            MirroredMethodPairAnalyzer.MirroredPairId);
+        Expect("class Rotor { int a; void TurnClockwise() { a++; } void TurnCounterclockwise() { a--; } }", MirroredMethodPairAnalyzer.MirroredPairId);
+        // A pair whose bodies differ beyond a mirror, a forwarding wrapper pair, a lone method and a justified pair pass.
+        Expect("class C { int x; void StepLeft() { x -= 2; } void StepRight() { x += 2; x *= 3; } }");
+        Expect("class C { int x; void Step(int d) { x += d; } void StepLeft() => Step(-1); void StepRight() => Step(1); }");
+        Expect("class C { int x; void Update() { x++; } void Upload() { x--; } }");
+        Expect("class C { int x; int y; void StepLeft() { x -= 2; } void StepRight() { y += 2; } }");
+        // Both sides naming the same direction unflipped is a shared order, not a mirror.
+        Expect("class C { int left; int right; int MatchLeft(int h) { if (h == 1) return left; return right; } int MatchRight(int h) { if (h == 1) return left; return right; } }");
+        Expect(attribute + " class C { int x; [MirroredAsymmetry(\"the left wall has no ledge\")] void StepLeft() { x -= 2; } void StepRight() { x += 2; } }");
+    }
+
     /// <summary>Checks that every pragma warning disable is reported and the sanctioned per-site form is not (#1396).</summary>
     internal static void VerifyPragmaWarningDisableAnalyzer()
     {

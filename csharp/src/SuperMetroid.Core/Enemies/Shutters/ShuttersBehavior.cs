@@ -326,19 +326,19 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
 
             case HorizontalShutterFunction.MovingLeft:
-                MoveHorizontalShutterLeft(slot, state, samus, controllerInput);
+                MoveHorizontalShutter(slot, state, samus, controllerInput, towardLeft: true);
                 break;
 
             case HorizontalShutterFunction.MovingRight:
-                MoveHorizontalShutterRight(slot, state, samus, controllerInput);
+                MoveHorizontalShutter(slot, state, samus, controllerInput, towardLeft: false);
                 break;
 
             case HorizontalShutterFunction.StoppedAfterMovingLeft:
-                RunHorizontalShutterStoppedAfterLeft(state);
+                RunHorizontalShutterStopped(state, stoppedAtLeft: true);
                 break;
 
             case HorizontalShutterFunction.StoppedAfterMovingRight:
-                RunHorizontalShutterStoppedAfterRight(state);
+                RunHorizontalShutterStopped(state, stoppedAtLeft: false);
                 break;
 
             default:
@@ -375,90 +375,63 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             ? HorizontalShutterFunction.MovingLeft
             : HorizontalShutterFunction.MovingRight;
 
-    /// <summary>Moves left, carries Samus on contact, and enters rest or permanent stop at the minimum X.</summary>
-    private static void MoveHorizontalShutterLeft(
+    /// <summary>
+    /// Moves toward the left or right endpoint, carries Samus on contact (Samus on the leading side, pushing against the
+    /// travel by four pixels when she holds the opposite direction), and enters rest or permanent stop at the endpoint.
+    /// </summary>
+    private static void MoveHorizontalShutter(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
         SamusState samus,
-        SnesButton controllerInput)
+        SnesButton controllerInput,
+        bool towardLeft)
     {
-        state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) &&
-            unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
-        slot.Position = slot.Position.AdvanceX(state.LeftVelocity);
+        bool samusLeftOfShutter = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
+        state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) && samusLeftOfShutter == towardLeft;
+        SnesSignedSixteenSixteen velocity = towardLeft ? state.LeftVelocity : state.RightVelocity;
+        slot.Position = slot.Position.AdvanceX(velocity);
         if (state.MovingSamus)
         {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(state.LeftVelocity);
-            if ((controllerInput & SnesButton.Right) != 0)
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(velocity);
+            if ((controllerInput & (towardLeft ? SnesButton.Right : SnesButton.Left)) != 0)
             {
-                samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(unchecked(HorizontalShutterManualPushPixels), 0);
+                var push = new Offset16<RoomPixels>(unchecked(HorizontalShutterManualPushPixels), 0);
+                samus.Kinematics.ExtraDisplacement = towardLeft
+                    ? samus.Kinematics.ExtraDisplacement - push
+                    : samus.Kinematics.ExtraDisplacement + push;
                 samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithFractionY(0);
             }
         }
 
-        if ((state.LeftEndpoint - slot.Position.Whole).X < 0)
+        int beforeEndpoint = towardLeft
+            ? (state.LeftEndpoint - slot.Position.Whole).X
+            : -(state.RightEndpoint - slot.Position.Whole).X;
+        if (beforeEndpoint < 0)
             return;
-        if (state.MovedLeftRestTime == PermanentStopRestTime)
+        int restTime = towardLeft ? state.MovedLeftRestTime : state.MovedRightRestTime;
+        if (restTime == PermanentStopRestTime)
         {
             state.Function = HorizontalShutterFunction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = NativeCountdown.Start(state.MovedLeftRestTime);
-        state.Function = HorizontalShutterFunction.StoppedAfterMovingLeft;
+        state.FunctionTimer = NativeCountdown.Start(restTime);
+        state.Function = towardLeft ? HorizontalShutterFunction.StoppedAfterMovingLeft : HorizontalShutterFunction.StoppedAfterMovingRight;
     }
 
-    /// <summary>Moves right, carries Samus on contact, and enters rest or permanent stop at the maximum X.</summary>
-    private static void MoveHorizontalShutterRight(
-        RoomEnemySlot slot,
-        HorizontalShutterEnemyState state,
-        SamusState samus,
-        SnesButton controllerInput)
-    {
-        state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) &&
-            unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0;
-        slot.Position = slot.Position.AdvanceX(state.RightVelocity);
-        if (state.MovingSamus)
-        {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(state.RightVelocity);
-            if ((controllerInput & SnesButton.Left) != 0)
-            {
-                samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked(HorizontalShutterManualPushPixels), 0);
-                samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithFractionY(0);
-            }
-        }
-
-        if ((state.RightEndpoint - slot.Position.Whole).X > 0)
-            return;
-        if (state.MovedRightRestTime == PermanentStopRestTime)
-        {
-            state.Function = HorizontalShutterFunction.PermanentNoOp;
-            return;
-        }
-        state.FunctionTimer = NativeCountdown.Start(state.MovedRightRestTime);
-        state.Function = HorizontalShutterFunction.StoppedAfterMovingRight;
-    }
-
-    /// <summary>Counts down the left-end rest before reversing or waiting for Samus proximity.</summary>
-    private static void RunHorizontalShutterStoppedAfterLeft(HorizontalShutterEnemyState state)
+    /// <summary>
+    /// Counts down an endpoint rest before reversing, or before waiting for Samus's proximity when trigger mode one would
+    /// reverse into the population's primary direction.
+    /// </summary>
+    private static void RunHorizontalShutterStopped(HorizontalShutterEnemyState state, bool stoppedAtLeft)
     {
         NativeWordCounterStep timer = state.FunctionTimer.Decrement();
         state.FunctionTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
-        state.Function = state.TriggerMode == 1 && state.PrimaryDirection != 0
+        bool reversesIntoPrimary = (state.PrimaryDirection == 0) != stoppedAtLeft;
+        state.Function = state.TriggerMode == 1 && reversesIntoPrimary
             ? HorizontalShutterFunction.WaitForHorizontalProximity
-            : HorizontalShutterFunction.MovingRight;
-    }
-
-    /// <summary>Counts down the right-end rest before reversing or waiting for Samus proximity.</summary>
-    private static void RunHorizontalShutterStoppedAfterRight(HorizontalShutterEnemyState state)
-    {
-        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
-        state.FunctionTimer = timer.Remaining;
-        if (timer.IsNonNegative)
-            return;
-        state.Function = state.TriggerMode == 1 && state.PrimaryDirection == 0
-            ? HorizontalShutterFunction.WaitForHorizontalProximity
-            : HorizontalShutterFunction.MovingLeft;
+            : stoppedAtLeft ? HorizontalShutterFunction.MovingRight : HorizontalShutterFunction.MovingLeft;
     }
 
     /// <summary>Tests shutter and Samus radius boxes before applying horizontal carry.</summary>
@@ -888,21 +861,21 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             case VerticalShutterFunction.MovingUp:
                 if (samus is null)
                     throw new InvalidOperationException("Moving vertical shutter requires Samus state.");
-                MoveVerticalShutterUp(slot, state, samus);
+                MoveVerticalShutter(slot, state, samus, upward: true);
                 break;
 
             case VerticalShutterFunction.MovingDown:
                 if (samus is null)
                     throw new InvalidOperationException("Moving vertical shutter requires Samus state.");
-                MoveVerticalShutterDown(slot, state, samus);
+                MoveVerticalShutter(slot, state, samus, upward: false);
                 break;
 
             case VerticalShutterFunction.StoppedAfterMovingUp:
-                RunVerticalShutterStoppedAfterUp(slot, state, camera);
+                RunVerticalShutterStopped(slot, state, camera, stoppedAtTop: true);
                 break;
 
             case VerticalShutterFunction.StoppedAfterMovingDown:
-                RunVerticalShutterStoppedAfterDown(slot, state, camera);
+                RunVerticalShutterStopped(slot, state, camera, stoppedAtTop: false);
                 break;
 
             case VerticalShutterFunction.Initial:
@@ -947,36 +920,24 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
-    /// <summary>Moves toward the upper endpoint, carrying Samus when riding the shutter.</summary>
-    private static void MoveVerticalShutterUp(
+    /// <summary>Moves toward the upper or lower endpoint, carrying Samus when riding the shutter.</summary>
+    private static void MoveVerticalShutter(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        bool upward)
     {
         state.PreviousPosition = slot.Position.Whole;
         state.MovingSamus = PlatformsBehavior.IsSamusRidingPlatform(slot, samus);
-        slot.Position = slot.Position.AdvanceY(state.UpVelocity);
+        slot.Position = slot.Position.AdvanceY(upward ? state.UpVelocity : state.DownVelocity);
         CarrySamusVertically(slot, state, samus);
 
-        if ((state.UpperEndpoint - slot.Position.Whole).Y < 0)
+        int beforeEndpoint = upward
+            ? (state.UpperEndpoint - slot.Position.Whole).Y
+            : -(state.LowerEndpoint - slot.Position.Whole).Y;
+        if (beforeEndpoint < 0)
             return;
-        StopVerticalShutterAfterUp(state);
-    }
-
-    /// <summary>Moves toward the lower endpoint, carrying Samus when riding the shutter.</summary>
-    private static void MoveVerticalShutterDown(
-        RoomEnemySlot slot,
-        VerticalShutterEnemyState state,
-        SamusState samus)
-    {
-        state.PreviousPosition = slot.Position.Whole;
-        state.MovingSamus = PlatformsBehavior.IsSamusRidingPlatform(slot, samus);
-        slot.Position = slot.Position.AdvanceY(state.DownVelocity);
-        CarrySamusVertically(slot, state, samus);
-
-        if ((state.LowerEndpoint - slot.Position.Whole).Y > 0)
-            return;
-        StopVerticalShutterAfterDown(state);
+        StopVerticalShutter(state, upward);
     }
 
     /// <summary>Publishes the shutter's whole-pixel Y delta to Samus's extra displacement.</summary>
@@ -991,61 +952,38 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             (slot.Position.Whole - state.PreviousPosition).Y);
     }
 
-    /// <summary>Enters a timed rest or permanent stop at the upper endpoint.</summary>
-    private static void StopVerticalShutterAfterUp(VerticalShutterEnemyState state)
+    /// <summary>Enters a timed rest or permanent stop at the upper or lower endpoint.</summary>
+    private static void StopVerticalShutter(VerticalShutterEnemyState state, bool atTop)
     {
-        if (state.MovedUpRestTime == PermanentStopRestTime)
+        int restTime = atTop ? state.MovedUpRestTime : state.MovedDownRestTime;
+        if (restTime == PermanentStopRestTime)
         {
             state.Function = VerticalShutterFunction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = NativeCountdown.Start(state.MovedUpRestTime);
-        state.Function = VerticalShutterFunction.StoppedAfterMovingUp;
+        state.FunctionTimer = NativeCountdown.Start(restTime);
+        state.Function = atTop ? VerticalShutterFunction.StoppedAfterMovingUp : VerticalShutterFunction.StoppedAfterMovingDown;
     }
 
-    /// <summary>Enters a timed rest or permanent stop at the lower endpoint.</summary>
-    private static void StopVerticalShutterAfterDown(VerticalShutterEnemyState state)
-    {
-        if (state.MovedDownRestTime == PermanentStopRestTime)
-        {
-            state.Function = VerticalShutterFunction.PermanentNoOp;
-            return;
-        }
-        state.FunctionTimer = NativeCountdown.Start(state.MovedDownRestTime);
-        state.Function = VerticalShutterFunction.StoppedAfterMovingDown;
-    }
-
-    /// <summary>Counts down upper-end rest before descending or waiting for renewed proximity.</summary>
-    private void RunVerticalShutterStoppedAfterUp(
+    /// <summary>
+    /// Counts down an endpoint rest before reversing, or before waiting for renewed proximity when trigger mode one would
+    /// reverse into the population's primary direction.
+    /// </summary>
+    private void RunVerticalShutterStopped(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
-        Position16<RoomPixels> camera)
+        Position16<RoomPixels> camera,
+        bool stoppedAtTop)
     {
         NativeWordCounterStep timer = state.FunctionTimer.Decrement();
         state.FunctionTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
 
-        state.Function = state.TriggerMode == 1 && state.PrimaryDirection != 0
+        bool reversesIntoPrimary = (state.PrimaryDirection == 0) != stoppedAtTop;
+        state.Function = state.TriggerMode == 1 && reversesIntoPrimary
             ? VerticalShutterFunction.WaitForHorizontalProximity
-            : VerticalShutterFunction.MovingDown;
-        QueueShutterActivationSoundIfOnScreen(slot, camera);
-    }
-
-    /// <summary>Counts down lower-end rest before ascending or waiting for renewed proximity.</summary>
-    private void RunVerticalShutterStoppedAfterDown(
-        RoomEnemySlot slot,
-        VerticalShutterEnemyState state,
-        Position16<RoomPixels> camera)
-    {
-        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
-        state.FunctionTimer = timer.Remaining;
-        if (timer.IsNonNegative)
-            return;
-
-        state.Function = state.TriggerMode == 1 && state.PrimaryDirection == 0
-            ? VerticalShutterFunction.WaitForHorizontalProximity
-            : VerticalShutterFunction.MovingUp;
+            : stoppedAtTop ? VerticalShutterFunction.MovingDown : VerticalShutterFunction.MovingUp;
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 

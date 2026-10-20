@@ -138,6 +138,17 @@ A gap-free numbered family that is a set of distinct identities, not a sequence,
 `[NumberedIdentities(reason)]` on its members or its type. Gapped or mixed-type numbering (hex sound IDs, sparse pose
 IDs) is not reported.
 
+## Behaviour is written once, not once per direction
+
+**SME6418** reports two methods of one type whose names differ only by opposing direction tokens (`Left`/`Right`,
+`Up`/`Down`, `Clockwise`/`Counterclockwise`, `Add`/`Subtract`, `First`/`Second`) when their bodies are the same syntax
+once mirrored (#1370): identifiers may swap direction tokens, numeric literals may differ in sign, and `+`/`-`,
+`+=`/`-=`, `++`/`--` and the ordering comparisons stand for each other. The pair becomes one method taking a typed
+direction or a small side descriptor that names what the sides vary; a body that only forwards to one call is already
+that shape. Samus's left-facing pose rules and predicates are their right-facing rule applied through
+`SamusPoseMirror` and the Left/Right button exchange. A deliberate, behaviourally distinct asymmetry says so at its
+site with `[MirroredAsymmetry(reason)]`.
+
 ## Diagnostics are resolved, not disabled
 
 **SME6414** reports every `#pragma warning disable`, whatever diagnostic it names and whatever reason follows it

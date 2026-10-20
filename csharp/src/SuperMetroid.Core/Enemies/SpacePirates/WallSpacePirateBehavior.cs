@@ -122,11 +122,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 return;
 
             case WallSpacePirateFunction.WallJumpingRight:
-                StepWallSpacePirateJumpRight(slot, state);
+                StepWallSpacePirateJump(slot, state, rightward: true);
                 return;
 
             case WallSpacePirateFunction.WallJumpingLeft:
-                StepWallSpacePirateJumpLeft(slot, state);
+                StepWallSpacePirateJump(slot, state, rightward: false);
                 return;
 
             default:
@@ -138,37 +138,24 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             "Wall Space Pirate detection requires the active Samus position.");
     }
 
-    /// <summary>Moves along the rightward jump arc and installs the right-wall landing list at its target angle.</summary>
-    private static void StepWallSpacePirateJumpRight(
+    /// <summary>
+    /// Moves along the jump arc (the angle falls jumping right and rises jumping left) and installs the landing list for
+    /// the wall reached at that side's target angle.
+    /// </summary>
+    private static void StepWallSpacePirateJump(
         RoomEnemySlot slot,
-        WallSpacePirateEnemyState state)
+        WallSpacePirateEnemyState state,
+        bool rightward)
     {
         PositionWallSpacePirateOnArc(slot, state);
-        state.WallJumpArcAngle = state.WallJumpArcAngle.AddTableUnits(-state.JumpAngleDelta);
-        if (state.WallJumpArcAngle != state.RightJumpTargetAngle)
+        state.WallJumpArcAngle = state.WallJumpArcAngle.AddTableUnits(rightward ? -state.JumpAngleDelta : state.JumpAngleDelta);
+        if (state.WallJumpArcAngle != (rightward ? state.RightJumpTargetAngle : state.LeftJumpTargetAngle))
             return;
 
         InstallWallSpacePirateInstruction(
             slot,
             state,
-            WallSpacePirateProgram.LandedOnRightWall);
-        SnapWallSpacePirateXToTile(slot);
-    }
-
-    /// <summary>Moves along the leftward jump arc and installs the left-wall landing list at its target angle.</summary>
-    private static void StepWallSpacePirateJumpLeft(
-        RoomEnemySlot slot,
-        WallSpacePirateEnemyState state)
-    {
-        PositionWallSpacePirateOnArc(slot, state);
-        state.WallJumpArcAngle = state.WallJumpArcAngle.AddTableUnits(state.JumpAngleDelta);
-        if (state.WallJumpArcAngle != state.LeftJumpTargetAngle)
-            return;
-
-        InstallWallSpacePirateInstruction(
-            slot,
-            state,
-            WallSpacePirateProgram.LandedOnLeftWall);
+            rightward ? WallSpacePirateProgram.LandedOnRightWall : WallSpacePirateProgram.LandedOnLeftWall);
         SnapWallSpacePirateXToTile(slot);
     }
 

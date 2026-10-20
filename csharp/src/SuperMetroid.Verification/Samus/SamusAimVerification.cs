@@ -80,7 +80,7 @@ internal static void VerifySamusStandingAimMovement()
     {
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
         samus.PoseTransitions.ApplyGroundedAimTransition(target);
-        GroundedMovementResult result = SamusGroundedMovement.StepStandingRight(
+        GroundedMovementResult result = SamusGroundedMovement.StepStanding(
 level, samus, nmiFrameCounter: 0, controllerInput: 0);
         AssertTrue(result.Vertical.Collided, $"right aim pose ${(int)target:X2} remains grounded");
         AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, $"right aim pose ${(int)target:X2} clears base speed");
@@ -95,15 +95,15 @@ level, samus, nmiFrameCounter: 0, controllerInput: 0);
     samus.PoseTransitions.ApplyGroundedAimTransition(SamusPoseId.RunningAimDiagonalUpRightPose);
     ushort rightXBefore = samus.Position.X.Whole;
     for (ushort frame = 0; frame < 4; frame++)
-        SamusGroundedMovement.StepRunningRight(level, samus, frame);
+        SamusGroundedMovement.StepRunning(level, samus, frame);
     AssertTrue(samus.Position.X.Whole > rightXBefore, "right aimed run moves right");
     uint rightRunSpeed = samus.HorizontalSpeed.BaseFixed;
     samus.PoseTransitions.ApplyGroundedAimTransition(SamusPoseId.RunningAimDiagonalDownRightPose);
     AssertEqual(rightRunSpeed, samus.HorizontalSpeed.BaseFixed, "right running aim change preserves speed");
     samus.PoseTransitions.ApplyGroundedAimTransition(SamusPoseId.RunningAimUpRightPose);
-    SamusGroundedMovement.StepRunningRight(level, samus, nmiFrameCounter: 1);
+    SamusGroundedMovement.StepRunning(level, samus, nmiFrameCounter: 1);
     samus.PoseTransitions.ApplyGroundedAimTransition(SamusPoseId.StandingAimUpRightPose);
-    SamusGroundedMovement.StepStandingRight(level, samus, nmiFrameCounter: 0, controllerInput: 0);
+    SamusGroundedMovement.StepStanding(level, samus, nmiFrameCounter: 0, controllerInput: 0);
     AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "right aimed running-to-standing cleanup");
 
     // Install left-facing normal through a fresh state so the transition helper never
@@ -124,7 +124,7 @@ level, samus, nmiFrameCounter: 0, controllerInput: 0);
     foreach (SamusPoseId target in leftAimRoute)
     {
         leftSamus.PoseTransitions.ApplyGroundedAimTransition(target);
-        GroundedMovementResult result = SamusGroundedMovement.StepStandingLeft(
+        GroundedMovementResult result = SamusGroundedMovement.StepStanding(
 level, leftSamus, nmiFrameCounter: 1, controllerInput: 0);
         AssertTrue(result.Vertical.Collided, $"left aim pose ${(int)target:X2} remains grounded");
     }
@@ -134,15 +134,15 @@ level, leftSamus, nmiFrameCounter: 1, controllerInput: 0);
     leftSamus.PoseTransitions.ApplyGroundedAimTransition(SamusPoseId.RunningAimDiagonalUpLeftPose);
     ushort leftXBefore = leftSamus.Position.X.Whole;
     for (ushort frame = 0; frame < 4; frame++)
-        SamusGroundedMovement.StepRunningLeft(level, leftSamus, frame);
+        SamusGroundedMovement.StepRunning(level, leftSamus, frame);
     AssertTrue(leftSamus.Position.X.Whole < leftXBefore, "left aimed run moves left");
     uint leftRunSpeed = leftSamus.HorizontalSpeed.BaseFixed;
     leftSamus.PoseTransitions.ApplyGroundedAimTransition(SamusPoseId.RunningAimDiagonalDownLeftPose);
     AssertEqual(leftRunSpeed, leftSamus.HorizontalSpeed.BaseFixed, "left running aim change preserves speed");
     leftSamus.PoseTransitions.ApplyGroundedAimTransition(SamusPoseId.RunningAimUpLeftPose);
-    SamusGroundedMovement.StepRunningLeft(level, leftSamus, nmiFrameCounter: 0);
+    SamusGroundedMovement.StepRunning(level, leftSamus, nmiFrameCounter: 0);
     leftSamus.PoseTransitions.ApplyGroundedAimTransition(SamusPoseId.StandingAimUpLeftPose);
-    SamusGroundedMovement.StepStandingLeft(level, leftSamus, nmiFrameCounter: 1, controllerInput: 0);
+    SamusGroundedMovement.StepStanding(level, leftSamus, nmiFrameCounter: 1, controllerInput: 0);
     AssertEqual(0u, leftSamus.HorizontalSpeed.BaseFixed, "left aimed running-to-standing cleanup");
 
     AssertThrows<InvalidOperationException>(

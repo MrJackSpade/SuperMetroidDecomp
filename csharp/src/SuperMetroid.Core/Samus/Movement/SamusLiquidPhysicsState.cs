@@ -754,7 +754,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Places the two running-footstep particles on opposite sides of Samus according to facing.</summary>
     private void SpawnFootstepPair(SamusState samus, byte type)
     {
-        bool directionIsFour = samus.PoseMetadata.IsFacingLeft();
+        bool directionIsFour = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         ushort firstX = directionIsFour
             ? unchecked((ushort)(samus.Position.X.Whole - 12))
             : unchecked((ushort)(samus.Position.X.Whole + 12));
@@ -804,7 +804,7 @@ public sealed class SamusLiquidPhysicsState
         ushort bottom = unchecked((ushort)(samus.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1));
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
-        int offset = samus.PoseMetadata.IsFacingRight()
+        int offset = samus.PoseMetadata.IsFacing(SamusFacingDirection.Right)
             ? -SamusWallJumpDustDefinitions.HorizontalOffset
             : SamusWallJumpDustDefinitions.HorizontalOffset;
         AtmosphericEffects.SetSlot(SamusWallJumpDustDefinitions.Slot,

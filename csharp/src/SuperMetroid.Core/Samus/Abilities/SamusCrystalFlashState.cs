@@ -147,7 +147,7 @@ public sealed class SamusCrystalFlashState
 
         // `$90:D5ED-$D600` considers direction byte four left and every other value right.
         // Read that byte from the source pose before replacing it with Crystal Flash art.
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
+        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         samus.Pose = facingLeft
             ? SamusPoseId.CrystalFlashLeftPose
             : SamusPoseId.CrystalFlashRightPose;

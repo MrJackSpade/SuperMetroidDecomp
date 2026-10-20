@@ -187,7 +187,7 @@ public sealed class SamusDraygonGrabbedState
     {
         Ensure.NotNull(samus);
 
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
+        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         samus.Pose = facingLeft
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;

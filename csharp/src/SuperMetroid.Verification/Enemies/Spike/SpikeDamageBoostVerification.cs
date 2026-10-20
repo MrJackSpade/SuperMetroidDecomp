@@ -147,7 +147,7 @@ internal static class SpikeDamageBoostVerification
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.PoseHistory.PreviousPose = retainedPose;
             samus.PoseHistory.PreviousDirectionAndMovement =
-                SnesLittleEndian.Word((byte)(samus.PoseMetadata.IsFacingLeft() ? 4 : 8), (byte)samus.PoseMetadata.ReadMovementType());
+                SnesLittleEndian.Word((byte)(samus.PoseMetadata.IsFacing(SamusFacingDirection.Left) ? 4 : 8), (byte)samus.PoseMetadata.ReadMovementType());
             samus.PoseHistory.LastDifferentPose = SamusPoseId.NormalLandingRightPose;
             // Standing must have floor support; spin stays above that floor. Held Jump
             // without a new edge selects definition fallback rather than a fresh jump.

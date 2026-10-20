@@ -59,17 +59,13 @@ internal sealed class SamusPoseMetadata
     public static SamusFacingDirection ReadFacingDirection(SamusPoseId pose) =>
         (SamusFacingDirection)ReadPoseXDirection(pose);
 
-    /// <summary>True only for the verified left-facing pose-definition value four.</summary>
-    public bool IsFacingLeft() =>
-        ReadFacingDirection() == SamusFacingDirection.Left;
+    /// <summary>Whether the current pose faces <paramref name="direction"/>: pose-definition value four is left, eight right.</summary>
+    public bool IsFacing(SamusFacingDirection direction) =>
+        ReadFacingDirection() == direction;
 
     /// <summary>Left-facing query for an arbitrary pose without mutating live state.</summary>
     public static bool IsFacingLeft(SamusPoseId pose) =>
         ReadFacingDirection(pose) == SamusFacingDirection.Left;
-
-    /// <summary>True only for the verified right-facing pose-definition value eight.</summary>
-    public bool IsFacingRight() =>
-        ReadFacingDirection() == SamusFacingDirection.Right;
 
     /// <summary>
     /// Reads and validates pose-definition byte one, the exclusive movement dispatcher.
@@ -152,11 +148,7 @@ internal sealed class SamusPoseMetadata
         SamusPoseId.StandingAimDiagonalDownRightPose;
 
     /// <summary>True for the four movement-type-zero, left-facing standing poses.</summary>
-    public static bool IsLeftFacingStandingPose(SamusPoseId pose) => pose is
-        SamusPoseId.FacingLeftNormalPose or
-        SamusPoseId.StandingAimUpLeftPose or
-        SamusPoseId.StandingAimDiagonalUpLeftPose or
-        SamusPoseId.StandingAimDiagonalDownLeftPose;
+    public static bool IsLeftFacingStandingPose(SamusPoseId pose) => IsRightFacingStandingPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
     /// True for the two front-view records selected by <c>MakeSamusFaceForward</c> at
@@ -261,11 +253,7 @@ internal sealed class SamusPoseMetadata
         SamusPoseId.RunningAimDiagonalDownRightPose;
 
     /// <summary>True for all five live movement-type-one, left-moving pose-table entries.</summary>
-    public static bool IsLeftFacingRunningPose(SamusPoseId pose) => pose is
-        SamusPoseId.MovingLeftNormalPose or SamusPoseId.MovingLeftGunExtendedPose or
-        SamusPoseId.RunningAimUpLeftPose or
-        SamusPoseId.RunningAimDiagonalUpLeftPose or
-        SamusPoseId.RunningAimDiagonalDownLeftPose;
+    public static bool IsLeftFacingRunningPose(SamusPoseId pose) => IsRightFacingRunningPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
     /// True for the six ordinary-play bodies whose names explicitly say “gun extended.”
@@ -281,8 +269,7 @@ internal sealed class SamusPoseMetadata
     /// True for the three poses whose artwork faces left while the type-$10 body travels
     /// right. The naming is intentionally visual; <c>ReadPoseXDirection</c> returns eight.
     /// </summary>
-    public static bool IsMoonwalkingFacingLeftPose(SamusPoseId pose) => pose is
-        SamusPoseId.MoonwalkFacingLeftPose or SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimDownLeftPose;
+    public static bool IsMoonwalkingFacingLeftPose(SamusPoseId pose) => IsMoonwalkingFacingRightPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for the three right-facing moonwalk poses that travel left.</summary>
     public static bool IsMoonwalkingFacingRightPose(SamusPoseId pose) => pose is
@@ -295,10 +282,7 @@ internal sealed class SamusPoseMetadata
         IsMoonwalkingFacingLeftPose(pose) || IsMoonwalkingFacingRightPose(pose);
 
     /// <summary>True for all five left-facing movement-type-`$1A` Draygon poses.</summary>
-    public static bool IsLeftFacingDraygonGrabbedPose(SamusPoseId pose) => pose is
-        SamusPoseId.DraygonGrabbedNeutralLeftPose or SamusPoseId.DraygonGrabbedAimUpLeftPose or
-        SamusPoseId.DraygonGrabbedFiringLeftPose or SamusPoseId.DraygonGrabbedAimDownLeftPose or
-        SamusPoseId.DraygonGrabbedMovingLeftPose;
+    public static bool IsLeftFacingDraygonGrabbedPose(SamusPoseId pose) => IsRightFacingDraygonGrabbedPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for all five right-facing movement-type-`$1A` Draygon poses.</summary>
     public static bool IsRightFacingDraygonGrabbedPose(SamusPoseId pose) => pose is
@@ -356,9 +340,7 @@ internal sealed class SamusPoseMetadata
         SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or SamusPoseId.MoonwalkTurnJumpAimDownRightPose;
 
     /// <summary>True for the `$BF/$C1/$C3` family whose transition tables lead to left.</summary>
-    public static bool IsMoonwalkTurnJumpLeftPose(SamusPoseId pose) => pose is
-        SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
-        SamusPoseId.MoonwalkTurnJumpAimDownLeftPose;
+    public static bool IsMoonwalkTurnJumpLeftPose(SamusPoseId pose) => IsMoonwalkTurnJumpRightPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for the `$C0/$C2/$C4` family whose transition tables lead to right.</summary>
     public static bool IsMoonwalkTurnJumpRightPose(SamusPoseId pose) => pose is
@@ -370,8 +352,7 @@ internal sealed class SamusPoseMetadata
         SamusPoseId.RanIntoWallRightPose or SamusPoseId.RanIntoWallAimUpRightPose or SamusPoseId.RanIntoWallAimDownRightPose;
 
     /// <summary>True for `$8A/$D0/$D2`, the complete left-facing type-`$15` family.</summary>
-    public static bool IsLeftFacingRanIntoWallPose(SamusPoseId pose) => pose is
-        SamusPoseId.RanIntoWallLeftPose or SamusPoseId.RanIntoWallAimUpLeftPose or SamusPoseId.RanIntoWallAimDownLeftPose;
+    public static bool IsLeftFacingRanIntoWallPose(SamusPoseId pose) => IsRightFacingRanIntoWallPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for the six movement-type-$15 wall-contact records: neutral and the two aimed variants for each facing.</summary>
     /// <param name="pose">Current or prospective native pose byte.</param>
@@ -408,11 +389,6 @@ internal sealed class SamusPoseMetadata
         SamusPoseId.LandingAimUpRightPose or SamusPoseId.LandingAimDiagonalUpRightPose or
         SamusPoseId.LandingAimDiagonalDownRightPose;
 
-    /// <summary>True for left-facing aimed normal-jump landing poses `$E1/$E3/$E5`.</summary>
-    public static bool IsLeftFacingAimedLandingPose(SamusPoseId pose) => pose is
-        SamusPoseId.LandingAimUpLeftPose or SamusPoseId.LandingAimDiagonalUpLeftPose or
-        SamusPoseId.LandingAimDiagonalDownLeftPose;
-
     /// <summary>
     /// True for the complete right-facing landing set that shares the ordinary standing
     /// transition table: normal `$A4`, spin `$A6`, aimed `$E0/$E2/$E4`, and firing `$E6`.
@@ -424,9 +400,7 @@ internal sealed class SamusPoseMetadata
         IsRightFacingAimedLandingPose(pose);
 
     /// <summary>True for the complete mirrored left-facing landing set.</summary>
-    public static bool IsLeftFacingLandingPose(SamusPoseId pose) => pose is
-        SamusPoseId.NormalLandingLeftPose or SamusPoseId.SpinLandingLeftPose or SamusPoseId.FiringLandingLeftPose ||
-        IsLeftFacingAimedLandingPose(pose);
+    public static bool IsLeftFacingLandingPose(SamusPoseId pose) => IsRightFacingLandingPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
     /// True when the ordinary grounded input dispatcher may interrupt a landing stream
@@ -465,9 +439,7 @@ internal sealed class SamusPoseMetadata
     /// True for the complete left-facing movement-type-five crouch family. All four
     /// records use radius 16 and the mirrored table at <c>$91:A6BC</c>.
     /// </summary>
-    public static bool IsLeftFacingCrouchingPose(SamusPoseId pose) => pose is
-        SamusPoseId.CrouchingLeftPose or SamusPoseId.CrouchingAimUpLeftPose or
-        SamusPoseId.CrouchingAimDiagonalUpLeftPose or SamusPoseId.CrouchingAimDiagonalDownLeftPose;
+    public static bool IsLeftFacingCrouchingPose(SamusPoseId pose) => IsRightFacingCrouchingPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for the six crouching poses carrying a real shot direction.</summary>
     public static bool IsAimedCrouchingPose(SamusPoseId pose) => pose is
@@ -488,12 +460,7 @@ internal sealed class SamusPoseMetadata
         SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose;
 
     /// <summary>True for admitted grounded `$0E/$17` poses that began facing left and turn right.</summary>
-    public static bool IsLeftToRightGroundTurnPose(SamusPoseId pose) => pose is
-        SamusPoseId.TurningLeftToRightPose or SamusPoseId.TurningLeftToRightAimUpPose or
-        SamusPoseId.TurningLeftToRightAimDiagonalUpPose or SamusPoseId.TurningLeftToRightAimDiagonalDownPose or
-        SamusPoseId.TurningLeftToRightCrouchingPose or SamusPoseId.TurningLeftToRightCrouchingAimUpPose or
-        SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose or
-        SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose;
+    public static bool IsLeftToRightGroundTurnPose(SamusPoseId pose) => IsRightToLeftGroundTurnPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
     /// True for a cartridge-authored standing turn interrupted by an ordinary Jump edge.
@@ -559,11 +526,7 @@ internal sealed class SamusPoseMetadata
     /// <summary>True for the eight jumping/falling turn records that change from left to right, including their up, down, and diagonal-up aim variants.</summary>
     /// <param name="pose">Prospective or active turn pose; direction describes the facing change, not horizontal velocity.</param>
     /// <returns>Whether the pose is a left-to-right aerial turn admitted by the transition selector.</returns>
-    public static bool IsLeftToRightAerialTurnPose(SamusPoseId pose) => pose is
-        SamusPoseId.TurningLeftToRightJumpPose or SamusPoseId.TurningLeftToRightJumpAimUpPose or
-        SamusPoseId.TurningLeftToRightJumpAimDownPose or SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose or
-        SamusPoseId.TurningLeftToRightFallingPose or SamusPoseId.TurningLeftToRightFallingAimUpPose or
-        SamusPoseId.TurningLeftToRightFallingAimDownPose or SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose;
+    public static bool IsLeftToRightAerialTurnPose(SamusPoseId pose) => IsRightToLeftAerialTurnPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for the four drained bodies $E8-$EB that Mother Brain's controllers install.</summary>
     public static bool IsDrainedPose(SamusPoseId pose) => pose is
@@ -853,15 +816,7 @@ internal sealed class SamusPoseMetadata
         SamusPoseId.NormalJumpAimDownRightPose;
 
     /// <summary>True for the admitted left-facing movement-type-two normal-jump poses.</summary>
-    public static bool IsLeftFacingNormalJumpPose(SamusPoseId pose) => pose is
-        SamusPoseId.NeutralJumpTransitionLeftPose or SamusPoseId.NeutralJumpLeftPose or
-        SamusPoseId.NormalJumpGunExtendedLeftPose or
-        SamusPoseId.NormalJumpForwardLeftPose or SamusPoseId.NormalJumpAimUpLeftPose or
-        SamusPoseId.NormalJumpTransitionAimUpLeftPose or
-        SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
-        SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
-        SamusPoseId.NormalJumpAimDiagonalUpLeftPose or SamusPoseId.NormalJumpAimDiagonalDownLeftPose or
-        SamusPoseId.NormalJumpAimDownLeftPose;
+    public static bool IsLeftFacingNormalJumpPose(SamusPoseId pose) => IsRightFacingNormalJumpPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for admitted right-facing movement-type-six falling poses.</summary>
     public static bool IsRightFacingFallingPose(SamusPoseId pose) => pose is
@@ -870,10 +825,7 @@ internal sealed class SamusPoseMetadata
         SamusPoseId.FallingAimDownRightPose;
 
     /// <summary>True for admitted left-facing movement-type-six falling poses.</summary>
-    public static bool IsLeftFacingFallingPose(SamusPoseId pose) => pose is
-        SamusPoseId.FallingLeftPose or SamusPoseId.FallingGunExtendedLeftPose or SamusPoseId.FallingAimUpLeftPose or
-        SamusPoseId.FallingAimDiagonalUpLeftPose or SamusPoseId.FallingAimDiagonalDownLeftPose or
-        SamusPoseId.FallingAimDownLeftPose;
+    public static bool IsLeftFacingFallingPose(SamusPoseId pose) => IsRightFacingFallingPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for the aimed normal-jump/falling poses, including compact Down aim.</summary>
     public static bool IsAimedAerialPose(SamusPoseId pose) => pose is

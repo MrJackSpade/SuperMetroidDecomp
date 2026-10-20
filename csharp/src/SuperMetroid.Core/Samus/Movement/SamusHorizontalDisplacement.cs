@@ -12,19 +12,17 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public readonly record struct SamusHorizontalDisplacement(int Displacement, SamusCollisionDirection CollisionDirection)
 {
-    /// <summary><c>$90:E464</c>: leftward displacement from a base speed plus extra X displacement.</summary>
-    public static SamusHorizontalDisplacement Left(SamusState samus, uint baseSpeed) =>
-        new(samus.HorizontalSpeed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraDisplacement.X.RawValue),
-            SamusCollisionDirection.Left);
-
-    /// <summary><c>$90:E4AD</c>: rightward displacement from a base speed plus extra X displacement.</summary>
-    public static SamusHorizontalDisplacement Right(SamusState samus, uint baseSpeed) =>
-        new(samus.HorizontalSpeed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraDisplacement.X.RawValue),
-            SamusCollisionDirection.Right);
-
-    /// <summary>Selects the left or right calculator by an already-decided direction.</summary>
-    public static SamusHorizontalDisplacement Toward(bool left, SamusState samus, uint baseSpeed) =>
-        left ? Left(samus, baseSpeed) : Right(samus, baseSpeed);
+    /// <summary>
+    /// Displacement from a base speed plus extra X displacement by an already-decided direction: <c>$90:E464</c>'s
+    /// leftward calculator or <c>$90:E4AD</c>'s rightward one.
+    /// </summary>
+    public static SamusHorizontalDisplacement Toward(bool left, SamusState samus, uint baseSpeed)
+    {
+        int extraDisplacement = samus.Kinematics.ExtraDisplacement.X.RawValue;
+        return left
+            ? new(samus.HorizontalSpeed.CalculateLeftDisplacement(baseSpeed, extraDisplacement), SamusCollisionDirection.Left)
+            : new(samus.HorizontalSpeed.CalculateRightDisplacement(baseSpeed, extraDisplacement), SamusCollisionDirection.Right);
+    }
 
     /// <summary>
     /// <c>$90:8EA9</c>'s calculator choice: acceleration modes zero and two follow the pose's

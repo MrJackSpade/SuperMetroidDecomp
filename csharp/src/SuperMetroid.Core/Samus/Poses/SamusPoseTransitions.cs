@@ -317,7 +317,7 @@ internal sealed class SamusPoseTransitions
             throw new InvalidOperationException(
                 $"Wall-jump trigger requires cached spin movement, not ${(byte)_samus.PoseMetadata.ReadMovementType():X2}.");
 
-        SamusPoseId targetPose = _samus.PoseMetadata.IsFacingLeft() ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose;
+        SamusPoseId targetPose = _samus.PoseMetadata.IsFacing(SamusFacingDirection.Left) ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose;
         if (level is not null)
         {
             // The accepted wall contact still passes through the ordinary changed-pose
@@ -383,7 +383,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
         // `$9B:C9D5-$C9EB` tests the contact pose's X-direction byte, not its descriptive
         // wall side. Direction eight selects `$84`; direction four selects `$83`.
-        _samus.Pose = _samus.PoseMetadata.IsFacingRight() ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose;
+        _samus.Pose = _samus.PoseMetadata.IsFacing(SamusFacingDirection.Right) ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose;
         _samus.PoseMetadata.RefreshCollisionRadii();
 
         // `$9B:C9CE` clears the ordinary base-speed pair, then the normal pose-transition
@@ -1245,7 +1245,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             SamusPoseMetadata.ReadMovementKind(target) != SamusMovementType.Running)
             return null;
 
-        bool facingLeft = _samus.PoseMetadata.IsFacingLeft();
+        bool facingLeft = _samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         if (_samus.Kinematics.InteractiveEnemies.Count != 0)
         {
             // $91:EB05-$EB3C: Samus_vs_SolidEnemy_CollisionDetection with $12.$14 = 1.0000
@@ -1401,7 +1401,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             _ => throw new InvalidDataException(
                 $"Moonwalk shot direction ${_samus.PoseMetadata.ReadShotDirection():X2} is invalid for a stable moonwalk pose."),
         };
-        SamusPoseId inputTableTarget = _samus.PoseMetadata.IsFacingLeft()
+        SamusPoseId inputTableTarget = _samus.PoseMetadata.IsFacing(SamusFacingDirection.Left)
             ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose;
         if (!SamusPoseMetadata.IsMoonwalkingPose(_samus.Pose) || targetPose != expectedTarget && targetPose != inputTableTarget)
         {
@@ -2208,7 +2208,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         _samus.MorphBallBounceState = SamusBallBounceState.None;
         _samus.Kinematics.YDirection = SamusVerticalDirection.None;
         _samus.Kinematics.YSpeed = default;
-        SamusPoseId groundedPose = _samus.PoseMetadata.IsFacingLeft()
+        SamusPoseId groundedPose = _samus.PoseMetadata.IsFacing(SamusFacingDirection.Left)
             ? SamusPoseId.MorphBallGroundLeftPose
             : SamusPoseId.MorphBallGroundRightPose;
         ApplyMorphBallPoseChange(groundedPose);
@@ -2262,7 +2262,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         _samus.MorphBallBounceState = SamusBallBounceState.None;
         _samus.Kinematics.YDirection = SamusVerticalDirection.None;
         _samus.Kinematics.YSpeed = default;
-        SamusPoseId groundPose = _samus.PoseMetadata.IsFacingLeft()
+        SamusPoseId groundPose = _samus.PoseMetadata.IsFacing(SamusFacingDirection.Left)
             ? SamusPoseId.SpringBallGroundLeftPose
             : SamusPoseId.SpringBallGroundRightPose;
         ApplyMorphBallPoseChange(groundPose);
@@ -2298,7 +2298,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
     /// </summary>
     public void ApplyBombJumpFallingPose()
     {
-        bool left = _samus.PoseMetadata.IsFacingLeft();
+        bool left = _samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         if (SamusPoseMetadata.IsGroundedSpringBallPose(_samus.Pose))
             ApplyMorphBallPoseChange(left ? SamusPoseId.SpringBallFallingLeftPose : SamusPoseId.SpringBallFallingRightPose);
         else if (SamusPoseMetadata.IsGroundedMorphBallPose(_samus.Pose))
@@ -2319,7 +2319,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         if (!SamusPoseMetadata.IsGroundedMorphBallPose(_samus.Pose) && !springBall)
             throw new InvalidOperationException($"Morph-Ball walk-off requires grounded pose, not ${(int)_samus.Pose:X2}.");
 
-        SamusPoseId fallingPose = _samus.PoseMetadata.IsFacingLeft()
+        SamusPoseId fallingPose = _samus.PoseMetadata.IsFacing(SamusFacingDirection.Left)
             ? springBall ? SamusPoseId.SpringBallFallingLeftPose : SamusPoseId.MorphBallFallingLeftPose
             : springBall ? SamusPoseId.SpringBallFallingRightPose : SamusPoseId.MorphBallFallingRightPose;
         _samus.Kinematics.YSpeed = default;
@@ -2400,7 +2400,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // PSP_Falling indexes its pair with PoseXDirection, not the muzzle direction.
         // Moonwalk's visual facing opposes this physics byte; aim input is reconsidered
         // by the next frame's input handler after this ordinary falling pose is installed.
-        return _samus.PoseMetadata.IsFacingLeft() ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
+        return _samus.PoseMetadata.IsFacing(SamusFacingDirection.Left) ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
     }
 
     /// <summary>

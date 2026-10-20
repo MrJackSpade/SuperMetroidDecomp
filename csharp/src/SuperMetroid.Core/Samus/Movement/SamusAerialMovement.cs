@@ -709,7 +709,7 @@ public static class SamusAerialMovement
     private static bool IsForwardHeld(
         SamusState samus,
         SnesButton controllerInput) =>
-        samus.PoseMetadata.IsFacingLeft()
+        samus.PoseMetadata.IsFacing(SamusFacingDirection.Left)
             ? (controllerInput & SnesButton.Left) != 0
             : (controllerInput & SnesButton.Right) != 0;
 

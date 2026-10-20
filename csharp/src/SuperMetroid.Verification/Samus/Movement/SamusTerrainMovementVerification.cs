@@ -452,7 +452,7 @@ internal static void VerifySamusGroundedMovement()
     var running = new SamusState { Pose = SamusPoseId.MovingRightNormalPose };
     running.Kinematics.Position = running.Kinematics.Position.WithWhole(new(24, 19));
     running.Kinematics.Radius = new(5, 5);
-    GroundedMovementResult first = SamusGroundedMovement.StepRunningRight(
+    GroundedMovementResult first = SamusGroundedMovement.StepRunning(
 
         level,
         running,
@@ -467,7 +467,7 @@ internal static void VerifySamusGroundedMovement()
 
     // A second frame proves that acceleration state persists and that odd-NMI scan order
     // produces the same single-surface result in this deliberately symmetric fixture.
-    GroundedMovementResult second = SamusGroundedMovement.StepRunningRight(
+    GroundedMovementResult second = SamusGroundedMovement.StepRunning(
 
         level,
         running,
@@ -481,7 +481,7 @@ internal static void VerifySamusGroundedMovement()
     // $90:9A7E pass subtracts $0000.8000; from $0000.6000 this underflows the signed high
     // word and therefore clears both base halves and restores mode zero.
     running.HorizontalSpeed.AccelerationMode = 2;
-    GroundedMovementResult decelerated = SamusGroundedMovement.StepRunningRight(
+    GroundedMovementResult decelerated = SamusGroundedMovement.StepRunning(
 
         level,
         running,
@@ -497,7 +497,7 @@ internal static void VerifySamusGroundedMovement()
     standing.Kinematics.Position = standing.Kinematics.Position.WithWhole(new(24, 19));
     standing.Kinematics.Radius = new(5, 5);
     standing.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0xc000);
-    GroundedMovementResult idle = SamusGroundedMovement.StepStandingRight(
+    GroundedMovementResult idle = SamusGroundedMovement.StepStanding(
 
         level,
         standing,
@@ -615,7 +615,7 @@ internal static void VerifySamusGroundedReversal()
     var movingLeft = new SamusState { Pose = SamusPoseId.MovingLeftNormalPose };
     movingLeft.Kinematics.Position = movingLeft.Kinematics.Position.WithWhole(new(64, 11));
     movingLeft.Kinematics.Radius = new(5, 5);
-    GroundedMovementResult leftFrame = SamusGroundedMovement.StepRunningLeft(
+    GroundedMovementResult leftFrame = SamusGroundedMovement.StepRunning(
 
         level,
         movingLeft,
@@ -634,7 +634,7 @@ internal static void VerifySamusGroundedReversal()
     reversedRunningRight.Kinematics.Radius = new(5, 5);
     reversedRunningRight.HorizontalSpeed.BaseSpeed = reversedRunningRight.HorizontalSpeed.BaseSpeed.WithWhole(1);
     reversedRunningRight.HorizontalSpeed.AccelerationMode = 1;
-    GroundedMovementResult reversedRightFrame = SamusGroundedMovement.StepRunningRight(
+    GroundedMovementResult reversedRightFrame = SamusGroundedMovement.StepRunning(
 
         level,
         reversedRunningRight,
@@ -647,7 +647,7 @@ internal static void VerifySamusGroundedReversal()
     reversedRunningLeft.Kinematics.Radius = new(5, 5);
     reversedRunningLeft.HorizontalSpeed.BaseSpeed = reversedRunningLeft.HorizontalSpeed.BaseSpeed.WithWhole(1);
     reversedRunningLeft.HorizontalSpeed.AccelerationMode = 1;
-    GroundedMovementResult reversedLeftFrame = SamusGroundedMovement.StepRunningLeft(
+    GroundedMovementResult reversedLeftFrame = SamusGroundedMovement.StepRunning(
 
         level,
         reversedRunningLeft,

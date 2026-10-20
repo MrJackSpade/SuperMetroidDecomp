@@ -646,7 +646,7 @@ public static class SamusGrappleMovement
         // `$90:9CAC` probes solid/frozen enemies first, then 16 pixels of room blocks toward
         // the wall named by the contact pose's direction byte. The shared probe preserves
         // square slopes, BTS dispatch, available distance, and enemy identity.
-        int signedProbe = samus.PoseMetadata.IsFacingLeft()
+        int signedProbe = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left)
             ? -(16 << 16)
             : 16 << 16;
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
@@ -732,7 +732,7 @@ public static class SamusGrappleMovement
         {
             // `$9B:C8DB/$C93C` use the pose direction when the direction byte is a command
             // sentinel. Standing selects `$01/$02`; compact bodies select `$27/$28`.
-            bool facingLeft = samus.PoseMetadata.IsFacingLeft();
+            bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
             return samus.Kinematics.Radius.Y >= 17
                 ? facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose
                 : facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose;

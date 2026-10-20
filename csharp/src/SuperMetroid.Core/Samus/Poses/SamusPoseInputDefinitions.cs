@@ -186,6 +186,15 @@ internal static class SamusPoseInputDefinitions
             ? SamusPoseInputRulesEarly.Match(pointer, held, newlyPressed)
             : SamusPoseInputRulesLate.Match(pointer, held, newlyPressed);
 
+    /// <summary>
+    /// Exchanges Left and Right in <paramref name="input"/>. A left-facing list is its right-facing list read with the
+    /// directions exchanged, its selected pose mirrored back.
+    /// </summary>
+    internal static SnesButton MirrorButtons(SnesButton input) =>
+        (input & ~(SnesButton.Left | SnesButton.Right)) |
+        ((input & SnesButton.Left) != 0 ? SnesButton.Right : 0) |
+        ((input & SnesButton.Right) != 0 ? SnesButton.Left : 0);
+
     /// <summary>Requires every bit of an authored canonical input chord to be present.</summary>
     internal static bool Has(SnesButton input, CanonicalPoseButtons required) =>
         (input & Buttons(required)) == Buttons(required);

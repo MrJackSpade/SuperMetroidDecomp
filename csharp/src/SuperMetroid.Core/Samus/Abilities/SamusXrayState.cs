@@ -181,7 +181,7 @@ public sealed class SamusXrayState
         if (posture == XrayPosture.Disallowed)
             return false;
 
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
+        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         SamusPoseId targetPose = posture == XrayPosture.Crouching
             ? facingLeft ? SamusPoseId.XrayingCrouchingLeftPose : SamusPoseId.XrayingCrouchingRightPose
             : facingLeft ? SamusPoseId.XrayingStandingLeftPose : SamusPoseId.XrayingStandingRightPose;
@@ -349,7 +349,7 @@ public sealed class SamusXrayState
         SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
         if (movementType != SamusMovementType.TurningOnGround)
         {
-            bool facingLeft = samus.PoseMetadata.IsFacingLeft();
+            bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
             SnesButton turnBinding = facingLeft
                 ? SnesButton.Right
                 : SnesButton.Left;
@@ -377,7 +377,7 @@ public sealed class SamusXrayState
         if (samus.AnimationFrame != 2 || samus.AnimationFrameTimer.RawValue != 1)
             return default;
 
-        bool nowFacingLeft = samus.PoseMetadata.IsFacingLeft();
+        bool nowFacingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         SamusPoseId completedPose = nowFacingLeft
             ? samus.Pose == SamusPoseId.TurningRightToLeftPose
                 ? SamusPoseId.XrayingStandingLeftPose
@@ -401,7 +401,7 @@ public sealed class SamusXrayState
         if (samus.PoseMetadata.ReadMovementType() == SamusMovementType.TurningOnGround)
             return null;
 
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
+        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         ushort frame = facingLeft
             ? Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameFour ? (ushort)4 :
               Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameThree ? (ushort)3 :
@@ -657,7 +657,7 @@ public sealed class SamusXrayState
         // X-ray stand-up glitch—and the radius difference moves her center upward.
         SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
         bool crouching = movementType == SamusMovementType.Crouching;
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
+        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         ushort oldRadius = samus.Kinematics.Radius.Y;
         SamusPoseId targetPose = crouching
             ? facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose

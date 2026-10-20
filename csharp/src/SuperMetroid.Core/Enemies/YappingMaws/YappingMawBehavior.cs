@@ -392,7 +392,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 // then runs the ordinary pose metadata and animation initialization path.
                 // Reusing those public ROM-backed helpers prevents a Yapping-Maw-only pose
                 // approximation from drifting away from every other Samus transition.
-                samus.Pose = samus.PoseMetadata.IsFacingLeft()
+                samus.Pose = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left)
                     ? SamusPoseId.FacingLeftNormalPose
                     : SamusPoseId.FacingRightNormalPose;
                 samus.PoseMetadata.RefreshCollisionRadii();

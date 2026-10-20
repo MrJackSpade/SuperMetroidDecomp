@@ -89,7 +89,7 @@ public sealed class SamusDeathSequenceState
                 $"Death-pose frame table has no movement type ${(byte)sourceMovementType:X2}.");
         }
 
-        FacingLeft = samus.PoseMetadata.IsFacingLeft();
+        FacingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         SamusPoseId deathPose = FacingLeft
             ? SamusPoseId.DeathSequenceLeftPose
             : SamusPoseId.DeathSequenceRightPose;

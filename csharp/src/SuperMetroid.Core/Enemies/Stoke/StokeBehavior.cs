@@ -44,10 +44,10 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
                 SpawnStokeProjectile(slot, cue.FireballDirection);
                 break;
             case StokeCueKind.SetMovingLeft:
-                SetStokeMovingLeft(state);
+                SetStokeMoving(state, StokeDirection.Left);
                 break;
             case StokeCueKind.SetMovingRight:
-                SetStokeMovingRight(state);
+                SetStokeMoving(state, StokeDirection.Right);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(StokeCueKind)} {cue.Kind}.");
@@ -200,18 +200,11 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SpeciesState<StokeEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Stoke state.");
 
-    /// <summary>Instruction <c>$A2:8990</c>: resume leftward movement.</summary>
-    private static void SetStokeMovingLeft(StokeEnemyState state)
+    /// <summary>Instructions <c>$A2:8990</c> (left) and <c>$A2:899D</c> (right): resume movement in <paramref name="direction"/>.</summary>
+    private static void SetStokeMoving(StokeEnemyState state, StokeDirection direction)
     {
-        state.Function = StokeAiFunction.MovingLeft;
-        state.Direction = StokeDirection.Left;
-    }
-
-    /// <summary>Instruction <c>$A2:899D</c>: resume rightward movement.</summary>
-    private static void SetStokeMovingRight(StokeEnemyState state)
-    {
-        state.Function = StokeAiFunction.MovingRight;
-        state.Direction = StokeDirection.Right;
+        state.Function = direction == StokeDirection.Left ? StokeAiFunction.MovingLeft : StokeAiFunction.MovingRight;
+        state.Direction = direction;
     }
 
     /// <summary>Connects the fireball's horizontal motion and viewport cull pre-instruction.</summary>

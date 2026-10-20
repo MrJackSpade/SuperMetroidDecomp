@@ -760,27 +760,27 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             case SamusPoseId.StandingAimUpRightPose:
             case SamusPoseId.StandingAimDiagonalUpRightPose:
             case SamusPoseId.StandingAimDiagonalDownRightPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStandingRight(_room.LevelData, samus, _clock.Counter, _controller1.Current, plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStanding(_room.LevelData, samus, _clock.Counter, _controller1.Current, plms);
                 break;
             case SamusPoseId.MovingRightNormalPose:
             case SamusPoseId.MovingRightGunExtendedPose:
             case SamusPoseId.RunningAimUpRightPose:
             case SamusPoseId.RunningAimDiagonalUpRightPose:
             case SamusPoseId.RunningAimDiagonalDownRightPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunningRight(_room.LevelData, samus, _clock.Counter, _controller1.Current, plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunning(_room.LevelData, samus, _clock.Counter, _controller1.Current, plms);
                 break;
             case SamusPoseId.FacingLeftNormalPose:
             case SamusPoseId.StandingAimUpLeftPose:
             case SamusPoseId.StandingAimDiagonalUpLeftPose:
             case SamusPoseId.StandingAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStandingLeft(_room.LevelData, samus, _clock.Counter, _controller1.Current, plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStanding(_room.LevelData, samus, _clock.Counter, _controller1.Current, plms);
                 break;
             case SamusPoseId.MovingLeftNormalPose:
             case SamusPoseId.MovingLeftGunExtendedPose:
             case SamusPoseId.RunningAimUpLeftPose:
             case SamusPoseId.RunningAimDiagonalUpLeftPose:
             case SamusPoseId.RunningAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunningLeft(_room.LevelData, samus, _clock.Counter, _controller1.Current, plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunning(_room.LevelData, samus, _clock.Counter, _controller1.Current, plms);
                 break;
             case SamusPoseId.MoonwalkFacingLeftPose:
             case SamusPoseId.MoonwalkFacingRightPose:

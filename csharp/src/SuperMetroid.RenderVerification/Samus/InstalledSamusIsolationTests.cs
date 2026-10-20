@@ -320,9 +320,9 @@ internal sealed class InstalledSamusIsolationTests
                 {
                     actor.Samus.PoseMetadata.RefreshCollisionRadii();
                     GroundedMovementResult result = left
-                        ? SamusGroundedMovement.StepRunningLeft(actor.Level, actor.Samus, frame,
+                        ? SamusGroundedMovement.StepRunning(actor.Level, actor.Samus, frame,
                             (SnesButton.Left | SnesButton.B))
-                        : SamusGroundedMovement.StepRunningRight(actor.Level, actor.Samus, frame,
+                        : SamusGroundedMovement.StepRunning(actor.Level, actor.Samus, frame,
                             (SnesButton.Right | SnesButton.B));
                     Animate(actor, frame);
                     return result;

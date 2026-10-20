@@ -254,7 +254,7 @@ public sealed class SamusDrainedState
 
         // Direction byte four is left; every other byte chooses the right-facing record.
         // Read it before replacing the pose, exactly as `$91:E50D` does.
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
+        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         samus.Pose = facingLeft
             ? SamusPoseId.DrainedCrouchingLeftPose
             : SamusPoseId.DrainedCrouchingRightPose;
@@ -339,7 +339,7 @@ public sealed class SamusDrainedState
     public void PutStanding(SamusState samus)
     {
         Ensure.NotNull(samus);
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
+        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         samus.Presentation.SetPoseAndAnimationFromScriptedController(
             facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
             frame: 0,
@@ -353,7 +353,7 @@ public sealed class SamusDrainedState
     public void PutCrouchingOrFalling(SamusState samus)
     {
         Ensure.NotNull(samus);
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
+        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
         samus.Presentation.SetPoseAndAnimationFromScriptedController(
             facingLeft ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose,
             frame: 8,

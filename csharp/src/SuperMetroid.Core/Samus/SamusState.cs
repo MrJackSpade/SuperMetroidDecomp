@@ -765,7 +765,7 @@ level, probe, amount, scanLeftToRight, plms);
     internal void ApplyPoseChangeCollisionCrouchFallback(SamusPoseId sourcePose)
     {
         ushort oldRadius = Kinematics.Radius.Y;
-        SamusPoseId fallbackPose = PoseMetadata.IsFacingLeft()
+        SamusPoseId fallbackPose = PoseMetadata.IsFacing(SamusFacingDirection.Left)
             ? SamusPoseId.CrouchingLeftPose
             : SamusPoseId.CrouchingRightPose;
         if (sourcePose == fallbackPose)
@@ -939,7 +939,7 @@ level, probe, amount, scanLeftToRight, plms);
 
         // The native handlers select the stationary pose even while airborne. Keeping
         // ascent intact here permits the equipment-toggle mid-air Spring Ball jump.
-        bool left = PoseMetadata.IsFacingLeft();
+        bool left = PoseMetadata.IsFacing(SamusFacingDirection.Left);
         Pose = enable
             ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
             : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;

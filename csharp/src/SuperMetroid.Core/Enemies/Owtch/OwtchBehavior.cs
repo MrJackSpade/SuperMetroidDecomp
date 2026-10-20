@@ -30,10 +30,10 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case OwtchCueKind.SetMovingLeft:
-                SetOwtchMovingLeft(state);
+                SetOwtchMoving(state, OwtchBehaviorState.MovingLeft);
                 break;
             case OwtchCueKind.SetMovingRight:
-                SetOwtchMovingRight(state);
+                SetOwtchMoving(state, OwtchBehaviorState.MovingRight);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(OwtchCueKind)} {cue.Kind}.");
@@ -191,13 +191,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Behavior = OwtchBehaviorState.Sinking;
     }
 
-    /// <summary>Animation command $A2:A56D: select the moving-left function index.</summary>
-    private static void SetOwtchMovingLeft(OwtchEnemyState state) =>
-        state.Behavior = OwtchBehaviorState.MovingLeft;
-
-    /// <summary>Animation command $A2:A571: select the moving-right function index.</summary>
-    private static void SetOwtchMovingRight(OwtchEnemyState state) =>
-        state.Behavior = OwtchBehaviorState.MovingRight;
+    /// <summary>Animation commands $A2:A56D (left) and $A2:A571 (right): select the moving function index.</summary>
+    private static void SetOwtchMoving(OwtchEnemyState state, OwtchBehaviorState moving) =>
+        state.Behavior = moving;
 
     /// <summary>
     /// Enemy-shot callback $A2:A579 calls common damage only when signed(state - 1) is

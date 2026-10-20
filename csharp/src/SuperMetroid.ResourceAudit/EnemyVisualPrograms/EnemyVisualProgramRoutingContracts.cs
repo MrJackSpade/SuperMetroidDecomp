@@ -11,7 +11,7 @@ internal static class EnemyVisualProgramRoutingContracts
     /// <summary>Required interpreter and presentation entry points that connect compiled words to visual selectors.</summary>
     private static readonly (string Method, string Owner)[] Methods =
     [
-        ("DrawEnemySpritemap", "EnemyPresentation"),
+        ("PublishEnemySpritemap", "EnemyPresentation"),
         ("ProcessInstructions", "EnemyInstructionInterpreter"),
         ("ProcessEnemyProjectileInstructions", "EnemyProjectileEngine"),
     ];

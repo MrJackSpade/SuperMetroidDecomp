@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>Development-tool members of <see cref="SpacePirateProjectileInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
 [ToolingFor(typeof(SpacePirateProjectileInstructionProgramDefinitions))]
-internal abstract class SpacePirateProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog
+internal abstract class SpacePirateProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, IDeclaredProgramBank
 {
     /// <summary>Laser startup dwell at $86:9F41/9F45/9F49 and the right-facing equivalents: each muzzle pose shows two updates.</summary>
     private const ushort LaserStartupFrames = 2;
@@ -18,6 +18,8 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
 
     /// <summary>Counts visual frame operands across the two lasers and two claw programs.</summary>
     public static int PresentationWordCount => SpacePirateProjectileFrameDefinitions.PoseCount;
+    /// <summary>The program lives in bank $86, the enemy-projectile code bank.</summary>
+    static int IDeclaredProgramBank.Bank => EnemyProjectileCodePointers.BankBase;
 
     /// <summary>
     /// Each laser has three two-tick startup poses, an immediate movement callback,

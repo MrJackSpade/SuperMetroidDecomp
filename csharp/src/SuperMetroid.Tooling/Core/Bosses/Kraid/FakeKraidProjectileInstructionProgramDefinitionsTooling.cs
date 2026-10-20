@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Development-tool members of <see cref="FakeKraidProjectileInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
 [ToolingFor(typeof(FakeKraidProjectileInstructionProgramDefinitions))]
-internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog
+internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, IDeclaredProgramBank
 {
     /// <summary>Bytes in one pose list: its duration, visual operand and terminal sleep.</summary>
     private const int PoseListByteCount = 6;
@@ -22,6 +22,8 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling 
 
     /// <summary>Each of Fake Kraid's spit and two spike poses has a live spritemap operand.</summary>
     public static int PresentationWordCount => PresentationWords.Length;
+    /// <summary>The program lives in bank $86, the enemy-projectile code bank.</summary>
+    static int IDeclaredProgramBank.Bank => EnemyProjectileCodePointers.BankBase;
 
     /// <summary>Locates the artwork selection interleaved between a pose duration and terminal sleep.</summary>
     public static ushort PresentationWordAddress(int index) =>

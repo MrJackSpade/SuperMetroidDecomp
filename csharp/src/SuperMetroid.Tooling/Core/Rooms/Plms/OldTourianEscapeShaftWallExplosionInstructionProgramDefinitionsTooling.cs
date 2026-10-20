@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Development-tool members of <see cref="OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
 [ToolingFor(typeof(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions))]
-internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog
+internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, IDeclaredProgramBank
 {
     /// <summary>The six pose operands, in list order.</summary>
     private static readonly ushort[] FrameOperands =
@@ -49,6 +49,8 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
     public static InstructionMechanicsWord MechanicsWord(int index) => Words[index];
     /// <summary>Bounds pose spritemap operands, excluding the sound operand at $86:B451.</summary>
     public static int PresentationWordCount => FrameOperands.Length;
+    /// <summary>The program lives in bank $86, the enemy-projectile code bank.</summary>
+    static int IDeclaredProgramBank.Bank => EnemyProjectileCodePointers.BankBase;
     /// <summary>Locates the spritemap word following a wall-explosion pose duration.</summary>
     public static ushort PresentationWordAddress(int index) =>
         (uint)index < (uint)FrameOperands.Length ? FrameOperands[index] : throw new IndexOutOfRangeException();

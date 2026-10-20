@@ -1175,9 +1175,10 @@ internal static class RoomPlmPopulationVerification
             .ToArray();
         bool saving = plms.Stations.ResolveSaveStationConfirmation(saveRequest, accepted: true, level: level);
         AssertTrue(saving, "accepted save resumes the sleeping cartridge PLM");
-        // #1269: $84:AFF4-$AFFA run in the PLM pass the message returned into.
-        AssertTrue(plms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2e), 6)),
-            "the confirming pass queues cartridge library-one sound $2E");
+        // #1269: $84:AFF4-$AFFA run in the PLM pass the message returned into. That pass resumes at the message-close
+        // boundary, so the sound is a one-shot request the frontend publishes there (#1390).
+        AssertEqual(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2e), 6),
+            plms.Stations.ConsumeSavingSoundRequest(), "the confirming pass queues cartridge library-one sound $2E");
         AssertTrue(Enumerable.Range(0, levelBeforeSave.Length).Any(block => levelBeforeSave[block] !=
                 level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).PackedWord.Raw),
             "the confirming pass draws the first electricity frame");

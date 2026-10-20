@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>Development-tool members of <see cref="TourianStatueProjectileInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
 [ToolingFor(typeof(TourianStatueProjectileInstructionProgramDefinitions))]
-internal abstract class TourianStatueProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog
+internal abstract class TourianStatueProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, IDeclaredProgramBank
 {
     /// <summary>$86:B7B3-B7D9: eye-pose holds, slowing 8/7/6/5 before the 48-tick stare. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] EyeHolds = [8, 8, 8, 7, 7, 7, 6, 6, 5, 48];
@@ -21,6 +21,8 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitionsTool
     public static int MechanicsWordCount => 57;
     /// <summary>Number of spritemap operands resolved from installed presentation data.</summary>
     public static int PresentationWordCount => 28;
+    /// <summary>The program lives in bank $86, the enemy-projectile code bank.</summary>
+    static int IDeclaredProgramBank.Bank => EnemyProjectileCodePointers.BankBase;
 
     /// <summary>Gets a compiled control word by its order in the native statue instruction range.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)

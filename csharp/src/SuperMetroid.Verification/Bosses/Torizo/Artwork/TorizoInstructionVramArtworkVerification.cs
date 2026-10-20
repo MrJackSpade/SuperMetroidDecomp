@@ -128,7 +128,7 @@ internal static class TorizoInstructionVramArtworkVerification
         editedSlot.Bind(editedSlot.EnemyDefinitionPointer, installedSlot.Definition);
         // Golden Torizo's initial program uploads its awakening sheet first.
         int goldenUpload = TorizoAnimations.Programs.Steps(TorizoBodyProgram.GoldenInitial0)
-            .First(step => step.Kind == AnimationProgramStepKind.Cue && step.Cue.Kind == TorizoCueKind.CopyTiles).Cue.Transfer;
+            .OfType<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>().Select(step => step.Cue).OfType<TorizoCue.CopyTiles>().First().Transfer;
         AssertEqual(golden.SourceAddress, TorizoInstructionVramTransferDefinitions.All[goldenUpload].SourceAddress,
             "Golden Torizo's initial upload copies its awakening sheet");
         UploadTorizoTiles(editedEnemies, editedSlot, goldenUpload);
@@ -157,7 +157,7 @@ internal static class TorizoInstructionVramArtworkVerification
     private static void UploadTorizoTiles(RoomEnemySystem enemies, RoomEnemySlot slot, int transfer) =>
         AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot, new TorizoEnemyState(slot, isGolden: true),
                 new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
-                new TorizoCue(TorizoCueKind.CopyTiles, Transfer: transfer),
+                new TorizoCue.CopyTiles(Transfer: transfer),
                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenInitial0)) is null,
             $"Torizo tile transfer {transfer} runs on");
 

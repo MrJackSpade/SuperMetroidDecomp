@@ -49,30 +49,30 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     /// <summary>Carries out one cue of a vent's program, returning the program a branch continues at, or null to run on.</summary>
     private static CeresSteamProgram? ApplyCeresSteamCue(RoomEnemySlot slot, CeresSteamCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case CeresSteamCueKind.Vanish:
+            case CeresSteamCue.Command { Kind: CeresSteamCueKind.Vanish }:
                 slot.Properties = slot.Properties.With(
                     EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
                 return null;
-            case CeresSteamCueKind.CountDownToActivation:
+            case CeresSteamCue.CountDownToActivation countDown:
             {
                 // The vent's activation delay, which initialization staggers.
                 CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
                 NativeWordCounterStep step = state.ActivationDelay.Decrement();
                 state.ActivationDelay = step.Remaining;
                 if (!step.IsZero)
-                    return cue.Target;
+                    return countDown.Target;
                 slot.Properties = slot.Properties.Without(
                     EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
-                return cue.Alternate;
+                return countDown.Alternate;
             }
-            case CeresSteamCueKind.Appear:
+            case CeresSteamCue.Command { Kind: CeresSteamCueKind.Appear }:
                 slot.Properties = slot.Properties.Without(
                     EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
                 return null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresSteamCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined Ceres steam cue {cue}.");
         }
     }
 

@@ -29,7 +29,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon();
             AssertEqual(AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Initial), state.Program, "real Etecoon initializer");
-            if (EtecoonAnimations.Programs.Steps(program)[^1] is not { Kind: AnimationProgramStepKind.GoTo } last || last.Target != program)
+            if (EtecoonAnimations.Programs.Steps(program)[^1] is not AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.GoToStep last || last.Target != program)
                 continue;
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);

@@ -141,8 +141,8 @@ internal static class NativeEnemyProgramOracle
             if (cursor != entry && ProgramAt(entries, cursor) is { } following)
             {
                 var fall = Next("fall-through");
-                AssertEqual(AnimationProgramStepKind.FallInto, fall.Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(following, fall.Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.FallIntoStep>(fall, $"{at}: runs on into the next authored program");
+                AssertEqual(following, fallInto.Target, $"{at}: fall-through target");
                 break;
             }
             int address = (int)new SnesAddress(bank, cursor);
@@ -151,8 +151,7 @@ internal static class NativeEnemyProgramOracle
             NativeEnemyListDefinitions.WordKind kind = NativeEnemyListDefinitions.Classify(word);
             if (kind == NativeEnemyListDefinitions.WordKind.Frame)
             {
-                var show = Next("frame");
-                AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
+                var show = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>(Next("frame"), $"{at}: frame");
                 AssertEqual(word, show.Duration, $"{at}: duration");
                 AssertEqual(operand, spritemap(show.Frame), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
@@ -161,38 +160,36 @@ internal static class NativeEnemyProgramOracle
             switch (kind)
             {
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertEqual(AnimationProgramStepKind.Hold, Next("sleep").Kind, $"{at}: sleep");
+                    AssertTrue(Next("sleep") is AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep, $"{at}: sleep");
                     break;
                 case NativeEnemyListDefinitions.WordKind.Stop:
-                    AssertEqual(AnimationProgramStepKind.Stop, Next("stop").Kind, $"{at}: stop");
+                    AssertTrue(Next("stop") is AnimationProgramStep<TProgram, TFrame, TCue>.StopStep, $"{at}: stop");
                     break;
                 case NativeEnemyListDefinitions.WordKind.GoTo:
                 {
                     var jump = Next("goto");
-                    AssertEqual(AnimationProgramStepKind.GoTo, jump.Kind, $"{at}: goto");
-                    AssertEqual(operand, EntryOf(entries, jump.Target), $"{at}: goto target");
+                    var goTo = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.GoToStep>(jump, $"{at}: goto");
+                    AssertEqual(operand, EntryOf(entries, goTo.Target), $"{at}: goto target");
                     break;
                 }
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
                 {
                     var load = Next("counter load");
-                    AssertEqual(AnimationProgramStepKind.SetCounter, load.Kind, $"{at}: counter load");
-                    AssertEqual(operand, load.Duration, $"{at}: counter");
+                    var setCounter = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.SetCounterStep>(load, $"{at}: counter load");
+                    AssertEqual(operand, setCounter.Count, $"{at}: counter");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
                 {
-                    var repeat = Next("counted repeat");
-                    AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, repeat.Kind, $"{at}: counted repeat");
+                    var repeat = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep>(Next("counted repeat"), $"{at}: counted repeat");
                     AssertEqual(operand, EntryOf(entries, repeat.Target), $"{at}: repeat target");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.Wait:
                 {
-                    var wait = Next("wait");
-                    AssertEqual(AnimationProgramStepKind.Wait, wait.Kind, $"{at}: wait");
+                    var wait = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.WaitStep>(Next("wait"), $"{at}: wait");
                     AssertEqual(operand, wait.Duration, $"{at}: wait length");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -202,14 +199,13 @@ internal static class NativeEnemyProgramOracle
                     AssertTrue(operandWords(word) is not null, $"{at}: native instruction ${word:X4} is known");
                     int count = operandWords(word) ?? 0;
                     var step = Next("instruction");
-                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: instruction");
+                    var cueStep = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.CueStep>(step, $"{at}: instruction");
                     ushort[] operands = [.. Enumerable.Range(0, count).Select(item => cartridge.ReadCartridgeWord(address + 2 + 2 * item))];
-                    compareCue(word, operands, step.PublishedCue, at);
+                    compareCue(word, operands, cueStep.Cue, at);
                     cursor = unchecked((ushort)(cursor + 2 + 2 * count));
-                    if (endsList?.Invoke(step.PublishedCue) != true)
+                    if (endsList?.Invoke(cueStep.Cue) != true)
                         continue;
-                    AssertEqual(AnimationProgramStepKind.Hold, Next("end after a cue that always continues elsewhere").Kind,
-                        $"{at}: the program ends at its cue");
+                    AssertTrue(Next("end after a cue that always continues elsewhere") is AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep, $"{at}: the program ends at its cue");
                     break;
                 }
                 case NativeEnemyListDefinitions.WordKind.Frame:

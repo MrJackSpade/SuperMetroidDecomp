@@ -54,8 +54,8 @@ internal static class KraidAnimationsVerification
             string at = $"Kraid {program} step {index}";
             if (cursor != entry && PartProgramAt(cursor) is { } next)
             {
-                AssertEqual(AnimationProgramStepKind.FallInto, steps[index].Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(next, steps[index].Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.FallIntoStep>(steps[index], $"{at}: runs on into the next authored program");
+                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                 AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
                 return steps.Count;
             }
@@ -65,19 +65,19 @@ internal static class KraidAnimationsVerification
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    AssertEqual(AnimationProgramStepKind.Show, steps[index].Kind, $"{at}: frame");
-                    AssertEqual(word, steps[index].Duration, $"{at}: duration");
-                    AssertEqual(operand, KraidPartFrameDefinitions.Spritemap(steps[index].Frame), $"{at}: spritemap");
+                    var show = AssertIs<AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.ShowStep>(steps[index], $"{at}: frame");
+                    AssertEqual(word, show.Duration, $"{at}: duration");
+                    AssertEqual(operand, KraidPartFrameDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
                     continue;
                 case NativeEnemyListDefinitions.WordKind.GoTo:
-                    AssertEqual(AnimationProgramStepKind.GoTo, steps[index].Kind, $"{at}: goto");
-                    AssertEqual(PartProgramAt(operand), steps[index].Target, $"{at}: goto target");
+                    var goTo = AssertIs<AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.GoToStep>(steps[index], $"{at}: goto");
+                    AssertEqual(PartProgramAt(operand), goTo.Target, $"{at}: goto target");
                     AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
                     return steps.Count;
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertEqual(AnimationProgramStepKind.Hold, steps[index].Kind, $"{at}: sleep");
+                    AssertTrue(steps[index] is AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.HoldStep, $"{at}: sleep");
                     AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
                     return steps.Count;
                 case NativeEnemyListDefinitions.WordKind.Callback:
@@ -85,8 +85,8 @@ internal static class KraidAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 2));
                     if (cue is not { } expected)
                         continue; // The no-operation callback has no typed step.
-                    AssertEqual(AnimationProgramStepKind.Cue, steps[index].Kind, $"{at}: callback");
-                    AssertEqual(expected, steps[index].Cue, $"{at}: cue");
+                    var cueStep = AssertIs<AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.CueStep>(steps[index], $"{at}: callback");
+                    AssertEqual(expected, cueStep.Cue, $"{at}: cue");
                     index++;
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Stop:

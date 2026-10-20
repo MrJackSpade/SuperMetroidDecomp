@@ -14,7 +14,7 @@ internal static class ShitroidVisualDefinitions
     /// <summary>The spritemaps the typed Shitroid programs show, in program order.</summary>
     internal static ushort[] Spritemaps() => [.. Enum.GetValues<ShitroidProgram>()
         .SelectMany(program => ShitroidAnimations.Programs.Steps(program))
-        .Where(step => step.Kind == AnimationProgramStepKind.Show)
+        .OfType<AnimationProgramStep<ShitroidProgram, BabyMetroidFrame, ShitroidCue>.ShowStep>()
         .Select(step => BabyMetroidVisualDefinitions.Spritemap(step.Frame.Index))];
 
     /// <summary>Names the three OAM compositions in first-shown order.</summary>

@@ -121,9 +121,9 @@ public static class ManagedAudioRegressionSmokeTest
             IReadOnlyList<CartridgeAudioCommand> commands = frame == 0
                 ?
                 [
-                    CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank),
-                    CartridgeAudioCommand.Upload(bank.Bank),
-                    CartridgeAudioCommand.WritePort(ApuPort.Music, 1),
+                    new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank),
+                    new CartridgeAudioCommand.Upload(bank.Bank),
+                    new CartridgeAudioCommand.WritePort(ApuPort.Music, 1),
                 ]
                 : Array.Empty<CartridgeAudioCommand>();
             HashFrame(name, engine, commands, tally);
@@ -144,17 +144,17 @@ public static class ManagedAudioRegressionSmokeTest
             List<CartridgeAudioCommand> commands = [];
             if (frame == 0)
             {
-                commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank));
+                commands.Add(new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank));
                 commands.AddRange(startCommands.Select(command =>
-                    CartridgeAudioCommand.WritePort(command.Port, command.Command)));
+                    new CartridgeAudioCommand.WritePort(command.Port, command.Command)));
             }
             if (cancelHalfway && frame == ShortScenarioFrames / 2)
             {
-                commands.Add(CartridgeAudioCommand.WritePort(
+                commands.Add(new CartridgeAudioCommand.WritePort(
                     ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.CancelAll.Value));
-                commands.Add(CartridgeAudioCommand.WritePort(
+                commands.Add(new CartridgeAudioCommand.WritePort(
                     ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.CancelAll.Value));
-                commands.Add(CartridgeAudioCommand.WritePort(
+                commands.Add(new CartridgeAudioCommand.WritePort(
                     ApuPort.SoundLibrary3, SoundEffectLibrary3Sounds.CancelAll.Value));
             }
             HashFrame(name, engine, commands, tally);
@@ -174,36 +174,36 @@ public static class ManagedAudioRegressionSmokeTest
             List<CartridgeAudioCommand> commands = [];
             if (frame == 0)
             {
-                commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank));
-                commands.Add(CartridgeAudioCommand.Upload(first.Bank));
-                commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
+                commands.Add(new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank));
+                commands.Add(new CartridgeAudioCommand.Upload(first.Bank));
+                commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             else if (frame == 120)
             {
-                commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 0));
+                commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 0));
             }
             else if (frame == 150)
             {
-                commands.Add(CartridgeAudioCommand.Upload(second.Bank));
-                commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
+                commands.Add(new CartridgeAudioCommand.Upload(second.Bank));
+                commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             else if (frame == 270)
             {
-                commands.Add(CartridgeAudioCommand.WritePort(
+                commands.Add(new CartridgeAudioCommand.WritePort(
                     ApuPort.Music, (byte)MusicPortCommand.Pause));
             }
             else if (frame == 330)
             {
-                commands.Add(CartridgeAudioCommand.WritePort(
+                commands.Add(new CartridgeAudioCommand.WritePort(
                     ApuPort.Music, (byte)MusicPortCommand.Resume));
             }
             else if (frame == 390)
             {
-                commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 2));
+                commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 2));
             }
             else if (frame == 510)
             {
-                commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
+                commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             HashFrame(
                 "music-lifecycle", engine, commands, tally);

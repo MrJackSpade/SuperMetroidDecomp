@@ -9,32 +9,23 @@ namespace SuperMetroid.Verification.Enemies;
 /// </summary>
 internal static class NativeEnemyProjectileCommonCues
 {
-    /// <summary>Each general command a common-cue family's lists use: its cue and operand byte count.</summary>
-    private static readonly Dictionary<ushort, (EnemyProjectileCommonCueKind Kind, int OperandBytes)> Commands = new()
+    /// <summary>Each general command a common-cue family's lists use and how the cue it becomes is checked.</summary>
+    private static readonly Dictionary<ushort, NativeCueCommand<EnemyProjectileCommonCue>> Commands = new()
     {
-        [(ushort)NativeEnemyProjectileInstruction.Delete] = (EnemyProjectileCommonCueKind.Delete, 0),
-        [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = (EnemyProjectileCommonCueKind.SetPreInstruction, 2),
-        [(ushort)NativeEnemyProjectileInstruction.ClearPreInstruction] = (EnemyProjectileCommonCueKind.ClearPreInstruction, 0),
-        [(ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = (EnemyProjectileCommonCueKind.Scatter, 4),
-        [(ushort)NativeEnemyProjectileInstruction.TourianStatueResetDustPosition] = (EnemyProjectileCommonCueKind.ReturnToOrigin, 0),
+        [(ushort)NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Command(EnemyProjectileCommonCueKind.Delete)),
+        [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = NativeCueCommand<EnemyProjectileCommonCue>.Of<EnemyProjectileCommonCue.SetPreInstruction>(2, (operands, cue, at) =>
+            AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction")),
+        [(ushort)NativeEnemyProjectileInstruction.ClearPreInstruction] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Command(EnemyProjectileCommonCueKind.ClearPreInstruction)),
+        [(ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = NativeCueCommand<EnemyProjectileCommonCue>.Of<EnemyProjectileCommonCue.Scatter>(4, (operands, cue, at) =>
+        {
+            // The scatter's operands pack each axis's range in the low byte and its center in the high byte.
+            AssertEqual(new EnemyProjectileScatter(new(operands[0], operands[2]), new(operands[1], operands[3])), cue.Spread, $"{at}: scatter");
+        }),
+        [(ushort)NativeEnemyProjectileInstruction.TourianStatueResetDustPosition] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Command(EnemyProjectileCommonCueKind.ReturnToOrigin)),
     };
 
     /// <summary>The oracle rules for a common-cue family.</summary>
-    internal static NativeEnemyProjectileCueRules<EnemyProjectileCommonCue> Rules { get; } = new(
-        word => Commands.TryGetValue(word, out var command) ? command.OperandBytes : null,
-        (word, operands, cue, at) =>
-        {
-            var command = Commands[word];
-            AssertEqual(command.Kind, cue.Kind, $"{at}: cue");
-            ushort preInstruction = command.Kind == EnemyProjectileCommonCueKind.SetPreInstruction
-                ? SnesLittleEndian.Word(operands[0], operands[1])
-                : (ushort)0;
-            AssertEqual(preInstruction, EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction");
-            // The scatter's operands pack each axis's range in the low byte and its center in the high byte.
-            EnemyProjectileScatter scatter = command.Kind == EnemyProjectileCommonCueKind.Scatter
-                ? new(new(operands[0], operands[2]), new(operands[1], operands[3]))
-                : default;
-            AssertEqual(scatter, cue.Scatter, $"{at}: scatter");
-        },
-        cue => cue.Kind == EnemyProjectileCommonCueKind.Delete);
+    internal static NativeEnemyProjectileCueRules<EnemyProjectileCommonCue> Rules { get; } = NativeCueCommand<EnemyProjectileCommonCue>.Rules(
+        Commands, word => word,
+        cue => cue is EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.Delete });
 }

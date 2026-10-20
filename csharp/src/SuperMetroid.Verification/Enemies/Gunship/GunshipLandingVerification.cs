@@ -290,7 +290,7 @@ internal static class GunshipLandingVerification
     /// <summary>Asserts that <paramref name="pad"/> shows <paramref name="program"/>'s first pose for its first duration.</summary>
     private static void AssertPadShowsFirstFrame(RoomEnemySlot pad, GunshipProgram program, string message)
     {
-        AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue> first = GunshipAnimations.Programs.Steps(program)[0];
+        var first = AssertIs<AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>.ShowStep>(GunshipAnimations.Programs.Steps(program)[0], message + " (first step)");
         AssertEqual(GunshipFrameDefinitions.Spritemap(first.Frame), pad.SpritemapPointer, message + " (pose)");
         AssertEqual(NativeCountdown.FromRaw((ushort)first.Duration), pad.InstructionTimer, message + " (duration)");
     }

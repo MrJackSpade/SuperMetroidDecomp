@@ -60,12 +60,12 @@ internal static class YardNativeListAddresses
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (YardCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, NativeCueShape<YardCue>> Instructions = new()
     {
-        [0xcc36] = (YardCueKind.SetMovementFunction, "E"),
-        [0xcc3f] = (YardCueKind.SetHidingProgram, "N"),
-        [0xcc48] = (YardCueKind.SetDirection, "D"),
-        [0xcc5f] = (YardCueKind.MoveBy, "SY"),
-        [0xcc78] = (YardCueKind.RepeatPreviousPoseUnlessContinuing, ""),
+        [0xcc36] = NativeCueShape<YardCue>.Of<YardCue.SetMovementFunction>("E"),
+        [0xcc3f] = NativeCueShape<YardCue>.Of<YardCue.SetHidingProgram>("N"),
+        [0xcc48] = NativeCueShape<YardCue>.Of<YardCue.SetDirection>("D"),
+        [0xcc5f] = NativeCueShape<YardCue>.Of<YardCue.MoveBy>("SY"),
+        [0xcc78] = NativeCueShape<YardCue>.Exactly(new YardCue.Command(YardCueKind.RepeatPreviousPoseUnlessContinuing)),
     };
 }

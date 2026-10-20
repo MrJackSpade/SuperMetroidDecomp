@@ -9,6 +9,6 @@ internal static class StokeAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params StokeProgram[] programs) =>
         programs.SelectMany(program => StokeAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<StokeProgram, StokeFrame, StokeCue>.ShowStep>()
             .Select(step => StokeFrameToolingDefinitions.Spritemap(step.Frame));
 }

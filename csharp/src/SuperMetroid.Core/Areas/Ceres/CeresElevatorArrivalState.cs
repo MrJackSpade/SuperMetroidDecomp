@@ -149,19 +149,17 @@ public sealed class CeresElevatorArrivalState
         AnimationProgramAdvance<CeresElevatorArrivalPose> advance = CeresElevatorArrivalAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, _) => throw new InvalidOperationException($"The Ceres elevator arrival programs publish no cue; got {cue}."));
         projectile.Program = cursor;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
-                projectile.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                projectile.Pose = advance.Frame;
+            case AnimationProgramAdvance<CeresElevatorArrivalPose>.Show shown:
+                projectile.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                projectile.Pose = shown.Frame;
                 return;
-            case AnimationProgramAdvanceKind.Stop:
+            case AnimationProgramAdvance<CeresElevatorArrivalPose>.Stop:
                 projectile.Active = false;
                 return;
-            case AnimationProgramAdvanceKind.Wait:
-            case AnimationProgramAdvanceKind.Hold:
             default:
-                throw new InvalidOperationException($"A Ceres elevator arrival program ended an update with {advance.Kind}.");
+                throw new InvalidOperationException($"A Ceres elevator arrival program ended an update with {advance}.");
         }
     }
 

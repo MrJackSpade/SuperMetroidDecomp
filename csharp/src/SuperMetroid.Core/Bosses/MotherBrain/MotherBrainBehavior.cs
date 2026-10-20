@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Input;
+﻿using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -103,20 +103,18 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             (cue, continuation) => throw new InvalidOperationException($"Falling-tube programs publish no cue {cue}."));
         tube.Timer = counter;
         Extensions[tube.SlotIndex].FallingTubeCursor = cursor;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
-                tube.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                tube.Frame = MotherBrainVisualDefinitions.TubeFrames.Of(advance.Frame);
+            case AnimationProgramAdvance<MotherBrainTubeFrame>.Show shown:
+                tube.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                tube.Frame = MotherBrainVisualDefinitions.TubeFrames.Of(shown.Frame);
                 tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
-            case AnimationProgramAdvanceKind.Hold:
+            case AnimationProgramAdvance<MotherBrainTubeFrame>.Hold:
                 // The native sleep: the timer wraps from zero and the pose stays.
                 return;
-            case AnimationProgramAdvanceKind.Wait:
-            case AnimationProgramAdvanceKind.Stop:
             default:
-                throw new InvalidOperationException($"Falling-tube programs have no {advance.Kind} step.");
+                throw new InvalidOperationException($"Falling-tube programs have no {advance} step.");
         }
     }
 
@@ -582,16 +580,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue> step = programs.Steps(cursor.Program)[cursor.Position];
         if (_frameContext.TimeIsFrozen)
         {
-            return step.Kind == AnimationProgramStepKind.Show ? step.Frame : throw new InvalidOperationException(
-                $"Mother Brain's frozen brain rests on {step.Kind} step {cursor.Position} of {cursor.Program}, not a frame.");
+            return step is AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue>.ShowStep frozen ? frozen.Frame : throw new InvalidOperationException(
+                $"Mother Brain's frozen brain rests on {step} step {cursor.Position} of {cursor.Program}, not a frame.");
         }
 
-        if (step.Kind == AnimationProgramStepKind.Show)
+        if (step is AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue>.ShowStep show)
         {
-            if (state.BrainFrameTimer <= step.Duration)
+            if (state.BrainFrameTimer <= show.Duration)
             {
                 state.BrainFrameTimer++;
-                return step.Frame;
+                return show.Frame;
             }
             cursor = cursor with { Position = cursor.Position + 1 };
         }
@@ -599,12 +597,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         NativeCountdown unusedCounter = default;
         AnimationProgramAdvance<MotherBrainHeadFrame> advance = programs.Advance(ref cursor, ref unusedCounter,
             (cue, continuation) => ApplyMotherBrainHeadCue(state, samus, cue));
-        if (advance.Kind != AnimationProgramAdvanceKind.Show)
-            throw new InvalidOperationException($"Mother Brain's brain programs have no {advance.Kind} step.");
+        if (advance is not AnimationProgramAdvance<MotherBrainHeadFrame>.Show shown)
+            throw new InvalidOperationException($"Mother Brain's brain programs have no {advance} step.");
         // The native pointer rests on the frame it shows, so the cursor steps back onto it.
         state.BrainCursor = cursor with { Position = cursor.Position - 1 };
         state.BrainFrameTimer = 1;
-        return advance.Frame;
+        return shown.Frame;
     }
 
     /// <summary>Advances MotherBrainBody's typed animation.</summary>
@@ -642,55 +640,53 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             state.BodyCursor = cursor;
         else
             state.HeadSlotCursor = cursor;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.Frame = MotherBrainBodyVisualDefinitions.ShownFrames.Of(advance.Frame);
+            case AnimationProgramAdvance<MotherBrainBodyFrame>.Show shown:
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                slot.Frame = MotherBrainBodyVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
-            case AnimationProgramAdvanceKind.Hold:
+            case AnimationProgramAdvance<MotherBrainBodyFrame>.Hold:
                 // The native sleep: the timer wraps from zero and the last frame stays.
                 return;
-            case AnimationProgramAdvanceKind.Wait:
-            case AnimationProgramAdvanceKind.Stop:
             default:
-                throw new InvalidOperationException($"Mother Brain's body programs have no {advance.Kind} step.");
+                throw new InvalidOperationException($"Mother Brain's body programs have no {advance} step.");
         }
     }
 
     /// <summary>Carries out one cue of a body program.</summary>
     private void ApplyMotherBrainBodyCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainBodyCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
             // Pose is shared encounter state, not a property of the displayed map. Body AI
             // waits on these exact values while the program continues independently.
-            case MotherBrainBodyCueKind.SetPose:
-                state.Pose = cue.Pose;
+            case MotherBrainBodyCue.SetPose setPose:
+                state.Pose = setPose.Pose;
                 return;
             // The walk-cycle comments in the historical disassembly describe visual
             // motion and are occasionally opposite the literal signed Y operand. The
             // programs keep the actual additions performed by `$9579`, not the labels.
-            case MotherBrainBodyCueKind.Move:
-                MoveMotherBrainBody(cue.Offset);
+            case MotherBrainBodyCue.Move move:
+                MoveMotherBrainBody(move.Offset);
                 return;
-            case MotherBrainBodyCueKind.StepAndMove:
+            case MotherBrainBodyCue.StepAndMove stepAndMove:
                 RunMotherBrainFootstep();
-                MoveMotherBrainBody(cue.Offset);
+                MoveMotherBrainBody(stepAndMove.Offset);
                 return;
             // `$95B6-$95F2` are the six posture-transition displacements. Each moves the body
             // vertically, counter-scrolls BG2 by the opposite amount, and derives BG2 X from
             // the body's new origin plus its authored horizontal bias.
-            case MotherBrainBodyCueKind.MoveWithScrollBias:
-                MoveMotherBrainBodyWithScrollBias(cue.Offset.Y, cue.Offset.X);
+            case MotherBrainBodyCue.MoveWithScrollBias moveWithScrollBias:
+                MoveMotherBrainBodyWithScrollBias(moveWithScrollBias.Y, moveWithScrollBias.ScrollBias);
                 return;
-            case MotherBrainBodyCueKind.SpawnHandDust:
+            case MotherBrainBodyCue.SpawnHandDust spawnHandDust:
                 _projectiles.SpawnRoomGraphicsDustExplosion(
-                    new(unchecked((ushort)(state.Body.Position.X.Whole + cue.Offset.X)), unchecked((ushort)(state.Body.Position.Y.Whole + cue.Offset.Y))),
-                    cue.Dust);
+                    new(unchecked((ushort)(state.Body.Position.X.Whole + spawnHandDust.Offset.X)), unchecked((ushort)(state.Body.Position.Y.Whole + spawnHandDust.Offset.Y))),
+                    spawnHandDust.Dust);
                 return;
-            case MotherBrainBodyCueKind.FireHandBeam:
+            case MotherBrainBodyCue.Command { Kind: MotherBrainBodyCueKind.FireHandBeam }:
             {
                 SamusState target = samus ?? throw new InvalidOperationException(
                     "Mother Brain hand-beam aiming requires the active Samus actor.");
@@ -698,11 +694,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 SpawnMotherBrainHandBeamCharging(state, target);
                 return;
             }
-            case MotherBrainBodyCueKind.AdvanceHandBeamPhase:
+            case MotherBrainBodyCue.Command { Kind: MotherBrainBodyCueKind.AdvanceHandBeamPhase }:
                 state.HandBeamPhase = MotherBrainHandBeamPhases.Next(state.HandBeamPhase);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyCueKind)} {cue}.");
         }
     }
 
@@ -714,82 +710,84 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </remarks>
     private MotherBrainHeadProgram? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainHeadCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case MotherBrainHeadCueKind.ShakeBrain:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.ShakeBrain }:
                 state.BrainMainShakeTimer = NativeCountdown.Start(50);
                 return null;
-            case MotherBrainHeadCueKind.SpawnDrool:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnDrool }:
                 SpawnMotherBrainDrool(state);
                 return null;
-            case MotherBrainHeadCueKind.SpawnBigPurpleBreath:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnBigPurpleBreath }:
                 SpawnMotherBrainPurpleBreathBig(state);
                 return null;
-            case MotherBrainHeadCueKind.QueueSound:
-            case MotherBrainHeadCueKind.QueueLibrary3Sound:
-                // `QueueSoundX_Lib2_Max6` / `QueueSoundX_Lib3_Max6`.
-                _audio.QueueEnemySound(cue.Sound ?? throw new InvalidOperationException("A sound cue carries no sound."), maximumQueued: 6);
+            // `QueueSoundX_Lib2_Max6` / `QueueSoundX_Lib3_Max6`.
+            case MotherBrainHeadCue.QueueSound queueSound:
+                _audio.QueueEnemySound(queueSound.Sound, maximumQueued: 6);
                 return null;
-            case MotherBrainHeadCueKind.DisableNeckMovement:
+            case MotherBrainHeadCue.QueueLibrary3Sound queueLibrary3Sound:
+                _audio.QueueEnemySound(queueLibrary3Sound.Sound, maximumQueued: 6);
+                return null;
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.DisableNeckMovement }:
                 state.NeckMovementEnabled = false;
                 return null;
-            case MotherBrainHeadCueKind.EnableNeckMovement:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.EnableNeckMovement }:
                 state.NeckMovementEnabled = true;
                 return null;
-            case MotherBrainHeadCueKind.AimOnionRingsAtSamus:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.AimOnionRingsAtSamus }:
             {
                 SamusState target = samus ?? throw new InvalidOperationException(
                     "Mother Brain onion-ring aiming requires the active Samus actor.");
                 AimMotherBrainOnionRingsAt(state, target.Position.Whole);
                 return null;
             }
-            case MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
             {
                 BabyMetroidCutsceneState baby = state.BabyMetroid ?? throw new InvalidOperationException(
                     "Mother Brain's Baby-targeting cue ran without the Baby actor.");
                 AimMotherBrainOnionRingsAt(state, baby.Position.Whole);
                 return null;
             }
-            case MotherBrainHeadCueKind.SpawnOnionRing:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
                 SpawnMotherBrainOnionRing(state, unchecked(new SnesByteAngle((byte)state.OnionRingsTargetAngle)));
                 return null;
-            case MotherBrainHeadCueKind.SpawnBomb:
-                SpawnMotherBrainBomb(state, (ushort)cue.Afterburns);
+            case MotherBrainHeadCue.SpawnBomb bomb:
+                SpawnMotherBrainBomb(state, (ushort)bomb.Afterburns);
                 return null;
-            case MotherBrainHeadCueKind.SpawnLaser:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnLaser }:
                 SpawnMotherBrainMouthLaser(state);
                 return null;
-            case MotherBrainHeadCueKind.CountBabyMetroidAttack:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack }:
                 RequireLiveMotherBrainRainbowSequence(state).IncrementLiveBabyMetroidAttackCounter();
                 return null;
-            case MotherBrainHeadCueKind.ResetBabyMetroidAttacks:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.ResetBabyMetroidAttacks }:
                 RequireLiveMotherBrainRainbowSequence(state).ResetLiveBabyMetroidAttackCounter();
                 return null;
-            case MotherBrainHeadCueKind.QueueBabyMetroidAttackSound:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
                 // `$A9:9DF7` skips the attack cry once the attack counter reaches eleven.
                 if (RequireLiveMotherBrainRainbowSequence(state).BabyMetroidAttackCounter != 11)
                     _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, maximumQueued: 6);
                 return null;
-            case MotherBrainHeadCueKind.PrepareRainbowBeamCharge:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.PrepareRainbowBeamCharge }:
                 state.SmallPurpleBreathGenerationEnabled = false;
                 _audio.QueueEnemySound(MotherBrainSoundDefinitions.RainbowBeamCharge, maximumQueued: 6);
                 return null;
-            case MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle }:
                 SpawnMotherBrainRainbowChargingProjectile();
                 return null;
             // `$A9:9CAD` holds the phase-two neutral pose again unless the random word reaches $F000 (15 in 16).
-            case MotherBrainHeadCueKind.MaybeHoldNeutralPhase2:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
                 return _room.Random.Read() < 61440 ? MotherBrainHeadProgram.NeutralPhase2Hold : null;
             // Retail contains an unconditional BRA where the adjacent commentary might suggest a
             // carry branch: low-twelve random values below $EC0 hold the phase-three pose again.
-            case MotherBrainHeadCueKind.MaybeHoldNeutralPhase3:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
                 return (_room.Random.Read() & 4095) < 3776 ? MotherBrainHeadProgram.NeutralPhase3Hold : null;
             // `$A9:9C65-$9C76` returns its destination in X: only low-twelve random values
             // $FE0-$FFF burst into more drool; every other value keeps the one-frame loop.
-            case MotherBrainHeadCueKind.MaybeDroolAgain:
+            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeDroolAgain }:
                 return (_room.Random.Read() & 4095) >= 4064 ? MotherBrainHeadProgram.DyingDroolBurst : null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(MotherBrainHeadCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined Mother Brain head cue {cue}.");
         }
     }
 
@@ -865,35 +863,35 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of Mother Brain's effect programs.</summary>
     private void ApplyMotherBrainEffectCue(RoomEnemyProjectileSlot projectile, MotherBrainEffectCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case MotherBrainEffectCueKind.SetRadius:
-                projectile.Radius = cue.Radius;
+            case MotherBrainEffectCue.SetRadius setRadius:
+                projectile.Radius = setRadius.Radius;
                 break;
-            case MotherBrainEffectCueKind.UsePaletteZero:
+            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.UsePaletteZero }:
                 projectile.GraphicsIndex = 0;
                 break;
-            case MotherBrainEffectCueKind.DropDrool:
+            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.DropDrool }:
                 // After changing to the falling pre-instruction, the released drool drops twelve pixels before its first
                 // falling frame.
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 12)));
                 break;
-            case MotherBrainEffectCueKind.EndSmallPurpleBreath:
+            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
                 (_motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
                     "Mother Brain's small purple breath ran without its encounter state."))
                     .SmallPurpleBreathActive = false;
                 break;
-            case MotherBrainEffectCueKind.SetPreInstruction:
-                projectile.PreInstruction = cue.PreInstruction;
+            case MotherBrainEffectCue.SetPreInstruction setPreInstruction:
+                projectile.PreInstruction = setPreInstruction.PreInstruction;
                 break;
-            case MotherBrainEffectCueKind.ClearPreInstruction:
+            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.ClearPreInstruction }:
                 projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
-            case MotherBrainEffectCueKind.Delete:
+            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.Delete }:
                 projectile.Clear();
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(MotherBrainEffectCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(MotherBrainEffectCueKind)} {cue}.");
         }
     }
 

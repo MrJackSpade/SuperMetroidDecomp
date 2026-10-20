@@ -22,7 +22,7 @@ internal static class SpeedBoosterEchoStopVerification
         var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         var queue = new CartridgeAudioState();
         renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
-        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
+        renderer.RenderFrame([new CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
         var libraries = renderer.PlayerForVerification.soundLibraries;
         var samus = new SamusState { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         samus.PoseMetadata.RefreshCollisionRadii();
@@ -57,7 +57,7 @@ internal static class SpeedBoosterEchoStopVerification
                 queue.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued, request.SoundSuppressed);
             }
             var commands = queue.AdvanceFrame(renderer.Acknowledgements);
-            foreach (var command in commands.Where(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary3))
+            foreach (var command in commands.OfType<CartridgeAudioCommand.WritePort>().Where(command => command.InputPort == ApuPort.SoundLibrary3))
             {
                 if (command.Value != library3Port && command.Value == 3) starts++;
                 if (command.Value != library3Port && command.Value == 0x25) stops++;

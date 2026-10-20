@@ -233,17 +233,17 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData? level)
     {
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
-        switch (cue.Kind)
+        switch (cue)
         {
-            case ChozoStatueCueKind.SetPreInstruction:
-                state.PreInstruction = cue.PreInstruction;
+            case ChozoStatueCue.SetPreInstruction setPreInstruction:
+                state.PreInstruction = setPreInstruction.PreInstruction;
                 return null;
 
-            case ChozoStatueCueKind.ClearPreInstruction:
+            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.ClearPreInstruction }:
                 state.PreInstruction = ChozoStatuePreInstruction.Cleared;
                 return null;
 
-            case ChozoStatueCueKind.StartLoweringAcid:
+            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.StartLoweringAcid }:
                 ChozoStatueAcidLoweringStarted = true;
                 // Native AI writes the FX words consumed by the liquid handler once, at
                 // instruction execution; the FX owns them from then on.
@@ -251,46 +251,46 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                     timer: ChozoStatueFxData.LoweringDelay, packedYVelocity: ChozoStatueFxData.LoweringVelocity);
                 return null;
 
-            case ChozoStatueCueKind.SetLoweredAcidPosition:
+            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
                 _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(baseYPosition: ChozoStatuePlmRomData.LoweredAcidY);
                 return null;
 
-            case ChozoStatueCueKind.UnlockSamus:
+            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.UnlockSamus }:
                 EnableChozoStatueSamusControls();
                 return null;
 
-            case ChozoStatueCueKind.PlayGrabSound:
+            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.PlayGrabSound }:
                 LastChozoStatueSoundEffect = ChozoGrabsSamusSound;
                 _audio.QueueEnemySound(ChozoGrabsSamusSound, maximumQueued: 6);
                 return null;
 
-            case ChozoStatueCueKind.PlayFootstepSound:
+            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.PlayFootstepSound }:
                 LastChozoStatueSoundEffect = ChozoFootstepsSound;
                 _audio.QueueEnemySound(ChozoFootstepsSound, maximumQueued: 6);
                 return null;
 
-            case ChozoStatueCueKind.Footstep:
+            case ChozoStatueCue.Footstep footstep:
                 ProcessChozoStatueFootstep(
                     statue,
                     RequireChozoLevel(level),
-                    cue.FootstepOffset);
+                    footstep.Offset);
                 return null;
 
-            case ChozoStatueCueKind.Move:
+            case ChozoStatueCue.Move move:
                 ProcessChozoStatueMovement(
                     statue,
                     state,
                     RequireChozoSamus(samus),
                     RequireChozoLevel(level),
-                    cue.CarryRecord);
+                    move.CarryRecord);
                 return null;
 
-            case ChozoStatueCueKind.ReleaseSamus:
+            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.ReleaseSamus }:
                 FinishWreckedShipChozoSequence();
                 return null;
 
             default:
-                throw new InvalidOperationException($"Undefined {nameof(ChozoStatueCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(ChozoStatueCueKind)} {cue}.");
         }
     }
 

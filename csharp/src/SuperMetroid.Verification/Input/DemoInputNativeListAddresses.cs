@@ -84,11 +84,11 @@ internal static class DemoInputNativeListAddresses
     internal static ushort Address(AnimationProgramCursor<DemoInputProgram> cursor)
     {
         var steps = DemoInputAnimations.Programs.Steps(cursor.Program);
-        if (steps[cursor.Position].Kind == AnimationProgramStepKind.FallInto)
-            return Entry(steps[cursor.Position].Target);
+        if (steps[cursor.Position] is AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.FallIntoStep fallInto)
+            return Entry(fallInto.Target);
         int address = Entry(cursor.Program);
         for (int position = 0; position < cursor.Position; position++)
-            address += steps[position].Kind == AnimationProgramStepKind.Show ? DemoInputListWords.InputRecordBytes : sizeof(ushort);
+            address += steps[position] is AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.ShowStep ? DemoInputListWords.InputRecordBytes : sizeof(ushort);
         return (ushort)address;
     }
 

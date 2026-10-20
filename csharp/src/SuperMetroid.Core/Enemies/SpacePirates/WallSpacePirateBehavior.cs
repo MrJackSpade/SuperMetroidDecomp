@@ -296,37 +296,37 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private WallSpacePirateProgram? ApplyWallSpacePirateCue(RoomEnemySlot slot, WallSpacePirateCue cue, RoomLevelData? level)
     {
         WallSpacePirateEnemyState state = slot.RequireSpeciesState<WallSpacePirateEnemyState>();
-        switch (cue.Kind)
+        switch (cue)
         {
-            case WallSpacePirateCueKind.ClimbLeftWall:
-                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.ClimbPixels, wall: HorizontalDirection.Left);
-            case WallSpacePirateCueKind.ClimbRightWall:
-                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.ClimbPixels, wall: HorizontalDirection.Right);
-            case WallSpacePirateCueKind.ChooseLeftWallDirection:
+            case WallSpacePirateCue.ClimbLeftWall climbLeftWall:
+                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, climbLeftWall.ClimbPixels, wall: HorizontalDirection.Left);
+            case WallSpacePirateCue.ClimbRightWall climbRightWall:
+                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, climbRightWall.ClimbPixels, wall: HorizontalDirection.Right);
+            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.ChooseLeftWallDirection }:
                 return RandomizeWallSpacePirateClimbDirection(state, wall: HorizontalDirection.Left);
-            case WallSpacePirateCueKind.ChooseRightWallDirection:
+            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.ChooseRightWallDirection }:
                 return RandomizeWallSpacePirateClimbDirection(state, wall: HorizontalDirection.Right);
-            case WallSpacePirateCueKind.PrepareJumpRight:
+            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.PrepareJumpRight }:
                 PrepareWallSpacePirateJump(slot, state, direction: HorizontalDirection.Right);
                 return null;
-            case WallSpacePirateCueKind.PrepareJumpLeft:
+            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.PrepareJumpLeft }:
                 PrepareWallSpacePirateJump(slot, state, direction: HorizontalDirection.Left);
                 return null;
-            case WallSpacePirateCueKind.FireLaserLeft:
+            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.FireLaserLeft }:
                 FireWallSpacePirateLaser(slot, state, direction: HorizontalDirection.Left);
                 return null;
-            case WallSpacePirateCueKind.FireLaserRight:
+            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.FireLaserRight }:
                 FireWallSpacePirateLaser(slot, state, direction: HorizontalDirection.Right);
                 return null;
-            case WallSpacePirateCueKind.SetFunction:
-                state.Function = cue.Function;
+            case WallSpacePirateCue.SetFunction setFunction:
+                state.Function = setFunction.Function;
                 return null;
-            case WallSpacePirateCueKind.PlayAttackSound:
+            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.PlayAttackSound }:
                 _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
                     SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WallPirateJumpSound);
                 return null;
             default:
-                throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue.Kind} cue.");
+                throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue} cue.");
         }
     }
 

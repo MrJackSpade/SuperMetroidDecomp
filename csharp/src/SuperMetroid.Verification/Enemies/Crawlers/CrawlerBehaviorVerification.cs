@@ -49,7 +49,13 @@ internal static class CrawlerBehaviorVerification
             AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(program), state.Program, $"{context} starts its surface animation");
 
             CrawlerProgram loop = CrawlerAnimations.Programs.Steps(program)
-                .Single(step => step.Kind is AnimationProgramStepKind.FallInto or AnimationProgramStepKind.GoTo).Target;
+                .Select(step => step switch
+                {
+                    AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue>.FallIntoStep fallInto => (CrawlerProgram?)fallInto.Target,
+                    AnimationProgramStep<CrawlerProgram, CrawlerFrame, CrawlerCue>.GoToStep goTo => goTo.Target,
+                    _ => null,
+                })
+                .Single(target => target is not null) ?? throw new InvalidOperationException("A crawler loop names its target.");
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Programs, loop, CrawlerFrameDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Programs, loop)), $"{context} loop");
             bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;

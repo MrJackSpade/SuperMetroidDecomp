@@ -316,20 +316,18 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             (cue, continuation) => throw new InvalidOperationException($"The cutscene Baby's programs publish no cue {cue}."));
         slot.Timer = counter;
         state.BabyCursor = cursor;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(advance.Frame);
+            case AnimationProgramAdvance<BabyMetroidFrame>.Show shown:
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
-            case AnimationProgramAdvanceKind.Hold:
+            case AnimationProgramAdvance<BabyMetroidFrame>.Hold:
                 // The native sleep: the timer wraps from zero and the last frame stays.
                 return;
-            case AnimationProgramAdvanceKind.Wait:
-            case AnimationProgramAdvanceKind.Stop:
             default:
-                throw new InvalidOperationException($"The cutscene Baby's programs have no {advance.Kind} step.");
+                throw new InvalidOperationException($"The cutscene Baby's programs have no {advance} step.");
         }
     }
 

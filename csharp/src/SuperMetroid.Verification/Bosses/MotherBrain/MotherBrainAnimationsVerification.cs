@@ -80,16 +80,15 @@ internal static class MotherBrainAnimationsVerification
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             MotherBrainBehavior.SetMotherBrainBrainProgram(state, program);
             var steps = MotherBrainAnimations.Head.Steps(program);
-            int first = steps.Select((step, index) => (step, index)).First(item => item.step.Kind == AnimationProgramStepKind.Show).index;
-            int duration = steps[first].Duration;
+            var shown = steps.OfType<AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue>.ShowStep>().First();
+            int duration = shown.Duration;
             for (int draw = 0; draw < duration; draw++)
-                AssertEqual((MotherBrainHeadFrame?)steps[first].Frame, enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null),
+                AssertEqual((MotherBrainHeadFrame?)shown.Frame, enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null),
                     $"{program} shows its first frame on draw {draw}");
             AssertEqual((ushort)(duration + 1), state.BrainFrameTimer, $"{program}'s timer counts up past the duration");
             enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);
             AssertEqual(1, state.BrainFrameTimer, $"{program} installs its next frame once the timer exceeds the duration");
-            AssertEqual(AnimationProgramStepKind.Show, MotherBrainAnimations.Head.Steps((state.BrainCursor ?? throw new InvalidOperationException("Verification requires state.BrainCursor.")).Program)[state.BrainCursor.Value.Position].Kind,
-                $"{program}'s cursor rests on the frame it shows");
+            AssertTrue(MotherBrainAnimations.Head.Steps((state.BrainCursor ?? throw new InvalidOperationException("Verification requires state.BrainCursor.")).Program)[state.BrainCursor.Value.Position] is AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue>.ShowStep, $"{program}'s cursor rests on the frame it shows");
         }
     }
 

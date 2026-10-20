@@ -175,24 +175,22 @@ public sealed class TourianStatueSequence
             TourianStatueAnimatedTileProgramDefinition definition = tile.Definition;
             AnimationProgramAdvance<TourianStatueTilePicture> advance = definition.Program.AdvanceTo(
                 ref cursor, ref loopCounter, (cue, _) => RunCue(definition, cue));
-            switch (advance.Kind)
+            switch (advance)
             {
-                case AnimationProgramAdvanceKind.Show:
+                case AnimationProgramAdvance<TourianStatueTilePicture>.Show shown:
                     tile.Cursor = cursor;
-                    tile.Timer = NativeCountdown.Start(advance.Duration);
+                    tile.Timer = NativeCountdown.Start(shown.Duration);
                     _vramWrites.EnqueueBackgroundSource(
-                        new TourianStatuePictureCharacters(definition.ObjectPointer, advance.Frame),
+                        new TourianStatuePictureCharacters(definition.ObjectPointer, shown.Frame),
                         checked((ushort)definition.TransferByteCount),
                         definition.Destination);
                     break;
-                case AnimationProgramAdvanceKind.Stop:
+                case AnimationProgramAdvance<TourianStatueTilePicture>.Stop:
                     tile.Cursor = null;
                     break;
-                case AnimationProgramAdvanceKind.Wait:
-                case AnimationProgramAdvanceKind.Hold:
                 default:
                     throw new InvalidOperationException(
-                        $"Tourian statue {definition.ObjectPointer} program ended an advance with unauthored {advance.Kind}.");
+                        $"Tourian statue {definition.ObjectPointer} program ended an advance with unauthored {advance}.");
             }
         }
 

@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -75,6 +75,27 @@ internal static class AnalyzerTests
         {
             throw new InvalidOperationException(
                 $"Expected one {expectedId} diagnostic containing '{expectedMessage}', got [{string.Join("; ", diagnostics.Select(d => d.ToString()))}] in {source}");
+        }
+    }
+
+    /// <summary>Checks that <paramref name="analyzer"/> reports exactly <paramref name="expectedIds"/>, in source order.</summary>
+    internal static void VerifySnippetIds(string source, DiagnosticAnalyzer analyzer, string assemblyName, params string[] expectedIds)
+    {
+        var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview));
+        var compilation = CSharpCompilation.Create(
+            assemblyName,
+            [tree],
+            References,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+        var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+        if (errors.Length != 0)
+            throw new InvalidOperationException($"Invalid analyzer fixture: {string.Join("; ", errors.Select(e => e.ToString()))}");
+        var diagnostics = compilation.WithAnalyzers([analyzer]).GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult()
+            .OrderBy(d => d.Location.SourceSpan.Start).ToArray();
+        if (!diagnostics.Select(d => d.Id).SequenceEqual(expectedIds))
+        {
+            throw new InvalidOperationException(
+                $"Expected [{string.Join(", ", expectedIds)}], got [{string.Join("; ", diagnostics.Select(d => d.ToString()))}] in {source}");
         }
     }
 
@@ -422,6 +443,49 @@ internal static class AnalyzerTests
         Expect("static class P { static int Sum() { (int A, int B, int C) t = (1, 2, 3); return t.A + t.B + t.C; } }");
         // Other assemblies are not checked.
         VerifySnippet("static class P { static (byte R, byte G, byte B) Mix() => default; }", null, null, analyzer, assemblyName: "Other");
+    }
+
+    /// <summary>Checks kind-tagged constructions and kind switches, with closed hierarchies passing (#1376).</summary>
+    internal static void VerifyKindTaggedRecordAnalyzer()
+    {
+        var analyzer = new KindTaggedRecordAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer, assemblyName: KindTaggedRecordAnalyzer.CheckedAssembly);
+        const string tagged = "enum EventKind { Load, Play } readonly record struct Event(EventKind Kind, int Bank, int Track, bool Loud); ";
+
+        const string placeholders = "static class Build { static Event Load(int bank) => new(EventKind.Load, bank, 0, false); } ";
+        void ExpectIds(string source, params string[] ids) =>
+            VerifySnippetIds(source, analyzer, KindTaggedRecordAnalyzer.CheckedAssembly, ids);
+
+        // SME6431: the kind beside two or more default, zero, false or null placeholders.
+        Expect(tagged + "static class F { static Event Load(int bank) => new(EventKind.Load, bank, 0, false); }",
+            KindTaggedRecordAnalyzer.PlaceholderConstructionId, "'Event' is built with 2 placeholder arguments beside its 'Kind'");
+        Expect(tagged + "static class F { static Event Load(int bank) => new Event(EventKind.Load, bank, default, default); }",
+            KindTaggedRecordAnalyzer.PlaceholderConstructionId);
+        // Optional parameters left to their defaults are placeholders too.
+        Expect("enum CueKind { Move, Wait } readonly record struct Cue(CueKind Kind, int Pixels = 0, int Ticks = 0); " +
+            "static class F { static Cue Wait => new(CueKind.Wait); }", KindTaggedRecordAnalyzer.PlaceholderConstructionId, "2 placeholder");
+        // One placeholder, a named constant, or a construction without the kind, passes.
+        Expect("enum Facing { Up, Down } enum FrameKind { Body, Tail } readonly record struct Frame(FrameKind Kind, Facing Facing, int Phase); " +
+            "static class F { static Frame Tail => new(FrameKind.Tail, Facing.Up, 0); }");
+        Expect(tagged + "static class F { static Event Play(int track) => new(EventKind.Play, 3, track, false); }");
+        Expect("readonly record struct Span(int Start, int Length, bool Open); static class F { static Span Empty => new(0, 0, false); }");
+        // SME6432: a switch on a kind-tagged type's kind whose arms read different members.
+        ExpectIds(tagged + placeholders + "static class F { static string Show(Event e) => e.Kind switch { EventKind.Load => e.Bank.ToString(), _ => e.Track.ToString() }; }",
+            KindTaggedRecordAnalyzer.PlaceholderConstructionId, KindTaggedRecordAnalyzer.KindSwitchId);
+        ExpectIds(tagged + placeholders + "static class F { static int Show(Event e) { switch (e.Kind) { case EventKind.Load: return e.Bank; default: return e.Track; } } }",
+            KindTaggedRecordAnalyzer.PlaceholderConstructionId, KindTaggedRecordAnalyzer.KindSwitchId);
+        // Arms that read the same members, or none, pass; so does a kind switch over a type no construction tags.
+        ExpectIds(tagged + placeholders + "static class F { static int Cost(Event e) => e.Kind switch { EventKind.Load => e.Bank + 1, _ => e.Bank }; }",
+            KindTaggedRecordAnalyzer.PlaceholderConstructionId);
+        ExpectIds(tagged + placeholders + "static class F { static int Cost(Event e) => e.Kind switch { EventKind.Load => 1, _ => 2 }; }",
+            KindTaggedRecordAnalyzer.PlaceholderConstructionId);
+        Expect(tagged + "static class F { static string Show(Event e) => e.Kind switch { EventKind.Load => e.Bank.ToString(), _ => e.Track.ToString() }; }");
+        // A closed hierarchy switched by type passes.
+        Expect("abstract record Event; sealed record Load(int Bank) : Event; sealed record Play(int Track) : Event; " +
+            "static class F { static int Show(Event e) => e switch { Load load => load.Bank, Play play => play.Track, _ => throw new System.ArgumentOutOfRangeException(nameof(e)) }; }");
+        // Other assemblies are not checked.
+        VerifySnippet(tagged + "static class F { static Event Load(int bank) => new(EventKind.Load, bank, 0, false); }", null, null, analyzer, assemblyName: "Other");
     }
 
     /// <summary>Checks that an integer-coded mode is reported, a quantity is not, and a justified member is not (#1372).</summary>

@@ -9,6 +9,6 @@ internal static class SkreeMetareeAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params SkreeMetareeProgram[] programs) =>
         programs.SelectMany(program => SkreeMetareeAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<SkreeMetareeProgram, SkreeMetareeFrame, SkreeMetareeCue>.ShowStep>()
             .Select(step => SkreeMetareeFrameToolingDefinitions.Spritemap(step.Frame));
 }

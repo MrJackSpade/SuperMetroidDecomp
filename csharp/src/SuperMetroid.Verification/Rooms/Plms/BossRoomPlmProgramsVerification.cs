@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -180,7 +181,7 @@ internal static class BossRoomPlmProgramsVerification
     }
 
     /// <summary>The glass's branch, wake, hit-threshold, shard-burst and event instructions with their operands.</summary>
-    private static bool MotherBrainGlassCueAt(IImportCartridgeSource cartridge, ushort cursor, out MotherBrainGlassPlmCue cue, out int length)
+    private static bool MotherBrainGlassCueAt(IImportCartridgeSource cartridge, ushort cursor, [MaybeNullWhen(false)] out MotherBrainGlassPlmCue cue, out int length)
     {
         ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
         MotherBrainGlassPlmProgram Entry(ushort address) => MotherBrainGlassEntries.Single(entry => entry.Entry == address).Program;

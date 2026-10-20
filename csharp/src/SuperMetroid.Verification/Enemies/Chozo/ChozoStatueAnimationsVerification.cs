@@ -18,14 +18,14 @@ internal static class ChozoStatueAnimationsVerification
             (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                instruction.Check(cue, at);
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
                     // The native operands are the footstep's signed X word and the carry record's byte offset.
-                    'F' => unchecked((ushort)cue.FootstepOffset.X),
-                    'R' => checked((ushort)(cue.CarryRecord * 2)),
-                    'E' => (ushort)cue.PreInstruction,
+                    'F' => unchecked((ushort)AssertIs<ChozoStatueCue.Footstep>(cue, $"{at}: cue").Offset.X),
+                    'R' => checked((ushort)(AssertIs<ChozoStatueCue.Move>(cue, $"{at}: cue").CarryRecord * 2)),
+                    'E' => (ushort)AssertIs<ChozoStatueCue.SetPreInstruction>(cue, $"{at}: cue").PreInstruction,
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

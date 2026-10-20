@@ -26,12 +26,12 @@ internal static class MotherBrainAnimations
         [
             .. Crouch(8, 8),
             BodyShow(MotherBrainBodyFrame.Crouched, 8),
-            BodyCue(MotherBrainBodyCue.MoveWithScrollBias(-10, 4)),
+            BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-10, 4)),
             Pose(MotherBrainBodyPose.CrouchingTransition),
             BodyShow(MotherBrainBodyFrame.Uncrouching, 8),
-            BodyCue(MotherBrainBodyCue.MoveWithScrollBias(-16, 4)),
+            BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-16, 4)),
             BodyShow(MotherBrainBodyFrame.LeaningDown, 8),
-            BodyCue(MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
+            BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
             BodyShow(MotherBrainBodyFrame.Standing, 8),
             Pose(MotherBrainBodyPose.Standing),
             BodyHold,
@@ -42,7 +42,7 @@ internal static class MotherBrainAnimations
         [
             Pose(MotherBrainBodyPose.CrouchingTransition),
             BodyShow(MotherBrainBodyFrame.LeaningDown, 8),
-            BodyCue(MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
+            BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
             BodyShow(MotherBrainBodyFrame.Standing, 8),
             Pose(MotherBrainBodyPose.Standing),
             BodyHold,
@@ -51,7 +51,7 @@ internal static class MotherBrainAnimations
         [
             Pose(MotherBrainBodyPose.CrouchingTransition),
             BodyShow(MotherBrainBodyFrame.Standing, 8),
-            BodyCue(MotherBrainBodyCue.MoveWithScrollBias(12, 4)),
+            BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(12, 4)),
             Pose(MotherBrainBodyPose.LeaningDown),
             BodyShow(MotherBrainBodyFrame.LeaningDown, 8),
             BodyHold,
@@ -77,21 +77,21 @@ internal static class MotherBrainAnimations
     [
         Pose(MotherBrainBodyPose.Walking),
         BodyShow(MotherBrainBodyFrame.Standing, duration),
-        BodyCue(MotherBrainBodyCue.Move(new(1, -2))),
+        BodyCue(new MotherBrainBodyCue.Move(new(1, -2))),
         BodyShow(MotherBrainBodyFrame.Walking(0), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(2, 0))),
+        BodyCue(new MotherBrainBodyCue.Move(new(2, 0))),
         BodyShow(MotherBrainBodyFrame.Walking(1), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(0, 1))),
+        BodyCue(new MotherBrainBodyCue.Move(new(0, 1))),
         BodyShow(MotherBrainBodyFrame.Walking(2), duration),
-        BodyCue(MotherBrainBodyCue.StepAndMove(new(3, 1))),
+        BodyCue(new MotherBrainBodyCue.StepAndMove(new(3, 1))),
         BodyShow(MotherBrainBodyFrame.Walking(3), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(15, -2))),
+        BodyCue(new MotherBrainBodyCue.Move(new(15, -2))),
         BodyShow(MotherBrainBodyFrame.Walking(4), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(6, -4))),
+        BodyCue(new MotherBrainBodyCue.Move(new(6, -4))),
         BodyShow(MotherBrainBodyFrame.Walking(5), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(-2, 4))),
+        BodyCue(new MotherBrainBodyCue.Move(new(-2, 4))),
         BodyShow(MotherBrainBodyFrame.Walking(6), duration),
-        BodyCue(MotherBrainBodyCue.StepAndMove(new(-1, 2))),
+        BodyCue(new MotherBrainBodyCue.StepAndMove(new(-1, 2))),
         Pose(MotherBrainBodyPose.Standing),
         BodyShow(MotherBrainBodyFrame.Walking(7), duration),
         BodyHold,
@@ -102,21 +102,21 @@ internal static class MotherBrainAnimations
     [
         Pose(MotherBrainBodyPose.Walking),
         BodyShow(MotherBrainBodyFrame.Walking(7), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(1, -2))),
+        BodyCue(new MotherBrainBodyCue.Move(new(1, -2))),
         BodyShow(MotherBrainBodyFrame.Walking(6), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(2, -4))),
+        BodyCue(new MotherBrainBodyCue.Move(new(2, -4))),
         BodyShow(MotherBrainBodyFrame.Walking(5), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(-6, 4))),
+        BodyCue(new MotherBrainBodyCue.Move(new(-6, 4))),
         BodyShow(MotherBrainBodyFrame.Walking(4), duration),
-        BodyCue(MotherBrainBodyCue.StepAndMove(new(-15, 2))),
+        BodyCue(new MotherBrainBodyCue.StepAndMove(new(-15, 2))),
         BodyShow(MotherBrainBodyFrame.Walking(3), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(-3, -1))),
+        BodyCue(new MotherBrainBodyCue.Move(new(-3, -1))),
         BodyShow(MotherBrainBodyFrame.Walking(2), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(0, -1))),
+        BodyCue(new MotherBrainBodyCue.Move(new(0, -1))),
         BodyShow(MotherBrainBodyFrame.Walking(1), duration),
-        BodyCue(MotherBrainBodyCue.Move(new(-2, 0))),
+        BodyCue(new MotherBrainBodyCue.Move(new(-2, 0))),
         BodyShow(MotherBrainBodyFrame.Walking(0), duration),
-        BodyCue(MotherBrainBodyCue.StepAndMove(new(-1, 2))),
+        BodyCue(new MotherBrainBodyCue.StepAndMove(new(-1, 2))),
         Pose(MotherBrainBodyPose.Standing),
         BodyShow(MotherBrainBodyFrame.Standing, duration),
         BodyHold,
@@ -127,11 +127,11 @@ internal static class MotherBrainAnimations
     [
         Pose(MotherBrainBodyPose.CrouchingTransition),
         BodyShow(MotherBrainBodyFrame.Standing, 8),
-        BodyCue(MotherBrainBodyCue.MoveWithScrollBias(12, 4)),
+        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(12, 4)),
         BodyShow(MotherBrainBodyFrame.LeaningDown, lean),
-        BodyCue(MotherBrainBodyCue.MoveWithScrollBias(16, -2)),
+        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(16, -2)),
         BodyShow(MotherBrainBodyFrame.Uncrouching, uncrouch),
-        BodyCue(MotherBrainBodyCue.MoveWithScrollBias(10, -2)),
+        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(10, -2)),
         Pose(MotherBrainBodyPose.Crouched),
         BodyShow(MotherBrainBodyFrame.Crouched, 8),
     ];
@@ -141,11 +141,11 @@ internal static class MotherBrainAnimations
     [
         Pose(MotherBrainBodyPose.CrouchingTransition),
         BodyShow(MotherBrainBodyFrame.Crouched, duration),
-        BodyCue(MotherBrainBodyCue.MoveWithScrollBias(-10, 4)),
+        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-10, 4)),
         BodyShow(MotherBrainBodyFrame.Uncrouching, duration),
-        BodyCue(MotherBrainBodyCue.MoveWithScrollBias(-16, 4)),
+        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-16, 4)),
         BodyShow(MotherBrainBodyFrame.LeaningDown, duration),
-        BodyCue(MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
+        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
         BodyShow(MotherBrainBodyFrame.Standing, duration),
         Pose(MotherBrainBodyPose.Standing),
     ];
@@ -166,8 +166,8 @@ internal static class MotherBrainAnimations
         for (int particle = 0; particle < 8; particle++)
         {
             steps.Add(BodyCue(particle % 2 == 0
-                ? MotherBrainBodyCue.SpawnHandDust(new(36, -40), MiscDustAnimation.MotherBrainElbowChargeParticle)
-                : MotherBrainBodyCue.SpawnHandDust(new(34, -42), MiscDustAnimation.MotherBrainElbowChargeEnergy)));
+                ? new MotherBrainBodyCue.SpawnHandDust(new(36, -40), MiscDustAnimation.MotherBrainElbowChargeParticle)
+                : new MotherBrainBodyCue.SpawnHandDust(new(34, -42), MiscDustAnimation.MotherBrainElbowChargeEnergy)));
             steps.Add(BodyShow(MotherBrainBodyFrame.HandBeam(1), 1));
         }
         steps.AddRange(
@@ -194,7 +194,7 @@ internal static class MotherBrainAnimations
 
     /// <summary>Publishes a body pose.</summary>
     private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue> Pose(MotherBrainBodyPose pose) =>
-        BodyCue(MotherBrainBodyCue.SetPose(pose));
+        BodyCue(new MotherBrainBodyCue.SetPose(pose));
 
     /// <summary>The native sleep that ends a body program.</summary>
     private static AnimationProgramStep<B, MotherBrainBodyFrame, MotherBrainBodyCue> BodyHold =>

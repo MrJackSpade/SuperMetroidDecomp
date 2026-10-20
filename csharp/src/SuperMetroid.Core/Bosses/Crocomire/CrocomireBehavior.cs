@@ -332,10 +332,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             cue => throw new InvalidOperationException($"A Crocomire tongue program published cue {cue}."));
         state.TonguePosition = cursor.Position;
         // A hold is the native sleep: the timer wraps from zero and the last frame stays.
-        if (advance.Kind == AnimationProgramAdvanceKind.Hold)
+        if (advance is AnimationProgramAdvance<CrocomireTongueFrame>.Hold)
             return;
-        tongue.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(advance.Frame);
+        if (advance is not AnimationProgramAdvance<CrocomireTongueFrame>.Show shown)
+            throw new InvalidOperationException($"Crocomire's tongue program ended an update with {advance}.");
+        tongue.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+        tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(shown.Frame);
         tongue.ExtraProperties = tongue.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 
@@ -1512,15 +1514,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Timer = counter;
         // A hold is the native sleep: the timer wraps from zero and the last frame stays. The body programs
         // have no waits or stops.
-        if (advance.Kind != AnimationProgramAdvanceKind.Show)
+        if (advance is not AnimationProgramAdvance<CrocomireBodyFrame>.Show shown)
         {
-            if (advance.Kind != AnimationProgramAdvanceKind.Hold)
-                throw new InvalidOperationException($"Crocomire's body program ended an update with {advance.Kind}.");
+            if (advance is not AnimationProgramAdvance<CrocomireBodyFrame>.Hold)
+                throw new InvalidOperationException($"Crocomire's body program ended an update with {advance}.");
             return;
         }
-        body.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        state.BodyFrame = advance.Frame;
-        body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(advance.Frame);
+        body.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+        state.BodyFrame = shown.Frame;
+        body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(shown.Frame);
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 

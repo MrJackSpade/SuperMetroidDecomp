@@ -256,32 +256,32 @@ internal sealed class TourianUnlockBehavior
         table.RegisterCue<TourianStatueProjectileCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
-            switch (cue.Kind)
+            switch (cue)
             {
-                case TourianStatueProjectileCueKind.Delete:
+                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Delete }:
                     projectile.Clear();
                     break;
-                case TourianStatueProjectileCueKind.PlayReleaseSound:
+                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
                     _audio.QueueEnemySound(SoundEffectLibrary2Sounds.TourianStatueRelease, maximumQueued: 6);
                     break;
-                case TourianStatueProjectileCueKind.Earthquake:
+                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Earthquake }:
                     _earthquake.EarthquakeType = TourianStatueRomData.ReleaseEarthquakeType;
                     _earthquake.AddTimerBits(TourianStatueRomData.ReleaseEarthquakeTimer);
                     break;
-                case TourianStatueProjectileCueKind.SpawnParticle:
+                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnParticle }:
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);
                     break;
-                case TourianStatueProjectileCueKind.SpawnTail:
+                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnTail }:
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail);
                     break;
-                case TourianStatueProjectileCueKind.MoveDown:
-                    projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + cue.Pixels)));
+                case TourianStatueProjectileCue.MoveDown moveDown:
+                    projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + moveDown.Pixels)));
                     break;
-                case TourianStatueProjectileCueKind.StartMoving:
-                    projectile.PreInstruction = cue.Movement;
+                case TourianStatueProjectileCue.StartMoving startMoving:
+                    projectile.PreInstruction = startMoving.Movement;
                     break;
                 default:
-                    throw new InvalidOperationException($"The Tourian statue projectiles have no {cue.Kind} cue.");
+                    throw new InvalidOperationException($"The Tourian statue projectiles have no {cue} cue.");
             }
         });
     }

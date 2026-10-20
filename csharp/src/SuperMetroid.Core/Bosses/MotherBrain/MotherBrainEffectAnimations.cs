@@ -17,31 +17,31 @@ internal static class MotherBrainEffectAnimations
     {
         [P.OnionRing] =
         [
-            Cue(new(K.SetRadius, Radius: new(1, 1))),
+            Cue(new MotherBrainEffectCue.SetRadius(Radius: new(1, 1))),
             Show(0, 16),
-            Cue(new(K.SetRadius, Radius: new(2, 2))),
+            Cue(new MotherBrainEffectCue.SetRadius(Radius: new(2, 2))),
             Show(1, 10),
-            Cue(new(K.SetRadius, Radius: new(3, 3))),
+            Cue(new MotherBrainEffectCue.SetRadius(Radius: new(3, 3))),
             Show(2, 8),
-            Cue(new(K.SetRadius, Radius: new(4, 4))),
+            Cue(new MotherBrainEffectCue.SetRadius(Radius: new(4, 4))),
             Show(3, 7),
-            Cue(new(K.SetRadius, Radius: new(5, 5))),
+            Cue(new MotherBrainEffectCue.SetRadius(Radius: new(5, 5))),
             Show(4, 6),
-            Cue(new(K.SetRadius, Radius: new(6, 6))),
+            Cue(new MotherBrainEffectCue.SetRadius(Radius: new(6, 6))),
             Show(5, 5),
             Hold,
         ],
         [P.OnionRingHit] =
         [
-            Cue(new(K.UsePaletteZero)),
-            Cue(new(K.ClearPreInstruction)),
+            Cue(new MotherBrainEffectCue.Command(K.UsePaletteZero)),
+            Cue(new MotherBrainEffectCue.Command(K.ClearPreInstruction)),
             Show(6, 5),
             Show(7, 5),
             Show(8, 5),
             Show(9, 5),
             Show(10, 5),
             Show(11, 5),
-            Cue(new(K.Delete)),
+            Cue(new MotherBrainEffectCue.Command(K.Delete)),
             Hold,
         ],
         [P.Bomb] =
@@ -65,7 +65,7 @@ internal static class MotherBrainEffectAnimations
             Show(24, 5),
             Show(25, 5),
             Show(26, 5),
-            Cue(new(K.Delete)),
+            Cue(new MotherBrainEffectCue.Command(K.Delete)),
             Hold,
         ],
         [P.Drool] =
@@ -75,19 +75,19 @@ internal static class MotherBrainEffectAnimations
             Show(29, 10),
             Show(30, 10),
             Show(31, 10),
-            Cue(new(K.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.MotherBrainsDrool_Falling)),
-            Cue(new(K.DropDrool)),
+            Cue(new MotherBrainEffectCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.MotherBrainsDrool_Falling)),
+            Cue(new MotherBrainEffectCue.Command(K.DropDrool)),
             Show(32, 10),
             Hold,
         ],
         [P.DroolHitFloor] =
         [
-            Cue(new(K.ClearPreInstruction)),
+            Cue(new MotherBrainEffectCue.Command(K.ClearPreInstruction)),
             Show(33, 10),
             Show(34, 10),
             Show(35, 10),
             Show(36, 10),
-            Cue(new(K.Delete)),
+            Cue(new MotherBrainEffectCue.Command(K.Delete)),
             Hold,
         ],
         [P.EscapeDoorParticle] =
@@ -104,7 +104,7 @@ internal static class MotherBrainEffectAnimations
         ],
         [P.PurpleBreathBig] =
         [
-            Cue(new(K.ClearPreInstruction)),
+            Cue(new MotherBrainEffectCue.Command(K.ClearPreInstruction)),
             Show(45, 8),
             Show(46, 8),
             Show(47, 9),
@@ -113,12 +113,12 @@ internal static class MotherBrainEffectAnimations
             Show(50, 10),
             Show(51, 11),
             Show(52, 11),
-            Cue(new(K.Delete)),
+            Cue(new MotherBrainEffectCue.Command(K.Delete)),
             Hold,
         ],
         [P.PurpleBreathSmall] =
         [
-            Cue(new(K.ClearPreInstruction)),
+            Cue(new MotherBrainEffectCue.Command(K.ClearPreInstruction)),
             Show(53, 8),
             Show(54, 8),
             Show(55, 10),
@@ -127,8 +127,8 @@ internal static class MotherBrainEffectAnimations
             Show(58, 11),
             Show(59, 12),
             Show(60, 12),
-            Cue(new(K.EndSmallPurpleBreath)),
-            Cue(new(K.Delete)),
+            Cue(new MotherBrainEffectCue.Command(K.EndSmallPurpleBreath)),
+            Cue(new MotherBrainEffectCue.Command(K.Delete)),
             Hold,
         ],
         [P.EscapeSubtitle] =

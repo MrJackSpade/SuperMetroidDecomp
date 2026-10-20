@@ -31,10 +31,10 @@ internal static class RidleyClawOffsetsVerification
         foreach (RidleyBodyProgram program in Enum.GetValues<RidleyBodyProgram>())
         foreach (var step in RidleyAnimations.Programs.Steps(program))
         {
-            if (step.Kind != AnimationProgramStepKind.Cue || step.Cue.Kind != RidleyBodyCueKind.SetFeetDistance)
+            if (step is not AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.CueStep { Cue: RidleyBodyCue.SetFeetDistance feet })
                 continue;
-            AssertTrue((uint)step.Cue.FeetDistanceIndex < 3,
-                $"Ridley {program} selects claw-height pose {step.Cue.FeetDistanceIndex}");
+            AssertTrue((uint)feet.FeetDistanceIndex < 3,
+                $"Ridley {program} selects claw-height pose {feet.FeetDistanceIndex}");
         }
         Action<RoomEnemySlot, RidleyEnemyState, SamusState> carry = RidleyBehavior.UpdateNorfairRidleyGrabbedSamus;
         Func<RoomEnemySlot, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool> overlaps = RidleyBehavior.RidleyClawOverlapsSamus;

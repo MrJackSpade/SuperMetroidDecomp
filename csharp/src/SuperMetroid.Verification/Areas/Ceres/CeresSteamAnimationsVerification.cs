@@ -19,12 +19,12 @@ internal static class CeresSteamAnimationsVerification
             (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                instruction.Check(cue, at);
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'T' => NativeEnemyProgramOracle.EntryOf(Entries, cue.Target),
-                    'A' => NativeEnemyProgramOracle.EntryOf(Entries, cue.Alternate),
+                    'T' => NativeEnemyProgramOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Target),
+                    'A' => NativeEnemyProgramOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Alternate),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

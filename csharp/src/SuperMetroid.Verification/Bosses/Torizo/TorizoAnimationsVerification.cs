@@ -60,8 +60,7 @@ internal static class TorizoAnimationsVerification
             string at = $"Torizo {program} at $AA:{cursor:X4}";
             if (cursor != entry && ProgramAt(cursor) is { } following)
             {
-                var fall = Next("fall-through");
-                AssertEqual(AnimationProgramStepKind.FallInto, fall.Kind, $"{at}: runs on into the next authored program");
+                var fall = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.FallIntoStep>(Next("fall-through"), $"{at}: runs on into the next authored program");
                 AssertEqual(following, fall.Target, $"{at}: fall-through target");
                 break;
             }
@@ -70,11 +69,10 @@ internal static class TorizoAnimationsVerification
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             if (ClassifyBodyWord(word) == BodyWordKind.TileTransfer)
             {
-                var copy = Next("tile transfer");
-                AssertEqual(AnimationProgramStepKind.Cue, copy.Kind, $"{at}: tile transfer");
-                AssertEqual(TorizoCueKind.CopyTiles, copy.Cue.Kind, $"{at}: tile transfer cue");
-                TorizoInstructionVramTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.Entries[copy.Cue.Transfer];
-                AssertEqual(cursor, TorizoInstructionVramTransferDefinitions.Sites[copy.Cue.Transfer].Instruction, $"{at}: tile transfer descriptor");
+                var copyStep = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>(Next("tile transfer"), $"{at}: tile transfer");
+                var copy = AssertIs<TorizoCue.CopyTiles>(copyStep.Cue, $"{at}: tile transfer cue");
+                TorizoInstructionVramTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.Entries[copy.Transfer];
+                AssertEqual(cursor, TorizoInstructionVramTransferDefinitions.Sites[copy.Transfer].Instruction, $"{at}: tile transfer descriptor");
                 AssertEqual(transfer.ByteCount, cartridge.ReadCartridgeWord(address + 2), $"{at}: tile transfer size");
                 AssertEqual(transfer.SourceAddress, cartridge.ReadCartridgeLongFixedBank(address + 4), $"{at}: tile transfer source");
                 AssertEqual(transfer.DestinationWord, cartridge.ReadCartridgeWord(address + 7), $"{at}: tile transfer destination");
@@ -85,46 +83,41 @@ internal static class TorizoAnimationsVerification
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
                 {
-                    var show = Next("frame");
-                    AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
+                    var show = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.ShowStep>(Next("frame"), $"{at}: frame");
                     AssertEqual(word, show.Duration, $"{at}: duration");
                     AssertEqual(operand, TorizoFrameDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertEqual(AnimationProgramStepKind.Hold, Next("sleep").Kind, $"{at}: sleep");
+                    _ = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.HoldStep>(Next("sleep"), $"{at}: sleep");
                     break;
                 case NativeEnemyListDefinitions.WordKind.Stop:
-                    AssertEqual(AnimationProgramStepKind.Stop, Next("stop").Kind, $"{at}: stop");
+                    _ = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.StopStep>(Next("stop"), $"{at}: stop");
                     break;
                 case NativeEnemyListDefinitions.WordKind.GoTo:
                 {
-                    var jump = Next("goto");
-                    AssertEqual(AnimationProgramStepKind.GoTo, jump.Kind, $"{at}: goto");
+                    var jump = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.GoToStep>(Next("goto"), $"{at}: goto");
                     AssertEqual(operand, Entry(jump.Target), $"{at}: goto target");
                     break;
                 }
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
                 {
-                    var load = Next("counter load");
-                    AssertEqual(AnimationProgramStepKind.SetCounter, load.Kind, $"{at}: counter load");
-                    AssertEqual(operand, load.Duration, $"{at}: counter");
+                    var load = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.SetCounterStep>(Next("counter load"), $"{at}: counter load");
+                    AssertEqual(operand, load.Count, $"{at}: counter");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
                 {
-                    var repeat = Next("counted repeat");
-                    AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, repeat.Kind, $"{at}: counted repeat");
+                    var repeat = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.RepeatWhileCountingStep>(Next("counted repeat"), $"{at}: counted repeat");
                     AssertEqual(operand, Entry(repeat.Target), $"{at}: repeat target");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.Wait:
                 {
-                    var wait = Next("wait");
-                    AssertEqual(AnimationProgramStepKind.Wait, wait.Kind, $"{at}: wait");
+                    var wait = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.WaitStep>(Next("wait"), $"{at}: wait");
                     AssertEqual(operand, wait.Duration, $"{at}: wait length");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -132,108 +125,53 @@ internal static class TorizoAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Callback:
                 {
                     AssertTrue(BodyInstructions.TryGetValue(word, out var instruction), $"{at}: native instruction ${word:X4} is known");
-                    var step = Next("instruction");
-                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: instruction");
-                    TorizoCue cue = step.Cue;
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    TorizoCue cue = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>(Next("instruction"), $"{at}: instruction").Cue;
+                    instruction.Cue.Check(cue, at);
                     for (int operandIndex = 0; operandIndex < instruction.Operands.Length; operandIndex++)
                     {
                         ushort value = cartridge.ReadCartridgeWord(address + 2 + 2 * operandIndex);
                         TorizoOperand role = instruction.Operands[operandIndex];
                         ushort typed = role switch
                         {
-                            TorizoOperand.Value => checked((ushort)cue.Value),
-                            TorizoOperand.Function => (ushort)cue.Function,
-                            TorizoOperand.PreInstruction => (ushort)cue.PreInstruction,
-                            TorizoOperand.Target => Entry(cue.Target),
-                            TorizoOperand.Alternate => Entry(cue.Alternate),
+                            TorizoOperand.Value => checked((ushort)(cue switch
+                            {
+                                TorizoCue.Posture posture => posture.MapOffset,
+                                TorizoCue.Walk walk => walk.TableOffset,
+                                TorizoCue.ParameterizedSpawn spawn => spawn.Parameter,
+                                _ => throw new InvalidOperationException($"{at}: {cue} carries no value."),
+                            })),
+                            TorizoOperand.Function => (ushort)AssertIs<TorizoCue.SetFunction>(cue, $"{at}: cue").Function,
+                            TorizoOperand.PreInstruction => (ushort)AssertIs<TorizoCue.SetPreInstruction>(cue, $"{at}: cue").PreInstruction,
+                            TorizoOperand.Target => Entry(cue switch
+                            {
+                                TorizoCue.Branch branch => branch.Target,
+                                TorizoCue.Choice choice => choice.Target,
+                                _ => throw new InvalidOperationException($"{at}: {cue} carries no target."),
+                            }),
+                            TorizoOperand.Alternate => Entry(AssertIs<TorizoCue.Choice>(cue, $"{at}: cue").Alternate),
                             _ => throw new InvalidOperationException($"Undefined {nameof(TorizoOperand)} {role}."),
                         };
                         AssertEqual(value, typed, $"{at}: {role} operand");
                     }
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands.Length));
-                    int? sleep = cue.Kind switch
+                    // Two callbacks sleep after they run; every other callback runs straight on.
+                    int? sleep = cue switch
                     {
-                        TorizoCueKind.SpawnLowHealthExplosions => LowHealthExplosionSleep,
-                        TorizoCueKind.SpawnDeathExplosion => DeathExplosionSleep,
-                        TorizoCueKind.SetPreInstruction or
-                            TorizoCueKind.ClearPreInstruction or
-                            TorizoCueKind.SetFunction or
-                            TorizoCueKind.BlowUpGut or
-                            TorizoCueKind.MarkFaceBlownUp or
-                            TorizoCueKind.MakeVisible or
-                            TorizoCueKind.MakeInvisible or
-                            TorizoCueKind.FadeToBlack or
-                            TorizoCueKind.FinishDeath or
-                            TorizoCueKind.AdvancePaletteFade or
-                            TorizoCueKind.FadeToNormalColors or
-                            TorizoCueKind.StartBombTorizoFight or
-                            TorizoCueKind.NoOperation or
-                            TorizoCueKind.LockAnimation or
-                            TorizoCueKind.UnlockAnimation or
-                            TorizoCueKind.GoToIfFaceBlownUpElseIfGolden or
-                            TorizoCueKind.Link or
-                            TorizoCueKind.Return or
-                            TorizoCueKind.ResumeInterrupted or
-                            TorizoCueKind.SpawnLandingDust or
-                            TorizoCueKind.SpawnLowHealthDrool or
-                            TorizoCueKind.SetTurningAround or
-                            TorizoCueKind.SteppedLeftWithLeftFoot or
-                            TorizoCueKind.SteppedRightWithRightFoot or
-                            TorizoCueKind.SteppedLeftWithRightFoot or
-                            TorizoCueKind.SteppedRightWithLeftFoot or
-                            TorizoCueKind.StandUp or
-                            TorizoCueKind.SitDown or
-                            TorizoCueKind.WalkBombTorizo or
-                            TorizoCueKind.WalkFacelessBombTorizo or
-                            TorizoCueKind.GoToIfRising or
-                            TorizoCueKind.CallIfSamusCloseBehind or
-                            TorizoCueKind.JumpBackIfSamusCloseInFront or
-                            TorizoCueKind.CallBombTorizoAttack or
-                            TorizoCueKind.SpawnBombTorizoChozoOrbs or
-                            TorizoCueKind.SpawnBombTorizoSonicBoom or
-                            TorizoCueKind.SpawnGoldenTorizoSonicBoom or
-                            TorizoCueKind.SpawnExplosiveSwipe or
-                            TorizoCueKind.PlayShotSound or
-                            TorizoCueKind.PlayFootstepSound or
-                            TorizoCueKind.GoToIfAirborne or
-                            TorizoCueKind.LoadGoldenTorizoPalettes or
-                            TorizoCueKind.StartGoldenTorizoFight or
-                            TorizoCueKind.ClearCaughtSuperMissile or
-                            TorizoCueKind.SpawnEgg or
-                            TorizoCueKind.GoToIfEyeBeamActive or
-                            TorizoCueKind.DisableEyeBeamExplosions or
-                            TorizoCueKind.EnableEyeBeamExplosions or
-                            TorizoCueKind.UnmarkStunned or
-                            TorizoCueKind.PlayEggReleasedSound or
-                            TorizoCueKind.PlayLaserSound or
-                            TorizoCueKind.PlaySonicBoomSound or
-                            TorizoCueKind.SpawnSuperMissile or
-                            TorizoCueKind.GoToIfSamusMorphedBehind or
-                            TorizoCueKind.SpawnEyeBeam or
-                            TorizoCueKind.CallSometimesIfSamusMorphedInFront or
-                            TorizoCueKind.CallSometimesIfHealthLow or
-                            TorizoCueKind.CallIfStunHealthHigh or
-                            TorizoCueKind.JumpForwardIfSamusFar or
-                            TorizoCueKind.SpawnGoldenTorizoChozoOrbs or
-                            TorizoCueKind.JumpBackIfSamusCloseInFrontGolden or
-                            TorizoCueKind.CallGoldenTorizoAttack or
-                            TorizoCueKind.WalkGoldenTorizo or
-                            TorizoCueKind.CopyTiles => null,
+                        TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnLowHealthExplosions } => LowHealthExplosionSleep,
+                        TorizoCue.Command { Kind: TorizoCueKind.SpawnDeathExplosion } => DeathExplosionSleep,
                         _ => null,
                     };
                     if (sleep is { } updates)
                     {
-                        var wait = Next("callback sleep");
-                        AssertEqual(AnimationProgramStepKind.Wait, wait.Kind, $"{at}: the callback's sleep");
+                        var wait = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.WaitStep>(Next("callback sleep"), $"{at}: the callback's sleep");
                         AssertEqual(updates, wait.Duration, $"{at}: the callback's sleep length");
                     }
                     // A return always redirects and saves no return point: where the native list ends, a hold closes
                     // the program, and where the next program starts, the unreached step runs on into it. A call saves
                     // the step after it, so its list always runs on.
-                    if (cue.Kind is TorizoCueKind.Return or TorizoCueKind.ResumeInterrupted && ProgramAt(cursor) is null)
+                    if (cue is TorizoCue.Command { Kind: TorizoCueKind.Return or TorizoCueKind.ResumeInterrupted } && ProgramAt(cursor) is null)
                     {
-                        AssertEqual(AnimationProgramStepKind.Hold, Next("redirect").Kind, $"{at}: closes after its redirect");
+                        _ = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.HoldStep>(Next("redirect"), $"{at}: closes after its redirect");
                         break;
                     }
                     continue;
@@ -257,7 +195,7 @@ internal static class TorizoAnimationsVerification
         foreach ((TorizoBodyProgram program, ushort entry) in BodyEntries)
         {
             var steps = TorizoAnimations.Programs.Steps(program);
-            if (steps[^1].Kind != AnimationProgramStepKind.Hold)
+            if (steps[^1] is not AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.HoldStep)
                 continue;
             ushort? sleep = SleepAddress(cartridge, entry);
             if (sleep is not { } address || ProgramAt(unchecked((ushort)(address + 2))) is not { } next)
@@ -295,7 +233,8 @@ internal static class TorizoAnimationsVerification
                 {
                     var instruction = BodyInstructions[word];
                     // A return ends its list without a sleep.
-                    if (instruction.Kind is TorizoCueKind.Return or TorizoCueKind.ResumeInterrupted)
+                    if (instruction.Cue.Matches(new TorizoCue.Command(TorizoCueKind.Return)) ||
+                        instruction.Cue.Matches(new TorizoCue.Command(TorizoCueKind.ResumeInterrupted)))
                         return null;
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands.Length));
                     continue;

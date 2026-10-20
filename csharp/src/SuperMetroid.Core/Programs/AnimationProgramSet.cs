@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Programs;
+﻿namespace SuperMetroid.Core.Programs;
 
 /// <summary>
 /// A family of typed animation programs that jump into one another (#641): frames with durations, cues whose
@@ -40,21 +40,16 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
         {
             if (!programs.TryGetValue(program, out var steps) || steps.Length == 0)
                 throw new ArgumentException($"Animation program {program} has no steps.", nameof(programs));
-            if (!EndsProgram(steps[^1].Kind))
+            if (!steps[^1].EndsProgram)
                 throw new ArgumentException($"Animation program {program} must end with a hold, stop, goto or fall-through.", nameof(programs));
-            if (steps.Take(steps.Length - 1).Any(step => EndsProgram(step.Kind)))
+            if (steps.Take(steps.Length - 1).Any(step => step.EndsProgram))
                 throw new ArgumentException($"Only the last step of animation program {program} may hold, stop or jump.", nameof(programs));
         }
         this.programs = programs.ToDictionary(pair => pair.Key, pair => pair.Value);
         stepLimit = this.programs.Values.Sum(steps => steps.Length) + 1;
         CountsLoops = this.programs.Values.Any(steps => steps.Any(step =>
-            step.Kind is AnimationProgramStepKind.SetCounter or AnimationProgramStepKind.RepeatWhileCounting));
+            step is AnimationProgramStep<TProgram, TFrame, TCue>.SetCounterStep or AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep));
     }
-
-    /// <summary>Whether a step of <paramref name="kind"/> ends its program.</summary>
-    private static bool EndsProgram(AnimationProgramStepKind kind) => kind is
-        AnimationProgramStepKind.Hold or AnimationProgramStepKind.Stop or
-        AnimationProgramStepKind.GoTo or AnimationProgramStepKind.FallInto;
 
     /// <summary>The steps of <paramref name="program"/>.</summary>
     internal IReadOnlyList<AnimationProgramStep<TProgram, TFrame, TCue>> Steps(TProgram program) => programs[program];
@@ -65,8 +60,7 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
     /// </summary>
     internal TProgram ResidentProgram(AnimationProgramCursor<TProgram> cursor)
     {
-        AnimationProgramStep<TProgram, TFrame, TCue> step = Step(cursor);
-        return step.Kind == AnimationProgramStepKind.FallInto ? step.Target : cursor.Program;
+        return Step(cursor) is AnimationProgramStep<TProgram, TFrame, TCue>.FallIntoStep fallInto ? fallInto.Target : cursor.Program;
     }
 
     /// <summary>
@@ -116,39 +110,41 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
         for (int visited = 0; visited < stepLimit; visited++)
         {
             AnimationProgramStep<TProgram, TFrame, TCue> step = Step(cursor);
-            switch (step.Kind)
+            switch (step)
             {
-                case AnimationProgramStepKind.Show:
+                case AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep show:
                     cursor = cursor with { Position = cursor.Position + 1 };
-                    return new(AnimationProgramAdvanceKind.Show, step.Frame, step.Duration);
-                case AnimationProgramStepKind.Wait:
+                    return new AnimationProgramAdvance<TFrame>.Show(show.Frame, show.Duration);
+                case AnimationProgramStep<TProgram, TFrame, TCue>.WaitStep wait:
                     cursor = cursor with { Position = cursor.Position + 1 };
-                    return new(AnimationProgramAdvanceKind.Wait, default, step.Duration);
-                case AnimationProgramStepKind.Cue:
+                    return new AnimationProgramAdvance<TFrame>.Wait(wait.Duration);
+                case AnimationProgramStep<TProgram, TFrame, TCue>.CueStep cue:
                     cursor = cursor with { Position = cursor.Position + 1 };
-                    if (publish(step.PublishedCue, cursor) is { } redirect)
+                    if (publish(cue.Cue, cursor) is { } redirect)
                         cursor = Validate(redirect);
                     break;
-                case AnimationProgramStepKind.SetCounter:
-                    counter = NativeCountdown.FromRaw((ushort)step.Duration);
+                case AnimationProgramStep<TProgram, TFrame, TCue>.SetCounterStep setCounter:
+                    counter = NativeCountdown.FromRaw((ushort)setCounter.Count);
                     cursor = cursor with { Position = cursor.Position + 1 };
                     break;
-                case AnimationProgramStepKind.RepeatWhileCounting:
+                case AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep repeat:
                     counter = counter.Decrement().Remaining;
                     cursor = !counter.IsZero
-                        ? AnimationProgramCursor<TProgram>.Start(step.Target)
+                        ? AnimationProgramCursor<TProgram>.Start(repeat.Target)
                         : cursor with { Position = cursor.Position + 1 };
                     break;
-                case AnimationProgramStepKind.Hold:
-                    return new(AnimationProgramAdvanceKind.Hold, default, 0);
-                case AnimationProgramStepKind.Stop:
-                    return new(AnimationProgramAdvanceKind.Stop, default, 0);
-                case AnimationProgramStepKind.GoTo:
-                case AnimationProgramStepKind.FallInto:
-                    cursor = AnimationProgramCursor<TProgram>.Start(step.Target);
+                case AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep:
+                    return AnimationProgramAdvance<TFrame>.Hold.Instance;
+                case AnimationProgramStep<TProgram, TFrame, TCue>.StopStep:
+                    return AnimationProgramAdvance<TFrame>.Stop.Instance;
+                case AnimationProgramStep<TProgram, TFrame, TCue>.GoToStep goTo:
+                    cursor = AnimationProgramCursor<TProgram>.Start(goTo.Target);
+                    break;
+                case AnimationProgramStep<TProgram, TFrame, TCue>.FallIntoStep fallInto:
+                    cursor = AnimationProgramCursor<TProgram>.Start(fallInto.Target);
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined {nameof(AnimationProgramStepKind)} {step.Kind}.");
+                    throw new InvalidOperationException($"Undefined animation program step {step}.");
             }
         }
         throw new InvalidOperationException($"Animation program {cursor.Program} ran {stepLimit} steps without showing a frame.");

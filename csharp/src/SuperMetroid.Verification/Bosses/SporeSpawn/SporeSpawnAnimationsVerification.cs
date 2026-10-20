@@ -58,8 +58,8 @@ internal static class SporeSpawnAnimationsVerification
             var step = steps[index];
             if (cursor != entry && BodyProgramAt(cursor) is { } next)
             {
-                AssertEqual(AnimationProgramStepKind.FallInto, step.Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(next, step.Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
+                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                 AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
                 return addresses;
             }
@@ -69,69 +69,66 @@ internal static class SporeSpawnAnimationsVerification
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                    AssertEqual(word, step.Duration, $"{at}: duration");
-                    AssertEqual(operand, SporeSpawnFrameDefinitionsConstants.Spritemap(step.Frame), $"{at}: spritemap");
+                    var show = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.ShowStep>(step, $"{at}: frame");
+                    AssertEqual(word, show.Duration, $"{at}: duration");
+                    AssertEqual(operand, SporeSpawnFrameDefinitionsConstants.Spritemap(show.Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertEqual(AnimationProgramStepKind.Hold, step.Kind, $"{at}: sleep");
+                    AssertTrue(step is AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.HoldStep, $"{at}: sleep");
                     AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
                     return addresses;
                 case NativeEnemyListDefinitions.WordKind.GoTo:
-                    AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
-                    AssertEqual(BodyProgramAt(operand), step.Target, $"{at}: goto target");
+                    var goTo = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.GoToStep>(step, $"{at}: goto");
+                    AssertEqual(BodyProgramAt(operand), goTo.Target, $"{at}: goto target");
                     AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
                     return addresses;
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
-                    AssertEqual(AnimationProgramStepKind.SetCounter, step.Kind, $"{at}: counter load");
-                    AssertEqual(operand, step.Duration, $"{at}: counter");
+                    var setCounter = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.SetCounterStep>(step, $"{at}: counter load");
+                    AssertEqual(operand, setCounter.Count, $"{at}: counter");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
-                    AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, step.Kind, $"{at}: counted repeat");
-                    AssertEqual(BodyProgramAt(operand), step.Target, $"{at}: repeat target");
+                    var repeat = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.RepeatWhileCountingStep>(step, $"{at}: counted repeat");
+                    AssertEqual(BodyProgramAt(operand), repeat.Target, $"{at}: repeat target");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Wait:
-                    AssertEqual(AnimationProgramStepKind.Wait, step.Kind, $"{at}: wait");
-                    AssertEqual(operand, step.Duration, $"{at}: wait length");
+                    var wait = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.WaitStep>(step, $"{at}: wait");
+                    AssertEqual(operand, wait.Duration, $"{at}: wait length");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Callback:
                 {
                     AssertTrue(BodyInstructions.TryGetValue(word, out var instruction), $"{at}: native instruction ${word:X4} is known");
-                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: instruction");
-                    SporeSpawnCue cue = step.Cue;
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                    switch (instruction.Kind)
+                    var cueStep = AssertIs<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.CueStep>(step, $"{at}: instruction");
+                    SporeSpawnCue cue = cueStep.Cue;
+                    instruction.Cue.Check(cue, at);
+                    switch (cue)
                     {
-                        case SporeSpawnCueKind.SetFunction:
-                            AssertEqual(operand, (ushort)cue.Function, $"{at}: function");
+                        case SporeSpawnCue.SetFunction setFunction:
+                            AssertEqual(operand, (ushort)setFunction.Function, $"{at}: function");
                             break;
-                        case SporeSpawnCueKind.SetMaxXRadiusAndAngleDelta:
-                            AssertEqual(operand, cue.MaximumXRadius, $"{at}: maximum X radius in pixels");
-                            AssertEqual(unchecked((short)cartridge.ReadCartridgeWord(address + 4)), cue.AngleDelta, $"{at}: signed angle delta");
+                        case SporeSpawnCue.SetMaxXRadiusAndAngleDelta sway:
+                            AssertEqual(operand, sway.MaximumXRadius, $"{at}: maximum X radius in pixels");
+                            AssertEqual(unchecked((short)cartridge.ReadCartridgeWord(address + 4)), sway.AngleDelta, $"{at}: signed angle delta");
                             break;
-                        case SporeSpawnCueKind.SetSporeGeneration:
-                            AssertEqual(operand != 0, cue.SporeGenerationSuppressed, $"{at}: spore generation stopped");
+                        case SporeSpawnCue.SetSporeGeneration setSporeGeneration:
+                            AssertEqual(operand != 0, setSporeGeneration.SporeGenerationSuppressed, $"{at}: spore generation stopped");
                             break;
-                        case SporeSpawnCueKind.QueueSound:
-                            AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operand), cue.Sound, $"{at}: library-two sound");
+                        case SporeSpawnCue.QueueSound queueSound:
+                            AssertEqual(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operand), queueSound.Sound, $"{at}: library-two sound");
                             break;
-                        case SporeSpawnCueKind.LoadDeathPalette:
-                        case SporeSpawnCueKind.LoadDeathTargetPalette:
-                            AssertEqual(operand, checked((ushort)(cue.DeathPaletteStep * SporeSpawnColorRomData.FrameByteCount)), $"{at}: palette row");
+                        case SporeSpawnCue.LoadDeathPalette loadDeathPalette:
+                            AssertEqual(operand, checked((ushort)(loadDeathPalette.DeathPaletteStep * SporeSpawnColorRomData.FrameByteCount)), $"{at}: palette row");
                             break;
-                        case SporeSpawnCueKind.IncreaseMaxXRadius:
-                        case SporeSpawnCueKind.ClearDamagedFlag:
-                        case SporeSpawnCueKind.Harden:
-                        case SporeSpawnCueKind.SpawnDyingExplosion:
-                        case SporeSpawnCueKind.SpawnHardeningDust:
-                        case SporeSpawnCueKind.RequestDeathDrops:
+                        case SporeSpawnCue.LoadDeathTargetPalette loadDeathTargetPalette:
+                            AssertEqual(operand, checked((ushort)(loadDeathTargetPalette.DeathPaletteStep * SporeSpawnColorRomData.FrameByteCount)), $"{at}: palette row");
+                            break;
+                        case SporeSpawnCue.Command:
                             break;
                         default:
-                            throw new InvalidOperationException($"Undefined {nameof(SporeSpawnCueKind)} {instruction.Kind}.");
+                            throw new InvalidOperationException($"Undefined Spore Spawn cue {cue}.");
                     }
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands));
                     continue;
@@ -151,12 +148,12 @@ internal static class SporeSpawnAnimationsVerification
     /// </summary>
     internal static HashSet<ushort> BodySpritemaps() =>
         [.. BodyEntries.SelectMany(item => SporeSpawnAnimations.Programs.Steps(item.Program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.ShowStep>()
             .Select(step => SporeSpawnFrameDefinitionsConstants.Spritemap(step.Frame))];
 
     /// <summary>The frames Spore Spawn's body programs show, counting each native frame record once.</summary>
     internal static int BodyFrameRecordCount =>
-        BodyEntries.Sum(item => SporeSpawnAnimations.Programs.Steps(item.Program).Count(step => step.Kind == AnimationProgramStepKind.Show));
+        BodyEntries.Sum(item => SporeSpawnAnimations.Programs.Steps(item.Program).Count(step => step is AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.ShowStep));
 
     /// <summary>The native instruction pointer of Spore Spawn's body, translated from its typed cursor.</summary>
     internal static ushort NativeBodyInstruction(Dictionary<SporeSpawnBodyProgram, ushort[]> steps, SporeSpawnEnemyState state) =>

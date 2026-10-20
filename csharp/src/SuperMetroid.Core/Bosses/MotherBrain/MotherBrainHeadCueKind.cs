@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain;
+﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What a Mother Brain brain cue does.</summary>
 internal enum MotherBrainHeadCueKind
@@ -9,10 +9,6 @@ internal enum MotherBrainHeadCueKind
     SpawnDrool,
     /// <summary>Spawns a big purple breath cloud.</summary>
     SpawnBigPurpleBreath,
-    /// <summary>Queues a library-two sound.</summary>
-    QueueSound,
-    /// <summary>Queues a library-three sound.</summary>
-    QueueLibrary3Sound,
     /// <summary>Freezes the neck.</summary>
     DisableNeckMovement,
     /// <summary>Lets the neck move again.</summary>
@@ -23,8 +19,6 @@ internal enum MotherBrainHeadCueKind
     AimOnionRingsAtBabyMetroid,
     /// <summary>Fires an onion ring along the aimed angle.</summary>
     SpawnOnionRing,
-    /// <summary>Lobs a bomb with its afterburn count.</summary>
-    SpawnBomb,
     /// <summary>Fires the mouth laser.</summary>
     SpawnLaser,
     /// <summary>Counts an attack on the Baby Metroid.</summary>

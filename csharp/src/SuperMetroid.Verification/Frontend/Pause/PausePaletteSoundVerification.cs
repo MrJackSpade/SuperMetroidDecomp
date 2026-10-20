@@ -35,13 +35,13 @@ internal static class PausePaletteSoundVerification
             AssertEqual(expectedLoop, audio.HasQueuedSounds, $"pause beep request cadence at frame {frame}");
             if (expectedLoop) requests++;
             IReadOnlyList<CartridgeAudioCommand> commands = audio.AdvanceFrame(session.Acknowledgements);
-            AssertTrue(frame == 0 || commands.All(command => command.Kind != CartridgeAudioCommandKind.Upload),
+            AssertTrue(frame == 0 || commands.All(command => command is not CartridgeAudioCommand.Upload),
                 "only initial audio reset may upload during this pause probe");
             // SoundState_1 ($82:8A5E) rewrites the request until the APU acknowledges it, so one
             // beep can reach port three on consecutive frames; the driver starts it once.
             soundStarts += session.Advance(commands).Count(audioEvent =>
-                audioEvent.Kind == AudioEventKind.StartSoundEffect &&
-                audioEvent.SoundEffect == SoundEffectLibrary3Sounds.MapPaletteLoop);
+                audioEvent is AudioEvent.StartSoundEffect started &&
+                started.SoundEffect == SoundEffectLibrary3Sounds.MapPaletteLoop);
             session.CopyFrame(pcm);
             int audible = pcm.Count(sample => sample != 0);
             if (frame < 39) AssertEqual(0, audible, "isolated pause sound has no premature PCM");

@@ -42,14 +42,14 @@ internal sealed class SpcAudioClipRenderer
     internal ManagedSpcPlayer Player => backend.Player;
 
     /// <summary>Queues an upload of <paramref name="bank"/> for the next frame.</summary>
-    internal void LoadBank(AudioBank bank) => pending.Add(CartridgeAudioCommand.Upload(bank));
+    internal void LoadBank(AudioBank bank) => pending.Add(new CartridgeAudioCommand.Upload(bank));
 
     /// <summary>Queues a music-port write (a track number, or zero to stop) for the next frame.</summary>
-    internal void WriteMusicPort(byte value) => pending.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, value));
+    internal void WriteMusicPort(byte value) => pending.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, value));
 
     /// <summary>Queues a sound-effect request on <paramref name="library"/>'s port for the next frame; the port keeps the value until rewritten.</summary>
     internal void WriteSoundEffectPort(SoundEffectLibrary library, int command) =>
-        pending.Add(CartridgeAudioCommand.WritePort(ApuPorts.ForLibrary(library), command));
+        pending.Add(new CartridgeAudioCommand.WritePort(ApuPorts.ForLibrary(library), command));
 
     /// <summary>Advances one frame and writes its native interleaved stereo PCM to <paramref name="native"/>.</summary>
     /// <exception cref="ArgumentException"><paramref name="native"/> is shorter than <see cref="NativeSamplesPerFrame"/>.</exception>

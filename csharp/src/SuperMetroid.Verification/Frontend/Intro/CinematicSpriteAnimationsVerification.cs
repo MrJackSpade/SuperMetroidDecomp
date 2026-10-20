@@ -88,16 +88,15 @@ internal static class CinematicSpriteAnimationsVerification
             if (cursor != entry && ProgramAt(cursor) is { } following)
             {
                 var fall = Next("fall-through");
-                AssertEqual(AnimationProgramStepKind.FallInto, fall.Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(following, fall.Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.FallIntoStep>(fall, $"{at}: runs on into the next authored program");
+                AssertEqual(following, fallInto.Target, $"{at}: fall-through target");
                 break;
             }
             ushort word = Word(cartridge, cursor);
             ushort operand = Word(cartridge, unchecked((ushort)(cursor + 2)));
             if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
             {
-                var show = Next("frame");
-                AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
+                var show = AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep>(Next("frame"), $"{at}: frame");
                 AssertEqual(word, show.Duration, $"{at}: duration");
                 AssertEqual(operand, CinematicSpritePoseDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
@@ -106,8 +105,8 @@ internal static class CinematicSpriteAnimationsVerification
             if (OwnerInstructions.TryGetValue(word, out CinematicSpriteCueKind kind))
             {
                 var cue = Next("owner instruction");
-                AssertEqual(AnimationProgramStepKind.Cue, cue.Kind, $"{at}: owner instruction");
-                AssertEqual(new CinematicSpriteCue(kind), cue.PublishedCue, $"{at}: owner cue");
+                var cueStep = AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.CueStep>(cue, $"{at}: owner instruction");
+                AssertEqual(new CinematicSpriteCue(kind), cueStep.Cue, $"{at}: owner cue");
                 cursor = unchecked((ushort)(cursor + 2));
                 continue;
             }
@@ -116,29 +115,29 @@ internal static class CinematicSpriteAnimationsVerification
             switch (shared)
             {
                 case SharedWord.Delete:
-                    AssertEqual(AnimationProgramStepKind.Stop, step.Kind, $"{at}: delete");
+                    AssertTrue(step is AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.StopStep, $"{at}: delete");
                     break;
                 case SharedWord.Sleep:
-                    AssertEqual(AnimationProgramStepKind.Hold, step.Kind, $"{at}: sleep");
+                    AssertTrue(step is AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.HoldStep, $"{at}: sleep");
                     break;
                 case SharedWord.GoTo:
-                    AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
-                    AssertEqual(operand, Entry(step.Target), $"{at}: goto target");
+                    var goTo = AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.GoToStep>(step, $"{at}: goto");
+                    AssertEqual(operand, Entry(goTo.Target), $"{at}: goto target");
                     break;
                 case SharedWord.SetPreInstruction:
-                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: pre-instruction install");
-                    AssertEqual(CinematicSpriteCueKind.SetPreInstruction, step.PublishedCue.Kind, $"{at}: pre-instruction cue");
-                    AssertEqual(operand, step.PublishedCue.PreInstruction.NativeAddress, $"{at}: pre-instruction");
+                    var cueStep = AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.CueStep>(step, $"{at}: pre-instruction install");
+                    AssertEqual(CinematicSpriteCueKind.SetPreInstruction, cueStep.Cue.Kind, $"{at}: pre-instruction cue");
+                    AssertEqual(operand, cueStep.Cue.PreInstruction.NativeAddress, $"{at}: pre-instruction");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case SharedWord.SetCounter:
-                    AssertEqual(AnimationProgramStepKind.SetCounter, step.Kind, $"{at}: timer load");
-                    AssertEqual(operand, step.Duration, $"{at}: timer");
+                    var setCounter = AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.SetCounterStep>(step, $"{at}: timer load");
+                    AssertEqual(operand, setCounter.Count, $"{at}: timer");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case SharedWord.RepeatWhileCounting:
-                    AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, step.Kind, $"{at}: timer countdown");
-                    AssertEqual(operand, Entry(step.Target), $"{at}: countdown target");
+                    var repeat = AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.RepeatWhileCountingStep>(step, $"{at}: timer countdown");
+                    AssertEqual(operand, Entry(repeat.Target), $"{at}: countdown target");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 default:

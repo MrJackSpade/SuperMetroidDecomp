@@ -24,7 +24,7 @@ internal static class PowampSpikeAnimations
         ],
         [P.Delete] =
         [
-            Cue(new(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
             Hold,
         ],
     });

@@ -210,6 +210,18 @@ tuple shaped like a type Core declares; the value gets its declared type, held t
 as any other. Palette-FX colour families read their rows from their programs (`PaletteFxColorRows.Of`), the rainbow-beam
 sequence runs on Mother Brain's body functions, and timeline animations run on the one program-set engine.
 
+## Variants are types, not tags
+
+A closed set of variants is a closed hierarchy (#1376): an abstract record with a private constructor and one sealed
+record per variant, each holding only its own fields. A record that carries every variant's fields plus a `Kind` enum
+saying which of them mean anything lets a reader read a field that is meaningless for the current kind, and makes every
+construction a row of placeholders. Consumers switch on the variant type and throw on an unknown one. Operand-less
+commands share one `Command` variant whose kind enum lists only those commands; kinds that share one operand shape may
+share a variant with their own kind enum. **SME6431** reports a construction of a type with an enum `Kind` member that
+passes two or more placeholders beside the kind: `default`, a literal `0`, `false` or `null`, or an optional parameter
+left to its default. **SME6432** reports a switch on such a kind-tagged type's kind whose arms read different subsets
+of its other members.
+
 ## Diagnostics are resolved, not disabled
 
 **SME6414** reports every `#pragma warning disable`, whatever diagnostic it names and whatever reason follows it

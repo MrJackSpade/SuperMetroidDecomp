@@ -9,6 +9,6 @@ internal static class SkulteraAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params SkulteraProgram[] programs) =>
         programs.SelectMany(program => SkulteraAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>.ShowStep>()
             .Select(step => SkulteraFrameToolingDefinitions.Spritemap(step.Frame));
 }

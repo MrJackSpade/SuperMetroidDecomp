@@ -71,7 +71,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
                 // A cursor that has just passed a pose step is showing that pose.
                 if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon &&
                     enemies.AlcoonStates[slot.SlotIndex] is { Program: { Position: > 0 } cursor } &&
-                    AlcoonAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1].Kind == AnimationProgramStepKind.Show)
+                    AlcoonAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1] is AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.ShowStep)
                     reachedPoses.Add((cursor.Program, cursor.Position - 1));
             }
 
@@ -90,8 +90,8 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             "real Alcoon programs execute fire callbacks in both facings");
         var poses = Enum.GetValues<AlcoonProgram>()
             .SelectMany(program => AlcoonAnimations.Programs.Steps(program)
-                .Select((step, index) => (Program: program, Step: index, step.Kind)))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+                .Select((step, index) => (Program: program, Step: index, Shows: step is AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.ShowStep)))
+            .Where(step => step.Shows)
             .Select(step => (step.Program, step.Step))
             .ToHashSet();
         string missed = string.Join(", ", poses.Where(pose => !reachedPoses.Contains(pose)).Select(pose => $"{pose.Program}[{pose.Step}]"));
@@ -99,8 +99,8 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         AssertEqual(42, reachedPoses.Count, $"real Alcoon reaches every reachable pose; missing={missed}");
         AssertTrue(poses.Except(reachedPoses).All(pose =>
                 pose.Program is AlcoonProgram.FireLeft or AlcoonProgram.FireRight &&
-                AlcoonAnimations.Programs.Steps(pose.Program)[pose.Step - 1] is { Kind: AnimationProgramStepKind.Cue } cue &&
-                cue.PublishedCue.Kind == AlcoonCueKind.StartWalking),
+                AlcoonAnimations.Programs.Steps(pose.Program)[pose.Step - 1] is AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.CueStep cue &&
+                cue.Cue.Kind == AlcoonCueKind.StartWalking),
             "native start-walking cues skip the two trailing unreachable poses");
         Suite(nameof(AlcoonAnimationsVerification.VerifyAlcoonAnimations), () => AlcoonAnimationsVerification.VerifyAlcoonAnimations(rom));
 

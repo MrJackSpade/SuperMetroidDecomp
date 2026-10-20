@@ -1,4 +1,4 @@
-using SuperMetroid.Verification.Bosses.MotherBrain;
+﻿using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Enemies.Powamp;
 using SuperMetroid.Verification.Enemies.Metroids;
@@ -322,6 +322,10 @@ internal static class VerificationAssert
         if (!condition)
             throw new InvalidOperationException($"Verification failed: {context}.");
     }
+
+    /// <summary>Asserts that <paramref name="value"/> is a <typeparamref name="T"/> and returns it as one.</summary>
+    internal static T AssertIs<T>(object? value, string context) =>
+        value is T typed ? typed : throw new InvalidOperationException($"Verification failed: {context} (found {value}).");
 
     /// <summary>Compares arbitrary values with the default equality comparer and reports both values on failure.</summary>
     internal static void AssertEqual<T>(T expected, T actual, string context)

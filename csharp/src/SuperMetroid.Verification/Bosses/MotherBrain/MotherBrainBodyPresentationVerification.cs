@@ -36,7 +36,7 @@ internal static class MotherBrainBodyPresentationVerification
             .Where(frame => MotherBrainBodyVisualDefinitions.HasBg2(frame.Pointer)).ToArray();
         var physicalFrames = Enum.GetValues<MotherBrainBodyProgram>()
             .SelectMany(program => MotherBrainAnimations.Body.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<MotherBrainBodyProgram, MotherBrainBodyFrame, MotherBrainBodyCue>.ShowStep>()
             .Select(step => MotherBrainBodyVisualDefinitions.Frame(step.Frame.Index).Pointer).ToHashSet();
         AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");

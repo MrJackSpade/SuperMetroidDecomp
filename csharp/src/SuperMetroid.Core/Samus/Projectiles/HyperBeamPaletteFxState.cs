@@ -26,7 +26,7 @@ public sealed class HyperBeamPaletteFxState
 
     /// <summary>The cycle's ten records in the order <see cref="PaletteFxProgram.HyperBeam1"/> shows them; a record's place is its colour frame.</summary>
     private static readonly int[] CycleRecords = [.. PaletteFxAnimations.Programs.Steps(PaletteFxProgram.HyperBeam1)
-        .Where(step => step.Kind == AnimationProgramStepKind.Show)
+        .OfType<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep>()
         .Select(step => step.Frame.Record)];
 
     /// <summary>True after controller function three has spawned object <c>$E1F0</c>.</summary>
@@ -93,14 +93,14 @@ public sealed class HyperBeamPaletteFxState
 
         NativeCountdown unusedCounter = default;
         AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref Cursor, ref unusedCounter,
-            (cue, _) => cue == new PaletteFxCue(PaletteFxCueKind.SetColorIndex, ColorIndex: DestinationColorIndex)
+            (cue, _) => cue == new PaletteFxCue.SetColorIndex(ColorIndex: DestinationColorIndex)
                 ? null
                 : throw new InvalidDataException($"The Hyper Beam palette program published {cue}, which its object does not carry out."));
-        if (advance.Kind != AnimationProgramAdvanceKind.Show)
-            throw new InvalidDataException($"The Hyper Beam palette program reached a {advance.Kind}; its cycle only shows records.");
-        int frameIndex = Array.IndexOf(CycleRecords, advance.Frame.Record);
+        if (advance is not AnimationProgramAdvance<PaletteFxFrame>.Show shown)
+            throw new InvalidDataException($"The Hyper Beam palette program reached a {advance}; its cycle only shows records.");
+        int frameIndex = Array.IndexOf(CycleRecords, shown.Frame.Record);
         if (frameIndex < 0)
-            throw new InvalidDataException($"The Hyper Beam palette program showed record {advance.Frame.Record}, outside its cycle.");
+            throw new InvalidDataException($"The Hyper Beam palette program showed record {shown.Frame.Record}, outside its cycle.");
         // The cycle's goto returns to its first record: showing it again completes a cycle.
         if (frameIndex == 0 && CurrentFrameIndex >= 0)
             CompletedCycles++;
@@ -109,7 +109,7 @@ public sealed class HyperBeamPaletteFxState
             "Hyper Beam palette FX requires installed colors."))
             .Apply(cgram, frameIndex, DestinationColorIndex);
 
-        InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+        InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
         CurrentFrameIndex = frameIndex;
         return new HyperBeamPaletteFxStepResult();
     }

@@ -9,6 +9,6 @@ internal static class MetroidAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params MetroidProgram[] programs) =>
         programs.SelectMany(program => MetroidAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue>.ShowStep>()
             .Select(step => MetroidFrameToolingDefinitions.Spritemap(step.Frame));
 }

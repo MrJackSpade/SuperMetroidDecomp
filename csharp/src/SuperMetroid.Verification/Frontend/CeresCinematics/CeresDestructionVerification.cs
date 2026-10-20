@@ -42,7 +42,7 @@ internal static void VerifyCeresDestructionCinematic()
     AssertEqual(0, delayedExplosion.GeneralTimer,
         "instruction delay does not overwrite cinematic goto timer");
     delayedExplosion.Step();
-    AssertEqual<CinematicSpritePose?>(CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.CeresSmallExplosion)[0].Frame,
+    AssertEqual<CinematicSpritePose?>(AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep>(CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.CeresSmallExplosion)[0], "first explosion step").Frame,
         delayedExplosion.Pose, "third handler call shows the delayed explosion's first frame");
     AssertEqual(new AnimationProgramCursor<CinematicSpriteProgram>(CinematicSpriteProgram.CeresSmallExplosion, 1), delayedExplosion.Program,
         "third handler call consumes the first delayed explosion frame");

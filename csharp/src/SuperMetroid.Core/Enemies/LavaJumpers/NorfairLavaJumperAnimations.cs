@@ -53,7 +53,7 @@ internal static class NorfairLavaJumperAnimations
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params NorfairLavaJumperProgram[] programs) =>
         programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<P, NorfairLavaJumperFrame, NorfairLavaJumperCue>.ShowStep>()
             .Select(step => NorfairLavaJumperFrameDefinitions.Spritemap(step.Frame));
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>

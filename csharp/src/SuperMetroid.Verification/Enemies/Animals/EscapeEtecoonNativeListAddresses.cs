@@ -29,11 +29,11 @@ internal static class EscapeEtecoonNativeListAddresses
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (EscapeEtecoonCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, NativeCueShape<EscapeEtecoonCue>> Instructions = new()
     {
-        [0x806b] = (EscapeEtecoonCueKind.SetPreInstruction, "E"),
-        [0x8074] = (EscapeEtecoonCueKind.ClearPreInstruction, ""),
-        [0xe545] = (EscapeEtecoonCueKind.GoToIfAcidHigh, "T"),
-        [0xe610] = (EscapeEtecoonCueKind.Move, "S"),
+        [0x806b] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.SetPreInstruction>("E"),
+        [0x8074] = NativeCueShape<EscapeEtecoonCue>.Exactly(new EscapeEtecoonCue.Command(EscapeEtecoonCueKind.ClearPreInstruction)),
+        [0xe545] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.GoToIfAcidHigh>("T"),
+        [0xe610] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.Move>("S"),
     };
 }

@@ -69,25 +69,25 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Carries out one shared bank-$86 command of a typed projectile program.</summary>
     private void ApplyCommonCue(RoomEnemyProjectileSlot projectile, EnemyProjectileCommonCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case EnemyProjectileCommonCueKind.Delete:
+            case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.Delete }:
                 projectile.Clear();
                 break;
-            case EnemyProjectileCommonCueKind.SetPreInstruction:
-                projectile.PreInstruction = cue.PreInstruction;
+            case EnemyProjectileCommonCue.SetPreInstruction setPreInstruction:
+                projectile.PreInstruction = setPreInstruction.PreInstruction;
                 break;
-            case EnemyProjectileCommonCueKind.ClearPreInstruction:
+            case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.ClearPreInstruction }:
                 projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
-            case EnemyProjectileCommonCueKind.Scatter:
-                Scatter(projectile, cue.Scatter);
+            case EnemyProjectileCommonCue.Scatter scatter:
+                Scatter(projectile, scatter.Spread);
                 break;
-            case EnemyProjectileCommonCueKind.ReturnToOrigin:
+            case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
                 projectile.Position = projectile.Position.WithWhole(new(checked((ushort)projectile.Variable0), checked((ushort)projectile.Variable1)));
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue}.");
         }
     }
 

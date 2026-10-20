@@ -1,14 +1,8 @@
-namespace SuperMetroid.Core.Rooms.Plms;
+﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>What a scripted room PLM does between draws.</summary>
 internal enum ScriptedRoomPlmCueKind
 {
-    /// <summary>Queues a library-2 sound, at most three pending.</summary>
-    QueueSoundLibrary2Maximum3,
-    /// <summary>Queues a library-2 sound, at most six pending.</summary>
-    QueueSoundLibrary2Maximum6,
-    /// <summary>Installs a pre-instruction the slot runs before its timer on later passes.</summary>
-    InstallPreInstruction,
     /// <summary>Restores the inert pre-instruction.</summary>
     ClearPreInstruction,
     /// <summary>Sets the animals-escaped event.</summary>

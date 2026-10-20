@@ -30,7 +30,7 @@ internal static class ZebetiteVisualDefinitions
     /// <summary>The spritemaps the typed health programs show, in program order.</summary>
     internal static ushort[] Spritemaps() => [.. Enum.GetValues<ZebetiteProgram>()
         .SelectMany(program => ZebetiteAnimations.Programs.Steps(program))
-        .Where(step => step.Kind == AnimationProgramStepKind.Show)
+        .OfType<AnimationProgramStep<ZebetiteProgram, ZebetiteFrame, NoAnimationCue>.ShowStep>()
         .Select(step => ZebetiteVisualDefinitions.Spritemap(step.Frame.Index))];
 
     /// <summary>Names the ten health compositions in program order.</summary>

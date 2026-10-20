@@ -536,51 +536,51 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of Spore Spawn's body program.</summary>
     internal void ApplySporeSpawnCue(RoomEnemySlot body, SporeSpawnEnemyState state, SporeSpawnCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case SporeSpawnCueKind.IncreaseMaxXRadius:
+            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.IncreaseMaxXRadius }:
                 if (state.MaximumXRadius < SporeSpawnWidenedRadiusLimit)
                     state.MaximumXRadius += SporeSpawnRadiusWidening;
                 return;
-            case SporeSpawnCueKind.ClearDamagedFlag:
+            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.ClearDamagedFlag }:
                 state.Damaged = false;
                 return;
-            case SporeSpawnCueKind.SetMaxXRadiusAndAngleDelta:
-                state.MaximumXRadius = cue.MaximumXRadius;
-                state.AngleDelta = cue.AngleDelta;
+            case SporeSpawnCue.SetMaxXRadiusAndAngleDelta setMaxXRadiusAndAngleDelta:
+                state.MaximumXRadius = setMaxXRadiusAndAngleDelta.MaximumXRadius;
+                state.AngleDelta = setMaxXRadiusAndAngleDelta.AngleDelta;
                 return;
-            case SporeSpawnCueKind.SetSporeGeneration:
-                state.SporeGenerationSuppressed = cue.SporeGenerationSuppressed;
+            case SporeSpawnCue.SetSporeGeneration setSporeGeneration:
+                state.SporeGenerationSuppressed = setSporeGeneration.SporeGenerationSuppressed;
                 return;
-            case SporeSpawnCueKind.Harden:
+            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.Harden }:
                 body.Position = body.Position.WithWhole(new(SporeSpawnDeathCenterX, SporeSpawnDeathCenterY));
                 body.Properties = body.Properties
                     .With(EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions)
                     .Without(EnemyProperties.IgnoreSamusCollision);
                 return;
-            case SporeSpawnCueKind.QueueSound:
-                LastSporeSpawnSoundEffect = cue.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound.");
+            case SporeSpawnCue.QueueSound queueSound:
+                LastSporeSpawnSoundEffect = queueSound.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound.");
                 return;
-            case SporeSpawnCueKind.RequestDeathDrops:
+            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.RequestDeathDrops }:
                 RequestSporeSpawnDeathDrops(state);
                 return;
-            case SporeSpawnCueKind.SetFunction:
-                state.Function = cue.Function;
+            case SporeSpawnCue.SetFunction setFunction:
+                state.Function = setFunction.Function;
                 return;
-            case SporeSpawnCueKind.LoadDeathPalette:
-                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.DeathPaletteStep), copy: SporeSpawnPaletteCopy.CurrentAndTarget);
+            case SporeSpawnCue.LoadDeathPalette loadDeathPalette:
+                LoadSporeSpawnDeathPalette(DeathPaletteRow(loadDeathPalette.DeathPaletteStep), copy: SporeSpawnPaletteCopy.CurrentAndTarget);
                 return;
-            case SporeSpawnCueKind.LoadDeathTargetPalette:
-                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.DeathPaletteStep), copy: SporeSpawnPaletteCopy.TargetOnly);
+            case SporeSpawnCue.LoadDeathTargetPalette loadDeathTargetPalette:
+                LoadSporeSpawnDeathPalette(DeathPaletteRow(loadDeathTargetPalette.DeathPaletteStep), copy: SporeSpawnPaletteCopy.TargetOnly);
                 return;
-            case SporeSpawnCueKind.SpawnHardeningDust:
+            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.SpawnHardeningDust }:
                 SpawnSporeSpawnHardeningDust(state);
                 return;
-            case SporeSpawnCueKind.SpawnDyingExplosion:
+            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.SpawnDyingExplosion }:
                 SpawnSporeSpawnDyingExplosion(state);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnCueKind)} {cue}.");
         }
     }
 

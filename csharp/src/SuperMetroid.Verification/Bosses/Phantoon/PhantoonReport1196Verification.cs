@@ -28,7 +28,7 @@ internal static class PhantoonReport1196Verification
         var audio = new CartridgeAudioState();
         var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
-        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
+        renderer.RenderFrame([new CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
         foreach (var request in enemies.Audio.SoundRequests)
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         // The handshake rewrites a request each update until the driver echoes it ($82:8A55), so
@@ -38,7 +38,7 @@ internal static class PhantoonReport1196Verification
         for (int frame = 0; frame < 8; frame++)
         {
             IReadOnlyList<AudioEvent> events = renderer.Advance(audio.AdvanceFrame(renderer.Acknowledgements));
-            starts.AddRange(events.Where(audioEvent => audioEvent.Kind == AudioEventKind.StartSoundEffect).Select(audioEvent => audioEvent.SoundEffect));
+            starts.AddRange(events.OfType<AudioEvent.StartSoundEffect>().Select(audioEvent => audioEvent.SoundEffect));
         }
         AssertEqual(1, starts.Count(sound => sound == new SoundEffectId(SoundEffectLibrary.Library3, 0x1d)),
             "opening blue flame starts native sound 1D in library three once");

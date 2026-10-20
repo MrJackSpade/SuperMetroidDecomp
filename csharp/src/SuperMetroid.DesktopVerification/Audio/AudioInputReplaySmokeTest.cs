@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Input;
+﻿using SuperMetroid.Core.Input;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -81,8 +81,8 @@ public static class AudioInputReplaySmokeTest
 
             projectileFired |= game.GameplayLastFiredProjectileSlot is not null;
             powerBeamCommandObserved |= game.AudioEventsForVerification.Any(audioEvent =>
-                audioEvent.Kind == AudioEventKind.StartSoundEffect &&
-                audioEvent.SoundEffect == SoundEffectLibrary1Sounds.PowerBeam);
+                audioEvent is AudioEvent.StartSoundEffect { SoundEffect: var started } &&
+                started == SoundEffectLibrary1Sounds.PowerBeam);
             powerBeamAcknowledged |= acknowledgements[ApuPort.SoundLibrary1] == 0x0b;
 
             if (game.GameState == SuperMetroidGameState.LoadingNextRoomB)
@@ -211,7 +211,7 @@ public static class AudioInputReplaySmokeTest
             }
             if (active is { } pause)
             {
-                AudioEvent[] events = [.. game.AudioEventsForVerification.Where(audioEvent => audioEvent.Kind != AudioEventKind.DriverTick)];
+                AudioEvent[] events = [.. game.AudioEventsForVerification.Where(audioEvent => audioEvent is not AudioEvent.DriverTick)];
                 pause.AudioEvents += events.Length;
                 if (events.Length != 0)
                     pause.RecordEvents(frameIndex, frame.GameState, events);

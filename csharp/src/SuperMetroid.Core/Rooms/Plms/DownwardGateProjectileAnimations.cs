@@ -17,8 +17,8 @@ internal static class DownwardGateProjectileAnimations
     {
         [P.Moving] =
         [
-            Cue(new(K.SetYVelocity, YVelocity: SnesSignedEightEight.FromSignedRaw(256))),
-            Cue(new(K.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction)),
+            Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: SnesSignedEightEight.FromSignedRaw(256))),
+            Cue(new DownwardGateProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction)),
             Show(0, 1),
             Hold,
         ],
@@ -39,18 +39,18 @@ internal static class DownwardGateProjectileAnimations
         ],
         [P.MovingStep5] =
         [
-            Cue(new(K.ClearPreInstruction)),
+            Cue(new DownwardGateProjectileCue.Command(K.ClearPreInstruction)),
             FallInto(P.Closed),
         ],
         [P.Closed] =
         [
-            Cue(new(K.SetYVelocity, YVelocity: SnesSignedEightEight.FromSignedRaw(-256))),
+            Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: SnesSignedEightEight.FromSignedRaw(-256))),
             Show(4, 1),
             Hold,
         ],
         [P.ClosedStep2] =
         [
-            Cue(new(K.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction)),
+            Cue(new DownwardGateProjectileCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction)),
             Show(5, 1),
             Hold,
         ],
@@ -71,7 +71,7 @@ internal static class DownwardGateProjectileAnimations
         ],
         [P.ClosedStep6] =
         [
-            Cue(new(K.Delete)),
+            Cue(new DownwardGateProjectileCue.Command(K.Delete)),
             Hold,
         ],
     });

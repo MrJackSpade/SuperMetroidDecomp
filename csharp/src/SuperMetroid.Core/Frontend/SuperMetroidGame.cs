@@ -248,7 +248,7 @@ public sealed class SuperMetroidGame
             ? Session.audio.AdvanceMusicDispatch() : Array.Empty<CartridgeAudioCommand>();
         // SendAPUData stalls a door dispatch while door IRQs keep NMIs accepted; nothing
         // between this update's own NMI and the upload reads the counters.
-        if (doorAudioDispatch && prologueMusicCommands.Any(command => command.Kind == CartridgeAudioCommandKind.Upload))
+        if (doorAudioDispatch && prologueMusicCommands.Any(command => command is CartridgeAudioCommand.Upload))
             Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(Session.HostServices.DoorMusicUploadNmis.AcceptedNmisDuringUpload(Session.audio.MusicDataIndex));
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
         FrameNumber = NativeWordCounter.IncrementWord(FrameNumber);

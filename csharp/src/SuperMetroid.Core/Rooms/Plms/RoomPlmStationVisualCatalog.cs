@@ -15,7 +15,7 @@ public sealed class RoomPlmStationVisualCatalog
         Span<ushort> buffer = stackalloc ushort[2];
         foreach (var frame in RoomPlmStationDrawDefinitions.All.OrderBy(frame => frame.Pointer))
         {
-            RoomPlmStationDrawDefinitions.TryDescribe(frame.Pointer, out var shape);
+            var shape = RoomPlmStationDrawDefinitions.Describe(frame.Pointer);
             content.Append("frame", frame.Pointer);
             content.Append("runs", shape.RunCount);
             for (int run = 0; run < shape.RunCount; run++)
@@ -61,7 +61,7 @@ public sealed class RoomPlmStationVisualCatalog
             if (!seen.Add(definition.Pointer))
                 throw new InvalidDataException(
                     $"Station visuals repeat frame {entry.Id}.");
-            RoomPlmStationDrawDefinitions.TryDescribe(definition.Pointer, out var shape);
+            var shape = RoomPlmStationDrawDefinitions.Describe(definition.Pointer);
             bool changed = false;
             for (int run = 0; run < shape.RunCount; run++)
             for (int cell = 0; cell < shape.WordCount(run); cell++)

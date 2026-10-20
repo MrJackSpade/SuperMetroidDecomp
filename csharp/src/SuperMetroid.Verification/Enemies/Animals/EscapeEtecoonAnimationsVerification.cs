@@ -18,13 +18,13 @@ internal static class EscapeEtecoonAnimationsVerification
             (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                instruction.Check(cue, at);
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'T' => NativeEnemyProgramOracle.EntryOf(Entries, cue.Target),
-                    'S' => unchecked((ushort)cue.Offset),
-                    'E' => (ushort)cue.PreInstruction,
+                    'T' => NativeEnemyProgramOracle.EntryOf(Entries, AssertIs<EscapeEtecoonCue.GoToIfAcidHigh>(cue, $"{at}: cue").Target),
+                    'S' => unchecked((ushort)AssertIs<EscapeEtecoonCue.Move>(cue, $"{at}: cue").Offset),
+                    'E' => (ushort)AssertIs<EscapeEtecoonCue.SetPreInstruction>(cue, $"{at}: cue").PreInstruction,
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

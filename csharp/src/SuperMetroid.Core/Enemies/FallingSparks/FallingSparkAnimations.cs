@@ -35,7 +35,7 @@ internal static class FallingSparkAnimations
             Show(11, 1),
             Show(12, 1),
             Show(13, 1),
-            Cue(new(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
             Hold,
         ],
     });

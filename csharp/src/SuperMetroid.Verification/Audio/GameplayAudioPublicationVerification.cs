@@ -42,7 +42,7 @@ internal static class GameplayAudioPublicationVerification
                 bool recognized = false;
                 foreach (byte value in new byte[] { 0, 3, 4, 5 })
                 {
-                    if (command != CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, value)) continue;
+                    if (command != new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, value)) continue;
                     acknowledgement = value;
                     if (value != 0) played.Add(value);
                     recognized = true;

@@ -9,6 +9,6 @@ internal static class RioAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params RioProgram[] programs) =>
         programs.SelectMany(program => RioAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<RioProgram, RioFrame, RioCue>.ShowStep>()
             .Select(step => RioFrameToolingDefinitions.Spritemap(step.Frame));
 }

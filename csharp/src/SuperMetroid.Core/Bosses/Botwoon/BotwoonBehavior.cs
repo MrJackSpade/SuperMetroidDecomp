@@ -643,10 +643,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             cue => ApplyBotwoonHeadCue(head, state, cue));
         state.HeadAnimationPosition = cursor.Position;
         // A hold is the native sleep: the timer wraps from zero and the last frame stays.
-        if (advance.Kind == AnimationProgramAdvanceKind.Hold)
+        if (advance is AnimationProgramAdvance<BotwoonHeadFrame>.Hold)
             return;
-        head.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(advance.Frame);
+        if (advance is not AnimationProgramAdvance<BotwoonHeadFrame>.Show shown)
+            throw new InvalidOperationException($"Botwoon's head program ended an update with {advance}.");
+        head.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+        head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Frame);
         head.ExtraProperties = head.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 

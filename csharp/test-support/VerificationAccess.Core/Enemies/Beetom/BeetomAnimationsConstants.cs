@@ -9,6 +9,6 @@ internal static class BeetomAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params BeetomProgram[] programs) =>
         programs.SelectMany(program => BeetomAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue>.ShowStep>()
             .Select(step => BeetomFrameToolingDefinitions.Spritemap(step.Frame));
 }

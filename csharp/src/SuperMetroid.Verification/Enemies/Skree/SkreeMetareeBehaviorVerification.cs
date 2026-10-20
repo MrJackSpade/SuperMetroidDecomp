@@ -42,7 +42,7 @@ internal static class SkreeMetareeBehaviorVerification
 
             (enemies, slot, current, start, _) = Create(metaree);
             SkreeMetareeProgram dive = program(SkreeMetareeAnimationPhase.Diving);
-            SkreeMetareeProgram diveLoop = SkreeMetareeAnimations.Programs.Steps(dive).Single(step => step.Kind == AnimationProgramStepKind.FallInto).Target;
+            SkreeMetareeProgram diveLoop = SkreeMetareeAnimations.Programs.Steps(dive).OfType<AnimationProgramStep<SkreeMetareeProgram, SkreeMetareeFrame, SkreeMetareeCue>.FallIntoStep>().Single().Target;
             start(dive);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Programs, diveLoop, SkreeMetareeFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Programs, diveLoop)), $"{species} dive loop");

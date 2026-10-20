@@ -146,20 +146,19 @@ internal sealed class IntroDiscoverySprite
         Program = cursor;
         if (counter.RawValue != timerBefore)
             InstructionLoopCountdown = counter;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
-                instructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                Pose = advance.Frame;
+            case AnimationProgramAdvance<CinematicSpritePose>.Show shown:
+                instructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                Pose = shown.Frame;
                 return;
-            case AnimationProgramAdvanceKind.Hold:
+            case AnimationProgramAdvance<CinematicSpritePose>.Hold:
                 return;
-            case AnimationProgramAdvanceKind.Stop:
+            case AnimationProgramAdvance<CinematicSpritePose>.Stop:
                 Delete();
                 return;
-            case AnimationProgramAdvanceKind.Wait:
             default:
-                throw new InvalidOperationException($"A cinematic sprite program ended an update with {advance.Kind}.");
+                throw new InvalidOperationException($"A cinematic sprite program ended an update with {advance}.");
         }
     }
 

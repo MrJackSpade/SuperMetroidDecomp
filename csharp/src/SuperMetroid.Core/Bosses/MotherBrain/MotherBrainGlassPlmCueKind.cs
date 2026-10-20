@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain;
+﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What one of the glass programs' cues does (#1296).</summary>
 internal enum MotherBrainGlassPlmCueKind
@@ -9,10 +9,6 @@ internal enum MotherBrainGlassPlmCueKind
     SkipIfGlassDestroyed,
     /// <summary>Installs the hit-counting pre-instruction.</summary>
     ArmHitWake,
-    /// <summary>Repeats the current stage while the glass has taken fewer hits than the cue names.</summary>
-    RepeatUntilHits,
-    /// <summary>Spawns four shard projectiles and queues the shatter sound.</summary>
-    SpawnShards,
     /// <summary>Sets the glass-destroyed event.</summary>
     SetGlassDestroyed,
 }

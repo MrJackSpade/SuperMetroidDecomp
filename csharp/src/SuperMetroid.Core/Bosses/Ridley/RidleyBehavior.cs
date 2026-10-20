@@ -81,11 +81,11 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Carries out one cue of Ridley's body program, returning the program a goto cue continues at.</summary>
     internal RidleyBodyProgram? ApplyRidleyBodyCue(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, RidleyBodyCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case RidleyBodyCueKind.GoToUnlessFacingLeft:
-                return state.FacingDirection != RidleyFacing.Left ? cue.Target : null;
-            case RidleyBodyCueKind.GoToIfCeresAndSamusLowEnergy:
+            case RidleyBodyCue.GoToUnlessFacingLeft goToUnlessFacingLeft:
+                return state.FacingDirection != RidleyFacing.Left ? goToUnlessFacingLeft.Target : null;
+            case RidleyBodyCue.GoToIfCeresAndSamusLowEnergy goToIfCeresAndSamusLowEnergy:
                 if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley)
                     return null;
                 if (samus is null)
@@ -98,33 +98,33 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 // $A6:E4E2 stores 8 to the Ridley timer at $7E:7800 before the goto,
                 // cutting the fireball hover short.
                 state.FunctionTimer = NativeCountdown.Start(8);
-                return cue.Target;
-            case RidleyBodyCueKind.Roar:
+                return goToIfCeresAndSamusLowEnergy.Target;
+            case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.Roar }:
                 state.Roaring = true;
                 _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, RidleySoundDefinitions.Roar), maximumQueued: 6);
                 return null;
-            case RidleyBodyCueKind.ClearRoaringFlag:
+            case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.ClearRoaringFlag }:
                 state.Roaring = false;
                 return null;
-            case RidleyBodyCueKind.SetFeetDistance:
-                state.FeetDistanceIndex = cue.FeetDistanceIndex;
+            case RidleyBodyCue.SetFeetDistance setFeetDistance:
+                state.FeetDistanceIndex = setFeetDistance.FeetDistanceIndex;
                 return null;
-            case RidleyBodyCueKind.Move:
-                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + cue.Displacement.X)));
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + cue.Displacement.Y)));
+            case RidleyBodyCue.Move move:
+                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + move.Displacement.X)));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + move.Displacement.Y)));
                 return null;
-            case RidleyBodyCueKind.FaceForward:
+            case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.FaceForward }:
                 state.FacingDirection = RidleyFacing.Turning;
                 return null;
-            case RidleyBodyCueKind.FlipLeft:
+            case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.FlipLeft }:
                 RidleyTail.MirrorRidleyTail(state);
                 state.FacingDirection = RidleyFacing.Left;
                 return null;
-            case RidleyBodyCueKind.FlipRight:
+            case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.FlipRight }:
                 RidleyTail.MirrorRidleyTail(state);
                 state.FacingDirection = RidleyFacing.Right;
                 return null;
-            case RidleyBodyCueKind.AimFireball:
+            case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.AimFireball }:
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
@@ -132,20 +132,20 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 }
                 _ridleyProjectiles.CalculateRidleyFireballVelocity(slot, samus);
                 return null;
-            case RidleyBodyCueKind.SpawnFireballWithAfterburn:
+            case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.SpawnFireballWithAfterburn }:
                 _ridleyProjectiles.SpawnRidleyFireball(slot, afterburns: 3);
                 return null;
-            case RidleyBodyCueKind.SpawnFireballWithoutAfterburn:
+            case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.SpawnFireballWithoutAfterburn }:
                 _ridleyProjectiles.SpawnRidleyFireball(slot, afterburns: 0);
                 return null;
-            case RidleyBodyCueKind.CeresStartLiftoff:
+            case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.CeresStartLiftoff }:
             {
                 RidleyEnemyState liftoff = _ridleyEncounter.RequireCeresRidley(slot);
                 liftoff.Function = RidleyAiFunction.CeresLiftoffAccelerating;
                 liftoff.Velocity = liftoff.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(-352));
                 return null;
             }
-            case RidleyBodyCueKind.StartLiftoff:
+            case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.StartLiftoff }:
             {
                 // The shared roar/liftoff list hands control to the real fight at
                 // $B2F3 and supplies the initial upward 8.8 velocity in the same tick.
@@ -155,7 +155,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return null;
             }
             default:
-                throw new InvalidOperationException($"Undefined {nameof(RidleyBodyCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(RidleyBodyCueKind)} {cue}.");
         }
     }
 

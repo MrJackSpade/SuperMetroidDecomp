@@ -18,15 +18,15 @@ internal static class YardAnimationsVerification
             (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                instruction.Check(cue, at);
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'D' => checked((ushort)cue.Direction),
-                    'S' => unchecked((ushort)cue.Offset),
-                    'Y' => unchecked((ushort)cue.OffsetY),
-                    'N' => cue.OptionalTarget is { } optional ? NativeEnemyProgramOracle.EntryOf(Entries, optional) : NullTarget,
-                    'E' => (ushort)cue.MovementFunction,
+                    'D' => checked((ushort)AssertIs<YardCue.SetDirection>(cue, $"{at}: cue").Direction),
+                    'S' => unchecked((ushort)AssertIs<YardCue.MoveBy>(cue, $"{at}: cue").Offset),
+                    'Y' => unchecked((ushort)AssertIs<YardCue.MoveBy>(cue, $"{at}: cue").OffsetY),
+                    'N' => AssertIs<YardCue.SetHidingProgram>(cue, $"{at}: cue").OptionalTarget is { } optional ? NativeEnemyProgramOracle.EntryOf(Entries, optional) : NullTarget,
+                    'E' => (ushort)AssertIs<YardCue.SetMovementFunction>(cue, $"{at}: cue").MovementFunction,
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

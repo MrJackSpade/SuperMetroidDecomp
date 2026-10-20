@@ -160,7 +160,7 @@ internal static class DachoraAnimations
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params DachoraProgram[] programs) =>
         programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<P, DachoraFrame, NoAnimationCue>.ShowStep>()
             .Select(step => DachoraFrameDefinitions.Spritemap(step.Frame));
 
     /// <summary>The program a sleeping list resumes into when its owner steps the list past the sleep.</summary>

@@ -348,10 +348,10 @@ internal sealed class IntroCinematicObjectSystem
         NativeCountdown loopCounter = default;
         AnimationProgramAdvance<IntroEyeFrame> advance = IntroEyeAnimations.Programs.Advance(
             ref eyeProgram, ref loopCounter, static (_, _) => null);
-        if (advance.Kind != AnimationProgramAdvanceKind.Show)
-            throw new InvalidOperationException($"The intro eye program {eyeProgram.Program} ended an update with {advance.Kind}.");
-        eyeInstructionTimer = NativeCountdown.Start(advance.Duration);
-        ShowEyeFrame(advance.Frame);
+        if (advance is not AnimationProgramAdvance<IntroEyeFrame>.Show shown)
+            throw new InvalidOperationException($"The intro eye program {eyeProgram.Program} ended an update with {advance}.");
+        eyeInstructionTimer = NativeCountdown.Start(shown.Duration);
+        ShowEyeFrame(shown.Frame);
     }
 
     /// <summary>Draws <paramref name="frame"/>'s installed rectangle on the portrait and keeps it for artwork rebinding.</summary>

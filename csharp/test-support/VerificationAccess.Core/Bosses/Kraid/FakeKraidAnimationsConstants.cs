@@ -9,6 +9,6 @@ internal static class FakeKraidAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params FakeKraidProgram[] programs) =>
         programs.SelectMany(program => FakeKraidAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue>.ShowStep>()
             .Select(step => FakeKraidFrameToolingDefinitions.Spritemap(step.Frame));
 }

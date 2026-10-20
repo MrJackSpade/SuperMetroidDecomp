@@ -1,91 +1,129 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// One bank-$80 music queue command: stop, load a music-data set, or select a track. A cartridge
-/// word that has none of those shapes stays representable as an <see cref="MusicCommandKind.Unknown"/>
-/// command holding its <see cref="UnresolvedWord"/>, which the dispatcher still interprets by its
-/// upload-path bit and low bits exactly as the cartridge does. <see cref="FromCartridge"/> is the one
+/// One bank-$80 music queue command: stop, load a music-data set, or select a track. A cartridge word that has none of
+/// those shapes stays representable as an <see cref="Unresolved"/> command holding its word, which the dispatcher still
+/// interprets by its upload-path bit and low bits exactly as the cartridge does. <see cref="FromCartridge"/> is the one
 /// place a queue word is decoded and <see cref="RawValue"/> the one place a command is encoded back.
 /// </summary>
-public readonly record struct MusicCommand
+public abstract record MusicCommand
 {
-    /// <summary>
-    /// The music-data set a <see cref="MusicCommandKind.LoadData"/> command uploads, or the track a
-    /// <see cref="MusicCommandKind.SelectTrack"/> command selects; zero for the other kinds.
-    /// </summary>
-    private readonly int index;
-
-    /// <summary>Stores a decoded command; callers use the named factories or <see cref="FromCartridge"/>.</summary>
-    private MusicCommand(MusicCommandKind kind, int index, int unresolvedWord)
+    /// <summary>Closes the hierarchy to the commands declared here.</summary>
+    private MusicCommand()
     {
-        Kind = kind;
-        this.index = index;
-        UnresolvedWord = unresolvedWord;
     }
-
-    /// <summary>What the command does.</summary>
-    public MusicCommandKind Kind { get; }
-
-    /// <summary>
-    /// For an <see cref="MusicCommandKind.Unknown"/> command, the cartridge queue word it was read as,
-    /// 0 through 65,535, kept unresolved because no authored command has that shape; zero for every
-    /// other kind.
-    /// </summary>
-    public int UnresolvedWord { get; }
 
     /// <summary>
     /// Whether the dispatcher takes its data-upload branch: every data load, and an unresolved word
     /// with the upload-path bit set, as the cartridge's sign test does even for noncanonical words.
     /// </summary>
-    public bool UsesDataUploadPath => Kind switch
-    {
-        MusicCommandKind.Stop or MusicCommandKind.SelectTrack => false,
-        MusicCommandKind.LoadData => true,
-        MusicCommandKind.Unknown => (UnresolvedWord & AudioRomData.MusicWireFormat.UploadPathBit) != 0,
-        _ => throw new InvalidOperationException($"Undefined {nameof(MusicCommandKind)} {(int)Kind}."),
-    };
+    public abstract bool UsesDataUploadPath { get; }
 
     /// <summary>
     /// The music-data set the upload branch resolves: a data load's set, or the low byte of an
     /// unresolved word. A stop reads zero and a track selection its track, as the shared low byte does.
     /// </summary>
-    public int DataIndex => Kind switch
-    {
-        MusicCommandKind.Stop or MusicCommandKind.LoadData or MusicCommandKind.SelectTrack => index,
-        MusicCommandKind.Unknown => SnesLittleEndian.LowByte((ushort)UnresolvedWord),
-        _ => throw new InvalidOperationException($"Undefined {nameof(MusicCommandKind)} {(int)Kind}."),
-    };
+    public abstract int DataIndex { get; }
 
     /// <summary>
     /// The track the track branch writes to the music port, 0 through 127: a selection's track, zero for
     /// a stop, and the low seven bits the dispatcher keeps for any other command.
     /// </summary>
-    public int TrackIndex => Kind switch
-    {
-        MusicCommandKind.Stop or MusicCommandKind.SelectTrack => index,
-        MusicCommandKind.LoadData => index & AudioRomData.MusicWireFormat.TrackMask,
-        MusicCommandKind.Unknown => UnresolvedWord & AudioRomData.MusicWireFormat.TrackMask,
-        _ => throw new InvalidOperationException($"Undefined {nameof(MusicCommandKind)} {(int)Kind}."),
-    };
+    public abstract int TrackIndex { get; }
 
     /// <summary>
     /// The cartridge queue word this command encodes to, 0 through 65,535, for word-level parity checks
     /// and diagnostics.
     /// </summary>
-    public int RawValue => Kind switch
+    public abstract int RawValue { get; }
+
+    /// <summary>The zero command writes zero to APU port zero and stops playback.</summary>
+    public sealed record StopPlayback : MusicCommand
     {
-        MusicCommandKind.Stop or MusicCommandKind.SelectTrack => index,
-        MusicCommandKind.LoadData => AudioRomData.MusicWireFormat.DataCommandPrefix | index,
-        MusicCommandKind.Unknown => UnresolvedWord,
-        _ => throw new InvalidOperationException($"Undefined {nameof(MusicCommandKind)} {(int)Kind}."),
-    };
+        /// <inheritdoc />
+        public override bool UsesDataUploadPath => false;
+
+        /// <inheritdoc />
+        public override int DataIndex => 0;
+
+        /// <inheritdoc />
+        public override int TrackIndex => 0;
+
+        /// <inheritdoc />
+        public override int RawValue => 0;
+
+        /// <inheritdoc />
+        public override string ToString() => $"Stop:${RawValue:X4}";
+    }
+
+    /// <summary>A canonical <c>$FFxx</c> command uploads music data set <c>xx</c>.</summary>
+    /// <param name="DataSet">The music-data set uploaded, 0 through 255.</param>
+    public sealed record DataLoad(int DataSet) : MusicCommand
+    {
+        /// <inheritdoc cref="DataLoad(int)" path="/param[@name='DataSet']"/>
+        public int DataSet { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, DataSet);
+
+        /// <inheritdoc />
+        public override bool UsesDataUploadPath => true;
+
+        /// <inheritdoc />
+        public override int DataIndex => DataSet;
+
+        /// <inheritdoc />
+        public override int TrackIndex => DataSet & AudioRomData.MusicWireFormat.TrackMask;
+
+        /// <inheritdoc />
+        public override int RawValue => AudioRomData.MusicWireFormat.DataCommandPrefix | DataSet;
+
+        /// <inheritdoc />
+        public override string ToString() => $"LoadData:${RawValue:X4}";
+    }
+
+    /// <summary>A canonical <c>$00xx</c> command selects track <c>xx</c>, 1 through 127.</summary>
+    /// <param name="Track">The track selected.</param>
+    public sealed record TrackSelection(int Track) : MusicCommand
+    {
+        /// <inheritdoc />
+        public override bool UsesDataUploadPath => false;
+
+        /// <inheritdoc />
+        public override int DataIndex => Track;
+
+        /// <inheritdoc />
+        public override int TrackIndex => Track;
+
+        /// <inheritdoc />
+        public override int RawValue => Track;
+
+        /// <inheritdoc />
+        public override string ToString() => $"SelectTrack:${RawValue:X4}";
+    }
+
+    /// <summary>A noncanonical word retained losslessly for native dispatcher behavior.</summary>
+    /// <param name="Word">The cartridge queue word, 0 through 65,535, kept unresolved because no authored command has its shape.</param>
+    public sealed record Unresolved(int Word) : MusicCommand
+    {
+        /// <inheritdoc />
+        public override bool UsesDataUploadPath => (Word & AudioRomData.MusicWireFormat.UploadPathBit) != 0;
+
+        /// <inheritdoc />
+        public override int DataIndex => SnesLittleEndian.LowByte((ushort)Word);
+
+        /// <inheritdoc />
+        public override int TrackIndex => Word & AudioRomData.MusicWireFormat.TrackMask;
+
+        /// <inheritdoc />
+        public override int RawValue => Word;
+
+        /// <inheritdoc />
+        public override string ToString() => $"Unknown:${RawValue:X4}";
+    }
 
     /// <summary>The canonical music-stop command.</summary>
-    public static MusicCommand Stop { get; } = new(MusicCommandKind.Stop, 0, 0);
+    public static MusicCommand Stop { get; } = new StopPlayback();
 
     /// <summary>Creates the canonical command that uploads music-data set <paramref name="dataIndex"/>.</summary>
-    public static MusicCommand LoadData(byte dataIndex) =>
-        new(MusicCommandKind.LoadData, dataIndex, 0);
+    public static MusicCommand LoadData(byte dataIndex) => new DataLoad(dataIndex);
 
     /// <summary>Creates a canonical nonzero track-selection command.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="trackIndex"/> is outside 1 through 127.</exception>
@@ -99,7 +137,7 @@ public readonly record struct MusicCommand
                 "Track selection must be $01..$7F; use MusicCommand.Stop for zero.");
         }
 
-        return new MusicCommand(MusicCommandKind.SelectTrack, trackIndex, 0);
+        return new TrackSelection(trackIndex);
     }
 
     /// <summary>
@@ -123,10 +161,7 @@ public readonly record struct MusicCommand
         if ((word & AudioRomData.MusicWireFormat.DataCommandKindMask) == AudioRomData.MusicWireFormat.DataCommandPrefix)
             return LoadData(SnesLittleEndian.LowByte((ushort)word));
         if (word <= AudioRomData.MusicWireFormat.MaximumTrack)
-            return new MusicCommand(MusicCommandKind.SelectTrack, word, 0);
-        return new MusicCommand(MusicCommandKind.Unknown, 0, word);
+            return new TrackSelection(word);
+        return new Unresolved(word);
     }
-
-    /// <inheritdoc />
-    public override string ToString() => $"{Kind}:${RawValue:X4}";
 }

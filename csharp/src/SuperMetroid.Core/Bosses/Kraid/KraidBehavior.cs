@@ -1181,23 +1181,22 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
         state.HeadProgram = cursor;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Hold:
+            case AnimationProgramAdvance<KraidHeadFrame>.Hold:
                 return ushort.MaxValue;
 
-            case AnimationProgramAdvanceKind.Show:
-                state.Parts[body.SlotIndex].HeadTimer = checked((ushort)advance.Duration);
-                state.DisplayedHeadFrame = advance.Frame;
-                TransferKraidHeadTilemap(state, advance.Frame);
+            case AnimationProgramAdvance<KraidHeadFrame>.Show shown:
+                state.Parts[body.SlotIndex].HeadTimer = checked((ushort)shown.Duration);
+                state.DisplayedHeadFrame = shown.Frame;
+                TransferKraidHeadTilemap(state, shown.Frame);
                 return 1;
 
-            case AnimationProgramAdvanceKind.Wait:
-            case AnimationProgramAdvanceKind.Stop:
-                throw new InvalidOperationException($"Kraid's head programs never {advance.Kind}.");
+            case AnimationProgramAdvance<KraidHeadFrame>.Wait or AnimationProgramAdvance<KraidHeadFrame>.Stop:
+                throw new InvalidOperationException($"Kraid's head programs never {advance}.");
 
             default:
-                throw new InvalidOperationException($"Undefined {nameof(AnimationProgramAdvanceKind)} {advance.Kind}.");
+                throw new InvalidOperationException($"Undefined animation program advance {advance}.");
         }
     }
 

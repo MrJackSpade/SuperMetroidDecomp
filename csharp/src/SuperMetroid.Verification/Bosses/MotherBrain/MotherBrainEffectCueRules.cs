@@ -8,28 +8,22 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// <summary>How Mother Brain's effect programs match their native lists: each command and the cue it becomes.</summary>
 internal static class MotherBrainEffectCueRules
 {
-    /// <summary>Each command the lists use, the cue it becomes and its operand byte count.</summary>
-    private static readonly Dictionary<NativeEnemyProjectileInstruction, (MotherBrainEffectCueKind Kind, int OperandBytes)> Commands = new()
+    /// <summary>Each command the lists use and how the cue it becomes is checked.</summary>
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, NativeCueCommand<MotherBrainEffectCue>> Commands = new()
     {
-        [NativeEnemyProjectileInstruction.Delete] = (MotherBrainEffectCueKind.Delete, 0),
-        [NativeEnemyProjectileInstruction.ClearPreInstruction] = (MotherBrainEffectCueKind.ClearPreInstruction, 0),
-        [NativeEnemyProjectileInstruction.PreInstructionInY] = (MotherBrainEffectCueKind.SetPreInstruction, 2),
-        [NativeEnemyProjectileInstruction.XYRadiusInY] = (MotherBrainEffectCueKind.SetRadius, 2),
-        [NativeEnemyProjectileInstruction.UsePalette0_Duplicate] = (MotherBrainEffectCueKind.UsePaletteZero, 0),
-        [NativeEnemyProjectileInstruction.MotherBrainsDrool_MoveDownCPixels] = (MotherBrainEffectCueKind.DropDrool, 0),
-        [NativeEnemyProjectileInstruction.MotherBrainPurpleBreath_Inactive] = (MotherBrainEffectCueKind.EndSmallPurpleBreath, 0),
+        [NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.Delete)),
+        [NativeEnemyProjectileInstruction.ClearPreInstruction] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.ClearPreInstruction)),
+        [NativeEnemyProjectileInstruction.PreInstructionInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.SetPreInstruction>(2, (operands, cue, at) =>
+            AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction")),
+        [NativeEnemyProjectileInstruction.XYRadiusInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.SetRadius>(2, (operands, cue, at) =>
+            AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), cue.Radius, $"{at}: X and Y radii")),
+        [NativeEnemyProjectileInstruction.UsePalette0_Duplicate] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.UsePaletteZero)),
+        [NativeEnemyProjectileInstruction.MotherBrainsDrool_MoveDownCPixels] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.DropDrool)),
+        [NativeEnemyProjectileInstruction.MotherBrainPurpleBreath_Inactive] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Command(MotherBrainEffectCueKind.EndSmallPurpleBreath)),
     };
 
     /// <summary>The oracle rules for Mother Brain's effect programs.</summary>
-    internal static NativeEnemyProjectileCueRules<MotherBrainEffectCue> Rules { get; } = new(
-        word => Commands.TryGetValue((NativeEnemyProjectileInstruction)word, out var command) ? command.OperandBytes : null,
-        (word, operands, cue, at) =>
-        {
-            AssertEqual(Commands[(NativeEnemyProjectileInstruction)word].Kind, cue.Kind, $"{at}: cue");
-            if (cue.Kind == MotherBrainEffectCueKind.SetPreInstruction)
-                AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction");
-            else if (cue.Kind == MotherBrainEffectCueKind.SetRadius)
-                AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), cue.Radius, $"{at}: X and Y radii");
-        },
-        cue => cue.Kind == MotherBrainEffectCueKind.Delete);
+    internal static NativeEnemyProjectileCueRules<MotherBrainEffectCue> Rules { get; } = NativeCueCommand<MotherBrainEffectCue>.Rules(
+        Commands, word => (NativeEnemyProjectileInstruction)word,
+        cue => cue is MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.Delete });
 }

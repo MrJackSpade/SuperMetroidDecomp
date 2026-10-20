@@ -9,6 +9,6 @@ internal static class BullAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params BullProgram[] programs) =>
         programs.SelectMany(program => BullAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue>.ShowStep>()
             .Select(step => BullFrameToolingDefinitions.Spritemap(step.Frame));
 }

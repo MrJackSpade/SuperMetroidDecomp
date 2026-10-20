@@ -30,17 +30,17 @@ internal static class WallSpacePirateNativeListAddresses
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (WallSpacePirateCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, NativeCueShape<WallSpacePirateCue>> Instructions = new()
     {
-        [0xee40] = (WallSpacePirateCueKind.ClimbLeftWall, "V"),
-        [0xee72] = (WallSpacePirateCueKind.ClimbRightWall, "V"),
-        [0xeea4] = (WallSpacePirateCueKind.ChooseLeftWallDirection, ""),
-        [0xeebc] = (WallSpacePirateCueKind.ChooseRightWallDirection, ""),
-        [0xeed4] = (WallSpacePirateCueKind.PrepareJumpRight, ""),
-        [0xeefd] = (WallSpacePirateCueKind.PrepareJumpLeft, ""),
-        [0xef2a] = (WallSpacePirateCueKind.FireLaserLeft, ""),
-        [0xef5d] = (WallSpacePirateCueKind.FireLaserRight, ""),
-        [0xef83] = (WallSpacePirateCueKind.SetFunction, "E"),
-        [0xef93] = (WallSpacePirateCueKind.PlayAttackSound, ""),
+        [0xee40] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.ClimbLeftWall>("V"),
+        [0xee72] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.ClimbRightWall>("V"),
+        [0xeea4] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.ChooseLeftWallDirection)),
+        [0xeebc] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.ChooseRightWallDirection)),
+        [0xeed4] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.PrepareJumpRight)),
+        [0xeefd] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.PrepareJumpLeft)),
+        [0xef2a] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.FireLaserLeft)),
+        [0xef5d] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.FireLaserRight)),
+        [0xef83] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.SetFunction>("E"),
+        [0xef93] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.PlayAttackSound)),
     };
 }

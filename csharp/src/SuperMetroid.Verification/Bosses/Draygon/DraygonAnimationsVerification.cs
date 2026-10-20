@@ -57,8 +57,8 @@ internal static class DraygonAnimationsVerification
             string at = $"Draygon {program} step {index}";
             if (index > 0 && ProgramAt(cursor) is { } next)
             {
-                AssertEqual(AnimationProgramStepKind.FallInto, step.Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(next, step.Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
+                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                 AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
                 return steps.Count;
             }
@@ -69,38 +69,38 @@ internal static class DraygonAnimationsVerification
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                    AssertEqual(word, step.Duration, $"{at}: duration");
-                    AssertEqual(operand, DraygonFrameToolingDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
+                    var show = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.ShowStep>(step, $"{at}: frame");
+                    AssertEqual(word, show.Duration, $"{at}: duration");
+                    AssertEqual(operand, DraygonFrameToolingDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
                     drawn.Add(operand);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.GoTo:
-                    AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
-                    AssertEqual(ProgramAt(operand), step.Target, $"{at}: goto target");
+                    var goTo = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.GoToStep>(step, $"{at}: goto");
+                    AssertEqual(ProgramAt(operand), goTo.Target, $"{at}: goto target");
                     AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
                     return steps.Count;
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertEqual(AnimationProgramStepKind.Hold, step.Kind, $"{at}: sleep");
+                    AssertTrue(step is AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.HoldStep, $"{at}: sleep");
                     AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
                     return steps.Count;
                 case NativeEnemyListDefinitions.WordKind.Stop:
-                    AssertEqual(AnimationProgramStepKind.Stop, step.Kind, $"{at}: stop");
+                    AssertTrue(step is AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.StopStep, $"{at}: stop");
                     AssertEqual(steps.Count, index + 1, $"{at}: stop ends the program");
                     return steps.Count;
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
-                    AssertEqual(AnimationProgramStepKind.SetCounter, step.Kind, $"{at}: counter load");
-                    AssertEqual(operand, step.Duration, $"{at}: repeat count");
+                    var setCounter = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.SetCounterStep>(step, $"{at}: counter load");
+                    AssertEqual(operand, setCounter.Count, $"{at}: repeat count");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
-                    AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, step.Kind, $"{at}: counted repeat");
-                    AssertEqual(ProgramAt(operand), step.Target, $"{at}: repeat target");
+                    var repeat = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.RepeatWhileCountingStep>(step, $"{at}: counted repeat");
+                    AssertEqual(ProgramAt(operand), repeat.Target, $"{at}: repeat target");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Wait:
-                    AssertEqual(AnimationProgramStepKind.Wait, step.Kind, $"{at}: wait");
-                    AssertEqual(operand, step.Duration, $"{at}: wait length");
+                    var wait = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.WaitStep>(step, $"{at}: wait");
+                    AssertEqual(operand, wait.Duration, $"{at}: wait length");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Callback:
@@ -109,8 +109,8 @@ internal static class DraygonAnimationsVerification
                     var operands = new ushort[count];
                     for (int operandIndex = 0; operandIndex < count; operandIndex++)
                         operands[operandIndex] = cartridge.ReadCartridgeWord(address + 2 + 2 * operandIndex);
-                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: callback");
-                    AssertEqual(CueOf(word, operands), step.Cue, $"{at}: cue");
+                    var cueStep = AssertIs<AnimationProgramStep<DraygonProgram, DraygonFrame, DraygonCue>.CueStep>(step, $"{at}: callback");
+                    AssertEqual(CueOf(word, operands), cueStep.Cue, $"{at}: cue");
                     cursor = unchecked((ushort)(cursor + 2 + 2 * count));
                     continue;
                 }
@@ -251,17 +251,17 @@ internal static class DraygonAnimationsVerification
             string at = $"Draygon projectile {program} step {index}";
             if (index > 0 && ProjectileProgramAt(cursor) is { } next)
             {
-                AssertEqual(AnimationProgramStepKind.FallInto, step.Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(next, step.Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
+                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                 return;
             }
             ushort word = cartridge.ReadCartridgeWord(ProjectileBank | cursor);
             ushort operand = cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2));
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
-                AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                AssertEqual(word, step.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(DraygonProjectileVisualDefinitions.ShownProjectileFrames[step.Frame]), $"{at}: frame operand");
+                var show = AssertIs<AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.ShowStep>(step, $"{at}: frame");
+                AssertEqual(word, show.Duration, $"{at}: duration");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(DraygonProjectileVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: frame operand");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
@@ -269,8 +269,8 @@ internal static class DraygonAnimationsVerification
             {
                 if (ProjectileProgramAt(operand) is { } target)
                 {
-                    AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
-                    AssertEqual(target, step.Target, $"{at}: goto target");
+                    var goTo = AssertIs<AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.GoToStep>(step, $"{at}: goto");
+                    AssertEqual(target, goTo.Target, $"{at}: goto target");
                     return;
                 }
                 // A goto into the shared deletion list continues with its delete instruction.
@@ -279,11 +279,11 @@ internal static class DraygonAnimationsVerification
                 continue;
             }
             AssertTrue(ProjectileCallbacks.TryGetValue(word, out DraygonProjectileCue cue), $"{at}: native callback ${word:X4} is known");
-            AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: callback");
-            AssertEqual(cue, step.Cue, $"{at}: cue");
+            var cueStep = AssertIs<AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.CueStep>(step, $"{at}: callback");
+            AssertEqual(cue, cueStep.Cue, $"{at}: cue");
             if (cue == DraygonProjectileCue.Delete)
             {
-                AssertEqual(AnimationProgramStepKind.Hold, steps[index + 1].Kind, $"{at}: nothing follows the deletion");
+                AssertTrue(steps[index + 1] is AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.HoldStep, $"{at}: nothing follows the deletion");
                 return;
             }
             cursor = unchecked((ushort)(cursor + 2));

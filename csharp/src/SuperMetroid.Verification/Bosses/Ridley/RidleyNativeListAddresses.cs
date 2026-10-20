@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Bosses.Ridley;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
@@ -35,22 +36,22 @@ internal static class RidleyNativeListAddresses
     ];
 
     /// <summary>Each bank-$A6 Ridley instruction the body lists use: the cue it must become and its operand words.</summary>
-    internal static readonly Dictionary<ushort, (RidleyBodyCueKind Kind, int Operands)> BodyInstructions = new()
+    internal static readonly Dictionary<ushort, (NativeCueShape<RidleyBodyCue> Cue, int Operands)> BodyInstructions = new()
     {
-        [0xe4be] = (RidleyBodyCueKind.Roar, 0),
-        [0xe4ca] = (RidleyBodyCueKind.ClearRoaringFlag, 0),
-        [0xe4d2] = (RidleyBodyCueKind.GoToIfCeresAndSamusLowEnergy, 1),
-        [0xe501] = (RidleyBodyCueKind.SetFeetDistance, 1),
-        [0xe517] = (RidleyBodyCueKind.GoToUnlessFacingLeft, 1),
-        [0xe51f] = (RidleyBodyCueKind.Move, 2),
-        [0xe71c] = (RidleyBodyCueKind.FlipLeft, 0),
-        [0xe727] = (RidleyBodyCueKind.FaceForward, 0),
-        [0xe72f] = (RidleyBodyCueKind.FlipRight, 0),
-        [0xe84d] = (RidleyBodyCueKind.AimFireball, 0),
-        [0xe904] = (RidleyBodyCueKind.SpawnFireballWithAfterburn, 0),
-        [0xe909] = (RidleyBodyCueKind.SpawnFireballWithoutAfterburn, 0),
-        [0xe969] = (RidleyBodyCueKind.CeresStartLiftoff, 0),
-        [0xe976] = (RidleyBodyCueKind.StartLiftoff, 0),
+        [0xe4be] = (NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.Roar)), 0),
+        [0xe4ca] = (NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.ClearRoaringFlag)), 0),
+        [0xe4d2] = (NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.GoToIfCeresAndSamusLowEnergy>(""), 1),
+        [0xe501] = (NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.SetFeetDistance>(""), 1),
+        [0xe517] = (NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.GoToUnlessFacingLeft>(""), 1),
+        [0xe51f] = (NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.Move>(""), 2),
+        [0xe71c] = (NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.FlipLeft)), 0),
+        [0xe727] = (NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.FaceForward)), 0),
+        [0xe72f] = (NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.FlipRight)), 0),
+        [0xe84d] = (NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.AimFireball)), 0),
+        [0xe904] = (NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.SpawnFireballWithAfterburn)), 0),
+        [0xe909] = (NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.SpawnFireballWithoutAfterburn)), 0),
+        [0xe969] = (NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.CeresStartLiftoff)), 0),
+        [0xe976] = (NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.StartLiftoff)), 0),
     };
 
     /// <summary>Each breakup program's native one-frame list in bank $A6 ($A6:CA47..CAEF), in authored order.</summary>

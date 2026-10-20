@@ -831,28 +831,28 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationProgramAdvance<DraygonFrame> advance = DraygonAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => ApplyDraygonCue(state, part, samus, cue));
         part.Timer = counter;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
+            case AnimationProgramAdvance<DraygonFrame>.Show shown:
                 state.SetCursor(part, cursor);
-                part.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                part.Frame = DraygonFrameDefinitions.ShownFrames.Of(advance.Frame);
+                part.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                part.Frame = DraygonFrameDefinitions.ShownFrames.Of(shown.Frame);
                 part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
-            case AnimationProgramAdvanceKind.Wait:
+            case AnimationProgramAdvance<DraygonFrame>.Wait waiting:
                 state.SetCursor(part, cursor);
-                part.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+                part.InstructionTimer = NativeCountdown.FromRaw((ushort)waiting.Duration);
                 return;
-            case AnimationProgramAdvanceKind.Hold:
+            case AnimationProgramAdvance<DraygonFrame>.Hold:
                 // The native sleep: the timer wraps from zero and the last frame stays.
                 state.SetCursor(part, cursor);
                 return;
-            case AnimationProgramAdvanceKind.Stop:
+            case AnimationProgramAdvance<DraygonFrame>.Stop:
                 // The native stop deletes the part and leaves its instruction pointer unwritten.
                 part.Properties = part.Properties.With(EnemyProperties.Deleted);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(AnimationProgramAdvanceKind)} {advance.Kind}.");
+                throw new InvalidOperationException($"Undefined animation program advance {advance}.");
         }
     }
 

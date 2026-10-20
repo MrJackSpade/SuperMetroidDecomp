@@ -1295,11 +1295,11 @@ internal sealed class CeresRidleyBehavior
         AnimationProgramAdvance<CeresBabyPose> advance = CeresBabyAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, _) => ApplyCeresBabyCue(state, cue));
         state.BabyProgram = cursor;
-        if (advance.Kind != AnimationProgramAdvanceKind.Show)
-            throw new InvalidOperationException($"The Ceres Baby's program ended a draw update with {advance.Kind}.");
-        state.BabyPoseDuration = advance.Duration;
+        if (advance is not AnimationProgramAdvance<CeresBabyPose>.Show shown)
+            throw new InvalidOperationException($"The Ceres Baby's program ended a draw update with {advance}.");
+        state.BabyPoseDuration = shown.Duration;
         state.BabyInstructionTimer = 1;
-        state.BabyCurrentPose = advance.Frame;
+        state.BabyCurrentPose = shown.Frame;
         return CeresBabyFrame(state.BabyCurrentPose);
     }
 
@@ -1310,26 +1310,26 @@ internal sealed class CeresRidleyBehavior
     /// <summary>Carries out one cue of the Baby's program, returning the program a branch continues at, or null to run on.</summary>
     private CeresBabyProgram? ApplyCeresBabyCue(RidleyEnemyState state, CeresBabyCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case CeresBabyCueKind.CryOrGoTo:
+            case CeresBabyCue.CryOrGoTo cryOrGoTo:
                 // $A6:BFC9: while the baby is falling ($880C nonzero) it always cries and
                 // continues. Otherwise it samples the live RNG word's low bit without
                 // calling GenerateRandomNumber; a set bit jumps silently ($A6:BFD5).
                 if (state.BabyVerticalVelocity == 0 && (_room.Random.Read() & 1) != 0)
-                    return cue.Target;
+                    return cryOrGoTo.Target;
                 _audio.QueueEnemySound(SoundEffectLibrary3Sounds.CeresBabyCry, maximumQueued: 6);
                 return null;
-            case CeresBabyCueKind.UpdateColors:
+            case CeresBabyCue.UpdateColors updateColors:
                 if (_presentation.CeresRidleyColors is { } babyColors)
-                    babyColors.ApplyBaby(_presentation.Cgram, cue.PaletteRow);
+                    babyColors.ApplyBaby(_presentation.Cgram, updateColors.PaletteRow);
                 else throw new InvalidOperationException(
                     "Ceres Ridley requires installed Baby Metroid colors.");
                 return null;
-            case CeresBabyCueKind.GoToIfMoving:
-                return state.BabyVerticalVelocity != 0 ? cue.Target : null;
+            case CeresBabyCue.GoToIfMoving goToIfMoving:
+                return state.BabyVerticalVelocity != 0 ? goToIfMoving.Target : null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresBabyCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined Ceres Baby cue {cue}.");
         }
     }
 

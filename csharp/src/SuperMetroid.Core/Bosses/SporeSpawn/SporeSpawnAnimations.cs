@@ -40,7 +40,7 @@ internal static class SporeSpawnAnimations
     {
         [P.InitialDead] =
         [
-            Cue(new(K.LoadDeathTargetPalette, DeathPaletteStep: DeathPaletteSteps - 1)),
+            Cue(new SporeSpawnCue.LoadDeathTargetPalette(DeathPaletteStep: DeathPaletteSteps - 1)),
             Function(SporeSpawnFunction.Idle),
             Show(new(F.Dead, 0), 1),
             Hold,
@@ -54,18 +54,18 @@ internal static class SporeSpawnAnimations
         ],
         [P.FightStarted] =
         [
-            Cue(new(K.SetMaxXRadiusAndAngleDelta, MaximumXRadius: FirstMaximumXRadius, AngleDelta: 1)),
+            Cue(new SporeSpawnCue.SetMaxXRadiusAndAngleDelta(MaximumXRadius: FirstMaximumXRadius, AngleDelta: 1)),
             Function(SporeSpawnFunction.Moving),
             Show(new(F.Closed, 0), FirstSway),
             FallInto(P.OpenAndStop),
         ],
         [P.OpenAndStop] =
         [
-            Cue(new(K.SetSporeGeneration, SporeGenerationSuppressed: true)),
-            Cue(new(K.QueueSound, Sound: SporeSpawnSoundDefinitions.Opening)),
+            Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: true)),
+            Cue(new SporeSpawnCue.QueueSound(Sound: SporeSpawnSoundDefinitions.Opening)),
             Show(new(F.Closed, 0), 1),
             .. Enumerable.Range(0, OpeningDurations.Length).Select(pose => Show(new(F.Opening, pose), OpeningDurations[pose])),
-            Cue(new(K.ClearDamagedFlag)),
+            Cue(new SporeSpawnCue.Command(K.ClearDamagedFlag)),
             Function(SporeSpawnFunction.Idle),
             AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.SetCounter(OpenPulseRepeats),
             FallInto(P.OpenPulse),
@@ -84,10 +84,10 @@ internal static class SporeSpawnAnimations
             .. Closing(),
             Show(new(F.Closed, 0), 1),
             Function(SporeSpawnFunction.Moving),
-            Cue(new(K.SetSporeGeneration, SporeGenerationSuppressed: false)),
-            Cue(new(K.IncreaseMaxXRadius)),
+            Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: false)),
+            Cue(new SporeSpawnCue.Command(K.IncreaseMaxXRadius)),
             Show(new(F.Closed, 0), ClosedSway),
-            Cue(new(K.SetSporeGeneration, SporeGenerationSuppressed: true)),
+            Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: true)),
             Show(new(F.Closed, 0), SporingSway),
             AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.GoTo(P.OpenAndStop),
         ],
@@ -102,27 +102,27 @@ internal static class SporeSpawnAnimations
         [P.DyingExplosions] =
         [
             Show(new(F.Opening, 5), 1),
-            Cue(new(K.SpawnDyingExplosion)),
+            Cue(new SporeSpawnCue.Command(K.SpawnDyingExplosion)),
             AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.Wait(DeathBurstWait),
             AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.RepeatWhileCounting(P.DyingExplosions),
             .. Closing(),
             Show(new(F.Dead, 0), 1),
-            Cue(new(K.Harden)),
+            Cue(new SporeSpawnCue.Command(K.Harden)),
             AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.SetCounter(DeathBurstRepeats),
             FallInto(P.Hardening),
         ],
         [P.Hardening] =
         [
-            Cue(new(K.SpawnHardeningDust)),
+            Cue(new SporeSpawnCue.Command(K.SpawnHardeningDust)),
             AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.Wait(DeathBurstWait),
             AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.RepeatWhileCounting(P.Hardening),
             .. Enumerable.Range(0, DeathPaletteSteps).SelectMany(step => new[]
             {
-                Cue(new(K.LoadDeathPalette, DeathPaletteStep: step)),
-                Cue(new(K.SpawnHardeningDust)),
+                Cue(new SporeSpawnCue.LoadDeathPalette(DeathPaletteStep: step)),
+                Cue(new SporeSpawnCue.Command(K.SpawnHardeningDust)),
                 Show(new(F.Dead, 0), FadeStepDuration),
             }),
-            Cue(new(K.RequestDeathDrops)),
+            Cue(new SporeSpawnCue.Command(K.RequestDeathDrops)),
             Hold,
         ],
     });
@@ -133,7 +133,7 @@ internal static class SporeSpawnAnimations
 
     /// <summary>Selects <paramref name="function"/> as the main-AI function.</summary>
     private static AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> Function(SporeSpawnFunction function) =>
-        Cue(new(K.SetFunction, Function: function));
+        Cue(new SporeSpawnCue.SetFunction(Function: function));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> Cue(SporeSpawnCue cue) =>

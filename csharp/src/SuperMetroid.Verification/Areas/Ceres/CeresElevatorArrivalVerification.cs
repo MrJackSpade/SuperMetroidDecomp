@@ -114,19 +114,19 @@ internal static class CeresElevatorArrivalVerification
                 string at = $"Ceres elevator {program} at $86:{cursor:X4}";
                 if (word == CeresElevatorArrivalDefinitions.DeleteOpcode)
                 {
-                    VerificationAssert.AssertEqual(AnimationProgramStepKind.Stop, step.Kind, $"{at}: delete");
+                    VerificationAssert.AssertTrue(step is AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.StopStep, $"{at}: delete");
                     break;
                 }
                 if (word == CeresElevatorArrivalDefinitions.GotoOpcode)
                 {
-                    VerificationAssert.AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
+                    var goTo = VerificationAssert.AssertIs<AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.GoToStep>(step, $"{at}: goto");
                     VerificationAssert.AssertEqual(operand,
-                        NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, step.Target), $"{at}: goto target");
+                        NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, goTo.Target), $"{at}: goto target");
                     break;
                 }
-                VerificationAssert.AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                VerificationAssert.AssertEqual(word, step.Duration, $"{at}: duration");
-                VerificationAssert.AssertEqual(operand, CeresElevatorArrivalDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
+                var show = VerificationAssert.AssertIs<AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.ShowStep>(step, $"{at}: frame");
+                VerificationAssert.AssertEqual(word, show.Duration, $"{at}: duration");
+                VerificationAssert.AssertEqual(operand, CeresElevatorArrivalDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
             }
             VerificationAssert.AssertEqual(steps.Count, index, $"Ceres elevator {program} ends where its native list does");

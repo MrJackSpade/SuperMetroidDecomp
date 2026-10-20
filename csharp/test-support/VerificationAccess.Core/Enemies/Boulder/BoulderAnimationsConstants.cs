@@ -9,6 +9,6 @@ internal static class BoulderAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params BoulderProgram[] programs) =>
         programs.SelectMany(program => BoulderAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<BoulderProgram, BoulderFrame, NoAnimationCue>.ShowStep>()
             .Select(step => BoulderFrameToolingDefinitions.Spritemap(step.Frame));
 }

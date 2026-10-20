@@ -168,9 +168,9 @@ internal static class RidleyAnimations
         Side side, Offset16<RoomPixels> firstHop, Offset16<RoomPixels> secondHop, RidleyBodyCueKind liftoff) =>
     [
         Show(side.Standing, 3),
-        Cue(new RidleyBodyCue(K.Move, Displacement: firstHop)),
+        Cue(new RidleyBodyCue.Move(Displacement: firstHop)),
         Show(side.LegsHalfExtended, 4),
-        Cue(new RidleyBodyCue(K.Move, Displacement: secondHop)),
+        Cue(new RidleyBodyCue.Move(Displacement: secondHop)),
         Show(side.LegsExtended, 5),
         Cue(liftoff),
         Show(side.LegsHalfExtended, LiftoffPoseDuration),
@@ -180,18 +180,18 @@ internal static class RidleyAnimations
 
     /// <summary>Redirects to <paramref name="target"/> unless Ridley faces left.</summary>
     private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> UnlessFacingLeft(RidleyBodyProgram target) =>
-        Cue(new RidleyBodyCue(K.GoToUnlessFacingLeft, Target: target));
+        Cue(new RidleyBodyCue.GoToUnlessFacingLeft(Target: target));
 
     /// <summary>Redirects to <paramref name="target"/> in Ceres when Samus is low on energy.</summary>
     private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> IfCeresAndSamusLowEnergy(RidleyBodyProgram target) =>
-        Cue(new RidleyBodyCue(K.GoToIfCeresAndSamusLowEnergy, Target: target));
+        Cue(new RidleyBodyCue.GoToIfCeresAndSamusLowEnergy(Target: target));
 
     /// <summary>Selects the claw-height pose <paramref name="index"/>.</summary>
     private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> Feet(int index) =>
-        Cue(new RidleyBodyCue(K.SetFeetDistance, FeetDistanceIndex: index));
+        Cue(new RidleyBodyCue.SetFeetDistance(FeetDistanceIndex: index));
 
     /// <summary>Publishes a cue of <paramref name="kind"/> without operands.</summary>
-    private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> Cue(RidleyBodyCueKind kind) => Cue(new RidleyBodyCue(kind));
+    private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> Cue(RidleyBodyCueKind kind) => Cue(new RidleyBodyCue.Command(kind));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> Cue(RidleyBodyCue cue) =>

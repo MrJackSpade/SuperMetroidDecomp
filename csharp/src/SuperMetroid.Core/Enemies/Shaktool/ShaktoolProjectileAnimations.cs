@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
 using P = SuperMetroid.Core.Enemies.Shaktool.ShaktoolProjectileProgram;
 using SuperMetroid.Core.Enemies.Projectiles;
 
@@ -29,7 +28,7 @@ internal static class ShaktoolProjectileAnimations
         [P.Middle] =
         [
             Show(3, 6),
-            Cue(new(CK.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving)),
+            Cue(new EnemyProjectileCommonCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving)),
             Show(4, 4),
             FallInto(P.MiddleLoop),
         ],
@@ -41,7 +40,7 @@ internal static class ShaktoolProjectileAnimations
         [P.Back] =
         [
             Show(6, 10),
-            Cue(new(CK.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving)),
+            Cue(new EnemyProjectileCommonCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving)),
             FallInto(P.BackLoop),
         ],
         [P.BackLoop] =

@@ -131,22 +131,22 @@ internal sealed class DownwardGateBehavior
     /// <summary>Carries out one cue of the gate's programs.</summary>
     private static void ApplyDownwardGateCue(RoomEnemyProjectileSlot projectile, DownwardGateProjectileCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case DownwardGateProjectileCueKind.SetYVelocity:
-                projectile.Velocity = projectile.Velocity.WithY(cue.YVelocity);
+            case DownwardGateProjectileCue.SetYVelocity setYVelocity:
+                projectile.Velocity = projectile.Velocity.WithY(setYVelocity.YVelocity);
                 break;
-            case DownwardGateProjectileCueKind.SetPreInstruction:
-                projectile.PreInstruction = cue.PreInstruction;
+            case DownwardGateProjectileCue.SetPreInstruction setPreInstruction:
+                projectile.PreInstruction = setPreInstruction.PreInstruction;
                 break;
-            case DownwardGateProjectileCueKind.ClearPreInstruction:
+            case DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.ClearPreInstruction }:
                 projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
-            case DownwardGateProjectileCueKind.Delete:
+            case DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.Delete }:
                 projectile.Clear();
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(DownwardGateProjectileCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(DownwardGateProjectileCueKind)} {cue}.");
         }
     }
 

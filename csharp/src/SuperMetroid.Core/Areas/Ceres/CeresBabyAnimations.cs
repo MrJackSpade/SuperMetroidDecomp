@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using K = SuperMetroid.Core.Areas.Ceres.CeresBabyCueKind;
 using P = SuperMetroid.Core.Areas.Ceres.CeresBabyProgram;
 using F = SuperMetroid.Core.Areas.Ceres.CeresBabyPose;
 
@@ -18,22 +17,22 @@ internal static class CeresBabyAnimations
     {
         [P.Initial] =
         [
-            Cue(new(K.GoToIfMoving, Target: P.ExpressiveLoop)),
+            Cue(new CeresBabyCue.GoToIfMoving(Target: P.ExpressiveLoop)),
             .. SquishCycle,
-            Cue(new(K.GoToIfMoving, Target: P.ExpressiveLoop)),
+            Cue(new CeresBabyCue.GoToIfMoving(Target: P.ExpressiveLoop)),
             .. SquishCycle,
             FallInto(P.ExpressiveLoop),
         ],
         [P.ExpressiveLoop] =
         [
-            Cue(new(K.CryOrGoTo, Target: P.Initial)),
+            Cue(new CeresBabyCue.CryOrGoTo(Target: P.Initial)),
             .. ExpressivePoses.SelectMany(pose => new[]
             {
-                Cue(new(K.UpdateColors, PaletteRow: PaletteRow(pose.Pose))),
+                Cue(new CeresBabyCue.UpdateColors(PaletteRow: PaletteRow(pose.Pose))),
                 Show(pose.Pose, pose.Duration),
             }),
-            Cue(new(K.UpdateColors, PaletteRow: 0)),
-            Cue(new(K.GoToIfMoving, Target: P.ExpressiveLoop)),
+            Cue(new CeresBabyCue.UpdateColors(PaletteRow: 0)),
+            Cue(new CeresBabyCue.GoToIfMoving(Target: P.ExpressiveLoop)),
             GoTo(P.Initial),
         ],
     });

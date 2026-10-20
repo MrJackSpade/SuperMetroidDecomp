@@ -17,19 +17,19 @@ internal static class WalkingSpacePirateAnimations
     {
         [P.FlinchFacingLeft] =
         [
-            Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.NoOperation)),
+            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.NoOperation)),
             Show(35, 16),
             GoTo(P.WalkingLeft),
         ],
         [P.FlinchFacingRight] =
         [
-            Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.NoOperation)),
+            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.NoOperation)),
             Show(36, 16),
             GoTo(P.WalkingRight),
         ],
         [P.WalkingLeft] =
         [
-            Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.WalkingLeft)),
+            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.WalkingLeft)),
             FallInto(P.WalkingLeftLoop),
         ],
         [P.WalkingLeftLoop] =
@@ -46,26 +46,26 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.FireLasersLeft] =
         [
-            Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
+            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
             Show(16, 24),
             Show(17, 8),
             Show(18, 8),
             Show(19, 8),
-            Cue(new(K.FireLaserLeft, LaserHeight: 8)),
+            Cue(new WalkingSpacePirateCue.FireLaserLeft(LaserHeight: 8)),
             Show(20, 8),
-            Cue(new(K.FireLaserLeft, LaserHeight: 2)),
+            Cue(new WalkingSpacePirateCue.FireLaserLeft(LaserHeight: 2)),
             Show(21, 24),
-            Cue(new(K.FireLaserLeft, LaserHeight: -8)),
+            Cue(new WalkingSpacePirateCue.FireLaserLeft(LaserHeight: -8)),
             Show(20, 8),
             Show(19, 8),
             Show(18, 8),
             Show(17, 8),
-            Cue(new(K.ChooseMovement)),
+            Cue(new WalkingSpacePirateCue.Command(K.ChooseMovement)),
             FallInto(P.LookingFacingLeft),
         ],
         [P.LookingFacingLeft] =
         [
-            Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
+            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
             Show(28, 32),
             Show(29, 10),
             Show(30, 32),
@@ -76,7 +76,7 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.WalkingRight] =
         [
-            Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.WalkingRight)),
+            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.WalkingRight)),
             FallInto(P.WalkingRightLoop),
         ],
         [P.WalkingRightLoop] =
@@ -93,26 +93,26 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.FireLasersRight] =
         [
-            Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
+            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
             Show(22, 24),
             Show(23, 8),
             Show(24, 8),
             Show(25, 8),
-            Cue(new(K.FireLaserRight, LaserHeight: 8)),
+            Cue(new WalkingSpacePirateCue.FireLaserRight(LaserHeight: 8)),
             Show(26, 8),
-            Cue(new(K.FireLaserRight, LaserHeight: 2)),
+            Cue(new WalkingSpacePirateCue.FireLaserRight(LaserHeight: 2)),
             Show(27, 24),
-            Cue(new(K.FireLaserRight, LaserHeight: -8)),
+            Cue(new WalkingSpacePirateCue.FireLaserRight(LaserHeight: -8)),
             Show(26, 8),
             Show(25, 8),
             Show(24, 8),
             Show(23, 8),
-            Cue(new(K.ChooseMovement)),
+            Cue(new WalkingSpacePirateCue.Command(K.ChooseMovement)),
             FallInto(P.LookingFacingRight),
         ],
         [P.LookingFacingRight] =
         [
-            Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
+            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
             Show(31, 32),
             Show(32, 10),
             Show(33, 32),
@@ -126,7 +126,7 @@ internal static class WalkingSpacePirateAnimations
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params WalkingSpacePirateProgram[] programs) =>
         programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<P, WalkingSpacePirateFrame, WalkingSpacePirateCue>.ShowStep>()
             .Select(step => WalkingSpacePirateFrameDefinitions.Spritemap(step.Frame));
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>

@@ -80,7 +80,7 @@ internal static class AudioClipExportVerification
         short[] independent = RenderIndependently(
             catalog,
             AudioBank.GreenBrinstar,
-            CartridgeAudioCommand.WritePort(ApuPort.Music, unchecked((byte)track)),
+            new CartridgeAudioCommand.WritePort(ApuPort.Music, unchecked((byte)track)),
             player => player.musicPortToSnes == track,
             byte.MaxValue,
             frames + (frames - loopStart));
@@ -103,7 +103,7 @@ internal static class AudioClipExportVerification
             short[] independent = RenderIndependently(
                 catalog,
                 AudioBank.GreenBrinstar,
-                CartridgeAudioCommand.WritePort(PortOf(effect.Library), effect.Value),
+                new CartridgeAudioCommand.WritePort(PortOf(effect.Library), effect.Value),
                 player => player.soundLibraries[libraryIndex].CurrentSound == effect.Value,
                 layer.Voices.ToVoiceMask(),
                 rendered);
@@ -168,7 +168,7 @@ internal static class AudioClipExportVerification
         var pcm = new List<short>();
         IReadOnlyList<CartridgeAudioCommand>[] script =
         [
-            [CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank), CartridgeAudioCommand.Upload(context)],
+            [new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank), new CartridgeAudioCommand.Upload(context)],
             [request],
         ];
         for (int index = 0; pcm.Count < frames * 2; index++)

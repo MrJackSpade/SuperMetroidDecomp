@@ -36,17 +36,17 @@ internal static class SamusProjectileProgramsVerification
                 AssertEqual(cursor, SamusProjectileProgramAddresses.Address(new AnimationProgramCursor<SamusProjectileProgram>(program, index)), $"{at}: native address");
                 if (cursor != entry && byEntry.TryGetValue(cursor, out SamusProjectileProgram next))
                 {
-                    AssertEqual(AnimationProgramStepKind.FallInto, step.Kind, $"{at}: runs on into the next list");
-                    AssertEqual(next, step.Target, $"{at}: fall-through target");
+                    var fallInto = AssertIs<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.FallIntoStep>(step, $"{at}: runs on into the next list");
+                    AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                     AssertEqual(programSteps.Count, index + 1, $"{at}: the fall-through ends the program");
                     break;
                 }
                 ushort word = Word(cursor);
                 if (unchecked((short)word) >= 0)
                 {
-                    AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: timed record");
-                    AssertEqual(word, step.Duration, $"{at}: duration");
-                    SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(step.Frame);
+                    var show = AssertIs<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep>(step, $"{at}: timed record");
+                    AssertEqual(word, show.Duration, $"{at}: duration");
+                    SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(show.Frame);
                     AssertEqual(cursor, record.Address, $"{at}: record address");
                     AssertEqual(Word(cursor + 2), record.Spritemap, $"{at}: spritemap");
                     ushort radii = Word(cursor + 4);
@@ -59,11 +59,11 @@ internal static class SamusProjectileProgramsVerification
                 switch ((SamusProjectileInstruction)word)
                 {
                     case SamusProjectileInstruction.GoTo:
-                        AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
-                        AssertEqual(byEntry[Word(cursor + 2)], step.Target, $"{at}: goto target");
+                        var goTo = AssertIs<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.GoToStep>(step, $"{at}: goto");
+                        AssertEqual(byEntry[Word(cursor + 2)], goTo.Target, $"{at}: goto target");
                         break;
                     case SamusProjectileInstruction.Delete:
-                        AssertEqual(AnimationProgramStepKind.Stop, step.Kind, $"{at}: delete");
+                        AssertTrue(step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.StopStep, $"{at}: delete");
                         break;
                     default:
                         throw new InvalidDataException($"{at}: native word ${word:X4} has no typed form.");
@@ -134,8 +134,8 @@ internal static class SamusProjectileProgramsVerification
     {
         var cursor = SamusProjectileProgramAddresses.CursorAt(address) ?? throw new InvalidDataException("A record address is never zero.");
         var step = SamusProjectileAnimations.Programs.Steps(cursor.Program)[cursor.Position];
-        return step.Kind == AnimationProgramStepKind.Show
-            ? SamusProjectileRecordDefinitions.Get(step.Frame)
+        return step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show
+            ? SamusProjectileRecordDefinitions.Get(show.Frame)
             : throw new InvalidDataException($"$93:{address:X4} is not a timed record.");
     }
 

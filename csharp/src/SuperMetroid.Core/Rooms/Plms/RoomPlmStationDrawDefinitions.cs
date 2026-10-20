@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -24,138 +25,208 @@ internal static class RoomPlmStationDrawDefinitions
         StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended,
     ];
 
-    /// <summary>Station families with distinct native run geometry and collision words.</summary>
-    internal enum LayoutKind
-    {
-        /// <summary>Two horizontal display cells, with tile identity advancing by 32 per frame.</summary>
-        Map,
-        /// <summary>Vertical refill display whose upper cell is a slope.</summary>
-        Energy,
-        /// <summary>Vertical ammunition display whose upper cell is a slope.</summary>
-        Missile,
-        /// <summary>Six two-cell rows from the save-pod floor through its cap.</summary>
-        Save,
-        /// <summary>Side-selectable map access cells with retracted and extended poses.</summary>
-        MapAccess,
-        /// <summary>Side-selectable resource access cell whose extension changes collision.</summary>
-        ResourceAccess,
-    }
-
     /// <summary>
-    /// Native station runs are horizontal. Map displays write origin then left;
-    /// resource displays write origin then above. Save pods have six two-cell rows
-    /// from floor to cap. Access layouts select side and extension explicitly.
-    /// All continuations are absolute origin-relative offsets, not accumulated.
-    /// Map art advances 32 tiles per frame; resource art advances one and its upper
-    /// cell is 32 tiles earlier. Resource upper cells are slopes. Save floor/cap
-    /// are solid except the idle floor-left trigger; the shaft is air. Save art
-    /// mirrors horizontally, its floor also vertically, and active-A advances one
-    /// tile. Map access mirrors by side; resource access changes trigger to solid
-    /// on extension. These rules cover only the twenty native owned draw pointers.
+    /// One native station draw list's geometry. Station runs are horizontal and every continuation is an absolute
+    /// origin-relative offset, not accumulated. Each layout is its own sealed record holding only what it needs; these
+    /// rules cover only the twenty native owned draw pointers.
     /// </summary>
-    internal readonly record struct Draw(StationDraw Pointer, LayoutKind Kind, int Frame,
-        HorizontalDirection Side = HorizontalDirection.Right, StationAccessPose Pose = StationAccessPose.Retracted) : IPlmRunDrawShape
+    /// <param name="Pointer">The native draw list.</param>
+    internal abstract record Draw(StationDraw Pointer) : IPlmRunDrawShape
     {
-        /// <summary>Whether the access arm sits on the left of its station.</summary>
-        internal bool Left => Side == HorizontalDirection.Left;
+        /// <inheritdoc/>
+        public abstract int RunCount { get; }
 
-        /// <summary>Whether the access arm is extended.</summary>
-        internal bool Extended => Pose == StationAccessPose.Extended;
-
-        /// <summary>Number of origin-relative draw runs for this station layout and extension state.</summary>
-        public int RunCount => Kind switch
+        /// <inheritdoc/>
+        public int WordCount(int run)
         {
-            LayoutKind.Save => 6,
-            LayoutKind.MapAccess => Extended ? 1 : 2,
-            LayoutKind.ResourceAccess => 1,
-            LayoutKind.Map or LayoutKind.Energy or LayoutKind.Missile => 2,
-            _ => throw new InvalidOperationException($"Undefined LayoutKind {Kind}."),
-        };
+            CheckRun(run);
+            return WordsPerRun;
+        }
+
+        /// <inheritdoc/>
+        public sbyte NextX(int run)
+        {
+            CheckRun(run);
+            return run == 0 ? FirstRunX : (sbyte)0;
+        }
+
+        /// <inheritdoc/>
+        public sbyte NextY(int run)
+        {
+            CheckRun(run);
+            return RunY(run);
+        }
+
+        /// <inheritdoc/>
+        public ushort WordAt(int run, int cell)
+        {
+            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
+            return Word(run, cell);
+        }
+
+        /// <summary>The level words each run writes.</summary>
+        private protected virtual int WordsPerRun => 1;
+
+        /// <summary>The horizontal offset after the first run; every later run adds none.</summary>
+        private protected virtual sbyte FirstRunX => 0;
+
+        /// <summary>The vertical offset after <paramref name="run"/>.</summary>
+        private protected virtual sbyte RunY(int run) => 0;
+
+        /// <summary>The level word at <paramref name="cell"/> of <paramref name="run"/>, both in range.</summary>
+        private protected abstract ushort Word(int run, int cell);
+
+        /// <summary>Builds one native level word from its collision type, flip bits and tile.</summary>
+        private protected static ushort LevelWord(int collision, int flip, int tile) => (ushort)(collision << 12 | flip | tile);
+
         /// <summary>Rejects a run outside this layout's native command count.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
-        /// <summary>Save rows write two adjacent cells; other station runs write one.</summary>
-        public int WordCount(int run) { CheckRun(run); return Kind == LayoutKind.Save ? 2 : 1; }
-        /// <summary>Horizontal origin-relative offset for the next run, including map leftward and access-side spacing.</summary>
-        public sbyte NextX(int run)
+    }
+
+    /// <summary>Two horizontal display cells written origin then left; the art advances 32 tiles per frame.</summary>
+    /// <param name="Pointer">The native draw list.</param>
+    /// <param name="Frame">The display frame, zero through two.</param>
+    internal sealed record MapDisplay(StationDraw Pointer, int Frame) : Draw(Pointer)
+    {
+        /// <inheritdoc/>
+        public override int RunCount => 2;
+
+        /// <inheritdoc/>
+        private protected override sbyte FirstRunX => -1;
+
+        /// <inheritdoc/>
+        private protected override ushort Word(int run, int cell) => LevelWord(8, 0, 0x10c + Frame * 32 - run);
+    }
+
+    /// <summary>
+    /// A vertical refill or ammunition display written origin then above; the art advances one tile per frame and its upper
+    /// cell, a slope, is 32 tiles earlier.
+    /// </summary>
+    /// <param name="Pointer">The native draw list.</param>
+    /// <param name="FirstTile">The display's tile at frame zero.</param>
+    /// <param name="Frame">The display frame, zero through two.</param>
+    internal sealed record ResourceDisplay(StationDraw Pointer, int FirstTile, int Frame) : Draw(Pointer)
+    {
+        /// <summary>The energy display's tile at frame zero.</summary>
+        internal const int EnergyFirstTile = 0xc4;
+
+        /// <summary>The missile display's tile at frame zero.</summary>
+        internal const int MissileFirstTile = 0xc7;
+
+        /// <inheritdoc/>
+        public override int RunCount => 2;
+
+        /// <inheritdoc/>
+        private protected override sbyte RunY(int run) => run == 0 ? (sbyte)-1 : (sbyte)0;
+
+        /// <inheritdoc/>
+        private protected override ushort Word(int run, int cell) => LevelWord(run == 0 ? 8 : 1, 0, FirstTile + Frame - run * 32);
+    }
+
+    /// <summary>
+    /// Six two-cell save-pod rows from floor to cap. The art mirrors horizontally, the floor also vertically, and the
+    /// active pose advances one tile. Floor and cap are solid except the idle floor-left trigger; the shaft is air.
+    /// </summary>
+    /// <param name="Pointer">The native draw list.</param>
+    internal sealed record SavePod(StationDraw Pointer) : Draw(Pointer)
+    {
+        /// <inheritdoc/>
+        public override int RunCount => 6;
+
+        /// <inheritdoc/>
+        private protected override int WordsPerRun => 2;
+
+        /// <inheritdoc/>
+        private protected override sbyte RunY(int run) => run < 5 ? (sbyte)(-run - 1) : (sbyte)0;
+
+        /// <inheritdoc/>
+        private protected override ushort Word(int run, int cell)
         {
-            CheckRun(run);
-            if (run != 0) return 0;
-            return Kind == LayoutKind.Map ? (sbyte)-1 : Kind == LayoutKind.MapAccess && !Extended
-                ? Left ? (sbyte)3 : (sbyte)-3 : (sbyte)0;
-        }
-        /// <summary>Vertical origin-relative offset for save rows and resource upper cells.</summary>
-        public sbyte NextY(int run)
-        {
-            CheckRun(run);
-            return Kind == LayoutKind.Save ? run < 5 ? (sbyte)(-run - 1) : (sbyte)0
-                : Kind is LayoutKind.Energy or LayoutKind.Missile && run == 0 ? (sbyte)-1 : (sbyte)0;
-        }
-        /// <summary>Builds one native level word from the station's frame, tile, flip, and collision rules.</summary>
-        public ushort WordAt(int run, int cell)
-        {
-            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            int tile, collision, flip = 0;
-            switch (Kind)
-            {
-                case LayoutKind.Map:
-                    tile = 0x10c + Frame * 32 - run; collision = 8; break;
-                case LayoutKind.Energy:
-                case LayoutKind.Missile:
-                    tile = (Kind == LayoutKind.Energy ? 0xc4 : 0xc7) + Frame - run * 32;
-                    collision = run == 0 ? 8 : 1; break;
-                case LayoutKind.Save:
-                    bool shaft = run is > 0 and < 5;
-                    tile = (shaft ? 0x5b : 0x59) + (Pointer == StationDraw.SaveActive ? 1 : 0);
-                    flip = cell * 0x400 | (run == 0 ? 0x800 : 0);
-                    collision = shaft ? 0 : Pointer == StationDraw.SaveIdle && run == 0 && cell == 0 ? 11 : 8;
-                    break;
-                case LayoutKind.MapAccess:
-                    tile = Extended ? 0x129 : 0x128; collision = 8;
-                    flip = (Left ^ (run != 0)) ? 0x400 : 0; break;
-                case LayoutKind.ResourceAccess:
-                    tile = Extended ? 0xc1 : 0xc3; collision = Extended ? 8 : 11;
-                    flip = Left ? 0 : 0x400; break;
-                default:
-                    throw new InvalidOperationException($"Undefined LayoutKind {Kind}.");
-            }
-            return (ushort)(collision << 12 | flip | tile);
+            bool shaft = run is > 0 and < 5;
+            int tile = (shaft ? 0x5b : 0x59) + (Pointer == StationDraw.SaveActive ? 1 : 0);
+            int flip = cell * 0x400 | (run == 0 ? 0x800 : 0);
+            int collision = shaft ? 0 : Pointer == StationDraw.SaveIdle && run == 0 && cell == 0 ? 11 : 8;
+            return LevelWord(collision, flip, tile);
         }
     }
+
+    /// <summary>Map access cells, mirrored by side; the retracted pose writes a second cell beside the first.</summary>
+    /// <param name="Pointer">The native draw list.</param>
+    /// <param name="Side">The side of its station the arm sits on.</param>
+    /// <param name="Pose">Whether the arm is extended.</param>
+    internal sealed record MapAccess(StationDraw Pointer, HorizontalDirection Side, StationAccessPose Pose) : Draw(Pointer)
+    {
+        /// <inheritdoc/>
+        public override int RunCount => Pose == StationAccessPose.Extended ? 1 : 2;
+
+        /// <inheritdoc/>
+        private protected override sbyte FirstRunX => Pose == StationAccessPose.Extended ? (sbyte)0
+            : Side == HorizontalDirection.Left ? (sbyte)3 : (sbyte)-3;
+
+        /// <inheritdoc/>
+        private protected override ushort Word(int run, int cell) =>
+            LevelWord(8, (Side == HorizontalDirection.Left ^ run != 0) ? 0x400 : 0, Pose == StationAccessPose.Extended ? 0x129 : 0x128);
+    }
+
+    /// <summary>A resource access cell, mirrored by side, whose extension turns its trigger solid.</summary>
+    /// <param name="Pointer">The native draw list.</param>
+    /// <param name="Side">The side of its station the arm sits on.</param>
+    /// <param name="Pose">Whether the arm is extended.</param>
+    internal sealed record ResourceAccess(StationDraw Pointer, HorizontalDirection Side, StationAccessPose Pose) : Draw(Pointer)
+    {
+        /// <inheritdoc/>
+        public override int RunCount => 1;
+
+        /// <inheritdoc/>
+        [SuppressMessage("Design", "SME6426",
+            Justification = "Every other station layout reads the run and cell it is asked for; a resource access arm is one cell, so its word needs neither coordinate.")]
+        private protected override ushort Word(int run, int cell)
+        {
+            bool extended = Pose == StationAccessPose.Extended;
+            return LevelWord(extended ? 8 : 11, Side == HorizontalDirection.Left ? 0 : 0x400, extended ? 0xc1 : 0xc3);
+        }
+    }
+
+    /// <summary>The layout of <paramref name="pointer"/>, which must be one of the twenty station draw lists.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="pointer"/> is not a station draw list.</exception>
+    internal static Draw Describe(ushort pointer) =>
+        TryDescribe(pointer, out Draw? draw) ? draw : throw new InvalidOperationException($"${pointer:X4} is not a station draw list.");
+
     /// <summary>
     /// Describes a draw pointer handed over by the shared PLM draw interpreter; pointers
     /// outside the twenty station lists belong to other families.
     /// </summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    internal static bool TryDescribe(ushort pointer, [MaybeNullWhen(false)] out Draw draw)
     {
         if (!Enum.IsDefined((StationDraw)pointer))
         {
-            draw = default;
+            draw = null;
             return false;
         }
         var station = (StationDraw)pointer;
         draw = station switch
         {
-            StationDraw.MapFrame0 => new(station, LayoutKind.Map, 0),
-            StationDraw.MapFrame1 => new(station, LayoutKind.Map, 1),
-            StationDraw.MapFrame2 => new(station, LayoutKind.Map, 2),
-            StationDraw.EnergyFrame0 => new(station, LayoutKind.Energy, 0),
-            StationDraw.EnergyFrame1 => new(station, LayoutKind.Energy, 1),
-            StationDraw.EnergyFrame2 => new(station, LayoutKind.Energy, 2),
-            StationDraw.MissileFrame0 => new(station, LayoutKind.Missile, 0),
-            StationDraw.MissileFrame1 => new(station, LayoutKind.Missile, 1),
-            StationDraw.MissileFrame2 => new(station, LayoutKind.Missile, 2),
-            StationDraw.SaveIdle or StationDraw.SaveActive or StationDraw.SaveAlternate => new(station, LayoutKind.Save, 0),
-            StationDraw.MapRightRetracted => new(station, LayoutKind.MapAccess, 0),
-            StationDraw.MapRightExtended => new(station, LayoutKind.MapAccess, 0, Pose: StationAccessPose.Extended),
-            StationDraw.MapLeftRetracted => new(station, LayoutKind.MapAccess, 0, HorizontalDirection.Left),
-            StationDraw.MapLeftExtended => new(station, LayoutKind.MapAccess, 0, HorizontalDirection.Left, StationAccessPose.Extended),
-            StationDraw.ResourceRightRetracted => new(station, LayoutKind.ResourceAccess, 0),
-            StationDraw.ResourceRightExtended => new(station, LayoutKind.ResourceAccess, 0, Pose: StationAccessPose.Extended),
-            StationDraw.ResourceLeftRetracted => new(station, LayoutKind.ResourceAccess, 0, HorizontalDirection.Left),
-            StationDraw.ResourceLeftExtended => new(station, LayoutKind.ResourceAccess, 0, HorizontalDirection.Left, StationAccessPose.Extended),
+            StationDraw.MapFrame0 => new MapDisplay(station, 0),
+            StationDraw.MapFrame1 => new MapDisplay(station, 1),
+            StationDraw.MapFrame2 => new MapDisplay(station, 2),
+            StationDraw.EnergyFrame0 => new ResourceDisplay(station, ResourceDisplay.EnergyFirstTile, 0),
+            StationDraw.EnergyFrame1 => new ResourceDisplay(station, ResourceDisplay.EnergyFirstTile, 1),
+            StationDraw.EnergyFrame2 => new ResourceDisplay(station, ResourceDisplay.EnergyFirstTile, 2),
+            StationDraw.MissileFrame0 => new ResourceDisplay(station, ResourceDisplay.MissileFirstTile, 0),
+            StationDraw.MissileFrame1 => new ResourceDisplay(station, ResourceDisplay.MissileFirstTile, 1),
+            StationDraw.MissileFrame2 => new ResourceDisplay(station, ResourceDisplay.MissileFirstTile, 2),
+            StationDraw.SaveIdle or StationDraw.SaveActive or StationDraw.SaveAlternate => new SavePod(station),
+            StationDraw.MapRightRetracted => new MapAccess(station, HorizontalDirection.Right, StationAccessPose.Retracted),
+            StationDraw.MapRightExtended => new MapAccess(station, HorizontalDirection.Right, StationAccessPose.Extended),
+            StationDraw.MapLeftRetracted => new MapAccess(station, HorizontalDirection.Left, StationAccessPose.Retracted),
+            StationDraw.MapLeftExtended => new MapAccess(station, HorizontalDirection.Left, StationAccessPose.Extended),
+            StationDraw.ResourceRightRetracted => new ResourceAccess(station, HorizontalDirection.Right, StationAccessPose.Retracted),
+            StationDraw.ResourceRightExtended => new ResourceAccess(station, HorizontalDirection.Right, StationAccessPose.Extended),
+            StationDraw.ResourceLeftRetracted => new ResourceAccess(station, HorizontalDirection.Left, StationAccessPose.Retracted),
+            StationDraw.ResourceLeftExtended => new ResourceAccess(station, HorizontalDirection.Left, StationAccessPose.Extended),
             _ => throw new InvalidOperationException($"Undefined station draw ${pointer:X4}."),
         };
         return true;

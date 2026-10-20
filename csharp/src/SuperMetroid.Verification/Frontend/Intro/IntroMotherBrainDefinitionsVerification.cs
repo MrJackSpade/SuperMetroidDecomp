@@ -197,5 +197,5 @@ internal static class IntroMotherBrainDefinitionsVerification
 
     /// <summary>The updates one pass of looping <paramref name="program"/> lasts: the sum of its frames' durations.</summary>
     private static int LoopFrames(CinematicSpriteProgram program) =>
-        CinematicSpriteAnimations.Programs.Steps(program).Where(step => step.Kind == AnimationProgramStepKind.Show).Sum(step => step.Duration);
+        CinematicSpriteAnimations.Programs.Steps(program).OfType<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep>().Sum(step => step.Duration);
 }

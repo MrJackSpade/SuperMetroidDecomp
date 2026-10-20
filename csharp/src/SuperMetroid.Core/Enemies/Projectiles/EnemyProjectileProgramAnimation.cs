@@ -44,19 +44,18 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
         // Only a counter step changes the counter; a deleted projectile keeps its cleared timer.
         if (projectile.Animation == this && counter.RawValue != timerBefore)
             projectile.GeneralTimer = counter.RawValue;
-        duration = advance.Duration;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
-                frame = Present(advance.Frame);
+            case AnimationProgramAdvance<TFrame>.Show shown:
+                duration = shown.Duration;
+                frame = Present(shown.Frame);
                 return true;
-            case AnimationProgramAdvanceKind.Hold:
+            case AnimationProgramAdvance<TFrame>.Hold:
+                duration = 0;
                 frame = default;
                 return false;
-            case AnimationProgramAdvanceKind.Wait:
-            case AnimationProgramAdvanceKind.Stop:
             default:
-                throw new InvalidOperationException($"A projectile program ended an update with {advance.Kind}.");
+                throw new InvalidOperationException($"A projectile program ended an update with {advance}.");
         }
     }
 }

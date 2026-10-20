@@ -60,8 +60,8 @@ internal static class CrocomireAnimationsVerification
             string at = $"Crocomire {program} step {index}";
             if (index > 0 && BodyProgramAt(cursor) is { } next)
             {
-                AssertEqual(AnimationProgramStepKind.FallInto, step.Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(next, step.Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
+                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                 AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
                 return steps.Count;
             }
@@ -71,27 +71,27 @@ internal static class CrocomireAnimationsVerification
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
                 {
-                    AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                    AssertEqual(word, step.Duration, $"{at}: duration");
+                    var show = AssertIs<AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.ShowStep>(step, $"{at}: frame");
+                    AssertEqual(word, show.Duration, $"{at}: duration");
                     ushort spritemap = cartridge.ReadCartridgeWord(BodyBank | (cursor + 2));
-                    AssertEqual(spritemap, CrocomireBodyFrameSpritemapsTooling.Spritemap(step.Frame), $"{at}: spritemap");
+                    AssertEqual(spritemap, CrocomireBodyFrameSpritemapsTooling.Spritemap(show.Frame), $"{at}: spritemap");
                     drawn.Add(spritemap);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.GoTo:
-                    AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
-                    AssertEqual(BodyProgramAt(cartridge.ReadCartridgeWord(BodyBank | (cursor + 2))), step.Target, $"{at}: goto target");
+                    var goTo = AssertIs<AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.GoToStep>(step, $"{at}: goto");
+                    AssertEqual(BodyProgramAt(cartridge.ReadCartridgeWord(BodyBank | (cursor + 2))), goTo.Target, $"{at}: goto target");
                     AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
                     return steps.Count;
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertEqual(AnimationProgramStepKind.Hold, step.Kind, $"{at}: sleep");
+                    AssertTrue(step is AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.HoldStep, $"{at}: sleep");
                     AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
                     return steps.Count;
                 case NativeEnemyListDefinitions.WordKind.Callback:
                     AssertTrue(BodyCallbacks.TryGetValue(word, out CrocomireBodyCue cue), $"{at}: native callback ${word:X4} is a known Crocomire callback");
-                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: callback");
-                    AssertEqual(cue, step.Cue, $"{at}: cue");
+                    var cueStep = AssertIs<AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.CueStep>(step, $"{at}: callback");
+                    AssertEqual(cue, cueStep.Cue, $"{at}: cue");
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Stop:
@@ -320,7 +320,7 @@ internal static class CrocomireAnimationsVerification
     internal static IEnumerable<ushort> TypedBodySpritemaps(CrocomireBodyFrameSet set) =>
         Enum.GetValues<CrocomireBodyProgram>()
             .SelectMany(program => CrocomireBodyAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show && step.Frame.Set == set)
+            .OfType<AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.ShowStep>().Where(step => step.Frame.Set == set)
             .Select(step => CrocomireBodyFrameSpritemapsTooling.Spritemap(step.Frame))
             .Distinct();
 

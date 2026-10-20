@@ -18,25 +18,25 @@ internal sealed class MotherBrainGlassPlmAnimation()
     private protected override MotherBrainGlassPlmProgram? Publish(MotherBrainGlassPlmCue cue, PlmSlot slot, PlmStepContext context)
     {
         MotherBrainGlassPlms glass = context.Plms.MotherBrainGlass;
-        switch (cue.Kind)
+        switch (cue)
         {
-            case MotherBrainGlassPlmCueKind.SkipIfBossDead:
+            case MotherBrainGlassPlmCue.Command { Kind: MotherBrainGlassPlmCueKind.SkipIfBossDead }:
                 return glass.IsBossDead() ? MotherBrainGlassPlmProgram.BossDead : null;
-            case MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed:
+            case MotherBrainGlassPlmCue.Command { Kind: MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed }:
                 return glass.IsGlassDestroyed() ? MotherBrainGlassPlmProgram.NoGlass : null;
-            case MotherBrainGlassPlmCueKind.ArmHitWake:
+            case MotherBrainGlassPlmCue.Command { Kind: MotherBrainGlassPlmCueKind.ArmHitWake }:
                 slot.PreInstruction = MotherBrainGlassPreInstructions.Hit;
                 return null;
-            case MotherBrainGlassPlmCueKind.RepeatUntilHits:
-                return slot.RoomArgument < cue.Hits ? Cursor.Program : null;
-            case MotherBrainGlassPlmCueKind.SpawnShards:
-                glass.SpawnShards(slot, cue.Shards);
+            case MotherBrainGlassPlmCue.RepeatUntilHits repeatUntilHits:
+                return slot.RoomArgument < repeatUntilHits.Hits ? Cursor.Program : null;
+            case MotherBrainGlassPlmCue.SpawnShards spawnShards:
+                glass.SpawnShards(slot, spawnShards.Shards);
                 return null;
-            case MotherBrainGlassPlmCueKind.SetGlassDestroyed:
+            case MotherBrainGlassPlmCue.Command { Kind: MotherBrainGlassPlmCueKind.SetGlassDestroyed }:
                 glass.SetGlassDestroyed();
                 return null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(MotherBrainGlassPlmCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(MotherBrainGlassPlmCueKind)} {cue}.");
         }
     }
 }

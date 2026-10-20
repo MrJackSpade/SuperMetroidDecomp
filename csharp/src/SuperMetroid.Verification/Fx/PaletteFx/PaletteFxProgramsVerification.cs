@@ -23,8 +23,8 @@ internal static class PaletteFxProgramsVerification
         HashSet<int> records = [];
         foreach (PaletteFxProgram program in Enum.GetValues<PaletteFxProgram>())
             foreach (var step in PaletteFxAnimations.Programs.Steps(program))
-                if (step.Kind == Core.Programs.AnimationProgramStepKind.Show)
-                    records.Add(step.Frame.Record);
+                if (step is AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep show)
+                    records.Add(show.Frame.Record);
         AssertEqual(PaletteFxRecordDefinitionsConstants.RecordCount, records.Count, "every colour record is shown by a program");
         Console.WriteLine($"  Palette-FX programs: {steps.Count} programs ({steps.Values.Sum(s => s.Length)} steps, {records.Count} colour records) match bank $8D.");
     }
@@ -66,18 +66,18 @@ internal static class PaletteFxProgramsVerification
             var step = steps[index];
             if (cursor != entry && byEntry.TryGetValue(cursor, out PaletteFxProgram next))
             {
-                AssertEqual(AnimationProgramStepKind.FallInto, step.Kind, $"{at}: runs on into the next authored list");
-                AssertEqual(next, step.Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.FallIntoStep>(step, $"{at}: runs on into the next authored list");
+                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                 AssertEqual(steps.Count, index + 1, $"{at}: the fall-through ends the program");
                 return addresses;
             }
             ushort word = Word(cursor);
             if (word < PaletteFxListWords.CommandWord)
             {
-                AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: timed record");
-                AssertEqual(word, step.Duration, $"{at}: duration");
-                AssertEqual(cursor, PaletteFxColorLayoutAccess.RecordAddress(step.Frame), $"{at}: record address");
-                cursor = CompareLayout(cursor, PaletteFxRecordDefinitions.Layout(step.Frame), at);
+                var show = AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep>(step, $"{at}: timed record");
+                AssertEqual(word, show.Duration, $"{at}: duration");
+                AssertEqual(cursor, PaletteFxColorLayoutAccess.RecordAddress(show.Frame), $"{at}: record address");
+                cursor = CompareLayout(cursor, PaletteFxRecordDefinitions.Layout(show.Frame), at);
                 continue;
             }
             PaletteFxInstruction instruction = (PaletteFxInstruction)word;
@@ -86,47 +86,46 @@ internal static class PaletteFxProgramsVerification
             switch (instruction)
             {
                 case PaletteFxInstruction.Goto:
-                    AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
-                    AssertEqual(byEntry[operandWord], step.Target, $"{at}: goto target");
+                    var goTo = AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.GoToStep>(step, $"{at}: goto");
+                    AssertEqual(byEntry[operandWord], goTo.Target, $"{at}: goto target");
                     AssertEqual(steps.Count, index + 1, $"{at}: the goto ends the program");
                     return addresses;
                 case PaletteFxInstruction.Delete:
-                    AssertEqual(AnimationProgramStepKind.Stop, step.Kind, $"{at}: delete");
+                    AssertTrue(step is AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.StopStep, $"{at}: delete");
                     AssertEqual(steps.Count, index + 1, $"{at}: the delete ends the program");
                     return addresses;
                 case PaletteFxInstruction.DecrementTimerAndGoto:
-                    AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, step.Kind, $"{at}: counted repeat");
-                    AssertEqual(byEntry[operandWord], step.Target, $"{at}: repeat target");
+                    var repeat = AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.RepeatWhileCountingStep>(step, $"{at}: counted repeat");
+                    AssertEqual(byEntry[operandWord], repeat.Target, $"{at}: repeat target");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.SetTimer:
                     // The native command writes only the timer's low byte; its high byte is zero from spawn and every
                     // counted loop runs it down to zero, so the typed counter set is the same.
-                    AssertEqual(AnimationProgramStepKind.SetCounter, step.Kind, $"{at}: timer");
-                    AssertEqual(operandByte, step.Duration, $"{at}: timer count");
+                    var setCounter = AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.SetCounterStep>(step, $"{at}: timer");
+                    AssertEqual(operandByte, setCounter.Count, $"{at}: timer count");
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.SetColorIndex:
                     // The native operand is a CGRAM byte index; the typed cue names the colour it starts at.
                     AssertTrue(operandWord % sizeof(ushort) == 0, $"{at}: colour byte index is word-aligned");
-                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.SetColorIndex, ColorIndex: operandWord / sizeof(ushort)), at);
+                    AssertCue(step, new PaletteFxCue.SetColorIndex(ColorIndex: operandWord / sizeof(ushort)), at);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.SetPreInstruction:
-                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.SetPreInstruction, PreInstruction: (PaletteFxPreInstruction)operandWord), at);
+                    AssertCue(step, new PaletteFxCue.SetPreInstruction(PreInstruction: (PaletteFxPreInstruction)operandWord), at);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.ClearPreInstruction:
-                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.ClearPreInstruction), at);
+                    AssertCue(step, new PaletteFxCue.Command(PaletteFxCueKind.ClearPreInstruction), at);
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case PaletteFxInstruction.SetPaletteFxIndex:
-                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.SetHeatPaletteIndex, HeatPhase: operandByte), at);
+                    AssertCue(step, new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: operandByte), at);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.QueueSfx2:
-                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.QueueSoundLibrary2,
-                        Sound: SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operandByte)), at);
+                    AssertCue(step, new PaletteFxCue.QueueSoundLibrary2(Sound: SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operandByte)), at);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.Wait:
@@ -197,8 +196,8 @@ internal static class PaletteFxProgramsVerification
     /// <summary>Checks that <paramref name="step"/> publishes <paramref name="expected"/>.</summary>
     private static void AssertCue(AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue> step, PaletteFxCue expected, string at)
     {
-        AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: command");
-        AssertEqual(expected, step.PublishedCue, $"{at}: cue");
+        var cueStep = AssertIs<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep>(step, $"{at}: command");
+        AssertEqual(expected, cueStep.Cue, $"{at}: cue");
     }
 
     /// <summary>Runs the palette-FX program oracle.</summary>

@@ -129,23 +129,21 @@ public sealed class DemoInputState
                     return null;
                 });
             Timer = timer;
-            switch (advance.Kind)
+            switch (advance)
             {
-                case AnimationProgramAdvanceKind.Show:
-                    InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                    Held = advance.Frame.Held;
-                    NewlyPressed = advance.Frame.NewlyPressed;
+                case AnimationProgramAdvance<DemoInputFrame>.Show shown:
+                    InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                    Held = shown.Frame.Held;
+                    NewlyPressed = shown.Frame.NewlyPressed;
                     Cursor = cursor;
                     break;
-                case AnimationProgramAdvanceKind.Stop:
+                case AnimationProgramAdvance<DemoInputFrame>.Stop:
                     Cursor = null;
                     Held = 0;
                     NewlyPressed = 0;
                     break;
-                case AnimationProgramAdvanceKind.Wait:
-                case AnimationProgramAdvanceKind.Hold:
                 default:
-                    throw new InvalidOperationException($"Demo-input program {cursor.Program} ended its advance with {advance.Kind}.");
+                    throw new InvalidOperationException($"Demo-input program {cursor.Program} ended its advance with {advance}.");
             }
         }
 

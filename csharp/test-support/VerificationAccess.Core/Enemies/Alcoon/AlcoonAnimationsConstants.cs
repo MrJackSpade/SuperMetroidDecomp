@@ -9,6 +9,6 @@ internal static class AlcoonAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params AlcoonProgram[] programs) =>
         programs.SelectMany(program => AlcoonAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.ShowStep>()
             .Select(step => AlcoonFrameToolingDefinitions.Spritemap(step.Frame));
 }

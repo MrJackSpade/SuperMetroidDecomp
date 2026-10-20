@@ -1,29 +1,44 @@
-using SuperMetroid.Core.Samus.Projectiles;
+﻿using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A gameplay cue of Mother Brain's body programs.</summary>
-/// <param name="Kind">What the cue does.</param>
-/// <param name="Pose">The pose a <see cref="MotherBrainBodyCueKind.SetPose"/> cue publishes.</param>
-/// <param name="Offset">The body displacement, hand offset, or vertical move with its scroll bias as X.</param>
-/// <param name="Dust">The particle a hand-dust cue spawns.</param>
-internal readonly record struct MotherBrainBodyCue(
-    MotherBrainBodyCueKind Kind, MotherBrainBodyPose Pose, Offset16<RoomPixels> Offset, MiscDustAnimation Dust)
+internal abstract record MotherBrainBodyCue
 {
-    /// <summary>Publishes <paramref name="pose"/>.</summary>
-    internal static MotherBrainBodyCue SetPose(MotherBrainBodyPose pose) => new(MotherBrainBodyCueKind.SetPose, pose, default, default);
-    /// <summary>Moves the body by <paramref name="offset"/>.</summary>
-    internal static MotherBrainBodyCue Move(Offset16<RoomPixels> offset) => new(MotherBrainBodyCueKind.Move, default, offset, default);
-    /// <summary>Plants a foot, then moves the body by <paramref name="offset"/>.</summary>
-    internal static MotherBrainBodyCue StepAndMove(Offset16<RoomPixels> offset) => new(MotherBrainBodyCueKind.StepAndMove, default, offset, default);
-    /// <summary>Moves the body down by <paramref name="y"/>, scrolling BG2 with <paramref name="scrollBias"/>.</summary>
-    internal static MotherBrainBodyCue MoveWithScrollBias(short y, short scrollBias) =>
-        new(MotherBrainBodyCueKind.MoveWithScrollBias, default, new(scrollBias, y), default);
-    /// <summary>Spawns <paramref name="dust"/> at <paramref name="offset"/> from the body.</summary>
-    internal static MotherBrainBodyCue SpawnHandDust(Offset16<RoomPixels> offset, MiscDustAnimation dust) =>
-        new(MotherBrainBodyCueKind.SpawnHandDust, default, offset, dust);
+    /// <summary>Closes the hierarchy to the cues declared here.</summary>
+    private MotherBrainBodyCue()
+    {
+    }
+
+    /// <summary>Publishes a body pose to the AI.</summary>
+    /// <param name="Pose">The pose published.</param>
+    internal sealed record SetPose(MotherBrainBodyPose Pose) : MotherBrainBodyCue;
+
+    /// <summary>Moves the body, keeping BG2 aligned with it.</summary>
+    /// <param name="Offset">The body displacement.</param>
+    internal sealed record Move(Offset16<RoomPixels> Offset) : MotherBrainBodyCue;
+
+    /// <summary>Plants a foot (shaking the room), then moves the body.</summary>
+    /// <param name="Offset">The body displacement.</param>
+    internal sealed record StepAndMove(Offset16<RoomPixels> Offset) : MotherBrainBodyCue;
+
+    /// <summary>Moves the body vertically, counter-scrolling BG2 with a horizontal bias.</summary>
+    /// <param name="Y">The vertical move.</param>
+    /// <param name="ScrollBias">The horizontal bias BG2 scrolls with.</param>
+    internal sealed record MoveWithScrollBias(short Y, short ScrollBias) : MotherBrainBodyCue;
+
+    /// <summary>Spawns a charge particle at the hand.</summary>
+    /// <param name="Offset">Where the particle spawns, from the body.</param>
+    /// <param name="Dust">The particle spawned.</param>
+    internal sealed record SpawnHandDust(Offset16<RoomPixels> Offset, MiscDustAnimation Dust) : MotherBrainBodyCue;
+
+    /// <summary>A cue that carries no operand.</summary>
+    /// <param name="Kind">What the cue does.</param>
+    internal sealed record Command(MotherBrainBodyCueKind Kind) : MotherBrainBodyCue;
+
     /// <summary>Fires the red hand beam.</summary>
-    internal static MotherBrainBodyCue FireHandBeam { get; } = new(MotherBrainBodyCueKind.FireHandBeam, default, default, default);
+    internal static MotherBrainBodyCue FireHandBeam { get; } = new Command(MotherBrainBodyCueKind.FireHandBeam);
+
     /// <summary>Advances the hand-beam attack phase.</summary>
-    internal static MotherBrainBodyCue AdvanceHandBeamPhase { get; } = new(MotherBrainBodyCueKind.AdvanceHandBeamPhase, default, default, default);
+    internal static MotherBrainBodyCue AdvanceHandBeamPhase { get; } = new Command(MotherBrainBodyCueKind.AdvanceHandBeamPhase);
 }

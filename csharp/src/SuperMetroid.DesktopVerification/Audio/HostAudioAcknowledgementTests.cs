@@ -56,8 +56,8 @@ internal static class HostAudioAcknowledgementTests
                 control.StepFrame(input);
                 FrontendFrame frame = reference.Step(input);
                 cursorRequests += reference.AudioEventsForVerification.Count(audioEvent =>
-                    audioEvent.Kind == AudioEventKind.StartSoundEffect &&
-                    audioEvent.SoundEffect == SoundEffectLibrary1Sounds.MenuCursor);
+                    audioEvent is AudioEvent.StartSoundEffect started &&
+                    started.SoundEffect == SoundEffectLibrary1Sounds.MenuCursor);
                 AssertSameAudio(control.game, reference, $"update {tick}");
             }
             Check(moves == FileSelectCursorMoves, "the fixture reaches the file-select cursor");

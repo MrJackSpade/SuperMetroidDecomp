@@ -48,7 +48,7 @@ internal static class SpcCommandPortsVerification
         using var pcm = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         CartridgeAudioAcknowledgements modeledAcknowledgements = default;
-        var starts = new List<(int Frame, AudioEvent Start)>();
+        var starts = new List<(int Frame, AudioEvent.StartSoundEffect Start)>();
         int uploadFrame = -1, trackFrame = -1, downtimeRequestFrame = -1;
         for (int frame = 0; frame < ScenarioFrames; frame++)
         {
@@ -59,11 +59,11 @@ internal static class SpcCommandPortsVerification
                 $"frame {frame} commands under modeled acknowledgements");
             foreach (CartridgeAudioCommand command in commands)
             {
-                if (command.Kind == CartridgeAudioCommandKind.Upload && frame > 0)
+                if (command is CartridgeAudioCommand.Upload && frame > 0)
                     uploadFrame = frame;
-                else if (command == CartridgeAudioCommand.WritePort(ApuPort.Music, 5))
+                else if (command == new CartridgeAudioCommand.WritePort(ApuPort.Music, 5))
                     trackFrame = frame;
-                else if (command == CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3,
+                else if (command == new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3,
                     SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value))
                     downtimeRequestFrame = frame;
             }
@@ -84,7 +84,7 @@ internal static class SpcCommandPortsVerification
                 AssertEqual(sessionAcknowledgements[port], modeledAcknowledgements[port],
                     $"frame {frame} {port} acknowledgement");
             }
-            starts.AddRange(events.Where(audioEvent => audioEvent.Kind == AudioEventKind.StartSoundEffect)
+            starts.AddRange(events.OfType<AudioEvent.StartSoundEffect>()
                 .Select(audioEvent => (frame, audioEvent)));
         }
 
@@ -129,28 +129,29 @@ internal static class SpcCommandPortsVerification
         var expected = new List<AudioEvent>();
         foreach (CartridgeAudioCommand command in commands)
         {
-            if (command.Kind == CartridgeAudioCommandKind.Upload)
+            if (command is CartridgeAudioCommand.Upload upload)
             {
                 ports.ResetForUpload();
-                expected.Add(AudioEvent.LoadAudioBank(command.Bank));
+                expected.Add(new AudioEvent.LoadAudioBank(upload.Bank));
                 continue;
             }
-            ports.WritePort(command.InputPort, command.Value);
-            if (command.InputPort == ApuPort.Music)
-                expected.Add(AudioEvent.WriteMusicPort(MusicCommand.FromCartridge(command.Value)));
+            var write = AssertIs<CartridgeAudioCommand.WritePort>(command, "a cartridge audio command is an upload or a port write");
+            ports.WritePort(write.InputPort, write.Value);
+            if (write.InputPort == ApuPort.Music)
+                expected.Add(new AudioEvent.WriteMusicPort(MusicCommand.FromCartridge(write.Value)));
         }
         Span<SpcDriverTick> schedule = stackalloc SpcDriverTick[SpcCommandPorts.MaximumTicksPerFrame];
         int ticks = ports.AdvanceFrame(schedule);
         foreach (SpcDriverTick tick in schedule[..ticks])
         {
-            expected.Add(AudioEvent.DriverTick(tick.DspCycleOffset, tick.Ticks, tick.SoundEffectsPolled));
+            expected.Add(new AudioEvent.DriverTick(tick.DspCycleOffset, tick.Ticks, tick.SoundEffectsPolled));
             if (!tick.SoundEffectsPolled)
                 continue;
             for (int library = 0; library < SoundEffectLibraries.Count; library++)
             {
                 SpcSoundEffectPoll poll = tick.LibraryPolls[library];
                 if (poll.Changed && poll.Command != 0)
-                    expected.Add(AudioEvent.StartSoundEffect(new SoundEffectId(SoundEffectLibraries.FromQueueIndex(library), poll.Command), tick.DspCycleOffset));
+                    expected.Add(new AudioEvent.StartSoundEffect(new SoundEffectId(SoundEffectLibraries.FromQueueIndex(library), poll.Command), tick.DspCycleOffset));
             }
         }
         acknowledgements = new CartridgeAudioAcknowledgements(0,

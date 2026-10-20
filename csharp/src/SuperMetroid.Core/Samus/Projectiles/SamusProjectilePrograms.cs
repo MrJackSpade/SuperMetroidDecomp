@@ -17,18 +17,16 @@ internal static class SamusProjectilePrograms
         NativeCountdown counter = default;
         AnimationProgramAdvance<SamusProjectileFrame> advance =
             SamusProjectileAnimations.Programs.Advance(ref cursor, ref counter, static (_, _) => null);
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
-                duration = advance.Duration;
-                return SamusProjectileRecordDefinitions.Get(advance.Frame);
-            case AnimationProgramAdvanceKind.Stop:
+            case AnimationProgramAdvance<SamusProjectileFrame>.Show shown:
+                duration = shown.Duration;
+                return SamusProjectileRecordDefinitions.Get(shown.Frame);
+            case AnimationProgramAdvance<SamusProjectileFrame>.Stop:
                 duration = 0;
                 return null;
-            case AnimationProgramAdvanceKind.Wait:
-            case AnimationProgramAdvanceKind.Hold:
             default:
-                throw new InvalidOperationException($"Samus projectile program {cursor.Program} ended an advance with {advance.Kind}.");
+                throw new InvalidOperationException($"Samus projectile program {cursor.Program} ended an advance with {advance}.");
         }
     }
 
@@ -45,9 +43,9 @@ internal static class SamusProjectilePrograms
         if (program is not { } selected)
             return Extent16<RoomPixels>.Zero;
         var first = SamusProjectileAnimations.Programs.Steps(selected)[0];
-        if (first.Kind != AnimationProgramStepKind.Show)
+        if (first is not AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show)
             throw new InvalidDataException($"Samus projectile program {selected} does not open with a timed record.");
-        SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(first.Frame);
+        SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(show.Frame);
         return record.Radius;
     }
 
@@ -60,8 +58,8 @@ internal static class SamusProjectilePrograms
         if (cursor.Position == 0)
             return SamusProjectileProgramAddresses.Prefix(cursor.Program);
         var previous = SamusProjectileAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1];
-        if (previous.Kind != AnimationProgramStepKind.Show)
+        if (previous is not AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show)
             throw new InvalidOperationException($"Samus projectile program {cursor.Program} continues past a non-record step.");
-        return checked((ushort)SamusProjectileRecordDefinitions.Get(previous.Frame).AnimationFrame);
+        return checked((ushort)SamusProjectileRecordDefinitions.Get(show.Frame).AnimationFrame);
     }
 }

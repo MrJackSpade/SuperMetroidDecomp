@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Areas.Ceres;
+﻿using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
@@ -15,12 +15,12 @@ internal static class CeresBabyNativeListAddresses
         (CeresBabyProgram.ExpressiveLoop, 0xbf59),
     ];
 
-    /// <summary>The draw list's instructions: each cue it becomes, or null for its goto.</summary>
-    internal static readonly Dictionary<ushort, CeresBabyCueKind?> Instructions = new()
+    /// <summary>The draw list's instructions: the cue variant each becomes, or null for its goto.</summary>
+    internal static readonly Dictionary<ushort, Type?> Instructions = new()
     {
-        [0xbfc9] = CeresBabyCueKind.CryOrGoTo,
-        [0xbfe1] = CeresBabyCueKind.UpdateColors,
-        [0xbff2] = CeresBabyCueKind.GoToIfMoving,
+        [0xbfc9] = typeof(CeresBabyCue.CryOrGoTo),
+        [0xbfe1] = typeof(CeresBabyCue.UpdateColors),
+        [0xbff2] = typeof(CeresBabyCue.GoToIfMoving),
         [0xbff8] = null,
     };
 

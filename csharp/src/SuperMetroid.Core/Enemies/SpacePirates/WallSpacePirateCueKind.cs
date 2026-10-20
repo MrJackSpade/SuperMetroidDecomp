@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.SpacePirates;
+﻿namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>What a cue of the wall Space Pirates' programs does: one per bank-$B2 instruction its lists use.</summary>
 internal enum WallSpacePirateCueKind
@@ -7,10 +7,6 @@ internal enum WallSpacePirateCueKind
     ChooseLeftWallDirection,
     /// <summary>Picks a random climb direction and continues at that right-wall climb (<c>Instruction_PirateWall_RandomlyChooseADirection_RightWall</c>, $B2:EEBC).</summary>
     ChooseRightWallDirection,
-    /// <summary>Climbs the operand's pixels on the left wall, continuing at the opposite climb after terrain contact (<c>Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Left</c>, $B2:EE40).</summary>
-    ClimbLeftWall,
-    /// <summary>Climbs the operand's pixels on the right wall, continuing at the opposite climb after terrain contact (<c>Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Right</c>, $B2:EE72).</summary>
-    ClimbRightWall,
     /// <summary>Fires a laser left (<c>Instruction_PirateWall_FireLaserLeft</c>, $B2:EF2A).</summary>
     FireLaserLeft,
     /// <summary>Fires a laser right (<c>Instruction_PirateWall_FireLaserRight</c>, $B2:EF5D).</summary>
@@ -21,6 +17,4 @@ internal enum WallSpacePirateCueKind
     PrepareJumpLeft,
     /// <summary>Prepares the jump to the right wall (<c>Instruction_PirateWall_PrepareWallJumpToRight</c>, $B2:EED4).</summary>
     PrepareJumpRight,
-    /// <summary>Sets the function main AI runs next (<c>Instruction_PirateWall_FunctionInY</c>, $B2:EF83).</summary>
-    SetFunction,
 }

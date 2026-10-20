@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
@@ -111,7 +112,7 @@ internal static class ProjectileFrameBindingsVerification
         AssertEqual(replacement, editedShot.SpritemapPointer,
             "edited frame binding reaches the actual projectile instruction handler");
         var editedRecord = SamusProjectileProgramAddresses.CursorAt(editedPointer) ?? throw new InvalidDataException("A record address is never zero.");
-        AssertEqual(SamusProjectileAnimations.Programs.Steps(editedRecord.Program)[editedRecord.Position].Duration,
+        AssertEqual(AssertIs<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep>(SamusProjectileAnimations.Programs.Steps(editedRecord.Program)[editedRecord.Position], "edited record step").Duration,
             (int)editedShot.InstructionTimer.RawValue, "visual edit does not change frame duration");
         var editedOam = new OamBuffer();
         compositions.Draw(checked((ushort)editedShot.SpritemapPointer), editedOam, new(100, 100));

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;
@@ -31,20 +32,20 @@ internal static class SporeSpawnNativeListAddresses
     internal const int BodyListsEnd = 0xa5e811;
 
     /// <summary>Each bank-$A5 Spore Spawn instruction the body lists use: the cue it must become and its operand words.</summary>
-    internal static readonly Dictionary<ushort, (SporeSpawnCueKind Kind, int Operands)> BodyInstructions = new()
+    internal static readonly Dictionary<ushort, (NativeCueShape<SporeSpawnCue> Cue, int Operands)> BodyInstructions = new()
     {
-        [0xe75f] = (SporeSpawnCueKind.IncreaseMaxXRadius, 0),
-        [0xe771] = (SporeSpawnCueKind.ClearDamagedFlag, 0),
-        [0xe82d] = (SporeSpawnCueKind.SetMaxXRadiusAndAngleDelta, 2),
-        [0xe872] = (SporeSpawnCueKind.SetSporeGeneration, 1),
-        [0xe87c] = (SporeSpawnCueKind.Harden, 0),
-        [0xe895] = (SporeSpawnCueKind.QueueSound, 1),
-        [0xe8b1] = (SporeSpawnCueKind.RequestDeathDrops, 0),
-        [0xe8ba] = (SporeSpawnCueKind.SetFunction, 1),
-        [0xe8ca] = (SporeSpawnCueKind.LoadDeathPalette, 1),
-        [0xe91c] = (SporeSpawnCueKind.LoadDeathTargetPalette, 1),
-        [0xe96e] = (SporeSpawnCueKind.SpawnHardeningDust, 0),
-        [0xe9b1] = (SporeSpawnCueKind.SpawnDyingExplosion, 0),
+        [0xe75f] = (NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.IncreaseMaxXRadius)), 0),
+        [0xe771] = (NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.ClearDamagedFlag)), 0),
+        [0xe82d] = (NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetMaxXRadiusAndAngleDelta>(""), 2),
+        [0xe872] = (NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetSporeGeneration>(""), 1),
+        [0xe87c] = (NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.Harden)), 0),
+        [0xe895] = (NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.QueueSound>(""), 1),
+        [0xe8b1] = (NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.RequestDeathDrops)), 0),
+        [0xe8ba] = (NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetFunction>(""), 1),
+        [0xe8ca] = (NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.LoadDeathPalette>(""), 1),
+        [0xe91c] = (NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.LoadDeathTargetPalette>(""), 1),
+        [0xe96e] = (NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.SpawnHardeningDust)), 0),
+        [0xe9b1] = (NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.SpawnDyingExplosion)), 0),
     };
 
     /// <summary>Each typed projectile program's native entry point in bank $86.</summary>

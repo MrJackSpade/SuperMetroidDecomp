@@ -45,30 +45,30 @@ public sealed class ManagedSpcAudioBackend
         int ticks = 0;
         foreach (AudioEvent audioEvent in events)
         {
-            switch (audioEvent.Kind)
+            switch (audioEvent)
             {
-                case AudioEventKind.LoadAudioBank:
+                case AudioEvent.LoadAudioBank loadAudioBank:
                     RequireBeforeTicks(ticks, audioEvent);
-                    LoadBank(audioEvent.Bank);
+                    LoadBank(loadAudioBank.Bank);
                     break;
-                case AudioEventKind.WriteMusicPort:
+                case AudioEvent.WriteMusicPort writeMusicPort:
                     RequireBeforeTicks(ticks, audioEvent);
-                    Player.WriteMusicPort(unchecked((byte)audioEvent.Music.RawValue));
+                    Player.WriteMusicPort(unchecked((byte)writeMusicPort.Music.RawValue));
                     break;
-                case AudioEventKind.DriverTick:
+                case AudioEvent.DriverTick driverTick:
                     if (ticks == schedule.Length)
                         throw new InvalidDataException($"An update holds more than {schedule.Length} driver ticks.");
-                    schedule[ticks++] = new SpcDriverTick(audioEvent.DspCycleOffset, audioEvent.Ticks,
-                        audioEvent.SoundEffectsPolled, default);
+                    schedule[ticks++] = new SpcDriverTick(driverTick.DspCycleOffset, driverTick.Ticks,
+                        driverTick.SoundEffectsPolled, default);
                     break;
-                case AudioEventKind.StartSoundEffect:
+                case AudioEvent.StartSoundEffect startSoundEffect:
                     if (ticks == 0 || !schedule[ticks - 1].SoundEffectsPolled ||
-                        schedule[ticks - 1].DspCycleOffset != audioEvent.DspCycleOffset)
+                        schedule[ticks - 1].DspCycleOffset != startSoundEffect.DspCycleOffset)
                         throw new InvalidDataException($"{audioEvent} does not follow its polling driver tick.");
-                    schedule[ticks - 1] = StartAt(schedule[ticks - 1], audioEvent.SoundEffect);
+                    schedule[ticks - 1] = StartAt(schedule[ticks - 1], startSoundEffect.SoundEffect);
                     break;
                 default:
-                    throw new InvalidDataException($"Unknown audio event {audioEvent.Kind}.");
+                    throw new InvalidDataException($"Unknown audio event {audioEvent}.");
             }
         }
         return schedule.AsSpan(0, ticks);

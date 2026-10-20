@@ -42,7 +42,7 @@ internal static class GunshipDustAnimationsVerification
 
         var shown = Enum.GetValues<GunshipDustProgram>()
             .SelectMany(program => GunshipDustAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue>.ShowStep>()
             .Select(step => step.Frame).ToHashSet();
         AssertTrue(shown.SetEquals(GunshipDustVisualDefinitions.Frames), "the dust programs show exactly the installed frames");
         Console.WriteLine($"  gunship dust programs: 6 spawns ({updates} updates, {shown.Count} installed frames) match bank $86.");

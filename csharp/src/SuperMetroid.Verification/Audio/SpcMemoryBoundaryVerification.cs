@@ -52,7 +52,7 @@ internal static class SpcMemoryBoundaryVerification
         ports.WritePort(ApuPort.SoundLibrary3, 0x42);
         AssertThrows<ArgumentOutOfRangeException>(() => ports.WritePort((ApuPort)4, 0), "APU input ports are $2140-$2143");
         AssertThrows<ArgumentOutOfRangeException>(() => ports.ReadSoundEffectPort((ApuPort)4), "APU output ports are $2140-$2143");
-        AssertEqual(ApuPort.SoundLibrary2, CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 1).InputPort, "port commands round-trip their port");
+        AssertEqual(ApuPort.SoundLibrary2, new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 1).InputPort, "port commands round-trip their port");
     }
 
     /// <summary>Runs the focused SPC memory and APU port boundary check.</summary>

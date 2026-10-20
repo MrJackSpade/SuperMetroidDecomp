@@ -87,8 +87,8 @@ internal static class PhantoonAnimationsVerification
             string at = $"Phantoon {program} step {index}";
             if (cursor != entry && PartProgramAt(cursor) is { } next)
             {
-                AssertEqual(AnimationProgramStepKind.FallInto, steps[index].Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(next, steps[index].Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.FallIntoStep>(steps[index], $"{at}: runs on into the next authored program");
+                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                 AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
                 return steps.Count;
             }
@@ -98,26 +98,26 @@ internal static class PhantoonAnimationsVerification
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    AssertEqual(AnimationProgramStepKind.Show, steps[index].Kind, $"{at}: frame");
-                    AssertEqual(word, steps[index].Duration, $"{at}: duration");
-                    AssertEqual(operand, PhantoonPartFrameSpritemapsConstants.Spritemap(steps[index].Frame), $"{at}: spritemap");
+                    var show = AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.ShowStep>(steps[index], $"{at}: frame");
+                    AssertEqual(word, show.Duration, $"{at}: duration");
+                    AssertEqual(operand, PhantoonPartFrameSpritemapsConstants.Spritemap(show.Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
                     continue;
                 case NativeEnemyListDefinitions.WordKind.GoTo:
-                    AssertEqual(AnimationProgramStepKind.GoTo, steps[index].Kind, $"{at}: goto");
-                    AssertEqual(PartProgramAt(operand), steps[index].Target, $"{at}: goto target");
+                    var goTo = AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.GoToStep>(steps[index], $"{at}: goto");
+                    AssertEqual(PartProgramAt(operand), goTo.Target, $"{at}: goto target");
                     AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
                     return steps.Count;
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertEqual(AnimationProgramStepKind.Hold, steps[index].Kind, $"{at}: sleep");
+                    AssertTrue(steps[index] is AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.HoldStep, $"{at}: sleep");
                     AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
                     return steps.Count;
                 case NativeEnemyListDefinitions.WordKind.Callback:
                     AssertEqual(CallFunctionInY, word, $"{at}: Phantoon's callbacks use the common call-function command");
                     AssertTrue(PartCallbacks.TryGetValue(operand, out PhantoonPartCue cue), $"{at}: native routine ${operand:X4} is known");
-                    AssertEqual(AnimationProgramStepKind.Cue, steps[index].Kind, $"{at}: callback");
-                    AssertEqual(cue, steps[index].Cue, $"{at}: cue");
+                    var cueStep = AssertIs<AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.CueStep>(steps[index], $"{at}: callback");
+                    AssertEqual(cue, cueStep.Cue, $"{at}: cue");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
                     continue;

@@ -50,15 +50,15 @@ internal static class NinjaSpacePirateNativeListAddresses
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (NinjaSpacePirateCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, NativeCueShape<NinjaSpacePirateCue>> Instructions = new()
     {
-        [0xef83] = (NinjaSpacePirateCueKind.SetFunction, "E"),
-        [0xf536] = (NinjaSpacePirateCueKind.SetPalette, "V"),
-        [0xf546] = (NinjaSpacePirateCueKind.PlaySound, "V"),
-        [0xf564] = (NinjaSpacePirateCueKind.ThrowClaw, "VSY"),
-        [0xf590] = (NinjaSpacePirateCueKind.StartActive, ""),
-        [0xf5d6] = (NinjaSpacePirateCueKind.ResetSpeed, ""),
-        [0xf969] = (NinjaSpacePirateCueKind.StartLeftDivekick, ""),
-        [0xfa3d] = (NinjaSpacePirateCueKind.StartRightDivekick, ""),
+        [0xef83] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.SetFunction>("E"),
+        [0xf536] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.SetPalette>("V"),
+        [0xf546] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.PlaySound>("V"),
+        [0xf564] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.ThrowClaw>("VSY"),
+        [0xf590] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Command(NinjaSpacePirateCueKind.StartActive)),
+        [0xf5d6] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Command(NinjaSpacePirateCueKind.ResetSpeed)),
+        [0xf969] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Command(NinjaSpacePirateCueKind.StartLeftDivekick)),
+        [0xfa3d] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Command(NinjaSpacePirateCueKind.StartRightDivekick)),
     };
 }

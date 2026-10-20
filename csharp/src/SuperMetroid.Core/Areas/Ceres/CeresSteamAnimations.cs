@@ -16,16 +16,16 @@ internal static class CeresSteamAnimations
     {
         [P.Up] =
         [
-            Cue(new(K.Vanish)),
+            Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(0, 1),
-            Cue(new(K.CountDownToActivation, Target: P.Up, Alternate: P.UpLoop2)),
+            Cue(new CeresSteamCue.CountDownToActivation(P.Up, P.UpLoop2)),
             FallInto(P.UpLoop),
         ],
         [P.UpLoop] =
         [
-            Cue(new(K.Vanish)),
+            Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(0, 64),
-            Cue(new(K.Appear)),
+            Cue(new CeresSteamCue.Command(K.Appear)),
             FallInto(P.UpLoop2),
         ],
         [P.UpLoop2] =
@@ -41,16 +41,16 @@ internal static class CeresSteamAnimations
         ],
         [P.Left] =
         [
-            Cue(new(K.Vanish)),
+            Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(7, 1),
-            Cue(new(K.CountDownToActivation, Target: P.Left, Alternate: P.LeftLoop2)),
+            Cue(new CeresSteamCue.CountDownToActivation(P.Left, P.LeftLoop2)),
             FallInto(P.LeftLoop),
         ],
         [P.LeftLoop] =
         [
-            Cue(new(K.Vanish)),
+            Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(7, 64),
-            Cue(new(K.Appear)),
+            Cue(new CeresSteamCue.Command(K.Appear)),
             FallInto(P.LeftLoop2),
         ],
         [P.LeftLoop2] =
@@ -66,16 +66,16 @@ internal static class CeresSteamAnimations
         ],
         [P.Down] =
         [
-            Cue(new(K.Vanish)),
+            Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(14, 1),
-            Cue(new(K.CountDownToActivation, Target: P.Down, Alternate: P.DownLoop2)),
+            Cue(new CeresSteamCue.CountDownToActivation(P.Down, P.DownLoop2)),
             FallInto(P.DownLoop),
         ],
         [P.DownLoop] =
         [
-            Cue(new(K.Vanish)),
+            Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(14, 64),
-            Cue(new(K.Appear)),
+            Cue(new CeresSteamCue.Command(K.Appear)),
             FallInto(P.DownLoop2),
         ],
         [P.DownLoop2] =
@@ -91,16 +91,16 @@ internal static class CeresSteamAnimations
         ],
         [P.Right] =
         [
-            Cue(new(K.Vanish)),
+            Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(21, 1),
-            Cue(new(K.CountDownToActivation, Target: P.Right, Alternate: P.RightLoop2)),
+            Cue(new CeresSteamCue.CountDownToActivation(P.Right, P.RightLoop2)),
             FallInto(P.RightLoop),
         ],
         [P.RightLoop] =
         [
-            Cue(new(K.Vanish)),
+            Cue(new CeresSteamCue.Command(K.Vanish)),
             Show(21, 64),
-            Cue(new(K.Appear)),
+            Cue(new CeresSteamCue.Command(K.Appear)),
             FallInto(P.RightLoop2),
         ],
         [P.RightLoop2] =

@@ -146,7 +146,7 @@ internal static class EtecoonAnimations
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params EtecoonProgram[] programs) =>
         programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<P, EtecoonFrame, NoAnimationCue>.ShowStep>()
             .Select(step => EtecoonFrameDefinitions.Spritemap(step.Frame));
 
     /// <summary>The program a sleeping list resumes into when its owner steps the list past the sleep.</summary>

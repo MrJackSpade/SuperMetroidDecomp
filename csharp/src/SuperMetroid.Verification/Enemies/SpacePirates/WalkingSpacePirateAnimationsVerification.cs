@@ -18,12 +18,12 @@ internal static class WalkingSpacePirateAnimationsVerification
             (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                instruction.Check(cue, at);
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => unchecked((ushort)cue.LaserHeight),
-                    'E' => (ushort)cue.Function,
+                    'V' => unchecked((ushort)(cue switch { WalkingSpacePirateCue.FireLaserLeft fireLaserLeft => fireLaserLeft.LaserHeight, WalkingSpacePirateCue.FireLaserRight fireLaserRight => fireLaserRight.LaserHeight, _ => throw new InvalidOperationException($"{at}: {cue} carries no LaserHeight.") })),
+                    'E' => (ushort)AssertIs<WalkingSpacePirateCue.SetFunction>(cue, $"{at}: cue").Function,
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

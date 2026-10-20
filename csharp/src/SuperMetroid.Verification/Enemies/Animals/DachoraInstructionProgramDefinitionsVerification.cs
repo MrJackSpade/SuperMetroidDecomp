@@ -45,7 +45,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
 
         foreach (DachoraProgram program in Enum.GetValues<DachoraProgram>())
         {
-            if (DachoraAnimations.Programs.Steps(program)[^1] is not { Kind: AnimationProgramStepKind.GoTo } last || last.Target != program)
+            if (DachoraAnimations.Programs.Steps(program)[^1] is not AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue>.GoToStep last || last.Target != program)
                 continue;
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);

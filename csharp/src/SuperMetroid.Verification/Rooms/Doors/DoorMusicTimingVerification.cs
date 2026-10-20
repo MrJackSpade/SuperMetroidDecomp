@@ -70,8 +70,8 @@ internal static class DoorMusicTimingVerification
             // Bank loads and music-port writes are published in the update the CPU issues them.
             foreach (var audioEvent in game.AudioEventsForVerification)
             {
-                if (audioEvent.Kind == AudioEventKind.LoadAudioBank) uploadFrame = frame;
-                if (audioEvent == AudioEvent.WriteMusicPort(MusicCommand.SelectTrack(5)))
+                if (audioEvent is AudioEvent.LoadAudioBank) uploadFrame = frame;
+                if (audioEvent == new AudioEvent.WriteMusicPort(MusicCommand.SelectTrack(5)))
                 {
                     Console.WriteLine($"Destination music at frame {frame}, phase {phase}, music wait frame {musicWaitFrame}.");
                     AssertTrue(musicWaitFrame >= 0, "destination track must not start before door scrolling finishes");
@@ -92,7 +92,7 @@ internal static class DoorMusicTimingVerification
         audio.QueueRoomMusicTrack(6, 0x80);
         var stopCommands = new List<CartridgeAudioCommand>();
         for (int frame = 0; frame < 9; frame++) stopCommands.AddRange(audio.AdvanceFrame(default));
-        AssertTrue(stopCommands.Contains(CartridgeAudioCommand.WritePort(ApuPort.Music, 0)), "nonzero masked track-zero remains an explicit stop");
+        AssertTrue(stopCommands.Contains(new CartridgeAudioCommand.WritePort(ApuPort.Music, 0)), "nonzero masked track-zero remains an explicit stop");
         Console.WriteLine("  Door music: IRQ-only waits preserve queued delays; post-scroll stop/upload and track dispatch timing agree.");
     }
 

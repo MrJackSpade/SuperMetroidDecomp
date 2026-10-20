@@ -18,25 +18,21 @@ internal static class NinjaSpacePirateAnimationsVerification
             (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                instruction.Check(cue, at);
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => cue.Kind switch
+                    'V' => cue switch
                     {
-                        NinjaSpacePirateCueKind.PlaySound => (cue.Sound ?? throw new InvalidOperationException($"{at}: a sound cue carries no sound.")).Value,
-                        NinjaSpacePirateCueKind.SetPalette => (cue.Palette ?? throw new InvalidOperationException($"{at}: a palette cue carries no palette.")).PaletteBits,
-                        NinjaSpacePirateCueKind.ThrowClaw => cue.Throw == HorizontalDirection.Right ? (ushort)1 : (ushort)0,
-                        NinjaSpacePirateCueKind.ResetSpeed or
-                            NinjaSpacePirateCueKind.SetFunction or
-                            NinjaSpacePirateCueKind.StartActive or
-                            NinjaSpacePirateCueKind.StartLeftDivekick or
-                            NinjaSpacePirateCueKind.StartRightDivekick => throw new InvalidOperationException($"{at}: {cue.Kind} has no word operand."),
-                        _ => throw new InvalidOperationException($"{at}: {cue.Kind} has no word operand."),
+                        NinjaSpacePirateCue.PlaySound playSound => (playSound.Sound ?? throw new InvalidOperationException($"{at}: a sound cue carries no sound.")).Value,
+                        NinjaSpacePirateCue.SetPalette setPalette => (setPalette.Palette ?? throw new InvalidOperationException($"{at}: a palette cue carries no palette.")).PaletteBits,
+                        NinjaSpacePirateCue.ThrowClaw throwClaw => throwClaw.Throw == HorizontalDirection.Right ? (ushort)1 : (ushort)0,
+                        NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.ResetSpeed } or NinjaSpacePirateCue.SetFunction or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartActive } or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartLeftDivekick } or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartRightDivekick } => throw new InvalidOperationException($"{at}: {cue} has no word operand."),
+                        _ => throw new InvalidOperationException($"{at}: {cue} has no word operand."),
                     },
-                    'S' => unchecked((ushort)cue.Offset),
-                    'Y' => unchecked((ushort)cue.OffsetY),
-                    'E' => (ushort)cue.Function,
+                    'S' => unchecked((ushort)AssertIs<NinjaSpacePirateCue.ThrowClaw>(cue, $"{at}: cue").Offset),
+                    'Y' => unchecked((ushort)AssertIs<NinjaSpacePirateCue.ThrowClaw>(cue, $"{at}: cue").OffsetY),
+                    'E' => (ushort)AssertIs<NinjaSpacePirateCue.SetFunction>(cue, $"{at}: cue").Function,
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

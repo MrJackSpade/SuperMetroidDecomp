@@ -159,24 +159,24 @@ internal static class EnemyProgramAnimation
         AnimationProgramAdvance<TFrame> advance = programs.AdvanceTo(ref cursor, ref loopCounter, publish);
         if (programs.CountsLoops)
             slot.Timer = loopCounter;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.Frame = frame(advance.Frame);
+            case AnimationProgramAdvance<TFrame>.Show shown:
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                slot.Frame = frame(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
-            case AnimationProgramAdvanceKind.Wait:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+            case AnimationProgramAdvance<TFrame>.Wait waiting:
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)waiting.Duration);
                 return;
-            case AnimationProgramAdvanceKind.Hold:
+            case AnimationProgramAdvance<TFrame>.Hold:
                 return;
-            case AnimationProgramAdvanceKind.Stop:
+            case AnimationProgramAdvance<TFrame>.Stop:
                 // The common stop deletes the enemy.
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 return;
             default:
-                throw new InvalidOperationException($"Enemy {slot.EnemyDefinitionPointer}'s programs have no {advance.Kind} step.");
+                throw new InvalidOperationException($"Enemy {slot.EnemyDefinitionPointer}'s programs have no {advance} step.");
         }
     }
 }

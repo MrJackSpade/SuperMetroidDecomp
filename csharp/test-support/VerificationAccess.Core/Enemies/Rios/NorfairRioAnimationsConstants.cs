@@ -9,6 +9,6 @@ internal static class NorfairRioAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params NorfairRioProgram[] programs) =>
         programs.SelectMany(program => NorfairRioAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue>.ShowStep>()
             .Select(step => NorfairRioFrameToolingDefinitions.Spritemap(step.Frame));
 }

@@ -196,10 +196,10 @@ internal static class SamusProjectileProgramAddresses
         for (int position = 0; position < steps.Count; position++)
         {
             var step = steps[position];
-            addresses[position] = step.Kind == AnimationProgramStepKind.FallInto
-                ? Entries.Single(other => other.Program == step.Target).Entry
+            addresses[position] = step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.FallIntoStep fallInto
+                ? Entries.Single(other => other.Program == fallInto.Target).Entry
                 : (ushort)address;
-            address += step.Kind == AnimationProgramStepKind.Show ? SamusProjectileRomData.Instructions.AnimationRecordByteCount : sizeof(ushort);
+            address += step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep ? SamusProjectileRomData.Instructions.AnimationRecordByteCount : sizeof(ushort);
         }
         return addresses;
     }

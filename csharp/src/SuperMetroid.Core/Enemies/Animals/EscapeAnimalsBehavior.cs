@@ -186,21 +186,21 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of an Etecoon's program, returning the program a branch continues at, or null to run on.</summary>
     private static EscapeEtecoonProgram? ApplyEscapeEtecoonCue(RoomEnemySlot slot, EscapeEtecoonEnemyState state, SamusState? samus, EscapeEtecoonCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case EscapeEtecoonCueKind.SetPreInstruction:
-                state.PreInstruction = cue.PreInstruction;
+            case EscapeEtecoonCue.SetPreInstruction setPreInstruction:
+                state.PreInstruction = setPreInstruction.PreInstruction;
                 return null;
-            case EscapeEtecoonCueKind.ClearPreInstruction:
+            case EscapeEtecoonCue.Command { Kind: EscapeEtecoonCueKind.ClearPreInstruction }:
                 state.PreInstruction = EscapeEtecoonPreInstruction.Cleared;
                 return null;
-            case EscapeEtecoonCueKind.GoToIfAcidHigh:
-                return EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY ? null : cue.Target;
-            case EscapeEtecoonCueKind.Move:
-                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + cue.Offset)));
+            case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:
+                return EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY ? null : goToIfAcidHigh.Target;
+            case EscapeEtecoonCue.Move move:
+                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + move.Offset)));
                 return null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCueKind)} {cue}.");
         }
     }
 

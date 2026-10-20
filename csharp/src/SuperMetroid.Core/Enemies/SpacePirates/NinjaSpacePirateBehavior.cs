@@ -601,23 +601,23 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private NinjaSpacePirateProgram? ApplyNinjaSpacePirateCue(RoomEnemySlot slot, NinjaSpacePirateCue cue, SamusState? samus)
     {
         NinjaSpacePirateEnemyState state = slot.RequireSpeciesState<NinjaSpacePirateEnemyState>();
-        switch (cue.Kind)
+        switch (cue)
         {
-            case NinjaSpacePirateCueKind.SetFunction:
-                state.Function = cue.Function;
+            case NinjaSpacePirateCue.SetFunction setFunction:
+                state.Function = setFunction.Function;
                 return null;
-            case NinjaSpacePirateCueKind.SetPalette:
-                slot.PaletteIndex = (cue.Palette ?? throw new InvalidOperationException(
+            case NinjaSpacePirateCue.SetPalette setPalette:
+                slot.PaletteIndex = (setPalette.Palette ?? throw new InvalidOperationException(
                     "A ninja Space Pirate palette cue carries no palette.")).PaletteBits;
                 return null;
-            case NinjaSpacePirateCueKind.PlaySound:
-                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = cue.Sound ?? throw new InvalidOperationException(
+            case NinjaSpacePirateCue.PlaySound playSound:
+                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = playSound.Sound ?? throw new InvalidOperationException(
                     "A ninja Space Pirate sound cue carries no sound.");
                 return null;
-            case NinjaSpacePirateCueKind.ThrowClaw:
-                SpawnNinjaPirateClaw(slot, state, cue.Throw == HorizontalDirection.Right, new Offset16<RoomPixels>(cue.Offset, cue.OffsetY));
+            case NinjaSpacePirateCue.ThrowClaw throwClaw:
+                SpawnNinjaPirateClaw(slot, state, throwClaw.Throw == HorizontalDirection.Right, new Offset16<RoomPixels>(throwClaw.Offset, throwClaw.OffsetY));
                 return null;
-            case NinjaSpacePirateCueKind.StartActive:
+            case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartActive }:
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
@@ -631,17 +631,17 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 // Re-entering that list runs its function cue and restores decision AI
                 // after the idle animation explicitly installed the no-op function.
                 return state.ActiveProgram;
-            case NinjaSpacePirateCueKind.ResetSpeed:
+            case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.ResetSpeed }:
                 state.Speed = default;
                 return null;
-            case NinjaSpacePirateCueKind.StartLeftDivekick:
+            case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartLeftDivekick }:
                 InitializeNinjaPirateDive(state);
                 return null;
-            case NinjaSpacePirateCueKind.StartRightDivekick:
+            case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartRightDivekick }:
                 InitializeNinjaPirateDive(state);
                 return null;
             default:
-                throw new InvalidOperationException($"The ninja Space Pirates' animations have no {cue.Kind} cue.");
+                throw new InvalidOperationException($"The ninja Space Pirates' animations have no {cue} cue.");
         }
     }
 

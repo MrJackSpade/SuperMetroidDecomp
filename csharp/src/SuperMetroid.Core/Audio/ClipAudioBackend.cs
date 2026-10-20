@@ -60,33 +60,33 @@ public sealed class ClipAudioBackend
         bool lastPolled = false;
         foreach (AudioEvent audioEvent in events)
         {
-            switch (audioEvent.Kind)
+            switch (audioEvent)
             {
-                case AudioEventKind.LoadAudioBank:
+                case AudioEvent.LoadAudioBank loadAudioBank:
                     RequireBeforeTicks(ticked, audioEvent);
-                    Upload(audioEvent.Bank, frameStart);
+                    Upload(loadAudioBank.Bank, frameStart);
                     break;
-                case AudioEventKind.WriteMusicPort:
+                case AudioEvent.WriteMusicPort writeMusicPort:
                     RequireBeforeTicks(ticked, audioEvent);
-                    State.MusicLatch = LatchedMusicCommand(audioEvent.Music);
+                    State.MusicLatch = LatchedMusicCommand(writeMusicPort.Music);
                     break;
-                case AudioEventKind.DriverTick:
-                    if (audioEvent.DspCycleOffset < cursor || audioEvent.DspCycleOffset >= FramesPerUpdate)
-                        throw new InvalidDataException($"Driver tick at DSP cycle {audioEvent.DspCycleOffset} is out of order or outside the update.");
-                    Mix(frameStart, cursor, audioEvent.DspCycleOffset);
-                    cursor = audioEvent.DspCycleOffset;
+                case AudioEvent.DriverTick driverTick:
+                    if (driverTick.DspCycleOffset < cursor || driverTick.DspCycleOffset >= FramesPerUpdate)
+                        throw new InvalidDataException($"Driver tick at DSP cycle {driverTick.DspCycleOffset} is out of order or outside the update.");
+                    Mix(frameStart, cursor, driverTick.DspCycleOffset);
+                    cursor = driverTick.DspCycleOffset;
                     ticked = true;
-                    lastTick = audioEvent.DspCycleOffset;
-                    lastPolled = audioEvent.SoundEffectsPolled;
-                    Tick(frameStart + cursor, audioEvent.Ticks, audioEvent.SoundEffectsPolled);
+                    lastTick = driverTick.DspCycleOffset;
+                    lastPolled = driverTick.SoundEffectsPolled;
+                    Tick(frameStart + cursor, driverTick.Ticks, driverTick.SoundEffectsPolled);
                     break;
-                case AudioEventKind.StartSoundEffect:
-                    if (!lastPolled || lastTick != audioEvent.DspCycleOffset)
+                case AudioEvent.StartSoundEffect startSoundEffect:
+                    if (!lastPolled || lastTick != startSoundEffect.DspCycleOffset)
                         throw new InvalidDataException($"{audioEvent} does not follow its polling driver tick.");
-                    StartSoundEffect(audioEvent.SoundEffect, frameStart + audioEvent.DspCycleOffset);
+                    StartSoundEffect(startSoundEffect.SoundEffect, frameStart + startSoundEffect.DspCycleOffset);
                     break;
                 default:
-                    throw new InvalidDataException($"Unknown audio event {audioEvent.Kind}.");
+                    throw new InvalidDataException($"Unknown audio event {audioEvent}.");
             }
         }
         Mix(frameStart, cursor, FramesPerUpdate);

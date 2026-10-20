@@ -141,7 +141,7 @@ internal static class KiHunterAnimations
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params KiHunterProgram[] programs) =>
         programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<P, KiHunterFrame, KiHunterCue>.ShowStep>()
             .Select(step => KiHunterFrameDefinitions.Spritemap(step.Frame));
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>

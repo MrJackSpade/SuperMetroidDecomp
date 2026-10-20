@@ -12,15 +12,6 @@ namespace SuperMetroid.Verification.Enemies;
 /// </summary>
 internal static class NativeEnemyProjectileProgramOracle
 {
-    /// <summary>The control commands every projectile list shares, and what each becomes.</summary>
-    private static readonly Dictionary<NativeEnemyProjectileInstruction, AnimationProgramStepKind> ControlWords = new()
-    {
-        [NativeEnemyProjectileInstruction.GotoY] = AnimationProgramStepKind.GoTo,
-        [NativeEnemyProjectileInstruction.Sleep] = AnimationProgramStepKind.Hold,
-        [NativeEnemyProjectileInstruction.TimerInY] = AnimationProgramStepKind.SetCounter,
-        [NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = AnimationProgramStepKind.RepeatWhileCounting,
-    };
-
     /// <summary>Compares every program with its native list under <paramref name="rules"/> and returns the total step count.</summary>
     /// <param name="cartridge">The pinned cartridge.</param>
     /// <param name="entries">Each program's native entry, in authored order.</param>
@@ -113,14 +104,13 @@ internal static class NativeEnemyProjectileProgramOracle
             string at = $"{program} at $86:{cursor:X4}";
             if (cursor != entry && ProgramAt(entries, cursor) is { } following)
             {
-                var fall = Next("fall-through");
-                AssertEqual(AnimationProgramStepKind.FallInto, fall.Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(following, fall.Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.FallIntoStep>(Next("fall-through"), $"{at}: runs on into the next authored program");
+                AssertEqual(following, fallInto.Target, $"{at}: fall-through target");
                 break;
             }
             if (rules.EndsAt?.Invoke(cursor) == true)
             {
-                AssertEqual(AnimationProgramStepKind.Hold, Next("end where routine code follows").Kind, $"{at}: the program ends where its list does");
+                _ = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep>(Next("end where routine code follows"), $"{at}: the program ends where its list does");
                 break;
             }
             int address = NativeEnemyProjectileListDefinitions.ProjectileBank | cursor;
@@ -128,63 +118,58 @@ internal static class NativeEnemyProjectileProgramOracle
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
-                var show = Next("frame");
-                AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
+                var show = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>(Next("frame"), $"{at}: frame");
                 AssertEqual(word, show.Duration, $"{at}: duration");
                 AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(show.Frame), $"{at}: presentation key");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
-            if (ControlWords.TryGetValue((NativeEnemyProjectileInstruction)word, out AnimationProgramStepKind control))
+            // The control commands every projectile list shares.
+            var instruction = (NativeEnemyProjectileInstruction)word;
+            if (instruction == NativeEnemyProjectileInstruction.Sleep)
             {
-                var step = Next(control.ToString());
-                AssertEqual(control, step.Kind, $"{at}: {control}");
-                switch (control)
-                {
-                    case AnimationProgramStepKind.Hold:
-                        break;
-                    case AnimationProgramStepKind.GoTo:
-                        AssertEqual(operand, EntryOf(entries, step.Target), $"{at}: goto target");
-                        break;
-                    case AnimationProgramStepKind.SetCounter:
-                        AssertEqual(operand, step.Duration, $"{at}: counter");
-                        cursor = unchecked((ushort)(cursor + 4));
-                        continue;
-                    case AnimationProgramStepKind.RepeatWhileCounting:
-                        AssertEqual(operand, EntryOf(entries, step.Target), $"{at}: repeat target");
-                        cursor = unchecked((ushort)(cursor + 4));
-                        continue;
-                    case AnimationProgramStepKind.Show:
-                    case AnimationProgramStepKind.Cue:
-                    case AnimationProgramStepKind.FallInto:
-                    case AnimationProgramStepKind.Wait:
-                    case AnimationProgramStepKind.Stop:
-                    default:
-                        throw new InvalidOperationException($"Undefined projectile control step {control}.");
-                }
+                _ = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep>(Next("sleep"), $"{at}: sleep");
                 break;
+            }
+            if (instruction == NativeEnemyProjectileInstruction.GotoY)
+            {
+                var goTo = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.GoToStep>(Next("goto"), $"{at}: goto");
+                AssertEqual(operand, EntryOf(entries, goTo.Target), $"{at}: goto target");
+                break;
+            }
+            if (instruction == NativeEnemyProjectileInstruction.TimerInY)
+            {
+                var setCounter = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.SetCounterStep>(Next("counter load"), $"{at}: counter load");
+                AssertEqual(operand, setCounter.Count, $"{at}: counter");
+                cursor = unchecked((ushort)(cursor + 4));
+                continue;
+            }
+            if (instruction == NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero)
+            {
+                var repeat = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep>(Next("counted repeat"), $"{at}: counted repeat");
+                AssertEqual(operand, EntryOf(entries, repeat.Target), $"{at}: repeat target");
+                cursor = unchecked((ushort)(cursor + 4));
+                continue;
             }
             AssertTrue(rules.OperandBytes(word) is not null, $"{at}: native command ${word:X4} is known");
             int count = rules.OperandBytes(word) ?? 0;
-            var cue = Next("command");
-            AssertEqual(AnimationProgramStepKind.Cue, cue.Kind, $"{at}: command");
+            var cueStep = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.CueStep>(Next("command"), $"{at}: command");
             byte[] operands = [.. Enumerable.Range(0, count).Select(item => SnesLittleEndian.LowByte(cartridge.ReadCartridgeWord(address + 2 + item)))];
-            rules.CompareCue(word, operands, cue.PublishedCue, at);
+            rules.CompareCue(word, operands, cueStep.Cue, at);
             if (rules.ShowsFrame?.Invoke(word) == true)
             {
                 // A flicker shows its first operand's pose (or, by parity, its second's) for one update.
-                var show = Next("flicker frame");
-                AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: flicker frame");
-                AssertEqual(1, show.Duration, $"{at}: flicker duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(show.Frame), $"{at}: flicker presentation key");
+                var flicker = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>(Next("flicker frame"), $"{at}: flicker frame");
+                AssertEqual(1, flicker.Duration, $"{at}: flicker duration");
+                AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(flicker.Frame), $"{at}: flicker presentation key");
                 Func<TFrame, ushort?> reflected = reflectedPresentationKey ??
                     throw new InvalidOperationException($"{at}: a flicker family supplies its reflected presentation keys.");
-                AssertEqual(count == 4 ? unchecked((ushort)(cursor + 4)) : null, reflected(show.Frame), $"{at}: flicker reflected presentation key");
+                AssertEqual(count == 4 ? unchecked((ushort)(cursor + 4)) : null, reflected(flicker.Frame), $"{at}: flicker reflected presentation key");
             }
             cursor = unchecked((ushort)(cursor + 2 + count));
-            if (rules.EndsList?.Invoke(cue.PublishedCue) != true)
+            if (rules.EndsList?.Invoke(cueStep.Cue) != true)
                 continue;
-            AssertEqual(AnimationProgramStepKind.Hold, Next("end after a cue that always ends the list").Kind, $"{at}: the program ends at its cue");
+            _ = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep>(Next("end after a cue that always ends the list"), $"{at}: the program ends at its cue");
             break;
         }
         AssertEqual(steps.Count, index, $"{program} ends where its native list does");

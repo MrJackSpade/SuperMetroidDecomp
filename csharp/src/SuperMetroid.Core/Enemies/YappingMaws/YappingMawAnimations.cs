@@ -164,7 +164,7 @@ internal static class YappingMawAnimations
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params YappingMawProgram[] programs) =>
         programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<P, YappingMawFrame, YappingMawCue>.ShowStep>()
             .Select(step => YappingMawFrameDefinitions.Spritemap(step.Frame));
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>

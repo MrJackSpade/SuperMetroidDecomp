@@ -18,16 +18,16 @@ internal static class WallSpacePirateAnimationsVerification
             (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                instruction.Check(cue, at);
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => unchecked((ushort)cue.ClimbPixels),
-                    'E' => (ushort)cue.Function,
+                    'V' => unchecked((ushort)(cue switch { WallSpacePirateCue.ClimbLeftWall climbLeftWall => climbLeftWall.ClimbPixels, WallSpacePirateCue.ClimbRightWall climbRightWall => climbRightWall.ClimbPixels, _ => throw new InvalidOperationException($"{at}: {cue} carries no ClimbPixels.") })),
+                    'E' => (ushort)AssertIs<WallSpacePirateCue.SetFunction>(cue, $"{at}: cue").Function,
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             },
-            cue => cue.Kind is WallSpacePirateCueKind.ChooseLeftWallDirection or WallSpacePirateCueKind.ChooseRightWallDirection));
+            cue => cue is WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.ChooseLeftWallDirection } or WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.ChooseRightWallDirection }));
         Console.WriteLine($"  Wall Space Pirate programs: {Entries.Length} programs ({steps} steps) match bank $B2.");
     }
 }

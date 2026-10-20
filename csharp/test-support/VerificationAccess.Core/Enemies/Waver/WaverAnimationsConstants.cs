@@ -9,6 +9,6 @@ internal static class WaverAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params WaverProgram[] programs) =>
         programs.SelectMany(program => WaverAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<WaverProgram, WaverFrame, WaverCue>.ShowStep>()
             .Select(step => WaverFrameToolingDefinitions.Spritemap(step.Frame));
 }

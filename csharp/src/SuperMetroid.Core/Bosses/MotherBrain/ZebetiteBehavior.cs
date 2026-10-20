@@ -346,20 +346,18 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             (cue, continuation) => throw new InvalidOperationException($"Zebetite programs publish no cue {cue}."));
         slot.Timer = counter;
         state.Cursor = cursor;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.Frame = ZebetiteVisualDefinitions.ShownFrames.Of(advance.Frame);
+            case AnimationProgramAdvance<ZebetiteFrame>.Show shown:
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                slot.Frame = ZebetiteVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
-            case AnimationProgramAdvanceKind.Hold:
+            case AnimationProgramAdvance<ZebetiteFrame>.Hold:
                 // The native sleep: the timer wraps from zero and the pose stays.
                 return;
-            case AnimationProgramAdvanceKind.Wait:
-            case AnimationProgramAdvanceKind.Stop:
             default:
-                throw new InvalidOperationException($"Zebetite programs have no {advance.Kind} step.");
+                throw new InvalidOperationException($"Zebetite programs have no {advance} step.");
         }
     }
 

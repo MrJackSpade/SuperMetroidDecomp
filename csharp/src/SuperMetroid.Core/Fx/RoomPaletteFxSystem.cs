@@ -356,49 +356,48 @@ public sealed class RoomPaletteFxSystem
             });
         slot.Cursor = cursor;
         slot.Timer = timer;
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                WritePaletteRecord(cgram, colors, slot, advance.Frame);
+            case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                WritePaletteRecord(cgram, colors, slot, shown.Frame);
                 return;
-            case AnimationProgramAdvanceKind.Stop:
+            case AnimationProgramAdvance<PaletteFxFrame>.Stop:
                 slot.Clear();
                 return;
-            case AnimationProgramAdvanceKind.Wait:
-            case AnimationProgramAdvanceKind.Hold:
-                throw new InvalidOperationException($"Palette-FX program {cursor.Program} reached a {advance.Kind}, which no palette program has.");
+            case AnimationProgramAdvance<PaletteFxFrame>.Wait or AnimationProgramAdvance<PaletteFxFrame>.Hold:
+                throw new InvalidOperationException($"Palette-FX program {cursor.Program} reached a {advance}, which no palette program has.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(AnimationProgramAdvanceKind)} {advance.Kind}.");
+                throw new InvalidOperationException($"Undefined animation program advance {advance}.");
         }
     }
 
     /// <summary>Carries out one palette-FX program command.</summary>
     private void Publish(PaletteFxSlot slot, PaletteFxCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case PaletteFxCueKind.SetColorIndex:
-                slot.ColorIndex = cue.ColorIndex;
+            case PaletteFxCue.SetColorIndex setColorIndex:
+                slot.ColorIndex = setColorIndex.ColorIndex;
                 return;
-            case PaletteFxCueKind.SetPreInstruction:
-                slot.PreInstruction = cue.PreInstruction;
+            case PaletteFxCue.SetPreInstruction setPreInstruction:
+                slot.PreInstruction = setPreInstruction.PreInstruction;
                 return;
-            case PaletteFxCueKind.ClearPreInstruction:
+            case PaletteFxCue.Command { Kind: PaletteFxCueKind.ClearPreInstruction }:
                 slot.PreInstruction = PaletteFxPreInstruction.Cleared;
                 return;
-            case PaletteFxCueKind.SetHeatPaletteIndex:
-                _session.SamusInHeatPaletteIndex = cue.HeatPhase;
+            case PaletteFxCue.SetHeatPaletteIndex setHeatPaletteIndex:
+                _session.SamusInHeatPaletteIndex = setHeatPaletteIndex.HeatPhase;
                 return;
-            case PaletteFxCueKind.QueueSoundLibrary2:
+            case PaletteFxCue.QueueSoundLibrary2 queueSoundLibrary2:
                 soundRequests.Add(new SoundRequest(
-                    cue.Sound ?? throw new InvalidDataException(
+                    queueSoundLibrary2.Sound ?? throw new InvalidDataException(
                         $"Palette-FX object {slot.Object} queued a library-2 sound cue without a sound."),
                     PaletteFxAudioQueueLimits.SoundEffects,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
                 return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(PaletteFxCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(PaletteFxCueKind)} {cue}.");
         }
     }
 

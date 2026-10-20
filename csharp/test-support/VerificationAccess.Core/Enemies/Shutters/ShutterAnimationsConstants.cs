@@ -9,6 +9,6 @@ internal static class ShutterAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params ShutterProgram[] programs) =>
         programs.SelectMany(program => ShutterAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<ShutterProgram, ShutterFrame, NoAnimationCue>.ShowStep>()
             .Select(step => ShutterFrameToolingDefinitions.Spritemap(step.Frame));
 }

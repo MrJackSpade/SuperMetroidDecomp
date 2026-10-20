@@ -22,11 +22,11 @@ internal static class EyeDoorSweatAnimations
         ],
         [P.HitFloor] =
         [
-            Cue(new(CK.ClearPreInstruction)),
+            Cue(new EnemyProjectileCommonCue.Command(CK.ClearPreInstruction)),
             Show(1, 6),
             Show(2, 6),
             Show(3, 6),
-            Cue(new(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
             Hold,
         ],
     });

@@ -62,8 +62,8 @@ internal static class RidleyAnimationsVerification
             var step = steps[index];
             if (cursor != entry && BodyProgramAt(cursor) is { } next)
             {
-                AssertEqual(AnimationProgramStepKind.FallInto, step.Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(next, step.Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
+                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                 AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
                 return addresses;
             }
@@ -73,48 +73,41 @@ internal static class RidleyAnimationsVerification
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                    AssertEqual(word, step.Duration, $"{at}: duration");
-                    AssertEqual(operand, (ushort)step.Frame, $"{at}: spritemap");
+                    var show = AssertIs<AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.ShowStep>(step, $"{at}: frame");
+                    AssertEqual(word, show.Duration, $"{at}: duration");
+                    AssertEqual(operand, (ushort)show.Frame, $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Sleep:
-                    AssertEqual(AnimationProgramStepKind.Hold, step.Kind, $"{at}: sleep");
+                    AssertTrue(step is AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.HoldStep, $"{at}: sleep");
                     AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
                     return addresses;
                 case NativeEnemyListDefinitions.WordKind.Callback:
                 {
                     AssertTrue(BodyInstructions.TryGetValue(word, out var instruction), $"{at}: native instruction ${word:X4} is known");
-                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: instruction");
-                    RidleyBodyCue cue = step.Cue;
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                    switch (instruction.Kind)
+                    var cueStep = AssertIs<AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.CueStep>(step, $"{at}: instruction");
+                    RidleyBodyCue cue = cueStep.Cue;
+                    instruction.Cue.Check(cue, at);
+                    switch (cue)
                     {
-                        case RidleyBodyCueKind.GoToUnlessFacingLeft:
-                        case RidleyBodyCueKind.GoToIfCeresAndSamusLowEnergy:
-                            AssertEqual(BodyProgramAt(operand), cue.Target, $"{at}: goto target");
+                        case RidleyBodyCue.GoToUnlessFacingLeft goToUnlessFacingLeft:
+                            AssertEqual(BodyProgramAt(operand), goToUnlessFacingLeft.Target, $"{at}: goto target");
                             break;
-                        case RidleyBodyCueKind.SetFeetDistance:
+                        case RidleyBodyCue.GoToIfCeresAndSamusLowEnergy goToIfCeresAndSamusLowEnergy:
+                            AssertEqual(BodyProgramAt(operand), goToIfCeresAndSamusLowEnergy.Target, $"{at}: goto target");
+                            break;
+                        case RidleyBodyCue.SetFeetDistance setFeetDistance:
                             // The native operand is the pose's byte offset into the word-sized claw-height table.
-                            AssertEqual(operand, cue.FeetDistanceIndex * sizeof(ushort), $"{at}: claw-height pose");
+                            AssertEqual(operand, setFeetDistance.FeetDistanceIndex * sizeof(ushort), $"{at}: claw-height pose");
                             break;
-                        case RidleyBodyCueKind.Move:
-                            AssertEqual(unchecked((short)operand), cue.Displacement.X, $"{at}: X move");
-                            AssertEqual(unchecked((short)cartridge.ReadCartridgeWord(address + 4)), cue.Displacement.Y, $"{at}: Y move");
+                        case RidleyBodyCue.Move move:
+                            AssertEqual(unchecked((short)operand), move.Displacement.X, $"{at}: X move");
+                            AssertEqual(unchecked((short)cartridge.ReadCartridgeWord(address + 4)), move.Displacement.Y, $"{at}: Y move");
                             break;
-                        case RidleyBodyCueKind.Roar:
-                        case RidleyBodyCueKind.ClearRoaringFlag:
-                        case RidleyBodyCueKind.FaceForward:
-                        case RidleyBodyCueKind.FlipLeft:
-                        case RidleyBodyCueKind.FlipRight:
-                        case RidleyBodyCueKind.AimFireball:
-                        case RidleyBodyCueKind.SpawnFireballWithAfterburn:
-                        case RidleyBodyCueKind.SpawnFireballWithoutAfterburn:
-                        case RidleyBodyCueKind.CeresStartLiftoff:
-                        case RidleyBodyCueKind.StartLiftoff:
+                        case RidleyBodyCue.Command:
                             break;
                         default:
-                            throw new InvalidOperationException($"Undefined {nameof(RidleyBodyCueKind)} {instruction.Kind}.");
+                            throw new InvalidOperationException($"Undefined Ridley body cue {cue}.");
                     }
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands));
                     continue;
@@ -145,11 +138,11 @@ internal static class RidleyAnimationsVerification
             var steps = RidleyBreakupAnimations.Programs.Steps(frame);
             string at = $"Ridley breakup {frame}";
             AssertEqual(2, steps.Count, $"{at}: one frame and a hold");
-            AssertEqual(AnimationProgramStepKind.Show, steps[0].Kind, $"{at}: frame");
-            AssertEqual(cartridge.ReadCartridgeWord(address), steps[0].Duration, $"{at}: duration");
-            AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitionsConstants.Spritemap(steps[0].Frame), $"{at}: spritemap");
+            var show = AssertIs<AnimationProgramStep<RidleyBreakupFrame, RidleyBreakupFrame, NoAnimationCue>.ShowStep>(steps[0], $"{at}: frame");
+            AssertEqual(cartridge.ReadCartridgeWord(address), show.Duration, $"{at}: duration");
+            AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitionsConstants.Spritemap(show.Frame), $"{at}: spritemap");
             AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address + 4)), $"{at}: sleep");
-            AssertEqual(AnimationProgramStepKind.Hold, steps[1].Kind, $"{at}: hold");
+            AssertTrue(steps[1] is AnimationProgramStep<RidleyBreakupFrame, RidleyBreakupFrame, NoAnimationCue>.HoldStep, $"{at}: hold");
         }
     }
 
@@ -173,8 +166,8 @@ internal static class RidleyAnimationsVerification
             var step = steps[index];
             if (cursor != entry && FireballProgramAt(cursor) is { } next)
             {
-                AssertEqual(AnimationProgramStepKind.FallInto, step.Kind, $"{at}: runs on into the next authored program");
-                AssertEqual(next, step.Target, $"{at}: fall-through target");
+                var fallInto = AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.FallIntoStep>(step, $"{at}: runs on into the next authored program");
+                AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                 AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
                 return addresses;
             }
@@ -183,31 +176,31 @@ internal static class RidleyAnimationsVerification
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
-                AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                AssertEqual(word, step.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(RidleyFireballVisualDefinitions.ShownProjectileFrames[step.Frame]), $"{at}: presentation key");
+                var show = AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.ShowStep>(step, $"{at}: frame");
+                AssertEqual(word, show.Duration, $"{at}: duration");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(RidleyFireballVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: presentation key");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
             switch ((NativeEnemyProjectileInstruction)word)
             {
                 case NativeEnemyProjectileInstruction.ClearPreInstruction:
-                    AssertEqual(RidleyFireballCue.ClearPreInstruction, step.Cue, $"{at}: clear pre-instruction");
+                    AssertEqual(RidleyFireballCue.ClearPreInstruction, AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: cue step").Cue, $"{at}: clear pre-instruction");
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case NativeEnemyProjectileInstruction.PreInstructionInY:
                     AssertEqual(EnemyProjectilePreInstructionAccess.Word(EnemyProjectilePreInstruction.RidleyFireball), operand, $"{at}: the fireball's moving pre-instruction");
-                    AssertEqual(RidleyFireballCue.BeginFlight, step.Cue, $"{at}: begin flight");
+                    AssertEqual(RidleyFireballCue.BeginFlight, AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: cue step").Cue, $"{at}: begin flight");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyProjectileInstruction.GotoY:
-                    AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
-                    AssertEqual(FireballProgramAt(operand), step.Target, $"{at}: goto target");
+                    var goTo = AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.GoToStep>(step, $"{at}: goto");
+                    AssertEqual(FireballProgramAt(operand), goTo.Target, $"{at}: goto target");
                     AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
                     return addresses;
                 case NativeEnemyProjectileInstruction.Delete:
-                    AssertEqual(RidleyFireballCue.Delete, step.Cue, $"{at}: delete");
-                    AssertEqual(AnimationProgramStepKind.Hold, steps[index + 1].Kind, $"{at}: deletion ends the program");
+                    AssertEqual(RidleyFireballCue.Delete, AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: cue step").Cue, $"{at}: delete");
+                    AssertTrue(steps[index + 1] is AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.HoldStep, $"{at}: deletion ends the program");
                     AssertEqual(steps.Count, index + 2, $"{at}: deletion ends the program");
                     addresses[index + 1] = cursor;
                     return addresses;
@@ -295,8 +288,8 @@ internal static class RidleyAnimationsVerification
                 case NativeEnemyProjectileInstruction.TourianStatueResetDustPosition:
                 default:
                     AssertTrue(FireballCallbacks.TryGetValue(word, out RidleyFireballCue callback), $"{at}: native callback ${word:X4} is known");
-                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: callback");
-                    AssertEqual(callback, step.Cue, $"{at}: cue");
+                    var cueStep = AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: callback");
+                    AssertEqual(callback, cueStep.Cue, $"{at}: cue");
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
             }

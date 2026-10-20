@@ -26,17 +26,17 @@ internal static class ChozoStatueNativeListAddresses
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (ChozoStatueCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, NativeCueShape<ChozoStatueCue>> Instructions = new()
     {
-        [0x806b] = (ChozoStatueCueKind.SetPreInstruction, "E"),
-        [0x8074] = (ChozoStatueCueKind.ClearPreInstruction, ""),
-        [0xe429] = (ChozoStatueCueKind.StartLoweringAcid, ""),
-        [0xe436] = (ChozoStatueCueKind.SetLoweredAcidPosition, ""),
-        [0xe43d] = (ChozoStatueCueKind.UnlockSamus, ""),
-        [0xe57f] = (ChozoStatueCueKind.PlayGrabSound, ""),
-        [0xe587] = (ChozoStatueCueKind.PlayFootstepSound, ""),
-        [0xe58f] = (ChozoStatueCueKind.Footstep, "F"),
-        [0xe5d8] = (ChozoStatueCueKind.Move, "R"),
-        [0xe6f0] = (ChozoStatueCueKind.ReleaseSamus, ""),
+        [0x806b] = NativeCueShape<ChozoStatueCue>.Of<ChozoStatueCue.SetPreInstruction>("E"),
+        [0x8074] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.ClearPreInstruction)),
+        [0xe429] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.StartLoweringAcid)),
+        [0xe436] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.SetLoweredAcidPosition)),
+        [0xe43d] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.UnlockSamus)),
+        [0xe57f] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.PlayGrabSound)),
+        [0xe587] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.PlayFootstepSound)),
+        [0xe58f] = NativeCueShape<ChozoStatueCue>.Of<ChozoStatueCue.Footstep>("F"),
+        [0xe5d8] = NativeCueShape<ChozoStatueCue>.Of<ChozoStatueCue.Move>("R"),
+        [0xe6f0] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.ReleaseSamus)),
     };
 }

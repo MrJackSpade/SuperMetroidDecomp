@@ -90,10 +90,10 @@ internal static class AudioInstrumentsVerification
             var stockRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(stock);
             var editedRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(edited);
             CartridgeAudioCommand common =
-                CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
+                new CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
             CartridgeAudioCommand titleUpload =
-                CartridgeAudioCommand.Upload(AudioBank.TitleSequence);
-            CartridgeAudioCommand titleTrack = CartridgeAudioCommand.WritePort(
+                new CartridgeAudioCommand.Upload(AudioBank.TitleSequence);
+            CartridgeAudioCommand titleTrack = new CartridgeAudioCommand.WritePort(
                 ApuPort.Music, AudioRomDataMusicTracks.Title);
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);

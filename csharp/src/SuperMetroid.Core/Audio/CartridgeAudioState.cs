@@ -11,9 +11,12 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public sealed class CartridgeAudioState
 {
-    /// <summary>Commands awaiting bank-80 music dispatch in the native circular queue.</summary>
+    /// <summary>
+    /// Commands awaiting bank-80 music dispatch in the native circular queue; an empty slot holds the zero word, the stop
+    /// command.
+    /// </summary>
     private readonly MusicCommand[] _musicEntries =
-        new MusicCommand[AudioRomData.Queues.MusicCapacity];
+        [.. Enumerable.Repeat(MusicCommand.Stop, AudioRomData.Queues.MusicCapacity)];
     /// <summary>Per-entry frame delays paired with queued music commands.</summary>
     internal readonly MusicCommandDelay[] MusicDelays =
         new MusicCommandDelay[AudioRomData.Queues.MusicCapacity];
@@ -50,7 +53,7 @@ public sealed class CartridgeAudioState
     /// </summary>
     internal NativeCountdown MusicTimer;
     /// <summary>Music command currently awaiting delay expiry and APU dispatch.</summary>
-    private MusicCommand _musicEntry;
+    private MusicCommand _musicEntry = MusicCommand.Stop;
     /// <summary>Sound-handler calls, 0 through <see cref="AudioRomData.Queues.MusicAndSfxDowntimeFrames"/>, for which a music change forces all SFX ports to zero.</summary>
     private int _soundHandlerDowntime;
 
@@ -100,7 +103,7 @@ public sealed class CartridgeAudioState
     public void Reset()
     {
         DoorTransitionSoundsDisabled = false;
-        Array.Clear(_musicEntries);
+        Array.Fill(_musicEntries, MusicCommand.Stop);
         Array.Clear(MusicDelays);
         Array.Clear(SoundQueues);
         Array.Clear(SoundReadPositions);
@@ -111,7 +114,7 @@ public sealed class CartridgeAudioState
         MusicReadPosition = 0;
         MusicWritePosition = 0;
         MusicTimer = default;
-        _musicEntry = default;
+        _musicEntry = MusicCommand.Stop;
         _soundHandlerDowntime = 0;
         MusicDataIndex = 0;
         MusicTrackIndex = 0;
@@ -119,11 +122,11 @@ public sealed class CartridgeAudioState
 
         // $80:841C uploads the common sound driver/sample bank, then clears music port
         // zero and SFX-library-two port two before the first ordinary dispatcher frame.
-        _pendingImmediateCommands.Add(CartridgeAudioCommand.Upload(
+        _pendingImmediateCommands.Add(new CartridgeAudioCommand.Upload(
             AudioRomData.Assets.InitialAudioBank));
-        _pendingImmediateCommands.Add(CartridgeAudioCommand.WritePort(
+        _pendingImmediateCommands.Add(new CartridgeAudioCommand.WritePort(
             ApuPort.Music, 0));
-        _pendingImmediateCommands.Add(CartridgeAudioCommand.WritePort(
+        _pendingImmediateCommands.Add(new CartridgeAudioCommand.WritePort(
             ApuPort.SoundLibrary2, 0));
     }
 
@@ -199,11 +202,11 @@ public sealed class CartridgeAudioState
     {
         int roomTrack = MusicTrackIndex;
 
-        Array.Clear(_musicEntries);
+        Array.Fill(_musicEntries, MusicCommand.Stop);
         Array.Clear(MusicDelays);
         MusicReadPosition = MusicWritePosition;
         MusicTimer = default;
-        _musicEntry = default;
+        _musicEntry = MusicCommand.Stop;
 
         QueueMusicDelayed8(MusicCommand.SelectTrack(
             AudioRomData.Queues.PermanentItemTrack));
@@ -344,7 +347,7 @@ public sealed class CartridgeAudioState
                 MusicTrackIndex = byte.MaxValue;
                 AudioUploadAssetDefinition upload =
                     AudioAssetCatalogDefinitions.ResolveDataIndex(dataIndex);
-                commands.Add(CartridgeAudioCommand.Upload(upload.Bank));
+                commands.Add(new CartridgeAudioCommand.Upload(upload.Bank));
                 MusicTrackIndex = 0;
                 // `$80:8F89-$8FA2` retires the data entry and returns. The timer stays zero,
                 // so the next entry is fetched only on the following call when it underflows.
@@ -355,7 +358,7 @@ public sealed class CartridgeAudioState
             else
             {
                 MusicTrackIndex = _musicEntry.TrackIndex;
-                commands.Add(CartridgeAudioCommand.WritePort(
+                commands.Add(new CartridgeAudioCommand.WritePort(
                     ApuPort.Music, MusicTrackIndex));
             }
 
@@ -376,7 +379,7 @@ public sealed class CartridgeAudioState
     /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>
     private void ClearAndAdvanceMusicEntry()
     {
-        _musicEntries[MusicReadPosition] = default;
+        _musicEntries[MusicReadPosition] = MusicCommand.Stop;
         MusicDelays[MusicReadPosition] = default;
         MusicReadPosition = (MusicReadPosition + 1) & AudioRomData.Queues.MusicIndexMask;
     }
@@ -394,7 +397,7 @@ public sealed class CartridgeAudioState
                 queue < AudioRomData.Queues.SoundLibraryCount;
                 queue++)
             {
-                commands.Add(CartridgeAudioCommand.WritePort(
+                commands.Add(new CartridgeAudioCommand.WritePort(
                     ApuPorts.ForSoundLibrary(queue), 0));
                 _currentSounds[queue] = 0;
             }
@@ -423,7 +426,7 @@ public sealed class CartridgeAudioState
             case 1: // $82:8A55 - wait until the SPC echoes the request byte.
                 if (acknowledgement != _currentSounds[queue])
                 {
-                    commands.Add(CartridgeAudioCommand.WritePort(
+                    commands.Add(new CartridgeAudioCommand.WritePort(
                         ApuPorts.ForSoundLibrary(queue),
                         _currentSounds[queue]));
                 }
@@ -437,7 +440,7 @@ public sealed class CartridgeAudioState
             case 2: // $82:8A6C - wait two frames, then clear both request and mirror.
                 if ((_soundClearDelays[queue] = NativeWordCounter.DecrementByte(_soundClearDelays[queue])) == 0)
                 {
-                    commands.Add(CartridgeAudioCommand.WritePort(
+                    commands.Add(new CartridgeAudioCommand.WritePort(
                         ApuPorts.ForSoundLibrary(queue), 0));
                     _currentSounds[queue] = 0;
                     SoundStates[queue] = 3;
@@ -447,7 +450,7 @@ public sealed class CartridgeAudioState
             case 3: // $82:8A7C - wait for the SPC's zero acknowledgement, then continue.
                 if (acknowledgement != 0)
                 {
-                    commands.Add(CartridgeAudioCommand.WritePort(
+                    commands.Add(new CartridgeAudioCommand.WritePort(
                         ApuPorts.ForSoundLibrary(queue), 0));
                 }
                 else
@@ -471,7 +474,7 @@ public sealed class CartridgeAudioState
 
         byte read = SoundReadPositions[queue];
         byte sound = SoundQueues[queue, read];
-        commands.Add(CartridgeAudioCommand.WritePort(
+        commands.Add(new CartridgeAudioCommand.WritePort(
             ApuPorts.ForSoundLibrary(queue), sound));
         _currentSounds[queue] = sound;
         SoundReadPositions[queue] = unchecked((byte)(

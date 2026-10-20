@@ -119,8 +119,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             RunFrames(enemies, slot, 3);
             // The cursor rests on the program's sleep step.
             AssertEqual(program, state.Program.Program, $"Magdollite {name} stays in its program");
-            AssertEqual(AnimationProgramStepKind.Hold, MagdolliteAnimations.Programs.Steps(program)[state.Program.Position].Kind,
-                $"Magdollite {name} reaches terminal sleep");
+            AssertTrue(MagdolliteAnimations.Programs.Steps(program)[state.Program.Position] is AnimationProgramStep<MagdolliteProgram, MagdolliteFrame, MagdolliteCue>.HoldStep, $"Magdollite {name} reaches terminal sleep");
         }
 
         (RoomEnemySystem Enemies, RoomEnemySlot Slot, MagdolliteEnemyState State) CreateSystem(

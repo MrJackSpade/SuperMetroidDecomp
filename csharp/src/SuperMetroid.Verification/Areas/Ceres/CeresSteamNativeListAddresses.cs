@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
@@ -30,10 +31,10 @@ internal static class CeresSteamNativeListAddresses
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, (CeresSteamCueKind Kind, string Operands)> Instructions = new()
+    internal static readonly Dictionary<ushort, NativeCueShape<CeresSteamCue>> Instructions = new()
     {
-        [0xf11d] = (CeresSteamCueKind.Vanish, ""),
-        [0xf127] = (CeresSteamCueKind.CountDownToActivation, "TA"),
-        [0xf135] = (CeresSteamCueKind.Appear, ""),
+        [0xf11d] = NativeCueShape<CeresSteamCue>.Exactly(new CeresSteamCue.Command(CeresSteamCueKind.Vanish)),
+        [0xf127] = NativeCueShape<CeresSteamCue>.Of<CeresSteamCue.CountDownToActivation>("TA"),
+        [0xf135] = NativeCueShape<CeresSteamCue>.Exactly(new CeresSteamCue.Command(CeresSteamCueKind.Appear)),
     };
 }

@@ -67,7 +67,7 @@ internal static class EnemyInstructionRunner
         where TFrame : struct
         where TCue : notnull
     {
-        var shows = programs.Steps(program).Where(step => step.Kind == AnimationProgramStepKind.Show).ToArray();
+        var shows = programs.Steps(program).OfType<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>().ToArray();
         return ExpectedFrames([.. shows.Select(step => spritemap(step.Frame)), spritemap(shows[0].Frame)],
             [.. shows.Select(step => step.Duration), shows[0].Duration]);
     }
@@ -77,7 +77,7 @@ internal static class EnemyInstructionRunner
         where TProgram : struct, Enum
         where TFrame : struct
         where TCue : notnull =>
-        programs.Steps(program).Where(step => step.Kind == AnimationProgramStepKind.Show).Sum(step => step.Duration) + 1;
+        programs.Steps(program).OfType<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>().Sum(step => step.Duration) + 1;
 
     /// <summary>Accepts a nullable fixture reference at an argument index and reports mismatched runtime types.</summary>
     private static T? Optional<T>(object?[] arguments, int index) where T : class => arguments[index] switch

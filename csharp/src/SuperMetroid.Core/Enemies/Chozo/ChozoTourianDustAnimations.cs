@@ -17,24 +17,24 @@ internal static class ChozoTourianDustAnimations
     {
         [P.Footsteps] =
         [
-            Cue(new(CK.Scatter, Scatter: new(Range: new(15, 15), Center: new(0, 3)))),
+            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(Range: new(15, 15), Center: new(0, 3)))),
             Show(0, 2),
             Show(1, 2),
             Show(2, 2),
             Show(3, 2),
-            Cue(new(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
             Hold,
         ],
         [P.SpikeClearingExplosions] =
         [
-            Cue(new(CK.Scatter, Scatter: new(Range: new(15, 15), Center: new(0, 3)))),
+            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(Range: new(15, 15), Center: new(0, 3)))),
             Show(4, 5),
             Show(5, 5),
             Show(6, 5),
             Show(7, 5),
             Show(8, 5),
             Show(9, 5),
-            Cue(new(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
             Hold,
         ],
         [P.TourianDescentDust] =
@@ -44,14 +44,14 @@ internal static class ChozoTourianDustAnimations
         ],
         [P.TourianDescentDustLoop] =
         [
-            Cue(new(CK.ReturnToOrigin)),
-            Cue(new(CK.Scatter, Scatter: new(Range: new(63, 3), Center: new(0, 0)))),
+            Cue(new EnemyProjectileCommonCue.Command(CK.ReturnToOrigin)),
+            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(Range: new(63, 3), Center: new(0, 0)))),
             Show(10, 2),
             Show(11, 2),
             Show(12, 2),
             Show(13, 2),
             RepeatWhileCounting(P.TourianDescentDustLoop),
-            Cue(new(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
             Hold,
         ],
     });

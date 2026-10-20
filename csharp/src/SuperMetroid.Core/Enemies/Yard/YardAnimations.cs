@@ -17,19 +17,19 @@ internal static class YardAnimations
     {
         [P.OutsideTurnUpsideRightMovingUp] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(21, 7),
             Show(22, 4),
             Show(23, 7),
-            Cue(new(K.MoveBy, Offset: -4, OffsetY: -8)),
+            Cue(new YardCue.MoveBy(Offset: -4, OffsetY: -8)),
             FallInto(P.CrawlingUpsideUpMovingLeft),
         ],
         [P.CrawlingUpsideUpMovingLeft] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingLeft)),
-            Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideUpMovingLeft)),
-            Cue(new(K.SetDirection, Direction: 6)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingLeft)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideUpMovingLeft)),
+            Cue(new YardCue.SetDirection(Direction: 6)),
             Show(0, 9),
             Show(1, 13),
             Show(2, 9),
@@ -37,19 +37,19 @@ internal static class YardAnimations
         ],
         [P.OutsideTurnUpsideUpMovingLeft] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(3, 7),
             Show(4, 4),
             Show(5, 7),
-            Cue(new(K.MoveBy, Offset: -8, OffsetY: 4)),
+            Cue(new YardCue.MoveBy(Offset: -8, OffsetY: 4)),
             FallInto(P.CrawlingUpsideLeftMovingDown),
         ],
         [P.CrawlingUpsideLeftMovingDown] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingDown)),
-            Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideLeftMovingDown)),
-            Cue(new(K.SetDirection, Direction: 3)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingDown)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideLeftMovingDown)),
+            Cue(new YardCue.SetDirection(Direction: 3)),
             Show(6, 9),
             Show(7, 13),
             Show(8, 9),
@@ -57,19 +57,19 @@ internal static class YardAnimations
         ],
         [P.OutsideTurnUpsideLeftMovingDown] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(9, 7),
             Show(10, 4),
             Show(11, 7),
-            Cue(new(K.MoveBy, Offset: 4, OffsetY: 8)),
+            Cue(new YardCue.MoveBy(Offset: 4, OffsetY: 8)),
             FallInto(P.CrawlingUpsideDownMovingRight),
         ],
         [P.CrawlingUpsideDownMovingRight] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingRight)),
-            Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideDownMovingRight)),
-            Cue(new(K.SetDirection, Direction: 5)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingRight)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideDownMovingRight)),
+            Cue(new YardCue.SetDirection(Direction: 5)),
             Show(12, 9),
             Show(13, 13),
             Show(14, 9),
@@ -77,19 +77,19 @@ internal static class YardAnimations
         ],
         [P.OutsideTurnUpsideDownMovingRight] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(15, 7),
             Show(16, 4),
             Show(17, 7),
-            Cue(new(K.MoveBy, Offset: 8, OffsetY: -4)),
+            Cue(new YardCue.MoveBy(Offset: 8, OffsetY: -4)),
             FallInto(P.CrawlingUpsideRightMovingUp),
         ],
         [P.CrawlingUpsideRightMovingUp] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingUp)),
-            Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideRightMovingUp)),
-            Cue(new(K.SetDirection, Direction: 0)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingUp)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideRightMovingUp)),
+            Cue(new YardCue.SetDirection(Direction: 0)),
             Show(18, 9),
             Show(19, 13),
             Show(20, 9),
@@ -97,19 +97,19 @@ internal static class YardAnimations
         ],
         [P.OutsideTurnUpsideLeftMovingUp] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(53, 7),
             Show(54, 4),
             Show(55, 7),
-            Cue(new(K.MoveBy, Offset: 4, OffsetY: -8)),
+            Cue(new YardCue.MoveBy(Offset: 4, OffsetY: -8)),
             FallInto(P.CrawlingUpsideUpMovingRight),
         ],
         [P.CrawlingUpsideUpMovingRight] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingRight)),
-            Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideUpMovingRight)),
-            Cue(new(K.SetDirection, Direction: 7)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingRight)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideUpMovingRight)),
+            Cue(new YardCue.SetDirection(Direction: 7)),
             Show(32, 9),
             Show(33, 13),
             Show(34, 9),
@@ -117,19 +117,19 @@ internal static class YardAnimations
         ],
         [P.OutsideTurnUpsideUpMovingRight] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(35, 7),
             Show(36, 4),
             Show(37, 7),
-            Cue(new(K.MoveBy, Offset: 8, OffsetY: 4)),
+            Cue(new YardCue.MoveBy(Offset: 8, OffsetY: 4)),
             FallInto(P.CrawlingUpsideRightMovingDown),
         ],
         [P.CrawlingUpsideRightMovingDown] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingDown)),
-            Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideRightMovingDown)),
-            Cue(new(K.SetDirection, Direction: 1)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingDown)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideRightMovingDown)),
+            Cue(new YardCue.SetDirection(Direction: 1)),
             Show(38, 9),
             Show(39, 13),
             Show(40, 9),
@@ -137,19 +137,19 @@ internal static class YardAnimations
         ],
         [P.OutsideTurnUpsideRightMovingDown] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(41, 7),
             Show(42, 4),
             Show(43, 7),
-            Cue(new(K.MoveBy, Offset: -4, OffsetY: 8)),
+            Cue(new YardCue.MoveBy(Offset: -4, OffsetY: 8)),
             FallInto(P.CrawlingUpsideDownMovingLeft),
         ],
         [P.CrawlingUpsideDownMovingLeft] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingLeft)),
-            Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideDownMovingLeft)),
-            Cue(new(K.SetDirection, Direction: 4)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingLeft)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideDownMovingLeft)),
+            Cue(new YardCue.SetDirection(Direction: 4)),
             Show(44, 9),
             Show(45, 13),
             Show(46, 9),
@@ -157,19 +157,19 @@ internal static class YardAnimations
         ],
         [P.OutsideTurnUpsideDownMovingLeft] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(47, 7),
             Show(48, 4),
             Show(49, 7),
-            Cue(new(K.MoveBy, Offset: -8, OffsetY: -4)),
+            Cue(new YardCue.MoveBy(Offset: -8, OffsetY: -4)),
             FallInto(P.CrawlingUpsideLeftMovingUp),
         ],
         [P.CrawlingUpsideLeftMovingUp] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingUp)),
-            Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideLeftMovingUp)),
-            Cue(new(K.SetDirection, Direction: 2)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingUp)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideLeftMovingUp)),
+            Cue(new YardCue.SetDirection(Direction: 2)),
             Show(50, 9),
             Show(51, 13),
             Show(52, 9),
@@ -177,8 +177,8 @@ internal static class YardAnimations
         ],
         [P.InsideTurnUpsideUpMovingLeft] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(64, 7),
             Show(65, 4),
             Show(66, 7),
@@ -186,8 +186,8 @@ internal static class YardAnimations
         ],
         [P.InsideTurnUpsideRightMovingUp] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(67, 7),
             Show(68, 4),
             Show(69, 7),
@@ -195,8 +195,8 @@ internal static class YardAnimations
         ],
         [P.InsideTurnUpsideDownMovingRight] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(70, 7),
             Show(71, 4),
             Show(72, 7),
@@ -204,8 +204,8 @@ internal static class YardAnimations
         ],
         [P.InsideTurnUpsideLeftMovingDown] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(73, 7),
             Show(74, 4),
             Show(75, 7),
@@ -213,8 +213,8 @@ internal static class YardAnimations
         ],
         [P.InsideTurnUpsideUpMovingRight] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(84, 7),
             Show(85, 4),
             Show(86, 7),
@@ -222,8 +222,8 @@ internal static class YardAnimations
         ],
         [P.InsideTurnUpsideLeftMovingUp] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(87, 7),
             Show(88, 4),
             Show(89, 7),
@@ -231,8 +231,8 @@ internal static class YardAnimations
         ],
         [P.InsideTurnUpsideDownMovingLeft] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(90, 7),
             Show(91, 4),
             Show(92, 7),
@@ -240,8 +240,8 @@ internal static class YardAnimations
         ],
         [P.InsideTurnUpsideRightMovingDown] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
-            Cue(new(K.SetHidingProgram)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
+            Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
             Show(93, 7),
             Show(94, 4),
             Show(95, 7),
@@ -249,10 +249,10 @@ internal static class YardAnimations
         ],
         [P.HidingUpsideUpMovingLeft] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
             Show(24, 5),
             Show(25, 1),
-            Cue(new(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             FallInto(P.HiddenUpsideUpMovingLeft),
         ],
         [P.HiddenUpsideUpMovingLeft] =
@@ -263,30 +263,30 @@ internal static class YardAnimations
         ],
         [P.HidingUpsideDownMovingLeft] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
             Show(60, 5),
             Show(61, 1),
-            Cue(new(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(100, 48),
             Show(101, 16),
             GoTo(P.CrawlingUpsideDownMovingLeft),
         ],
         [P.HidingUpsideDownMovingRight] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
             Show(28, 5),
             Show(29, 1),
-            Cue(new(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(80, 48),
             Show(81, 16),
             GoTo(P.CrawlingUpsideDownMovingRight),
         ],
         [P.HidingUpsideUpMovingRight] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
             Show(56, 5),
             Show(57, 1),
-            Cue(new(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             FallInto(P.HiddenUpsideUpMovingRight),
         ],
         [P.HiddenUpsideUpMovingRight] =
@@ -297,47 +297,47 @@ internal static class YardAnimations
         ],
         [P.HidingUpsideRightMovingUp] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
             Show(30, 5),
             Show(31, 1),
-            Cue(new(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(78, 48),
             Show(79, 16),
             GoTo(P.CrawlingUpsideRightMovingUp),
         ],
         [P.HidingUpsideLeftMovingUp] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
             Show(62, 5),
             Show(63, 1),
-            Cue(new(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(98, 48),
             Show(99, 16),
             GoTo(P.CrawlingUpsideLeftMovingUp),
         ],
         [P.HidingUpsideLeftMovingDown] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
             Show(26, 5),
             Show(27, 1),
-            Cue(new(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(82, 48),
             Show(83, 16),
             GoTo(P.CrawlingUpsideLeftMovingDown),
         ],
         [P.HidingUpsideRightMovingDown] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
             Show(58, 5),
             Show(59, 1),
-            Cue(new(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
             Show(102, 48),
             Show(103, 16),
             GoTo(P.CrawlingUpsideRightMovingDown),
         ],
         [P.AirborneFacingLeft] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Airborne)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Airborne)),
             Show(31, 3),
             FallInto(P.AirborneFacingLeftLoop),
         ],
@@ -350,7 +350,7 @@ internal static class YardAnimations
         ],
         [P.AirborneFacingRight] =
         [
-            Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Airborne)),
+            Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Airborne)),
             Show(63, 3),
             FallInto(P.AirborneFacingRightLoop),
         ],
@@ -366,7 +366,7 @@ internal static class YardAnimations
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params YardProgram[] programs) =>
         programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<P, YardFrame, YardCue>.ShowStep>()
             .Select(step => YardFrameDefinitions.Spritemap(step.Frame));
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>

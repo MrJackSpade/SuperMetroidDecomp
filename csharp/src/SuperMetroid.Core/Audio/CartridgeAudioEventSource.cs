@@ -30,26 +30,26 @@ internal sealed class CartridgeAudioEventSource
         var events = new List<AudioEvent>(commands.Count + SpcCommandPorts.MaximumTicksPerFrame);
         foreach (CartridgeAudioCommand command in commands)
         {
-            switch (command.Kind)
+            switch (command)
             {
-                case CartridgeAudioCommandKind.Upload:
+                case CartridgeAudioCommand.Upload upload:
                     ports.ResetForUpload();
-                    events.Add(AudioEvent.LoadAudioBank(command.Bank));
+                    events.Add(new AudioEvent.LoadAudioBank(upload.Bank));
                     break;
-                case CartridgeAudioCommandKind.WritePort:
-                    ports.WritePort(command.InputPort, command.Value);
-                    if (command.InputPort == ApuPort.Music)
-                        events.Add(AudioEvent.WriteMusicPort(MusicCommand.FromCartridge(command.Value)));
+                case CartridgeAudioCommand.WritePort writePort:
+                    ports.WritePort(writePort.InputPort, writePort.Value);
+                    if (writePort.InputPort == ApuPort.Music)
+                        events.Add(new AudioEvent.WriteMusicPort(MusicCommand.FromCartridge(writePort.Value)));
                     break;
                 default:
-                    throw new InvalidDataException($"Unknown cartridge audio command {command.Kind}.");
+                    throw new InvalidDataException($"Unknown cartridge audio command {command}.");
             }
         }
         Span<SpcDriverTick> schedule = stackalloc SpcDriverTick[SpcCommandPorts.MaximumTicksPerFrame];
         int tickCount = ports.AdvanceFrame(schedule);
         foreach (SpcDriverTick tick in schedule[..tickCount])
         {
-            events.Add(AudioEvent.DriverTick(tick.DspCycleOffset, tick.Ticks, tick.SoundEffectsPolled));
+            events.Add(new AudioEvent.DriverTick(tick.DspCycleOffset, tick.Ticks, tick.SoundEffectsPolled));
             if (!tick.SoundEffectsPolled)
                 continue;
             for (int library = 0; library < SoundEffectLibraries.Count; library++)
@@ -67,6 +67,6 @@ internal sealed class CartridgeAudioEventSource
     private static void AddStart(List<AudioEvent> events, SpcDriverTick tick, SoundEffectLibrary library, SpcSoundEffectPoll poll)
     {
         if (poll.Changed && poll.Command != 0)
-            events.Add(AudioEvent.StartSoundEffect(new SoundEffectId(library, poll.Command), tick.DspCycleOffset));
+            events.Add(new AudioEvent.StartSoundEffect(new SoundEffectId(library, poll.Command), tick.DspCycleOffset));
     }
 }

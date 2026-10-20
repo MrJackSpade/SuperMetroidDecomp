@@ -31,7 +31,7 @@ internal static class SaveStationElectricityAnimations
             Show(6, 1),
             Show(7, 1),
             AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.RepeatWhileCounting(P.Cycle),
-            Cue(new(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
             Hold,
         ],
     });

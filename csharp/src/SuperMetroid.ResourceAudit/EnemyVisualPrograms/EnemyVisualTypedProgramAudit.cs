@@ -168,7 +168,7 @@ internal static class EnemyVisualTypedProgramAudit
             where TCue : notnull
         {
             ushort[] frames = [.. Enum.GetValues<TProgram>().SelectMany(program => programs.Steps(program))
-                .Where(step => step.Kind == AnimationProgramStepKind.Show)
+                .OfType<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>()
                 .Select(step => spritemap(step.Frame)).Distinct()];
             foreach (ushort frame in frames)
                 report.Require(ResourceDomains.EnemyDisplay, owner, ResourceIndex.Address(bank, frame), source, exports);
@@ -323,7 +323,7 @@ internal static class EnemyVisualTypedProgramAudit
         RequireTypedFrames(NinjaSpacePirateAnimations.Programs, NinjaSpacePirateFrameDefinitions.Spritemap, NinjaSpacePirateFrameToolingDefinitions.Bank,
             nameof(NinjaSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateAnimations.cs");
         int headPoses = Enum.GetValues<KraidHeadProgram>().Sum(program =>
-            KraidHeadAnimations.Programs.Steps(program).Count(step => step.Kind == AnimationProgramStepKind.Show));
+            KraidHeadAnimations.Programs.Steps(program).Count(step => step is AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.ShowStep));
         for (int pose = 0; pose < headPoses; pose++)
             report.Consumers.Add(new(nameof(KraidHeadAnimations),
                 "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadAnimations.cs",

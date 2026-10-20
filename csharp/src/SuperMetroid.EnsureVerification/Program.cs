@@ -1,4 +1,4 @@
-using SuperMetroid.Core;
+﻿using SuperMetroid.Core;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 using static SuperMetroid.EnsureVerification.Contracts.MemberDocumentationAnalyzerTests;
 using static SuperMetroid.EnsureVerification.CartridgeEncoding.CartridgeEncodingAnalyzerTests;
@@ -66,6 +66,7 @@ internal static class Program
                 (nameof(VerifyBoolFlagAnalyzer), VerifyBoolFlagAnalyzer),
                 (nameof(VerifyForwardingContractAnalyzer), VerifyForwardingContractAnalyzer),
                 (nameof(VerifyDuplicateConceptAnalyzer), VerifyDuplicateConceptAnalyzer),
+                (nameof(VerifyKindTaggedRecordAnalyzer), VerifyKindTaggedRecordAnalyzer),
                 (nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),
                 (nameof(VerifySpcMemoryAccessAnalyzer), VerifySpcMemoryAccessAnalyzer),
                 (nameof(VerifyParameterListAnalyzer), VerifyParameterListAnalyzer),

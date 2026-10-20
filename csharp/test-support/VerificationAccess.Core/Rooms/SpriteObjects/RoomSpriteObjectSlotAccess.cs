@@ -11,17 +11,14 @@ namespace SuperMetroid.Core.Rooms.SpriteObjects;
 internal static class RoomSpriteObjectSlotAccess
 {
     /// <summary>The bytes a step occupies in its native list.</summary>
-    private static int StepBytes(AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> step) => step.Kind switch
+    private static int StepBytes(AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> step) => step switch
     {
-        AnimationProgramStepKind.Show => 4,
-        AnimationProgramStepKind.Hold or AnimationProgramStepKind.Stop => 2,
-        AnimationProgramStepKind.GoTo => 4,
-        AnimationProgramStepKind.FallInto => 0,
-        AnimationProgramStepKind.Cue or
-            AnimationProgramStepKind.Wait or
-            AnimationProgramStepKind.SetCounter or
-            AnimationProgramStepKind.RepeatWhileCounting => throw new InvalidOperationException($"Room sprite-object programs have no {step.Kind} step."),
-        _ => throw new InvalidOperationException($"Room sprite-object programs have no {step.Kind} step."),
+        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep => 4,
+        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.HoldStep or AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.StopStep => 2,
+        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.GoToStep => 4,
+        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.FallIntoStep => 0,
+        AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.CueStep or AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.WaitStep or AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.SetCounterStep or AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.RepeatWhileCountingStep => throw new InvalidOperationException($"Room sprite-object programs have no {step} step."),
+        _ => throw new InvalidOperationException($"Room sprite-object programs have no {step} step."),
     };
 
     /// <summary>The bank-$B4 address of step <paramref name="position"/> of <paramref name="program"/>.</summary>

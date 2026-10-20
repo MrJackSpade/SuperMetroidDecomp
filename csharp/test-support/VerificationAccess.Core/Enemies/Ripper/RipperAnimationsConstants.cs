@@ -9,6 +9,6 @@ internal static class RipperAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params RipperProgram[] programs) =>
         programs.SelectMany(program => RipperAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<RipperProgram, RipperFrame, NoAnimationCue>.ShowStep>()
             .Select(step => RipperFrameToolingDefinitions.Spritemap(step.Frame));
 }

@@ -85,23 +85,22 @@ internal sealed class RoomSpriteObjectPool
         NativeCountdown counter = default;
         AnimationProgramAdvance<RoomSpriteObjectFrame> advance =
             RoomSpriteObjectAnimations.Programs.Advance(ref cursor, ref counter, static (_, _) => null);
-        switch (advance.Kind)
+        switch (advance)
         {
-            case AnimationProgramAdvanceKind.Show:
+            case AnimationProgramAdvance<RoomSpriteObjectFrame>.Show shown:
                 slot.Cursor = cursor;
-                slot.Frame = advance.Frame;
-                slot.Timer = NativeCountdown.Start(advance.Duration);
+                slot.Frame = shown.Frame;
+                slot.Timer = NativeCountdown.Start(shown.Duration);
                 return;
-            case AnimationProgramAdvanceKind.Hold:
+            case AnimationProgramAdvance<RoomSpriteObjectFrame>.Hold:
                 slot.Cursor = cursor;
                 slot.Timer = NativeCountdown.FromRaw(short.MaxValue);
                 return;
-            case AnimationProgramAdvanceKind.Stop:
+            case AnimationProgramAdvance<RoomSpriteObjectFrame>.Stop:
                 slot.Clear();
                 return;
-            case AnimationProgramAdvanceKind.Wait:
             default:
-                throw new InvalidOperationException($"Sprite object program {cursor.Program} advanced with {advance.Kind}.");
+                throw new InvalidOperationException($"Sprite object program {cursor.Program} advanced with {advance}.");
         }
     }
 
@@ -115,10 +114,10 @@ internal sealed class RoomSpriteObjectPool
         Ensure.NotNull(slot);
         AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> first =
             RoomSpriteObjectAnimations.Programs.Steps(program)[0];
-        if (first.Kind != AnimationProgramStepKind.Show)
+        if (first is not AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep show)
             throw new InvalidOperationException($"Sprite object program {program} does not begin with a timed frame.");
         slot.Cursor = new(program, 1);
-        slot.Frame = first.Frame;
+        slot.Frame = show.Frame;
     }
 
     /// <summary>Ports <c>DrawSpriteObjects</c> at <c>$B4:BD32</c>.</summary>

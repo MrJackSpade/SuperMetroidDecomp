@@ -860,10 +860,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             (cue, continuation) => ApplyShitroidCue(cue));
         slot.Timer = counter;
         state.Cursor = cursor;
-        if (advance.Kind != AnimationProgramAdvanceKind.Show)
-            throw new InvalidOperationException($"The Shitroid's programs have no {advance.Kind} step.");
-        slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(advance.Frame);
+        if (advance is not AnimationProgramAdvance<BabyMetroidFrame>.Show shown)
+            throw new InvalidOperationException($"The Shitroid's programs have no {advance} step.");
+        slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+        slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 

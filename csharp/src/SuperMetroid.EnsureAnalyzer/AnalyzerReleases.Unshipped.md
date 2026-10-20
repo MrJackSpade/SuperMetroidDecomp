@@ -1,4 +1,4 @@
-; Unshipped analyzer release
+﻿; Unshipped analyzer release
 ; https://github.com/dotnet/roslyn/blob/main/src/RoslynAnalyzers/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
 
 ### New Rules
@@ -26,6 +26,8 @@ SME6427 | Design | Error | ForwardingContractAnalyzer
 SME6428 | Design | Error | DuplicateConceptAnalyzer
 SME6429 | Design | Error | DuplicateConceptAnalyzer
 SME6430 | Design | Error | DuplicateConceptAnalyzer
+SME6431 | Design | Error | KindTaggedRecordAnalyzer
+SME6432 | Design | Error | KindTaggedRecordAnalyzer
 SME6340 | Design | Warning | CartridgeEncodingAnalyzer
 SME6341 | Design | Warning | CartridgeEncodingAnalyzer
 SME6342 | Design | Warning | CartridgeEncodingAnalyzer

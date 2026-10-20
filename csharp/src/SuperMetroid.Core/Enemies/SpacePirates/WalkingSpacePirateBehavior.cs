@@ -36,23 +36,23 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// </summary>
     private WalkingSpacePirateProgram? ApplyWalkingSpacePirateCue(RoomEnemySlot slot, WalkingSpacePirateCue cue, SamusState? samus)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case WalkingSpacePirateCueKind.SetFunction:
+            case WalkingSpacePirateCue.SetFunction setFunction:
                 // Pirate bytecode does not jump to the operand. It stores that bank-$B2 function
                 // for main AI to dispatch next frame, then runs on.
-                RequireWalkingSpacePirateState(slot).Function = cue.Function;
+                RequireWalkingSpacePirateState(slot).Function = setFunction.Function;
                 return null;
-            case WalkingSpacePirateCueKind.FireLaserLeft:
-                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), direction: HorizontalDirection.Left, cue.LaserHeight);
+            case WalkingSpacePirateCue.FireLaserLeft fireLaserLeft:
+                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), direction: HorizontalDirection.Left, fireLaserLeft.LaserHeight);
                 return null;
-            case WalkingSpacePirateCueKind.FireLaserRight:
-                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), direction: HorizontalDirection.Right, cue.LaserHeight);
+            case WalkingSpacePirateCue.FireLaserRight fireLaserRight:
+                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), direction: HorizontalDirection.Right, fireLaserRight.LaserHeight);
                 return null;
-            case WalkingSpacePirateCueKind.ChooseMovement:
+            case WalkingSpacePirateCue.Command { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
                 return SelectWalkingSpacePirateMovement(slot, samus);
             default:
-                throw new InvalidOperationException($"The walking Space Pirates' animations have no {cue.Kind} cue.");
+                throw new InvalidOperationException($"The walking Space Pirates' animations have no {cue} cue.");
         }
     }
 

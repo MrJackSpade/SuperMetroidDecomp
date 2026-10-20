@@ -9,6 +9,6 @@ internal static class PolypAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params PolypProgram[] programs) =>
         programs.SelectMany(program => PolypAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<PolypProgram, PolypFrame, NoAnimationCue>.ShowStep>()
             .Select(step => PolypFrameToolingDefinitions.Spritemap(step.Frame));
 }

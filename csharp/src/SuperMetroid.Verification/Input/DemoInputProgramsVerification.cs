@@ -48,38 +48,38 @@ internal static class DemoInputProgramsVerification
                 AssertEqual(cursor, DemoInputNativeListAddresses.Address(new AnimationProgramCursor<DemoInputProgram>(program, index)), $"{at}: native address");
                 if (cursor != entry && byEntry.TryGetValue(cursor, out DemoInputProgram next))
                 {
-                    AssertEqual(AnimationProgramStepKind.FallInto, step.Kind, $"{at}: runs on into the next authored list");
-                    AssertEqual(next, step.Target, $"{at}: fall-through target");
+                    var fallInto = AssertIs<AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.FallIntoStep>(step, $"{at}: runs on into the next authored list");
+                    AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                     AssertEqual(steps.Count, index + 1, $"{at}: the fall-through ends the program");
                     break;
                 }
                 ushort word = Word(cursor);
                 if (word < DemoInputListWords.RoutineWord)
                 {
-                    AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: input record");
-                    AssertEqual(word, step.Duration, $"{at}: duration");
-                    AssertEqual(Word(cursor + 2), (ushort)step.Frame.Held, $"{at}: held");
-                    AssertEqual(Word(cursor + 4), (ushort)step.Frame.NewlyPressed, $"{at}: newly pressed");
+                    var show = AssertIs<AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.ShowStep>(step, $"{at}: input record");
+                    AssertEqual(word, show.Duration, $"{at}: duration");
+                    AssertEqual(Word(cursor + 2), (ushort)show.Frame.Held, $"{at}: held");
+                    AssertEqual(Word(cursor + 4), (ushort)show.Frame.NewlyPressed, $"{at}: newly pressed");
                     cursor = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
                     records++;
                     continue;
                 }
                 if (Routines.TryGetValue(word, out DemoInputCue cue))
                 {
-                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: routine");
-                    AssertEqual(cue, step.PublishedCue, $"{at}: routine cue");
+                    var cueStep = AssertIs<AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.CueStep>(step, $"{at}: routine");
+                    AssertEqual(cue, cueStep.Cue, $"{at}: routine cue");
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 }
                 switch ((DemoInputInstruction)word)
                 {
                     case DemoInputInstruction.Goto:
-                        AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
-                        AssertEqual(byEntry[Word(cursor + 2)], step.Target, $"{at}: goto target");
+                        var goTo = AssertIs<AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.GoToStep>(step, $"{at}: goto");
+                        AssertEqual(byEntry[Word(cursor + 2)], goTo.Target, $"{at}: goto target");
                         AssertEqual(steps.Count, index + 1, $"{at}: the goto ends the program");
                         break;
                     case DemoInputInstruction.Delete:
-                        AssertEqual(AnimationProgramStepKind.Stop, step.Kind, $"{at}: delete");
+                        AssertTrue(step is AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.StopStep, $"{at}: delete");
                         AssertEqual(steps.Count, index + 1, $"{at}: the delete ends the program");
                         break;
                     case DemoInputInstruction.SetPreInstruction:

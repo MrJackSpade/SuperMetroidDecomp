@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
@@ -26,31 +26,26 @@ public readonly record struct PaletteFxColorRows(int FirstRecord, int FrameCount
             current = null;
             foreach (AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue> step in PaletteFxAnimations.Programs.Steps(running))
             {
-                switch (step.Kind)
+                switch (step)
                 {
-                    case AnimationProgramStepKind.Show when first < 0:
-                        first = step.Frame.Record;
+                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep show when first < 0:
+                        first = show.Frame.Record;
                         count = 1;
                         break;
-                    case AnimationProgramStepKind.Show when step.Frame.Record == first + count:
+                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep show when show.Frame.Record == first + count:
                         count++;
                         break;
-                    case AnimationProgramStepKind.Show:
-                        throw new InvalidOperationException($"Palette-FX program {program} shows record {step.Frame.Record} out of order.");
-                    case AnimationProgramStepKind.FallInto:
-                        current = step.Target;
+                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep show:
+                        throw new InvalidOperationException($"Palette-FX program {program} shows record {show.Frame.Record} out of order.");
+                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.FallIntoStep fallInto:
+                        current = fallInto.Target;
                         break;
-                    case AnimationProgramStepKind.Cue:
-                    case AnimationProgramStepKind.Wait:
-                    case AnimationProgramStepKind.SetCounter:
-                    case AnimationProgramStepKind.RepeatWhileCounting:
+                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.WaitStep or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.SetCounterStep or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.RepeatWhileCountingStep:
                         break;
-                    case AnimationProgramStepKind.GoTo:
-                    case AnimationProgramStepKind.Hold:
-                    case AnimationProgramStepKind.Stop:
+                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.GoToStep or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.HoldStep or AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.StopStep:
                         return Rows(program, first, count, colorsPerFrame);
                     default:
-                        throw new InvalidOperationException($"Undefined {nameof(AnimationProgramStepKind)} {step.Kind}.");
+                        throw new InvalidOperationException($"Undefined animation program step {step}.");
                 }
             }
         }

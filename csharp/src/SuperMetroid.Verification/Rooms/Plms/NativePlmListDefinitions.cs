@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -21,7 +22,7 @@ internal static class NativePlmListDefinitions
     /// Decodes a family instruction at <paramref name="cursor"/>: the typed cue it became and its native length in
     /// bytes, or false when the family has no such instruction.
     /// </summary>
-    internal delegate bool CueReader<TCue>(IImportCartridgeSource cartridge, ushort cursor, out TCue cue, out int length);
+    internal delegate bool CueReader<TCue>(IImportCartridgeSource cartridge, ushort cursor, [MaybeNullWhen(false)] out TCue cue, out int length);
 
     /// <summary>
     /// Decodes an instruction at <paramref name="cursor"/> that draws and ends the pass, such as the restore of a
@@ -157,16 +158,16 @@ internal static class NativePlmListDefinitions
                 AnimationProgramStep<TProgram, TFrame, TCue> step = steps[index];
                 if (cursor != entry && byEntry.TryGetValue(cursor, out TProgram next))
                 {
-                    AssertEqual(AnimationProgramStepKind.FallInto, step.Kind, $"{at}: runs on into the next authored list");
-                    AssertEqual(next, step.Target, $"{at}: fall-through target");
+                    var fallInto = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.FallIntoStep>(step, $"{at}: runs on into the next authored list");
+                    AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                     return Ends(index);
                 }
                 ushort word = Word(cursor);
                 if ((word & InstructionBit) == 0)
                 {
-                    AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: timed draw");
-                    AssertEqual(word, step.Duration, $"{at}: duration");
-                    AssertEqual(Word(cursor + 2), drawList(program, step.Frame), $"{at}: draw list");
+                    var show = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>(step, $"{at}: timed draw");
+                    AssertEqual(word, show.Duration, $"{at}: duration");
+                    AssertEqual(Word(cursor + 2), drawList(program, show.Frame), $"{at}: draw list");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
                     continue;
@@ -174,34 +175,35 @@ internal static class NativePlmListDefinitions
                 switch ((RoomPlmInstruction)word)
                 {
                     case RoomPlmInstruction.Sleep:
-                        AssertEqual(AnimationProgramStepKind.Hold, step.Kind, $"{at}: sleep");
+                        AssertTrue(step is AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep, $"{at}: sleep");
                         return Ends(index);
                     case RoomPlmInstruction.Delete:
-                        AssertEqual(AnimationProgramStepKind.Stop, step.Kind, $"{at}: delete");
+                        AssertTrue(step is AnimationProgramStep<TProgram, TFrame, TCue>.StopStep, $"{at}: delete");
                         return Ends(index);
                     case RoomPlmInstruction.Goto when !byEntry.ContainsKey(Word(cursor + 2)):
                         // A goto out of the family hands the PLM to another family's program: the typed program
                         // publishes the handoff, then closes with the hold its set requires and never reaches.
-                        AssertTrue(cueAt(cartridge, cursor, out TCue handoff, out _), $"{at}: goto out of the family is a known handoff");
-                        AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: handoff");
-                        AssertEqual(handoff, step.PublishedCue, $"{at}: handoff cue");
-                        AssertTrue(index + 1 < steps.Count && steps[index + 1].Kind == AnimationProgramStepKind.Hold,
+                        if (!cueAt(cartridge, cursor, out TCue? handoff, out _) || handoff is null)
+                            throw new InvalidOperationException($"Verification failed: {at}: goto out of the family is a known handoff.");
+                        var handoffStep = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.CueStep>(step, $"{at}: handoff");
+                        AssertEqual(handoff, handoffStep.Cue, $"{at}: handoff cue");
+                        AssertTrue(index + 1 < steps.Count && steps[index + 1] is AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep,
                             $"{at}: the handoff closes with a hold");
                         Addresses[(program, index + 1)] = cursor;
                         return Ends(index + 1);
                     case RoomPlmInstruction.Goto:
-                        AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
-                        AssertEqual(Target(cursor + 2), step.Target, $"{at}: goto target");
+                        var goTo = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.GoToStep>(step, $"{at}: goto");
+                        AssertEqual(Target(cursor + 2), goTo.Target, $"{at}: goto target");
                         return Ends(index);
                     case RoomPlmInstruction.SetEightBitTimer:
-                        AssertEqual(AnimationProgramStepKind.SetCounter, step.Kind, $"{at}: loop timer");
-                        AssertEqual(ReadOperandByte(cartridge, cursor + 2), step.Duration, $"{at}: loop count");
+                        var setCounter = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.SetCounterStep>(step, $"{at}: loop timer");
+                        AssertEqual(ReadOperandByte(cartridge, cursor + 2), setCounter.Count, $"{at}: loop count");
                         cursor = unchecked((ushort)(cursor + 3));
                         index++;
                         continue;
                     case RoomPlmInstruction.DecrementTimerAndGoto:
-                        AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, step.Kind, $"{at}: counted repeat");
-                        AssertEqual(Target(cursor + 2), step.Target, $"{at}: repeat target");
+                        var repeat = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep>(step, $"{at}: counted repeat");
+                        AssertEqual(Target(cursor + 2), repeat.Target, $"{at}: repeat target");
                         cursor = unchecked((ushort)(cursor + 4));
                         index++;
                         continue;
@@ -259,16 +261,17 @@ internal static class NativePlmListDefinitions
                     default:
                         if (showAt is not null && showAt(cartridge, cursor, out TFrame shown, out int shownFor, out int showLength))
                         {
-                            AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: instruction ${word:X4} draws");
-                            AssertEqual(shown, step.Frame, $"{at}: drawn frame");
-                            AssertEqual(shownFor, step.Duration, $"{at}: draw duration");
+                            var show = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>(step, $"{at}: instruction ${word:X4} draws");
+                            AssertEqual(shown, show.Frame, $"{at}: drawn frame");
+                            AssertEqual(shownFor, show.Duration, $"{at}: draw duration");
                             cursor = unchecked((ushort)(cursor + showLength));
                             index++;
                             continue;
                         }
-                        AssertTrue(cueAt(cartridge, cursor, out TCue cue, out int length), $"{at}: native instruction ${word:X4} is known");
-                        AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: instruction ${word:X4}");
-                        AssertEqual(cue, step.PublishedCue, $"{at}: cue");
+                        if (!cueAt(cartridge, cursor, out TCue? cue, out int length) || cue is null)
+                            throw new InvalidOperationException($"Verification failed: {at}: native instruction ${word:X4} is known.");
+                        var cueStep = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.CueStep>(step, $"{at}: instruction ${word:X4}");
+                        AssertEqual(cue, cueStep.Cue, $"{at}: cue");
                         cursor = unchecked((ushort)(cursor + length));
                         index++;
                         continue;

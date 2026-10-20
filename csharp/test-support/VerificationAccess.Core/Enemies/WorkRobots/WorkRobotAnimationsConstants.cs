@@ -9,6 +9,6 @@ internal static class WorkRobotAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params WorkRobotProgram[] programs) =>
         programs.SelectMany(program => WorkRobotAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue>.ShowStep>()
             .Select(step => WorkRobotFrameToolingDefinitions.Spritemap(step.Frame));
 }

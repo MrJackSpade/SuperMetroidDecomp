@@ -9,6 +9,6 @@ internal static class FirefleaAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params FirefleaProgram[] programs) =>
         programs.SelectMany(program => FirefleaAnimations.Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<FirefleaProgram, FirefleaFrame, NoAnimationCue>.ShowStep>()
             .Select(step => FirefleaFrameToolingDefinitions.Spritemap(step.Frame));
 }

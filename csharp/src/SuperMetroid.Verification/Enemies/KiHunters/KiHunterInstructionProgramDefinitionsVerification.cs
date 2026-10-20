@@ -231,7 +231,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         static void AssertAsleep(KiHunterEnemyState state, KiHunterProgram program, string message)
         {
             AssertEqual(program, state.Program.Program, message);
-            AssertEqual(AnimationProgramStepKind.Hold, KiHunterAnimations.Programs.Steps(program)[state.Program.Position].Kind, message);
+            AssertTrue(KiHunterAnimations.Programs.Steps(program)[state.Program.Position] is AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>.HoldStep, message);
         }
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -65,7 +65,7 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
     /// <inheritdoc/>
     internal sealed override void WakePastSleep()
     {
-        if (Programs.Steps(Cursor.Program)[Cursor.Position].Kind != AnimationProgramStepKind.Hold)
+        if (Programs.Steps(Cursor.Program)[Cursor.Position] is not AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep)
             throw new InvalidOperationException($"PLM program {Cursor.Program} woke past a sleep it does not rest on.");
         Restart(ProgramAfterSleep(Cursor.Program)
             ?? throw new InvalidOperationException($"PLM program {Cursor.Program} has no program after its sleep."));
@@ -78,20 +78,20 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
         {
             AnimationProgramStep<TProgram, TFrame, TCue> step = Programs.Steps(Cursor.Program)[Cursor.Position];
             AnimationProgramCursor<TProgram> next = Cursor with { Position = Cursor.Position + 1 };
-            switch (step.Kind)
+            switch (step)
             {
-                case AnimationProgramStepKind.Show:
+                case AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep show:
                     Cursor = next;
-                    slot.InstructionTimer = NativeCountdown.FromRaw((ushort)step.Duration);
-                    Draw(step.Frame, slot, context);
+                    slot.InstructionTimer = NativeCountdown.FromRaw((ushort)show.Duration);
+                    Draw(show.Frame, slot, context);
                     return;
-                case AnimationProgramStepKind.Wait:
+                case AnimationProgramStep<TProgram, TFrame, TCue>.WaitStep wait:
                     Cursor = next;
-                    slot.InstructionTimer = NativeCountdown.FromRaw((ushort)step.Duration);
+                    slot.InstructionTimer = NativeCountdown.FromRaw((ushort)wait.Duration);
                     return;
-                case AnimationProgramStepKind.Cue:
+                case AnimationProgramStep<TProgram, TFrame, TCue>.CueStep cue:
                     Cursor = next;
-                    TProgram? redirect = Publish(step.PublishedCue, slot, context);
+                    TProgram? redirect = Publish(cue.Cue, slot, context);
                     // A cue that deletes the PLM ends this pass. One that hands the slot to another family's program
                     // continues there on this pass, as a native goto into another list does.
                     if (!slot.Active)
@@ -104,28 +104,30 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
                     if (redirect is { } program)
                         Cursor = AnimationProgramCursor<TProgram>.Start(program);
                     break;
-                case AnimationProgramStepKind.SetCounter:
+                case AnimationProgramStep<TProgram, TFrame, TCue>.SetCounterStep setCounter:
                     Cursor = next;
-                    slot.LoopTimer = (ushort)step.Duration;
+                    slot.LoopTimer = (ushort)setCounter.Count;
                     break;
-                case AnimationProgramStepKind.RepeatWhileCounting:
+                case AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep repeat:
                     NativeWordCounterStep counted = NativeWordCounter.Decrement(slot.LoopTimer);
                     slot.LoopTimer = counted.Value;
-                    Cursor = counted.IsZero ? next : AnimationProgramCursor<TProgram>.Start(step.Target);
+                    Cursor = counted.IsZero ? next : AnimationProgramCursor<TProgram>.Start(repeat.Target);
                     break;
-                case AnimationProgramStepKind.Hold:
+                case AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep:
                     // The native sleep rewinds onto itself and runs again on the next pass.
                     slot.InstructionTimer = NativeCountdown.Start(1);
                     return;
-                case AnimationProgramStepKind.Stop:
+                case AnimationProgramStep<TProgram, TFrame, TCue>.StopStep:
                     context.Plms.DeletePlm(slot);
                     return;
-                case AnimationProgramStepKind.GoTo:
-                case AnimationProgramStepKind.FallInto:
-                    Cursor = AnimationProgramCursor<TProgram>.Start(step.Target);
+                case AnimationProgramStep<TProgram, TFrame, TCue>.GoToStep goTo:
+                    Cursor = AnimationProgramCursor<TProgram>.Start(goTo.Target);
+                    break;
+                case AnimationProgramStep<TProgram, TFrame, TCue>.FallIntoStep fallInto:
+                    Cursor = AnimationProgramCursor<TProgram>.Start(fallInto.Target);
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined {nameof(AnimationProgramStepKind)} {step.Kind}.");
+                    throw new InvalidOperationException($"Undefined animation program step {step}.");
             }
         }
         throw new InvalidOperationException($"PLM program {Cursor.Program} ran {StepLimit} steps without drawing, sleeping or deleting.");

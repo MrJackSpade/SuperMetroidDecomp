@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 [Flags]
 internal enum EnemyProjectilePropertyFlags : ushort
 {
-    /// <summary>No behavior bit.</summary>
-    None = 0,
     /// <summary>Bit 12: draws at high priority.</summary>
     HighPriority = 0x1000,
     /// <summary>Bit 13: does not damage Samus.</summary>

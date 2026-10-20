@@ -17,7 +17,7 @@ internal static class EscapeEtecoonAnimations
     {
         [P.RunningLeftLowTide] =
         [
-            Cue(new(K.GoToIfAcidHigh, Target: P.RunningLeftHighTide)),
+            Cue(new EscapeEtecoonCue.GoToIfAcidHigh(Target: P.RunningLeftHighTide)),
             FallInto(P.RunningLeftLowTideLoop),
         ],
         [P.RunningLeftLowTideLoop] =
@@ -38,7 +38,7 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningRightLowTide] =
         [
-            Cue(new(K.GoToIfAcidHigh, Target: P.RunningRightHighTide)),
+            Cue(new EscapeEtecoonCue.GoToIfAcidHigh(Target: P.RunningRightHighTide)),
             FallInto(P.RunningRightLowTideLoop),
         ],
         [P.RunningRightLowTideLoop] =
@@ -59,7 +59,7 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningForEscape] =
         [
-            Cue(new(K.SetPreInstruction, PreInstruction: EscapeEtecoonPreInstruction.EscapeRight)),
+            Cue(new EscapeEtecoonCue.SetPreInstruction(PreInstruction: EscapeEtecoonPreInstruction.EscapeRight)),
             FallInto(P.RunningForEscapeLoop),
         ],
         [P.RunningForEscapeLoop] =
@@ -80,20 +80,20 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.ExpressGratitudeThenEscape] =
         [
-            Cue(new(K.ClearPreInstruction)),
+            Cue(new EscapeEtecoonCue.Command(K.ClearPreInstruction)),
             SetCounter(8),
             FallInto(P.ExpressGratitudeThenEscapeLoop),
         ],
         [P.ExpressGratitudeThenEscapeLoop] =
         [
             Show(0, 8),
-            Cue(new(K.Move, Offset: -3)),
+            Cue(new EscapeEtecoonCue.Move(Offset: -3)),
             Show(1, 8),
-            Cue(new(K.Move, Offset: -3)),
+            Cue(new EscapeEtecoonCue.Move(Offset: -3)),
             Show(2, 8),
-            Cue(new(K.Move, Offset: -3)),
+            Cue(new EscapeEtecoonCue.Move(Offset: -3)),
             Show(1, 8),
-            Cue(new(K.Move, Offset: -3)),
+            Cue(new EscapeEtecoonCue.Move(Offset: -3)),
             RepeatWhileCounting(P.ExpressGratitudeThenEscapeLoop),
             Show(6, 64),
             Show(7, 8),
@@ -104,7 +104,7 @@ internal static class EscapeEtecoonAnimations
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params EscapeEtecoonProgram[] programs) =>
         programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<P, EscapeEtecoonFrame, EscapeEtecoonCue>.ShowStep>()
             .Select(step => EscapeEtecoonFrameDefinitions.Spritemap(step.Frame));
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>

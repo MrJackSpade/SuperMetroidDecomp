@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
@@ -124,13 +125,13 @@ internal static class RoomPlmShotBlockDrawDefinitions
     }
 
     /// <summary>Describes a compiled draw shape by its bank-$84 pointer.</summary>
-    internal delegate bool ShapeLookup<TShape>(ushort pointer, out TShape shape);
+    internal delegate bool ShapeLookup<TShape>(ushort pointer, [MaybeNullWhen(false)] out TShape shape);
 
     /// <summary>Builds the draw list of the run-shaped draw <paramref name="describe"/> finds for <paramref name="pointer"/>.</summary>
     internal static bool TryCompile<TShape>(ushort pointer, ShapeLookup<TShape> describe, out DrawList list) where TShape : IPlmRunDrawShape
     {
         list = default;
-        if (!describe(pointer, out TShape shape)) return false;
+        if (!describe(pointer, out TShape? shape)) return false;
         list = Compile(pointer, shape);
         return true;
     }
@@ -139,7 +140,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
     internal static bool TryCompileCap<TShape>(ushort pointer, ShapeLookup<TShape> describe, out DrawList list) where TShape : IPlmCapDrawShape
     {
         list = default;
-        if (!describe(pointer, out TShape shape)) return false;
+        if (!describe(pointer, out TShape? shape)) return false;
         list = CompileCap(pointer, shape);
         return true;
     }

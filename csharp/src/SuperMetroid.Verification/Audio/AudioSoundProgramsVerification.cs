@@ -88,7 +88,7 @@ internal static class AudioSoundProgramsVerification
             ExtractedAudioAssetCatalog edited = ExtractedAudioAssetCatalog.Load(editedDirectory);
             var stockRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(stock);
             var editedRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(edited);
-            CartridgeAudioCommand common = CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
+            CartridgeAudioCommand common = new CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);
             for (int offset = 0; offset < editedProgram.ByteCapacity; offset++)
@@ -100,7 +100,7 @@ internal static class AudioSoundProgramsVerification
                     $"edited SFX program live byte {offset}");
             }
 
-            CartridgeAudioCommand trigger = CartridgeAudioCommand.WritePort(
+            CartridgeAudioCommand trigger = new CartridgeAudioCommand.WritePort(
                 ApuPort.SoundLibrary1,
                 effect.Command);
             bool stockAudible = false;

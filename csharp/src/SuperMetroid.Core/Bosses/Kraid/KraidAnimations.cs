@@ -325,7 +325,7 @@ internal static class KraidAnimations
     /// <summary>The spritemaps the <paramref name="programs"/> show, in step order, repeats included.</summary>
     internal static IEnumerable<ushort> Spritemaps(params KraidPartProgram[] programs) =>
         programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .OfType<AnimationProgramStep<P, KraidPartFrame, K>.ShowStep>()
             .Select(step => KraidPartFrameDefinitions.Spritemap(step.Frame));
 
     /// <summary>The foot's standing pose.</summary>

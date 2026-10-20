@@ -35,7 +35,7 @@ internal static class LookupStationLayoutsVerification
                 AssertEqual(owned, RoomPlmStationDrawDefinitions.TryGet(pointer, out var dto), "Station layout DTO domain");
                 if (!owned)
                 {
-                    AssertEqual(default(RoomPlmStationDrawDefinitions.Draw), shape, "Station layout missing shape");
+                    AssertEqual(null, shape, "Station layout missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Station layout missing DTO");
                     AssertThrows<InvalidDataException>(() => RoomPlmStationDrawDefinitions.VisualId(pointer), "Station layout missing ID");
                 }
@@ -50,7 +50,7 @@ internal static class LookupStationLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            RoomPlmStationDrawDefinitions.TryDescribe(pointer, out var shape);
+            var shape = RoomPlmStationDrawDefinitions.Describe(pointer);
             RoomPlmStationDrawDefinitions.TryGet(pointer, out var dto);
             RoomPlmStationDrawDefinitions.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)

@@ -40,26 +40,26 @@ internal static class KraidHeadCommandMappingVerification
                 string at = $"{program}[{position}] at $A7:{record.Pointer:X4}";
                 if (record.IsPose)
                 {
-                    AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at} shows a pose");
-                    AssertEqual(record.Opcode, step.Duration, $"{at} pose duration");
-                    AssertEqual(stageTilemaps.IndexOf(record.Tilemap), step.Frame.MouthStage, $"{at} mouth stage");
-                    AssertEqual(record.Tilemap, KraidHeadFrameDefinitions.PresentationKey(step.Frame), $"{at} head image");
-                    AssertEqual(record.OuterShape, (ushort)step.Frame.VulnerableShape, $"{at} vulnerable shape");
-                    AssertEqual(record.InnerShape, step.Frame.InvulnerableShape is { } inner ? (ushort)inner : ushort.MaxValue,
+                    var show = AssertIs<AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.ShowStep>(step, $"{at} shows a pose");
+                    AssertEqual(record.Opcode, show.Duration, $"{at} pose duration");
+                    AssertEqual(stageTilemaps.IndexOf(record.Tilemap), show.Frame.MouthStage, $"{at} mouth stage");
+                    AssertEqual(record.Tilemap, KraidHeadFrameDefinitions.PresentationKey(show.Frame), $"{at} head image");
+                    AssertEqual(record.OuterShape, (ushort)show.Frame.VulnerableShape, $"{at} vulnerable shape");
+                    AssertEqual(record.InnerShape, show.Frame.InvulnerableShape is { } inner ? (ushort)inner : ushort.MaxValue,
                         $"{at} invulnerable shape");
                 }
                 else if (record.IsTerminator)
-                    AssertEqual(AnimationProgramStepKind.Hold, step.Kind, $"{at} ends the program");
+                    AssertTrue(step is AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.HoldStep, $"{at} ends the program");
                 else
                 {
-                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at} cries");
+                    var cueStep = AssertIs<AnimationProgramStep<KraidHeadProgram, KraidHeadFrame, KraidHeadCue>.CueStep>(step, $"{at} cries");
                     (KraidHeadCue cue, SoundEffectId sound) = record.Opcode switch
                     {
                         KraidHeadNativeCursors.RoarCryCall => (KraidHeadCue.Roar, KraidSoundDefinitions.HeadRoar),
                         KraidHeadNativeCursors.DyingCryCall => (KraidHeadCue.DyingCry, KraidSoundDefinitions.HeadDyingCry),
                         _ => throw new InvalidDataException($"{at}: unknown native head command ${record.Opcode:X4}."),
                     };
-                    AssertEqual(cue, step.PublishedCue, $"{at} cry");
+                    AssertEqual(cue, cueStep.Cue, $"{at} cry");
                     AssertEqual((byte)record.Sound, sound.Value, $"{at} cry sound");
                 }
 

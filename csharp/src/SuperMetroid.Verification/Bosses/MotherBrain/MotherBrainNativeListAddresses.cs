@@ -101,35 +101,35 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>The bank-$A9 opcodes of body programs and the body steps each becomes, with its operand words.</summary>
     private static readonly Dictionary<ushort, (int Operands, Func<ushort[], B> Cue)> BodyOps = new()
     {
-        [0x95fc] = (0, _ => B.Move(new(1, -2))),
-        [0x95b6] = (0, _ => B.MoveWithScrollBias(-10, 4)),
-        [0x95c0] = (0, _ => B.MoveWithScrollBias(-16, 4)),
-        [0x95ca] = (0, _ => B.MoveWithScrollBias(-12, -2)),
-        [0x95de] = (0, _ => B.MoveWithScrollBias(12, 4)),
-        [0x95e8] = (0, _ => B.MoveWithScrollBias(16, -2)),
-        [0x95f2] = (0, _ => B.MoveWithScrollBias(10, -2)),
-        [0x960c] = (0, _ => B.Move(new(2, 0))),
-        [0x961c] = (0, _ => B.Move(new(0, 1))),
-        [0x9622] = (0, _ => B.StepAndMove(new(3, 1))),
-        [0x9638] = (0, _ => B.Move(new(15, -2))),
-        [0x9648] = (0, _ => B.Move(new(6, -4))),
-        [0x9658] = (0, _ => B.Move(new(-2, 4))),
-        [0x9668] = (0, _ => B.StepAndMove(new(-1, 2))),
-        [0x967e] = (0, _ => B.StepAndMove(new(-1, 2))),
-        [0x9694] = (0, _ => B.Move(new(-2, 0))),
-        [0x96a4] = (0, _ => B.Move(new(0, -1))),
-        [0x96aa] = (0, _ => B.Move(new(-3, -1))),
-        [0x96ba] = (0, _ => B.StepAndMove(new(-15, 2))),
-        [0x96d0] = (0, _ => B.Move(new(-6, 4))),
-        [0x96e0] = (0, _ => B.Move(new(2, -4))),
-        [0x96f0] = (0, _ => B.Move(new(1, -2))),
-        [0x9700] = (0, _ => B.SetPose(MotherBrainBodyPose.Standing)),
-        [0x9708] = (0, _ => B.SetPose(MotherBrainBodyPose.Walking)),
-        [0x9710] = (0, _ => B.SetPose(MotherBrainBodyPose.Crouched)),
-        [0x9718] = (0, _ => B.SetPose(MotherBrainBodyPose.CrouchingTransition)),
-        [0x9720] = (0, _ => B.SetPose(MotherBrainBodyPose.DeathBeam)),
-        [0x9728] = (0, _ => B.SetPose(MotherBrainBodyPose.LeaningDown)),
-        [0x9ac8] = (3, operands => B.SpawnHandDust(new(unchecked((short)operands[0]), unchecked((short)operands[1])), (MiscDustAnimation)operands[2])),
+        [0x95fc] = (0, _ => new B.Move(new(1, -2))),
+        [0x95b6] = (0, _ => new B.MoveWithScrollBias(-10, 4)),
+        [0x95c0] = (0, _ => new B.MoveWithScrollBias(-16, 4)),
+        [0x95ca] = (0, _ => new B.MoveWithScrollBias(-12, -2)),
+        [0x95de] = (0, _ => new B.MoveWithScrollBias(12, 4)),
+        [0x95e8] = (0, _ => new B.MoveWithScrollBias(16, -2)),
+        [0x95f2] = (0, _ => new B.MoveWithScrollBias(10, -2)),
+        [0x960c] = (0, _ => new B.Move(new(2, 0))),
+        [0x961c] = (0, _ => new B.Move(new(0, 1))),
+        [0x9622] = (0, _ => new B.StepAndMove(new(3, 1))),
+        [0x9638] = (0, _ => new B.Move(new(15, -2))),
+        [0x9648] = (0, _ => new B.Move(new(6, -4))),
+        [0x9658] = (0, _ => new B.Move(new(-2, 4))),
+        [0x9668] = (0, _ => new B.StepAndMove(new(-1, 2))),
+        [0x967e] = (0, _ => new B.StepAndMove(new(-1, 2))),
+        [0x9694] = (0, _ => new B.Move(new(-2, 0))),
+        [0x96a4] = (0, _ => new B.Move(new(0, -1))),
+        [0x96aa] = (0, _ => new B.Move(new(-3, -1))),
+        [0x96ba] = (0, _ => new B.StepAndMove(new(-15, 2))),
+        [0x96d0] = (0, _ => new B.Move(new(-6, 4))),
+        [0x96e0] = (0, _ => new B.Move(new(2, -4))),
+        [0x96f0] = (0, _ => new B.Move(new(1, -2))),
+        [0x9700] = (0, _ => new B.SetPose(MotherBrainBodyPose.Standing)),
+        [0x9708] = (0, _ => new B.SetPose(MotherBrainBodyPose.Walking)),
+        [0x9710] = (0, _ => new B.SetPose(MotherBrainBodyPose.Crouched)),
+        [0x9718] = (0, _ => new B.SetPose(MotherBrainBodyPose.CrouchingTransition)),
+        [0x9720] = (0, _ => new B.SetPose(MotherBrainBodyPose.DeathBeam)),
+        [0x9728] = (0, _ => new B.SetPose(MotherBrainBodyPose.LeaningDown)),
+        [0x9ac8] = (3, operands => new B.SpawnHandDust(new(unchecked((short)operands[0]), unchecked((short)operands[1])), (MiscDustAnimation)operands[2])),
         [0x9aef] = (0, _ => B.FireHandBeam),
         [0x9b05] = (0, _ => B.AdvanceHandBeamPhase),
     };
@@ -388,8 +388,8 @@ internal static class MotherBrainNativeListAddresses
                 string at = $"{program} step {index} (native record {record})";
                 if (record > 0 && programAt.TryGetValue(cursor, out TProgram next))
                 {
-                    AssertEqual(AnimationProgramStepKind.FallInto, steps[index].Kind, $"{at}: runs on into the next authored program");
-                    AssertEqual(next, steps[index].Target, $"{at}: fall-through target");
+                    var fallInto = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.FallIntoStep>(steps[index], $"{at}: runs on into the next authored program");
+                    AssertEqual(next, fallInto.Target, $"{at}: fall-through target");
                     AssertEqual(steps.Count, index + 1, $"{at}: fall-through ends the program");
                     break;
                 }
@@ -398,14 +398,14 @@ internal static class MotherBrainNativeListAddresses
                 switch (NativeEnemyListDefinitions.Classify(word))
                 {
                     case NativeEnemyListDefinitions.WordKind.Frame:
-                        AssertEqual(AnimationProgramStepKind.Show, steps[index].Kind, $"{at}: frame");
-                        AssertEqual(word, steps[index].Duration, $"{at}: duration");
-                        AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(steps[index].Frame), $"{at}: spritemap");
+                        var show = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>(steps[index], $"{at}: frame");
+                        AssertEqual(word, show.Duration, $"{at}: duration");
+                        AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(show.Frame), $"{at}: spritemap");
                         cursor = unchecked((ushort)(cursor + 4));
                         index++;
                         continue;
                     case NativeEnemyListDefinitions.WordKind.Sleep:
-                        AssertEqual(AnimationProgramStepKind.Hold, steps[index].Kind, $"{at}: sleep");
+                        AssertTrue(steps[index] is AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep, $"{at}: sleep");
                         AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
                         break;
                     case NativeEnemyListDefinitions.WordKind.Callback:
@@ -416,11 +416,7 @@ internal static class MotherBrainNativeListAddresses
                             .Select(operand => cartridge.ReadCartridgeWord(bank | (cursor + 2 + 2 * operand)))];
                         foreach (var step in op.Steps(operands, address => programAt[address]))
                         {
-                            AssertEqual(step.Kind, steps[index].Kind, $"{at}: opcode ${word:X4} step kind");
-                            if (step.Kind == AnimationProgramStepKind.Cue)
-                                AssertEqual(step.Cue, steps[index].Cue, $"{at}: opcode ${word:X4} cue");
-                            else
-                                AssertEqual(step.Target, steps[index].Target, $"{at}: opcode ${word:X4} target");
+                            AssertEqual(step, steps[index], $"{at}: opcode ${word:X4} step");
                             index++;
                         }
                         cursor = unchecked((ushort)(cursor + 2 + 2 * op.Operands));

@@ -46,35 +46,35 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     private AnimationProgramCursor<YardProgram>? ApplyYardCue(
         RoomEnemySlot slot, YardEnemyState state, YardCue cue, AnimationProgramCursor<YardProgram> continuation)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case YardCueKind.SetMovementFunction:
+            case YardCue.SetMovementFunction setMovementFunction:
                 // Yard animation owns movement dispatch: the operand is a same-bank function pointer, not a branch.
-                state.MovementFunction = cue.MovementFunction;
+                state.MovementFunction = setMovementFunction.MovementFunction;
                 return null;
-            case YardCueKind.SetHidingProgram:
-                state.HidingProgram = cue.OptionalTarget;
+            case YardCue.SetHidingProgram setHidingProgram:
+                state.HidingProgram = setHidingProgram.OptionalTarget;
                 return null;
-            case YardCueKind.SetDirection:
-                if ((uint)cue.Direction >= 8)
-                    throw new InvalidDataException($"Yard animation selected invalid direction {cue.Direction}.");
-                state.Direction = cue.Direction;
+            case YardCue.SetDirection setDirection:
+                if ((uint)setDirection.Direction >= 8)
+                    throw new InvalidDataException($"Yard animation selected invalid direction {setDirection.Direction}.");
+                state.Direction = setDirection.Direction;
                 state.AirborneFacingDirection = YardDirectionDefinitions.ForDirection(state.Direction).AirborneFacingDirection;
                 return null;
-            case YardCueKind.MoveBy:
-                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + cue.Offset)));
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + cue.OffsetY)));
+            case YardCue.MoveBy moveBy:
+                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + moveBy.Offset)));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + moveBy.OffsetY)));
                 return null;
-            case YardCueKind.RepeatPreviousPoseUnlessContinuing:
+            case YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing }:
                 if (state.Behavior != YardBehavior.Hiding && (_room.Random.Generate() & 1) == 0)
                     return null;
                 // The pose record sits immediately before this cue in every authored list.
                 AnimationProgramCursor<YardProgram> previous = continuation with { Position = continuation.Position - 2 };
-                return YardAnimations.Programs.Steps(previous.Program)[previous.Position].Kind == AnimationProgramStepKind.Show
+                return YardAnimations.Programs.Steps(previous.Program)[previous.Position] is AnimationProgramStep<YardProgram, YardFrame, YardCue>.ShowStep
                     ? previous
                     : throw new InvalidDataException($"Yard repeat cue in {previous.Program} does not follow a pose.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(YardCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(YardCueKind)} {cue}.");
         }
     }
 

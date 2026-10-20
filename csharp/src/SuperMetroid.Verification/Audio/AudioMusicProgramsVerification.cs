@@ -121,9 +121,9 @@ internal static class AudioMusicProgramsVerification
             ExtractedAudioAssetCatalog edited = ExtractedAudioAssetCatalog.Load(editedDirectory);
             var stockRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(stock);
             var editedRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(edited);
-            CartridgeAudioCommand common = CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
-            CartridgeAudioCommand titleUpload = CartridgeAudioCommand.Upload(AudioBank.TitleSequence);
-            CartridgeAudioCommand titleCommand = CartridgeAudioCommand.WritePort(
+            CartridgeAudioCommand common = new CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
+            CartridgeAudioCommand titleUpload = new CartridgeAudioCommand.Upload(AudioBank.TitleSequence);
+            CartridgeAudioCommand titleCommand = new CartridgeAudioCommand.WritePort(
                 ApuPort.Music,
                 unchecked((byte)titleTrackIndex));
             stockRenderer.RenderFrame([common]);

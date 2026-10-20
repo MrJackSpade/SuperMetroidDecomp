@@ -96,7 +96,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
             {
                 Program = new AnimationProgramCursor<MetroidProgram>(MetroidProgram.ChasingSamus,
-                    MetroidAnimations.Programs.Steps(MetroidProgram.ChasingSamus).ToList().FindIndex(step => step.Kind == AnimationProgramStepKind.Cue)),
+                    MetroidAnimations.Programs.Steps(MetroidProgram.ChasingSamus).ToList().FindIndex(step => step is AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue>.CueStep)),
             });
 
             EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, 0);

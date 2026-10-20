@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks Mother Brain head damage and shot removal after a charged Plasma impact.</summary>
 internal static class MotherBrainPlasmaImpactVerification
@@ -28,7 +29,7 @@ internal static class MotherBrainPlasmaImpactVerification
         head.Properties = head.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);
-        head.SpritemapPointer = 1;
+        head.Frame = EnemyFrameId.MotherBrainBodyOamInitialDummy;
         head.Health = 18000;
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
         enemies.MotherBrainEncounter.MotherBrain = state;

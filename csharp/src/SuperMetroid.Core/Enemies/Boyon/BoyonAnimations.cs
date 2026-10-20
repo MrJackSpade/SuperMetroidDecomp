@@ -16,14 +16,12 @@ internal static class BoyonAnimations
     internal static AnimationProgramSet<BoyonProgram, BoyonFrame, BoyonCue> Programs { get; } = new(
         new Dictionary<BoyonProgram, AnimationProgramStep<BoyonProgram, BoyonFrame, BoyonCue>[]>
     {
-        // $A2:86A7
         [P.Idle] =
         [
             Cue(new(K.StopProcessingOffScreen)),
             Cue(new(K.Return)),
             FallInto(P.IdleLoop),
         ],
-        // $A2:86AB
         [P.IdleLoop] =
         [
             Show(0, 10),
@@ -32,14 +30,12 @@ internal static class BoyonAnimations
             Show(1, 10),
             GoTo(P.IdleLoop),
         ],
-        // $A2:86BF
         [P.Bouncing] =
         [
             Cue(new(K.ProcessOffScreen)),
             Cue(new(K.StartBounce)),
             FallInto(P.BouncingLoop),
         ],
-        // $A2:86C3
         [P.BouncingLoop] =
         [
             Show(3, 5),

@@ -15,37 +15,31 @@ internal static class ShutterAnimations
     internal static AnimationProgramSet<ShutterProgram, ShutterFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<ShutterProgram, AnimationProgramStep<ShutterProgram, ShutterFrame, NoAnimationCue>[]>
     {
-        // $A2:E998
         [P.GrowingTenPixels] =
         [
             Show(0, 1),
             Hold,
         ],
-        // $A2:E99E
         [P.GrowingTwentyPixels] =
         [
             Show(1, 1),
             Hold,
         ],
-        // $A2:E9A4
         [P.GrowingThirtyPixels] =
         [
             Show(2, 1),
             Hold,
         ],
-        // $A2:E9AA
         [P.FortyPixels] =
         [
             Show(3, 1),
             Hold,
         ],
-        // $A2:E9D4
         [P.Horizontal] =
         [
             Show(4, 1),
             Hold,
         ],
-        // $A2:EDE7
         [P.KamerPlatform] =
         [
             Show(5, 10),

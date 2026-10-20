@@ -33,16 +33,13 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Places the latched Baby 20 pixels above Samus's center.</summary>
     private static readonly Offset16<RoomPixels> SamusLatchOffset = new(0, -20);
 
-    // Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's
-    // friendly names, `$A0:8AFF/$8B05` copy those words directly into the enemy slot's
-    // X/Y *radius* fields; there is no diameter-to-radius division anywhere in between.
     /// <summary>Horizontal collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c> at $A0:ECBF.</summary>
+    /// <remarks>Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's friendly names,
+    /// `$A0:8AFF/$8B05` copy those words directly into the enemy slot's X/Y *radius* fields; there is no
+    /// diameter-to-radius division anywhere in between.</remarks>
     public const ushort XHitboxRadius = 36;
     /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c> at $A0:ECBF.</summary>
     public const ushort YHitboxRadius = 36;
-
-    // Shared bank-$86 component math indexes this 16-bit sign-extended table with an
-    // eight-bit angle. Angle zero points down; positive rotation is anti-clockwise.
 
     /// <summary>Current native function-pointer equivalent.</summary>
     public BabyMetroidCutscenePhase Phase { get; internal set; } =
@@ -779,11 +776,6 @@ public sealed class BabyMetroidCutsceneState
             attackTileTransfer,
             backgroundPaletteTransfer);
     }
-
-    // $86:C381-$C3A8's Baby half of an onion-ring collision is implemented in the
-    // other partial declaration: the projectile system owns explosion/deletion and
-    // the Mother Brain cry flag; the enemy slot owns the flash timer and saturating
-    // health subtraction.
 
     /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision handler at $86:C381–C3A8: a living Baby gets a $0010 flash timer and health subtraction saturated at zero.</summary>
     /// <param name="damage">Unsigned health units to subtract, defaulting to the native $0050 (80); even zero damage refreshes the flash timer when health is nonzero.</param>

@@ -14,61 +14,51 @@ internal static class SamusProjectileAnimations
     internal static AnimationProgramSet<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<SamusProjectileProgram, AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>[]>
     {
-        // $93:86DB
         [P.PowerUpFacingRight] =
         [
             Show(0, 15),
             GoTo(P.PowerUpFacingRight),
         ],
-        // $93:86E7
         [P.PowerUpRight] =
         [
             Show(1, 15),
             GoTo(P.PowerUpRight),
         ],
-        // $93:86F3
         [P.PowerRight] =
         [
             Show(2, 15),
             GoTo(P.PowerRight),
         ],
-        // $93:86FF
         [P.PowerDownRight] =
         [
             Show(3, 15),
             GoTo(P.PowerDownRight),
         ],
-        // $93:870B
         [P.PowerDownFacingRight] =
         [
             Show(4, 15),
             GoTo(P.PowerDownFacingRight),
         ],
-        // $93:8717
         [P.PowerDownLeft] =
         [
             Show(5, 15),
             GoTo(P.PowerDownLeft),
         ],
-        // $93:8723
         [P.PowerLeft] =
         [
             Show(6, 15),
             GoTo(P.PowerLeft),
         ],
-        // $93:872F
         [P.PowerUpLeft] =
         [
             Show(7, 15),
             GoTo(P.PowerUpLeft),
         ],
-        // $93:873B
         [P.WaveUpFacingRight] =
         [
             Show(8, 4),
             FallInto(P.WaveDownFacingRight),
         ],
-        // $93:8743
         [P.WaveDownFacingRight] =
         [
             Show(9, 1),
@@ -89,7 +79,6 @@ internal static class SamusProjectileAnimations
             Show(24, 1),
             GoTo(P.WaveDownFacingRight),
         ],
-        // $93:87C7
         [P.WaveUpRight] =
         [
             Show(25, 1),
@@ -110,7 +99,6 @@ internal static class SamusProjectileAnimations
             Show(40, 1),
             GoTo(P.WaveUpRight),
         ],
-        // $93:884B
         [P.WaveRight] =
         [
             Show(41, 1),
@@ -131,7 +119,6 @@ internal static class SamusProjectileAnimations
             Show(56, 1),
             GoTo(P.WaveRight),
         ],
-        // $93:88CF
         [P.WaveDownRight] =
         [
             Show(57, 1),
@@ -152,7 +139,6 @@ internal static class SamusProjectileAnimations
             Show(72, 1),
             GoTo(P.WaveDownRight),
         ],
-        // $93:8953
         [P.IceUpFacingRight] =
         [
             Show(73, 1),
@@ -161,111 +147,94 @@ internal static class SamusProjectileAnimations
             Show(76, 1),
             GoTo(P.IceUpFacingRight),
         ],
-        // $93:8977
         [P.SpazerUpFacingRight] =
         [
             Show(77, 2),
             Show(78, 2),
             FallInto(P.SpazerUpFacingRightLoop),
         ],
-        // $93:8987
         [P.SpazerUpFacingRightLoop] =
         [
             Show(79, 2),
             GoTo(P.SpazerUpFacingRightLoop),
         ],
-        // $93:8993
         [P.SpazerUpRight] =
         [
             Show(80, 2),
             Show(81, 2),
             FallInto(P.SpazerUpRightLoop),
         ],
-        // $93:89A3
         [P.SpazerUpRightLoop] =
         [
             Show(82, 2),
             GoTo(P.SpazerUpRightLoop),
         ],
-        // $93:89AF
         [P.SpazerRight] =
         [
             Show(83, 2),
             Show(84, 2),
             FallInto(P.SpazerRightLoop),
         ],
-        // $93:89BF
         [P.SpazerRightLoop] =
         [
             Show(85, 2),
             GoTo(P.SpazerRightLoop),
         ],
-        // $93:89CB
         [P.SpazerDownRight] =
         [
             Show(86, 2),
             Show(87, 2),
             FallInto(P.SpazerDownRightLoop),
         ],
-        // $93:89DB
         [P.SpazerDownRightLoop] =
         [
             Show(88, 2),
             GoTo(P.SpazerDownRightLoop),
         ],
-        // $93:89E7
         [P.SpazerDownFacingRight] =
         [
             Show(89, 2),
             Show(90, 2),
             FallInto(P.SpazerDownFacingRightLoop),
         ],
-        // $93:89F7
         [P.SpazerDownFacingRightLoop] =
         [
             Show(91, 2),
             GoTo(P.SpazerDownFacingRightLoop),
         ],
-        // $93:8A03
         [P.SpazerDownLeft] =
         [
             Show(92, 2),
             Show(93, 2),
             FallInto(P.SpazerDownLeftLoop),
         ],
-        // $93:8A13
         [P.SpazerDownLeftLoop] =
         [
             Show(94, 2),
             GoTo(P.SpazerDownLeftLoop),
         ],
-        // $93:8A1F
         [P.SpazerLeft] =
         [
             Show(95, 2),
             Show(96, 2),
             FallInto(P.SpazerLeftLoop),
         ],
-        // $93:8A2F
         [P.SpazerLeftLoop] =
         [
             Show(97, 2),
             GoTo(P.SpazerLeftLoop),
         ],
-        // $93:8A3B
         [P.SpazerUpLeft] =
         [
             Show(98, 2),
             Show(99, 2),
             FallInto(P.SpazerUpLeftLoop),
         ],
-        // $93:8A4B
         [P.SpazerUpLeftLoop] =
         [
             Show(100, 2),
             GoTo(P.SpazerUpLeftLoop),
         ],
-        // $93:8A57
         [P.SpazerWaveUpFacingRight] =
         [
             Show(101, 2),
@@ -280,7 +249,6 @@ internal static class SamusProjectileAnimations
             Show(110, 2),
             GoTo(P.SpazerWaveUpFacingRight),
         ],
-        // $93:8AAB
         [P.SpazerWaveUpRight] =
         [
             Show(111, 2),
@@ -295,7 +263,6 @@ internal static class SamusProjectileAnimations
             Show(120, 2),
             GoTo(P.SpazerWaveUpRight),
         ],
-        // $93:8AFF
         [P.SpazerWaveRight] =
         [
             Show(121, 2),
@@ -310,7 +277,6 @@ internal static class SamusProjectileAnimations
             Show(130, 2),
             GoTo(P.SpazerWaveRight),
         ],
-        // $93:8B53
         [P.SpazerWaveDownRight] =
         [
             Show(131, 2),
@@ -325,7 +291,6 @@ internal static class SamusProjectileAnimations
             Show(140, 2),
             GoTo(P.SpazerWaveDownRight),
         ],
-        // $93:8BA7
         [P.SpazerWaveDownFacingRight] =
         [
             Show(141, 2),
@@ -340,7 +305,6 @@ internal static class SamusProjectileAnimations
             Show(150, 2),
             GoTo(P.SpazerWaveDownFacingRight),
         ],
-        // $93:8BFB
         [P.SpazerWaveDownLeft] =
         [
             Show(151, 2),
@@ -355,7 +319,6 @@ internal static class SamusProjectileAnimations
             Show(160, 2),
             GoTo(P.SpazerWaveDownLeft),
         ],
-        // $93:8C4F
         [P.SpazerWaveLeft] =
         [
             Show(161, 2),
@@ -370,7 +333,6 @@ internal static class SamusProjectileAnimations
             Show(170, 2),
             GoTo(P.SpazerWaveLeft),
         ],
-        // $93:8CA3
         [P.SpazerWaveUpLeft] =
         [
             Show(171, 2),
@@ -385,61 +347,51 @@ internal static class SamusProjectileAnimations
             Show(180, 2),
             GoTo(P.SpazerWaveUpLeft),
         ],
-        // $93:8CF7
         [P.PlasmaUpFacingRight] =
         [
             Show(181, 1),
             FallInto(P.PlasmaUpFacingRightLoop),
         ],
-        // $93:8CFF
         [P.PlasmaUpFacingRightLoop] =
         [
             Show(182, 15),
             GoTo(P.PlasmaUpFacingRightLoop),
         ],
-        // $93:8D0B
         [P.PlasmaUpRight] =
         [
             Show(183, 1),
             FallInto(P.PlasmaUpRightLoop),
         ],
-        // $93:8D13
         [P.PlasmaUpRightLoop] =
         [
             Show(184, 15),
             GoTo(P.PlasmaUpRightLoop),
         ],
-        // $93:8D1F
         [P.PlasmaRight] =
         [
             Show(185, 1),
             FallInto(P.PlasmaRightLoop),
         ],
-        // $93:8D27
         [P.PlasmaRightLoop] =
         [
             Show(186, 15),
             GoTo(P.PlasmaRightLoop),
         ],
-        // $93:8D33
         [P.PlasmaDownRight] =
         [
             Show(187, 1),
             FallInto(P.PlasmaDownRightLoop),
         ],
-        // $93:8D3B
         [P.PlasmaDownRightLoop] =
         [
             Show(188, 15),
             GoTo(P.PlasmaDownRightLoop),
         ],
-        // $93:8D47
         [P.PlasmaIceWaveUpFacingRight] =
         [
             Show(189, 1),
             FallInto(P.PlasmaWaveUpFacingRight),
         ],
-        // $93:8D4F
         [P.PlasmaWaveUpFacingRight] =
         [
             Show(190, 2),
@@ -452,13 +404,11 @@ internal static class SamusProjectileAnimations
             Show(197, 2),
             GoTo(P.PlasmaWaveUpFacingRight),
         ],
-        // $93:8D93
         [P.PlasmaIceWaveUpRight] =
         [
             Show(198, 1),
             FallInto(P.PlasmaWaveUpRight),
         ],
-        // $93:8D9B
         [P.PlasmaWaveUpRight] =
         [
             Show(199, 2),
@@ -471,13 +421,11 @@ internal static class SamusProjectileAnimations
             Show(206, 2),
             GoTo(P.PlasmaWaveUpRight),
         ],
-        // $93:8DDF
         [P.PlasmaWaveRight] =
         [
             Show(207, 1),
             FallInto(P.PlasmaWaveRightLoop),
         ],
-        // $93:8DE7
         [P.PlasmaWaveRightLoop] =
         [
             Show(208, 2),
@@ -490,13 +438,11 @@ internal static class SamusProjectileAnimations
             Show(215, 2),
             GoTo(P.PlasmaWaveRightLoop),
         ],
-        // $93:8E2B
         [P.PlasmaIceWaveDownRight] =
         [
             Show(216, 1),
             FallInto(P.PlasmaWaveDownRight),
         ],
-        // $93:8E33
         [P.PlasmaWaveDownRight] =
         [
             Show(217, 2),
@@ -509,69 +455,59 @@ internal static class SamusProjectileAnimations
             Show(224, 2),
             GoTo(P.PlasmaWaveDownRight),
         ],
-        // $93:8E77
         [P.ChargedPowerUpFacingRight] =
         [
             Show(225, 1),
             Show(226, 1),
             GoTo(P.ChargedPowerUpFacingRight),
         ],
-        // $93:8E8B
         [P.ChargedPowerUpRight] =
         [
             Show(227, 1),
             Show(228, 1),
             GoTo(P.ChargedPowerUpRight),
         ],
-        // $93:8E9F
         [P.ChargedPowerRight] =
         [
             Show(229, 1),
             Show(230, 1),
             GoTo(P.ChargedPowerRight),
         ],
-        // $93:8EB3
         [P.ChargedPowerDownRight] =
         [
             Show(231, 1),
             Show(232, 1),
             GoTo(P.ChargedPowerDownRight),
         ],
-        // $93:8EC7
         [P.ChargedPowerDownFacingRight] =
         [
             Show(233, 1),
             Show(234, 1),
             GoTo(P.ChargedPowerDownFacingRight),
         ],
-        // $93:8EDB
         [P.ChargedPowerDownLeft] =
         [
             Show(235, 1),
             Show(236, 1),
             GoTo(P.ChargedPowerDownLeft),
         ],
-        // $93:8EEF
         [P.ChargedPowerLeft] =
         [
             Show(237, 1),
             Show(238, 1),
             GoTo(P.ChargedPowerLeft),
         ],
-        // $93:8F03
         [P.ChargedPowerUpLeft] =
         [
             Show(239, 1),
             Show(240, 1),
             GoTo(P.ChargedPowerUpLeft),
         ],
-        // $93:8F17
         [P.ChargedWaveUpFacingRight] =
         [
             Show(241, 3),
             FallInto(P.ChargedWaveDownFacingRight),
         ],
-        // $93:8F1F
         [P.ChargedWaveDownFacingRight] =
         [
             Show(242, 1),
@@ -592,7 +528,6 @@ internal static class SamusProjectileAnimations
             Show(257, 1),
             GoTo(P.ChargedWaveDownFacingRight),
         ],
-        // $93:8FA3
         [P.ChargedWaveUpRight] =
         [
             Show(258, 1),
@@ -613,7 +548,6 @@ internal static class SamusProjectileAnimations
             Show(273, 1),
             GoTo(P.ChargedWaveUpRight),
         ],
-        // $93:9027
         [P.ChargedWaveRight] =
         [
             Show(274, 1),
@@ -634,7 +568,6 @@ internal static class SamusProjectileAnimations
             Show(289, 1),
             GoTo(P.ChargedWaveRight),
         ],
-        // $93:90AB
         [P.ChargedWaveDownRight] =
         [
             Show(290, 1),
@@ -655,7 +588,6 @@ internal static class SamusProjectileAnimations
             Show(305, 1),
             GoTo(P.ChargedWaveDownRight),
         ],
-        // $93:912F
         [P.ChargedIceUpFacingRight] =
         [
             Show(306, 1),
@@ -664,13 +596,11 @@ internal static class SamusProjectileAnimations
             Show(309, 1),
             GoTo(P.ChargedIceUpFacingRight),
         ],
-        // $93:9153
         [P.ChargedIceWaveUpFacingRight] =
         [
             Show(310, 3),
             FallInto(P.ChargedIceWaveDownFacingRight),
         ],
-        // $93:915B
         [P.ChargedIceWaveDownFacingRight] =
         [
             Show(311, 1),
@@ -691,7 +621,6 @@ internal static class SamusProjectileAnimations
             Show(326, 1),
             GoTo(P.ChargedIceWaveDownFacingRight),
         ],
-        // $93:91DF
         [P.ChargedIceWaveUpRight] =
         [
             Show(327, 1),
@@ -712,7 +641,6 @@ internal static class SamusProjectileAnimations
             Show(342, 1),
             GoTo(P.ChargedIceWaveUpRight),
         ],
-        // $93:9263
         [P.ChargedIceWaveRight] =
         [
             Show(343, 1),
@@ -733,7 +661,6 @@ internal static class SamusProjectileAnimations
             Show(358, 1),
             GoTo(P.ChargedIceWaveRight),
         ],
-        // $93:92E7
         [P.ChargedIceWaveDownRight] =
         [
             Show(359, 1),
@@ -754,7 +681,6 @@ internal static class SamusProjectileAnimations
             Show(374, 1),
             GoTo(P.ChargedIceWaveDownRight),
         ],
-        // $93:936B
         [P.ChargedSpazerUpFacingRight] =
         [
             Show(375, 1),
@@ -767,14 +693,12 @@ internal static class SamusProjectileAnimations
             Show(382, 1),
             FallInto(P.ChargedSpazerUpFacingRightLoop),
         ],
-        // $93:93AB
         [P.ChargedSpazerUpFacingRightLoop] =
         [
             Show(383, 1),
             Show(384, 1),
             GoTo(P.ChargedSpazerUpFacingRightLoop),
         ],
-        // $93:93BF
         [P.ChargedSpazerUpRight] =
         [
             Show(385, 1),
@@ -787,14 +711,12 @@ internal static class SamusProjectileAnimations
             Show(392, 1),
             FallInto(P.ChargedSpazerUpRightLoop),
         ],
-        // $93:93FF
         [P.ChargedSpazerUpRightLoop] =
         [
             Show(393, 1),
             Show(394, 1),
             GoTo(P.ChargedSpazerUpRightLoop),
         ],
-        // $93:9413
         [P.ChargedSpazerRight] =
         [
             Show(395, 1),
@@ -807,14 +729,12 @@ internal static class SamusProjectileAnimations
             Show(402, 1),
             FallInto(P.ChargedSpazerRightLoop),
         ],
-        // $93:9453
         [P.ChargedSpazerRightLoop] =
         [
             Show(403, 1),
             Show(404, 1),
             GoTo(P.ChargedSpazerRightLoop),
         ],
-        // $93:9467
         [P.ChargedSpazerDownRight] =
         [
             Show(405, 1),
@@ -827,14 +747,12 @@ internal static class SamusProjectileAnimations
             Show(412, 1),
             FallInto(P.ChargedSpazerDownRightLoop),
         ],
-        // $93:94A7
         [P.ChargedSpazerDownRightLoop] =
         [
             Show(413, 1),
             Show(414, 1),
             GoTo(P.ChargedSpazerDownRightLoop),
         ],
-        // $93:94BB
         [P.ChargedSpazerWaveUpFacingRight] =
         [
             Show(415, 1),
@@ -843,7 +761,6 @@ internal static class SamusProjectileAnimations
             Show(418, 1),
             FallInto(P.ChargedSpazerWaveUpFacingRightLoop),
         ],
-        // $93:94DB
         [P.ChargedSpazerWaveUpFacingRightLoop] =
         [
             Show(419, 1),
@@ -868,7 +785,6 @@ internal static class SamusProjectileAnimations
             Show(438, 1),
             GoTo(P.ChargedSpazerWaveUpFacingRightLoop),
         ],
-        // $93:957F
         [P.ChargedSpazerWaveUpRight] =
         [
             Show(439, 1),
@@ -877,7 +793,6 @@ internal static class SamusProjectileAnimations
             Show(442, 1),
             FallInto(P.ChargedSpazerWaveUpRightLoop),
         ],
-        // $93:959F
         [P.ChargedSpazerWaveUpRightLoop] =
         [
             Show(443, 1),
@@ -902,7 +817,6 @@ internal static class SamusProjectileAnimations
             Show(462, 1),
             GoTo(P.ChargedSpazerWaveUpRightLoop),
         ],
-        // $93:9643
         [P.ChargedSpazerWaveRight] =
         [
             Show(463, 1),
@@ -911,7 +825,6 @@ internal static class SamusProjectileAnimations
             Show(466, 1),
             FallInto(P.ChargedSpazerWaveRightLoop),
         ],
-        // $93:9663
         [P.ChargedSpazerWaveRightLoop] =
         [
             Show(467, 1),
@@ -936,7 +849,6 @@ internal static class SamusProjectileAnimations
             Show(486, 1),
             GoTo(P.ChargedSpazerWaveRightLoop),
         ],
-        // $93:9707
         [P.ChargedSpazerWaveDownRight] =
         [
             Show(487, 1),
@@ -945,7 +857,6 @@ internal static class SamusProjectileAnimations
             Show(490, 1),
             FallInto(P.ChargedSpazerWaveDownRightLoop),
         ],
-        // $93:9727
         [P.ChargedSpazerWaveDownRightLoop] =
         [
             Show(491, 1),
@@ -970,7 +881,6 @@ internal static class SamusProjectileAnimations
             Show(510, 1),
             GoTo(P.ChargedSpazerWaveDownRightLoop),
         ],
-        // $93:97CB
         [P.ChargedSpazerWaveDownFacingRight] =
         [
             Show(511, 1),
@@ -979,7 +889,6 @@ internal static class SamusProjectileAnimations
             Show(514, 1),
             FallInto(P.ChargedSpazerWaveDownFacingRightLoop),
         ],
-        // $93:97EB
         [P.ChargedSpazerWaveDownFacingRightLoop] =
         [
             Show(515, 1),
@@ -1004,7 +913,6 @@ internal static class SamusProjectileAnimations
             Show(534, 1),
             GoTo(P.ChargedSpazerWaveDownFacingRightLoop),
         ],
-        // $93:988F
         [P.ChargedSpazerWaveDownLeft] =
         [
             Show(535, 1),
@@ -1013,7 +921,6 @@ internal static class SamusProjectileAnimations
             Show(538, 1),
             FallInto(P.ChargedSpazerWaveDownLeftLoop),
         ],
-        // $93:98AF
         [P.ChargedSpazerWaveDownLeftLoop] =
         [
             Show(539, 1),
@@ -1038,7 +945,6 @@ internal static class SamusProjectileAnimations
             Show(558, 1),
             GoTo(P.ChargedSpazerWaveDownLeftLoop),
         ],
-        // $93:9953
         [P.ChargedSpazerWaveLeft] =
         [
             Show(559, 1),
@@ -1047,7 +953,6 @@ internal static class SamusProjectileAnimations
             Show(562, 1),
             FallInto(P.ChargedSpazerWaveLeftLoop),
         ],
-        // $93:9973
         [P.ChargedSpazerWaveLeftLoop] =
         [
             Show(563, 1),
@@ -1072,7 +977,6 @@ internal static class SamusProjectileAnimations
             Show(582, 1),
             GoTo(P.ChargedSpazerWaveLeftLoop),
         ],
-        // $93:9A17
         [P.ChargedSpazerWaveUpLeft] =
         [
             Show(583, 1),
@@ -1081,7 +985,6 @@ internal static class SamusProjectileAnimations
             Show(586, 1),
             FallInto(P.ChargedSpazerWaveUpLeftLoop),
         ],
-        // $93:9A37
         [P.ChargedSpazerWaveUpLeftLoop] =
         [
             Show(587, 1),
@@ -1106,7 +1009,6 @@ internal static class SamusProjectileAnimations
             Show(606, 1),
             GoTo(P.ChargedSpazerWaveUpLeftLoop),
         ],
-        // $93:9ADB
         [P.ChargedPlasmaUpFacingRight] =
         [
             Show(607, 1),
@@ -1117,14 +1019,12 @@ internal static class SamusProjectileAnimations
             Show(612, 1),
             FallInto(P.ChargedPlasmaUpFacingRightLoop),
         ],
-        // $93:9B0B
         [P.ChargedPlasmaUpFacingRightLoop] =
         [
             Show(613, 1),
             Show(614, 1),
             GoTo(P.ChargedPlasmaUpFacingRightLoop),
         ],
-        // $93:9B1F
         [P.ChargedPlasmaUpRight] =
         [
             Show(615, 1),
@@ -1135,14 +1035,12 @@ internal static class SamusProjectileAnimations
             Show(620, 1),
             FallInto(P.ChargedPlasmaUpRightLoop),
         ],
-        // $93:9B4F
         [P.ChargedPlasmaUpRightLoop] =
         [
             Show(621, 1),
             Show(622, 1),
             GoTo(P.ChargedPlasmaUpRightLoop),
         ],
-        // $93:9B63
         [P.ChargedPlasmaRight] =
         [
             Show(623, 1),
@@ -1153,14 +1051,12 @@ internal static class SamusProjectileAnimations
             Show(628, 1),
             FallInto(P.ChargedPlasmaRightLoop),
         ],
-        // $93:9B93
         [P.ChargedPlasmaRightLoop] =
         [
             Show(629, 1),
             Show(630, 1),
             GoTo(P.ChargedPlasmaRightLoop),
         ],
-        // $93:9BA7
         [P.ChargedPlasmaDownRight] =
         [
             Show(631, 1),
@@ -1171,14 +1067,12 @@ internal static class SamusProjectileAnimations
             Show(636, 1),
             FallInto(P.ChargedPlasmaDownRightLoop),
         ],
-        // $93:9BD7
         [P.ChargedPlasmaDownRightLoop] =
         [
             Show(637, 1),
             Show(638, 1),
             GoTo(P.ChargedPlasmaDownRightLoop),
         ],
-        // $93:9BEB
         [P.ChargedPlasmaWaveUpFacingRight] =
         [
             Show(639, 1),
@@ -1189,7 +1083,6 @@ internal static class SamusProjectileAnimations
             Show(644, 1),
             FallInto(P.ChargedPlasmaWaveUpFacingRightLoop),
         ],
-        // $93:9C1B
         [P.ChargedPlasmaWaveUpFacingRightLoop] =
         [
             Show(645, 1),
@@ -1210,7 +1103,6 @@ internal static class SamusProjectileAnimations
             Show(660, 1),
             GoTo(P.ChargedPlasmaWaveUpFacingRightLoop),
         ],
-        // $93:9C9F
         [P.ChargedPlasmaWaveUpRight] =
         [
             Show(661, 1),
@@ -1221,7 +1113,6 @@ internal static class SamusProjectileAnimations
             Show(666, 1),
             FallInto(P.ChargedPlasmaWaveUpRightLoop),
         ],
-        // $93:9CCF
         [P.ChargedPlasmaWaveUpRightLoop] =
         [
             Show(667, 1),
@@ -1242,7 +1133,6 @@ internal static class SamusProjectileAnimations
             Show(682, 1),
             GoTo(P.ChargedPlasmaWaveUpRightLoop),
         ],
-        // $93:9D53
         [P.ChargedPlasmaWaveRight] =
         [
             Show(683, 1),
@@ -1253,7 +1143,6 @@ internal static class SamusProjectileAnimations
             Show(688, 1),
             FallInto(P.ChargedPlasmaWaveRightLoop),
         ],
-        // $93:9D83
         [P.ChargedPlasmaWaveRightLoop] =
         [
             Show(689, 1),
@@ -1274,7 +1163,6 @@ internal static class SamusProjectileAnimations
             Show(704, 1),
             GoTo(P.ChargedPlasmaWaveRightLoop),
         ],
-        // $93:9E07
         [P.ChargedPlasmaWaveDownRight] =
         [
             Show(705, 1),
@@ -1285,7 +1173,6 @@ internal static class SamusProjectileAnimations
             Show(710, 1),
             FallInto(P.ChargedPlasmaWaveDownRightLoop),
         ],
-        // $93:9E37
         [P.ChargedPlasmaWaveDownRightLoop] =
         [
             Show(711, 1),
@@ -1306,109 +1193,91 @@ internal static class SamusProjectileAnimations
             Show(726, 1),
             GoTo(P.ChargedPlasmaWaveDownRightLoop),
         ],
-        // $93:9EBB
         [P.MissileUpFacingRight] =
         [
             Show(727, 15),
             GoTo(P.MissileUpFacingRight),
         ],
-        // $93:9EC7
         [P.MissileUpRight] =
         [
             Show(728, 15),
             GoTo(P.MissileUpRight),
         ],
-        // $93:9ED3
         [P.MissileRight] =
         [
             Show(729, 15),
             GoTo(P.MissileRight),
         ],
-        // $93:9EDF
         [P.MissileDownRight] =
         [
             Show(730, 15),
             GoTo(P.MissileDownRight),
         ],
-        // $93:9EEB
         [P.MissileDownFacingRight] =
         [
             Show(731, 15),
             GoTo(P.MissileDownFacingRight),
         ],
-        // $93:9EF7
         [P.MissileDownLeft] =
         [
             Show(732, 15),
             GoTo(P.MissileDownLeft),
         ],
-        // $93:9F03
         [P.MissileLeft] =
         [
             Show(733, 15),
             GoTo(P.MissileLeft),
         ],
-        // $93:9F0F
         [P.MissileUpLeft] =
         [
             Show(734, 15),
             GoTo(P.MissileUpLeft),
         ],
-        // $93:9F1B
         [P.SuperMissileUpFacingRight] =
         [
             Show(735, 15),
             GoTo(P.SuperMissileUpFacingRight),
         ],
-        // $93:9F27
         [P.SuperMissileUpRight] =
         [
             Show(736, 15),
             GoTo(P.SuperMissileUpRight),
         ],
-        // $93:9F33
         [P.SuperMissileRight] =
         [
             Show(737, 15),
             GoTo(P.SuperMissileRight),
         ],
-        // $93:9F3F
         [P.SuperMissileDownRight] =
         [
             Show(738, 15),
             GoTo(P.SuperMissileDownRight),
         ],
-        // $93:9F4B
         [P.SuperMissileDownFacingRight] =
         [
             Show(739, 15),
             GoTo(P.SuperMissileDownFacingRight),
         ],
-        // $93:9F57
         [P.SuperMissileDownLeft] =
         [
             Show(740, 15),
             GoTo(P.SuperMissileDownLeft),
         ],
-        // $93:9F63
         [P.SuperMissileLeft] =
         [
             Show(741, 15),
             GoTo(P.SuperMissileLeft),
         ],
-        // $93:9F6F
         [P.SuperMissileUpLeft] =
         [
             Show(742, 15),
             GoTo(P.SuperMissileUpLeft),
         ],
-        // $93:9F7B
         [P.SuperMissileLink] =
         [
             Show(743, 15),
             GoTo(P.SuperMissileLink),
         ],
-        // $93:9F87
         [P.PowerBomb] =
         [
             Show(744, 5),
@@ -1416,7 +1285,6 @@ internal static class SamusProjectileAnimations
             Show(746, 5),
             GoTo(P.PowerBomb),
         ],
-        // $93:9FA3
         [P.FastPowerBomb] =
         [
             Show(747, 1),
@@ -1424,7 +1292,6 @@ internal static class SamusProjectileAnimations
             Show(749, 1),
             GoTo(P.FastPowerBomb),
         ],
-        // $93:9FBF
         [P.Bomb] =
         [
             Show(750, 5),
@@ -1433,7 +1300,6 @@ internal static class SamusProjectileAnimations
             Show(753, 5),
             GoTo(P.Bomb),
         ],
-        // $93:9FE3
         [P.FastBomb] =
         [
             Show(754, 1),
@@ -1442,7 +1308,6 @@ internal static class SamusProjectileAnimations
             Show(757, 1),
             GoTo(P.FastBomb),
         ],
-        // $93:A007
         [P.BeamExplosion] =
         [
             Show(758, 3),
@@ -1453,7 +1318,6 @@ internal static class SamusProjectileAnimations
             Show(763, 3),
             Stop,
         ],
-        // $93:A039
         [P.MissileExplosion] =
         [
             Show(764, 3),
@@ -1464,7 +1328,6 @@ internal static class SamusProjectileAnimations
             Show(769, 3),
             Stop,
         ],
-        // $93:A06B
         [P.BombExplosion] =
         [
             Show(770, 2),
@@ -1474,7 +1337,6 @@ internal static class SamusProjectileAnimations
             Show(774, 2),
             Stop,
         ],
-        // $93:A095
         [P.PlasmaSBA] =
         [
             Show(775, 2),
@@ -1484,7 +1346,6 @@ internal static class SamusProjectileAnimations
             Show(779, 2),
             GoTo(P.PlasmaSBA),
         ],
-        // $93:A0C1
         [P.SuperMissileExplosion] =
         [
             Show(780, 5),
@@ -1495,7 +1356,6 @@ internal static class SamusProjectileAnimations
             Show(785, 5),
             Stop,
         ],
-        // $93:A0F3
         [P.Projectile25UpFacingRight] =
         [
             Show(786, 2),
@@ -1504,7 +1364,6 @@ internal static class SamusProjectileAnimations
             Show(789, 2),
             GoTo(P.Projectile25UpFacingRight),
         ],
-        // $93:A119
         [P.ShinesparkEchoUpFacingRight] =
         [
             Show(790, 2),
@@ -1513,27 +1372,23 @@ internal static class SamusProjectileAnimations
             Show(793, 2),
             GoTo(P.ShinesparkEchoUpFacingRight),
         ],
-        // $93:A13D
         [P.SpazerSBATrailUpFacingRight] =
         [
             Show(794, 2),
             Show(795, 2),
             FallInto(P.SpazerSBATrailUpFacingRightLoop),
         ],
-        // $93:A14D
         [P.SpazerSBATrailUpFacingRightLoop] =
         [
             Show(796, 2),
             GoTo(P.SpazerSBATrailUpFacingRightLoop),
         ],
-        // $93:A159
         [P.WaveSBA] =
         [
             Show(797, 8),
             Show(798, 8),
             GoTo(P.WaveSBA),
         ],
-        // $93:A16D
         [P.Projectile27] =
         [
             Show(799, 3),

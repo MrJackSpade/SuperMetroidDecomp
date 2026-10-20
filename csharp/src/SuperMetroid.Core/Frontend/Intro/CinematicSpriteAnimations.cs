@@ -16,7 +16,6 @@ internal static class CinematicSpriteAnimations
     internal static AnimationProgramSet<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> Programs { get; } = new(
         new Dictionary<CinematicSpriteProgram, AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>[]>
     {
-        // $8B:CB05
         [P.IntroMotherBrain] =
         [
             Show(0, 16),
@@ -25,14 +24,12 @@ internal static class CinematicSpriteAnimations
             Show(1, 16),
             GoTo(P.IntroMotherBrain),
         ],
-        // $8B:CB19
         [P.IntroMotherBrainStartPage2] =
         [
             Cue(new(K.StartIntroPage2)),
             Cue(new(K.SetPreInstruction, CinematicSpritePreInstruction.IntroMotherBrainCrossFading)),
             FallInto(P.IntroMotherBrainPageTwo),
         ],
-        // $8B:CB1F
         [P.IntroMotherBrainPageTwo] =
         [
             Show(0, 16),
@@ -41,20 +38,17 @@ internal static class CinematicSpriteAnimations
             Show(1, 16),
             GoTo(P.IntroMotherBrainPageTwo),
         ],
-        // $8B:CB33
         [P.MetroidEgg] =
         [
             Show(3, 5),
             GoTo(P.MetroidEgg),
         ],
-        // $8B:CB3B
         [P.MetroidEggHatching] =
         [
             Show(3, 32),
             SetCounter(4),
             FallInto(P.MetroidEggShaking),
         ],
-        // $8B:CB43
         [P.MetroidEggShaking] =
         [
             Show(3, 5),
@@ -73,7 +67,6 @@ internal static class CinematicSpriteAnimations
             Show(12, 10),
             FallInto(P.MetroidEggHatchedFrame2),
         ],
-        // $8B:CB79
         [P.MetroidEggHatchedFrame2] =
         [
             Show(13, 10),
@@ -86,19 +79,16 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SetPreInstruction, CinematicSpritePreInstruction.MetroidEggDeleteAfterCrossFade)),
             FallInto(P.MetroidEggHatched),
         ],
-        // $8B:CB97
         [P.MetroidEggHatched] =
         [
             Show(18, 80),
             GoTo(P.MetroidEggHatched),
         ],
-        // $8B:CB9F
         [P.BabyMetroidBeingDelivered] =
         [
             SetCounter(10),
             FallInto(P.BabyMetroidBeingDeliveredLoop),
         ],
-        // $8B:CBA3
         [P.BabyMetroidBeingDeliveredLoop] =
         [
             Show(19, 10),
@@ -109,7 +99,6 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.StartIntroPage4)),
             FallInto(P.BabyMetroidDelivered),
         ],
-        // $8B:CBB9
         [P.BabyMetroidDelivered] =
         [
             Show(19, 10),
@@ -118,13 +107,11 @@ internal static class CinematicSpriteAnimations
             Show(20, 10),
             GoTo(P.BabyMetroidDelivered),
         ],
-        // $8B:CBCD
         [P.BabyMetroidBeingExamined] =
         [
             SetCounter(10),
             FallInto(P.BabyMetroidBeingExaminedLoop),
         ],
-        // $8B:CBD1
         [P.BabyMetroidBeingExaminedLoop] =
         [
             Show(22, 10),
@@ -135,7 +122,6 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.StartIntroPage5)),
             FallInto(P.BabyMetroidExamined),
         ],
-        // $8B:CBE7
         [P.BabyMetroidExamined] =
         [
             Show(22, 10),
@@ -144,20 +130,17 @@ internal static class CinematicSpriteAnimations
             Show(23, 10),
             GoTo(P.BabyMetroidExamined),
         ],
-        // $8B:CBFB
         [P.IntroTextCaret] =
         [
             Show(25, 5),
             GoTo(P.IntroTextCaret),
         ],
-        // $8B:CC03
         [P.IntroTextCaretBlink] =
         [
             Show(25, 5),
             Show(26, 5),
             GoTo(P.IntroTextCaretBlink),
         ],
-        // $8B:CC0F
         [P.IntroScientistArrow] =
         [
             Show(27, 10),
@@ -166,13 +149,11 @@ internal static class CinematicSpriteAnimations
             Show(28, 10),
             GoTo(P.IntroScientistArrow),
         ],
-        // $8B:CC23
         [P.IntroScientistArrowDelayed] =
         [
             Show(26, 60),
             GoTo(P.IntroScientistArrow),
         ],
-        // $8B:CC2B
         [P.ConfusedBabyMetroid] =
         [
             Show(30, 10),
@@ -181,38 +162,32 @@ internal static class CinematicSpriteAnimations
             Show(31, 10),
             GoTo(P.ConfusedBabyMetroid),
         ],
-        // $8B:CC3F
         [P.CeresDestructionLargeAsteroid] =
         [
             Show(33, 10),
             GoTo(P.CeresDestructionLargeAsteroid),
         ],
-        // $8B:CC47
         [P.CeresUnderAttack] =
         [
             Show(34, 10),
             GoTo(P.CeresUnderAttack),
         ],
-        // $8B:CC4F
         [P.CeresSmallAsteroid] =
         [
             Show(35, 10),
             GoTo(P.CeresSmallAsteroid),
         ],
-        // $8B:CC57
         [P.CeresVortex] =
         [
             Show(36, 1),
             Show(37, 1),
             GoTo(P.CeresVortex),
         ],
-        // $8B:CCAB
         [P.ZebesPlanet] =
         [
             Show(38, 10),
             GoTo(P.ZebesPlanet),
         ],
-        // $8B:CCBB
         [P.ZebesTitle] =
         [
             Show(26, 64),
@@ -225,13 +200,11 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.StartFlyingToZebes)),
             Stop,
         ],
-        // $8B:CCD5
         [P.ZebesJapaneseTitle] =
         [
             Show(40, 192),
             Stop,
         ],
-        // $8B:CCDB
         [P.CeresSmallExplosion] =
         [
             Show(41, 3),
@@ -242,13 +215,11 @@ internal static class CinematicSpriteAnimations
             Show(46, 3),
             Stop,
         ],
-        // $8B:CCF5
         [P.CeresRepeatingSmallExplosion] =
         [
             SetCounter(6),
             FallInto(P.CeresRepeatingSmallExplosionLoop),
         ],
-        // $8B:CCF9
         [P.CeresRepeatingSmallExplosionLoop] =
         [
             Show(41, 3),
@@ -261,13 +232,11 @@ internal static class CinematicSpriteAnimations
             RepeatWhileCounting(P.CeresRepeatingSmallExplosionLoop),
             Stop,
         ],
-        // $8B:CD1B
         [P.CeresLargeExplosion] =
         [
             SetCounter(7),
             FallInto(P.CeresLargeExplosionLoop),
         ],
-        // $8B:CD1F
         [P.CeresLargeExplosionLoop] =
         [
             Show(47, 5),
@@ -278,49 +247,41 @@ internal static class CinematicSpriteAnimations
             RepeatWhileCounting(P.CeresLargeExplosionLoop),
             Stop,
         ],
-        // $8B:CD39
         [P.MetroidEggParticle1] =
         [
             Show(51, 1),
             GoTo(P.MetroidEggParticle1),
         ],
-        // $8B:CD41
         [P.MetroidEggParticle2] =
         [
             Show(52, 1),
             GoTo(P.MetroidEggParticle2),
         ],
-        // $8B:CD49
         [P.MetroidEggParticle3] =
         [
             Show(53, 1),
             GoTo(P.MetroidEggParticle3),
         ],
-        // $8B:CD51
         [P.MetroidEggParticle4] =
         [
             Show(54, 1),
             GoTo(P.MetroidEggParticle4),
         ],
-        // $8B:CD59
         [P.MetroidEggParticle5] =
         [
             Show(55, 1),
             GoTo(P.MetroidEggParticle5),
         ],
-        // $8B:CD61
         [P.MetroidEggParticle6] =
         [
             Show(56, 1),
             GoTo(P.MetroidEggParticle6),
         ],
-        // $8B:CD69
         [P.MetroidEggParticle7] =
         [
             Show(57, 1),
             GoTo(P.MetroidEggParticle7),
         ],
-        // $8B:CD71
         [P.MetroidEggParticleHitGround] =
         [
             Show(58, 10),
@@ -329,37 +290,31 @@ internal static class CinematicSpriteAnimations
             Show(61, 10),
             Stop,
         ],
-        // $8B:CD83
         [P.ZebesStarSheet0] =
         [
             Show(62, 10),
             GoTo(P.ZebesStarSheet0),
         ],
-        // $8B:CD8B
         [P.ZebesStarSheet1] =
         [
             Show(63, 10),
             GoTo(P.ZebesStarSheet1),
         ],
-        // $8B:CD93
         [P.ZebesStarSheet2] =
         [
             Show(64, 10),
             GoTo(P.ZebesStarSheet2),
         ],
-        // $8B:CD9B
         [P.ZebesStarSheet3] =
         [
             Show(65, 10),
             GoTo(P.ZebesStarSheet3),
         ],
-        // $8B:CDA3
         [P.CeresStars] =
         [
             Show(66, 10),
             GoTo(P.CeresStars),
         ],
-        // $8B:CDAB
         [P.IntroMotherBrainExplosionBig] =
         [
             Show(67, 6),
@@ -371,7 +326,6 @@ internal static class CinematicSpriteAnimations
             Show(26, 16),
             GoTo(P.IntroMotherBrainExplosionBig),
         ],
-        // $8B:CDCB
         [P.IntroMotherBrainExplosionSmall] =
         [
             Show(41, 3),
@@ -383,7 +337,6 @@ internal static class CinematicSpriteAnimations
             Show(26, 16),
             GoTo(P.IntroMotherBrainExplosionSmall),
         ],
-        // $8B:CDEB
         [P.IntroRinka] =
         [
             Show(73, 10),
@@ -392,7 +345,6 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.StartRinkaMoving)),
             FallInto(P.IntroRinkaMoving),
         ],
-        // $8B:CDF9
         [P.IntroRinkaMoving] =
         [
             Show(74, 10),
@@ -401,7 +353,6 @@ internal static class CinematicSpriteAnimations
             Show(75, 10),
             GoTo(P.IntroRinkaMoving),
         ],
-        // $8B:CE0D
         [P.IntroRinkaSpawner] =
         [
             Show(26, 74),
@@ -410,7 +361,6 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SpawnRinkas2And3)),
             Stop,
         ],
-        // $8B:CE1B
         [P.CeresStationBlast] =
         [
             Show(76, 5),
@@ -421,7 +371,6 @@ internal static class CinematicSpriteAnimations
             Show(81, 5),
             Stop,
         ],
-        // $8B:CE35
         [P.CeresExplosionSpawner] =
         [
             Show(26, 128),
@@ -432,24 +381,20 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SpawnFinalExplosionWave)),
             Stop,
         ],
-        // $8B:CE4B
         [P.CeresLargeAsteroid] =
         [
             Show(82, 10),
             GoTo(P.CeresLargeAsteroid),
         ],
-        // $8B:CE53
         [P.Delete] =
         [
             Stop,
         ],
-        // $8B:EB0F
         [P.ZebesExplosionPlanet] =
         [
             SetCounter(5),
             FallInto(P.ZebesExplosionPlanetLoop),
         ],
-        // $8B:EB13
         [P.ZebesExplosionPlanetLoop] =
         [
             Show(83, 13),
@@ -465,7 +410,6 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SpawnExplosionSilhouette)),
             Stop,
         ],
-        // $8B:EB3D
         [P.ZebesExplosionGlow] =
         [
             Show(91, 16),
@@ -474,33 +418,28 @@ internal static class CinematicSpriteAnimations
             Show(92, 16),
             GoTo(P.ZebesExplosionGlow),
         ],
-        // $8B:EB51
         [P.ZebesExplosionStars] =
         [
             Show(94, 16),
             GoTo(P.ZebesExplosionStars),
         ],
-        // $8B:EB59
         [P.ZebesExplosionLava] =
         [
             Show(26, 156),
             FallInto(P.ZebesExplosionLavaLoop),
         ],
-        // $8B:EB5D
         [P.ZebesExplosionLavaLoop] =
         [
             Show(95, 10),
             Show(96, 10),
             GoTo(P.ZebesExplosionLavaLoop),
         ],
-        // $8B:EB69
         [P.ZebesExplosionSilhouette] =
         [
             Show(97, 8),
             Cue(new(K.StartZebesExplosion)),
             Stop,
         ],
-        // $8B:EB71
         [P.ZebesExplosionRightStars] =
         [
             Show(94, 144),
@@ -510,19 +449,16 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SetPreInstruction, CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway)),
             FallInto(P.ZebesExplosionLeftStars),
         ],
-        // $8B:EB81
         [P.ZebesExplosionLeftStars] =
         [
             Show(94, 16),
             GoTo(P.ZebesExplosionLeftStars),
         ],
-        // $8B:EB89
         [P.ZebesExplosionAfterglow] =
         [
             Show(98, 16),
             GoTo(P.ZebesExplosionAfterglow),
         ],
-        // $8B:EB91
         [P.OperationWasText] =
         [
             Show(99, 8),
@@ -543,13 +479,11 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SpawnCompletedText)),
             FallInto(P.OperationWasTextHold),
         ],
-        // $8B:EBCF
         [P.OperationWasTextHold] =
         [
             Show(113, 15),
             GoTo(P.OperationWasTextHold),
         ],
-        // $8B:EBD7
         [P.CompletedSuccessfullyText] =
         [
             Show(114, 8),
@@ -576,13 +510,11 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SpawnClearTime)),
             FallInto(P.CompletedSuccessfullyTextHold),
         ],
-        // $8B:EC2D
         [P.CompletedSuccessfullyTextHold] =
         [
             Show(134, 8),
             GoTo(P.CompletedSuccessfullyTextHold),
         ],
-        // $8B:EC35
         [P.ClearTimeText] =
         [
             Show(135, 8),
@@ -607,79 +539,66 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.TransitionToCredits)),
             FallInto(P.ClearTimeTextHold),
         ],
-        // $8B:EC79
         [P.ClearTimeTextHold] =
         [
             Show(143, 15),
             GoTo(P.ClearTimeTextHold),
         ],
-        // $8B:EC81
         [P.ClearTimeDigit0] =
         [
             Show(144, 8),
             GoTo(P.ClearTimeDigit0),
         ],
-        // $8B:EC89
         [P.ClearTimeDigit1] =
         [
             Show(145, 8),
             GoTo(P.ClearTimeDigit1),
         ],
-        // $8B:EC91
         [P.ClearTimeDigit2] =
         [
             Show(146, 8),
             GoTo(P.ClearTimeDigit2),
         ],
-        // $8B:EC99
         [P.ClearTimeDigit3] =
         [
             Show(147, 8),
             GoTo(P.ClearTimeDigit3),
         ],
-        // $8B:ECA1
         [P.ClearTimeDigit4] =
         [
             Show(148, 8),
             GoTo(P.ClearTimeDigit4),
         ],
-        // $8B:ECA9
         [P.ClearTimeDigit5] =
         [
             Show(149, 8),
             GoTo(P.ClearTimeDigit5),
         ],
-        // $8B:ECB1
         [P.ClearTimeDigit6] =
         [
             Show(150, 8),
             GoTo(P.ClearTimeDigit6),
         ],
-        // $8B:ECB9
         [P.ClearTimeDigit7] =
         [
             Show(151, 8),
             GoTo(P.ClearTimeDigit7),
         ],
-        // $8B:ECC1
         [P.ClearTimeDigit8] =
         [
             Show(152, 8),
             GoTo(P.ClearTimeDigit8),
         ],
-        // $8B:ECC9
         [P.ClearTimeDigit9] =
         [
             Show(153, 8),
             GoTo(P.ClearTimeDigit9),
         ],
-        // $8B:ECD1
         [P.ClearTimeColon] =
         [
             Show(154, 8),
             GoTo(P.ClearTimeColon),
         ],
-        // $8B:ECD9
         [P.EndingAnimalEscape] =
         [
             Show(155, 1),
@@ -688,55 +607,46 @@ internal static class CinematicSpriteAnimations
             Show(158, 1),
             GoTo(P.EndingAnimalEscape),
         ],
-        // $8B:ECED
         [P.EndingCloud0] =
         [
             Show(159, 1),
             GoTo(P.EndingCloud0),
         ],
-        // $8B:ECF5
         [P.EndingCloud1] =
         [
             Show(160, 1),
             GoTo(P.EndingCloud1),
         ],
-        // $8B:ECFD
         [P.EndingCloud2] =
         [
             Show(161, 1),
             GoTo(P.EndingCloud2),
         ],
-        // $8B:ED05
         [P.EndingCloud3] =
         [
             Show(162, 1),
             GoTo(P.EndingCloud3),
         ],
-        // $8B:ED0D
         [P.EndingCloud4] =
         [
             Show(163, 1),
             GoTo(P.EndingCloud4),
         ],
-        // $8B:ED15
         [P.EndingCloud5] =
         [
             Show(164, 1),
             GoTo(P.EndingCloud5),
         ],
-        // $8B:ED1D
         [P.SuitlessIdle] =
         [
             Show(165, 128),
             GoTo(P.SuitlessIdle),
         ],
-        // $8B:ED25
         [P.SuitlessLegsIdle] =
         [
             Show(166, 128),
             GoTo(P.SuitlessLegsIdle),
         ],
-        // $8B:ED2D
         [P.HairRelease] =
         [
             Show(165, 90),
@@ -752,7 +662,6 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SpawnSuitlessJump)),
             Stop,
         ],
-        // $8B:ED59
         [P.HairReleaseLegs] =
         [
             Show(166, 90),
@@ -766,7 +675,6 @@ internal static class CinematicSpriteAnimations
             Show(166, 10),
             Stop,
         ],
-        // $8B:ED7F
         [P.SuitlessJump] =
         [
             Show(175, 48),
@@ -775,19 +683,16 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SetPreInstruction, CinematicSpritePreInstruction.RewardBodyFlight)),
             FallInto(P.SuitlessJumpFlight),
         ],
-        // $8B:ED8D
         [P.SuitlessJumpFlight] =
         [
             Show(177, 48),
             GoTo(P.SuitlessJumpFlight),
         ],
-        // $8B:ED95
         [P.Falling] =
         [
             Show(178, 10),
             GoTo(P.Falling),
         ],
-        // $8B:ED9D
         [P.Landing] =
         [
             Show(179, 10),
@@ -797,32 +702,27 @@ internal static class CinematicSpriteAnimations
             Show(181, 128),
             Stop,
         ],
-        // $8B:EDB1
         [P.SuitedIdle] =
         [
             Show(182, 10),
             GoTo(P.SuitedIdle),
         ],
-        // $8B:EDB9
         [P.HelmetIdle] =
         [
             Show(183, 10),
             GoTo(P.HelmetIdle),
         ],
-        // $8B:EDC1
         [P.HeadIdle] =
         [
             Show(184, 10),
             GoTo(P.HeadIdle),
         ],
-        // $8B:EDC9
         [P.GestureBody] =
         [
             Show(182, 64),
             Show(185, 264),
             Stop,
         ],
-        // $8B:EDD3
         [P.GestureArm] =
         [
             Show(26, 64),
@@ -842,13 +742,11 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SpawnSuitedJump)),
             Stop,
         ],
-        // $8B:EE0F
         [P.GestureHelmet] =
         [
             Show(183, 328),
             Stop,
         ],
-        // $8B:EE15
         [P.GestureHead] =
         [
             Show(184, 128),
@@ -857,7 +755,6 @@ internal static class CinematicSpriteAnimations
             Show(196, 190),
             Stop,
         ],
-        // $8B:EE27
         [P.SuitedJump] =
         [
             Cue(new(K.PrepareHead)),
@@ -867,51 +764,43 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SetPreInstruction, CinematicSpritePreInstruction.RewardBodyFlight)),
             FallInto(P.SuitedJumpFlight),
         ],
-        // $8B:EE35
         [P.SuitedJumpFlight] =
         [
             Show(198, 5),
             GoTo(P.SuitedJumpFlight),
         ],
-        // $8B:EE3D
         [P.HelmetJump] =
         [
             Show(199, 10),
             Cue(new(K.SetPreInstruction, CinematicSpritePreInstruction.RewardHeadFlight)),
             FallInto(P.HelmetFlight),
         ],
-        // $8B:EE45
         [P.HelmetFlight] =
         [
             Show(200, 5),
             GoTo(P.HelmetFlight),
         ],
-        // $8B:EE4D
         [P.HeadJump] =
         [
             Show(201, 10),
             Cue(new(K.SetPreInstruction, CinematicSpritePreInstruction.RewardHeadFlight)),
             FallInto(P.HeadFlight),
         ],
-        // $8B:EE55
         [P.HeadFlight] =
         [
             Show(201, 5),
             GoTo(P.HeadFlight),
         ],
-        // $8B:EE5D
         [P.LogoUpperS] =
         [
             Show(202, 10),
             GoTo(P.LogoUpperS),
         ],
-        // $8B:EE65
         [P.LogoLowerS] =
         [
             Show(203, 10),
             GoTo(P.LogoLowerS),
         ],
-        // $8B:EE6D
         [P.LogoUpperCircle] =
         [
             Show(26, 96),
@@ -921,13 +810,11 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.GreyOut)),
             FallInto(P.LogoUpperCircleLoop),
         ],
-        // $8B:EE7F
         [P.LogoUpperCircleLoop] =
         [
             Show(206, 5),
             GoTo(P.LogoUpperCircleLoop),
         ],
-        // $8B:EE87
         [P.LogoLowerCircle] =
         [
             Show(26, 96),
@@ -935,7 +822,6 @@ internal static class CinematicSpriteAnimations
             Show(208, 5),
             FallInto(P.LogoLowerCircleLoop),
         ],
-        // $8B:EE93
         [P.LogoLowerCircleLoop] =
         [
             Show(209, 5),

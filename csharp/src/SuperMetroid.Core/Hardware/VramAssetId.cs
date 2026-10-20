@@ -53,8 +53,8 @@ public enum VramAssetId
     GrappleDiagonalSegmentTiles,
     /// <summary>Four vertical Grapple segment frames from $9A:9220.</summary>
     GrappleVerticalSegmentTiles,
-    // Append-only: numeric values appear in pending debugger-state VRAM records.
     /// <summary>First quarter of the installed standard BG3 sheet restored during Kraid's death.</summary>
+    /// <remarks>Append-only: numeric values appear in pending debugger-state VRAM records.</remarks>
     KraidBg3RestoreQuarter0,
     /// <summary>Second quarter of the installed standard BG3 sheet restored during Kraid's death.</summary>
     KraidBg3RestoreQuarter1,

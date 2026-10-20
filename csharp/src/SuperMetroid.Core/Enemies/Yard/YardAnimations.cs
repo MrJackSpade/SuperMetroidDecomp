@@ -16,7 +16,6 @@ internal static class YardAnimations
     internal static AnimationProgramSet<YardProgram, YardFrame, YardCue> Programs { get; } = new(
         new Dictionary<YardProgram, AnimationProgramStep<YardProgram, YardFrame, YardCue>[]>
     {
-        // $A3:C8C6
         [P.OutsideTurnUpsideRightMovingUp] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -27,7 +26,6 @@ internal static class YardAnimations
             Cue(new(K.MoveBy, Offset: -4, OffsetY: -8)),
             FallInto(P.CrawlingUpsideUpMovingLeft),
         ],
-        // $A3:C8E0
         [P.CrawlingUpsideUpMovingLeft] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingLeft)),
@@ -38,7 +36,6 @@ internal static class YardAnimations
             Show(2, 9),
             GoTo(P.CrawlingUpsideUpMovingLeft),
         ],
-        // $A3:C8FC
         [P.OutsideTurnUpsideUpMovingLeft] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -49,7 +46,6 @@ internal static class YardAnimations
             Cue(new(K.MoveBy, Offset: -8, OffsetY: 4)),
             FallInto(P.CrawlingUpsideLeftMovingDown),
         ],
-        // $A3:C916
         [P.CrawlingUpsideLeftMovingDown] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingDown)),
@@ -60,7 +56,6 @@ internal static class YardAnimations
             Show(8, 9),
             GoTo(P.CrawlingUpsideLeftMovingDown),
         ],
-        // $A3:C932
         [P.OutsideTurnUpsideLeftMovingDown] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -71,7 +66,6 @@ internal static class YardAnimations
             Cue(new(K.MoveBy, Offset: 4, OffsetY: 8)),
             FallInto(P.CrawlingUpsideDownMovingRight),
         ],
-        // $A3:C94C
         [P.CrawlingUpsideDownMovingRight] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingRight)),
@@ -82,7 +76,6 @@ internal static class YardAnimations
             Show(14, 9),
             GoTo(P.CrawlingUpsideDownMovingRight),
         ],
-        // $A3:C968
         [P.OutsideTurnUpsideDownMovingRight] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -93,7 +86,6 @@ internal static class YardAnimations
             Cue(new(K.MoveBy, Offset: 8, OffsetY: -4)),
             FallInto(P.CrawlingUpsideRightMovingUp),
         ],
-        // $A3:C982
         [P.CrawlingUpsideRightMovingUp] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingUp)),
@@ -104,7 +96,6 @@ internal static class YardAnimations
             Show(20, 9),
             GoTo(P.CrawlingUpsideRightMovingUp),
         ],
-        // $A3:C99E
         [P.OutsideTurnUpsideLeftMovingUp] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -115,7 +106,6 @@ internal static class YardAnimations
             Cue(new(K.MoveBy, Offset: 4, OffsetY: -8)),
             FallInto(P.CrawlingUpsideUpMovingRight),
         ],
-        // $A3:C9B8
         [P.CrawlingUpsideUpMovingRight] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingRight)),
@@ -126,7 +116,6 @@ internal static class YardAnimations
             Show(34, 9),
             GoTo(P.CrawlingUpsideUpMovingRight),
         ],
-        // $A3:C9D4
         [P.OutsideTurnUpsideUpMovingRight] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -137,7 +126,6 @@ internal static class YardAnimations
             Cue(new(K.MoveBy, Offset: 8, OffsetY: 4)),
             FallInto(P.CrawlingUpsideRightMovingDown),
         ],
-        // $A3:C9EE
         [P.CrawlingUpsideRightMovingDown] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingDown)),
@@ -148,7 +136,6 @@ internal static class YardAnimations
             Show(40, 9),
             GoTo(P.CrawlingUpsideRightMovingDown),
         ],
-        // $A3:CA0A
         [P.OutsideTurnUpsideRightMovingDown] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -159,7 +146,6 @@ internal static class YardAnimations
             Cue(new(K.MoveBy, Offset: -4, OffsetY: 8)),
             FallInto(P.CrawlingUpsideDownMovingLeft),
         ],
-        // $A3:CA24
         [P.CrawlingUpsideDownMovingLeft] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingLeft)),
@@ -170,7 +156,6 @@ internal static class YardAnimations
             Show(46, 9),
             GoTo(P.CrawlingUpsideDownMovingLeft),
         ],
-        // $A3:CA40
         [P.OutsideTurnUpsideDownMovingLeft] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -181,7 +166,6 @@ internal static class YardAnimations
             Cue(new(K.MoveBy, Offset: -8, OffsetY: -4)),
             FallInto(P.CrawlingUpsideLeftMovingUp),
         ],
-        // $A3:CA5A
         [P.CrawlingUpsideLeftMovingUp] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingUp)),
@@ -192,7 +176,6 @@ internal static class YardAnimations
             Show(52, 9),
             GoTo(P.CrawlingUpsideLeftMovingUp),
         ],
-        // $A3:CA76
         [P.InsideTurnUpsideUpMovingLeft] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -202,7 +185,6 @@ internal static class YardAnimations
             Show(66, 7),
             GoTo(P.CrawlingUpsideRightMovingUp),
         ],
-        // $A3:CA8E
         [P.InsideTurnUpsideRightMovingUp] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -212,7 +194,6 @@ internal static class YardAnimations
             Show(69, 7),
             GoTo(P.CrawlingUpsideDownMovingRight),
         ],
-        // $A3:CAA6
         [P.InsideTurnUpsideDownMovingRight] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -222,7 +203,6 @@ internal static class YardAnimations
             Show(72, 7),
             GoTo(P.CrawlingUpsideLeftMovingDown),
         ],
-        // $A3:CABE
         [P.InsideTurnUpsideLeftMovingDown] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -232,7 +212,6 @@ internal static class YardAnimations
             Show(75, 7),
             GoTo(P.CrawlingUpsideUpMovingLeft),
         ],
-        // $A3:CAD6
         [P.InsideTurnUpsideUpMovingRight] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -242,7 +221,6 @@ internal static class YardAnimations
             Show(86, 7),
             GoTo(P.CrawlingUpsideLeftMovingUp),
         ],
-        // $A3:CAEE
         [P.InsideTurnUpsideLeftMovingUp] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -252,7 +230,6 @@ internal static class YardAnimations
             Show(89, 7),
             GoTo(P.CrawlingUpsideDownMovingLeft),
         ],
-        // $A3:CB06
         [P.InsideTurnUpsideDownMovingLeft] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -262,7 +239,6 @@ internal static class YardAnimations
             Show(92, 7),
             GoTo(P.CrawlingUpsideRightMovingDown),
         ],
-        // $A3:CB1E
         [P.InsideTurnUpsideRightMovingDown] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.InstructionPending)),
@@ -272,7 +248,6 @@ internal static class YardAnimations
             Show(95, 7),
             GoTo(P.CrawlingUpsideUpMovingRight),
         ],
-        // $A3:CB36
         [P.HidingUpsideUpMovingLeft] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
@@ -281,14 +256,12 @@ internal static class YardAnimations
             Cue(new(K.RepeatPreviousPoseUnlessContinuing)),
             FallInto(P.HiddenUpsideUpMovingLeft),
         ],
-        // $A3:CB44
         [P.HiddenUpsideUpMovingLeft] =
         [
             Show(76, 48),
             Show(77, 16),
             GoTo(P.CrawlingUpsideUpMovingLeft),
         ],
-        // $A3:CB50
         [P.HidingUpsideDownMovingLeft] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
@@ -299,7 +272,6 @@ internal static class YardAnimations
             Show(101, 16),
             GoTo(P.CrawlingUpsideDownMovingLeft),
         ],
-        // $A3:CB6A
         [P.HidingUpsideDownMovingRight] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
@@ -310,7 +282,6 @@ internal static class YardAnimations
             Show(81, 16),
             GoTo(P.CrawlingUpsideDownMovingRight),
         ],
-        // $A3:CB84
         [P.HidingUpsideUpMovingRight] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
@@ -319,14 +290,12 @@ internal static class YardAnimations
             Cue(new(K.RepeatPreviousPoseUnlessContinuing)),
             FallInto(P.HiddenUpsideUpMovingRight),
         ],
-        // $A3:CB92
         [P.HiddenUpsideUpMovingRight] =
         [
             Show(96, 48),
             Show(97, 16),
             GoTo(P.CrawlingUpsideUpMovingRight),
         ],
-        // $A3:CB9E
         [P.HidingUpsideRightMovingUp] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
@@ -337,7 +306,6 @@ internal static class YardAnimations
             Show(79, 16),
             GoTo(P.CrawlingUpsideRightMovingUp),
         ],
-        // $A3:CBB8
         [P.HidingUpsideLeftMovingUp] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
@@ -348,7 +316,6 @@ internal static class YardAnimations
             Show(99, 16),
             GoTo(P.CrawlingUpsideLeftMovingUp),
         ],
-        // $A3:CBD2
         [P.HidingUpsideLeftMovingDown] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
@@ -359,7 +326,6 @@ internal static class YardAnimations
             Show(83, 16),
             GoTo(P.CrawlingUpsideLeftMovingDown),
         ],
-        // $A3:CBEC
         [P.HidingUpsideRightMovingDown] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Hiding)),
@@ -370,14 +336,12 @@ internal static class YardAnimations
             Show(103, 16),
             GoTo(P.CrawlingUpsideRightMovingDown),
         ],
-        // $A3:CC06
         [P.AirborneFacingLeft] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Airborne)),
             Show(31, 3),
             FallInto(P.AirborneFacingLeftLoop),
         ],
-        // $A3:CC0E
         [P.AirborneFacingLeftLoop] =
         [
             Show(27, 3),
@@ -385,14 +349,12 @@ internal static class YardAnimations
             Show(31, 3),
             GoTo(P.AirborneFacingLeftLoop),
         ],
-        // $A3:CC1E
         [P.AirborneFacingRight] =
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.Airborne)),
             Show(63, 3),
             FallInto(P.AirborneFacingRightLoop),
         ],
-        // $A3:CC26
         [P.AirborneFacingRightLoop] =
         [
             Show(59, 3),

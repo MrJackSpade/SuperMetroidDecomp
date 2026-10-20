@@ -41,5 +41,6 @@ internal enum RidleyBodyProgram
     /// <summary>Taking off (<c>InstList_RidleyCeres_FacingLeft_TransitionToFlying</c>, $A6:E91D).</summary>
     TransitionToFlying,
     /// <summary>The right-facing take-off (<c>InstList_RidleyCeres_FacingRight_TransitionToFlying</c>, $A6:E945).</summary>
+    /// <remarks>It calls the Lower Norfair lift-off, as the native list does.</remarks>
     TransitionToFlyingFacingRight,
 }

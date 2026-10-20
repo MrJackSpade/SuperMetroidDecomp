@@ -15,7 +15,6 @@ internal static class BoulderAnimations
     internal static AnimationProgramSet<BoulderProgram, BoulderFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<BoulderProgram, AnimationProgramStep<BoulderProgram, BoulderFrame, NoAnimationCue>[]>
     {
-        // $A6:86A7
         [P.Left] =
         [
             Show(0, 8),
@@ -28,7 +27,6 @@ internal static class BoulderAnimations
             Show(7, 8),
             GoTo(P.Left),
         ],
-        // $A6:86CB
         [P.Right] =
         [
             Show(0, 8),

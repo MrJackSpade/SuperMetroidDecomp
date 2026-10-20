@@ -11,7 +11,6 @@ internal static class SpacePirateProjectileAnimations
     internal static AnimationProgramSet<SpacePirateProjectileProgram, SpacePirateProjectileFrame, SpacePirateProjectileCue> Programs { get; } = new(
         new Dictionary<SpacePirateProjectileProgram, AnimationProgramStep<SpacePirateProjectileProgram, SpacePirateProjectileFrame, SpacePirateProjectileCue>[]>
     {
-        // $86:9F41
         [P.LaserLeft] =
         [
             Show(0, 2),
@@ -28,14 +27,12 @@ internal static class SpacePirateProjectileAnimations
             Show(10, 1),
             FallInto(P.LaserLeftLoop),
         ],
-        // $86:9F71
         [P.LaserLeftLoop] =
         [
             Show(11, 1),
             Show(12, 1),
             GoTo(P.LaserLeftLoop),
         ],
-        // $86:9F7D
         [P.LaserRight] =
         [
             Show(13, 2),
@@ -52,20 +49,17 @@ internal static class SpacePirateProjectileAnimations
             Show(23, 1),
             FallInto(P.LaserRightLoop),
         ],
-        // $86:9FAD
         [P.LaserRightLoop] =
         [
             Show(24, 1),
             Show(25, 1),
             GoTo(P.LaserRightLoop),
         ],
-        // $86:9FB9
         [P.ClawLeft] =
         [
             Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectilePreInstruction.PirateClaw_Left),
             FallInto(P.ClawLeftLoop),
         ],
-        // $86:9FBD
         [P.ClawLeftLoop] =
         [
             Show(26, 1),
@@ -78,13 +72,11 @@ internal static class SpacePirateProjectileAnimations
             Show(33, 1),
             GoTo(P.ClawLeftLoop),
         ],
-        // $86:9FE1
         [P.ClawRight] =
         [
             Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectilePreInstruction.PirateClaw_Right),
             FallInto(P.ClawRightLoop),
         ],
-        // $86:9FE5
         [P.ClawRightLoop] =
         [
             Show(34, 1),

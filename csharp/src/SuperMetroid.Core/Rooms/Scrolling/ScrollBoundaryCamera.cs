@@ -228,9 +228,9 @@ public sealed class ScrollBoundaryCamera
         HandleVerticalAutoscrolling(timeIsFrozen);
     }
 
-    // The subtraction is unsigned: Samus left of or above the camera borrows and scrolls
-    // back, as do screen offsets below the near edge; offsets at the far edge advance.
     /// <summary>Moves the camera toward Samus until she lies within the grapple dead zone.</summary>
+    /// <remarks>The subtraction is unsigned: Samus left of or above the camera borrows and scrolls back, as do screen
+    /// offsets below the near edge; offsets at the far edge advance.</remarks>
     private static ushort StepTowardDeadZone(ushort camera, ushort samus, ushort nearEdge, ushort farEdge)
     {
         if (samus < camera)

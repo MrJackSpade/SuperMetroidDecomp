@@ -17,7 +17,6 @@ internal static class CeresBabyAnimations
     internal static AnimationProgramSet<P, F, CeresBabyCue> Programs { get; } = new(
         new Dictionary<P, AnimationProgramStep<P, F, CeresBabyCue>[]>
     {
-        // $A6:BF31: two squish cycles, each first checking whether the baby moves.
         [P.Initial] =
         [
             Cue(new(K.GoToIfMoving, Target: P.ExpressiveLoop)),
@@ -26,7 +25,6 @@ internal static class CeresBabyAnimations
             .. SquishCycle,
             FallInto(P.ExpressiveLoop),
         ],
-        // $A6:BF59: a cry, then twelve poses whose palette pulses with them, slowing back down.
         [P.ExpressiveLoop] =
         [
             Cue(new(K.CryOrGoTo, Target: P.Initial)),

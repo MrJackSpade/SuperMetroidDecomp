@@ -38,9 +38,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>8.8 vertical velocity decrement applied during dive and rebound.</summary>
     private const ushort RioGravityStep = 24;
 
-    // These are live ROM words, not friendly host tuning constants. The retail routine
-    // reads them at $A2:BBBB/$A2:BBBF immediately before a dive begins.
-
     /// <summary>Most recent library-two sound request produced by Rio during this frame.</summary>
     public SoundEffectId? LastRioSoundEffect { get; private set; }
 

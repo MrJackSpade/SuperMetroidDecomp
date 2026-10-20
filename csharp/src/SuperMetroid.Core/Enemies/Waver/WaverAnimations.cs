@@ -16,19 +16,16 @@ internal static class WaverAnimations
     internal static AnimationProgramSet<WaverProgram, WaverFrame, WaverCue> Programs { get; } = new(
         new Dictionary<WaverProgram, AnimationProgramStep<WaverProgram, WaverFrame, WaverCue>[]>
     {
-        // $A3:86A7
         [P.SteadyFacingLeft] =
         [
             Show(2, 1),
             Hold,
         ],
-        // $A3:86AD
         [P.SteadyFacingRight] =
         [
             Show(7, 1),
             Hold,
         ],
-        // $A3:86B3
         [P.SpinningFacingLeft] =
         [
             Show(3, 8),
@@ -38,7 +35,6 @@ internal static class WaverAnimations
             Cue(new(K.FinishSpin)),
             Hold,
         ],
-        // $A3:86C7
         [P.SpinningFacingRight] =
         [
             Show(8, 8),

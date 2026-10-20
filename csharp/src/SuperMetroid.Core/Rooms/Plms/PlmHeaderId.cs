@@ -5,6 +5,13 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// door, item or scripted spawner can install. The value is the header's low word in fixed
 /// bank $84; <see cref="None"/> marks an empty PLM slot.
 /// </summary>
+/// <remarks>
+/// The exposed, Chozo-orb and concealed shot-block permanent-item header runs each list their items in exactly the
+/// order of <see cref="InWorldCollectibleKind"/>. Door families use a six-byte header
+/// stride in left/right/up/down order; naming each header prevents orientation arithmetic from accepting an
+/// in-between word. Mother Brain's fake-death sequence requests its background-row and tube headers by these exact
+/// identities.
+/// </remarks>
 public enum PlmHeaderId : ushort
 {
     /// <summary>An empty PLM slot.</summary>
@@ -49,8 +56,6 @@ public enum PlmHeaderId : ushort
     /// <summary>Open Mother Brain's escape door at $84:B677.</summary>
     MotherBrainsRoomEscapeDoor = 0xb677,
 
-    // The fake-death sequence requests these row/tube actors by exact identity. Their
-    // descriptive names keep the boss state machine free of an opaque address matrix.
     /// <summary><c>PLMEntries_motherBrainsBackgroundRow2</c> at $84:B67B.</summary>
     MotherBrainsBackgroundRow2 = 0xb67b,
 
@@ -357,8 +362,6 @@ public enum PlmHeaderId : ushort
     /// <summary><c>PLMEntries_genericShotTriggerForAPLM</c> at $84:C83E.</summary>
     GenericShotTriggerForAPLM = 0xc83e,
 
-    // Door families use a six-byte header stride in left/right/up/down order. Naming each
-    // address prevents orientation arithmetic from silently accepting an in-between word.
     /// <summary><c>PLMEntries_greyDoorFacingLeft</c> at $84:C842.</summary>
     GreyDoorFacingLeft = 0xc842,
 
@@ -695,7 +698,6 @@ public enum PlmHeaderId : ushort
     /// <summary><c>PLMEntries_ItemCollisionDetection</c> at $84:EED3.</summary>
     ItemCollisionDetection = 0xeed3,
 
-    // Exposed permanent-item headers. The order matches InWorldCollectibleKind exactly.
     /// <summary><c>PLMEntries_EnergyTank</c> at $84:EED7.</summary>
     ExposedEnergyTank = 0xeed7,
 
@@ -759,7 +761,6 @@ public enum PlmHeaderId : ushort
     /// <summary><c>PLMEntries_ReserveTank</c> at $84:EF27.</summary>
     ExposedReserveTank = 0xef27,
 
-    // Chozo-orb permanent-item headers. The order matches InWorldCollectibleKind exactly.
     /// <summary><c>PLMEntries_EnergyTankChozoOrb</c> at $84:EF2B.</summary>
     ChozoEnergyTank = 0xef2b,
 
@@ -823,8 +824,6 @@ public enum PlmHeaderId : ushort
     /// <summary><c>PLMEntries_ReserveTankChozoOrb</c> at $84:EF7B.</summary>
     ChozoReserveTank = 0xef7b,
 
-    // Concealed shot-block permanent-item headers. The order matches
-    // InWorldCollectibleKind exactly.
     /// <summary><c>PLMEntries_EnergyTankShotBlock</c> at $84:EF7F.</summary>
     ShotBlockEnergyTank = 0xef7f,
 

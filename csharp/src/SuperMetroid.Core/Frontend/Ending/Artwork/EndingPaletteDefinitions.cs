@@ -3,9 +3,9 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// <summary>Native source addresses, exact sizes, and file identities for ending colors.</summary>
 public static class EndingPaletteDefinitions
 {
-    // The document shape is unchanged; only the installation manifest gains files.
-    // Keeping version one lets existing player-authored palette overrides survive.
     /// <summary>Revision 1 of the RGB5 palette document, retained for compatibility with existing authored overrides.</summary>
+    /// <remarks>The document shape is unchanged; only the installation manifest gains files. Keeping version one lets
+    /// existing player-authored palette overrides survive.</remarks>
     public const int Version = 1;
     /// <summary>Installation manifest filename identifying the independently selected ending palette files.</summary>
     public const string ManifestFileName = "ending-palettes-manifest.json";

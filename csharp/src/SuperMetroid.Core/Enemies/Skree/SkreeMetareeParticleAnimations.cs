@@ -15,13 +15,11 @@ internal static class SkreeMetareeParticleAnimations
     internal static AnimationProgramSet<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<SkreeMetareeParticleProgram, AnimationProgramStep<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:8ABD
         [P.Skree] =
         [
             Show(0, 16),
             GoTo(P.Skree),
         ],
-        // $86:8AC5
         [P.Metaree] =
         [
             Show(1, 16),

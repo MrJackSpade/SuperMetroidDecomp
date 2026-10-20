@@ -15,7 +15,6 @@ internal static class BullAnimations
     internal static AnimationProgramSet<BullProgram, BullFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<BullProgram, AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue>[]>
     {
-        // $A8:D841
         [P.Normal] =
         [
             Show(0, 10),
@@ -24,13 +23,11 @@ internal static class BullAnimations
             Show(2, 10),
             GoTo(P.Normal),
         ],
-        // $A8:D855
         [P.Shot] =
         [
             SetCounter(5),
             FallInto(P.ShotLoop),
         ],
-        // $A8:D859
         [P.ShotLoop] =
         [
             Show(0, 3),

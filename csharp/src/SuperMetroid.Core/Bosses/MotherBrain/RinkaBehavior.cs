@@ -87,8 +87,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         new(RinkaSpawnPoints[index], 2 * (index + 1));
 
     /// <summary>Marks which of the eleven authored spawn points are currently reserved.</summary>
+    /// <remarks>Eleven literal table entries.</remarks>
     private readonly bool[] _rinkaOccupiedSpawnResources =
-        new bool[RinkaMaximumSpecialActors + 8]; // Eleven literal table entries.
+        new bool[RinkaMaximumSpecialActors + 8];
     /// <summary>Causes special Rinkas to be removed instead of launched or respawned.</summary>
     private bool _rinkaTerminationFlag;
 

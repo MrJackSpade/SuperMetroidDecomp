@@ -501,9 +501,6 @@ tunnel, SamusPoseId.NeutralJumpTransitionRightPose, nmiFrameCounter: 1),
     Console.WriteLine("  Samus posture: animated/direct exits, crouch jumps, radii, movement, FD targets, and low-ceiling fallback agree.");
 }
 
-// Verifies all six stationary aim poses against their literal pose-definition bytes,
-// movement-type-zero grounding, same-facing transitions, and no-controller fallbacks.
-
 /// <summary>Synthetic cartridge with the literal grapple-block PLM streams and their one-block draw records.</summary>
 static TestAddressSpace CreateBreakableGrappleCartridge()
 {

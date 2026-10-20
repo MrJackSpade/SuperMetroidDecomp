@@ -15,25 +15,21 @@ internal static class MagdolliteLavaAnimations
     internal static AnimationProgramSet<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> Programs { get; } = new(
         new Dictionary<MagdolliteLavaProgram, AnimationProgramStep<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue>[]>
     {
-        // $86:84FC
         [P.SharedDelete] =
         [
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:DFD8
         [P.Left] =
         [
             Show(0, 1),
             Hold,
         ],
-        // $86:DFDE
         [P.Right] =
         [
             Show(1, 1),
             Hold,
         ],
-        // $86:DFE4
         [P.Shot] =
         [
             Cue(new(K.SpawnDrops)),

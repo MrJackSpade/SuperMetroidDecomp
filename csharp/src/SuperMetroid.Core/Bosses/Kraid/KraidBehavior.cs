@@ -1321,10 +1321,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.RoarEntryDuration;
         }
     }
-    // These collision checks belong to actor AI rather than generic interactive hitboxes.
-    // The body's permanent intangible flag and lint's no-op touch callback do not
-    // suppress these private native paths.
     /// <summary>Checks the body hitbox and applies contact damage to Samus.</summary>
+    /// <remarks>These collision checks belong to actor AI rather than generic interactive hitboxes. The body's
+    /// permanent intangible flag and lint's no-op touch callback do not suppress these private native paths.</remarks>
     private void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
         if (state.Parts[body.SlotIndex].Function >= KraidAiFunction.DeathInitialize)

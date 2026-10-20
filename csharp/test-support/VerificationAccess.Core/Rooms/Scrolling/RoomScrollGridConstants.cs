@@ -1,9 +1,6 @@
 
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
-// #629 moved runtime CPU-bus addresses into typed domain catalogs. These verification
-// constants retain literal cartridge values as independent oracles for the domain views.
-
 /// <summary>Cartridge values of <see cref="RoomScrollGrid"/> that only verification reads.</summary>
 internal static class RoomScrollGridConstants
 {

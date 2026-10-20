@@ -16,7 +16,6 @@ internal static class MetroidAnimations
     internal static AnimationProgramSet<MetroidProgram, MetroidFrame, MetroidCue> Programs { get; } = new(
         new Dictionary<MetroidProgram, AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue>[]>
     {
-        // $A3:E9CF
         [P.ChasingSamus] =
         [
             Show(0, 16),
@@ -42,7 +41,6 @@ internal static class MetroidAnimations
             Cue(new(K.PlayRandomCry)),
             GoTo(P.ChasingSamus),
         ],
-        // $A3:EA25
         [P.DrainingSamus] =
         [
             Show(0, 16),

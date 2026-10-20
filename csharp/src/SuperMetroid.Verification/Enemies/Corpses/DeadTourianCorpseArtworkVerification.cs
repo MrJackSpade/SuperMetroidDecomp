@@ -144,9 +144,9 @@ internal static class DeadTourianCorpseArtworkVerification
         Console.WriteLine("  Dead Tourian corpses: eight Zoomer/Ripper/Skree poses and five Sidehopper compositions are editable native-parity OAM frames.");
     }
 
-    // Independent copy spans from the pinned sm_a9.c corpse initializers
-    // $A9:DEC1-$E052. Keep these separate from the runtime's layout definitions.
     /// <summary>Stages corpse tiles with independent pinned A9 copy spans for the retail WRAM oracle.</summary>
+    /// <remarks>Independent copy spans from the pinned sm_a9.c corpse initializers $A9:DEC1-$E052. Keep these separate
+    /// from the runtime's layout definitions.</remarks>
     private static void ReferenceDeadTourianCorpseGraphics(
         SuperMetroidAddressSpace bus, EnemyStagingSurfaces staging, EnemyDefinitionId definition, int variant)
     {

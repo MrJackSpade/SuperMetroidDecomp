@@ -16,7 +16,6 @@ internal static class NoobTubeProjectileAnimations
     internal static AnimationProgramSet<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Programs { get; } = new(
         new Dictionary<NoobTubeProjectileProgram, AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>[]>
     {
-        // $86:D3D7
         [P.Crack] =
         [
             Show(0, 12),
@@ -59,7 +58,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(6),
             FallInto(P.CrackLoop),
         ],
-        // $86:D46F
         [P.CrackLoop] =
         [
             Show(35, 16),
@@ -68,13 +66,11 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D47D
         [P.Shard0] =
         [
             SetCounter(32),
             FallInto(P.Shard0Loop),
         ],
-        // $86:D481
         [P.Shard0Loop] =
         [
             Cue(new(K.FlickerReflected)),
@@ -85,7 +81,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(272),
             FallInto(P.Shard0Loop2),
         ],
-        // $86:D495
         [P.Shard0Loop2] =
         [
             Cue(new(K.FlickerReflected)),
@@ -94,13 +89,11 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D4A1
         [P.Shard1] =
         [
             SetCounter(32),
             FallInto(P.Shard1Loop),
         ],
-        // $86:D4A5
         [P.Shard1Loop] =
         [
             Cue(new(K.FlickerReflected)),
@@ -111,7 +104,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(272),
             FallInto(P.Shard1Loop2),
         ],
-        // $86:D4B9
         [P.Shard1Loop2] =
         [
             Cue(new(K.FlickerReflected)),
@@ -120,13 +112,11 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D4C5
         [P.Shard2] =
         [
             SetCounter(32),
             FallInto(P.Shard2Loop),
         ],
-        // $86:D4C9
         [P.Shard2Loop] =
         [
             Cue(new(K.FlickerReflected)),
@@ -137,7 +127,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(272),
             FallInto(P.Shard2Loop2),
         ],
-        // $86:D4DD
         [P.Shard2Loop2] =
         [
             Cue(new(K.FlickerReflected)),
@@ -146,13 +135,11 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D4E9
         [P.Shard3] =
         [
             SetCounter(32),
             FallInto(P.Shard3Loop),
         ],
-        // $86:D4ED
         [P.Shard3Loop] =
         [
             Cue(new(K.FlickerReflected)),
@@ -163,7 +150,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(272),
             FallInto(P.Shard3Loop2),
         ],
-        // $86:D501
         [P.Shard3Loop2] =
         [
             Cue(new(K.FlickerReflected)),
@@ -172,13 +158,11 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D50D
         [P.Shard4] =
         [
             SetCounter(32),
             FallInto(P.Shard4Loop),
         ],
-        // $86:D511
         [P.Shard4Loop] =
         [
             Cue(new(K.FlickerReflected)),
@@ -189,7 +173,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(272),
             FallInto(P.Shard4Loop2),
         ],
-        // $86:D525
         [P.Shard4Loop2] =
         [
             Cue(new(K.FlickerReflected)),
@@ -198,13 +181,11 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D531
         [P.Shard5] =
         [
             SetCounter(32),
             FallInto(P.Shard5Loop),
         ],
-        // $86:D535
         [P.Shard5Loop] =
         [
             Cue(new(K.FlickerReflected)),
@@ -215,7 +196,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(272),
             FallInto(P.Shard5Loop2),
         ],
-        // $86:D549
         [P.Shard5Loop2] =
         [
             Cue(new(K.FlickerReflected)),
@@ -224,13 +204,11 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D555
         [P.Shard6] =
         [
             SetCounter(32),
             FallInto(P.Shard6Loop),
         ],
-        // $86:D559
         [P.Shard6Loop] =
         [
             Cue(new(K.FlickerReflected)),
@@ -241,7 +219,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(272),
             FallInto(P.Shard6Loop2),
         ],
-        // $86:D56D
         [P.Shard6Loop2] =
         [
             Cue(new(K.FlickerReflected)),
@@ -250,13 +227,11 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D579
         [P.Shard7] =
         [
             SetCounter(32),
             FallInto(P.Shard7Loop),
         ],
-        // $86:D57D
         [P.Shard7Loop] =
         [
             Cue(new(K.FlickerReflected)),
@@ -267,7 +242,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(272),
             FallInto(P.Shard7Loop2),
         ],
-        // $86:D591
         [P.Shard7Loop2] =
         [
             Cue(new(K.FlickerReflected)),
@@ -276,13 +250,11 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D59D
         [P.Shard8] =
         [
             SetCounter(32),
             FallInto(P.Shard8Loop),
         ],
-        // $86:D5A1
         [P.Shard8Loop] =
         [
             Cue(new(K.FlickerHidden)),
@@ -293,7 +265,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(272),
             FallInto(P.Shard8Loop2),
         ],
-        // $86:D5B3
         [P.Shard8Loop2] =
         [
             Cue(new(K.FlickerHidden)),
@@ -302,13 +273,11 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D5BD
         [P.Shard9] =
         [
             SetCounter(32),
             FallInto(P.Shard9Loop),
         ],
-        // $86:D5C1
         [P.Shard9Loop] =
         [
             Cue(new(K.FlickerReflected)),
@@ -319,7 +288,6 @@ internal static class NoobTubeProjectileAnimations
             SetCounter(272),
             FallInto(P.Shard9Loop2),
         ],
-        // $86:D5D5
         [P.Shard9Loop2] =
         [
             Cue(new(K.FlickerReflected)),
@@ -328,7 +296,6 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D652
         [P.ReleasedAirBubble] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.NoobTubeBubbleFlying)),

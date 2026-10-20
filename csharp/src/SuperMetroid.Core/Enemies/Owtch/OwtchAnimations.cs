@@ -16,13 +16,11 @@ internal static class OwtchAnimations
     internal static AnimationProgramSet<OwtchProgram, OwtchFrame, OwtchCue> Programs { get; } = new(
         new Dictionary<OwtchProgram, AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue>[]>
     {
-        // $A2:A3AB
         [P.MovingLeft] =
         [
             Cue(new(K.SetMovingLeft)),
             FallInto(P.MovingLeftLoop),
         ],
-        // $A2:A3AD
         [P.MovingLeftLoop] =
         [
             Show(0, 8),
@@ -30,13 +28,11 @@ internal static class OwtchAnimations
             Show(2, 8),
             GoTo(P.MovingLeftLoop),
         ],
-        // $A2:A3BD
         [P.MovingRight] =
         [
             Cue(new(K.SetMovingRight)),
             FallInto(P.MovingRightLoop),
         ],
-        // $A2:A3BF
         [P.MovingRightLoop] =
         [
             Show(2, 8),

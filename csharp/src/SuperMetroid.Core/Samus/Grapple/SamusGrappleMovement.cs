@@ -30,27 +30,6 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// </remarks>
 public static class SamusGrappleMovement
 {
-    // These five values are the literal words at $9B:C118-$9B:C120. Names describe how
-    // $9B:BB64-$9B:BD44 use them; the original storage itself is anonymous.
-    // The C decompilation materializes a convenient 320-word array beside $94:A957, but
-    // the 65816 instructions at $94:A95F/$94:A9A3 actually issue long reads into bank $A0.
-    // Index zero here is the negative-cosine quadrant at $A0:B3C3; index 64 is the label
-    // SineCosineTables_8bitSine_SignExtended at $A0:B443. The 64-word prefix is what makes
-    // every caller's `angle + 64` cosine lookup legal without wrapping the pointer.
-    // `$9B:C036` deliberately reuses the main charge-flare delay program and bank-$93
-    // spritemap index tables. Grapple owns independent copies of the three live WRAM words,
-    // however, because `$90:EB86` bypasses the ordinary projectile charge-flare handler.
-    // Eight ten-byte records at $9B:C43E drive close-collision snapping. Keeping the
-    // function words named lets us validate the ROM table instead of reducing its final
-    // field to a guessed host boolean.
-    // Firing velocity, angle and physical hand offsets are compiled mechanics. Flare
-    // offsets remain presentation data; changing them must not move the physical anchor.
-    // HandleConnectingGrapple at $9B:B97C selects one of these three ten-record tables.
-    // Every four-byte record is {next grapple-function word, connection-handler word}.
-    // Compiled pairs preserve the deliberately surprising crouching entries
-    // for horizontal fire, and validating the pair prevents a bad mapping from silently
-    // turning a locked body into a pendulum (or vice versa).
-
     /// <summary>
     /// Ports <c>GrappleBeamFunc_FireGoToCancel</c> at <c>$9B:C51E</c>, stopping immediately
     /// before its function-pointer return. The current pose supplies all direction/origin

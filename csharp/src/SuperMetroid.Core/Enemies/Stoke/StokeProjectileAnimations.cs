@@ -15,7 +15,6 @@ internal static class StokeProjectileAnimations
     internal static AnimationProgramSet<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<StokeProjectileProgram, AnimationProgramStep<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:DB0C
         [P.Initial] =
         [
             Show(0, 16),

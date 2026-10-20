@@ -830,9 +830,6 @@ internal static void VerifySamusGunExtendedMovement()
     Console.WriteLine("  Samus horizontal fire: ROM selection, six extended bodies, forward-jump release, run-phase preservation, and firing landings agree.");
 }
 
-// Fixes the two ROM tables and signed formulas used by Landing Site's actual BTS-$12
-// non-square floor path at $94:84D6 and $94:87F4.
-
     /// <summary>Runs the aimed jump, fall, landing and walk-off pose checks through the suite harness.</summary>
     [VerificationCommand("--samus-aimed-aerial")]
     internal static int SamusAimedAerialCommand()

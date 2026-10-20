@@ -16,7 +16,6 @@ internal static class MotherBrainEffectAnimations
     internal static AnimationProgramSet<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> Programs { get; } = new(
         new Dictionary<MotherBrainEffectProgram, AnimationProgramStep<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue>[]>
     {
-        // $86:C432
         [P.OnionRing] =
         [
             Cue(new(K.SetRadius, Radius: new(1, 1))),
@@ -33,7 +32,6 @@ internal static class MotherBrainEffectAnimations
             Show(5, 5),
             Hold,
         ],
-        // $86:C464
         [P.OnionRingHit] =
         [
             Cue(new(K.UsePaletteZero)),
@@ -47,7 +45,6 @@ internal static class MotherBrainEffectAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:C76E
         [P.Bomb] =
         [
             Show(12, 6),
@@ -61,7 +58,6 @@ internal static class MotherBrainEffectAnimations
             Show(20, 5),
             GoTo(P.Bomb),
         ],
-        // $86:C829
         [P.RainbowBeamCharging] =
         [
             Show(21, 5),
@@ -73,7 +69,6 @@ internal static class MotherBrainEffectAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:C8B0
         [P.Drool] =
         [
             Show(27, 10),
@@ -86,7 +81,6 @@ internal static class MotherBrainEffectAnimations
             Show(32, 10),
             Hold,
         ],
-        // $86:C8E1
         [P.DroolHitFloor] =
         [
             Cue(new(K.ClearPreInstruction)),
@@ -97,7 +91,6 @@ internal static class MotherBrainEffectAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:CA22
         [P.EscapeDoorParticle] =
         [
             Show(37, 1),
@@ -110,7 +103,6 @@ internal static class MotherBrainEffectAnimations
             Show(44, 4),
             GoTo(P.EscapeDoorParticle),
         ],
-        // $86:CAA4
         [P.PurpleBreathBig] =
         [
             Cue(new(K.ClearPreInstruction)),
@@ -125,7 +117,6 @@ internal static class MotherBrainEffectAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:CAC8
         [P.PurpleBreathSmall] =
         [
             Cue(new(K.ClearPreInstruction)),
@@ -141,7 +132,6 @@ internal static class MotherBrainEffectAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:CB0D
         [P.EscapeSubtitle] =
         [
             Show(61, 1),

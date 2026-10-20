@@ -26,9 +26,9 @@ public sealed class BackgroundScrollState
     /// </summary>
     public Layer2ScrollModes Layer2Scroll { get; set; } = Layer2ScrollModes.CopiesLayer1;
 
-    // These offsets are separate native variables despite the confusing adjacency of the
-    // BG1 X offset and Layer2ScrollY in WRAM ($091F is addressed as Layer2ScrollY+1).
     /// <summary>Wrapped delta added to <see cref="Layer1Position"/> to form BG1HOFS/BG1VOFS.</summary>
+    /// <remarks>These offsets are separate native variables despite the confusing adjacency of the BG1 X offset and
+    /// Layer2ScrollY in WRAM ($091F is addressed as Layer2ScrollY+1).</remarks>
     public Offset16<RoomPixels> Bg1Offset { get; set; }
 
     /// <summary>Wrapped delta added to <see cref="Layer2Position"/> to form BG2HOFS/BG2VOFS.</summary>

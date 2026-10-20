@@ -1334,10 +1334,6 @@ internal static void VerifySamusAtmosphericEffects()
         "  Samus atmosphere: liquid FX, footsteps, landing impact, packed timers, sound, and OAM agree.");
 }
 
-// Verifies the cartridge's complete ten-way jump/fall turn selectors and the block-only
-// wall-jump route. Every expectation below is a literal bank-$90/$91 table value; the test
-// intentionally does not calculate a mirrored target from facing.
-
 /// <summary>Synthetic cartridge with the aerial route's pose records, animation streams and dry-air jump words.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus aerial movement poses and jump words")]
 static TestAddressSpace CreateSamusAerialMovementCartridge()

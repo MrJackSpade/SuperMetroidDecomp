@@ -27,11 +27,10 @@ public static class PhantoonTimerDefinitions
         RainHiding
     }
 
-    // Narrow approved nonsense retention: RNG/frame buckets have no temporal or
-    // physical ordering. These exact permutations specify the random choice policy;
-    // inventing a function for them would only re-encode the same ordering. This does
-    // not exempt any other combat phase, motion, fade, placement or flame delay.
     /// <summary>$A7:CD41, RNG&amp;7 at $A7:D060-D06C selects the vulnerable window.</summary>
+    /// <remarks>Narrow approved nonsense retention: RNG/frame buckets have no temporal or physical ordering. These
+    /// exact permutations specify the random choice policy; inventing a function for them would only re-encode the same
+    /// ordering. This does not exempt any other combat phase, motion, fade, placement or flame delay.</remarks>
     private static readonly DurationChoice[] VulnerableChoices =
         [DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium,
          DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Long];

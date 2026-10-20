@@ -16,13 +16,11 @@ internal static class SaveStationElectricityAnimations
     internal static AnimationProgramSet<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<SaveStationElectricityProgram, AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:E683
         [P.Start] =
         [
             AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.SetCounter(20),
             AnimationProgramStep<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue>.FallInto(P.Cycle),
         ],
-        // $86:E687
         [P.Cycle] =
         [
             Show(0, 1),

@@ -16,7 +16,6 @@ internal static class PowampSpikeAnimations
     internal static AnimationProgramSet<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<PowampSpikeProgram, AnimationProgramStep<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:D208
         [P.Initial] =
         [
             Show(0, 6),
@@ -24,7 +23,6 @@ internal static class PowampSpikeAnimations
             Show(2, 6),
             GoTo(P.Initial),
         ],
-        // $86:D218
         [P.Delete] =
         [
             Cue(new(CK.Delete)),

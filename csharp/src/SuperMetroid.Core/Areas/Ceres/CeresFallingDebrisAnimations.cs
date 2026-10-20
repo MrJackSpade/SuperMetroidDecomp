@@ -14,9 +14,7 @@ internal static class CeresFallingDebrisAnimations
     internal static AnimationProgramSet<CeresFallingDebrisProgram, CeresFallingDebrisProgram, NoAnimationCue> Programs { get; } = new(
         new Dictionary<CeresFallingDebrisProgram, AnimationProgramStep<CeresFallingDebrisProgram, CeresFallingDebrisProgram, NoAnimationCue>[]>
     {
-        // $86:9750
         [P.Light] = [Show(P.Light, 1), Hold],
-        // $86:9756
         [P.Dark] = [Show(P.Dark, 1), Hold],
     });
 

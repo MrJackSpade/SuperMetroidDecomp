@@ -16,7 +16,6 @@ internal static class EyeDoorProjectileAnimations
     internal static AnimationProgramSet<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> Programs { get; } = new(
         new Dictionary<EyeDoorProjectileProgram, AnimationProgramStep<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue>[]>
     {
-        // $86:B5D9
         [P.Initial] =
         [
             Show(0, 4),
@@ -26,13 +25,11 @@ internal static class EyeDoorProjectileAnimations
             Cue(new(K.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.EyeDoorProjectilePreInstruction)),
             FallInto(P.FlyingLoop),
         ],
-        // $86:B5EB
         [P.FlyingLoop] =
         [
             Show(3, 16),
             GoTo(P.FlyingLoop),
         ],
-        // $86:B5F3
         [P.Impact] =
         [
             Cue(new(K.ClearPreInstruction)),
@@ -42,7 +39,6 @@ internal static class EyeDoorProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:B603
         [P.Shot] =
         [
             Show(7, 4),

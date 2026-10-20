@@ -16,7 +16,6 @@ internal static class MiscDustProjectileAnimations
     internal static AnimationProgramSet<MiscDustProjectileProgram, MiscDustProjectileFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<MiscDustProjectileProgram, AnimationProgramStep<MiscDustProjectileProgram, MiscDustProjectileFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:E0EE
         [P.BeamCharge] =
         [
             Show(0, 3),
@@ -26,7 +25,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E100
         [P.ElbowChargeParticle] =
         [
             Show(4, 5),
@@ -38,7 +36,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E11A
         [P.ElbowChargeEnergy] =
         [
             Show(10, 4),
@@ -51,7 +48,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E138
         [P.SmallExplosion] =
         [
             Show(17, 4),
@@ -63,7 +59,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E152
         [P.RainbowBeamExplosion] =
         [
             Show(23, 3),
@@ -74,7 +69,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E168
         [P.BeamTrail] =
         [
             Show(28, 8),
@@ -85,7 +79,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E17E
         [P.DudShot] =
         [
             Show(33, 4),
@@ -97,7 +90,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E198
         [P.PowerBomb] =
         [
             Show(39, 5),
@@ -106,7 +98,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E1A6
         [P.ElevatorPad] =
         [
             Show(42, 1),
@@ -114,7 +105,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E1B0
         [P.SmallDustCloud] =
         [
             Show(44, 5),
@@ -125,7 +115,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E1C6
         [P.CorpseDustCloud] =
         [
             Show(49, 3),
@@ -135,7 +124,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E1D8
         [P.EyeDoorSweatDrop] =
         [
             Show(53, 5),
@@ -145,7 +133,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E1EA
         [P.Smoke] =
         [
             Show(57, 8),
@@ -155,14 +142,12 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E1FC
         [P.LoopingElevatorPad] =
         [
             Show(61, 1),
             Show(62, 1),
             GoTo(P.LoopingElevatorPad),
         ],
-        // $86:E208
         [P.BigExplosion] =
         [
             Show(63, 5),
@@ -174,7 +159,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E222
         [P.SmallEnergyDrop] =
         [
             Show(69, 8),
@@ -184,7 +168,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E234
         [P.BigEnergyDrop] =
         [
             Show(73, 8),
@@ -194,7 +177,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E246
         [P.Bomb] =
         [
             Show(77, 5),
@@ -204,7 +186,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E258
         [P.WeirdEnergyDrop] =
         [
             Show(81, 16),
@@ -213,7 +194,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E266
         [P.RockParticles] =
         [
             Show(84, 2),
@@ -235,7 +215,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E2A8
         [P.ShortBigDustCloud] =
         [
             Show(100, 2),
@@ -245,7 +224,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E2BA
         [P.ShortBeamCloud] =
         [
             Show(104, 3),
@@ -257,7 +235,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E2D4
         [P.MediumBeamCloud] =
         [
             Show(110, 3),
@@ -270,7 +247,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E2F2
         [P.BigDustCloud] =
         [
             Show(117, 5),
@@ -284,7 +260,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E314
         [P.LongBeam] =
         [
             Show(125, 1),
@@ -321,7 +296,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E392
         [P.FlickeringLongBeam] =
         [
             Show(156, 1),
@@ -330,7 +304,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E3A0
         [P.DraygonBreathBubbles] =
         [
             Show(159, 8),
@@ -345,7 +318,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E3C6
         [P.SaveStationElectricity] =
         [
             Show(168, 1),
@@ -359,7 +331,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E3E8
         [P.ExpandingGate] =
         [
             Show(176, 16),
@@ -373,7 +344,6 @@ internal static class MiscDustProjectileAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:E40A
         [P.ContractingGate] =
         [
             Show(184, 4),

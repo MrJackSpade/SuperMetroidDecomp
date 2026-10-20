@@ -16,7 +16,6 @@ internal static class KiHunterAcidSpitAnimations
     internal static AnimationProgramSet<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<KiHunterAcidSpitProgram, AnimationProgramStep<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:CF34
         [P.Left] =
         [
             Show(0, 3),
@@ -29,7 +28,6 @@ internal static class KiHunterAcidSpitAnimations
             Show(6, 1),
             Hold,
         ],
-        // $86:CF56
         [P.HitFloor] =
         [
             Cue(new(CK.ClearPreInstruction)),
@@ -41,7 +39,6 @@ internal static class KiHunterAcidSpitAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:CF6E
         [P.Right] =
         [
             Show(12, 3),

@@ -16,7 +16,6 @@ internal static class NorfairRioAnimations
     internal static AnimationProgramSet<NorfairRioProgram, NorfairRioFrame, NorfairRioCue> Programs { get; } = new(
         new Dictionary<NorfairRioProgram, AnimationProgramStep<NorfairRioProgram, NorfairRioFrame, NorfairRioCue>[]>
     {
-        // $A2:C0F1
         [P.Idle] =
         [
             Cue(new(K.FlamesAt8)),
@@ -26,7 +25,6 @@ internal static class NorfairRioAnimations
             Show(2, 18),
             GoTo(P.Idle),
         ],
-        // $A2:C107
         [P.StartDescending] =
         [
             Cue(new(K.FlamesAt8)),
@@ -44,7 +42,6 @@ internal static class NorfairRioAnimations
             Cue(new(K.SwoopStartFinished)),
             Hold,
         ],
-        // $A2:C12F
         [P.Descending] =
         [
             Cue(new(K.FlamesAtMinus12)),
@@ -54,7 +51,6 @@ internal static class NorfairRioAnimations
             Show(7, 6),
             GoTo(P.Descending),
         ],
-        // $A2:C145
         [P.StartAscending] =
         [
             Cue(new(K.FlamesAtMinus16)),
@@ -76,7 +72,6 @@ internal static class NorfairRioAnimations
             Cue(new(K.SwoopStartFinished)),
             Hold,
         ],
-        // $A2:C179
         [P.Ascending] =
         [
             Cue(new(K.FlamesAt12)),
@@ -86,7 +81,6 @@ internal static class NorfairRioAnimations
             Show(15, 6),
             GoTo(P.Ascending),
         ],
-        // $A2:C18F
         [P.FlamesAscending] =
         [
             Show(3, 6),
@@ -95,7 +89,6 @@ internal static class NorfairRioAnimations
             Show(4, 6),
             GoTo(P.FlamesAscending),
         ],
-        // $A2:C1A3
         [P.FlamesDescending] =
         [
             Show(17, 6),

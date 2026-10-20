@@ -15,7 +15,6 @@ internal static class KzanAnimations
     internal static AnimationProgramSet<KzanProgram, KzanFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<KzanProgram, AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue>[]>
     {
-        // $A6:8B29
         [P.Idle] =
         [
             Show(0, 1),

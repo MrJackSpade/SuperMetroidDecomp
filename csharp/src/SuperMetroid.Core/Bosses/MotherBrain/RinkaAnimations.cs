@@ -16,7 +16,6 @@ internal static class RinkaAnimations
     internal static AnimationProgramSet<RinkaProgram, RinkaFrame, RinkaCue> Programs { get; } = new(
         new Dictionary<RinkaProgram, AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue>[]>
     {
-        // $A2:B9E0
         [P.Ordinary] =
         [
             Cue(new(K.Hide)),
@@ -24,7 +23,6 @@ internal static class RinkaAnimations
             Cue(new(K.Fire)),
             FallInto(P.OrdinaryLoop),
         ],
-        // $A2:B9E8
         [P.OrdinaryLoop] =
         [
             Show(0, 16),
@@ -37,7 +35,6 @@ internal static class RinkaAnimations
             Show(1, 8),
             GoTo(P.OrdinaryLoop),
         ],
-        // $A2:BA0C
         [P.Special] =
         [
             Cue(new(K.HideAndProcessOffScreen)),
@@ -45,7 +42,6 @@ internal static class RinkaAnimations
             Cue(new(K.Fire)),
             FallInto(P.SpecialLoop),
         ],
-        // $A2:BA14
         [P.SpecialLoop] =
         [
             Show(0, 16),

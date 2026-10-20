@@ -7,7 +7,6 @@ internal static class EnemyArtworkClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalog", "installed-enemy-sheets-palettes-and-dma", ["LoadTo", "LoadPaletteTo", "TryResolve"],
-            // #1172: reviewed schema 68 -> 69 bump; provider and DMA routing are unchanged.
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileArtworkCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileSourceDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetDefinitions.cs"),

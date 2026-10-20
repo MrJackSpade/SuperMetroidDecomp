@@ -16,33 +16,28 @@ internal static class DragonAnimations
     internal static AnimationProgramSet<DragonProgram, DragonFrame, DragonCue> Programs { get; } = new(
         new Dictionary<DragonProgram, AnimationProgramStep<DragonProgram, DragonFrame, DragonCue>[]>
     {
-        // $A2:E59B
         [P.IdleFacingLeft] =
         [
             Show(0, 1),
             Hold,
         ],
-        // $A2:E5A1
         [P.WingsFacingLeft] =
         [
             Show(4, 5),
             Show(5, 5),
             GoTo(P.WingsFacingLeft),
         ],
-        // $A2:E5AD
         [P.IdleFacingRight] =
         [
             Show(6, 1),
             Hold,
         ],
-        // $A2:E5B3
         [P.WingsFacingRight] =
         [
             Show(10, 5),
             Show(11, 5),
             GoTo(P.WingsFacingRight),
         ],
-        // $A2:E5BF
         [P.AttackingFacingLeft] =
         [
             Show(1, 32),
@@ -53,7 +48,6 @@ internal static class DragonAnimations
             Cue(new(K.FinishAttack)),
             Hold,
         ],
-        // $A2:E5D7
         [P.AttackingFacingRight] =
         [
             Show(7, 32),

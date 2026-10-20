@@ -16,7 +16,6 @@ internal static class FallingSparkAnimations
     internal static AnimationProgramSet<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<FallingSparkProgram, AnimationProgramStep<FallingSparkProgram, FallingSparkFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:F353
         [P.Falling] =
         [
             Show(0, 3),
@@ -24,7 +23,6 @@ internal static class FallingSparkAnimations
             Show(2, 3),
             GoTo(P.Falling),
         ],
-        // $86:F363
         [P.HitFloor] =
         [
             Show(3, 1),

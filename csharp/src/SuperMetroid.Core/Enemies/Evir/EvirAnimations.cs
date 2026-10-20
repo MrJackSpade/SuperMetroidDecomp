@@ -16,7 +16,6 @@ internal static class EvirAnimations
     internal static AnimationProgramSet<EvirProgram, EvirFrame, EvirCue> Programs { get; } = new(
         new Dictionary<EvirProgram, AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>[]>
     {
-        // $A8:86A7
         [P.BodyFacingLeft] =
         [
             Show(0, 10),
@@ -27,7 +26,6 @@ internal static class EvirAnimations
             Show(5, 10),
             GoTo(P.BodyFacingLeft),
         ],
-        // $A8:86C3
         [P.ArmsFacingLeft] =
         [
             Show(6, 10),
@@ -49,7 +47,6 @@ internal static class EvirAnimations
             Show(10, 48),
             GoTo(P.ArmsFacingLeft),
         ],
-        // $A8:870B
         [P.BodyFacingRight] =
         [
             Show(13, 10),
@@ -60,7 +57,6 @@ internal static class EvirAnimations
             Show(18, 10),
             GoTo(P.BodyFacingRight),
         ],
-        // $A8:8727
         [P.ArmsFacingRight] =
         [
             Show(19, 10),
@@ -82,13 +78,11 @@ internal static class EvirAnimations
             Show(23, 48),
             GoTo(P.ArmsFacingRight),
         ],
-        // $A8:876F
         [P.ProjectileNormal] =
         [
             Show(12, 1),
             Hold,
         ],
-        // $A8:8775
         [P.ProjectileRegenerating] =
         [
             Cue(new(K.SetInitialRegenerationOffset)),
@@ -96,7 +90,6 @@ internal static class EvirAnimations
             Cue(new(K.PlaySpitSound)),
             FallInto(P.ProjectileRegenerationLoop),
         ],
-        // $A8:877D
         [P.ProjectileRegenerationLoop] =
         [
             Show(11, 8),

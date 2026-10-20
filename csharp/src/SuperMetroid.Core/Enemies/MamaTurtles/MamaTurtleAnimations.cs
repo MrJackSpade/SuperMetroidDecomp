@@ -16,7 +16,6 @@ internal static class MamaTurtleAnimations
     internal static AnimationProgramSet<MamaTurtleProgram, MamaTurtleFrame, MamaTurtleCue> Programs { get; } = new(
         new Dictionary<MamaTurtleProgram, AnimationProgramStep<MamaTurtleProgram, MamaTurtleFrame, MamaTurtleCue>[]>
     {
-        // $A2:8B80
         [P.BabyCrawlingLeft] =
         [
             Cue(new(K.Crawl)),
@@ -46,7 +45,6 @@ internal static class MamaTurtleAnimations
             Cue(new(K.LoopOrTurnAround)),
             Hold,
         ],
-        // $A2:8BD2
         [P.BabySpinning] =
         [
             Show(7, 1),
@@ -58,7 +56,6 @@ internal static class MamaTurtleAnimations
             Cue(new(K.SetSpinningStoppable)),
             GoTo(P.BabySpinning),
         ],
-        // $A2:8C02
         [P.MamaSpinning] =
         [
             Show(11, 1),
@@ -69,7 +66,6 @@ internal static class MamaTurtleAnimations
             Show(16, 5),
             GoTo(P.MamaSpinning),
         ],
-        // $A2:8C1C
         [P.MamaEnterShellLeft] =
         [
             Show(14, 32),
@@ -79,7 +75,6 @@ internal static class MamaTurtleAnimations
             Show(11, 32767),
             Hold,
         ],
-        // $A2:8C30
         [P.BabyHidingLeft] =
         [
             Show(4, 5),
@@ -89,13 +84,11 @@ internal static class MamaTurtleAnimations
             Show(7, 32767),
             Hold,
         ],
-        // $A2:8C44
         [P.MamaAsleep] =
         [
             Show(11, 32767),
             Hold,
         ],
-        // $A2:8C4A
         [P.MamaLeaveShellLeft] =
         [
             Show(11, 16),
@@ -106,7 +99,6 @@ internal static class MamaTurtleAnimations
             Show(14, 32767),
             Hold,
         ],
-        // $A2:8C62
         [P.BabyLeaveShellLeft] =
         [
             Show(5, 5),
@@ -115,7 +107,6 @@ internal static class MamaTurtleAnimations
             Show(4, 47),
             Hold,
         ],
-        // $A2:8C72
         [P.BabyCrawlingRight] =
         [
             Cue(new(K.Crawl)),
@@ -145,7 +136,6 @@ internal static class MamaTurtleAnimations
             Cue(new(K.LoopOrTurnAround)),
             Hold,
         ],
-        // $A2:8D00
         [P.MamaEnterShellRight] =
         [
             Show(28, 1),
@@ -155,7 +145,6 @@ internal static class MamaTurtleAnimations
             Show(25, 32767),
             Hold,
         ],
-        // $A2:8D14
         [P.BabyHidingRight] =
         [
             Show(21, 5),
@@ -165,7 +154,6 @@ internal static class MamaTurtleAnimations
             Show(24, 32767),
             Hold,
         ],
-        // $A2:8D28
         [P.MamaLeaveShellRight] =
         [
             Show(25, 16),
@@ -176,7 +164,6 @@ internal static class MamaTurtleAnimations
             Show(28, 32767),
             Hold,
         ],
-        // $A2:8D40
         [P.BabyLeaveShellRight] =
         [
             Show(5, 5),

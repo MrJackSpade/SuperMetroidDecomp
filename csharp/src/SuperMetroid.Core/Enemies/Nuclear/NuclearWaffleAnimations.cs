@@ -15,7 +15,6 @@ internal static class NuclearWaffleAnimations
     internal static AnimationProgramSet<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<NuclearWaffleProgram, AnimationProgramStep<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue>[]>
     {
-        // $A6:9490
         [P.BodyLoop] =
         [
             Show(0, 3),

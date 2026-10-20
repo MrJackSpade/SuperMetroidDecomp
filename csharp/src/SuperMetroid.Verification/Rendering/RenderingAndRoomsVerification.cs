@@ -1244,9 +1244,6 @@ internal static void VerifyScrollingSkyState()
     Console.WriteLine("  Sky: HDMA bands, chunk wrap and the published layer agree.");
 }
 
-// Exercises bank-$90 firing and movement, bank-$93 animation, and bank-$94 solid collision
-// for an uncharged power beam without sharing implementation code with the production path.
-
     /// <summary>Runs the HUD template, map reveal and BG3 rendering checks.</summary>
     [VerificationCommand("--hud-state")]
     internal static int HudStateCommand()

@@ -12,6 +12,10 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts;
 internal static class InterfacePresentationContractDefinitions
 {
     /// <summary>Reviewed palette-source and cinematic-sprite interface dispatches with their source-owned implementations and audit files.</summary>
+    /// <remarks>
+    /// Gameplay reads the frontend's atomic map and presentation install through narrow interfaces whose only
+    /// implementation is the presentation catalog, so the catalog's map-atomic proof carries over to them.
+    /// </remarks>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource", "palette-interface-total-membership-query", ["TryReadColor"],
@@ -43,8 +47,6 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Ending/EndingAnimalEscapeDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroCinematicSpriteCompiler.cs")]),
-        // Gameplay reads the frontend's atomic map and presentation install through these narrow interfaces; the
-        // catalog is their only implementation, so its map-atomic proof carries over.
         new("SuperMetroid.Core.Gameplay.IGameplayPresentationContent", "gameplay-content-single-catalog", ["Get", "Resolve"],
             [new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
              new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),

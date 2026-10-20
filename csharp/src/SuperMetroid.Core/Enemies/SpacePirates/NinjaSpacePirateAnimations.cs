@@ -16,7 +16,6 @@ internal static class NinjaSpacePirateAnimations
     internal static AnimationProgramSet<NinjaSpacePirateProgram, NinjaSpacePirateFrame, NinjaSpacePirateCue> Programs { get; } = new(
         new Dictionary<NinjaSpacePirateProgram, AnimationProgramStep<NinjaSpacePirateProgram, NinjaSpacePirateFrame, NinjaSpacePirateCue>[]>
     {
-        // $B2:F15C
         [P.ClawAttackLeft] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.NoOperation)),
@@ -44,7 +43,6 @@ internal static class NinjaSpacePirateAnimations
             Show(8, 2),
             GoTo(P.ActiveFacingLeft),
         ],
-        // $B2:F1C4
         [P.SpinJumpLeft] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.NoOperation)),
@@ -65,7 +63,6 @@ internal static class NinjaSpacePirateAnimations
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.SpinJumpLeftRising)),
             FallInto(P.SpinJumpLeftLoop),
         ],
-        // $B2:F206
         [P.SpinJumpLeftLoop] =
         [
             Cue(new(K.PlaySound, Sound: NinjaSpacePirateSoundDefinitions.SpinJump)),
@@ -79,13 +76,11 @@ internal static class NinjaSpacePirateAnimations
             Show(24, 1),
             GoTo(P.SpinJumpLeftLoop),
         ],
-        // $B2:F22E
         [P.ActiveFacingLeft] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.Active)),
             FallInto(P.ActiveFacingLeftLoop),
         ],
-        // $B2:F232
         [P.ActiveFacingLeftLoop] =
         [
             Show(49, 10),
@@ -96,14 +91,12 @@ internal static class NinjaSpacePirateAnimations
             Cue(new(K.StartActive)),
             GoTo(P.ActiveFacingLeftLoop),
         ],
-        // $B2:F270
         [P.FlinchFacingLeft] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.NoOperation)),
             Show(55, 16),
             GoTo(P.ActiveFacingLeft),
         ],
-        // $B2:F27C
         [P.DivekickLeftJump] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.NoOperation)),
@@ -112,7 +105,6 @@ internal static class NinjaSpacePirateAnimations
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.DivekickLeftJump)),
             FallInto(P.DivekickLeftJumpLoop),
         ],
-        // $B2:F28A
         [P.DivekickLeftJumpLoop] =
         [
             Cue(new(K.SetPalette, Palette: SnesObjPalettes.Index1)),
@@ -121,7 +113,6 @@ internal static class NinjaSpacePirateAnimations
             Show(57, 4),
             GoTo(P.DivekickLeftJumpLoop),
         ],
-        // $B2:F2A0
         [P.DivekickLeftDive] =
         [
             Cue(new(K.SetPalette, Palette: SnesObjPalettes.Index7)),
@@ -130,13 +121,11 @@ internal static class NinjaSpacePirateAnimations
             Show(58, 1),
             Hold,
         ],
-        // $B2:F2B2
         [P.WalkToLeftPost] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.DivekickLeftWalkToPost)),
             FallInto(P.WalkToLeftPostLoop),
         ],
-        // $B2:F2B6
         [P.WalkToLeftPostLoop] =
         [
             Show(33, 5),
@@ -149,13 +138,11 @@ internal static class NinjaSpacePirateAnimations
             Show(40, 5),
             GoTo(P.WalkToLeftPostLoop),
         ],
-        // $B2:F2DA
         [P.InitialFacingLeft] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.Initial)),
             FallInto(P.InitialFacingLeftLoop),
         ],
-        // $B2:F2DE
         [P.InitialFacingLeftLoop] =
         [
             Show(69, 32),
@@ -165,7 +152,6 @@ internal static class NinjaSpacePirateAnimations
             Show(69, 32),
             GoTo(P.InitialFacingLeftLoop),
         ],
-        // $B2:F2F8
         [P.LandFacingLeft] =
         [
             Cue(new(K.SetPalette, Palette: SnesObjPalettes.Index1)),
@@ -177,7 +163,6 @@ internal static class NinjaSpacePirateAnimations
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.ReadyToDivekick)),
             FallInto(P.LandFacingLeftLoop),
         ],
-        // $B2:F314
         [P.LandFacingLeftLoop] =
         [
             Show(52, 10),
@@ -186,7 +171,6 @@ internal static class NinjaSpacePirateAnimations
             Show(53, 10),
             GoTo(P.LandFacingLeftLoop),
         ],
-        // $B2:F32E
         [P.KickFacingLeft] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.NoOperation)),
@@ -197,7 +181,6 @@ internal static class NinjaSpacePirateAnimations
             Show(67, 4),
             GoTo(P.ActiveFacingLeft),
         ],
-        // $B2:F34A
         [P.ClawAttackRight] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.NoOperation)),
@@ -225,7 +208,6 @@ internal static class NinjaSpacePirateAnimations
             Show(16, 2),
             GoTo(P.ActiveFacingRight),
         ],
-        // $B2:F3B2
         [P.SpinJumpRight] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.NoOperation)),
@@ -246,7 +228,6 @@ internal static class NinjaSpacePirateAnimations
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.SpinJumpRightRising)),
             FallInto(P.SpinJumpRightLoop),
         ],
-        // $B2:F3F4
         [P.SpinJumpRightLoop] =
         [
             Cue(new(K.PlaySound, Sound: NinjaSpacePirateSoundDefinitions.SpinJump)),
@@ -260,13 +241,11 @@ internal static class NinjaSpacePirateAnimations
             Show(32, 1),
             GoTo(P.SpinJumpRightLoop),
         ],
-        // $B2:F420
         [P.ActiveFacingRight] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.Active)),
             FallInto(P.ActiveFacingRightLoop),
         ],
-        // $B2:F424
         [P.ActiveFacingRightLoop] =
         [
             Show(52, 10),
@@ -277,14 +256,12 @@ internal static class NinjaSpacePirateAnimations
             Cue(new(K.StartActive)),
             GoTo(P.ActiveFacingRightLoop),
         ],
-        // $B2:F462
         [P.FlinchFacingRight] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.NoOperation)),
             Show(56, 16),
             GoTo(P.ActiveFacingRight),
         ],
-        // $B2:F46E
         [P.DivekickRightJump] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.NoOperation)),
@@ -293,7 +270,6 @@ internal static class NinjaSpacePirateAnimations
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.DivekickRightJump)),
             FallInto(P.DivekickRightJumpLoop),
         ],
-        // $B2:F47C
         [P.DivekickRightJumpLoop] =
         [
             Cue(new(K.SetPalette, Palette: SnesObjPalettes.Index1)),
@@ -302,7 +278,6 @@ internal static class NinjaSpacePirateAnimations
             Show(59, 4),
             GoTo(P.DivekickRightJumpLoop),
         ],
-        // $B2:F492
         [P.DivekickRightDive] =
         [
             Cue(new(K.SetPalette, Palette: SnesObjPalettes.Index7)),
@@ -311,13 +286,11 @@ internal static class NinjaSpacePirateAnimations
             Show(60, 1),
             Hold,
         ],
-        // $B2:F4A4
         [P.WalkToRightPost] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.DivekickRightWalkToPost)),
             FallInto(P.WalkToRightPostLoop),
         ],
-        // $B2:F4A8
         [P.WalkToRightPostLoop] =
         [
             Show(41, 5),
@@ -330,13 +303,11 @@ internal static class NinjaSpacePirateAnimations
             Show(48, 5),
             GoTo(P.WalkToRightPostLoop),
         ],
-        // $B2:F4CC
         [P.InitialFacingRight] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.Initial)),
             FallInto(P.InitialFacingRightLoop),
         ],
-        // $B2:F4D0
         [P.InitialFacingRightLoop] =
         [
             Show(72, 32),
@@ -346,7 +317,6 @@ internal static class NinjaSpacePirateAnimations
             Show(72, 32),
             GoTo(P.InitialFacingRightLoop),
         ],
-        // $B2:F4EA
         [P.LandFacingRight] =
         [
             Cue(new(K.SetPalette, Palette: SnesObjPalettes.Index1)),
@@ -358,7 +328,6 @@ internal static class NinjaSpacePirateAnimations
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.ReadyToDivekick)),
             FallInto(P.LandFacingRightLoop),
         ],
-        // $B2:F506
         [P.LandFacingRightLoop] =
         [
             Show(49, 10),
@@ -367,7 +336,6 @@ internal static class NinjaSpacePirateAnimations
             Show(50, 10),
             GoTo(P.LandFacingRightLoop),
         ],
-        // $B2:F51A
         [P.KickFacingRight] =
         [
             Cue(new(K.SetFunction, Function: NinjaSpacePirateFunction.NoOperation)),

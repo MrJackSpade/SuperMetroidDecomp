@@ -762,9 +762,6 @@ internal static void VerifyOamSpritemapPacking()
         "  OAM: imported spritemap packing, enemy arithmetic, clipping, wrap, and finalization agree.");
 }
 
-// Fixes the first Samus slice to the retail pose-$01 pointer chain and independently
-// checks palette placement, split tile DMA, position math, and native OAM attributes.
-
 /// <summary>Seeds a two-part bank-$80 spritemap with distinct OAM positions and attributes.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry common spritemap at $80:8000")]
 static void SeedTwoEntryCommonSpritemap(TestAddressSpace bus)

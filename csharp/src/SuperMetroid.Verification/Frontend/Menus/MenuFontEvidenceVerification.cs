@@ -5,9 +5,9 @@ namespace SuperMetroid.Verification.Frontend.Menus;
 /// <summary>Shared pixel evidence for the two existing menu-font artwork proofs.</summary>
 internal static class MenuFontEvidenceVerification
 {
-    // Evidence assertions belong to the existing two font proofs, not a second
-    // oracle or a separate test that searches for other artwork differences.
     /// <summary>Reads a pixel from the font's sixteen-tile-wide grid using tile-local coordinates.</summary>
+    /// <remarks>Evidence assertions belong to the existing two font proofs, not a second oracle or a separate test that
+    /// searches for other artwork differences.</remarks>
     internal static byte MenuEvidencePixel(IndexedPngImage image, int tile, Position16<CharacterPixels> pixel) =>
         image.Pixels[(tile / 16 * 8 + pixel.Y) * image.Size.X + tile % 16 * 8 + pixel.X];
 

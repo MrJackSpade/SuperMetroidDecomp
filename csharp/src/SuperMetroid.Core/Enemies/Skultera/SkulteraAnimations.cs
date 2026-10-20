@@ -16,13 +16,11 @@ internal static class SkulteraAnimations
     internal static AnimationProgramSet<SkulteraProgram, SkulteraFrame, SkulteraCue> Programs { get; } = new(
         new Dictionary<SkulteraProgram, AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>[]>
     {
-        // $A3:902A
         [P.SwimmingLeft] =
         [
             Cue(new(K.DrawBelowScenery)),
             FallInto(P.SwimmingLeftLoop),
         ],
-        // $A3:902C
         [P.SwimmingLeftLoop] =
         [
             Show(0, 14),
@@ -30,7 +28,6 @@ internal static class SkulteraAnimations
             Show(2, 14),
             GoTo(P.SwimmingLeftLoop),
         ],
-        // $A3:903C
         [P.TurningRight] =
         [
             Show(3, 13),
@@ -44,13 +41,11 @@ internal static class SkulteraAnimations
             Cue(new(K.FinishTurn)),
             Hold,
         ],
-        // $A3:9060
         [P.SwimmingRight] =
         [
             Cue(new(K.DrawAboveScenery)),
             FallInto(P.SwimmingRightLoop),
         ],
-        // $A3:9062
         [P.SwimmingRightLoop] =
         [
             Show(11, 14),
@@ -58,7 +53,6 @@ internal static class SkulteraAnimations
             Show(13, 14),
             GoTo(P.SwimmingRightLoop),
         ],
-        // $A3:9072
         [P.TurningLeft] =
         [
             Show(14, 13),

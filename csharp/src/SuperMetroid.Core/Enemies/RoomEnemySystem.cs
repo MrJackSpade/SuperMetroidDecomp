@@ -1207,9 +1207,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         return table;
     }
 
-    // Each species registers its own run of reactions; first match wins, so the interleaving below is the
-    // established precedence between species and shared registrations.
     /// <summary>Maps enemy-definition bomb reaction pointers to translated handlers.</summary>
+    /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
+    /// established precedence between species and shared registrations.</remarks>
     private void RegisterBombReactions(EnemySharedReactions table)
     {
         CrocomireBehavior.RegisterCrocomireBombReactions(table);
@@ -1262,10 +1262,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         OwtchBehavior.RegisterOwtchBombReactions(table);
 }
 
-    // Each species registers its own run of reactions; first match wins, so the interleaving below is the
-    // established precedence between species and shared registrations.
-    // Matches are mutually exclusive: each names its definition and header reaction callback.
     /// <summary>Maps banked power-bomb reaction pointers for each supported species.</summary>
+    /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
+    /// established precedence between species and shared registrations. Matches are mutually exclusive: each names its
+    /// definition and header reaction callback.</remarks>
     private void RegisterPowerBombReactions(EnemySharedReactions table)
     {
         // These headers install private callbacks instead of falling through common power-bomb damage. A literal RTL
@@ -1382,11 +1382,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DeathsAndDrops.RegisterDeathExplosionInstructions(table);
     }
 
-    // Each species registers its own run of reactions; first match wins, so the interleaving below is the
-    // established precedence between species and shared registrations.
-    // Matches are mutually exclusive. Kraid's parts precede the generic literal no-op header and the ordinary
-    // normal-shot reaction is last, because Crocomire's tongue also uses NormalEnemyShot.
     /// <summary>Maps shot-response pointers, including species-specific damage behavior.</summary>
+    /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
+    /// established precedence between species and shared registrations. Matches are mutually exclusive. Kraid's parts
+    /// precede the generic literal no-op header and the ordinary normal-shot reaction is last, because Crocomire's
+    /// tongue also uses NormalEnemyShot.</remarks>
     private void RegisterShotReactions(EnemySharedReactions table)
     {
         DeadTorizoBehavior.RegisterDeadTorizoShotReactions(table);
@@ -1446,11 +1446,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot));
 }
 
-    // Each species registers its own run of reactions; first match wins, so the interleaving below is the
-    // established precedence between species and shared registrations.
-    // Matches are mutually exclusive (each names its definition and header callback); the ordinary normal-touch
-    // handler is last because Crocomire's tongue also uses NormalEnemyTouch.
     /// <summary>Registers Samus-contact handlers after species instruction registrations.</summary>
+    /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
+    /// established precedence between species and shared registrations. Matches are mutually exclusive (each names its
+    /// definition and header callback); the ordinary normal-touch handler is last because Crocomire's tongue also uses
+    /// NormalEnemyTouch.</remarks>
     private void RegisterTouchHandlers(EnemySharedReactions table)
     {
         KraidBehavior.RegisterKraidNailTouch(table);
@@ -1513,8 +1513,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         SporeSpawnBehavior.ConsumeTargetColors(write);
     }
 
-    // Hurt AI is a first-match list in EnemyMain's original dispatch order; the shared literal no-op hurt pointer is last.
     /// <summary>Maps hurt-state AI pointers used while enemies are flashing or reacting.</summary>
+    /// <remarks>Hurt AI is a first-match list in EnemyMain's original dispatch order; the shared literal no-op hurt
+    /// pointer is last.</remarks>
     private void RegisterHurtAi(EnemySharedReactions table)
     {
         MetroidBehavior.RegisterMetroidHurtAi(table);
@@ -1525,8 +1526,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         table.AddHurt(slot => slot.Definition.HurtAiPointer == EnemyAiCodePointers.BankA0.NoOp, (_, _) => { });
     }
 
-    // Rinka's frozen tail runs before the common thaw and can consume the frame; the others run after it.
     /// <summary>Maps frozen-state AI pointers used while ice suspends normal behavior.</summary>
+    /// <remarks>Rinka's frozen tail runs before the common thaw and can consume the frame; the others run after
+    /// it.</remarks>
     private void RegisterFrozenAi(EnemySharedReactions table)
     {
         RinkaBehavior.RegisterRinkaFrozenPreemption(table);

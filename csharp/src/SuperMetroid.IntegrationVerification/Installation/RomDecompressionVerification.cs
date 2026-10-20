@@ -94,8 +94,8 @@ internal static class RomDecompressionVerification
     [CpuBusBoundary("exact bus test: witnesses LoROM traversal order and read extent of a cartridge stream")]
     private sealed class StreamBus(byte[] bytes) : ISnesWritableAddressSpace, IImportCartridgeSource
     {
-        // Deliberately cross xx:FFFF -> (xx+1):8000 inside the first literal run.
         /// <summary>Begins four bytes before a bank boundary to exercise the native wrap.</summary>
+        /// <remarks>Deliberately cross xx:FFFF -&gt; (xx+1):8000 inside the first literal run.</remarks>
         public const int Start = 0x94fffc;
         /// <summary>Next cartridge bus address expected after the previous fixture read.</summary>
         private SnesAddress next = SnesAddress.FromBusAddress(Start);

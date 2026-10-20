@@ -13,14 +13,12 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionPr
     internal static AnimationProgramSet<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue> AllPrograms { get; } = new(
         new Dictionary<OldTourianWallExplosionProgram, AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>[]>
         {
-            // $86:B443
             [OldTourianWallExplosionProgram.Start] =
             [
                 Step.Publish(OldTourianWallExplosionCue.ClearPreInstruction),
                 Step.SetCounter(D.BurstCount),
                 Step.FallInto(OldTourianWallExplosionProgram.Burst),
             ],
-            // $86:B449
             [OldTourianWallExplosionProgram.Burst] =
             [
                 Step.Publish(OldTourianWallExplosionCue.Scatter),

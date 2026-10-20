@@ -17,7 +17,6 @@ internal static class CacatacAnimations
     internal static AnimationProgramSet<CacatacProgram, CacatacFrame, CacatacCue> Programs { get; } = new(
         new Dictionary<CacatacProgram, AnimationProgramStep<CacatacProgram, CacatacFrame, CacatacCue>[]>
     {
-        // $A2:9E8A
         [P.UpsideUpIdle] =
         [
             Cue(new(K.RestorePatrol)),
@@ -31,7 +30,6 @@ internal static class CacatacAnimations
             Show(7, 8),
             GoTo(P.UpsideUpIdle),
         ],
-        // $A2:9EB0
         [P.UpsideUpAttack] =
         [
             Show(0, 21),
@@ -46,13 +44,11 @@ internal static class CacatacAnimations
             Cue(new(K.SpawnSpike, Direction: D.RightFacingUp)),
             GoTo(P.UpsideUpIdle),
         ],
-        // $A2:9EDA
         [P.UpsideDownIdle] =
         [
             Cue(new(K.RestorePatrol)),
             FallInto(P.UpsideDownIdleLoop),
         ],
-        // $A2:9EDC
         [P.UpsideDownIdleLoop] =
         [
             Show(10, 8),
@@ -65,7 +61,6 @@ internal static class CacatacAnimations
             Show(17, 8),
             GoTo(P.UpsideDownIdleLoop),
         ],
-        // $A2:9F00
         [P.UpsideDownAttack] =
         [
             Show(10, 21),

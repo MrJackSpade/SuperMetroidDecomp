@@ -15,7 +15,6 @@ internal static class NuclearWaffleProjectileAnimations
     internal static AnimationProgramSet<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<NuclearWaffleProjectileProgram, AnimationProgramStep<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:BB5E
         [P.Initial] =
         [
             Show(0, 3),

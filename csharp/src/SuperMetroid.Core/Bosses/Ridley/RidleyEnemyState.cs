@@ -10,6 +10,11 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ceres-only Baby/Mode-7 words and Norfair-only combat words intentionally coexist here:
 /// the original shared initializer owns one layout and only one Ridley can exist at a time.
 /// </summary>
+/// <remarks>
+/// The Lower Norfair combat words replace opaque numbered words with the meanings their bank-$A6 consumers establish.
+/// Ceres's private Baby actor and Mode-7 getaway reuse Ridley's extended workspaces, and the Ceres self-destruct
+/// presentation's function timer deliberately keeps the native phase values 0, 2, 4, 6, 8, 10 and 12.
+/// </remarks>
 public sealed class RidleyEnemyState
 {
     /// <summary>Gets the live bank-$A6 AI function identity, shared by reveal logic and encounter-specific attack or escape phases.</summary>
@@ -108,8 +113,6 @@ public sealed class RidleyEnemyState
     /// </summary>
     public int SwoopSpeedMagnitude { get; internal set; }
 
-    // Lower Norfair combat state ($7E:78xx/$80xx). These replace opaque numbered words
-    // with the meanings established by the corresponding bank-$A6 consumers.
     /// <summary>Gets Lower Norfair's health-table stage from zero through three, changing below 9000, 5400, and 1800 health.</summary>
     public int HealthStage { get; internal set; }
     /// <summary>Gets the Lower Norfair grabbed-Samus state controlling claw attachment and release: one while Ridley carries Samus, otherwise zero.</summary>
@@ -150,7 +153,6 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the typed music request published by Lower Norfair death or Ceres self-destruct for the outer music queue.</summary>
     public MusicCommand? MusicRequest { get; internal set; }
 
-    // Ceres's private Baby actor and Mode-7 getaway reuse Ridley's extended workspaces.
     /// <summary>The Ceres Baby's typed cutscene program, positioned after its current pose; owned separately from Ridley's body.</summary>
     internal AnimationProgramCursor<CeresBabyProgram> BabyProgram { get; set; }
     /// <summary>How many draw updates the Baby's current pose lasts; zero before its program shows the first pose.</summary>
@@ -201,8 +203,6 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the two-phase Ridley wing graphics-transfer animation index (zero or one) during the Mode-7 getaway.</summary>
     public int Mode7WingFrame { get; internal set; }
 
-    // Ceres self-destruct presentation ($A6:C04E-$C135). FunctionTimer deliberately
-    // retains the native phase values 0,2,4,6,8,10,12.
     /// <summary>Where the Ceres self-destruct graphics dispatcher stands in its current transfer list, advanced as each record is queued.</summary>
     internal CeresEscapeTransferCursor CeresEscapeTransfers { get; set; }
     /// <summary>Gets the Ceres warning phase or glyph delay countdown, including the initial 128-frame wait.</summary>

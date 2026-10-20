@@ -894,9 +894,6 @@ internal static void VerifySamusDeathSequence()
         "whiteout, and nine explosion frames agree without timer-ROM reads.");
 }
 
-// Exercises all five `$91:E4AD` drained-controller entries, command `$F7`, the shared
-// old-speed vertical recurrence, collision handoff, and both asymmetric `$FD` releases.
-
     /// <summary>Runs the seeded death pose, explosion, palette, and whiteout verification.</summary>
     [VerificationCommand("--death-sequence-fixture")]
     internal static int DeathSequenceFixtureCommand()

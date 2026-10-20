@@ -969,9 +969,6 @@ static void SeedKnockbackDryVerticalRows(TestAddressSpace bus)
     WriteTestWord(bus, 0x909ea7, 0x0000);
 }
 
-// Exercises the bank-$9B/$94 connected-pendulum order with deliberately tiny ROM tables.
-// Hard-coded positions and velocities make this independent of production helper formulas.
-
     /// <summary>Runs the focused aerial-turn and wall-jump pose fixture.</summary>
     [VerificationCommand("--samus-aerial-turns-walljump")]
     internal static int SamusAerialTurnsWalljumpCommand()

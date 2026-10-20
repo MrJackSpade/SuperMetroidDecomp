@@ -683,10 +683,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         samus ?? throw new InvalidOperationException(
             "Phantoon's eye and swoop programs require the active Samus actor.");
 
-    // The spiral fireballs are the first ordinary combat attack. Their exact bank-$86
-    // translation belongs to the next combat slice; retaining the explicit call boundary
-    // prevents the eye-opening instruction from being mistaken for completed behavior.
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
+    /// <remarks>The spiral fireballs are the first ordinary combat attack. Their exact bank-$86 translation belongs to
+    /// the next combat slice; retaining the explicit call boundary prevents the eye-opening instruction from being
+    /// mistaken for completed behavior.</remarks>
     private void SpawnPhantoonSpiralFlames(RoomEnemySlot body)
     {
         for (int direction = 7; direction >= 0; direction--)
@@ -2300,10 +2300,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             });
     }
 
-    // $A7:DD3F owns every Phantoon hurt frame. It alternates palette seven
-    // between white and the new health band; body movement/main AI resumes
-    // only after common flash timing clears handler bit two.
     /// <summary>Binds the native hurt callback used after a vulnerable-eye hit.</summary>
+    /// <remarks>$A7:DD3F owns every Phantoon hurt frame. It alternates palette seven between white and the new health
+    /// band; body movement/main AI resumes only after common flash timing clears handler bit two.</remarks>
     internal void RegisterPhantoonHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody,
             (slot, _) => ApplyPhantoonHurt(slot, RequireCompletePhantoonState(slot)));

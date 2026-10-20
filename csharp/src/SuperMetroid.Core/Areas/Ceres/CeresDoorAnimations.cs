@@ -16,7 +16,6 @@ internal static class CeresDoorAnimations
     internal static AnimationProgramSet<CeresDoorProgram, CeresDoorFrame, CeresDoorCue> Programs { get; } = new(
         new Dictionary<CeresDoorProgram, AnimationProgramStep<CeresDoorProgram, CeresDoorFrame, CeresDoorCue>[]>
     {
-        // $A6:F53A
         [P.RidleyRoomFacingRight] =
         [
             Cue(new(K.MakeIntangible)),
@@ -33,7 +32,6 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeInvisible)),
             FallInto(P.RidleyRoomFacingRightWait),
         ],
-        // $A6:F55E
         [P.RidleyRoomFacingRightWait] =
         [
             Show(6, 2),
@@ -41,7 +39,6 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeVisibleAndTakeDrawingBack)),
             GoTo(P.ClosedFacingRight),
         ],
-        // $A6:F56C
         [P.NormalFacingRight] =
         [
             Cue(new(K.MakeIntangible)),
@@ -50,14 +47,12 @@ internal static class CeresDoorAnimations
             Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingRight)),
             FallInto(P.OpenFacingRight),
         ],
-        // $A6:F578
         [P.OpenFacingRight] =
         [
             Show(10, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.CloseFacingRight)),
             GoTo(P.OpenFacingRight),
         ],
-        // $A6:F584
         [P.CloseFacingRight] =
         [
             Cue(new(K.MakeTangible)),
@@ -68,14 +63,12 @@ internal static class CeresDoorAnimations
             Show(7, 5),
             FallInto(P.ClosedFacingRight),
         ],
-        // $A6:F598
         [P.ClosedFacingRight] =
         [
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeVisible)),
             FallInto(P.ClosedFacingRightWait),
         ],
-        // $A6:F59C
         [P.ClosedFacingRightWait] =
         [
             Show(6, 2),
@@ -89,7 +82,6 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeInvisible)),
             GoTo(P.OpenFacingRight),
         ],
-        // $A6:F5BE
         [P.NormalFacingLeft] =
         [
             Cue(new(K.MakeIntangible)),
@@ -98,14 +90,12 @@ internal static class CeresDoorAnimations
             Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingLeft)),
             FallInto(P.OpenFacingLeft),
         ],
-        // $A6:F5CA
         [P.OpenFacingLeft] =
         [
             Show(1, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.CloseFacingLeft)),
             GoTo(P.OpenFacingLeft),
         ],
-        // $A6:F5D6
         [P.CloseFacingLeft] =
         [
             Cue(new(K.MakeTangible)),
@@ -116,14 +106,12 @@ internal static class CeresDoorAnimations
             Show(2, 5),
             FallInto(P.ClosedFacingLeft),
         ],
-        // $A6:F5EA
         [P.ClosedFacingLeft] =
         [
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeVisible)),
             FallInto(P.ClosedFacingLeftWait),
         ],
-        // $A6:F5EE
         [P.ClosedFacingLeftWait] =
         [
             Show(1, 2),
@@ -137,19 +125,16 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeInvisible)),
             GoTo(P.OpenFacingLeft),
         ],
-        // $A6:F610
         [P.RotatingElevatorPreExplosionOverlay] =
         [
             Cue(new(K.MakeIntangible)),
             FallInto(P.RotatingElevatorPreExplosionOverlayLoop),
         ],
-        // $A6:F612
         [P.RotatingElevatorPreExplosionOverlayLoop] =
         [
             Show(0, 1),
             GoTo(P.RotatingElevatorPreExplosionOverlayLoop),
         ],
-        // $A6:F61A
         [P.RotatingElevatorInvisibleWall] =
         [
             Cue(new(K.GoToIfRidleyNotEscaped, Target: P.NormalFacingLeft)),
@@ -157,31 +142,26 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeInvisible)),
             FallInto(P.RotatingElevatorInvisibleWallLoop),
         ],
-        // $A6:F622
         [P.RotatingElevatorInvisibleWallLoop] =
         [
             Show(1, 1),
             GoTo(P.RotatingElevatorInvisibleWallLoop),
         ],
-        // $A6:F62A
         [P.RidleyEscapeMode7LeftWall] =
         [
             Cue(new(K.MakeIntangible)),
             FallInto(P.RidleyEscapeMode7LeftWallLoop),
         ],
-        // $A6:F62C
         [P.RidleyEscapeMode7LeftWallLoop] =
         [
             Show(11, 1),
             GoTo(P.RidleyEscapeMode7LeftWallLoop),
         ],
-        // $A6:F634
         [P.RidleyEscapeMode7RightWall] =
         [
             Cue(new(K.MakeIntangible)),
             FallInto(P.RidleyEscapeMode7RightWallLoop),
         ],
-        // $A6:F636
         [P.RidleyEscapeMode7RightWallLoop] =
         [
             Show(12, 1),

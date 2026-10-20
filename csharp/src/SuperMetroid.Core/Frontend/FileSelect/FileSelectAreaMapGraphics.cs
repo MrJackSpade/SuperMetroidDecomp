@@ -135,9 +135,6 @@ public sealed class FileSelectAreaMapGraphics
         new CgramPalettes(screen.Palette).LoadImage(colors);
     }
 
-    // Layer scratch reused across draws; never part of saved state (restores reallocate it).
-    // Owned frame: valid until this map renders again.
-
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>
     private void PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)
     {

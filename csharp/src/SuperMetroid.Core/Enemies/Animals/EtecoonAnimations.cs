@@ -15,19 +15,16 @@ internal static class EtecoonAnimations
     internal static AnimationProgramSet<EtecoonProgram, EtecoonFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<EtecoonProgram, AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>[]>
     {
-        // $A7:E81E
         [P.LookRightAtSamusAndRunLeft] =
         [
             Show(12, 5),
             Hold,
         ],
-        // $A7:E824
         [P.BeginRunningLeft] =
         [
             Show(13, 1),
             FallInto(P.RunningLeft),
         ],
-        // $A7:E828
         [P.RunningLeft] =
         [
             Show(0, 5),
@@ -36,13 +33,11 @@ internal static class EtecoonAnimations
             Show(1, 5),
             GoTo(P.RunningLeft),
         ],
-        // $A7:E83C
         [P.WallJumpLeft] =
         [
             Show(7, 8),
             FallInto(P.WallJumpLeftLoop),
         ],
-        // $A7:E840
         [P.WallJumpLeftLoop] =
         [
             Show(3, 3),
@@ -51,20 +46,17 @@ internal static class EtecoonAnimations
             Show(6, 3),
             GoTo(P.WallJumpLeftLoop),
         ],
-        // $A7:E854
         [P.HoppingFacingLeft] =
         [
             Show(8, 1),
             Hold,
         ],
-        // $A7:E85A
         [P.ContinueHoppingFacingLeft] =
         [
             Show(9, 12),
             Show(10, 12),
             FallInto(P.HitCeiling),
         ],
-        // $A7:E862
         [P.HitCeiling] =
         [
             Show(11, 6),
@@ -72,25 +64,21 @@ internal static class EtecoonAnimations
             Show(9, 12),
             Hold,
         ],
-        // $A7:E870
         [P.WallJumpLeftEligible] =
         [
             Show(14, 1),
             Hold,
         ],
-        // $A7:E876
         [P.LookLeftAtSamusAndRunRight] =
         [
             Show(29, 5),
             Hold,
         ],
-        // $A7:E87C
         [P.BeginRunningRight] =
         [
             Show(28, 1),
             FallInto(P.RunningRight),
         ],
-        // $A7:E880
         [P.RunningRight] =
         [
             Show(15, 5),
@@ -99,13 +87,11 @@ internal static class EtecoonAnimations
             Show(16, 5),
             GoTo(P.RunningRight),
         ],
-        // $A7:E894
         [P.WallJumpRight] =
         [
             Show(22, 8),
             FallInto(P.JumpingRight),
         ],
-        // $A7:E898
         [P.JumpingRight] =
         [
             Show(18, 3),
@@ -114,13 +100,11 @@ internal static class EtecoonAnimations
             Show(21, 3),
             GoTo(P.JumpingRight),
         ],
-        // $A7:E8AC
         [P.HoppingFacingRight] =
         [
             Show(23, 1),
             Hold,
         ],
-        // $A7:E8B2
         [P.ContinueHoppingFacingRight] =
         [
             Show(24, 12),
@@ -130,25 +114,21 @@ internal static class EtecoonAnimations
             Show(24, 12),
             Hold,
         ],
-        // $A7:E8C8
         [P.WallJumpRightEligible] =
         [
             Show(30, 1),
             Hold,
         ],
-        // $A7:E8CE
         [P.Initial] =
         [
             Show(23, 8),
             GoTo(P.Initial),
         ],
-        // $A7:E8D6
         [P.Flexing] =
         [
             SetCounter(4),
             FallInto(P.FlexingLoop),
         ],
-        // $A7:E8DA
         [P.FlexingLoop] =
         [
             Show(23, 8),

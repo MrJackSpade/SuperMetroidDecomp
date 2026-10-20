@@ -16,13 +16,11 @@ internal static class PlatformAnimations
     internal static AnimationProgramSet<PlatformProgram, PlatformFrame, PlatformCue> Programs { get; } = new(
         new Dictionary<PlatformProgram, AnimationProgramStep<PlatformProgram, PlatformFrame, PlatformCue>[]>
     {
-        // $A3:9BBB
         [P.KamerMovingLeft] =
         [
             Cue(new(K.MoveLeft)),
             FallInto(P.KamerMovingLeftLoop),
         ],
-        // $A3:9BBD
         [P.KamerMovingLeftLoop] =
         [
             Show(12, 10),
@@ -31,13 +29,11 @@ internal static class PlatformAnimations
             Show(15, 10),
             GoTo(P.KamerMovingLeftLoop),
         ],
-        // $A3:9BD1
         [P.KamerMovingRight] =
         [
             Cue(new(K.MoveRight)),
             FallInto(P.KamerMovingRightLoop),
         ],
-        // $A3:9BD3
         [P.KamerMovingRightLoop] =
         [
             Show(12, 10),
@@ -46,13 +42,11 @@ internal static class PlatformAnimations
             Show(15, 10),
             GoTo(P.KamerMovingRightLoop),
         ],
-        // $A3:9BE7
         [P.KamerStillLeft] =
         [
             Cue(new(K.MoveLeft)),
             FallInto(P.KamerStillLeftLoop),
         ],
-        // $A3:9BE9
         [P.KamerStillLeftLoop] =
         [
             Show(12, 10),
@@ -61,13 +55,11 @@ internal static class PlatformAnimations
             Show(15, 10),
             GoTo(P.KamerStillLeftLoop),
         ],
-        // $A3:9BFD
         [P.KamerStillRight] =
         [
             Cue(new(K.MoveRight)),
             FallInto(P.KamerStillRightLoop),
         ],
-        // $A3:9BFF
         [P.KamerStillRightLoop] =
         [
             Show(12, 10),
@@ -76,13 +68,11 @@ internal static class PlatformAnimations
             Show(15, 10),
             GoTo(P.KamerStillRightLoop),
         ],
-        // $A3:9C13
         [P.TripperMovingLeft] =
         [
             Cue(new(K.MoveLeft)),
             FallInto(P.TripperMovingLeftLoop),
         ],
-        // $A3:9C15
         [P.TripperMovingLeftLoop] =
         [
             Show(0, 7),
@@ -91,13 +81,11 @@ internal static class PlatformAnimations
             Show(2, 8),
             GoTo(P.TripperMovingLeftLoop),
         ],
-        // $A3:9C29
         [P.TripperMovingRight] =
         [
             Cue(new(K.MoveRight)),
             FallInto(P.TripperMovingRightLoop),
         ],
-        // $A3:9C2B
         [P.TripperMovingRightLoop] =
         [
             Show(3, 7),
@@ -106,13 +94,11 @@ internal static class PlatformAnimations
             Show(5, 8),
             GoTo(P.TripperMovingRightLoop),
         ],
-        // $A3:9C3F
         [P.TripperStillMovingLeft] =
         [
             Cue(new(K.MoveLeft)),
             FallInto(P.TripperStillMovingLeftLoop),
         ],
-        // $A3:9C41
         [P.TripperStillMovingLeftLoop] =
         [
             Show(6, 7),
@@ -121,13 +107,11 @@ internal static class PlatformAnimations
             Show(8, 8),
             GoTo(P.TripperStillMovingLeftLoop),
         ],
-        // $A3:9C55
         [P.TripperStillMovingRight] =
         [
             Cue(new(K.MoveRight)),
             FallInto(P.TripperStillMovingRightLoop),
         ],
-        // $A3:9C57
         [P.TripperStillMovingRightLoop] =
         [
             Show(9, 7),

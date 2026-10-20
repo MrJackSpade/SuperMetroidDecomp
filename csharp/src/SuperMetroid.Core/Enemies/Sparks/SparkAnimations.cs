@@ -16,7 +16,6 @@ internal static class SparkAnimations
     internal static AnimationProgramSet<SparkProgram, SparkFrame, SparkCue> Programs { get; } = new(
         new Dictionary<SparkProgram, AnimationProgramStep<SparkProgram, SparkFrame, SparkCue>[]>
     {
-        // $A8:E5A7
         [P.FlickerOn] =
         [
             Cue(new(K.BecomeTangible)),
@@ -32,7 +31,6 @@ internal static class SparkAnimations
             Show(8, 2),
             FallInto(P.Active),
         ],
-        // $A8:E5D1
         [P.Active] =
         [
             Show(1, 3),
@@ -41,7 +39,6 @@ internal static class SparkAnimations
             Show(4, 3),
             GoTo(P.Active),
         ],
-        // $A8:E5E5
         [P.FlickerOut] =
         [
             Show(5, 1),
@@ -55,7 +52,6 @@ internal static class SparkAnimations
             Cue(new(K.BecomeIntangible)),
             Hold,
         ],
-        // $A8:E609
         [P.Emitter] =
         [
             Show(5, 3),

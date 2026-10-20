@@ -16,13 +16,11 @@ internal static class NorfairLavaJumperAnimations
     internal static AnimationProgramSet<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue> Programs { get; } = new(
         new Dictionary<NorfairLavaJumperProgram, AnimationProgramStep<NorfairLavaJumperProgram, NorfairLavaJumperFrame, NorfairLavaJumperCue>[]>
     {
-        // $A2:BE3C
         [P.Hidden] =
         [
             Show(1, 1),
             Hold,
         ],
-        // $A2:BE42
         [P.Jump] =
         [
             Show(1, 1),
@@ -35,7 +33,6 @@ internal static class NorfairLavaJumperAnimations
             Cue(new(K.FinishAnimation)),
             Hold,
         ],
-        // $A2:BE62
         [P.Follower] =
         [
             Show(8, 1),
@@ -43,7 +40,6 @@ internal static class NorfairLavaJumperAnimations
             SetCounter(1),
             FallInto(P.FollowerLoop),
         ],
-        // $A2:BE6E
         [P.FollowerLoop] =
         [
             Show(10, 1),

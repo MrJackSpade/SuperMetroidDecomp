@@ -15,7 +15,6 @@ internal static class PolypRockAnimations
     internal static AnimationProgramSet<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<PolypRockProgram, AnimationProgramStep<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:BBD5
         [P.Initial] =
         [
             Show(0, 1),

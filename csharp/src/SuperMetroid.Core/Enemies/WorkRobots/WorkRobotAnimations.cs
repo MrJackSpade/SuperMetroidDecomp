@@ -16,37 +16,31 @@ internal static class WorkRobotAnimations
     internal static AnimationProgramSet<WorkRobotProgram, WorkRobotFrame, WorkRobotCue> Programs { get; } = new(
         new Dictionary<WorkRobotProgram, AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue>[]>
     {
-        // $A8:C6D3
         [P.NoPowerNeutral] =
         [
             Show(25, 32767),
             Hold,
         ],
-        // $A8:C6D9
         [P.NoPowerLeaningLeft] =
         [
             Show(24, 32767),
             Hold,
         ],
-        // $A8:C6DF
         [P.NoPowerLeaningRight] =
         [
             Show(26, 32767),
             Hold,
         ],
-        // $A8:C6E5
         [P.Initial] =
         [
             Show(1, 32),
             FallInto(P.FacingLeftWalkingForwards),
         ],
-        // $A8:C6E9
         [P.FacingLeftWalkingForwards] =
         [
             Show(1, 1),
             FallInto(P.FacingLeftWalkingForwardsLoop),
         ],
-        // $A8:C6ED
         [P.FacingLeftWalkingForwardsLoop] =
         [
             Show(1, 10),
@@ -75,7 +69,6 @@ internal static class WorkRobotAnimations
             Show(0, 9),
             GoTo(P.FacingLeftWalkingForwardsLoop),
         ],
-        // $A8:C73F
         [P.FacingLeftHitWallMovingForwards] =
         [
             Show(11, 1),
@@ -117,7 +110,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.WalkRight)),
             FallInto(P.FacingLeftShotSamusAhead),
         ],
-        // $A8:C7BB
         [P.FacingLeftShotSamusAhead] =
         [
             Show(11, 5),
@@ -158,7 +150,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.WalkRight)),
             FallInto(P.FacingLeftShotSamusBehind),
         ],
-        // $A8:C833
         [P.FacingLeftShotSamusBehind] =
         [
             Cue(new(K.Footstep)),
@@ -202,14 +193,12 @@ internal static class WorkRobotAnimations
             Cue(new(K.WalkLeft)),
             FallInto(P.FacingLeftShotLaserDownLeft),
         ],
-        // $A8:C8B1
         [P.FacingLeftShotLaserDownLeft] =
         [
             Show(0, 5),
             Show(11, 2),
             GoTo(P.FacingLeftLaserShotRecoil),
         ],
-        // $A8:C8BD
         [P.FacingLeftShotLaserLeft] =
         [
             Show(1, 5),
@@ -219,7 +208,6 @@ internal static class WorkRobotAnimations
             Show(11, 10),
             GoTo(P.FacingLeftLaserShotRecoil),
         ],
-        // $A8:C8D1
         [P.FacingLeftShotLaserUpLeft] =
         [
             Show(3, 5),
@@ -231,7 +219,6 @@ internal static class WorkRobotAnimations
             Show(11, 4),
             FallInto(P.FacingLeftLaserShotRecoil),
         ],
-        // $A8:C8E9
         [P.FacingLeftLaserShotRecoil] =
         [
             Cue(new(K.LeftBackwardWatchingLedges)),
@@ -250,7 +237,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.CountDownLaserCooldown)),
             GoTo(P.FacingLeftWalkingForwards),
         ],
-        // $A8:C91B
         [P.ApproachingFallRight] =
         [
             Show(12, 128),
@@ -259,13 +245,11 @@ internal static class WorkRobotAnimations
             Cue(new(K.CountDownLaserCooldown)),
             GoTo(P.FacingLeftWalkingForwards),
         ],
-        // $A8:C92D
         [P.FacingRightWalkingForwards] =
         [
             Show(12, 1),
             FallInto(P.FacingRightWalkingForwardsLoop),
         ],
-        // $A8:C931
         [P.FacingRightWalkingForwardsLoop] =
         [
             Show(12, 1),
@@ -295,7 +279,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.RightForwardWatchingLedges)),
             GoTo(P.FacingRightWalkingForwardsLoop),
         ],
-        // $A8:C985
         [P.FacingRightHitWallMovingForwards] =
         [
             Show(23, 1),
@@ -337,7 +320,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.WalkLeft)),
             FallInto(P.FacingRightShotSamusAhead),
         ],
-        // $A8:CA01
         [P.FacingRightShotSamusAhead] =
         [
             Show(23, 1),
@@ -379,7 +361,6 @@ internal static class WorkRobotAnimations
             Cue(new(K.WalkLeft)),
             FallInto(P.FacingRightShotSamusBehind),
         ],
-        // $A8:CA7D
         [P.FacingRightShotSamusBehind] =
         [
             Cue(new(K.RightForward)),
@@ -424,14 +405,12 @@ internal static class WorkRobotAnimations
             Cue(new(K.WalkRight)),
             FallInto(P.FacingRightShotLaserDownRight),
         ],
-        // $A8:CAFD
         [P.FacingRightShotLaserDownRight] =
         [
             Show(12, 5),
             Show(23, 2),
             GoTo(P.FacingRightLaserShotRecoil),
         ],
-        // $A8:CB09
         [P.FacingRightShotLaserRight] =
         [
             Show(13, 5),
@@ -441,7 +420,6 @@ internal static class WorkRobotAnimations
             Show(23, 10),
             GoTo(P.FacingRightLaserShotRecoil),
         ],
-        // $A8:CB1D
         [P.FacingRightShotLaserUpRight] =
         [
             Show(15, 5),
@@ -453,7 +431,6 @@ internal static class WorkRobotAnimations
             Show(23, 4),
             FallInto(P.FacingRightLaserShotRecoil),
         ],
-        // $A8:CB35
         [P.FacingRightLaserShotRecoil] =
         [
             Cue(new(K.RightBackwardWatchingLedges)),
@@ -471,7 +448,6 @@ internal static class WorkRobotAnimations
             Show(14, 96),
             GoTo(P.FacingRightWalkingForwards),
         ],
-        // $A8:CB65
         [P.ApproachingFallLeft] =
         [
             Show(0, 128),

@@ -25,8 +25,8 @@ public abstract class EnemySpritemapParts : IReadOnlyList<EnemySpritemapPart>
 
     /// <summary>Shared composition with no OAM parts.</summary>
     internal static EnemySpritemapParts Empty { get; } = new StoredParts([]);
-    // The loader transfers its newly compiled, unexposed array to this immutable view.
     /// <summary>Takes ownership of a newly compiled array without copying its parts.</summary>
+    /// <remarks>The loader transfers its newly compiled, unexposed array to this immutable view.</remarks>
     internal static EnemySpritemapParts FromOwnedArray(EnemySpritemapPart[] parts) => new StoredParts(parts);
     /// <summary>Immutable view over an array whose ownership the loader has transferred.</summary>
     private sealed class StoredParts(EnemySpritemapPart[] parts) : EnemySpritemapParts

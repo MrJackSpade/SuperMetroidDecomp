@@ -7,12 +7,11 @@ namespace SuperMetroid.ResourceAudit.PlmPrograms;
 internal static class PlmVramArtworkSourceContract
 {
     /// <summary>Limits reviewed bank-$84 DMA producers to enemy artwork, runtime uploads, exact beam sources, and their queue and extraction owners.</summary>
+    /// <remarks>Restored beam routing admits only seven exact $9A sources of 256 bytes, so it cannot intercept the existing PLM artwork pages.</remarks>
     internal static readonly ReviewedSource[] Sources =
     [
         .. EnemyArtworkClosedContractDefinitions.All[0].Sources,
         new("csharp/src/SuperMetroid.Core/Gameplay/RuntimeArtwork.cs"),
-        // Restored beam routing admits only seven exact $9A sources of 256 bytes;
-        // it cannot intercept the existing PLM artwork pages.
         new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamTileCatalog.cs"),
         new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamTileAtlasDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Hardware/VramWriteQueue.cs"),

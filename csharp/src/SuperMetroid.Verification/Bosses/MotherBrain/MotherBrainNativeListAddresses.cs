@@ -239,22 +239,16 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>The cutscene Baby's opcodes: its two same-bank gotos.</summary>
     private static Dictionary<ushort, NativeOp<MotherBrainBabyProgram, BabyMetroidFrame, NoAnimationCue>> BabyNativeOps { get; } = new()
     {
-        // $A9:CFB4, Instruction_BabyMetroid_GotoInitial.
         [0xcfb4] = new(0, (_, _) => [AnimationProgramStep<MotherBrainBabyProgram, BabyMetroidFrame, NoAnimationCue>.GoTo(MotherBrainBabyProgram.Initial)], true),
-        // $A9:CFCA, Instruction_BabyMetroid_GotoDrainingMotherBrain.
         [0xcfca] = new(0, (_, _) => [AnimationProgramStep<MotherBrainBabyProgram, BabyMetroidFrame, NoAnimationCue>.GoTo(MotherBrainBabyProgram.DrainingMotherBrain)], true),
     };
 
-    /// <summary>The Shitroid's opcodes: three gotos and the random remorse cry, whose goto operand is the remorse start.</summary>
+    /// <summary>The Shitroid's opcodes: three gotos and the random remorse cry, whose goto operand is the remorse start; without the cry it goes to that operand.</summary>
     private static Dictionary<ushort, NativeOp<ShitroidProgram, BabyMetroidFrame, ShitroidCue>> ShitroidNativeOps { get; } = new()
     {
-        // $A9:F920, Instruction_BabyMetroid_GotoNormal.
         [0xf920] = new(0, (_, _) => [AnimationProgramStep<ShitroidProgram, BabyMetroidFrame, ShitroidCue>.GoTo(ShitroidProgram.Normal)], true),
-        // $A9:F936, Instruction_GotoLatchedOn.
         [0xf936] = new(0, (_, _) => [AnimationProgramStep<ShitroidProgram, BabyMetroidFrame, ShitroidCue>.GoTo(ShitroidProgram.LatchedOn)], true),
-        // $A9:F990, Instruction_BabyMetroid_GotoRemorse.
         [0xf990] = new(0, (_, _) => [AnimationProgramStep<ShitroidProgram, BabyMetroidFrame, ShitroidCue>.GoTo(ShitroidProgram.Remorse)], true),
-        // $A9:F994, Instruction_BabyMetroid_GotoY_OrPlayRemorseSFX: without the cry it goes to its operand.
         [0xf994] = new(1, (operands, programAt) => programAt(operands[0]) == ShitroidProgram.Remorse
             ? [AnimationProgramStep<ShitroidProgram, BabyMetroidFrame, ShitroidCue>.Publish(ShitroidCue.MaybeRemorseCry)]
             : throw new InvalidDataException("The remorse cry's goto operand is not the remorse start."), false),
@@ -323,7 +317,6 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>The hand beam's external calls and the cue each must become.</summary>
     internal static readonly Dictionary<int, MotherBrainHandBeamCue> HandBeamCalls = new()
     {
-        // $86:C7FB, Spawn_MotherBrainRedBeam_Fired.
         [0x86c7fb] = MotherBrainHandBeamCue.SpawnNextBeam,
     };
 

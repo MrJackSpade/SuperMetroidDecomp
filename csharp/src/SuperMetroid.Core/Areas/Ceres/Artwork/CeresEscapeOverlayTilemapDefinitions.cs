@@ -33,10 +33,10 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseFourth =
         new("japanese_3", JapaneseThird.SourceAddress + JapaneseThird.WordCount * sizeof(ushort), JapaneseSecondLine.Length);
 
-    // Authored warning wording and font ordering are categorical typography content.
-    // The selected two-half packing, foreground priority and Japanese palette role
-    // preserve that composition; glyph pixels and RGB paint remain separate obligations.
     /// <summary>English warning title rendered from the Latin tile alphabet.</summary>
+    /// <remarks>Authored warning wording and font ordering are categorical typography content. The selected two-half
+    /// packing, foreground priority and Japanese palette role preserve that composition; glyph pixels and RGB paint
+    /// remain separate obligations.</remarks>
     private const string EmergencyText = "EMERGENCY";
     /// <summary>First authored Japanese self-destruct subtitle row, shared by its upper and lower tile halves.</summary>
     private const string JapaneseFirstLine = "自爆装置が、作動しました";

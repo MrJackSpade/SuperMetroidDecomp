@@ -15,13 +15,11 @@ internal static class YappingMawBodyProjectileAnimations
     internal static AnimationProgramSet<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<YappingMawBodyProjectileProgram, AnimationProgramStep<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:EC56
         [P.FacingDown] =
         [
             Show(0, 1),
             Hold,
         ],
-        // $86:EC5C
         [P.FacingUp] =
         [
             Show(1, 1),

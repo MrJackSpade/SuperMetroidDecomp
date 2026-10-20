@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 /// <summary>Native game-over menu indexes; indexes five and six share <see cref="GameOverMenuPhase.FadeOutToContinue"/>, and ordinals are not native menu-index values.</summary>
 public enum GameOverMenuPhase
 {
-    // Ordinals are serialized; ConfigureGraphics is appended rather than placed first.
     /// <summary>Native menu-index-one setup: queues music stop and data load, starts the Baby animation, selects Yes, and begins with zero brightness.</summary>
+    /// <remarks>Ordinals are serialized; ConfigureGraphics is appended rather than placed first.</remarks>
     Initialize,
     /// <summary>Native menu-index-two music gate: continues Baby animation while waiting for the shared music queue to empty, then queues the game-over track.</summary>
     WaitForInitialMusic,

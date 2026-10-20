@@ -15,7 +15,6 @@ internal static class DachoraAnimations
     internal static AnimationProgramSet<DachoraProgram, DachoraFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<DachoraProgram, AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue>[]>
     {
-        // $A7:F345
         [P.RunningLeft] =
         [
             Show(0, 5),
@@ -26,7 +25,6 @@ internal static class DachoraAnimations
             Show(5, 5),
             GoTo(P.RunningLeft),
         ],
-        // $A7:F361
         [P.RunningLeftFast] =
         [
             Show(0, 3),
@@ -37,7 +35,6 @@ internal static class DachoraAnimations
             Show(5, 3),
             GoTo(P.RunningLeftFast),
         ],
-        // $A7:F37D
         [P.RunningLeftVeryFast] =
         [
             Show(0, 1),
@@ -48,7 +45,6 @@ internal static class DachoraAnimations
             Show(5, 1),
             GoTo(P.RunningLeftVeryFast),
         ],
-        // $A7:F399
         [P.IdleLeft] =
         [
             Show(7, 48),
@@ -64,7 +60,6 @@ internal static class DachoraAnimations
             Show(10, 10),
             GoTo(P.IdleLeft),
         ],
-        // $A7:F3C9
         [P.BlinkLeft] =
         [
             Show(7, 11),
@@ -78,19 +73,16 @@ internal static class DachoraAnimations
             Show(9, 11),
             GoTo(P.BlinkLeft),
         ],
-        // $A7:F3F7
         [P.EchoLeft] =
         [
             Show(6, 10),
             GoTo(P.EchoLeft),
         ],
-        // $A7:F3FF
         [P.FallingLeft] =
         [
             Show(4, 5),
             GoTo(P.FallingLeft),
         ],
-        // $A7:F407
         [P.RunningRight] =
         [
             Show(14, 5),
@@ -101,7 +93,6 @@ internal static class DachoraAnimations
             Show(19, 5),
             GoTo(P.RunningRight),
         ],
-        // $A7:F423
         [P.RunningRightFast] =
         [
             Show(14, 3),
@@ -112,7 +103,6 @@ internal static class DachoraAnimations
             Show(19, 3),
             GoTo(P.RunningRightFast),
         ],
-        // $A7:F43F
         [P.RunningRightVeryFast] =
         [
             Show(14, 1),
@@ -123,7 +113,6 @@ internal static class DachoraAnimations
             Show(19, 1),
             GoTo(P.RunningRightVeryFast),
         ],
-        // $A7:F45B
         [P.IdleRight] =
         [
             Show(22, 48),
@@ -139,7 +128,6 @@ internal static class DachoraAnimations
             Show(25, 10),
             GoTo(P.IdleRight),
         ],
-        // $A7:F48B
         [P.BlinkRight] =
         [
             Show(22, 11),
@@ -153,19 +141,16 @@ internal static class DachoraAnimations
             Show(24, 11),
             GoTo(P.BlinkRight),
         ],
-        // $A7:F4B3
         [P.ChargeRight] =
         [
             Show(20, 1),
             Hold,
         ],
-        // $A7:F4B9
         [P.EchoRight] =
         [
             Show(21, 10),
             GoTo(P.EchoRight),
         ],
-        // $A7:F4C1
         [P.FallingRight] =
         [
             Show(18, 5),

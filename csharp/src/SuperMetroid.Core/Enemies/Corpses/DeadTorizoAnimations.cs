@@ -15,7 +15,6 @@ internal static class DeadTorizoAnimations
     internal static AnimationProgramSet<DeadTorizoProgram, DeadTorizoFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<DeadTorizoProgram, AnimationProgramStep<DeadTorizoProgram, DeadTorizoFrame, NoAnimationCue>[]>
     {
-        // $A9:D6DC
         [P.Stationary] =
         [
             Show(0, 1),

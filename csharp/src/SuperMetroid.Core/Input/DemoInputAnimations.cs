@@ -16,7 +16,6 @@ public static class DemoInputAnimations
     internal static AnimationProgramSet<DemoInputProgram, DemoInputFrame, DemoInputCue> Programs { get; } = new(
         new Dictionary<DemoInputProgram, AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>[]>
     {
-        // $91:99C8
         [P.AttractAdvancedGrappleBeam] =
         [
             Show(63, B.None, B.None),
@@ -70,7 +69,6 @@ public static class DemoInputAnimations
             Show(70, B.None, B.None),
             Stop,
         ],
-        // $91:9560
         [P.AttractBrinstarDiagonalRoom] =
         [
             Show(41, B.None, B.None),
@@ -90,7 +88,6 @@ public static class DemoInputAnimations
             Show(219, B.None, B.None),
             Stop,
         ],
-        // $91:9DAE
         [P.AttractCrystalFlash] =
         [
             Show(27, B.None, B.None),
@@ -122,7 +119,6 @@ public static class DemoInputAnimations
             Show(316, B.None, B.None),
             Stop,
         ],
-        // $91:8E64
         [P.AttractDachora] =
         [
             Show(8, B.None, B.None),
@@ -140,18 +136,15 @@ public static class DemoInputAnimations
             Show(286, B.None, B.None),
             Stop,
         ],
-        // $91:8776
         [P.AttractDelete] =
         [
             Stop,
         ],
-        // $91:933C
         [P.AttractDiagonalShinespark] =
         [
             Show(165, B.None, B.None),
             GoTo(P.AttractDiagonalShinespark),
         ],
-        // $91:9346
         [P.AttractDiagonalShinesparkContinuation] =
         [
             Show(150, B.None, B.None),
@@ -178,7 +171,6 @@ public static class DemoInputAnimations
             Show(240, B.None, B.None),
             Stop,
         ],
-        // $91:9154
         [P.AttractEyeDoor] =
         [
             Show(11, B.Right, B.None),
@@ -264,7 +256,6 @@ public static class DemoInputAnimations
             Show(4, B.Right, B.None),
             Stop,
         ],
-        // $91:946C
         [P.AttractFirefleaRoom] =
         [
             Show(43, B.None, B.None),
@@ -295,7 +286,6 @@ public static class DemoInputAnimations
             Show(196, B.L, B.None),
             Stop,
         ],
-        // $91:99AE
         [P.AttractGauntletEntrance] =
         [
             Show(22, B.None, B.None),
@@ -304,7 +294,6 @@ public static class DemoInputAnimations
             Show(256, B.None, B.None),
             Stop,
         ],
-        // $91:973A
         [P.AttractGrappleBeam] =
         [
             Show(16, B.None, B.None),
@@ -368,7 +357,6 @@ public static class DemoInputAnimations
             Show(40, B.None, B.None),
             Stop,
         ],
-        // $91:989E
         [P.AttractIceBeam] =
         [
             Show(33, B.None, B.None),
@@ -418,7 +406,6 @@ public static class DemoInputAnimations
             Show(93, B.None, B.None),
             Stop,
         ],
-        // $91:9AF0
         [P.AttractInfiniteBombJump] =
         [
             Show(25, B.None, B.None),
@@ -504,13 +491,11 @@ public static class DemoInputAnimations
             Show(196, B.None, B.None),
             Stop,
         ],
-        // $91:9464
         [P.AttractKraid] =
         [
             Show(512, B.None, B.None),
             Stop,
         ],
-        // $91:8ACE
         [P.AttractLandingSite] =
         [
             Show(289, B.None, B.None),
@@ -576,7 +561,6 @@ public static class DemoInputAnimations
             Show(3, B.Right | B.X, B.None),
             Stop,
         ],
-        // $91:8FE4
         [P.AttractLowerNorfairEntrance] =
         [
             Show(19, B.None, B.None),
@@ -642,7 +626,6 @@ public static class DemoInputAnimations
             Show(45, B.None, B.None),
             Stop,
         ],
-        // $91:93CC
         [P.AttractMissileDoor] =
         [
             Show(41, B.None, B.None),
@@ -672,7 +655,6 @@ public static class DemoInputAnimations
             Show(26, B.None, B.None),
             Stop,
         ],
-        // $91:8F3A
         [P.AttractPrePhantoonHall] =
         [
             Show(61, B.None, B.None),
@@ -705,7 +687,6 @@ public static class DemoInputAnimations
             Show(169, B.None, B.None),
             Stop,
         ],
-        // $91:965A
         [P.AttractPreSporeSpawnHall] =
         [
             Show(27, B.None, B.None),
@@ -747,7 +728,6 @@ public static class DemoInputAnimations
             Show(132, B.R, B.None),
             Stop,
         ],
-        // $91:8C3E
         [P.AttractPseudoScrewAttack] =
         [
             Show(22, B.None, B.None),
@@ -824,7 +804,6 @@ public static class DemoInputAnimations
             Show(101, B.None, B.None),
             Stop,
         ],
-        // $91:8EB4
         [P.AttractRedBrinstarElevator] =
         [
             Show(90, B.None, B.None),
@@ -851,7 +830,6 @@ public static class DemoInputAnimations
             Show(512, B.None, B.None),
             Stop,
         ],
-        // $91:950A
         [P.AttractScrewAttack] =
         [
             Show(48, B.None, B.None),
@@ -870,7 +848,6 @@ public static class DemoInputAnimations
             Show(157, B.R, B.None),
             Stop,
         ],
-        // $91:9CD8
         [P.AttractSpecialBeamAttack] =
         [
             Show(26, B.None, B.None),
@@ -909,7 +886,6 @@ public static class DemoInputAnimations
             Show(52, B.None, B.None),
             Stop,
         ],
-        // $91:8DF0
         [P.AttractSpeedBooster] =
         [
             Show(32, B.None, B.None),
@@ -933,32 +909,27 @@ public static class DemoInputAnimations
             Show(99, B.None, B.None),
             Stop,
         ],
-        // $91:9DA6
         [P.AttractTourianEntrance] =
         [
             Show(405, B.None, B.None),
             Stop,
         ],
-        // $91:864B
         [P.IntroBabyDiscoveryEnd] =
         [
             Publish(K.EndIntroBabyDiscovery),
             Stop,
         ],
-        // $91:860D
         [P.IntroBabyDiscoveryRunningLeft] =
         [
             Show(90, B.None, B.None),
             Show(1, B.Left, B.Left),
             FallInto(P.IntroBabyDiscoveryRunningLeftLoop),
         ],
-        // $91:8619
         [P.IntroBabyDiscoveryRunningLeftLoop] =
         [
             Show(1, B.Left, B.None),
             GoTo(P.IntroBabyDiscoveryRunningLeftLoop),
         ],
-        // $91:8623
         [P.IntroBabyDiscoveryStopAndLook] =
         [
             Show(300, B.None, B.None),
@@ -968,13 +939,11 @@ public static class DemoInputAnimations
             Show(1, B.Left, B.Left),
             FallInto(P.IntroBabyDiscoveryStopAndLookLoop),
         ],
-        // $91:8641
         [P.IntroBabyDiscoveryStopAndLookLoop] =
         [
             Show(1, B.Left, B.None),
             GoTo(P.IntroBabyDiscoveryStopAndLookLoop),
         ],
-        // $91:8694
         [P.IntroMotherBrainFlashback] =
         [
             Show(90, B.None, B.None),

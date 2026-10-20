@@ -1493,9 +1493,6 @@ static void SeedMoonwalkTurnJumpDryVerticalRows(TestAddressSpace bus)
     WriteTestWord(bus, 0x909ea7, 0x0000);
 }
 
-// Sends a synthetic planar tile through DMA, OAM, OBSEL, and CGRAM so this tests the
-// complete sprite-to-pixel path rather than a helper decoder in isolation.
-
     /// <summary>Runs the bank-$90/$91 grounded reversal suite through the verification command dispatcher.</summary>
     [VerificationCommand("--samus-grounded-reversal")]
     internal static int SamusGroundedReversalCommand()

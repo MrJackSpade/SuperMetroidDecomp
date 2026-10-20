@@ -16,27 +16,23 @@ internal static class WalkingSpacePirateAnimations
     internal static AnimationProgramSet<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue> Programs { get; } = new(
         new Dictionary<WalkingSpacePirateProgram, AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue>[]>
     {
-        // $B2:FB4C
         [P.FlinchFacingLeft] =
         [
             Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.NoOperation)),
             Show(35, 16),
             GoTo(P.WalkingLeft),
         ],
-        // $B2:FB58
         [P.FlinchFacingRight] =
         [
             Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.NoOperation)),
             Show(36, 16),
             GoTo(P.WalkingRight),
         ],
-        // $B2:FB64
         [P.WalkingLeft] =
         [
             Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.WalkingLeft)),
             FallInto(P.WalkingLeftLoop),
         ],
-        // $B2:FB68
         [P.WalkingLeftLoop] =
         [
             Show(0, 10),
@@ -49,7 +45,6 @@ internal static class WalkingSpacePirateAnimations
             Show(7, 10),
             GoTo(P.WalkingLeftLoop),
         ],
-        // $B2:FB8C
         [P.FireLasersLeft] =
         [
             Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
@@ -69,7 +64,6 @@ internal static class WalkingSpacePirateAnimations
             Cue(new(K.ChooseMovement)),
             FallInto(P.LookingFacingLeft),
         ],
-        // $B2:FBC6
         [P.LookingFacingLeft] =
         [
             Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
@@ -81,13 +75,11 @@ internal static class WalkingSpacePirateAnimations
             Show(34, 8),
             GoTo(P.WalkingRight),
         ],
-        // $B2:FBE6
         [P.WalkingRight] =
         [
             Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.WalkingRight)),
             FallInto(P.WalkingRightLoop),
         ],
-        // $B2:FBEA
         [P.WalkingRightLoop] =
         [
             Show(8, 10),
@@ -100,7 +92,6 @@ internal static class WalkingSpacePirateAnimations
             Show(15, 10),
             GoTo(P.WalkingRightLoop),
         ],
-        // $B2:FC0E
         [P.FireLasersRight] =
         [
             Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
@@ -120,7 +111,6 @@ internal static class WalkingSpacePirateAnimations
             Cue(new(K.ChooseMovement)),
             FallInto(P.LookingFacingRight),
         ],
-        // $B2:FC48
         [P.LookingFacingRight] =
         [
             Cue(new(K.SetFunction, Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),

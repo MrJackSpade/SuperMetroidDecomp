@@ -59,9 +59,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Last X that permits the alternate wait before another teaching jump.</summary>
     private const ushort EtecoonLongRunMaximumX = 832;
 
-    // These are the literal eight ROM words at $A7:E900-$E90F. Keeping them named beside
-    // their consumers avoids replacing authored fixed-point values with host-side tuning.
     /// <summary>Y speed for an ordinary Etecoon hop.</summary>
+    /// <remarks>These are the literal eight ROM words at $A7:E900-$E90F. Keeping them named beside their consumers
+    /// avoids replacing authored fixed-point values with host-side tuning.</remarks>
     private static readonly SnesSignedSixteenSixteen EtecoonJumpYVelocity = SnesSignedSixteenSixteen.FromParts(-3, 0);
     /// <summary>Y speed for the stronger long jump.</summary>
     private static readonly SnesSignedSixteenSixteen EtecoonLongJumpYVelocity = SnesSignedSixteenSixteen.FromParts(-4, 0);

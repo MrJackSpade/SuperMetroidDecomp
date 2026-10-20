@@ -16,13 +16,11 @@ internal static class StokeAnimations
     internal static AnimationProgramSet<StokeProgram, StokeFrame, StokeCue> Programs { get; } = new(
         new Dictionary<StokeProgram, AnimationProgramStep<StokeProgram, StokeFrame, StokeCue>[]>
     {
-        // $A2:8932
         [P.MovingLeft] =
         [
             Cue(new(K.SetMovingLeft)),
             FallInto(P.MovingLeftLoop),
         ],
-        // $A2:8934
         [P.MovingLeftLoop] =
         [
             Show(0, 8),
@@ -31,7 +29,6 @@ internal static class StokeAnimations
             Show(3, 8),
             GoTo(P.MovingLeftLoop),
         ],
-        // $A2:8948
         [P.AttackingLeft] =
         [
             Show(2, 16),
@@ -39,13 +36,11 @@ internal static class StokeAnimations
             Show(4, 16),
             GoTo(P.MovingLeft),
         ],
-        // $A2:8958
         [P.MovingRight] =
         [
             Cue(new(K.SetMovingRight)),
             FallInto(P.MovingRightLoop),
         ],
-        // $A2:895A
         [P.MovingRightLoop] =
         [
             Show(5, 8),
@@ -54,7 +49,6 @@ internal static class StokeAnimations
             Show(8, 8),
             GoTo(P.MovingRightLoop),
         ],
-        // $A2:896E
         [P.AttackingRight] =
         [
             Show(7, 16),

@@ -16,7 +16,6 @@ internal static class HibashiAnimations
     internal static AnimationProgramSet<HibashiProgram, HibashiFrame, HibashiCue> Programs { get; } = new(
         new Dictionary<HibashiProgram, AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue>[]>
     {
-        // $A6:8D1B
         [P.Graphics] =
         [
             Cue(new(K.PlayEruptionSound)),
@@ -68,7 +67,6 @@ internal static class HibashiAnimations
             Cue(new(K.FinishActivity)),
             Hold,
         ],
-        // $A6:8DA9
         [P.Hitbox] =
         [
             Show(0, 2),

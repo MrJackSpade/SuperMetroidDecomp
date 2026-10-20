@@ -271,7 +271,6 @@ public static class GameAssetInstaller
             Step("Extracting room base palettes...", (bus, d) => RoomStaticPaletteArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomStaticPaletteArtworkFiles.ValidateStock)),
         new(GameInstallationLayout.RoomMetatileDirectoryName,
             Step("Extracting room block compositions...", (bus, d) => RoomMetatileArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomMetatileArtworkFiles.ValidateStock)),
-        // Scrolling-sky tilemaps share the room-background directory and its manifest family.
         new(GameInstallationLayout.RoomBackgroundTilemapDirectoryName,
             Step("Extracting room background tilemaps...", (bus, d) => RoomBackgroundTilemapArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomBackgroundTilemapArtworkFiles.ValidateStock),
             Step("Extracting scrolling-sky tilemaps...", (bus, d) => RoomSkyTilemapArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomSkyTilemapArtworkFiles.ValidateStock)),

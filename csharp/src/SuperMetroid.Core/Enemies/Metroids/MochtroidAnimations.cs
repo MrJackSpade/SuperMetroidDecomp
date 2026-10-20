@@ -15,7 +15,6 @@ internal static class MochtroidAnimations
     internal static AnimationProgramSet<MochtroidProgram, MochtroidFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<MochtroidProgram, AnimationProgramStep<MochtroidProgram, MochtroidFrame, NoAnimationCue>[]>
     {
-        // $A3:A745
         [P.FreeFlight] =
         [
             Show(0, 14),
@@ -24,7 +23,6 @@ internal static class MochtroidAnimations
             Show(1, 14),
             GoTo(P.FreeFlight),
         ],
-        // $A3:A759
         [P.Attached] =
         [
             Show(3, 5),

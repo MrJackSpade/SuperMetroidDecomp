@@ -15,7 +15,6 @@ internal static class RipperAnimations
     internal static AnimationProgramSet<RipperProgram, RipperFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<RipperProgram, AnimationProgramStep<RipperProgram, RipperFrame, NoAnimationCue>[]>
     {
-        // $A2:E19B
         [P.GRipperMovingLeft] =
         [
             Show(0, 8),
@@ -24,7 +23,6 @@ internal static class RipperAnimations
             Show(2, 7),
             GoTo(P.GRipperMovingLeft),
         ],
-        // $A2:E1AF
         [P.GRipperMovingRight] =
         [
             Show(3, 8),
@@ -33,7 +31,6 @@ internal static class RipperAnimations
             Show(5, 7),
             GoTo(P.GRipperMovingRight),
         ],
-        // $A2:E2E0
         [P.Ripper2MovingRight] =
         [
             Show(0, 8),
@@ -42,7 +39,6 @@ internal static class RipperAnimations
             Show(2, 7),
             GoTo(P.Ripper2MovingRight),
         ],
-        // $A2:E2F4
         [P.Ripper2MovingLeft] =
         [
             Show(3, 8),
@@ -51,7 +47,6 @@ internal static class RipperAnimations
             Show(5, 7),
             GoTo(P.Ripper2MovingLeft),
         ],
-        // $A2:E477
         [P.RipperMovingRight] =
         [
             Show(9, 8),
@@ -60,7 +55,6 @@ internal static class RipperAnimations
             Show(11, 7),
             GoTo(P.RipperMovingRight),
         ],
-        // $A2:E48B
         [P.RipperMovingLeft] =
         [
             Show(6, 8),

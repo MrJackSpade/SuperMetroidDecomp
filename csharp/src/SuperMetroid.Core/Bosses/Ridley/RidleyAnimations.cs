@@ -61,7 +61,6 @@ internal static class RidleyAnimations
             UnlessFacingLeft(P.TransitionToFlyingFacingRight),
             .. TransitionToFlying(Side.Left, new(1, -12), new(-4, -8), K.CeresStartLiftoff),
         ],
-        // The right-facing take-off calls the Lower Norfair lift-off, as the native list does.
         [P.TransitionToFlyingFacingRight] = TransitionToFlying(Side.Right, new(-1, -12), new(4, -8), K.StartLiftoff),
     });
 

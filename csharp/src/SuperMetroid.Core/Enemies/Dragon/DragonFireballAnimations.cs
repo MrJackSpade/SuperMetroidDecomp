@@ -15,28 +15,24 @@ internal static class DragonFireballAnimations
     internal static AnimationProgramSet<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<DragonFireballProgram, AnimationProgramStep<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:B4BF
         [P.RisingLeft] =
         [
             Show(0, 5),
             Show(1, 5),
             GoTo(P.RisingLeft),
         ],
-        // $86:B4CB
         [P.RisingRight] =
         [
             Show(2, 5),
             Show(3, 5),
             GoTo(P.RisingRight),
         ],
-        // $86:B4D7
         [P.FallingLeft] =
         [
             Show(4, 5),
             Show(5, 5),
             GoTo(P.FallingLeft),
         ],
-        // $86:B4E3
         [P.FallingRight] =
         [
             Show(6, 5),

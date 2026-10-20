@@ -15,7 +15,6 @@ internal static class ElevatorAnimations
     internal static AnimationProgramSet<ElevatorProgram, ElevatorFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<ElevatorProgram, AnimationProgramStep<ElevatorProgram, ElevatorFrame, NoAnimationCue>[]>
     {
-        // $A3:94D6
         [P.Loop] =
         [
             Show(0, 2),

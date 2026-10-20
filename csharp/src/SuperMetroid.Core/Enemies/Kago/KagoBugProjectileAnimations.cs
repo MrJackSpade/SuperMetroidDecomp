@@ -15,13 +15,11 @@ internal static class KagoBugProjectileAnimations
     internal static AnimationProgramSet<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Programs { get; } = new(
         new Dictionary<KagoBugProjectileProgram, AnimationProgramStep<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue>[]>
     {
-        // $86:84FC
         [P.SharedDelete] =
         [
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:D03C
         [P.Landed] =
         [
             Show(0, 5),
@@ -29,13 +27,11 @@ internal static class KagoBugProjectileAnimations
             Show(1, 32767),
             GoTo(P.Landed),
         ],
-        // $86:D04A
         [P.Falling] =
         [
             Show(2, 32767),
             GoTo(P.Falling),
         ],
-        // $86:D052
         [P.JumpStart] =
         [
             Show(3, 16),
@@ -43,13 +39,11 @@ internal static class KagoBugProjectileAnimations
             Cue(new(K.StartJump)),
             FallInto(P.JumpLoop),
         ],
-        // $86:D05C
         [P.JumpLoop] =
         [
             Show(5, 32767),
             GoTo(P.JumpLoop),
         ],
-        // $86:D064
         [P.Shot] =
         [
             Cue(new(K.UsePaletteZero)),

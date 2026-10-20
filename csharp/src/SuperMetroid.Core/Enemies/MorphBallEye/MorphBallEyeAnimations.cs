@@ -15,7 +15,6 @@ internal static class MorphBallEyeAnimations
     internal static AnimationProgramSet<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<MorphBallEyeProgram, AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>[]>
     {
-        // $A8:8FAC
         [P.Active] =
         [
             Show(7, 10),
@@ -36,7 +35,6 @@ internal static class MorphBallEyeAnimations
             Show(0, 10),
             GoTo(P.Active),
         ],
-        // $A8:8FF0
         [P.FacingRightDeactivating] =
         [
             Show(15, 8),
@@ -44,13 +42,11 @@ internal static class MorphBallEyeAnimations
             Show(15, 5),
             FallInto(P.FacingRightClosed),
         ],
-        // $A8:8FFC
         [P.FacingRightClosed] =
         [
             Show(14, 48),
             Hold,
         ],
-        // $A8:9002
         [P.FacingLeftDeactivating] =
         [
             Show(17, 8),
@@ -58,13 +54,11 @@ internal static class MorphBallEyeAnimations
             Show(17, 5),
             FallInto(P.FacingLeftClosed),
         ],
-        // $A8:900E
         [P.FacingLeftClosed] =
         [
             Show(16, 48),
             Hold,
         ],
-        // $A8:9014
         [P.FacingRightActivating] =
         [
             Show(14, 32),
@@ -73,7 +67,6 @@ internal static class MorphBallEyeAnimations
             Show(15, 8),
             Hold,
         ],
-        // $A8:9026
         [P.FacingLeftActivating] =
         [
             Show(16, 32),
@@ -82,25 +75,21 @@ internal static class MorphBallEyeAnimations
             Show(17, 8),
             Hold,
         ],
-        // $A8:9038
         [P.MountFacingRight] =
         [
             Show(18, 1),
             Hold,
         ],
-        // $A8:903E
         [P.MountFacingDown] =
         [
             Show(19, 1),
             Hold,
         ],
-        // $A8:9044
         [P.MountFacingLeft] =
         [
             Show(20, 1),
             Hold,
         ],
-        // $A8:904A
         [P.MountFacingUp] =
         [
             Show(21, 1),

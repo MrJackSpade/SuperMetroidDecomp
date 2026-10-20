@@ -50,10 +50,10 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>First OBJ palette color affected by the graphics-drawn hook.</summary>
     private const int FirstAnimatedFaceBlockPaletteColor = 9;
 
-    // The cartridge stores this animation in the shared enemy-graphics-drawn hook words,
-    // not per enemy. Multiple blocks repeatedly select the same graphics-set palette during
-    // main AI, and whichever eligible block runs last therefore owns this one shared base.
     /// <summary>Whether an eligible block installed the room-wide graphics hook.</summary>
+    /// <remarks>The cartridge stores this animation in the shared enemy-graphics-drawn hook words, not per enemy.
+    /// Multiple blocks repeatedly select the same graphics-set palette during main AI, and whichever eligible block
+    /// runs last therefore owns this one shared base.</remarks>
     private bool _blueBrinstarFaceBlockPaletteHookInstalled;
     /// <summary>Shared countdown, reset to sixteen after each color update or actor activation.</summary>
     private NativeCountdown _blueBrinstarFaceBlockPaletteTimer;

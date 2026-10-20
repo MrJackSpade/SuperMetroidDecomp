@@ -15,7 +15,6 @@ internal static class PuyoAnimations
     internal static AnimationProgramSet<PuyoProgram, PuyoFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<PuyoProgram, AnimationProgramStep<PuyoProgram, PuyoFrame, NoAnimationCue>[]>
     {
-        // $A2:99AD
         [P.GroundedFast] =
         [
             Show(0, 5),
@@ -24,7 +23,6 @@ internal static class PuyoAnimations
             Show(1, 5),
             GoTo(P.GroundedFast),
         ],
-        // $A2:99C1
         [P.GroundedMedium] =
         [
             Show(0, 8),
@@ -33,7 +31,6 @@ internal static class PuyoAnimations
             Show(1, 8),
             GoTo(P.GroundedMedium),
         ],
-        // $A2:99D5
         [P.GroundedSlow] =
         [
             Show(0, 10),
@@ -42,31 +39,26 @@ internal static class PuyoAnimations
             Show(1, 10),
             GoTo(P.GroundedSlow),
         ],
-        // $A2:99E9
         [P.RightFrame0LeftFrame4] =
         [
             Show(7, 1),
             Hold,
         ],
-        // $A2:99EF
         [P.RightFrame1LeftFrame3] =
         [
             Show(6, 1),
             Hold,
         ],
-        // $A2:99F5
         [P.Frame2] =
         [
             Show(5, 1),
             Hold,
         ],
-        // $A2:99FB
         [P.RightFrame3LeftFrame1] =
         [
             Show(4, 1),
             Hold,
         ],
-        // $A2:9A01
         [P.RightFrame4LeftFrame0] =
         [
             Show(3, 1),

@@ -16,7 +16,6 @@ internal static class HopperAnimations
     internal static AnimationProgramSet<HopperProgram, HopperFrame, HopperCue> Programs { get; } = new(
         new Dictionary<HopperProgram, AnimationProgramStep<HopperProgram, HopperFrame, HopperCue>[]>
     {
-        // $A3:AA76
         [P.SidehopperFloorJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
@@ -24,7 +23,6 @@ internal static class HopperAnimations
             Show(2, 1),
             Hold,
         ],
-        // $A3:AA82
         [P.SidehopperFloorLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
@@ -36,7 +34,6 @@ internal static class HopperAnimations
             Cue(new(K.ReadyToHop)),
             Hold,
         ],
-        // $A3:AA9C
         [P.SidehopperCeilingJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
@@ -44,7 +41,6 @@ internal static class HopperAnimations
             Show(5, 1),
             Hold,
         ],
-        // $A3:AAA8
         [P.SidehopperCeilingLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
@@ -56,14 +52,12 @@ internal static class HopperAnimations
             Cue(new(K.ReadyToHop)),
             Hold,
         ],
-        // $A3:AFA5
         [P.DessgeegaFloorJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
             Show(8, 1),
             Hold,
         ],
-        // $A3:AFAD
         [P.DessgeegaFloorLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
@@ -74,14 +68,12 @@ internal static class HopperAnimations
             Cue(new(K.ReadyToHop)),
             Hold,
         ],
-        // $A3:AFC3
         [P.DessgeegaCeilingJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
             Show(11, 1),
             Hold,
         ],
-        // $A3:AFCB
         [P.DessgeegaCeilingLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
@@ -92,7 +84,6 @@ internal static class HopperAnimations
             Cue(new(K.ReadyToHop)),
             Hold,
         ],
-        // $A3:B0C5
         [P.LargeSidehopperFloorJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
@@ -100,7 +91,6 @@ internal static class HopperAnimations
             Show(14, 1),
             Hold,
         ],
-        // $A3:B0D1
         [P.LargeSidehopperFloorLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
@@ -112,7 +102,6 @@ internal static class HopperAnimations
             Cue(new(K.ReadyToHop)),
             Hold,
         ],
-        // $A3:B0EB
         [P.LargeSidehopperCeilingJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
@@ -120,7 +109,6 @@ internal static class HopperAnimations
             Show(17, 1),
             Hold,
         ],
-        // $A3:B0F7
         [P.LargeSidehopperCeilingLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
@@ -132,14 +120,12 @@ internal static class HopperAnimations
             Cue(new(K.ReadyToHop)),
             Hold,
         ],
-        // $A3:B237
         [P.LargeDessgeegaFloorJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
             Show(20, 1),
             Hold,
         ],
-        // $A3:B23F
         [P.LargeDessgeegaFloorLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
@@ -150,14 +136,12 @@ internal static class HopperAnimations
             Cue(new(K.ReadyToHop)),
             Hold,
         ],
-        // $A3:B255
         [P.LargeDessgeegaCeilingJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
             Show(23, 1),
             Hold,
         ],
-        // $A3:B25D
         [P.LargeDessgeegaCeilingLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),

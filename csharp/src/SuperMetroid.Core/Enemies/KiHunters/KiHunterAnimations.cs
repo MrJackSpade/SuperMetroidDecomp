@@ -16,7 +16,6 @@ internal static class KiHunterAnimations
     internal static AnimationProgramSet<KiHunterProgram, KiHunterFrame, KiHunterCue> Programs { get; } = new(
         new Dictionary<KiHunterProgram, AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>[]>
     {
-        // $A8:E9FA
         [P.FlyingLeft] =
         [
             Show(0, 2),
@@ -25,7 +24,6 @@ internal static class KiHunterAnimations
             Cue(new(K.ReturnToFlying)),
             FallInto(P.SwoopLeft),
         ],
-        // $A8:EA08
         [P.SwoopLeft] =
         [
             Show(14, 2),
@@ -36,7 +34,6 @@ internal static class KiHunterAnimations
             Show(17, 32),
             GoTo(P.FlyingLeft),
         ],
-        // $A8:EA24
         [P.FlyingRight] =
         [
             Show(6, 2),
@@ -45,7 +42,6 @@ internal static class KiHunterAnimations
             Cue(new(K.ReturnToFlying)),
             FallInto(P.SwoopRight),
         ],
-        // $A8:EA32
         [P.SwoopRight] =
         [
             Show(19, 2),
@@ -56,7 +52,6 @@ internal static class KiHunterAnimations
             Show(22, 32),
             GoTo(P.FlyingRight),
         ],
-        // $A8:EA4E
         [P.WingsLeft] =
         [
             Show(3, 2),
@@ -64,7 +59,6 @@ internal static class KiHunterAnimations
             Show(5, 1),
             GoTo(P.WingsLeft),
         ],
-        // $A8:EA5E
         [P.WingsRight] =
         [
             Show(9, 2),
@@ -72,13 +66,11 @@ internal static class KiHunterAnimations
             Show(11, 1),
             GoTo(P.WingsRight),
         ],
-        // $A8:EA7E
         [P.DetachedWings] =
         [
             Show(12, 1),
             Hold,
         ],
-        // $A8:EA8A
         [P.JumpLeft] =
         [
             Show(23, 8),
@@ -90,7 +82,6 @@ internal static class KiHunterAnimations
             Show(26, 1),
             Hold,
         ],
-        // $A8:EAA6
         [P.JumpRight] =
         [
             Show(27, 8),
@@ -102,7 +93,6 @@ internal static class KiHunterAnimations
             Show(30, 1),
             Hold,
         ],
-        // $A8:EAC2
         [P.LandLeft] =
         [
             Show(23, 8),
@@ -113,7 +103,6 @@ internal static class KiHunterAnimations
             Show(23, 1),
             Hold,
         ],
-        // $A8:EADA
         [P.LandRight] =
         [
             Show(27, 8),
@@ -124,7 +113,6 @@ internal static class KiHunterAnimations
             Show(27, 1),
             Hold,
         ],
-        // $A8:EAF2
         [P.SpitLeft] =
         [
             Show(31, 32),
@@ -137,7 +125,6 @@ internal static class KiHunterAnimations
             Show(31, 1),
             Hold,
         ],
-        // $A8:EB10
         [P.SpitRight] =
         [
             Show(36, 32),

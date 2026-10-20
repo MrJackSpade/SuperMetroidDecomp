@@ -15,7 +15,6 @@ internal static class BlueBrinstarFaceBlockAnimations
     internal static AnimationProgramSet<BlueBrinstarFaceBlockProgram, BlueBrinstarFaceBlockFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<BlueBrinstarFaceBlockProgram, AnimationProgramStep<BlueBrinstarFaceBlockProgram, BlueBrinstarFaceBlockFrame, NoAnimationCue>[]>
     {
-        // $A8:E80C
         [P.SamusLeft] =
         [
             Show(0, 48),
@@ -23,7 +22,6 @@ internal static class BlueBrinstarFaceBlockAnimations
             Show(2, 16),
             Hold,
         ],
-        // $A8:E81A
         [P.SamusRight] =
         [
             Show(0, 48),
@@ -31,7 +29,6 @@ internal static class BlueBrinstarFaceBlockAnimations
             Show(4, 16),
             Hold,
         ],
-        // $A8:E828
         [P.Initial] =
         [
             Show(0, 1),

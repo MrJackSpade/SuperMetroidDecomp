@@ -15,7 +15,6 @@ internal static class FuneNamiheFireballAnimations
     internal static AnimationProgramSet<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<FuneNamiheFireballProgram, AnimationProgramStep<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:DE96
         [P.Left] =
         [
             Show(0, 5),
@@ -23,7 +22,6 @@ internal static class FuneNamiheFireballAnimations
             Show(2, 5),
             GoTo(P.Left),
         ],
-        // $86:DEA6
         [P.Right] =
         [
             Show(3, 5),

@@ -15,7 +15,6 @@ internal static class SbugAnimations
     internal static AnimationProgramSet<SbugProgram, SbugFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<SbugProgram, AnimationProgramStep<SbugProgram, SbugFrame, NoAnimationCue>[]>
     {
-        // $A3:A071
         [P.Right] =
         [
             Show(0, 5),
@@ -24,7 +23,6 @@ internal static class SbugAnimations
             Show(2, 5),
             GoTo(P.Right),
         ],
-        // $A3:A085
         [P.UpRight] =
         [
             Show(3, 5),
@@ -33,7 +31,6 @@ internal static class SbugAnimations
             Show(5, 5),
             GoTo(P.UpRight),
         ],
-        // $A3:A099
         [P.Up] =
         [
             Show(6, 5),
@@ -42,7 +39,6 @@ internal static class SbugAnimations
             Show(8, 5),
             GoTo(P.Up),
         ],
-        // $A3:A0AD
         [P.UpLeft] =
         [
             Show(9, 5),
@@ -51,7 +47,6 @@ internal static class SbugAnimations
             Show(11, 5),
             GoTo(P.UpLeft),
         ],
-        // $A3:A0C1
         [P.Left] =
         [
             Show(12, 5),
@@ -60,7 +55,6 @@ internal static class SbugAnimations
             Show(14, 5),
             GoTo(P.Left),
         ],
-        // $A3:A0D5
         [P.DownLeft] =
         [
             Show(15, 5),
@@ -69,7 +63,6 @@ internal static class SbugAnimations
             Show(17, 5),
             GoTo(P.DownLeft),
         ],
-        // $A3:A0E9
         [P.Down] =
         [
             Show(18, 5),
@@ -78,7 +71,6 @@ internal static class SbugAnimations
             Show(20, 5),
             GoTo(P.Down),
         ],
-        // $A3:A0FD
         [P.DownRight] =
         [
             Show(21, 5),

@@ -18,7 +18,6 @@ internal static class TorizoAnimations
     internal static AnimationProgramSet<TorizoBodyProgram, TorizoFrame, TorizoCue> Programs { get; } = new(
         new Dictionary<TorizoBodyProgram, AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>[]>
     {
-        // $B0E5
         [P.SpecialCallableBlowUpBombTorizosGut] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Idle)),
@@ -35,7 +34,6 @@ internal static class TorizoAnimations
             Cue(new(K.ResumeInterrupted)),
             Unreachable,
         ],
-        // $B155
         [P.CallableBlowUpBombTorizosFace] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Idle)),
@@ -58,7 +56,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             Unreachable,
         ],
-        // $B1C8
         [P.DeathSequence0] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Idle)),
@@ -66,7 +63,6 @@ internal static class TorizoAnimations
             SetCounter(8),
             FallInto(P.DeathSequence1),
         ],
-        // $B1D2
         [P.DeathSequence1] =
         [
             Cue(new(K.SpawnDeathExplosion)),
@@ -77,7 +73,6 @@ internal static class TorizoAnimations
             SetCounter(14),
             FallInto(P.DeathSequence2),
         ],
-        // $B1E2
         [P.DeathSequence2] =
         [
             Cue(new(K.SpawnDeathExplosion)),
@@ -106,7 +101,6 @@ internal static class TorizoAnimations
             Cue(new(K.FinishDeath)),
             Stop,
         ],
-        // $B879
         [P.BombTorizoInitial0] =
         [
             Cue(new(K.SteppedLeftWithRightFoot)),
@@ -115,7 +109,6 @@ internal static class TorizoAnimations
             Cue(new(K.SetFunction, Function: TorizoFunction.WaitForHandTrigger)),
             Hold,
         ],
-        // $B887
         [P.BombTorizoInitial0Resumed] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
@@ -131,7 +124,6 @@ internal static class TorizoAnimations
             SetCounter(2),
             FallInto(P.BombTorizoInitial1),
         ],
-        // $B8C7
         [P.BombTorizoInitial1] =
         [
             Show(44, 4),
@@ -159,7 +151,6 @@ internal static class TorizoAnimations
             SetCounter(16),
             FallInto(P.BombTorizoInitial2),
         ],
-        // $B935
         [P.BombTorizoInitial2] =
         [
             Show(50, 4),
@@ -171,7 +162,6 @@ internal static class TorizoAnimations
             Show(50, 16),
             GoTo(P.FacingLeftWalkingLeftLegMoving),
         ],
-        // $B962
         [P.FacingLeftTurningLeft] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
@@ -179,7 +169,6 @@ internal static class TorizoAnimations
             Show(1, 24),
             FallInto(P.FacingLeftWalkingRightLegMoving),
         ],
-        // $B96C
         [P.FacingLeftWalkingRightLegMoving] =
         [
             Cue(new(K.SteppedLeftWithLeftFoot)),
@@ -204,7 +193,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkBombTorizo, Value: 10)),
             FallInto(P.FacingLeftWalkingLeftLegMoving),
         ],
-        // $B9B6
         [P.FacingLeftWalkingLeftLegMoving] =
         [
             Cue(new(K.SteppedLeftWithRightFoot)),
@@ -229,7 +217,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkBombTorizo, Value: 0)),
             GoTo(P.FacingLeftWalkingRightLegMoving),
         ],
-        // $BA04
         [P.FacingLeftSpewingChozoOrbsRightFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
@@ -243,7 +230,6 @@ internal static class TorizoAnimations
             SetCounter(3),
             FallInto(P.FacingLeftSpewingChozoOrbsRightFootFwd1),
         ],
-        // $BA26
         [P.FacingLeftSpewingChozoOrbsRightFootFwd1] =
         [
             Cue(new(K.SpawnBombTorizoChozoOrbs)),
@@ -257,7 +243,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingLeftSpewingChozoOrbsLeftFootFwd0),
         ],
-        // $BA46
         [P.FacingLeftSpewingChozoOrbsLeftFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
@@ -271,7 +256,6 @@ internal static class TorizoAnimations
             SetCounter(3),
             FallInto(P.FacingLeftSpewingChozoOrbsLeftFootFwd1),
         ],
-        // $BA68
         [P.FacingLeftSpewingChozoOrbsLeftFootFwd1] =
         [
             Cue(new(K.SpawnBombTorizoChozoOrbs)),
@@ -285,14 +269,12 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingLeftSonicBoomsRightFootForward0),
         ],
-        // $BA88
         [P.FacingLeftSonicBoomsRightFootForward0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
             SetCounter(4),
             FallInto(P.FacingLeftSonicBoomsRightFootForward1),
         ],
-        // $BA90
         [P.FacingLeftSonicBoomsRightFootForward1] =
         [
             Show(12, 6),
@@ -322,14 +304,12 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingLeftSonicBoomsLeftFootForward0),
         ],
-        // $BAF2
         [P.FacingLeftSonicBoomsLeftFootForward0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
             SetCounter(4),
             FallInto(P.FacingLeftSonicBoomsLeftFootForward1),
         ],
-        // $BAFA
         [P.FacingLeftSonicBoomsLeftFootForward1] =
         [
             Show(18, 6),
@@ -359,7 +339,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingLeftExplosiveSwipeRightFootForward),
         ],
-        // $BB5C
         [P.FacingLeftExplosiveSwipeRightFootForward] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
@@ -397,7 +376,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingLeftExplosiveSwipeLeftFootForward),
         ],
-        // $BBDE
         [P.FacingLeftExplosiveSwipeLeftFootForward] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
@@ -435,7 +413,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingLeftJumpingForwards0),
         ],
-        // $BC60
         [P.FacingLeftJumpingForwards0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
@@ -444,27 +421,23 @@ internal static class TorizoAnimations
             Show(101, 5),
             FallInto(P.FacingLeftJumpingForwards1),
         ],
-        // $BC70
         [P.FacingLeftJumpingForwards1] =
         [
             Show(102, 1),
             Cue(new(K.GoToIfRising, Target: P.FacingLeftJumpingForwards1)),
             FallInto(P.FacingLeftFalling0),
         ],
-        // $BC78
         [P.FacingLeftFalling0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
             Cue(new(K.Link, Target: P.FacingLeftFalling2)),
             FallInto(P.FacingLeftFalling1),
         ],
-        // $BC80
         [P.FacingLeftFalling1] =
         [
             Show(101, 5),
             GoTo(P.FacingLeftFalling1),
         ],
-        // $BC88
         [P.FacingLeftFalling2] =
         [
             Cue(new(K.PlayFootstepSound)),
@@ -472,7 +445,6 @@ internal static class TorizoAnimations
             Cue(new(K.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingLeftFacelessWalkingLeftLegMoving, Alternate: P.GoldenWalkingLeftLeftLegMoving)),
             GoTo(P.FacingLeftWalkingLeftLegMoving),
         ],
-        // $BC96
         [P.FacingLeftJumpingBackwardLandLeftFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
@@ -481,27 +453,23 @@ internal static class TorizoAnimations
             Show(101, 5),
             FallInto(P.FacingLeftJumpingBackwardLandLeftFootFwd1),
         ],
-        // $BCA6
         [P.FacingLeftJumpingBackwardLandLeftFootFwd1] =
         [
             Show(102, 1),
             Cue(new(K.GoToIfRising, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd1)),
             FallInto(P.FacingLeftJumpingBackwardLandLeftFootFwd2),
         ],
-        // $BCAE
         [P.FacingLeftJumpingBackwardLandLeftFootFwd2] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
             Cue(new(K.Link, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd4)),
             FallInto(P.FacingLeftJumpingBackwardLandLeftFootFwd3),
         ],
-        // $BCB6
         [P.FacingLeftJumpingBackwardLandLeftFootFwd3] =
         [
             Show(101, 5),
             GoTo(P.FacingLeftJumpingBackwardLandLeftFootFwd3),
         ],
-        // $BCBE
         [P.FacingLeftJumpingBackwardLandLeftFootFwd4] =
         [
             Cue(new(K.PlayFootstepSound)),
@@ -510,7 +478,6 @@ internal static class TorizoAnimations
             Cue(new(K.CallBombTorizoAttack, Target: P.FacingLeftSpewingChozoOrbsLeftFootFwd0, Alternate: P.FacingLeftSonicBoomsLeftFootForward0)),
             GoTo(P.FacingLeftWalkingRightLegMoving),
         ],
-        // $BCD2
         [P.FacingLeftJumpingBackwardRightFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
@@ -519,27 +486,23 @@ internal static class TorizoAnimations
             Show(101, 5),
             FallInto(P.FacingLeftJumpingBackwardRightFootFwd1),
         ],
-        // $BCE2
         [P.FacingLeftJumpingBackwardRightFootFwd1] =
         [
             Show(102, 1),
             Cue(new(K.GoToIfRising, Target: P.FacingLeftJumpingBackwardRightFootFwd1)),
             FallInto(P.FacingLeftJumpingBackwardRightFootFwd2),
         ],
-        // $BCEA
         [P.FacingLeftJumpingBackwardRightFootFwd2] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
             Cue(new(K.Link, Target: P.FacingLeftJumpingBackwardRightFootFwd4)),
             FallInto(P.FacingLeftJumpingBackwardRightFootFwd3),
         ],
-        // $BCF2
         [P.FacingLeftJumpingBackwardRightFootFwd3] =
         [
             Show(101, 5),
             GoTo(P.FacingLeftJumpingBackwardRightFootFwd3),
         ],
-        // $BCFA
         [P.FacingLeftJumpingBackwardRightFootFwd4] =
         [
             Cue(new(K.PlayFootstepSound)),
@@ -548,7 +511,6 @@ internal static class TorizoAnimations
             Cue(new(K.CallBombTorizoAttack, Target: P.FacingLeftSpewingChozoOrbsRightFootFwd0, Alternate: P.FacingLeftSonicBoomsRightFootForward0)),
             GoTo(P.FacingLeftWalkingLeftLegMoving),
         ],
-        // $BD0E
         [P.FacingLeftFacelessTurningLeft] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
@@ -556,7 +518,6 @@ internal static class TorizoAnimations
             Show(1, 8),
             FallInto(P.FacingLeftFacelessWalkingRightLegMoving),
         ],
-        // $BD18
         [P.FacingLeftFacelessWalkingRightLegMoving] =
         [
             Cue(new(K.SteppedLeftWithLeftFoot)),
@@ -577,7 +538,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkFacelessBombTorizo, Value: 10)),
             FallInto(P.FacingLeftFacelessWalkingLeftLegMoving),
         ],
-        // $BD52
         [P.FacingLeftFacelessWalkingLeftLegMoving] =
         [
             Cue(new(K.SteppedLeftWithRightFoot)),
@@ -598,7 +558,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkFacelessBombTorizo, Value: 0)),
             GoTo(P.FacingLeftFacelessWalkingRightLegMoving),
         ],
-        // $BD90
         [P.FacingLeftFacelessWalkingLeftLegMovingTrailing] =
         [
             Cue(new(K.SteppedRightWithLeftFoot)),
@@ -606,7 +565,6 @@ internal static class TorizoAnimations
             Cue(new(K.SetFunction, Function: TorizoFunction.WaitForHandTrigger)),
             Hold,
         ],
-        // $BD9C
         [P.FacingLeftFacelessWalkingLeftLegMovingTrailingResumed] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
@@ -625,7 +583,6 @@ internal static class TorizoAnimations
             Show(99, 8),
             GoTo(P.FacingRightWalkingRightLegMoving),
         ],
-        // $BDD8
         [P.FacingRightTurningRight] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
@@ -633,7 +590,6 @@ internal static class TorizoAnimations
             Show(1, 24),
             FallInto(P.FacingRightWalkingLeftLegMoving),
         ],
-        // $BDE2
         [P.FacingRightWalkingLeftLegMoving] =
         [
             Cue(new(K.SteppedRightWithRightFoot)),
@@ -659,7 +615,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkBombTorizo, Value: 30)),
             FallInto(P.FacingRightWalkingRightLegMoving),
         ],
-        // $BE30
         [P.FacingRightWalkingRightLegMoving] =
         [
             Cue(new(K.SteppedRightWithLeftFoot)),
@@ -684,7 +639,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkBombTorizo, Value: 20)),
             GoTo(P.FacingRightWalkingLeftLegMoving),
         ],
-        // $BE7E
         [P.FacingRightSpewingChozoOrbsLeftFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
@@ -698,7 +652,6 @@ internal static class TorizoAnimations
             SetCounter(3),
             FallInto(P.FacingRightSpewingChozoOrbsLeftFootFwd1),
         ],
-        // $BEA0
         [P.FacingRightSpewingChozoOrbsLeftFootFwd1] =
         [
             Cue(new(K.SpawnBombTorizoChozoOrbs)),
@@ -712,7 +665,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingRightSpewingChozoOrbsRightFootFwd0),
         ],
-        // $BEC0
         [P.FacingRightSpewingChozoOrbsRightFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
@@ -726,7 +678,6 @@ internal static class TorizoAnimations
             SetCounter(3),
             FallInto(P.FacingRightSpewingChozoOrbsRightFootFwd1),
         ],
-        // $BEE2
         [P.FacingRightSpewingChozoOrbsRightFootFwd1] =
         [
             Cue(new(K.SpawnBombTorizoChozoOrbs)),
@@ -740,14 +691,12 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingRightSonicBoomsLeftFootForward0),
         ],
-        // $BF02
         [P.FacingRightSonicBoomsLeftFootForward0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
             SetCounter(4),
             FallInto(P.FacingRightSonicBoomsLeftFootForward1),
         ],
-        // $BF0A
         [P.FacingRightSonicBoomsLeftFootForward1] =
         [
             Show(61, 6),
@@ -777,14 +726,12 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingRightSonicBoomsRightFootForward0),
         ],
-        // $BF6C
         [P.FacingRightSonicBoomsRightFootForward0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
             SetCounter(4),
             FallInto(P.FacingRightSonicBoomsRightFootForward1),
         ],
-        // $BF74
         [P.FacingRightSonicBoomsRightFootForward1] =
         [
             Show(67, 6),
@@ -814,7 +761,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingRightExplosiveSwipeLeftFootForward),
         ],
-        // $BFD6
         [P.FacingRightExplosiveSwipeLeftFootForward] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
@@ -852,7 +798,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingRightExplosiveSwipeRightFootForward),
         ],
-        // $C058
         [P.FacingRightExplosiveSwipeRightFootForward] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
@@ -890,7 +835,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.FacingRightJumpingForwards0),
         ],
-        // $C0DA
         [P.FacingRightJumpingForwards0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
@@ -899,27 +843,23 @@ internal static class TorizoAnimations
             Show(104, 5),
             FallInto(P.FacingRightJumpingForwards1),
         ],
-        // $C0EA
         [P.FacingRightJumpingForwards1] =
         [
             Show(105, 1),
             Cue(new(K.GoToIfRising, Target: P.FacingRightJumpingForwards1)),
             FallInto(P.FacingRightFalling0),
         ],
-        // $C0F2
         [P.FacingRightFalling0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
             Cue(new(K.Link, Target: P.FacingRightFalling2)),
             FallInto(P.FacingRightFalling1),
         ],
-        // $C0FA
         [P.FacingRightFalling1] =
         [
             Show(104, 5),
             GoTo(P.FacingRightFalling1),
         ],
-        // $C102
         [P.FacingRightFalling2] =
         [
             Cue(new(K.PlayFootstepSound)),
@@ -927,7 +867,6 @@ internal static class TorizoAnimations
             Cue(new(K.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingRightFacelessWalkingRightLegMoving, Alternate: P.GoldenWalkingRightRightLegMoving)),
             GoTo(P.FacingRightWalkingRightLegMoving),
         ],
-        // $C110
         [P.FacingRightJumpBackwardLandRightFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
@@ -936,27 +875,23 @@ internal static class TorizoAnimations
             Show(104, 5),
             FallInto(P.FacingRightJumpBackwardLandRightFootFwd1),
         ],
-        // $C120
         [P.FacingRightJumpBackwardLandRightFootFwd1] =
         [
             Show(105, 1),
             Cue(new(K.GoToIfRising, Target: P.FacingRightJumpBackwardLandRightFootFwd1)),
             FallInto(P.FacingRightJumpBackwardLandRightFootFwd2),
         ],
-        // $C128
         [P.FacingRightJumpBackwardLandRightFootFwd2] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
             Cue(new(K.Link, Target: P.FacingRightJumpBackwardLandRightFootFwd4)),
             FallInto(P.FacingRightJumpBackwardLandRightFootFwd3),
         ],
-        // $C130
         [P.FacingRightJumpBackwardLandRightFootFwd3] =
         [
             Show(104, 5),
             GoTo(P.FacingRightJumpBackwardLandRightFootFwd3),
         ],
-        // $C138
         [P.FacingRightJumpBackwardLandRightFootFwd4] =
         [
             Cue(new(K.PlayFootstepSound)),
@@ -965,7 +900,6 @@ internal static class TorizoAnimations
             Cue(new(K.CallBombTorizoAttack, Target: P.FacingRightSpewingChozoOrbsRightFootFwd0, Alternate: P.FacingRightSonicBoomsRightFootForward0)),
             GoTo(P.FacingRightWalkingLeftLegMoving),
         ],
-        // $C14C
         [P.FacingRightJumpBackwardsLandLeftFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
@@ -974,27 +908,23 @@ internal static class TorizoAnimations
             Show(104, 5),
             FallInto(P.FacingRightJumpBackwardsLandLeftFootFwd1),
         ],
-        // $C15C
         [P.FacingRightJumpBackwardsLandLeftFootFwd1] =
         [
             Show(105, 1),
             Cue(new(K.GoToIfRising, Target: P.FacingRightJumpBackwardsLandLeftFootFwd1)),
             FallInto(P.FacingRightJumpBackwardsLandLeftFootFwd2),
         ],
-        // $C164
         [P.FacingRightJumpBackwardsLandLeftFootFwd2] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
             Cue(new(K.Link, Target: P.FacingRightJumpBackwardsLandLeftFootFwd4)),
             FallInto(P.FacingRightJumpBackwardsLandLeftFootFwd3),
         ],
-        // $C16C
         [P.FacingRightJumpBackwardsLandLeftFootFwd3] =
         [
             Show(104, 5),
             GoTo(P.FacingRightJumpBackwardsLandLeftFootFwd3),
         ],
-        // $C174
         [P.FacingRightJumpBackwardsLandLeftFootFwd4] =
         [
             Cue(new(K.PlayFootstepSound)),
@@ -1003,7 +933,6 @@ internal static class TorizoAnimations
             Cue(new(K.CallBombTorizoAttack, Target: P.FacingRightSpewingChozoOrbsLeftFootFwd0, Alternate: P.FacingRightSonicBoomsLeftFootForward0)),
             GoTo(P.FacingRightWalkingRightLegMoving),
         ],
-        // $C188
         [P.FacingRightFacelessTurningRight] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
@@ -1011,7 +940,6 @@ internal static class TorizoAnimations
             Show(1, 8),
             FallInto(P.FacingRightFacelessWalkingLeftLegMoving),
         ],
-        // $C192
         [P.FacingRightFacelessWalkingLeftLegMoving] =
         [
             Cue(new(K.SteppedRightWithRightFoot)),
@@ -1032,7 +960,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkFacelessBombTorizo, Value: 30)),
             FallInto(P.FacingRightFacelessWalkingRightLegMoving),
         ],
-        // $C1CC
         [P.FacingRightFacelessWalkingRightLegMoving] =
         [
             Cue(new(K.SteppedRightWithLeftFoot)),
@@ -1053,7 +980,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkFacelessBombTorizo, Value: 20)),
             GoTo(P.FacingRightFacelessWalkingLeftLegMoving),
         ],
-        // $C9CB
         [P.GoldenInitial0] =
         [
             CopyTiles(21),
@@ -1063,13 +989,11 @@ internal static class TorizoAnimations
             Show(47, 1),
             Hold,
         ],
-        // $C9E2
         [P.GoldenInitial0Resumed] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
             FallInto(P.GoldenInitial1),
         ],
-        // $C9E6
         [P.GoldenInitial1] =
         [
             Show(47, 1),
@@ -1094,7 +1018,6 @@ internal static class TorizoAnimations
             SetCounter(2),
             FallInto(P.GoldenInitial2),
         ],
-        // $CA48
         [P.GoldenInitial2] =
         [
             Show(44, 4),
@@ -1122,7 +1045,6 @@ internal static class TorizoAnimations
             SetCounter(16),
             FallInto(P.GoldenInitial3),
         ],
-        // $CAB6
         [P.GoldenInitial3] =
         [
             Show(50, 4),
@@ -1134,7 +1056,6 @@ internal static class TorizoAnimations
             Show(50, 16),
             GoTo(P.GoldenWalkingLeftLeftLegMoving),
         ],
-        // $CAFF
         [P.GoldenSpewChozoOrbsFaceLeftRightFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
@@ -1147,7 +1068,6 @@ internal static class TorizoAnimations
             SetCounter(6),
             FallInto(P.GoldenSpewChozoOrbsFaceLeftRightFootFwd1),
         ],
-        // $CB1F
         [P.GoldenSpewChozoOrbsFaceLeftRightFootFwd1] =
         [
             Cue(new(K.PlayShotSound)),
@@ -1162,7 +1082,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd0),
         ],
-        // $CB41
         [P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
@@ -1175,7 +1094,6 @@ internal static class TorizoAnimations
             SetCounter(6),
             FallInto(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1),
         ],
-        // $CB61
         [P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1] =
         [
             Cue(new(K.PlayShotSound)),
@@ -1190,14 +1108,12 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.GoldenSonicBoomsFacingLeftRightFootFwd0),
         ],
-        // $CB83
         [P.GoldenSonicBoomsFacingLeftRightFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
             SetCounter(4),
             FallInto(P.GoldenSonicBoomsFacingLeftRightFootFwd1),
         ],
-        // $CB8B
         [P.GoldenSonicBoomsFacingLeftRightFootFwd1] =
         [
             Show(12, 3),
@@ -1227,14 +1143,12 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.GoldenSonicBoomsFacingLeftLeftFootFwd0),
         ],
-        // $CBED
         [P.GoldenSonicBoomsFacingLeftLeftFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
             SetCounter(4),
             FallInto(P.GoldenSonicBoomsFacingLeftLeftFootFwd1),
         ],
-        // $CBF5
         [P.GoldenSonicBoomsFacingLeftLeftFootFwd1] =
         [
             Show(18, 3),
@@ -1264,7 +1178,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0),
         ],
-        // $CC57
         [P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
@@ -1277,7 +1190,6 @@ internal static class TorizoAnimations
             SetCounter(6),
             FallInto(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1),
         ],
-        // $CC77
         [P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1] =
         [
             Cue(new(K.PlayShotSound)),
@@ -1292,7 +1204,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.GoldenSpewChozoOrbFacingLeftRightFootFwd0),
         ],
-        // $CC99
         [P.GoldenSpewChozoOrbFacingLeftRightFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
@@ -1305,7 +1216,6 @@ internal static class TorizoAnimations
             SetCounter(6),
             FallInto(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1),
         ],
-        // $CCB9
         [P.GoldenSpewChozoOrbFacingLeftRightFootFwd1] =
         [
             Cue(new(K.PlayShotSound)),
@@ -1320,14 +1230,12 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.GoldenSonicBoomsFacingRightLeftFootFwd0),
         ],
-        // $CCDB
         [P.GoldenSonicBoomsFacingRightLeftFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
             SetCounter(4),
             FallInto(P.GoldenSonicBoomsFacingRightLeftFootFwd1),
         ],
-        // $CCE3
         [P.GoldenSonicBoomsFacingRightLeftFootFwd1] =
         [
             Show(61, 3),
@@ -1357,14 +1265,12 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.GoldenSonicBoomsFacingRightRightFootFwd0),
         ],
-        // $CD45
         [P.GoldenSonicBoomsFacingRightRightFootFwd0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
             SetCounter(4),
             FallInto(P.GoldenSonicBoomsFacingRightRightFootFwd1),
         ],
-        // $CD4D
         [P.GoldenSonicBoomsFacingRightRightFootFwd1] =
         [
             Show(67, 3),
@@ -1394,31 +1300,26 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             FallInto(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd),
         ],
-        // $CDAF
         [P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd] =
         [
             Cue(new(K.CallGoldenTorizoAttack, Target: P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd0, Alternate: P.GoldenSonicBoomsFacingLeftLeftFootFwd0)),
             GoTo(P.GoldenWalkingLeftRightLegMoving),
         ],
-        // $CDB9
         [P.GoldenLandedFromBackwardsJumpFacingLeftRightFootFwd] =
         [
             Cue(new(K.CallGoldenTorizoAttack, Target: P.GoldenSpewChozoOrbsFaceLeftRightFootFwd0, Alternate: P.GoldenSonicBoomsFacingLeftRightFootFwd0)),
             GoTo(P.GoldenWalkingLeftLeftLegMoving),
         ],
-        // $CDC3
         [P.GoldenLandedFromBackwardsJumpFacingRightRightFootFwd] =
         [
             Cue(new(K.CallGoldenTorizoAttack, Target: P.GoldenSpewChozoOrbFacingLeftRightFootFwd0, Alternate: P.GoldenSonicBoomsFacingRightRightFootFwd0)),
             GoTo(P.GoldenWalkingRightLeftLegMoving),
         ],
-        // $CDCD
         [P.GoldenLandedFromBackwardsJumpFacingRightLeftFootFwd] =
         [
             Cue(new(K.CallGoldenTorizoAttack, Target: P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, Alternate: P.GoldenSonicBoomsFacingRightLeftFootFwd0)),
             GoTo(P.GoldenWalkingRightRightLegMoving),
         ],
-        // $CDE1
         [P.GoldenCaughtSuperFacingLeftLeftLegFwd] =
         [
             Cue(new(K.PlaySonicBoomSound)),
@@ -1448,7 +1349,6 @@ internal static class TorizoAnimations
             Cue(new(K.ClearCaughtSuperMissile)),
             GoTo(P.GoldenWalkingLeftRightLegMoving),
         ],
-        // $CE43
         [P.GoldenCaughtSuperFacingLeftRightLegFwd] =
         [
             Cue(new(K.PlaySonicBoomSound)),
@@ -1478,7 +1378,6 @@ internal static class TorizoAnimations
             Cue(new(K.ClearCaughtSuperMissile)),
             GoTo(P.GoldenWalkingLeftLeftLegMoving),
         ],
-        // $CEA5
         [P.GoldenCaughtSuperFacingRightRightLegFwd] =
         [
             Cue(new(K.PlaySonicBoomSound)),
@@ -1506,7 +1405,6 @@ internal static class TorizoAnimations
             Cue(new(K.ClearCaughtSuperMissile)),
             GoTo(P.GoldenWalkingRightLeftLegMoving),
         ],
-        // $CEFF
         [P.GoldenCaughtSuperFacingRightLeftLegFwd] =
         [
             Cue(new(K.PlaySonicBoomSound)),
@@ -1534,7 +1432,6 @@ internal static class TorizoAnimations
             Cue(new(K.ClearCaughtSuperMissile)),
             GoTo(P.GoldenWalkingRightRightLegMoving),
         ],
-        // $CF59
         [P.GoldenSitDownAttackFacingLeft] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
@@ -1565,7 +1462,6 @@ internal static class TorizoAnimations
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
             GoTo(P.GoldenWalkingLeftLeftLegMoving),
         ],
-        // $CFC5
         [P.GoldenSitDownAttackFacingRight] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
@@ -1596,7 +1492,6 @@ internal static class TorizoAnimations
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
             GoTo(P.GoldenWalkingRightRightLegMoving),
         ],
-        // $D031
         [P.GoldenReleaseGoldenTorizoEggs0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
@@ -1612,7 +1507,6 @@ internal static class TorizoAnimations
             SetCounter(6),
             FallInto(P.GoldenReleaseGoldenTorizoEggs1),
         ],
-        // $D07B
         [P.GoldenReleaseGoldenTorizoEggs1] =
         [
             Cue(new(K.PlayEggReleasedSound)),
@@ -1621,7 +1515,6 @@ internal static class TorizoAnimations
             RepeatWhileCounting(P.GoldenReleaseGoldenTorizoEggs1),
             FallInto(P.GoldenReleaseGoldenTorizoEggs2),
         ],
-        // $D087
         [P.GoldenReleaseGoldenTorizoEggs2] =
         [
             Wait(1),
@@ -1641,7 +1534,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             Unreachable,
         ],
-        // $D10D
         [P.GoldenEyeBeamAttack0] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.GoldenGravity)),
@@ -1652,7 +1544,6 @@ internal static class TorizoAnimations
             Cue(new(K.PlayLaserSound)),
             FallInto(P.GoldenEyeBeamAttack1),
         ],
-        // $D11F
         [P.GoldenEyeBeamAttack1] =
         [
             Cue(new(K.SpawnEyeBeam, Value: 0)),
@@ -1662,7 +1553,6 @@ internal static class TorizoAnimations
             SetCounter(2),
             FallInto(P.GoldenEyeBeamAttack2),
         ],
-        // $D133
         [P.GoldenEyeBeamAttack2] =
         [
             Wait(3),
@@ -1682,7 +1572,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             Unreachable,
         ],
-        // $D193
         [P.Stunned0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
@@ -1691,7 +1580,6 @@ internal static class TorizoAnimations
             SetCounter(2),
             FallInto(P.Stunned1),
         ],
-        // $D1A1
         [P.Stunned1] =
         [
             Wait(3),
@@ -1710,7 +1598,6 @@ internal static class TorizoAnimations
             Cue(new(K.Return)),
             Unreachable,
         ],
-        // $D1F1
         [P.GoldenDodgeTurningLeft] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
@@ -1720,7 +1607,6 @@ internal static class TorizoAnimations
             Cue(new(K.UnlockAnimation)),
             GoTo(P.GoldenWalkingLeftRightLegMoving),
         ],
-        // $D203
         [P.GoldenTurningLeft] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
@@ -1728,7 +1614,6 @@ internal static class TorizoAnimations
             Show(1, 8),
             FallInto(P.GoldenWalkingLeftRightLegMoving),
         ],
-        // $D20D
         [P.GoldenWalkingLeftRightLegMoving] =
         [
             Cue(new(K.SteppedLeftWithLeftFoot)),
@@ -1753,7 +1638,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkGoldenTorizo, Value: 10)),
             FallInto(P.GoldenWalkingLeftLeftLegMoving),
         ],
-        // $D259
         [P.GoldenWalkingLeftLeftLegMoving] =
         [
             Cue(new(K.SteppedLeftWithRightFoot)),
@@ -1779,7 +1663,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkGoldenTorizo, Value: 0)),
             GoTo(P.GoldenWalkingLeftRightLegMoving),
         ],
-        // $D2AD
         [P.GoldenDodgeTurningRight] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
@@ -1789,7 +1672,6 @@ internal static class TorizoAnimations
             Cue(new(K.UnlockAnimation)),
             GoTo(P.GoldenWalkingRightLeftLegMoving),
         ],
-        // $D2BF
         [P.GoldenTurningRight] =
         [
             Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
@@ -1797,7 +1679,6 @@ internal static class TorizoAnimations
             Show(1, 8),
             FallInto(P.GoldenWalkingRightLeftLegMoving),
         ],
-        // $D2C9
         [P.GoldenWalkingRightLeftLegMoving] =
         [
             Cue(new(K.SteppedRightWithRightFoot)),
@@ -1822,7 +1703,6 @@ internal static class TorizoAnimations
             Cue(new(K.WalkGoldenTorizo, Value: 30)),
             FallInto(P.GoldenWalkingRightRightLegMoving),
         ],
-        // $D315
         [P.GoldenWalkingRightRightLegMoving] =
         [
             Cue(new(K.SteppedRightWithLeftFoot)),

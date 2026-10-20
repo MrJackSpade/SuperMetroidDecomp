@@ -31,10 +31,10 @@ internal static class EndingTextLayoutDefinitions
             : SubtitleContinuationTopTile + glyph - firstRunCount;
         return (ushort)(topTile + row * atlasWidth);
     }
-    // Exact stock credit wording is retained as chosen lexical content: the native
-    // consumer copies glyphs opaquely; generating the spelling from gameplay is nonsense.
-    // This narrow disposition excludes the independently required palette choices and font pixels.
     /// <summary>$8C:DD31 glyphs spell the chosen credit identity DEER FORCE; narrowly retained lexical content.</summary>
+    /// <remarks>Exact stock credit wording is retained as chosen lexical content: the native consumer copies glyphs
+    /// opaquely; generating the spelling from gameplay is nonsense. This narrow disposition excludes the independently
+    /// required palette choices and font pixels.</remarks>
     private const string DevelopmentGroup = "DEER FORCE";
     /// <summary>$8C:DDF9 glyphs spell OF, the chosen connective wording of the credit; narrowly retained lexical content.</summary>
     private const string AttributionPreposition = "OF";

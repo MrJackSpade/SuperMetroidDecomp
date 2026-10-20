@@ -2030,9 +2030,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion;
     }
 
-    // Every spawn after the first ($A9:8983-$8ACB) begins with DEC timer : BPL return, so
-    // each waits out the $20 (or $02) its preceding clear step set.
     /// <summary>Schedules glass and tube collapse phases with their authored waits.</summary>
+    /// <remarks>Every spawn after the first ($A9:8983-$8ACB) begins with DEC timer : BPL return, so each waits out the
+    /// $20 (or $02) its preceding clear step set.</remarks>
     internal void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
         switch (state.TubeCollapseFunction)
@@ -2402,12 +2402,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         _presentation.AttachBg2Image(image);
         state.EnemyBg2TilemapTransferRequested = true;
     }
-    // `$86:CDD0-$CDE1` indexes the 256-word sine cycle by the already-even angle
-    // offset in X: horizontal motion reads cosine base `$A0:B443`, while vertical
-    // motion reads sine base `$A0:B3C3`. Expressing both through the sine base lets
-    // the X call add the native quarter-turn (`+64` samples) exactly once. Using
-    // `$B443` as this base silently shifted both components and made late angles read
-    // unrelated ROM data beyond the table.
 
     /// <summary>
     /// Consumes one request emitted by PLM instruction <c>$D30B</c>. The request retains the
@@ -4497,9 +4491,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             });
     }
 
-    // `$A9:B503` is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and the
-    // body callback performs no health, phase, or multipart-state work of its own.
     /// <summary>Registers body bomb reactions in the native AI dispatch table.</summary>
+    /// <remarks>`$A9:B503` is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and
+    /// the body callback performs no health, phase, or multipart-state work of its own.</remarks>
     internal static void RegisterMotherBrainBodyBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&

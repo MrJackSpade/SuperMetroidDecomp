@@ -15,7 +15,6 @@ internal static class PolypAnimations
     internal static AnimationProgramSet<PolypProgram, PolypFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<PolypProgram, AnimationProgramStep<PolypProgram, PolypFrame, NoAnimationCue>[]>
     {
-        // $A2:B51A
         [P.Stationary] =
         [
             Show(0, 1),

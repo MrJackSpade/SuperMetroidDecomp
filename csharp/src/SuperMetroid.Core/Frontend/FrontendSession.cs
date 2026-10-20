@@ -538,9 +538,9 @@ internal sealed class FrontendSession
     internal bool demoHasNextScene;
     /// <summary>Unlocks the fourth demo set only after a valid completed-game save exists.</summary>
     internal int AvailableDemoSetCount() => bootDemoSetCount;
-    // NMI continuations still owed by the current $82:8000 loading dispatch, and the
-    // dispatcher state it selects after its final wait returns.
     /// <summary>Accepted blank NMI waits remaining in state-five game loading.</summary>
+    /// <remarks>NMI continuations still owed by the current $82:8000 loading dispatch, and the dispatcher state it
+    /// selects after its final wait returns.</remarks>
     internal int gameLoadingWaitsRemaining;
     /// <summary>Destination to enter when game-loading waits finish.</summary>
     internal GameLoadingCompletion gameLoadingCompletion;
@@ -554,9 +554,9 @@ internal sealed class FrontendSession
     /// than a new main-loop dispatch, so the main loop's RNG call is absent.
     /// </summary>
     internal bool ResumesGameLoadingWait => gameLoadingWaitsRemaining > 0;
-    // State $09's door function before state $0A. Every door hit installs $82:E17D; a
-    // downward elevator replaces it with the $82:E19F delay.
     /// <summary>Whether room loading is paused for the downward elevator entry wait.</summary>
+    /// <remarks>State $09's door function before state $0A. Every door hit installs $82:E17D; a downward elevator
+    /// replaces it with the $82:E19F delay.</remarks>
     internal bool waitingForDownwardsElevator;
     /// <summary>Countdown before a downward elevator resumes destination loading.</summary>
     internal int downwardsElevatorDelayTimer;

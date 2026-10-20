@@ -16,7 +16,6 @@ internal static class CeresSteamAnimations
     internal static AnimationProgramSet<CeresSteamProgram, CeresSteamFrame, CeresSteamCue> Programs { get; } = new(
         new Dictionary<CeresSteamProgram, AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue>[]>
     {
-        // $A6:F04D
         [P.Up] =
         [
             Cue(new(K.Vanish)),
@@ -24,7 +23,6 @@ internal static class CeresSteamAnimations
             Cue(new(K.CountDownToActivation, Target: P.Up, Alternate: P.UpLoop2)),
             FallInto(P.UpLoop),
         ],
-        // $A6:F059
         [P.UpLoop] =
         [
             Cue(new(K.Vanish)),
@@ -32,7 +30,6 @@ internal static class CeresSteamAnimations
             Cue(new(K.Appear)),
             FallInto(P.UpLoop2),
         ],
-        // $A6:F061
         [P.UpLoop2] =
         [
             Show(0, 3),
@@ -44,7 +41,6 @@ internal static class CeresSteamAnimations
             Show(6, 3),
             GoTo(P.UpLoop),
         ],
-        // $A6:F081
         [P.Left] =
         [
             Cue(new(K.Vanish)),
@@ -52,7 +48,6 @@ internal static class CeresSteamAnimations
             Cue(new(K.CountDownToActivation, Target: P.Left, Alternate: P.LeftLoop2)),
             FallInto(P.LeftLoop),
         ],
-        // $A6:F08D
         [P.LeftLoop] =
         [
             Cue(new(K.Vanish)),
@@ -60,7 +55,6 @@ internal static class CeresSteamAnimations
             Cue(new(K.Appear)),
             FallInto(P.LeftLoop2),
         ],
-        // $A6:F095
         [P.LeftLoop2] =
         [
             Show(7, 3),
@@ -72,7 +66,6 @@ internal static class CeresSteamAnimations
             Show(13, 3),
             GoTo(P.LeftLoop),
         ],
-        // $A6:F0B5
         [P.Down] =
         [
             Cue(new(K.Vanish)),
@@ -80,7 +73,6 @@ internal static class CeresSteamAnimations
             Cue(new(K.CountDownToActivation, Target: P.Down, Alternate: P.DownLoop2)),
             FallInto(P.DownLoop),
         ],
-        // $A6:F0C1
         [P.DownLoop] =
         [
             Cue(new(K.Vanish)),
@@ -88,7 +80,6 @@ internal static class CeresSteamAnimations
             Cue(new(K.Appear)),
             FallInto(P.DownLoop2),
         ],
-        // $A6:F0C9
         [P.DownLoop2] =
         [
             Show(14, 3),
@@ -100,7 +91,6 @@ internal static class CeresSteamAnimations
             Show(20, 3),
             GoTo(P.DownLoop),
         ],
-        // $A6:F0E9
         [P.Right] =
         [
             Cue(new(K.Vanish)),
@@ -108,7 +98,6 @@ internal static class CeresSteamAnimations
             Cue(new(K.CountDownToActivation, Target: P.Right, Alternate: P.RightLoop2)),
             FallInto(P.RightLoop),
         ],
-        // $A6:F0F5
         [P.RightLoop] =
         [
             Cue(new(K.Vanish)),
@@ -116,7 +105,6 @@ internal static class CeresSteamAnimations
             Cue(new(K.Appear)),
             FallInto(P.RightLoop2),
         ],
-        // $A6:F0FD
         [P.RightLoop2] =
         [
             Show(21, 3),

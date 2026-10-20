@@ -16,13 +16,11 @@ internal static class EscapeEtecoonAnimations
     internal static AnimationProgramSet<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> Programs { get; } = new(
         new Dictionary<EscapeEtecoonProgram, AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue>[]>
     {
-        // $B3:E556
         [P.RunningLeftLowTide] =
         [
             Cue(new(K.GoToIfAcidHigh, Target: P.RunningLeftHighTide)),
             FallInto(P.RunningLeftLowTideLoop),
         ],
-        // $B3:E55A
         [P.RunningLeftLowTideLoop] =
         [
             Show(0, 5),
@@ -31,7 +29,6 @@ internal static class EscapeEtecoonAnimations
             Show(1, 5),
             GoTo(P.RunningLeftLowTideLoop),
         ],
-        // $B3:E56E
         [P.RunningLeftHighTide] =
         [
             Show(0, 3),
@@ -40,13 +37,11 @@ internal static class EscapeEtecoonAnimations
             Show(1, 3),
             GoTo(P.RunningLeftHighTide),
         ],
-        // $B3:E582
         [P.RunningRightLowTide] =
         [
             Cue(new(K.GoToIfAcidHigh, Target: P.RunningRightHighTide)),
             FallInto(P.RunningRightLowTideLoop),
         ],
-        // $B3:E586
         [P.RunningRightLowTideLoop] =
         [
             Show(3, 6),
@@ -55,7 +50,6 @@ internal static class EscapeEtecoonAnimations
             Show(4, 6),
             GoTo(P.RunningRightLowTideLoop),
         ],
-        // $B3:E59A
         [P.RunningRightHighTide] =
         [
             Show(3, 3),
@@ -64,13 +58,11 @@ internal static class EscapeEtecoonAnimations
             Show(4, 3),
             GoTo(P.RunningRightHighTide),
         ],
-        // $B3:E5AE
         [P.RunningForEscape] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: EscapeEtecoonPreInstruction.EscapeRight)),
             FallInto(P.RunningForEscapeLoop),
         ],
-        // $B3:E5B2
         [P.RunningForEscapeLoop] =
         [
             Show(3, 3),
@@ -79,7 +71,6 @@ internal static class EscapeEtecoonAnimations
             Show(4, 3),
             GoTo(P.RunningForEscapeLoop),
         ],
-        // $B3:E5C6
         [P.Stationary] =
         [
             Show(6, 64),
@@ -88,14 +79,12 @@ internal static class EscapeEtecoonAnimations
             Show(8, 8),
             GoTo(P.Stationary),
         ],
-        // $B3:E5DA
         [P.ExpressGratitudeThenEscape] =
         [
             Cue(new(K.ClearPreInstruction)),
             SetCounter(8),
             FallInto(P.ExpressGratitudeThenEscapeLoop),
         ],
-        // $B3:E5E0
         [P.ExpressGratitudeThenEscapeLoop] =
         [
             Show(0, 8),

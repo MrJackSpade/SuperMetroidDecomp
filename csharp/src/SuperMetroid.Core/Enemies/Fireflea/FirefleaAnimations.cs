@@ -15,7 +15,6 @@ internal static class FirefleaAnimations
     internal static AnimationProgramSet<FirefleaProgram, FirefleaFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<FirefleaProgram, AnimationProgramStep<FirefleaProgram, FirefleaFrame, NoAnimationCue>[]>
     {
-        // $A3:8C2F
         [P.Loop] =
         [
             Show(0, 2),

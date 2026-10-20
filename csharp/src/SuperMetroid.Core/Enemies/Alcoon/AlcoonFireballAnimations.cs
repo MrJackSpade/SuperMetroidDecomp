@@ -15,7 +15,6 @@ internal static class AlcoonFireballAnimations
     internal static AnimationProgramSet<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<AlcoonFireballProgram, AnimationProgramStep<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:9E9E
         [P.Initial] =
         [
             Show(0, 3),

@@ -68,7 +68,6 @@ internal static class MotherBrainAnimations
         [B.HandBeam] = HandBeam(),
         [B.InitialDummy] =
         [
-            // A zero duration is the cartridge's: the timer wraps and the dummy frame stays for good.
             BodyShow(MotherBrainBodyFrame.InitialDummy, 0),
             BodyHold,
         ],

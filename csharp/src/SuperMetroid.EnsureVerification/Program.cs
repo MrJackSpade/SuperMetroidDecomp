@@ -57,6 +57,7 @@ internal static class Program
                 (nameof(VerifyPpuLayoutAccessAnalyzer), VerifyPpuLayoutAccessAnalyzer),
                 (nameof(VerifyFrontendPpuMemoryAnalyzer), VerifyFrontendPpuMemoryAnalyzer),
                 (nameof(VerifyPlmSlotAllocationAnalyzer), VerifyPlmSlotAllocationAnalyzer),
+                (nameof(VerifyLooseCommentAnalyzer), VerifyLooseCommentAnalyzer),
                 (nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),
                 (nameof(VerifySpcMemoryAccessAnalyzer), VerifySpcMemoryAccessAnalyzer),
                 (nameof(VerifyParameterListAnalyzer), VerifyParameterListAnalyzer),

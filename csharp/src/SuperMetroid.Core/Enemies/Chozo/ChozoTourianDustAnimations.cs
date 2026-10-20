@@ -16,7 +16,6 @@ internal static class ChozoTourianDustAnimations
     internal static AnimationProgramSet<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<ChozoTourianDustProgram, AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:AEC4
         [P.Footsteps] =
         [
             Cue(new(CK.Scatter, Scatter: new(Range: new(15, 15), Center: new(0, 3)))),
@@ -27,7 +26,6 @@ internal static class ChozoTourianDustAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:AEDC
         [P.SpikeClearingExplosions] =
         [
             Cue(new(CK.Scatter, Scatter: new(Range: new(15, 15), Center: new(0, 3)))),
@@ -40,13 +38,11 @@ internal static class ChozoTourianDustAnimations
             Cue(new(CK.Delete)),
             Hold,
         ],
-        // $86:AF14
         [P.TourianDescentDust] =
         [
             SetCounter(64),
             FallInto(P.TourianDescentDustLoop),
         ],
-        // $86:AF18
         [P.TourianDescentDustLoop] =
         [
             Cue(new(CK.ReturnToOrigin)),

@@ -14,13 +14,11 @@ internal static class GunshipDustAnimations
     internal static AnimationProgramSet<GunshipDustProgram, GunshipDustFrame, GunshipDustCue> Programs { get; } = new(
         new Dictionary<GunshipDustProgram, AnimationProgramStep<GunshipDustProgram, GunshipDustFrame, GunshipDustCue>[]>
     {
-        // $86:A197
         [P.RightInner] =
         [
             SetCounter(1),
             FallInto(P.RightInnerLoop),
         ],
-        // $86:A19B
         [P.RightInnerLoop] =
         [
             Show(P.RightInnerLoop, 0, 8),
@@ -35,13 +33,11 @@ internal static class GunshipDustAnimations
             Cue(GunshipDustCue.Delete),
             Hold,
         ],
-        // $86:A1C1
         [P.RightMiddle] =
         [
             SetCounter(1),
             FallInto(P.RightMiddleLoop),
         ],
-        // $86:A1C5
         [P.RightMiddleLoop] =
         [
             Show(P.RightMiddleLoop, 0, 6),
@@ -56,13 +52,11 @@ internal static class GunshipDustAnimations
             Cue(GunshipDustCue.Delete),
             Hold,
         ],
-        // $86:A1EB
         [P.RightOuter] =
         [
             SetCounter(1),
             FallInto(P.RightOuterLoop),
         ],
-        // $86:A1EF
         [P.RightOuterLoop] =
         [
             Show(P.RightOuterLoop, 0, 11),
@@ -76,13 +70,11 @@ internal static class GunshipDustAnimations
             Cue(GunshipDustCue.Delete),
             Hold,
         ],
-        // $86:A211
         [P.LeftInner] =
         [
             SetCounter(1),
             FallInto(P.LeftInnerLoop),
         ],
-        // $86:A215
         [P.LeftInnerLoop] =
         [
             Show(P.LeftInnerLoop, 0, 8),
@@ -97,13 +89,11 @@ internal static class GunshipDustAnimations
             Cue(GunshipDustCue.Delete),
             Hold,
         ],
-        // $86:A23B
         [P.LeftMiddle] =
         [
             SetCounter(1),
             FallInto(P.LeftMiddleLoop),
         ],
-        // $86:A23F
         [P.LeftMiddleLoop] =
         [
             Show(P.LeftMiddleLoop, 0, 6),
@@ -118,13 +108,11 @@ internal static class GunshipDustAnimations
             Cue(GunshipDustCue.Delete),
             Hold,
         ],
-        // $86:A265
         [P.LeftOuter] =
         [
             SetCounter(1),
             FallInto(P.LeftOuterLoop),
         ],
-        // $86:A269
         [P.LeftOuterLoop] =
         [
             Show(P.LeftOuterLoop, 0, 11),

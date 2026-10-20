@@ -239,9 +239,9 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         return false;
     }
 
-    // Host content is rebound after restoring a graph; saved state must not freeze
-    // an old user override into the simulation. Only composition emission uses this.
     /// <summary>Complete installed standard OBJ sheet used by the queued gameplay DMA.</summary>
+    /// <remarks>Host content is rebound after restoring a graph; saved state must not freeze an old user override into
+    /// the simulation. Only composition emission uses this.</remarks>
     [field: NonSerialized]
     public RoomCharacterAtlas? StandardObjectArt
     {

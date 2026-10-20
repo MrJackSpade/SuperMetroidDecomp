@@ -1,16 +1,11 @@
 using System.Runtime.CompilerServices;
 
-// The dependency-free verification executable checks exact internal cartridge layouts.
-// Production hosts still see only the public game-facing API.
 [assembly: InternalsVisibleTo("SuperMetroid.Verification")]
 [assembly: InternalsVisibleTo("SuperMetroid.RenderVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.DesktopVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.IntegrationVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.EnsureVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.DebugRunner")]
-// The separate importer shares the driver's cartridge definitions and PCM codecs.
 [assembly: InternalsVisibleTo("SuperMetroid.AssetExtraction")]
-// Development-only static dependency audit; never linked by playable hosts.
 [assembly: InternalsVisibleTo("SuperMetroid.ResourceAudit")]
-// Development-only tool library: what only tools read lives there, outside the shipped assemblies.
 [assembly: InternalsVisibleTo("SuperMetroid.Tooling")]

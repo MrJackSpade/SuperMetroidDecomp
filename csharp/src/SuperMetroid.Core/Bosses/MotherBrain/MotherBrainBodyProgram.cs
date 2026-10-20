@@ -45,5 +45,6 @@ public enum MotherBrainBodyProgram
     /// <summary>The red hand-beam body program (<c>$A9:9A42</c>).</summary>
     HandBeam,
     /// <summary><c>InstList_MotherBrainHead_InitialDummy</c> (<c>$A9:9C13</c>), shared by the body and head slots.</summary>
+    /// <remarks>Its zero duration is the cartridge's: the timer wraps and the dummy frame stays for good.</remarks>
     InitialDummy,
 }

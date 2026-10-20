@@ -16,7 +16,6 @@ internal static class DownwardGateProjectileAnimations
     internal static AnimationProgramSet<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> Programs { get; } = new(
         new Dictionary<DownwardGateProjectileProgram, AnimationProgramStep<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue>[]>
     {
-        // $86:E53C
         [P.Moving] =
         [
             Cue(new(K.SetYVelocity, YVelocity: SnesSignedEightEight.FromSignedRaw(256))),
@@ -24,63 +23,53 @@ internal static class DownwardGateProjectileAnimations
             Show(0, 1),
             Hold,
         ],
-        // $86:E54A
         [P.MovingStep2] =
         [
             Show(1, 1),
             Hold,
         ],
-        // $86:E550
         [P.MovingStep3] =
         [
             Show(2, 1),
             Hold,
         ],
-        // $86:E556
         [P.MovingStep4] =
         [
             Show(3, 1),
             Hold,
         ],
-        // $86:E55C
         [P.MovingStep5] =
         [
             Cue(new(K.ClearPreInstruction)),
             FallInto(P.Closed),
         ],
-        // $86:E55E
         [P.Closed] =
         [
             Cue(new(K.SetYVelocity, YVelocity: SnesSignedEightEight.FromSignedRaw(-256))),
             Show(4, 1),
             Hold,
         ],
-        // $86:E568
         [P.ClosedStep2] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction)),
             Show(5, 1),
             Hold,
         ],
-        // $86:E572
         [P.ClosedStep3] =
         [
             Show(6, 1),
             Hold,
         ],
-        // $86:E578
         [P.ClosedStep4] =
         [
             Show(7, 1),
             Hold,
         ],
-        // $86:E57E
         [P.ClosedStep5] =
         [
             Show(8, 1),
             Hold,
         ],
-        // $86:E584
         [P.ClosedStep6] =
         [
             Cue(new(K.Delete)),

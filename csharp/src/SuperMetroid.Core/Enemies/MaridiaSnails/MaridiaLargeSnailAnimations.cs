@@ -16,13 +16,11 @@ internal static class MaridiaLargeSnailAnimations
     internal static AnimationProgramSet<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue> Programs { get; } = new(
         new Dictionary<MaridiaLargeSnailProgram, AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue>[]>
     {
-        // $A2:CA4B
         [P.FacingLeftIdle] =
         [
             Show(0, 1),
             Hold,
         ],
-        // $A2:CA51
         [P.FacingLeftAttacking] =
         [
             Show(0, 16),
@@ -42,7 +40,6 @@ internal static class MaridiaLargeSnailAnimations
             Cue(new(K.FinishAttack)),
             Hold,
         ],
-        // $A2:CA8B
         [P.FacingLeftRollingForwards] =
         [
             Show(2, 7),
@@ -57,7 +54,6 @@ internal static class MaridiaLargeSnailAnimations
             Show(14, 7),
             GoTo(P.FacingLeftRollingForwards),
         ],
-        // $A2:CAB3
         [P.FacingLeftRollingBackwards] =
         [
             Show(14, 7),
@@ -72,13 +68,11 @@ internal static class MaridiaLargeSnailAnimations
             Cue(new(K.DisallowAttackRotation)),
             GoTo(P.FacingLeftRollingBackwards),
         ],
-        // $A2:CADB
         [P.FacingRightIdle] =
         [
             Show(15, 1),
             Hold,
         ],
-        // $A2:CAE1
         [P.FacingRightAttacking] =
         [
             Show(15, 16),
@@ -98,7 +92,6 @@ internal static class MaridiaLargeSnailAnimations
             Cue(new(K.FinishAttack)),
             Hold,
         ],
-        // $A2:CB1B
         [P.FacingRightRollingForwards] =
         [
             Show(17, 7),
@@ -113,7 +106,6 @@ internal static class MaridiaLargeSnailAnimations
             Show(29, 7),
             GoTo(P.FacingRightRollingForwards),
         ],
-        // $A2:CB43
         [P.FacingRightRollingBackwards] =
         [
             Show(29, 7),

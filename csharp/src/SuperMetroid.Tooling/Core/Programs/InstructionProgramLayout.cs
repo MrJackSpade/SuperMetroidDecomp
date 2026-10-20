@@ -12,9 +12,9 @@ internal sealed class InstructionProgramLayout
 {
     /// <summary>Immutable native-order item sequence from which word addresses are calculated.</summary>
     internal readonly InstructionItem[] items;
-    // Lookups run per instruction and per byte; the layout is immutable, so its words are laid
-    // out once and indexed by address instead of walked on every query.
     /// <summary>Address index built once on first lookup instead of walking items on every instruction frame.</summary>
+    /// <remarks>Lookups run per instruction and per byte; the layout is immutable, so its words are laid out once and
+    /// indexed by address instead of walked on every query.</remarks>
     internal readonly Lazy<WordIndex> index;
 
     /// <summary>Checks the declared origin and named entries while counting mechanics and presentation words.</summary>

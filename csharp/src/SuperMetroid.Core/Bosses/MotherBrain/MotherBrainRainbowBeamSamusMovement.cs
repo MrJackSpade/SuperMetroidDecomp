@@ -21,9 +21,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </remarks>
 public sealed class MotherBrainRainbowBeamSamusMovement
 {
-    // `$A0:B443` is the signed 8-bit sine table consumed by the shared bank-$86 velocity
-    // component routine. Entries are 16-bit sign-extended values in the range -256..256.
-
     /// <summary>Mother Brain body extra words <c>$0FB2/$0FB4</c>: Samus's forced signed 8.8 velocity.</summary>
     public EightEightVector<RoomPixels> CustomVelocity { get; private set; }
 

@@ -1090,9 +1090,6 @@ static void SeedHurtFlashPalettes(TestAddressSpace bus)
     }
 }
 
-// Checks required-new/required-held masks, extra-button acceptance, ROM priority order,
-// terminators, and same-pose suppression in the bank-$91 prospective-pose lookup.
-
     /// <summary>Runs the arm cannon sprite routing and animation fixture.</summary>
     [VerificationCommand("--arm-cannon-fixture")]
     internal static int ArmCannonFixtureCommand()

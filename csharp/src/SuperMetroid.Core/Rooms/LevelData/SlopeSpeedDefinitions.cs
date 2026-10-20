@@ -3,9 +3,9 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>Grounded horizontal movement policy for the native slope geometry families.</summary>
 public static class SlopeSpeedDefinitions
 {
-    // Family membership follows native height profiles. The coefficients are authored tuning:
-    // cos(atan r), 1/(1+r^2) and linear-in-rise all fail to reproduce them (see residualScalarInputsReview).
     /// <summary>$94:8588, unity coefficient for square/flat/V/overhang profiles without slope scaling.</summary>
+    /// <remarks>Family membership follows native height profiles. The coefficients are authored tuning: cos(atan r),
+    /// 1/(1+r^2) and linear-in-rise all fail to reproduce them (see residualScalarInputsReview).</remarks>
     private const ushort Unscaled = 0x100;
     /// <summary>$94:85C0/85C4, four-pixel/two-pixel descending stair profiles 14/15.</summary>
     private const ushort DescendingStairs = 0x0b0;

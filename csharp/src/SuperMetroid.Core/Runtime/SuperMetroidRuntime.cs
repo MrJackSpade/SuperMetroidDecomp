@@ -367,9 +367,9 @@ internal sealed class SuperMetroidRuntime
     /// nonzero phase. The getter reads the translated bank-$88 owner; the setter is a
     /// debugger seam for forcing preconditions without constructing an explosion.
     /// </summary>
+    /// <remarks>Before the first room exists there is no explosion, so its status is the cleared one.</remarks>
     public int PowerBombExplosionStatus
     {
-        // Before the first room exists there is no explosion, so its status is the cleared one.
         get => Room.BombProjectiles?.PowerBombExplosion.Status ?? 0;
         set => Room.LoadedScope.BombProjectiles.PowerBombExplosion.SetStatusForDebugging(value);
     }

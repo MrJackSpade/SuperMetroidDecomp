@@ -15,7 +15,6 @@ internal static class PipeBugAnimations
     internal static AnimationProgramSet<PipeBugProgram, PipeBugFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<PipeBugProgram, AnimationProgramStep<PipeBugProgram, PipeBugFrame, NoAnimationCue>[]>
     {
-        // $B3:87AB
         [P.ZebRisingLeft] =
         [
             Show(0, 2),
@@ -28,7 +27,6 @@ internal static class PipeBugAnimations
             Show(1, 2),
             GoTo(P.ZebRisingLeft),
         ],
-        // $B3:87CF
         [P.ZebShootingLeft] =
         [
             Show(0, 1),
@@ -39,7 +37,6 @@ internal static class PipeBugAnimations
             Show(1, 1),
             GoTo(P.ZebShootingLeft),
         ],
-        // $B3:87EB
         [P.ZebRisingRight] =
         [
             Show(5, 2),
@@ -52,7 +49,6 @@ internal static class PipeBugAnimations
             Show(6, 2),
             GoTo(P.ZebRisingRight),
         ],
-        // $B3:880F
         [P.ZebShootingRight] =
         [
             Show(5, 1),
@@ -63,7 +59,6 @@ internal static class PipeBugAnimations
             Show(6, 1),
             GoTo(P.ZebShootingRight),
         ],
-        // $B3:8A1D
         [P.ZebboRisingLeft] =
         [
             Show(13, 2),
@@ -72,7 +67,6 @@ internal static class PipeBugAnimations
             Show(14, 1),
             GoTo(P.ZebboRisingLeft),
         ],
-        // $B3:8A31
         [P.ZebboShootingLeft] =
         [
             Show(10, 3),
@@ -81,7 +75,6 @@ internal static class PipeBugAnimations
             Show(11, 3),
             GoTo(P.ZebboShootingLeft),
         ],
-        // $B3:8A45
         [P.ZebboRisingRight] =
         [
             Show(19, 2),
@@ -90,7 +83,6 @@ internal static class PipeBugAnimations
             Show(20, 1),
             GoTo(P.ZebboRisingRight),
         ],
-        // $B3:8A59
         [P.ZebboShootingRight] =
         [
             Show(16, 3),
@@ -99,7 +91,6 @@ internal static class PipeBugAnimations
             Show(17, 3),
             GoTo(P.ZebboShootingRight),
         ],
-        // $B3:8AE1
         [P.GametRisingLeft] =
         [
             Show(22, 2),
@@ -112,7 +103,6 @@ internal static class PipeBugAnimations
             Show(23, 2),
             GoTo(P.GametRisingLeft),
         ],
-        // $B3:8B05
         [P.GametFlyingLeft] =
         [
             Show(22, 1),
@@ -123,7 +113,6 @@ internal static class PipeBugAnimations
             Show(23, 1),
             GoTo(P.GametFlyingLeft),
         ],
-        // $B3:8B21
         [P.GametRisingRight] =
         [
             Show(27, 2),
@@ -136,7 +125,6 @@ internal static class PipeBugAnimations
             Show(28, 2),
             GoTo(P.GametRisingRight),
         ],
-        // $B3:8B45
         [P.GametFlyingRight] =
         [
             Show(27, 1),
@@ -147,7 +135,6 @@ internal static class PipeBugAnimations
             Show(28, 1),
             GoTo(P.GametFlyingRight),
         ],
-        // $B3:8EFC
         [P.GeegaFlyingLeft] =
         [
             Show(32, 4),
@@ -156,7 +143,6 @@ internal static class PipeBugAnimations
             Show(33, 4),
             GoTo(P.GeegaFlyingLeft),
         ],
-        // $B3:8F10
         [P.GeegaArcingLeft] =
         [
             Show(35, 1),
@@ -165,7 +151,6 @@ internal static class PipeBugAnimations
             Show(36, 1),
             GoTo(P.GeegaArcingLeft),
         ],
-        // $B3:8F24
         [P.GeegaFlyingRight] =
         [
             Show(38, 4),
@@ -174,7 +159,6 @@ internal static class PipeBugAnimations
             Show(39, 4),
             GoTo(P.GeegaFlyingRight),
         ],
-        // $B3:8F38
         [P.GeegaArcingRight] =
         [
             Show(41, 1),

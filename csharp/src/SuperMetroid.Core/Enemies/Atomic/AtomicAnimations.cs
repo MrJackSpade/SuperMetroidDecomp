@@ -15,7 +15,6 @@ internal static class AtomicAnimations
     internal static AnimationProgramSet<AtomicProgram, AtomicFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<AtomicProgram, AnimationProgramStep<AtomicProgram, AtomicFrame, NoAnimationCue>[]>
     {
-        // $A8:E310
         [P.UpRight] =
         [
             Show(0, 8),
@@ -26,7 +25,6 @@ internal static class AtomicAnimations
             Show(5, 8),
             GoTo(P.UpRight),
         ],
-        // $A8:E32C
         [P.UpLeft] =
         [
             Show(6, 8),
@@ -37,7 +35,6 @@ internal static class AtomicAnimations
             Show(11, 8),
             GoTo(P.UpLeft),
         ],
-        // $A8:E348
         [P.DownLeft] =
         [
             Show(5, 8),
@@ -48,7 +45,6 @@ internal static class AtomicAnimations
             Show(0, 8),
             GoTo(P.DownLeft),
         ],
-        // $A8:E364
         [P.DownRight] =
         [
             Show(11, 8),

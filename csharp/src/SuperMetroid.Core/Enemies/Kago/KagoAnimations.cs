@@ -15,7 +15,6 @@ internal static class KagoAnimations
     internal static AnimationProgramSet<KagoProgram, KagoFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<KagoProgram, AnimationProgramStep<KagoProgram, KagoFrame, NoAnimationCue>[]>
     {
-        // $A8:AB1E
         [P.Slow] =
         [
             Show(0, 10),
@@ -24,7 +23,6 @@ internal static class KagoAnimations
             Show(1, 10),
             GoTo(P.Slow),
         ],
-        // $A8:AB32
         [P.Fast] =
         [
             Show(0, 3),

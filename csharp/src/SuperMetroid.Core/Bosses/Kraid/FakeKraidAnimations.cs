@@ -16,13 +16,11 @@ internal static class FakeKraidAnimations
     internal static AnimationProgramSet<FakeKraidProgram, FakeKraidFrame, FakeKraidCue> Programs { get; } = new(
         new Dictionary<FakeKraidProgram, AnimationProgramStep<FakeKraidProgram, FakeKraidFrame, FakeKraidCue>[]>
     {
-        // $A6:99AC
         [P.ChooseActionFacingLeft] =
         [
             Cue(new(K.ChooseAction)),
             FallInto(P.StepForwardsFacingLeft),
         ],
-        // $A6:99AE
         [P.StepForwardsFacingLeft] =
         [
             Show(0, 16),
@@ -32,13 +30,11 @@ internal static class FakeKraidAnimations
             Cue(new(K.Move)),
             GoTo(P.ChooseActionFacingLeft),
         ],
-        // $A6:99C4
         [P.ChooseAlternateActionFacingLeft] =
         [
             Cue(new(K.ChooseAction)),
             FallInto(P.StepBackwardsFacingLeft),
         ],
-        // $A6:99C6
         [P.StepBackwardsFacingLeft] =
         [
             Show(0, 16),
@@ -48,7 +44,6 @@ internal static class FakeKraidAnimations
             Show(1, 12),
             GoTo(P.ChooseAlternateActionFacingLeft),
         ],
-        // $A6:99DC
         [P.FireSpitFacingLeft] =
         [
             Show(4, 16),
@@ -59,13 +54,11 @@ internal static class FakeKraidAnimations
             Show(5, 8),
             GoTo(P.ChooseActionFacingLeft),
         ],
-        // $A6:99FA
         [P.ChooseActionFacingRight] =
         [
             Cue(new(K.ChooseAction)),
             FallInto(P.StepForwardsFacingRight),
         ],
-        // $A6:99FC
         [P.StepForwardsFacingRight] =
         [
             Show(7, 16),
@@ -75,13 +68,11 @@ internal static class FakeKraidAnimations
             Cue(new(K.Move)),
             GoTo(P.ChooseActionFacingRight),
         ],
-        // $A6:9A12
         [P.ChooseAlternateActionFacingRight] =
         [
             Cue(new(K.ChooseAction)),
             FallInto(P.StepBackwardsFacingRight),
         ],
-        // $A6:9A14
         [P.StepBackwardsFacingRight] =
         [
             Show(7, 16),
@@ -91,7 +82,6 @@ internal static class FakeKraidAnimations
             Show(8, 12),
             GoTo(P.ChooseAlternateActionFacingRight),
         ],
-        // $A6:9A2A
         [P.FireSpitFacingRight] =
         [
             Show(11, 16),

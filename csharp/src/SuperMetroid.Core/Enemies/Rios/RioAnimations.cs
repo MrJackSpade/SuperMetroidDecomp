@@ -16,14 +16,12 @@ internal static class RioAnimations
     internal static AnimationProgramSet<RioProgram, RioFrame, RioCue> Programs { get; } = new(
         new Dictionary<RioProgram, AnimationProgramStep<RioProgram, RioFrame, RioCue>[]>
     {
-        // $A2:BB4B
         [P.Idle] =
         [
             Show(0, 4),
             Show(1, 4),
             FallInto(P.PostSwoopIdle),
         ],
-        // $A2:BB53
         [P.PostSwoopIdle] =
         [
             Show(0, 4),
@@ -38,7 +36,6 @@ internal static class RioAnimations
             Show(3, 4),
             GoTo(P.Idle),
         ],
-        // $A2:BB7F
         [P.SwoopingPart1] =
         [
             Show(2, 3),
@@ -49,14 +46,12 @@ internal static class RioAnimations
             Cue(new(K.AnimationFinished)),
             Hold,
         ],
-        // $A2:BB97
         [P.SwoopingPart2] =
         [
             Show(7, 3),
             Show(6, 3),
             GoTo(P.SwoopingPart2),
         ],
-        // $A2:BBA3
         [P.SwoopCooldown] =
         [
             Show(6, 3),

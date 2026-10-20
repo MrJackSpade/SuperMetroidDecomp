@@ -65,8 +65,8 @@ public static class EndingTextDefinitions
     public static EndingTextRegionDefinition CopyrightCompany => new(0, CopyrightStart + CopyrightYearWidth + CopyrightGap,
         CopyrightCompanyWidth, EndingTextStyle.CopyrightLarge);
 
-    // Odd spare columns leave the extra cell on the right, matching native tilemaps.
     /// <summary>Centers a field within 32 cells, leaving an odd spare column on the right.</summary>
+    /// <remarks>Odd spare columns leave the extra cell on the right, matching native tilemaps.</remarks>
     private static int CenteredColumn(int width) => (TilemapWidth - width) / 2;
     /// <summary>Places an ending-text field at a native centered column with the selected font style.</summary>
     private static EndingTextRegionDefinition Centered(int row, int width, EndingTextStyle style) =>

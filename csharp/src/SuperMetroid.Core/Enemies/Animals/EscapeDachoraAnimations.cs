@@ -16,13 +16,11 @@ internal static class EscapeDachoraAnimations
     internal static AnimationProgramSet<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> Programs { get; } = new(
         new Dictionary<EscapeDachoraProgram, AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue>[]>
     {
-        // $B3:E964
         [P.RunningAroundLowTide] =
         [
             SetCounter(5),
             FallInto(P.RunningAroundLowTideLeft),
         ],
-        // $B3:E968
         [P.RunningAroundLowTideLeft] =
         [
             Show(0, 3),
@@ -43,7 +41,6 @@ internal static class EscapeDachoraAnimations
             SetCounter(5),
             FallInto(P.RunningAroundLowTideRight),
         ],
-        // $B3:E99C
         [P.RunningAroundLowTideRight] =
         [
             Show(6, 3),
@@ -63,13 +60,11 @@ internal static class EscapeDachoraAnimations
             RepeatWhileCounting(P.RunningAroundLowTideRight),
             GoTo(P.RunningAroundLowTide),
         ],
-        // $B3:E9D0
         [P.RunningAroundHighTide] =
         [
             SetCounter(5),
             FallInto(P.RunningAroundHighTideLeft),
         ],
-        // $B3:E9D4
         [P.RunningAroundHighTideLeft] =
         [
             Show(0, 2),
@@ -87,14 +82,12 @@ internal static class EscapeDachoraAnimations
             Cue(new(K.GoToIfCrittersEscaped, Target: P.RunningForEscape)),
             FallInto(P.RunningAroundHighTideLeftLoop),
         ],
-        // $B3:E9FC
         [P.RunningAroundHighTideLeftLoop] =
         [
             RepeatWhileCounting(P.RunningAroundHighTideLeft),
             SetCounter(5),
             FallInto(P.RunningAroundHighTideRight),
         ],
-        // $B3:EA04
         [P.RunningAroundHighTideRight] =
         [
             Show(6, 2),
@@ -112,19 +105,16 @@ internal static class EscapeDachoraAnimations
             Cue(new(K.GoToIfCrittersEscaped, Target: P.RunningForEscapeAccelerating)),
             FallInto(P.RunningAroundHighTideRightLoop),
         ],
-        // $B3:EA2C
         [P.RunningAroundHighTideRightLoop] =
         [
             RepeatWhileCounting(P.RunningAroundHighTideRight),
             GoTo(P.RunningAroundHighTide),
         ],
-        // $B3:EA34
         [P.RunningForEscape] =
         [
             Show(0, 30),
             FallInto(P.RunningForEscapeAccelerating),
         ],
-        // $B3:EA38
         [P.RunningForEscapeAccelerating] =
         [
             Show(6, 90),
@@ -153,7 +143,6 @@ internal static class EscapeDachoraAnimations
             Cue(new(K.MoveRight)),
             FallInto(P.RunningForEscapeMaximumSpeed),
         ],
-        // $B3:EA80
         [P.RunningForEscapeMaximumSpeed] =
         [
             Show(6, 1),

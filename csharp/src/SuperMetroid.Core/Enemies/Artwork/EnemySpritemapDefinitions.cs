@@ -1707,8 +1707,8 @@ internal static class EnemySpritemapDefinitions
     /// <summary>Exposes the complete stock frame sequence with checked index and range access.</summary>
     internal sealed class FrameList : IReadOnlyList<EnemySpritemapDefinition>
     {
-        // The frame list is a fixed derivation of the definitions; derive it once, not per access.
         /// <summary>Materializes the ordered catalogs only when a consumer first needs them.</summary>
+        /// <remarks>The frame list is a fixed derivation of the definitions; derive it once, not per access.</remarks>
         private readonly Lazy<EnemySpritemapDefinition[]> frames = new(() => EnumerateFrames().ToArray());
         /// <summary>Total named and appended frames in the current installed schema.</summary>
         public int Count => frames.Value.Length;

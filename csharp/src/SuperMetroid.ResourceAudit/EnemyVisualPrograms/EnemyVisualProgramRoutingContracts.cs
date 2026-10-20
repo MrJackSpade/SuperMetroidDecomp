@@ -7,8 +7,8 @@ namespace SuperMetroid.ResourceAudit.EnemyVisualPrograms;
 /// <summary>The common enemy-interpreter methods that route instruction words to visual selectors.</summary>
 internal static class EnemyVisualProgramRoutingContracts
 {
-    // Each routing method and the type that owns it.
     /// <summary>Required interpreter and presentation entry points that connect compiled words to visual selectors.</summary>
+    /// <remarks>Each routing method and the type that owns it.</remarks>
     private static readonly (string Method, string Owner)[] Methods =
     [
         ("PublishEnemySpritemap", "EnemyPresentation"),

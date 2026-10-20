@@ -256,6 +256,13 @@ internal static class CartridgeEncodingScanner
             CartridgeEncodingClass.NumericQuantity, $"'{identifier.ValueText}' stores {type} instance state", identifier.GetLocation());
     }
 
+    /// <summary>
+    /// Whether <paramref name="comment"/> is exactly one reviewed same-line allowance: a <c>//</c> comment that starts
+    /// with an allowance marker and carries its category and reason. Its text is what this inventory requires.
+    /// </summary>
+    internal static bool IsAllowanceComment(string comment) =>
+        AllowanceMarkers.Any(marker => comment.StartsWith("// " + marker, StringComparison.Ordinal) && HasAllowance(comment, marker));
+
     /// <summary>Whether the line holding <paramref name="position"/> carries a reviewed same-line allowance.</summary>
     private static bool HasAnyAllowance(SourceText text, int position)
     {

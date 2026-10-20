@@ -16,7 +16,6 @@ internal static class EnemyDeathProjectileAnimations
     internal static AnimationProgramSet<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Programs { get; } = new(
         new Dictionary<EnemyDeathProjectileProgram, AnimationProgramStep<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue>[]>
     {
-        // $86:ECA3
         [P.RespawnTail] =
         [
             Show(0, 64),
@@ -24,13 +23,11 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:ECAB
         [P.BigExplosion] =
         [
             SetCounter(5),
             FallInto(P.BigExplosionLoop),
         ],
-        // $86:ECAF
         [P.BigExplosionLoop] =
         [
             Cue(new(K.SpawnSpriteWithin16, SpriteObject: RoomSpriteObjectKind.SmallExplosion)),
@@ -41,13 +38,11 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new(K.BecomePickup)),
             Hold,
         ],
-        // $86:ECC5
         [P.MiniKraidExplosion] =
         [
             SetCounter(16),
             FallInto(P.MiniKraidExplosionLoop),
         ],
-        // $86:ECC9
         [P.MiniKraidExplosionLoop] =
         [
             Cue(new(K.SpawnSpriteWithin32, SpriteObject: RoomSpriteObjectKind.SmallExplosion)),
@@ -59,7 +54,6 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new(K.BecomePickup)),
             Hold,
         ],
-        // $86:ED4B
         [P.NormalExplosion] =
         [
             Show(3, 5),
@@ -72,7 +66,6 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new(K.BecomePickup)),
             Hold,
         ],
-        // $86:ED69
         [P.SmallExplosion] =
         [
             Show(9, 4),
@@ -85,7 +78,6 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new(K.BecomePickup)),
             Hold,
         ],
-        // $86:ED8D
         [P.SmallEnergy] =
         [
             Show(31, 8),
@@ -94,7 +86,6 @@ internal static class EnemyDeathProjectileAnimations
             Show(34, 8),
             GoTo(P.SmallEnergy),
         ],
-        // $86:EDA3
         [P.BigEnergy] =
         [
             Show(35, 8),
@@ -103,21 +94,18 @@ internal static class EnemyDeathProjectileAnimations
             Show(38, 8),
             GoTo(P.BigEnergy),
         ],
-        // $86:EDB9
         [P.Missiles] =
         [
             Show(39, 5),
             Show(40, 5),
             GoTo(P.Missiles),
         ],
-        // $86:EDDD
         [P.SuperMissiles] =
         [
             Show(41, 5),
             Show(42, 5),
             GoTo(P.SuperMissiles),
         ],
-        // $86:EDEB
         [P.PowerBombs] =
         [
             Show(43, 5),
@@ -126,7 +114,6 @@ internal static class EnemyDeathProjectileAnimations
             Show(46, 5),
             GoTo(P.PowerBombs),
         ],
-        // $86:EDFF
         [P.KilledBySamusContact] =
         [
             Show(15, 2),

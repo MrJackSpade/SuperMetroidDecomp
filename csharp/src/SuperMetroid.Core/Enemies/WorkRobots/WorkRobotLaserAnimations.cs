@@ -15,7 +15,6 @@ internal static class WorkRobotLaserAnimations
     internal static AnimationProgramSet<WorkRobotLaserProgram, WorkRobotLaserFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<WorkRobotLaserProgram, AnimationProgramStep<WorkRobotLaserProgram, WorkRobotLaserFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:D2EC
         [P.Initial] =
         [
             Show(0, 4),
@@ -23,7 +22,6 @@ internal static class WorkRobotLaserAnimations
             Show(2, 4),
             FallInto(P.Loop),
         ],
-        // $86:D2F8
         [P.Loop] =
         [
             Show(3, 4),

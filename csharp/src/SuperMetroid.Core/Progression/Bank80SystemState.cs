@@ -81,10 +81,10 @@ public sealed class Bank80SystemState
     /// </summary>
     public const int MapStationByteCount = 12;
 
-    // Keep these arrays private. Returning writable arrays would let callers bypass the
-    // same masking semantics that the ROM routines enforce and would make watch-window
-    // corruption extremely difficult to trace.
     /// <summary>Eight persistent story-event bytes mirrored from $7E:D820.</summary>
+    /// <remarks>Keep these arrays private. Returning writable arrays would let callers bypass the same masking
+    /// semantics that the ROM routines enforce and would make watch-window corruption extremely difficult to
+    /// trace.</remarks>
     private readonly byte[] _events = new byte[EventByteCount];
     /// <summary>Each area's boss state, including any bit whose meaning is not yet proven.</summary>
     private readonly BossBits[] _bossBitsByArea = new BossBits[AreaCount];

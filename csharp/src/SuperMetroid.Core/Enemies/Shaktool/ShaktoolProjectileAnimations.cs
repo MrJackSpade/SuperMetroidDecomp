@@ -16,20 +16,17 @@ internal static class ShaktoolProjectileAnimations
     internal static AnimationProgramSet<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<ShaktoolProjectileProgram, AnimationProgramStep<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:BD68
         [P.Front] =
         [
             Show(0, 4),
             Show(1, 4),
             FallInto(P.FrontLoop),
         ],
-        // $86:BD70
         [P.FrontLoop] =
         [
             Show(2, 119),
             GoTo(P.FrontLoop),
         ],
-        // $86:BD78
         [P.Middle] =
         [
             Show(3, 6),
@@ -37,20 +34,17 @@ internal static class ShaktoolProjectileAnimations
             Show(4, 4),
             FallInto(P.MiddleLoop),
         ],
-        // $86:BD84
         [P.MiddleLoop] =
         [
             Show(5, 119),
             GoTo(P.MiddleLoop),
         ],
-        // $86:BD8C
         [P.Back] =
         [
             Show(6, 10),
             Cue(new(CK.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving)),
             FallInto(P.BackLoop),
         ],
-        // $86:BD94
         [P.BackLoop] =
         [
             Show(7, 119),

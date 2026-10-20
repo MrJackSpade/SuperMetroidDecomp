@@ -16,7 +16,6 @@ internal static class ZoaAnimations
     internal static AnimationProgramSet<ZoaProgram, ZoaFrame, ZoaCue> Programs { get; } = new(
         new Dictionary<ZoaProgram, AnimationProgramStep<ZoaProgram, ZoaFrame, ZoaCue>[]>
     {
-        // $A3:B3C1
         [P.FacingLeftShooting] =
         [
             Cue(new(K.SetSpeedIndex4)),
@@ -27,7 +26,6 @@ internal static class ZoaAnimations
             Show(2, 48),
             GoTo(P.FacingLeftShooting),
         ],
-        // $A3:B3D7
         [P.FacingLeftRising] =
         [
             Show(4, 4),
@@ -35,7 +33,6 @@ internal static class ZoaAnimations
             Show(5, 4),
             GoTo(P.FacingLeftRising),
         ],
-        // $A3:B3E7
         [P.FacingRightShooting] =
         [
             Cue(new(K.SetSpeedIndex4)),
@@ -46,7 +43,6 @@ internal static class ZoaAnimations
             Show(8, 48),
             GoTo(P.FacingRightShooting),
         ],
-        // $A3:B3FD
         [P.FacingRightRising] =
         [
             Show(10, 4),

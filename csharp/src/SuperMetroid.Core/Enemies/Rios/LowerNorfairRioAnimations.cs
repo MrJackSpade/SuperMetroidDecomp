@@ -16,13 +16,11 @@ internal static class LowerNorfairRioAnimations
     internal static AnimationProgramSet<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue> Programs { get; } = new(
         new Dictionary<LowerNorfairRioProgram, AnimationProgramStep<LowerNorfairRioProgram, LowerNorfairRioFrame, LowerNorfairRioCue>[]>
     {
-        // $A2:C61A
         [P.Idle] =
         [
             Cue(new(K.HideFlames)),
             FallInto(P.IdleLoop),
         ],
-        // $A2:C61C
         [P.IdleLoop] =
         [
             Show(0, 11),
@@ -31,7 +29,6 @@ internal static class LowerNorfairRioAnimations
             Show(1, 11),
             GoTo(P.IdleLoop),
         ],
-        // $A2:C630
         [P.PrepareToSwoop] =
         [
             Cue(new(K.HideFlames)),
@@ -47,14 +44,12 @@ internal static class LowerNorfairRioAnimations
             Cue(new(K.AnimationFinished)),
             Hold,
         ],
-        // $A2:C65A
         [P.Descending] =
         [
             Cue(new(K.HideFlames)),
             Show(10, 1),
             Hold,
         ],
-        // $A2:C662
         [P.AscendingPart1] =
         [
             Cue(new(K.HideFlames)),
@@ -64,13 +59,11 @@ internal static class LowerNorfairRioAnimations
             Cue(new(K.AnimationFinished)),
             Hold,
         ],
-        // $A2:C674
         [P.AscendingPart2] =
         [
             Cue(new(K.ShowFlames)),
             FallInto(P.AscendingPart2Loop),
         ],
-        // $A2:C676
         [P.AscendingPart2Loop] =
         [
             Show(14, 2),
@@ -78,7 +71,6 @@ internal static class LowerNorfairRioAnimations
             Show(13, 2),
             GoTo(P.AscendingPart2Loop),
         ],
-        // $A2:C686
         [P.Cooldown] =
         [
             Cue(new(K.ShowFlames)),
@@ -94,7 +86,6 @@ internal static class LowerNorfairRioAnimations
             Cue(new(K.AnimationFinished)),
             Hold,
         ],
-        // $A2:C6B0
         [P.Flames] =
         [
             Show(15, 6),

@@ -16,13 +16,11 @@ internal static class BeetomAnimations
     internal static AnimationProgramSet<BeetomProgram, BeetomFrame, BeetomCue> Programs { get; } = new(
         new Dictionary<BeetomProgram, AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue>[]>
     {
-        // $A8:B696
         [P.CrawlingLeft] =
         [
             Cue(new(K.StopProcessingOffScreen)),
             FallInto(P.CrawlingLeftLoop),
         ],
-        // $A8:B698
         [P.CrawlingLeftLoop] =
         [
             Show(0, 10),
@@ -31,7 +29,6 @@ internal static class BeetomAnimations
             Show(1, 10),
             GoTo(P.CrawlingLeftLoop),
         ],
-        // $A8:B6AC
         [P.HopLeft] =
         [
             Cue(new(K.ProcessOffScreen)),
@@ -41,7 +38,6 @@ internal static class BeetomAnimations
             Show(0, 1),
             Hold,
         ],
-        // $A8:B6CC
         [P.DrainingLeft] =
         [
             Show(5, 5),
@@ -51,7 +47,6 @@ internal static class BeetomAnimations
             Cue(new(K.Nothing)),
             FallInto(P.DrainingLeftLoop),
         ],
-        // $A8:B6DE
         [P.DrainingLeftLoop] =
         [
             Show(8, 5),
@@ -60,13 +55,11 @@ internal static class BeetomAnimations
             Show(9, 5),
             GoTo(P.DrainingLeftLoop),
         ],
-        // $A8:B6F2
         [P.CrawlingRight] =
         [
             Cue(new(K.StopProcessingOffScreen)),
             FallInto(P.CrawlingRightLoop),
         ],
-        // $A8:B6F4
         [P.CrawlingRightLoop] =
         [
             Show(11, 10),
@@ -75,7 +68,6 @@ internal static class BeetomAnimations
             Show(12, 10),
             GoTo(P.CrawlingRightLoop),
         ],
-        // $A8:B708
         [P.HopRight] =
         [
             Cue(new(K.ProcessOffScreen)),
@@ -85,7 +77,6 @@ internal static class BeetomAnimations
             Show(11, 1),
             Hold,
         ],
-        // $A8:B728
         [P.DrainingRight] =
         [
             Show(16, 5),
@@ -95,7 +86,6 @@ internal static class BeetomAnimations
             Cue(new(K.Nothing)),
             FallInto(P.DrainingRightLoop),
         ],
-        // $A8:B73A
         [P.DrainingRightLoop] =
         [
             Show(19, 5),

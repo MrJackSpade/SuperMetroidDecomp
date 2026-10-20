@@ -14,20 +14,17 @@ internal static class CeresElevatorArrivalAnimations
     internal static AnimationProgramSet<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue> Programs { get; } = new(
         new Dictionary<CeresElevatorArrivalProgram, AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>[]>
     {
-        // $86:A28D
         [P.Pad] =
         [
             Show(CeresElevatorArrivalPose.PadFirst, 1),
             Show(CeresElevatorArrivalPose.PadSecond, 1),
             AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.GoTo(P.Pad),
         ],
-        // $86:A299
         [P.Platform] =
         [
             Show(CeresElevatorArrivalPose.Platform, 1),
             AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.GoTo(P.Platform),
         ],
-        // $86:A28B
         [P.Delete] = [AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.Stop],
     });
 

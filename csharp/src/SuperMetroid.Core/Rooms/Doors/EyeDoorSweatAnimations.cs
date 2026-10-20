@@ -16,13 +16,11 @@ internal static class EyeDoorSweatAnimations
     internal static AnimationProgramSet<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue> Programs { get; } = new(
         new Dictionary<EyeDoorSweatProgram, AnimationProgramStep<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue>[]>
     {
-        // $86:B615
         [P.Falling] =
         [
             Show(0, 6),
             AnimationProgramStep<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue>.GoTo(P.Falling),
         ],
-        // $86:B61D
         [P.HitFloor] =
         [
             Cue(new(CK.ClearPreInstruction)),

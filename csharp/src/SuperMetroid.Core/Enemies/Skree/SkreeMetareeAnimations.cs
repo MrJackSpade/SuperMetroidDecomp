@@ -16,7 +16,6 @@ internal static class SkreeMetareeAnimations
     internal static AnimationProgramSet<SkreeMetareeProgram, SkreeMetareeFrame, SkreeMetareeCue> Programs { get; } = new(
         new Dictionary<SkreeMetareeProgram, AnimationProgramStep<SkreeMetareeProgram, SkreeMetareeFrame, SkreeMetareeCue>[]>
     {
-        // $A3:8910
         [P.MetareeIdling] =
         [
             Show(0, 10),
@@ -25,7 +24,6 @@ internal static class SkreeMetareeAnimations
             Show(4, 10),
             GoTo(P.MetareeIdling),
         ],
-        // $A3:8924
         [P.MetareePreparingAttack] =
         [
             Show(0, 16),
@@ -33,13 +31,11 @@ internal static class SkreeMetareeAnimations
             Cue(new(K.SetAttackReady)),
             Hold,
         ],
-        // $A3:8930
         [P.MetareeDiving] =
         [
             Cue(new(K.ProcessOffScreen)),
             FallInto(P.MetareeDivingLoop),
         ],
-        // $A3:8932
         [P.MetareeDivingLoop] =
         [
             Show(2, 2),
@@ -48,14 +44,12 @@ internal static class SkreeMetareeAnimations
             Show(0, 2),
             GoTo(P.MetareeDivingLoop),
         ],
-        // $A3:8946
         [P.MetareeStopAnimating] =
         [
             Cue(new(K.StopProcessingOffScreen)),
             Show(0, 1),
             Hold,
         ],
-        // $A3:C65E
         [P.SkreeIdling] =
         [
             Show(5, 10),
@@ -64,7 +58,6 @@ internal static class SkreeMetareeAnimations
             Show(9, 10),
             GoTo(P.SkreeIdling),
         ],
-        // $A3:C672
         [P.SkreePreparingAttack] =
         [
             Show(5, 16),
@@ -72,13 +65,11 @@ internal static class SkreeMetareeAnimations
             Cue(new(K.SetAttackReady)),
             Hold,
         ],
-        // $A3:C67E
         [P.SkreeDiving] =
         [
             Cue(new(K.ProcessOffScreen)),
             FallInto(P.SkreeDivingLoop),
         ],
-        // $A3:C680
         [P.SkreeDivingLoop] =
         [
             Show(7, 2),
@@ -87,7 +78,6 @@ internal static class SkreeMetareeAnimations
             Show(5, 2),
             GoTo(P.SkreeDivingLoop),
         ],
-        // $A3:C694
         [P.SkreeStopAnimating] =
         [
             Cue(new(K.StopProcessingOffScreen)),

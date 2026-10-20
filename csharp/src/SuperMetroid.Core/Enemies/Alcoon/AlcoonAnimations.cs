@@ -16,13 +16,11 @@ internal static class AlcoonAnimations
     internal static AnimationProgramSet<AlcoonProgram, AlcoonFrame, AlcoonCue> Programs { get; } = new(
         new Dictionary<AlcoonProgram, AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>[]>
     {
-        // $A8:DBE7
         [P.WalkingLeft] =
         [
             Cue(new(K.Move)),
             FallInto(P.WalkingLeftLoop),
         ],
-        // $A8:DBE9
         [P.WalkingLeftLoop] =
         [
             Show(0, 10),
@@ -34,7 +32,6 @@ internal static class AlcoonAnimations
             Show(3, 10),
             GoTo(P.WalkingLeft),
         ],
-        // $A8:DC03
         [P.FireLeft] =
         [
             Show(4, 20),
@@ -59,25 +56,21 @@ internal static class AlcoonAnimations
             Show(7, 1),
             FallInto(P.AirborneLeftLookingUp),
         ],
-        // $A8:DC4B
         [P.AirborneLeftLookingUp] =
         [
             Show(8, 32767),
             Hold,
         ],
-        // $A8:DC51
         [P.AirborneLeftLookingForward] =
         [
             Show(3, 32767),
             Hold,
         ],
-        // $A8:DC57
         [P.WalkingRight] =
         [
             Cue(new(K.Move)),
             FallInto(P.WalkingRightLoop),
         ],
-        // $A8:DC59
         [P.WalkingRightLoop] =
         [
             Show(9, 10),
@@ -89,7 +82,6 @@ internal static class AlcoonAnimations
             Show(12, 10),
             GoTo(P.WalkingRight),
         ],
-        // $A8:DC73
         [P.FireRight] =
         [
             Show(13, 20),
@@ -114,13 +106,11 @@ internal static class AlcoonAnimations
             Show(16, 1),
             FallInto(P.AirborneRightLookingUp),
         ],
-        // $A8:DCBB
         [P.AirborneRightLookingUp] =
         [
             Show(17, 32767),
             Hold,
         ],
-        // $A8:DCC1
         [P.AirborneRightLookingForward] =
         [
             Show(12, 32767),

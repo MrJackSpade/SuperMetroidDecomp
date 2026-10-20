@@ -12,13 +12,11 @@ internal static class TourianStatueProjectileAnimations
     internal static AnimationProgramSet<TourianStatueProjectileProgram, TourianStatueProjectileFrame, TourianStatueProjectileCue> Programs { get; } = new(
         new Dictionary<TourianStatueProjectileProgram, AnimationProgramStep<TourianStatueProjectileProgram, TourianStatueProjectileFrame, TourianStatueProjectileCue>[]>
     {
-        // $86:B79F
         [P.Delete] =
         [
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:B7A1
         [P.Splash] =
         [
             Show(0, 8),
@@ -28,7 +26,6 @@ internal static class TourianStatueProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:B7B3
         [P.EyeGlow] =
         [
             Show(4, 8),
@@ -50,8 +47,6 @@ internal static class TourianStatueProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:B802: the counter is never set, so it wraps from zero; the particle leaves the screen long before it
-        // runs out and the list would run on into the routine code at $86:B818.
         [P.Particle] =
         [
             Show(14, 3),
@@ -62,7 +57,6 @@ internal static class TourianStatueProjectileAnimations
             RepeatWhileCounting(P.Particle),
             Hold,
         ],
-        // $86:B823
         [P.Tail] =
         [
             Show(18, 4),
@@ -75,33 +69,28 @@ internal static class TourianStatueProjectileAnimations
             Cue(new(K.Delete)),
             Hold,
         ],
-        // $86:B84E
         [P.Soul] =
         [
             Show(22, 8),
             Show(23, 8),
             GoTo(P.Soul),
         ],
-        // $86:B85A
         [P.BaseDecoration] =
         [
             Show(24, 128),
             Cue(new(K.StartMoving, Movement: EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess)),
             FallInto(P.BaseDecorationLoop),
         ],
-        // $86:B862
         [P.BaseDecorationLoop] =
         [
             Show(25, 1911),
             GoTo(P.BaseDecorationLoop),
         ],
-        // $86:B86A
         [P.Ridley] =
         [
             Show(26, 1911),
             GoTo(P.Ridley),
         ],
-        // $86:B872
         [P.Phantoon] =
         [
             Show(27, 1911),

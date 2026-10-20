@@ -15,7 +15,6 @@ internal static class RoomSpriteObjectAnimations
     internal static AnimationProgramSet<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<RoomSpriteObjectProgram, AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>[]>
     {
-        // $B4:BE24
         [P.DraygonFoamingAtTheMouth] =
         [
             Show(F.DraygonFoamingAtTheMouth0, 6),
@@ -28,7 +27,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.DraygonFoamingAtTheMouth7, 9),
             Stop,
         ],
-        // $B4:BEA4
         [P.SmallExplosion] =
         [
             Show(F.SmallExplosion0, 4),
@@ -39,7 +37,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.SmallExplosion5, 6),
             Stop,
         ],
-        // $B4:BEEA
         [P.DudShot] =
         [
             Show(F.DudShot0, 4),
@@ -50,7 +47,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.DudShot5, 4),
             Stop,
         ],
-        // $B4:BF1C
         [P.SmallDudShot] =
         [
             Show(F.PirateLandingDustCloud0, 5),
@@ -60,7 +56,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.SmallDustCloud3, 5),
             Stop,
         ],
-        // $B4:BF32
         [P.SpacePirateLandingDustCloud] =
         [
             Show(F.PirateLandingDustCloud0, 3),
@@ -69,7 +64,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.PirateLandingDustCloud3, 3),
             Stop,
         ],
-        // $B4:BF56
         [P.Smoke] =
         [
             Show(F.Smoke0, 8),
@@ -78,7 +72,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.Smoke3, 8),
             Stop,
         ],
-        // $B4:BF74
         [P.BigExplosion] =
         [
             Show(F.BigExplosion0, 5),
@@ -89,7 +82,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.BigExplosion5, 5),
             Stop,
         ],
-        // $B4:C014
         [P.ShortBigDustCloud] =
         [
             Show(F.BigDustCloud0, 2),
@@ -98,7 +90,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.BigDustCloud3, 2),
             Stop,
         ],
-        // $B4:C05E
         [P.BigDustCloud] =
         [
             Show(F.BigDustCloud0, 5),
@@ -111,7 +102,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.BigDustCloud7, 5),
             Stop,
         ],
-        // $B4:C10C
         [P.ShortDraygonBreathBubbles] =
         [
             Show(F.ShortDraygonBreathBubbles0, 3),
@@ -125,7 +115,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.ShortDraygonBreathBubbles8, 3),
             Stop,
         ],
-        // $B4:C30A
         [P.PuromiBody] =
         [
             Show(F.Puromi0, 3),
@@ -142,7 +131,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.Puromi7, 3),
             GoTo(P.PuromiBody),
         ],
-        // $B4:C33E
         [P.PuromiRightExplosion] =
         [
             Show(F.PuromiRightExplosion0, 2),
@@ -154,7 +142,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.PuromiRightExplosion6, 2),
             Stop,
         ],
-        // $B4:C35C
         [P.PuromiLeftExplosion] =
         [
             Show(F.PuromiLeftExplosion0, 2),
@@ -166,7 +153,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.PuromiLeftExplosion6, 2),
             Stop,
         ],
-        // $B4:C37A
         [P.PuromiSplash] =
         [
             Show(F.PuromiSplash0, 2),
@@ -176,7 +162,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.PuromiSplash4, 2),
             Stop,
         ],
-        // $B4:C390
         [P.FallingSparkTrail] =
         [
             Show(F.FallingSparkTrail0, 3),
@@ -185,7 +170,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.FallingSparkTrail3, 3),
             Stop,
         ],
-        // $B4:C3BA
         [P.MetroidElectricity] =
         [
             Show(F.MetroidElectricity0, 2),
@@ -221,7 +205,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.SpriteObjectDrawInstEmpty, 7),
             FallInto(P.Unused33),
         ],
-        // $B4:C436
         [P.Unused33] =
         [
             Show(F.MetroidElectricity6, 2),
@@ -257,7 +240,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.MetroidElectricity5, 2),
             GoTo(P.Unused33),
         ],
-        // $B4:C4B6
         [P.MetroidShell] =
         [
             Show(F.MetroidShell0, 1),
@@ -294,7 +276,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.SpriteObjectDrawInstEmpty, 1),
             FallInto(P.Unused35),
         ],
-        // $B4:C536
         [P.Unused35] =
         [
             Show(F.MetroidShell0, 1),
@@ -329,19 +310,16 @@ internal static class RoomSpriteObjectAnimations
             Show(F.SpriteObjectDrawInstEmpty, 1),
             GoTo(P.Unused35),
         ],
-        // $B4:C5D8
         [P.YappingMawBaseFacingDown] =
         [
             Show(F.YappingMawBaseFacingDown, 1),
             Hold,
         ],
-        // $B4:C5DE
         [P.YappingMawBaseFacingUp] =
         [
             Show(F.YappingMawBaseFacingUp, 1),
             Hold,
         ],
-        // $B4:C608
         [P.EvirFacingLeft] =
         [
             Show(F.EvirFacingLeft0, 10),
@@ -350,7 +328,6 @@ internal static class RoomSpriteObjectAnimations
             Show(F.EvirFacingLeft3, 10),
             GoTo(P.EvirFacingLeft),
         ],
-        // $B4:C61C
         [P.EvirFacingRight] =
         [
             Show(F.EvirFacingRight0, 10),

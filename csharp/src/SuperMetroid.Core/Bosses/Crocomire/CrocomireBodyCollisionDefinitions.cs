@@ -21,8 +21,9 @@ internal static class CrocomireBodyCollisionDefinitions
     /// <summary>Native bank containing Crocomire's body frames and hitboxes.</summary>
     internal const byte Bank = 0xa4;
 
-    // The hitbox lists precede the frames that reference them: static fields initialise in declaration order.
     /// <summary>Lower-front body rectangle using the standard touch and shot callbacks.</summary>
+    /// <remarks>The hitbox lists precede the frames that reference them: static fields initialise in declaration
+    /// order.</remarks>
     private static readonly CrocomireBodyCollisionHitbox[] LowerFrontBody = [new(-78, 32, -16, 43, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.AlternateDust)];
     /// <summary>Thin horizontal jaw/body contact strip using standard callbacks.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] JawStrip = [new(-95, 11, -16, 11, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.AlternateDust)];

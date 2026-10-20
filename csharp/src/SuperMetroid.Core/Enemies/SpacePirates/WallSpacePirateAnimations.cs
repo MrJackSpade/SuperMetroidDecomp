@@ -16,7 +16,6 @@ internal static class WallSpacePirateAnimations
     internal static AnimationProgramSet<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> Programs { get; } = new(
         new Dictionary<WallSpacePirateProgram, AnimationProgramStep<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>[]>
     {
-        // $B2:ECC0
         [P.FireAndJumpLeft] =
         [
             Cue(new(K.SetFunction, Function: WallSpacePirateFunction.AttackAnimationOnRightWall)),
@@ -31,21 +30,18 @@ internal static class WallSpacePirateAnimations
             Show(17, 1),
             Hold,
         ],
-        // $B2:ECE4
         [P.LandedOnLeftWall] =
         [
             Cue(new(K.SetFunction, Function: WallSpacePirateFunction.ClimbingLeftWall)),
             Show(16, 10),
             FallInto(P.MovingUpLeftWall),
         ],
-        // $B2:ECEC
         [P.MovingUpLeftWall] =
         [
             Cue(new(K.SetFunction, Function: WallSpacePirateFunction.ClimbingLeftWall)),
             SetCounter(4),
             FallInto(P.MovingUpLeftWallLoop),
         ],
-        // $B2:ECF4
         [P.MovingUpLeftWallLoop] =
         [
             Show(0, 10),
@@ -67,14 +63,12 @@ internal static class WallSpacePirateAnimations
             Cue(new(K.ChooseLeftWallDirection)),
             Hold,
         ],
-        // $B2:ED36
         [P.MovingDownLeftWall] =
         [
             Cue(new(K.SetFunction, Function: WallSpacePirateFunction.ClimbingLeftWall)),
             SetCounter(4),
             FallInto(P.MovingDownLeftWallLoop),
         ],
-        // $B2:ED3E
         [P.MovingDownLeftWallLoop] =
         [
             Show(0, 10),
@@ -96,7 +90,6 @@ internal static class WallSpacePirateAnimations
             Cue(new(K.ChooseLeftWallDirection)),
             Hold,
         ],
-        // $B2:ED80
         [P.FireAndJumpRight] =
         [
             Cue(new(K.SetFunction, Function: WallSpacePirateFunction.AttackAnimationOnLeftWall)),
@@ -111,21 +104,18 @@ internal static class WallSpacePirateAnimations
             Show(8, 1),
             Hold,
         ],
-        // $B2:EDA4
         [P.LandedOnRightWall] =
         [
             Cue(new(K.SetFunction, Function: WallSpacePirateFunction.ClimbingRightWall)),
             Show(7, 10),
             FallInto(P.MovingDownRightWall),
         ],
-        // $B2:EDAC
         [P.MovingDownRightWall] =
         [
             Cue(new(K.SetFunction, Function: WallSpacePirateFunction.ClimbingRightWall)),
             SetCounter(4),
             FallInto(P.MovingDownRightWallLoop),
         ],
-        // $B2:EDB4
         [P.MovingDownRightWallLoop] =
         [
             Show(9, 10),
@@ -147,14 +137,12 @@ internal static class WallSpacePirateAnimations
             Cue(new(K.ChooseRightWallDirection)),
             Hold,
         ],
-        // $B2:EDF6
         [P.MovingUpRightWall] =
         [
             Cue(new(K.SetFunction, Function: WallSpacePirateFunction.ClimbingRightWall)),
             SetCounter(4),
             FallInto(P.MovingUpRightWallLoop),
         ],
-        // $B2:EDFE
         [P.MovingUpRightWallLoop] =
         [
             Show(9, 10),

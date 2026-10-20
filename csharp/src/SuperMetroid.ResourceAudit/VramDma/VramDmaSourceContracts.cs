@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit.VramDma;
 internal static class VramDmaSourceContracts
 {
     /// <summary>Reviewed descriptor, importer, artwork-admission, and runtime-routing sources that bound native DMA ownership.</summary>
+    /// <remarks>The installation source is reviewed because installed format 85 requires both bounded invalid-selection beam sheets.</remarks>
     /// <remarks>A changed source is an explicit contract gap until its new behavior is reviewed.</remarks>
     internal static readonly ReviewedSource[] Additional =
     [
@@ -78,7 +79,6 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyArtworkFiles.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomSkyTilemapArtworkFiles.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/Installation/GameAssetInstaller.cs"),
-        // Format 85 requires both bounded invalid-selection beam sheets.
         new("csharp/src/SuperMetroid.AssetExtraction/Installation/GameInstallation.cs"),
     ];
     /// <summary>Reports a missing reviewed provider source from the PLM, area-map, or additional DMA contract sets.</summary>

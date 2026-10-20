@@ -18,6 +18,11 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// engine definitions, not editable art, callback code, or a reconstructed ROM.
 /// A selected target still needs its own renderer and presentation asset.
 /// </summary>
+/// <remarks>
+/// The per-bank definition declarations were generated from the pinned cartridge by the retired
+/// --generate-enemy-visual-selectors and are frozen (#1367); --verify-enemy-visual-selectors checks every entry
+/// against the cartridge.
+/// </remarks>
 internal static partial class CompiledEnemyVisualSelectors
 {
     /// <summary>Bank-sorted literal selector operands merged for binary lookup after calculated families.</summary>

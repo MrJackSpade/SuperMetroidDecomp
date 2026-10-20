@@ -204,9 +204,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    // $A3:C7F5 adds Skree's four debris actors after the shared normal shot handler reports death, before the
-    // common death animation releases the enemy slot.
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
+    /// <remarks>$A3:C7F5 adds Skree's four debris actors after the shared normal shot handler reports death, before the
+    /// common death animation releases the enemy slot.</remarks>
     internal void RegisterSkreeShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree &&
@@ -216,9 +216,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    // Skree's callback owns its four-piece burst and death animation because it called
-    // `NormalEnemyShotAiSkipDeathAnim`. A normal bomb selects death variant zero (only missiles select two).
     /// <summary>Handles lethal bombs with Skree's particle burst and death variant zero after the shared hit path.</summary>
+    /// <remarks>Skree's callback owns its four-piece burst and death animation because it called
+    /// `NormalEnemyShotAiSkipDeathAnim`. A normal bomb selects death variant zero (only missiles select two).</remarks>
     internal void RegisterSkreeBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree &&

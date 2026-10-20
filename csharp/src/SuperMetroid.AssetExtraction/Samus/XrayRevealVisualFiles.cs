@@ -354,9 +354,9 @@ public static class XrayRevealVisualFiles
         public int Pointer { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, Pointer);
     }
 
-    // Keep file admission separate from the runtime value type. A missing coordinate
-    // must not become the struct's legal zero/default value during deserialization.
     /// <summary>Requires explicit X/Y JSON bytes so omitted coordinates cannot become a legal default block.</summary>
+    /// <remarks>Keep file admission separate from the runtime value type. A missing coordinate must not become the
+    /// struct's legal zero/default value during deserialization.</remarks>
     [SpatialComponents("External format: reveals.json stores each room-overlay tile's block coordinates as x/y bytes.")]
     private sealed record XrayRoomOverlayTileDocument(int X, int Y, int Word)
     {

@@ -22,6 +22,7 @@ internal static class EnemyDeathProjectileCueRules
     };
 
     /// <summary>The oracle rules for the death and drop programs.</summary>
+    /// <remarks>A deletion ends its list, and the conversion always continues at the drop or respawn tail it chooses.</remarks>
     internal static NativeEnemyProjectileCueRules<EnemyDeathProjectileCue> Rules { get; } = new(
         word => Commands.TryGetValue((NativeEnemyProjectileInstruction)word, out var command) ? command.OperandBytes : null,
         (word, operands, cue, at) =>
@@ -31,6 +32,5 @@ internal static class EnemyDeathProjectileCueRules
             RoomSpriteObjectKind spriteObject = command.OperandBytes == 2 ? (RoomSpriteObjectKind)SnesLittleEndian.Word(operands[0], operands[1]) : default;
             AssertEqual(spriteObject, cue.SpriteObject, $"{at}: sprite object");
         },
-        // A deletion ends its list, and the conversion always continues at the drop or respawn tail it chooses.
         cue => cue.Kind is EnemyDeathProjectileCueKind.Delete or EnemyDeathProjectileCueKind.BecomePickup);
 }

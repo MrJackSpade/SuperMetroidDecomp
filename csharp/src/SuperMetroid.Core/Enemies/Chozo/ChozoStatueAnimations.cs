@@ -16,14 +16,12 @@ internal static class ChozoStatueAnimations
     internal static AnimationProgramSet<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> Programs { get; } = new(
         new Dictionary<ChozoStatueProgram, AnimationProgramStep<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue>[]>
     {
-        // $AA:E39D
         [P.LowerNorfairInitial] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: ChozoStatuePreInstruction.WaitForLowerNorfairHandTrigger)),
             Show(17, 1),
             Hold,
         ],
-        // $AA:E3A7
         [P.LowerNorfairActivated] =
         [
             Cue(new(K.ClearPreInstruction)),
@@ -45,7 +43,6 @@ internal static class ChozoStatueAnimations
             SetCounter(5),
             FallInto(P.LowerNorfairActivatedLoop),
         ],
-        // $AA:E3E5
         [P.LowerNorfairActivatedLoop] =
         [
             Show(22, 11),
@@ -68,14 +65,12 @@ internal static class ChozoStatueAnimations
             Cue(new(K.SetLoweredAcidPosition)),
             Hold,
         ],
-        // $AA:E457
         [P.WreckedShipInitial] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: ChozoStatuePreInstruction.WaitForWreckedShipHandTrigger)),
             Show(0, 1),
             Hold,
         ],
-        // $AA:E461
         [P.WreckedShipActivated] =
         [
             Cue(new(K.ClearPreInstruction)),
@@ -96,7 +91,6 @@ internal static class ChozoStatueAnimations
             SetCounter(4),
             FallInto(P.WreckedShipActivatedLoop),
         ],
-        // $AA:E49D
         [P.WreckedShipActivatedLoop] =
         [
             Show(13, 11),
@@ -110,7 +104,6 @@ internal static class ChozoStatueAnimations
             SetCounter(16),
             FallInto(P.WreckedShipActivatedLoop2),
         ],
-        // $AA:E4C1
         [P.WreckedShipActivatedLoop2] =
         [
             Cue(new(K.Move, CarryRecord: 11)),

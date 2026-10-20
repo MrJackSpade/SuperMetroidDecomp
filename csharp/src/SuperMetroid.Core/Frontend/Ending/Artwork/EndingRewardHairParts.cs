@@ -33,8 +33,8 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
         }
     }
     /// <summary>Reflects a sixteen-pixel forearm about the body center and raises the opposite cel one pixel.</summary>
+    /// <remarks>Reflect the sixteen-pixel piece about x=0.5; the right cel sits one pixel higher.</remarks>
     internal static (int X, int Y) OppositeForearm((int X, int Y) anchor)
-        // Reflect the sixteen-pixel piece about x=0.5; the right cel sits one pixel higher.
         => (1 - 16 - anchor.X, anchor.Y - 1);
     /// <summary>Replaces a matching hair-release frame with its packed atlas composition when the supplied part count agrees.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)

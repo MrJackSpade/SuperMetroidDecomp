@@ -16,7 +16,6 @@ internal static class DeadTourianAnimations
     internal static AnimationProgramSet<DeadTourianProgram, DeadTourianFrame, DeadTourianCue> Programs { get; } = new(
         new Dictionary<DeadTourianProgram, AnimationProgramStep<DeadTourianProgram, DeadTourianFrame, DeadTourianCue>[]>
     {
-        // $A9:ECAC
         [P.SidehopperHopping] =
         [
             Show(10, 2),
@@ -30,67 +29,56 @@ internal static class DeadTourianAnimations
             Cue(new(K.EndHop)),
             Hold,
         ],
-        // $A9:ECE3
         [P.SidehopperIdle] =
         [
             Show(12, 1),
             Hold,
         ],
-        // $A9:ECE9
         [P.SidehopperCorpse] =
         [
             Show(0, 1),
             Hold,
         ],
-        // $A9:ECEF
         [P.SidehopperInitiallyDead] =
         [
             Show(1, 1),
             Hold,
         ],
-        // $A9:ECF5
         [P.ZoomerCorpse0] =
         [
             Show(2, 1),
             Hold,
         ],
-        // $A9:ECFB
         [P.ZoomerCorpse1] =
         [
             Show(3, 1),
             Hold,
         ],
-        // $A9:ED01
         [P.ZoomerCorpse2] =
         [
             Show(4, 1),
             Hold,
         ],
-        // $A9:ED07
         [P.RipperCorpse0] =
         [
             Show(5, 1),
             Hold,
         ],
-        // $A9:ED0D
         [P.RipperCorpse1] =
         [
             Show(6, 1),
             Hold,
         ],
-        // $A9:ED13
         [P.SkreeCorpse0] =
         [
             Show(7, 1),
             Hold,
         ],
-        // $A9:ED19
         [P.SkreeCorpse1] =
         [
             Show(8, 1),
             Hold,
         ],
-        // $A9:ED1F
         [P.SkreeCorpse2] =
         [
             Show(9, 1),

@@ -15,7 +15,6 @@ internal static class PowampAnimations
     internal static AnimationProgramSet<PowampProgram, PowampFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<PowampProgram, AnimationProgramStep<PowampProgram, PowampFrame, NoAnimationCue>[]>
     {
-        // $A8:C163
         [P.BodyFast] =
         [
             Show(0, 5),
@@ -23,7 +22,6 @@ internal static class PowampAnimations
             Show(2, 5),
             GoTo(P.BodyFast),
         ],
-        // $A8:C173
         [P.BodySlow] =
         [
             Show(0, 9),
@@ -31,27 +29,23 @@ internal static class PowampAnimations
             Show(2, 9),
             GoTo(P.BodySlow),
         ],
-        // $A8:C183
         [P.BalloonInflate0] =
         [
             Show(3, 1),
             FallInto(P.BalloonInflate1),
         ],
-        // $A8:C187
         [P.BalloonInflate1] =
         [
             Show(4, 6),
             Show(5, 160),
             Hold,
         ],
-        // $A8:C191
         [P.BalloonStartSinking] =
         [
             Show(5, 1),
             Show(4, 6),
             FallInto(P.BalloonDeflated),
         ],
-        // $A8:C199
         [P.BalloonDeflated] =
         [
             Show(3, 160),

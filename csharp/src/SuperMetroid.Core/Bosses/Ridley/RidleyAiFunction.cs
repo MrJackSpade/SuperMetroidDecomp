@@ -5,6 +5,11 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// addresses in debugger-visible state makes every transition directly comparable with
 /// a WRAM trace and prevents host-only ordinals from obscuring shared cartridge code.
 /// </summary>
+/// <remarks>
+/// Lower Norfair Ridley begins at <see cref="NorfairEnterArena"/> after the shared reveal sequence. The Ceres fake
+/// retreat functions from <see cref="CeresFakeRetreatMoveToPosition"/> on are shared with the Baby retrieval route,
+/// and the real fight selects them only while Ridley has grabbed Samus.
+/// </remarks>
 public enum RidleyAiFunction : ushort
 {
     /// <summary>$A6:A354: clears shared motion before returning to the flying dispatcher.</summary>
@@ -60,8 +65,6 @@ public enum RidleyAiFunction : ushort
     /// <summary>$A6:AA50: retains the Ceres alarm-palette update after self-destruct setup.</summary>
     CeresSelfDestructPaletteOnly = 0xaa50,
 
-    // Lower Norfair Ridley begins at $B2F3 after the shared reveal sequence. These names
-    // describe the native movement/attack phases; their values are not host inventions.
     /// <summary>$A6:B2F3: moves Lower Norfair Ridley into the arena after the shared reveal.</summary>
     NorfairEnterArena = 0xb2f3,
     /// <summary>$A6:B321: selects Lower Norfair Ridley's next action from combat state.</summary>
@@ -113,8 +116,6 @@ public enum RidleyAiFunction : ushort
     /// <summary>$A6:BD4E, Function_Ridley_DodgingPowerBomb: recover from a lunge while a bomb is armed.</summary>
     NorfairReturnToArena = 0xbd4e,
 
-    // The following functions are shared with Ceres's Baby retrieval route but are only
-    // selected during the real fight when Ridley has grabbed Samus.
     /// <summary>$A6:BD9A: steers the fake Ceres retreat to its start; the shared entry can also be selected during a Lower Norfair grab.</summary>
     CeresFakeRetreatMoveToPosition = 0xbd9a,
     /// <summary>$A6:BDBC: raises Ceres Ridley until the Baby starts falling; shared with the grab route.</summary>

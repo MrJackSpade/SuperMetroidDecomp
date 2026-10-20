@@ -16,33 +16,28 @@ internal static class ShaktoolAnimations
     internal static AnimationProgramSet<ShaktoolProgram, ShaktoolFrame, ShaktoolCue> Programs { get; } = new(
         new Dictionary<ShaktoolProgram, AnimationProgramStep<ShaktoolProgram, ShaktoolFrame, ShaktoolCue>[]>
     {
-        // $AA:D9EA
         [P.SawHandAttackPrimaryPiece] =
         [
             Wait(576),
             GoTo(P.SawHandPrimaryPiece),
         ],
-        // $AA:D9F2
         [P.SawHandAttackFinalPiece] =
         [
             Wait(576),
             Cue(new(K.ResetFunctions)),
             GoTo(P.SawHandFinalPiece),
         ],
-        // $AA:D9FC
         [P.SawHandHeadBobPrimaryPiece] =
         [
             Wait(20),
             GoTo(P.SawHandPrimaryPiece),
         ],
-        // $AA:DA04
         [P.SawHandHeadBobFinalPiece] =
         [
             Wait(20),
             Cue(new(K.ResetFunctions)),
             GoTo(P.SawHandFinalPiece),
         ],
-        // $AA:DA0E
         [P.SawHandPrimaryPiece] =
         [
             Show(12, 10),
@@ -50,7 +45,6 @@ internal static class ShaktoolAnimations
             Show(14, 10),
             GoTo(P.SawHandPrimaryPiece),
         ],
-        // $AA:DA1E
         [P.SawHandFinalPiece] =
         [
             Show(0, 3),
@@ -58,7 +52,6 @@ internal static class ShaktoolAnimations
             Show(2, 3),
             GoTo(P.SawHandFinalPiece),
         ],
-        // $AA:DA2E
         [P.ArmPieceAttackBack] =
         [
             Wait(192),
@@ -68,7 +61,6 @@ internal static class ShaktoolAnimations
             Wait(256),
             GoTo(P.ArmPieceNormal),
         ],
-        // $AA:DA42
         [P.ArmPieceAttackFront] =
         [
             Wait(256),
@@ -78,7 +70,6 @@ internal static class ShaktoolAnimations
             Wait(192),
             GoTo(P.ArmPieceNormal),
         ],
-        // $AA:DA56
         [P.ArmPieceHeadBobBack] =
         [
             Cue(new(K.Lower)),
@@ -86,7 +77,6 @@ internal static class ShaktoolAnimations
             Cue(new(K.Raise)),
             GoTo(P.ArmPieceNormal),
         ],
-        // $AA:DA62
         [P.ArmPieceHeadBobFront] =
         [
             Wait(4),
@@ -96,13 +86,11 @@ internal static class ShaktoolAnimations
             Wait(4),
             FallInto(P.ArmPieceNormal),
         ],
-        // $AA:DA72
         [P.ArmPieceNormal] =
         [
             Show(3, 119),
             GoTo(P.ArmPieceNormal),
         ],
-        // $AA:DA7A
         [P.HeadAttack] =
         [
             Wait(128),
@@ -114,7 +102,6 @@ internal static class ShaktoolAnimations
             Wait(1),
             FallInto(P.HeadHeadBob),
         ],
-        // $AA:DA90
         [P.HeadHeadBob] =
         [
             Wait(8),
@@ -125,49 +112,41 @@ internal static class ShaktoolAnimations
             Wait(1),
             FallInto(P.HeadAimingLeft),
         ],
-        // $AA:DAA4
         [P.HeadAimingLeft] =
         [
             Show(4, 1908),
             GoTo(P.HeadAimingLeft),
         ],
-        // $AA:DAAC
         [P.HeadAimingUpLeft] =
         [
             Show(5, 1909),
             GoTo(P.HeadAimingUpLeft),
         ],
-        // $AA:DAB4
         [P.HeadAimingUp] =
         [
             Show(6, 1910),
             GoTo(P.HeadAimingUp),
         ],
-        // $AA:DABC
         [P.HeadAimingUpRight] =
         [
             Show(7, 1911),
             GoTo(P.HeadAimingUpRight),
         ],
-        // $AA:DAC4
         [P.HeadAimingRight] =
         [
             Show(8, 1912),
             GoTo(P.HeadAimingRight),
         ],
-        // $AA:DACC
         [P.HeadAimingDownRight] =
         [
             Show(9, 1913),
             GoTo(P.HeadAimingDownRight),
         ],
-        // $AA:DAD4
         [P.HeadAimingDown] =
         [
             Show(10, 1914),
             GoTo(P.HeadAimingDown),
         ],
-        // $AA:DADC
         [P.HeadAimingDownLeft] =
         [
             Show(11, 1915),

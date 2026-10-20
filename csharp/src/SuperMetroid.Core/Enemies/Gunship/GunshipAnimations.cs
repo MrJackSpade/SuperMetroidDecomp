@@ -15,7 +15,6 @@ internal static class GunshipAnimations
     internal static AnimationProgramSet<GunshipProgram, GunshipFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<GunshipProgram, AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>[]>
     {
-        // $A2:A5BE
         [P.EntrancePadOpening] =
         [
             Show(12, 40),
@@ -30,13 +29,11 @@ internal static class GunshipAnimations
             Show(9, 4),
             FallInto(P.EntrancePadOpen),
         ],
-        // $A2:A5E6
         [P.EntrancePadOpen] =
         [
             Show(10, 4),
             GoTo(P.EntrancePadOpen),
         ],
-        // $A2:A5EE
         [P.EntrancePadClosing] =
         [
             Show(9, 4),
@@ -49,19 +46,16 @@ internal static class GunshipAnimations
             Show(11, 8),
             FallInto(P.BottomEntrancePad),
         ],
-        // $A2:A60E
         [P.BottomEntrancePad] =
         [
             Show(12, 8),
             GoTo(P.BottomEntrancePad),
         ],
-        // $A2:A616
         [P.TopHull] =
         [
             Show(0, 1),
             Hold,
         ],
-        // $A2:A61C
         [P.BottomHull] =
         [
             Show(1, 1),

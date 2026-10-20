@@ -16,7 +16,6 @@ internal static class MagdolliteAnimations
     internal static AnimationProgramSet<MagdolliteProgram, MagdolliteFrame, MagdolliteCue> Programs { get; } = new(
         new Dictionary<MagdolliteProgram, AnimationProgramStep<MagdolliteProgram, MagdolliteFrame, MagdolliteCue>[]>
     {
-        // $A8:AC9C
         [P.LeftIdle] =
         [
             Show(0, 13),
@@ -25,7 +24,6 @@ internal static class MagdolliteAnimations
             Show(1, 13),
             GoTo(P.LeftIdle),
         ],
-        // $A8:ACB0
         [P.LeftThrow] =
         [
             Cue(new(K.PlaySoundIfOnScreen, Sound: MagdolliteSoundDefinitions.Throw)),
@@ -45,7 +43,6 @@ internal static class MagdolliteAnimations
             Cue(new(K.ClearAnimationBusy)),
             Hold,
         ],
-        // $A8:ACDE
         [P.LeftSubmerge] =
         [
             Cue(new(K.SetAnimationBusy)),
@@ -60,7 +57,6 @@ internal static class MagdolliteAnimations
             SetCounter(24),
             FallInto(P.LeftRaisePillar),
         ],
-        // $A8:ACFE
         [P.LeftRaisePillar] =
         [
             Cue(new(K.MoveWithPillarUp1)),
@@ -69,7 +65,6 @@ internal static class MagdolliteAnimations
             Cue(new(K.ClearAnimationBusy)),
             Hold,
         ],
-        // $A8:AD0C
         [P.LeftEmerge] =
         [
             Cue(new(K.SetAnimationBusy)),
@@ -77,7 +72,6 @@ internal static class MagdolliteAnimations
             SetCounter(24),
             FallInto(P.LeftLowerPillar),
         ],
-        // $A8:AD14
         [P.LeftLowerPillar] =
         [
             Cue(new(K.MoveWithPillarDown1)),
@@ -94,7 +88,6 @@ internal static class MagdolliteAnimations
             Cue(new(K.ClearAnimationBusy)),
             Hold,
         ],
-        // $A8:AD3C
         [P.RightIdle] =
         [
             Show(11, 13),
@@ -103,7 +96,6 @@ internal static class MagdolliteAnimations
             Show(12, 13),
             GoTo(P.RightIdle),
         ],
-        // $A8:AD50
         [P.RightThrow] =
         [
             Cue(new(K.PlaySoundIfOnScreen, Sound: MagdolliteSoundDefinitions.Throw)),
@@ -123,7 +115,6 @@ internal static class MagdolliteAnimations
             Cue(new(K.ClearAnimationBusy)),
             Hold,
         ],
-        // $A8:AD7E
         [P.RightSubmerge] =
         [
             Cue(new(K.SetAnimationBusy)),
@@ -138,7 +129,6 @@ internal static class MagdolliteAnimations
             SetCounter(24),
             FallInto(P.RightRaisePillar),
         ],
-        // $A8:AD9E
         [P.RightRaisePillar] =
         [
             Cue(new(K.MoveWithPillarUp1)),
@@ -147,7 +137,6 @@ internal static class MagdolliteAnimations
             Cue(new(K.ClearAnimationBusy)),
             Hold,
         ],
-        // $A8:ADAC
         [P.RightEmerge] =
         [
             Cue(new(K.SetAnimationBusy)),
@@ -155,7 +144,6 @@ internal static class MagdolliteAnimations
             SetCounter(24),
             FallInto(P.RightLowerPillar),
         ],
-        // $A8:ADB4
         [P.RightLowerPillar] =
         [
             Cue(new(K.MoveWithPillarDown1)),
@@ -172,55 +160,46 @@ internal static class MagdolliteAnimations
             Cue(new(K.ClearAnimationBusy)),
             Hold,
         ],
-        // $A8:ADDC
         [P.PillarPhase0] =
         [
             Show(21, 1),
             Hold,
         ],
-        // $A8:ADE2
         [P.PillarPhase1] =
         [
             Show(22, 1),
             Hold,
         ],
-        // $A8:ADE8
         [P.PillarPhase2] =
         [
             Show(23, 1),
             Hold,
         ],
-        // $A8:ADEE
         [P.PillarPhase3] =
         [
             Show(24, 1),
             Hold,
         ],
-        // $A8:ADF4
         [P.PillarPhase4] =
         [
             Show(25, 1),
             Hold,
         ],
-        // $A8:ADFA
         [P.PillarPhase5] =
         [
             Show(26, 1),
             Hold,
         ],
-        // $A8:AE00
         [P.PillarPhase6] =
         [
             Show(27, 1),
             Hold,
         ],
-        // $A8:AE06
         [P.PillarPhase7] =
         [
             Show(28, 1),
             Hold,
         ],
-        // $A8:AE0C
         [P.PillarCap] =
         [
             Show(7, 1),

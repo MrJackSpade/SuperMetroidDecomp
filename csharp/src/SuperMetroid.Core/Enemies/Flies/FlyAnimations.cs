@@ -15,7 +15,6 @@ internal static class FlyAnimations
     internal static AnimationProgramSet<FlyProgram, FlyFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<FlyProgram, AnimationProgramStep<FlyProgram, FlyFrame, NoAnimationCue>[]>
     {
-        // $A2:B013
         [P.Flight] =
         [
             Show(0, 2),

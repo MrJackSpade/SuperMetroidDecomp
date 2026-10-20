@@ -593,10 +593,6 @@ internal static void VerifySamusExtraDisplacement()
         "  Samus displacement: signed X/Y, grounded bias, transition motion, persistence, gravity reversal, and Morph Ball override agree.");
 }
 
-// Exercises `$91:F7B0/$91:DAC7/$90:CFFA-$D2B9` without relying on host elapsed time:
-// stage-gated storage, ROM palette indirection, windup timeout, directional installation,
-// 16.16 acceleration, energy drain, and the low-energy crash handoff.
-
     /// <summary>Runs the isolated horizontal speed fixture.</summary>
     [VerificationCommand("--horizontal-speed-fixture")]
     internal static int HorizontalSpeedFixtureCommand()

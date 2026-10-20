@@ -15,7 +15,6 @@ internal static class WreckedShipGhostAnimations
     internal static AnimationProgramSet<WreckedShipGhostProgram, WreckedShipGhostFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<WreckedShipGhostProgram, AnimationProgramStep<WreckedShipGhostProgram, WreckedShipGhostFrame, NoAnimationCue>[]>
     {
-        // $A8:9A8C
         [P.Floating] =
         [
             Show(0, 16),

@@ -19,9 +19,9 @@ internal static class DeadTorizoArtworkDefinitions
     /// <summary>$A9:D6E2, the selected 25-part stationary corpse OAM composition.</summary>
     internal const ushort StationarySpritemap = 0xd6e2;
 
-    // Appended separately from Frames() so version-53 visual overrides retain
-    // the exact 1,008-frame prefix they originally authored.
     /// <summary>Appends the stationary corpse after the original frame prefix to preserve older visual overrides.</summary>
+    /// <remarks>Appended separately from Frames() so version-53 visual overrides retain the exact 1,008-frame prefix
+    /// they originally authored.</remarks>
     internal static EnemySpritemapDefinition[] StationaryFrames() =>
         [new(SpritemapBank, StationarySpritemap, "dead_torizo_stationary_a9_d6e2")];
 

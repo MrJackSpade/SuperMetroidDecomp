@@ -15,17 +15,14 @@ internal static class TourianEntranceStatueAnimations
     internal static AnimationProgramSet<TourianEntranceStatueProgram, TourianEntranceStatueFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<TourianEntranceStatueProgram, AnimationProgramStep<TourianEntranceStatueProgram, TourianEntranceStatueFrame, NoAnimationCue>[]>
     {
-        // $AA:D7A5
         [P.Ridley] =
         [
             Stop,
         ],
-        // $AA:D7AF
         [P.Phantoon] =
         [
             Stop,
         ],
-        // $AA:D7B9
         [P.BaseDecoration] =
         [
             Stop,

@@ -15,7 +15,6 @@ internal static class IntroEyeAnimations
     internal static AnimationProgramSet<IntroEyeProgram, IntroEyeFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<IntroEyeProgram, AnimationProgramStep<IntroEyeProgram, IntroEyeFrame, NoAnimationCue>[]>
     {
-        // A long-open blink followed by a shorter, quicker one, repeated while pages one to five are written.
         [P.Blinking] =
         [
             Show(E.Open, 128),
@@ -28,14 +27,12 @@ internal static class IntroEyeAnimations
             Show(E.HalfOpen, 8),
             GoTo(P.Blinking),
         ],
-        // The final page shuts the eye, half opens it, and runs on into the stare.
         [P.FinalPageClosing] =
         [
             Show(E.Closed, 64),
             Show(E.HalfOpen, 8),
             FallInto(P.FinalPageDeadpan),
         ],
-        // The stare repeats for as long as the final page is shown.
         [P.FinalPageDeadpan] =
         [
             Show(E.Deadpan, 16),

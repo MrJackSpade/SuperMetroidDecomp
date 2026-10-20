@@ -16,14 +16,12 @@ internal static class ChootAnimations
     internal static AnimationProgramSet<ChootProgram, ChootFrame, ChootCue> Programs { get; } = new(
         new Dictionary<ChootProgram, AnimationProgramStep<ChootProgram, ChootFrame, ChootCue>[]>
     {
-        // $A2:D82C
         [P.Idle] =
         [
             Cue(new(K.StopProcessingOffScreen)),
             Show(0, 1),
             Hold,
         ],
-        // $A2:D834
         [P.Jumping] =
         [
             Cue(new(K.ProcessOffScreen)),
@@ -31,7 +29,6 @@ internal static class ChootAnimations
             Show(2, 1),
             Hold,
         ],
-        // $A2:D840
         [P.Falling] =
         [
             Cue(new(K.ProcessOffScreen)),

@@ -16,13 +16,11 @@ internal static class FuneNamiheAnimations
     internal static AnimationProgramSet<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue> Programs { get; } = new(
         new Dictionary<FuneNamiheProgram, AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue>[]>
     {
-        // $A8:9399
         [P.FuneIdleLeft] =
         [
             Show(0, 1),
             Hold,
         ],
-        // $A8:939F
         [P.FuneActiveLeft] =
         [
             Show(0, 16),
@@ -38,13 +36,11 @@ internal static class FuneNamiheAnimations
             Cue(new(K.FinishActivity)),
             GoTo(P.FuneIdleLeft),
         ],
-        // $A8:93C9
         [P.FuneIdleRight] =
         [
             Show(5, 1),
             Hold,
         ],
-        // $A8:93CF
         [P.FuneActiveRight] =
         [
             Show(5, 16),
@@ -60,13 +56,11 @@ internal static class FuneNamiheAnimations
             Cue(new(K.FinishActivity)),
             GoTo(P.FuneIdleRight),
         ],
-        // $A8:95BD
         [P.NamiheIdleLeft] =
         [
             Show(10, 1),
             Hold,
         ],
-        // $A8:95C3
         [P.NamiheActiveLeft] =
         [
             Show(10, 8),
@@ -83,13 +77,11 @@ internal static class FuneNamiheAnimations
             Cue(new(K.FinishActivity)),
             GoTo(P.NamiheIdleLeft),
         ],
-        // $A8:95F1
         [P.NamiheIdleRight] =
         [
             Show(16, 1),
             Hold,
         ],
-        // $A8:95F7
         [P.NamiheActiveRight] =
         [
             Show(16, 8),

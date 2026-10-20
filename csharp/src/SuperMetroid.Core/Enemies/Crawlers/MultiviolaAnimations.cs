@@ -15,7 +15,6 @@ internal static class MultiviolaAnimations
     internal static AnimationProgramSet<MultiviolaProgram, MultiviolaFrame, NoAnimationCue> Programs { get; } = new(
         new Dictionary<MultiviolaProgram, AnimationProgramStep<MultiviolaProgram, MultiviolaFrame, NoAnimationCue>[]>
     {
-        // $A2:B2DC
         [P.Flying] =
         [
             Show(0, 10),

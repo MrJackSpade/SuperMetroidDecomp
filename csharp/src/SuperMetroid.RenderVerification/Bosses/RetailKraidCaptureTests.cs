@@ -34,7 +34,7 @@ internal static class RetailKraidCaptureTests
         samus.Position = samus.Position.WithWhole(new(128, 456));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
-        var boss = runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
+        var boss = runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
         var body = runtime.Enemies.SlotTable.Slots[0];
         KraidAiFunction BodyFunction() =>
             (body.SpeciesState<KraidPartState>() ?? throw new InvalidOperationException("Kraid's body has no part state.")).Function;
@@ -127,9 +127,9 @@ internal static class RetailKraidCaptureTests
         // regression. Run the defeated-room restoration before opening the other door.
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
         int restoreTicks = 0;
-        while (runtime.Enemies.KraidBehavior.Kraid is { DeathSequenceComplete: false } && restoreTicks++ < 120)
+        while (runtime.Enemies.KraidBehavior.Access.Kraid is { DeathSequenceComplete: false } && restoreTicks++ < 120)
             runtime.StepFrame(0);
-        if (runtime.Enemies.KraidBehavior.Kraid is not { DeathSequenceComplete: true })
+        if (runtime.Enemies.KraidBehavior.Access.Kraid is not { DeathSequenceComplete: true })
             throw new InvalidOperationException("Defeated Kraid reload did not restore its background.");
         RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right");
     }

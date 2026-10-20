@@ -50,7 +50,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         }
 
         /// <summary>Starts a body program at its next one-tick dispatch.</summary>
-        internal void SetProgram(MotherBrainBodyProgram program) => MotherBrainBehavior.SetMotherBrainBodyProgram(State, program);
+        internal void SetProgram(MotherBrainBodyProgram program) => MotherBrainEncounterAccess.SetMotherBrainBodyProgram(State, program);
 
         /// <summary>Advances the body's actual production instruction processor once and samples the scroll placing her body.</summary>
         internal void Step()

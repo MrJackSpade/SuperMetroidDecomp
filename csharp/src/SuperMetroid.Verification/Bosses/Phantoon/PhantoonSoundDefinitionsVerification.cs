@@ -35,7 +35,7 @@ internal static class PhantoonSoundDefinitionsVerification
             Tentacles = enemies.SlotTable.Slots[2],
             Mouth = enemies.SlotTable.Slots[3],
         };
-        enemies.PhantoonBehavior.Phantoon = state;
+        enemies.PhantoonBehavior.Combat.Phantoon = state;
         Action<RoomEnemySlot, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
 
         for (int call = 0; call < 6; call++)

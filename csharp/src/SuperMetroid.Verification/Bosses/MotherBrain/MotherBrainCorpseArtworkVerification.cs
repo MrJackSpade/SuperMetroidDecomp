@@ -85,7 +85,7 @@ internal static class MotherBrainCorpseArtworkVerification
         // The phase-three state machine owns a separate corpse processor. Verify
         // its explicit setup route as well as the room-entry processor above.
         var sequenceStaging = new EnemyStagingSurfaces();
-        new MotherBrainRainbowBeamAttackSequence(artwork, sequenceStaging).InitializeCorpseRotting();
+        new MotherBrainRainbowBeamAttackSequence(artwork, sequenceStaging).ThirdPhaseDeath.InitializeCorpseRotting();
         AssertMotherBrainCorpseBufferParity(nativeStaging, sequenceStaging);
 
         string fileName = MotherBrainCorpseArtworkDefinitions.FileName;

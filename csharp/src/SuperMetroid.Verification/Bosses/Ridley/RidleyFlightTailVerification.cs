@@ -25,7 +25,7 @@ internal static class RidleyFlightTailVerification
     /// <summary>Compares retail swoop sine motion and production tail transitions, coordinates, and RNG use.</summary>
     internal static void VerifyRidleyFlightTail()
     {
-        Action<RidleyEnemyState, int, int, int> update = CeresRidleyBehavior.UpdateRidleySwoopVelocity;
+        Action<RidleyEnemyState, int, int, int> update = CeresRidleyFlight.UpdateRidleySwoopVelocity;
         var state = new RidleyEnemyState { SwoopSpeedMagnitude = 0x500 };
         update(state, 0, 0, 0x500);
         AssertEqual((ushort)0x500, state.Velocity.Y.RawValue, "native downward swoop uses full speed");
@@ -117,7 +117,7 @@ internal static class RidleyFlightTailVerification
         neutral(slot, state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
         AssertTrue(state.ClockwiseWhipTarget is not null, "native random fling admission works outside proximity range");
         AssertEqual(0, advances, "tail controller never advances RNG");
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> direction = enemies.RidleyBehavior.SetRidleyPogoHorizontalDirection;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> direction = enemies.RidleyBehavior.Combat.SetRidleyPogoHorizontalDirection;
         state.MovementMinimum = state.MovementMinimum.WithX(64);
         state.MovementMaximum = state.MovementMaximum.WithX(192);
         slot.Position = slot.Position.WithWholeX(128);

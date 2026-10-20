@@ -70,7 +70,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
             enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(phase);
             var oam = new OamBuffer();
             oam.BeginFrame();
-            oam.AppendDrawn(frame => enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
+            oam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
             oam.FinalizeFrame();
             baseX ??= oam.GetEntry(0).Position.X;
             AssertEqual(baseX.Value + expectedOffsets[phase], oam.GetEntry(0).Position.X,
@@ -84,7 +84,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         nativeOverlay.FinalizeFrame();
         var installedOverlay = new OamBuffer();
         installedOverlay.BeginFrame();
-        installedOverlay.AppendDrawn(frame => enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
+        installedOverlay.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
         installedOverlay.FinalizeFrame();
         AssertTrue(nativeOverlay.ImageEquals(installedOverlay),
             "Ceres private overlay matches native OAM with ROM frame reads forbidden");
@@ -102,7 +102,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
                 new MemoryStream(editedJson, writable: false)) });
         var editedOverlay = new OamBuffer();
         editedOverlay.BeginFrame();
-        editedOverlay.AppendDrawn(frame => enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
+        editedOverlay.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
         editedOverlay.FinalizeFrame();
         AssertEqual(nativeOverlay.GetEntry(0).Position.X, editedOverlay.GetEntry(0).Position.X,
             "private-overlay visual edit preserves the native quake/X coordinate");

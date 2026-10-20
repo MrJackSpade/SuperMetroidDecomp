@@ -44,7 +44,7 @@ internal static class DraygonTilemapProductionVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => false } }) { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram) { Level = assets.LevelData, Samus = samus });
-        var boss = enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");
+        var boss = enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");
         // Observe which native enemy indexes were actually scheduled, without adding
         // a diagnostic callback to production. This does NOT independently verify AI
         // or queue construction; it isolates the downstream tilemap/DMA producer.

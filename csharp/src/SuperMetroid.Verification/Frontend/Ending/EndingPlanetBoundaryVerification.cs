@@ -111,12 +111,12 @@ internal static class EndingPlanetBoundaryVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
-        for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
+        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
         {
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Phase, "planet crossfade reached");
+        AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Stage.Phase, "planet crossfade reached");
         // Rebuild the upper VRAM image from D8C1/D8E1/D901/D921/D941/D961.
         // In particular D961 transfers only $1000 font bytes at byte $A000.
         byte[] nativeVram = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory.Vram.ToArray();
@@ -128,7 +128,7 @@ internal static class EndingPlanetBoundaryVerification
         int memoryDifferences = nativeVram.Zip(EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory.Vram.ToArray()).Count(pair => pair.First != pair.Second);
         Console.WriteLine($"Explosion setup: {memoryDifferences} VRAM bytes differ from literal DMA reconstruction.");
         int differences = 0, checkedFrames = 0;
-        while (ending.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
+        while (ending.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
         {
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
             var projection = snapshot.LayersOf<Mode7RenderLayer>().Single();
@@ -147,7 +147,7 @@ internal static class EndingPlanetBoundaryVerification
         }
         Console.WriteLine($"Planet crossfade: {checkedFrames} frames, {differences} pixels differ from native wrapping/composition.");
         AssertEqual(0, differences, "planet crossfade preserves native map wrap and main/subscreen composition");
-        for (int frame = 0; frame < 2048 && ending.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
+        for (int frame = 0; frame < 2048 && ending.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
             var live = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
             byte[] reconstructed = live.Memory.Vram.ToArray();
@@ -160,13 +160,13 @@ internal static class EndingPlanetBoundaryVerification
                 // The native comparison replays exactly this sample's graphics and OAM under the retail registers.
                 LayeredRenderSnapshot sample = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 capture.Snapshots[frame] = sample;
-                File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Phase}.ppu"),
+                File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Stage.Phase}.ppu"),
                     NativeProbeInput(sample, ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, checked((byte)sample.ObjectSelection)))));
             }
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Phase, "planet explosion reaches ship flyaway");
+        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Stage.Phase, "planet explosion reaches ship flyaway");
         Console.WriteLine($"Complete explosion: {differences} pixel mismatches against exact native upper-VRAM transfers.");
         AssertEqual(0, differences, "explosion retains graphics outside the native font DMA extent");
         AssertEqual(0, memoryDifferences, "explosion setup executes exactly the native DMA byte ranges");

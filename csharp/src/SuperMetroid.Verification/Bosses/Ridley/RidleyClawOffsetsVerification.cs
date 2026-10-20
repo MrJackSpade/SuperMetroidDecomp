@@ -36,8 +36,8 @@ internal static class RidleyClawOffsetsVerification
             AssertTrue((uint)feet.FeetDistanceIndex < 3,
                 $"Ridley {program} selects claw-height pose {feet.FeetDistanceIndex}");
         }
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState> carry = RidleyBehavior.UpdateNorfairRidleyGrabbedSamus;
-        Func<RoomEnemySlot, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool> overlaps = RidleyBehavior.RidleyClawOverlapsSamus;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState> carry = NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus;
+        Func<RoomEnemySlot, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool> overlaps = NorfairRidleyCombat.RidleyClawOverlapsSamus;
         var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
         var state = new RidleyEnemyState();
         var samus = new SamusState();

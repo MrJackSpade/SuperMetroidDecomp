@@ -23,9 +23,9 @@ internal static class AudioInstrumentsVerification
         foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogDefinitions.All)
         {
             var rawPlayer = new ManagedSpcPlayer();
-            rawPlayer.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
+            rawPlayer.Uploads.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
             if (bank.Bank != AudioBank.SpcEngine)
-                rawPlayer.Upload(stock.GetUpload(bank.Bank).Span);
+                rawPlayer.Uploads.Upload(stock.GetUpload(bank.Bank).Span);
 
             IReadOnlyList<AudioInstrumentMetadata> definitions =
                 stock.GetInstrumentBank(bank.Bank);

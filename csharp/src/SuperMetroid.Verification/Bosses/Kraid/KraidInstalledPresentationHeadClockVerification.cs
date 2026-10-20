@@ -65,14 +65,14 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 AssertTrue(workingBody == (baseline.State.WorkingTop, baseline.State.WorkingBottom) &&
                     workingBody == (changed.State.WorkingTop, changed.State.WorkingBottom),
                     "head DMA must not overwrite the WRAM body-map source");
-                AssertEqual(baseline.Enemies.KraidBehavior.LastKraidSoundEffect, changed.Enemies.KraidBehavior.LastKraidSoundEffect,
+                AssertEqual(baseline.Enemies.KraidBehavior.Access.LastKraidSoundEffect, changed.Enemies.KraidBehavior.Access.LastKraidSoundEffect,
                     "head art does not alter sound publication");
                 if (tick == nextEvent)
                 {
                     while (!commands[cursor].IsPose && !commands[cursor].IsTerminator)
                     {
                         KraidHeadNativeRecord sound = commands[cursor++];
-                        AssertEqual((byte)sound.Sound, (baseline.Enemies.KraidBehavior.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires baseline.Enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect.Value,
+                        AssertEqual((byte)sound.Sound, (baseline.Enemies.KraidBehavior.Access.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires baseline.Enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect.Value,
                             "sound callback fires at the exact head admission tick");
                         if (sound.Opcode == KraidHeadNativeCursors.RoarCryCall) soundCount++;
                         callbacks++;
@@ -154,8 +154,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
             this.art = art;
             Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
             State = new KraidEnemyState();
-            Enemies.KraidBehavior.InitializeKraidBackground(State);
-            step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.ProcessKraidHeadInstruction);
+            Enemies.KraidBehavior.Rise.InitializeKraidBackground(State);
+            step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.Head.ProcessKraidHeadInstruction);
             hit = CoreAccess.KraidMouthHitboxOverlapsShot;
             Body.Position = Body.Position.WithWhole(new(512, 512));
         }

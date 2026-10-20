@@ -379,19 +379,19 @@ internal static void VerifyEndingCreditsState()
     var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     var audio = new SuperMetroid.Core.Audio.CartridgeAudioState();
     var ending = CreateRetailEndingFixture(audio, gameTimeHours: 2, gameTimeMinutes: 59);
-    ending.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
+    ending.InstalledArtwork.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus))));
-    EndingCreditsPhase previous = ending.Phase;
+    EndingCreditsPhase previous = ending.Stage.Phase;
     var reached = new HashSet<EndingCreditsPhase> { previous };
     int renderedTransitions = 0;
 
-    for (int frame = 0; frame < 60_000 && ending.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
+    for (int frame = 0; frame < 60_000 && ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
     {
         ending.Step();
         audio.AdvanceFrame(default);
-        if (ending.Phase != previous)
+        if (ending.Stage.Phase != previous)
         {
-            previous = ending.Phase;
+            previous = ending.Stage.Phase;
             reached.Add(previous);
             Rgba32[] pixels = ending.Render();
             AssertEqual(FrontendFrame.Width * FrontendFrame.Height, pixels.Length,
@@ -400,7 +400,7 @@ internal static void VerifyEndingCreditsState()
         }
     }
 
-    AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Phase,
+    AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Stage.Phase,
         "ending reaches the retail final hold state");
     AssertTrue(reached.Contains(EndingCreditsPhase.ZebesExplosionAnimation),
         "ending executes the sprite-opcode-driven Zebes explosion");
@@ -415,9 +415,9 @@ internal static void VerifyEndingCreditsState()
 
     var middle = CreateRetailEndingFixture(audio, gameTimeHours: 3, gameTimeMinutes: 0);
     var slow = CreateRetailEndingFixture(audio, gameTimeHours: 10, gameTimeMinutes: 0);
-    AssertEqual(EndingReward.Suitless, ending.EndingReward, "under-three-hour ending branch");
-    AssertEqual(EndingReward.Helmetless, middle.EndingReward, "three-to-ten-hour ending branch");
-    AssertEqual(EndingReward.Armored, slow.EndingReward, "ten-hour ending branch");
+    AssertEqual(EndingReward.Suitless, ending.Stage.EndingReward, "under-three-hour ending branch");
+    AssertEqual(EndingReward.Helmetless, middle.Stage.EndingReward, "three-to-ten-hour ending branch");
+    AssertEqual(EndingReward.Armored, slow.Stage.EndingReward, "ten-hour ending branch");
 
     var percentageTilemap = new ushort[0x400];
     Array.Fill(percentageTilemap, (ushort)0x007f);

@@ -14,8 +14,8 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => DraygonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        DraygonPart.Body => species.InitializeDraygonBody,
-        DraygonPart.Eye or DraygonPart.Tail or DraygonPart.Arms => species.InitializeDraygonPart,
+        DraygonPart.Body => species.Parts.InitializeDraygonBody,
+        DraygonPart.Eye or DraygonPart.Tail or DraygonPart.Arms => species.Parts.InitializeDraygonPart,
         _ => throw new InvalidOperationException($"Draygon entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -35,7 +35,7 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        return DraygonBehavior.FindDraygonHitboxCallback(Slot, probe, out callback);
+        return DraygonCombat.FindDraygonHitboxCallback(Slot, probe, out callback);
     }
 
     /// <summary>The Draygon body's dud shot ($A5:8046 CreateDudShot) after the no-op check, ahead of the shared ones.</summary>

@@ -35,7 +35,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvancePhantoonPartAnimation(enemy);
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => PhantoonBehavior.FindPhantoonHitboxCallback(Slot, probe, out callback);
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => PhantoonCombat.FindPhantoonHitboxCallback(Slot, probe, out callback);
 
     /// <inheritdoc/>
     public EnemyBg2FrameLookup? FindBg2Frame(ushort selected, EnemyRoomBinding room)
@@ -55,7 +55,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     {
         if (Slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
             frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
-            _ = species.ResolvePhantoonProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles);
+            _ = species.Combat.ResolvePhantoonProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles);
     }
 
     /// <inheritdoc/>

@@ -186,10 +186,10 @@ internal static class CrocomireMeltingDefinitionsVerification
             var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
             var vram = new SnesVram();
             enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
-            enemies.CrocomireBehavior.CrocomireDeath = death;
-            Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.InitializeCrocomireMeltingGraphics;
-            Action<CrocomireEnemyState> upload = enemies.CrocomireBehavior.UploadNextCrocomireMeltingGraphicsSlice;
-            Action<CrocomireEnemyState> complete = enemies.CrocomireBehavior.CompleteCrocomireMeltingDissolve;
+            enemies.CrocomireBehavior.Access.CrocomireDeath = death;
+            Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.Melting.InitializeCrocomireMeltingGraphics;
+            Action<CrocomireEnemyState> upload = enemies.CrocomireBehavior.Melting.UploadNextCrocomireMeltingGraphicsSlice;
+            Action<CrocomireEnemyState> complete = enemies.CrocomireBehavior.Melting.CompleteCrocomireMeltingDissolve;
 
             initialize(state);
             AssertEqual(pass.MaximumAdjustedDestinationY, death.MaximumAdjustedDestinationY,
@@ -253,8 +253,8 @@ internal static class CrocomireMeltingDefinitionsVerification
         };
         death.MutableMeltingGraphics.Fill(0xff);
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
-        enemies.CrocomireBehavior.CrocomireDeath = death;
-        Func<bool> erase = enemies.CrocomireBehavior.EraseNextCrocomireMeltingColumn;
+        enemies.CrocomireBehavior.Access.CrocomireDeath = death;
+        Func<bool> erase = enemies.CrocomireBehavior.Melting.EraseNextCrocomireMeltingColumn;
 
         var expectedGraphics = Enumerable.Repeat((byte)0xff,
             CrocomireDeathState.MeltingGraphicsByteCount).ToArray();
@@ -300,9 +300,9 @@ internal static class CrocomireMeltingDefinitionsVerification
         var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
-        enemies.CrocomireBehavior.CrocomireDeath = death;
-        Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.InitializeCrocomireMeltingGraphics;
-        Action<CrocomireEnemyState> upload = enemies.CrocomireBehavior.UploadNextCrocomireMeltingGraphicsSlice;
+        enemies.CrocomireBehavior.Access.CrocomireDeath = death;
+        Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.Melting.InitializeCrocomireMeltingGraphics;
+        Action<CrocomireEnemyState> upload = enemies.CrocomireBehavior.Melting.UploadNextCrocomireMeltingGraphicsSlice;
 
         initialize(state);
         AssertEqual(pass.TransferStartOffset, death.MeltingTableOffset,
@@ -339,14 +339,14 @@ internal static class CrocomireMeltingDefinitionsVerification
         var death = new CrocomireDeathState();
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
-        enemies.CrocomireBehavior.CrocomireDeath = death;
+        enemies.CrocomireBehavior.Access.CrocomireDeath = death;
         // Crocomire's initialization attaches the enemy BG2 image his transfers draw into (#1355).
         enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireMeltingTilemap.BlankGlyph.Raw));
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch
         {
-            CrocomireMeltingTilemapAddress.FirstTilemap => enemies.CrocomireBehavior.LoadFirstCrocomireMeltingTilemap,
-            CrocomireMeltingTilemapAddress.SecondTilemap => enemies.CrocomireBehavior.LoadSecondCrocomireMeltingTilemap,
+            CrocomireMeltingTilemapAddress.FirstTilemap => enemies.CrocomireBehavior.Melting.LoadFirstCrocomireMeltingTilemap,
+            CrocomireMeltingTilemapAddress.SecondTilemap => enemies.CrocomireBehavior.Melting.LoadSecondCrocomireMeltingTilemap,
             _ => throw new ArgumentOutOfRangeException(nameof(source)),
         };
 

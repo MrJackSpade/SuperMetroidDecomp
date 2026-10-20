@@ -313,8 +313,8 @@ internal sealed class InstalledSamusIsolationTests
             string label = $"medium {medium}, facing {(left ? "left" : "right")}";
             pair.Apply(label + " enter run", actor =>
             {
-                if (left) SamusPoseTransitions.ApplyStandingLeftToRunningLeft(actor.Samus);
-                else SamusPoseTransitions.ApplyStandingRightToRunningRight(actor.Samus);
+                if (left) SamusGroundedPoseTransitions.ApplyStandingLeftToRunningLeft(actor.Samus);
+                else SamusGroundedPoseTransitions.ApplyStandingRightToRunningRight(actor.Samus);
             });
             ushort initialX = pair.Stock.Samus.Position.X.Whole;
             for (ushort frame = 0; frame < 24; frame++)
@@ -330,7 +330,7 @@ internal sealed class InstalledSamusIsolationTests
                     return result;
                 });
             Require(pair.Stock.Samus.Position.X.Whole != initialX, label + ": run fixture never moved");
-            pair.Apply(label + " turn admission", actor => SamusPoseTransitions.ApplyGroundedTurn(actor.Samus, left ? SamusPoseId.TurningLeftToRightPose : SamusPoseId.TurningRightToLeftPose));
+            pair.Apply(label + " turn admission", actor => SamusGroundedPoseTransitions.ApplyGroundedTurn(actor.Samus, left ? SamusPoseId.TurningLeftToRightPose : SamusPoseId.TurningRightToLeftPose));
             int turnFrames = 0;
             while (SamusPoseMetadata.ReadMovementKind(pair.Stock.Samus) == SamusMovementType.TurningOnGround && turnFrames < 120)
             {
@@ -367,7 +367,7 @@ internal sealed class InstalledSamusIsolationTests
             equipment: highJump ? SamusEquipmentFlags.HiJumpBoots : SamusEquipmentFlags.None, medium: medium);
         string label = $"jump medium {medium}, left={left}, high={highJump}";
         ushort startY = pair.Stock.Samus.Position.Y.Whole, minimumY = startY;
-        pair.Apply(label + " admission", actor => SamusPoseTransitions.ApplyOrdinaryJumpTransition(actor.Samus, left ? SamusPoseId.NeutralJumpTransitionLeftPose : SamusPoseId.NeutralJumpTransitionRightPose));
+        pair.Apply(label + " admission", actor => SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(actor.Samus, left ? SamusPoseId.NeutralJumpTransitionLeftPose : SamusPoseId.NeutralJumpTransitionRightPose));
         bool landed = false;
         for (ushort frame = 0; frame < 240 && !landed; frame++)
         {
@@ -394,15 +394,15 @@ internal sealed class InstalledSamusIsolationTests
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
             SamusEquipmentFlags.MorphBall, medium);
         string label = $"posture medium {medium}, left={left}";
-        Require(pair.Apply(label + " crouch", actor => SamusPoseTransitions.TryApplyPostureTransition(actor.Samus, 
+        Require(pair.Apply(label + " crouch", actor => SamusPosturePoseTransitions.TryApplyPostureTransition(actor.Samus, 
             actor.Level, left ? SamusPoseId.CrouchingTransitionLeftPose : SamusPoseId.CrouchingTransitionRightPose, 0)),
             label + ": crouch not admitted");
         CompleteAnimation(pair, left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose, label + " crouching");
-        Require(pair.Apply(label + " morph", actor => SamusPoseTransitions.TryApplyMorphTransition(actor.Samus, 
+        Require(pair.Apply(label + " morph", actor => SamusPosturePoseTransitions.TryApplyMorphTransition(actor.Samus, 
             actor.Level, left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0)),
             label + ": morph not admitted");
         CompleteAnimation(pair, left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose, label + " morphing");
-        Require(pair.Apply(label + " unmorph", actor => SamusPoseTransitions.TryApplyMorphTransition(actor.Samus, 
+        Require(pair.Apply(label + " unmorph", actor => SamusPosturePoseTransitions.TryApplyMorphTransition(actor.Samus, 
             actor.Level, left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0)),
             label + ": unmorph not admitted");
         CompleteAnimation(pair, left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose, label + " unmorphing");
@@ -417,7 +417,7 @@ internal sealed class InstalledSamusIsolationTests
             Pair pair = Create(left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose,
                 lowCeiling: blocked);
             bool accepted = pair.Apply($"expand pose left={left}, blocked={blocked}", actor =>
-                SamusPoseTransitions.TryApplyDirectCrouchToStandingTransition(actor.Samus, actor.Level,
+                SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(actor.Samus, actor.Level,
                     left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose, 0));
             Require(accepted != blocked, "Synthetic ceiling did not exercise the expected eligibility decision");
         }

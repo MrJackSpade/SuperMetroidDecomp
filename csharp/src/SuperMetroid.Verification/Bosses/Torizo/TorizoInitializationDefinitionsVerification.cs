@@ -29,7 +29,7 @@ internal static class TorizoInitializationDefinitionsVerification
             enemies.Presentation.BindCgram(new SnesCgram());
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
-            Action<RoomEnemySlot, SamusState?, SnesButton> initializeWithInput = enemies.BombTorizoBehavior.InitializeBombTorizo;
+            Action<RoomEnemySlot, SamusState?, SnesButton> initializeWithInput = enemies.BombTorizoBehavior.Movement.InitializeBombTorizo;
             void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.Definition);
@@ -47,7 +47,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
-                TorizoEnemyState started = enemies.BombTorizoBehavior.TorizoState
+                TorizoEnemyState started = enemies.BombTorizoBehavior.Access.TorizoState
                     ?? throw new InvalidOperationException("Verification requires the initialized Torizo state.");
                 AssertEqual(native[2], TorizoNativeListAddresses.Entry(started.BodyProgram.Program), "Real Torizo initial program selection");
                 AssertEqual(AnimationProgramCursor<TorizoBodyProgram>.Start(started.BodyProgram.Program), started.BodyProgram, "Real Torizo starts its initial program");
@@ -61,7 +61,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual((ushort)1, actor.InstructionTimer.RawValue, "Initial instruction timer");
                 AssertEqual((ushort)0, actor.Timer.RawValue, "Initial actor timer");
                 AssertEqual(0, actor.PaletteIndex, "Initial palette index");
-                var state = variant == 0 ? enemies.BombTorizo : enemies.BombTorizoBehavior.GoldenTorizo;
+                var state = variant == 0 ? enemies.BombTorizo : enemies.BombTorizoBehavior.Attacks.GoldenTorizo;
                 AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity.X.RawValue, "Initial horizontal velocity");
                 AssertEqual((ushort)0x100, state.Velocity.Y.RawValue, "Initial falling velocity");
             }

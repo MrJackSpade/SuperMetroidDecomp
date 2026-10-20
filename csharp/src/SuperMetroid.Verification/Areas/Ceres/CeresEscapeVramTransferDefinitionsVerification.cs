@@ -83,7 +83,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             AssertTrue(list.Length is 7 or 8, "Ceres installed transfer list length");
             for (int index = 0; index < list.Length; index++)
             {
-                bool finished = system.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(state, queue);
+                bool finished = system.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(state, queue);
                 CeresEscapeVramTransferDefinition expected = list[index];
                 AssertEqual(index == list.Length - 1, finished,
                     $"Ceres transfer ${expected.Pointer:X4} list completion");
@@ -112,7 +112,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         }
 
         // The Japanese subtitle rows are written over BG1 at exactly the four compiled records' destinations.
-        system.CeresRidleyBehavior.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
+        system.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
         var written = new bool[RoomTilemapOverlay.WordCount];
         for (int index = 0; index < 4; index++)
         {
@@ -127,7 +127,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         system.Presentation.EscapeTimerArtwork = null;
         try
         {
-            system.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(new RidleyEnemyState
+            system.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(new RidleyEnemyState
                     {
                         CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites,
                     }, new VramWriteQueue());

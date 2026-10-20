@@ -21,7 +21,7 @@ internal static class MoonwalkRanIntoWallVerification
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(!SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), "moonwalk pose $75 faces right");
 
-        SamusPoseTransitions.ApplyRanIntoWallPoseChange(samus, SamusPoseId.RanIntoWallLeftPose);
+        SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, SamusPoseId.RanIntoWallLeftPose);
         AssertEqual(SamusPoseId.RanIntoWallLeftPose, samus.Pose, "the proposed left run stops in wall pose $8A");
         Console.WriteLine("  Moonwalk ran into wall: a right-facing moonwalk can stop in the left-facing wall pose.");
     }

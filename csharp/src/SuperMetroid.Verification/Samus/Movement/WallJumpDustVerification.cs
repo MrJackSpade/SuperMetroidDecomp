@@ -32,8 +32,8 @@ internal static class WallJumpDustVerification
             liquid.LiquidOptions = medium == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
             liquid.AtmosphericEffects.SetSlot(3, 1, 2, 7, new(33, 44));
             liquid.AtmosphericEffects.SetSlot(2, 1, 1, 9, new(55, 66));
-            if (grapple) SamusPoseTransitions.ApplyGrappleWallJump(samus);
-            else SamusPoseTransitions.ApplyWallJumpTrigger(samus);
+            if (grapple) SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
+            else SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus);
 
             bool suppressed = medium is 1 or 2;
             var dust = liquid.AtmosphericEffects.Slots[3];

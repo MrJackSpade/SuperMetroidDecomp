@@ -77,7 +77,7 @@ public sealed class EnemySpritemapCatalog
         int expectedCount = !Enum.IsDefined(schema) ||
             (schema != EnemySpritemapSchema.Current && stockForLegacyOverride is null)
             ? -1
-            : EnemySpritemapDefinitions.FrameCount(schema);
+            : EnemySpritemapFrameCounts.FrameCount(schema);
         bool legacyOverride = expectedCount >= 0 && schema != EnemySpritemapSchema.Current;
         ReadOnlySpan<EnemySpritemapDefinition> expected = expectedCount >= 0
             ? EnemySpritemapDefinitions.Frames[..expectedCount]

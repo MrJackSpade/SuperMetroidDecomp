@@ -45,8 +45,8 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var installedOverlay = new RecordedBg1Overlay();
         var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: installedOverlay.Services()) { TileArtwork = stock };
-        installed.CeresRidleyBehavior.DrawCeresEmergencyText();
-        installed.CeresRidleyBehavior.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
+        installed.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
+        installed.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
 
         // The cartridge's own transfers, read from its descriptors and source bytes, written over BG1.
         RoomTilemapOverlay native = RoomTilemapOverlay.Empty;
@@ -105,7 +105,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var editedOverlay = new RecordedBg1Overlay();
         var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: editedOverlay.Services()) { TileArtwork = edited };
-        editedEnemies.CeresRidleyBehavior.DrawCeresEmergencyText();
+        editedEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         int titleWord = CeresEscapeOverlayTilemapDefinitions.EmergencyDestination - GameplayVramLayout.Bg1TilemapWord;
         AssertEqual(native.Words[titleWord] ^ 1, editedOverlay.Overlay.Words[titleWord],
             "edited Ceres title changes the word shown over BG1");
@@ -124,9 +124,9 @@ internal static class CeresEscapeOverlayTilemapsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
         };
-        ExpectMissing(() => missing.CeresRidleyBehavior.DrawCeresEmergencyText(),
+        ExpectMissing(() => missing.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText(),
             "missing installed English title");
-        ExpectMissing(() => missing.CeresRidleyBehavior.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay),
+        ExpectMissing(() => missing.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay),
             "missing installed Japanese subtitle rows");
         Console.WriteLine(
             "Ceres escape overlays: five editable tilemaps match native bytes and guarded " +

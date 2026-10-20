@@ -8,28 +8,28 @@ public static partial class LibraryBackgroundProgramDefinitions
 {
     /// <summary>The ScrollingSkyTilemapsLandingSite library-background program.</summary>
     public static LibraryBackgroundProgram ScrollingSkyTilemapsLandingSite { get; } = new(nameof(ScrollingSkyTilemapsLandingSite), [
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0800, DoorDefinitions.GauntletEntrance0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD180, 0x4800, 0x0800, DoorDefinitions.Parlor1),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB980, 0x4C00, 0x0800, DoorDefinitions.CrateriaPowerBombs0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD180, 0x4800, 0x0800, DoorDefinitions.CrateriaTube0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB180, 0x4800, 0x0800, DoorDefinitions.LandingSiteLandingCutscene),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0800, CrateriaDoorDefinitions.GauntletEntrance0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD180, 0x4800, 0x0800, CrateriaDoorDefinitions.Parlor1),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB980, 0x4C00, 0x0800, CrateriaDoorDefinitions.CrateriaPowerBombs0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD180, 0x4800, 0x0800, CrateriaDoorDefinitions.CrateriaTube0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB180, 0x4800, 0x0800, CrateriaDoorDefinitions.LandingSiteLandingCutscene),
         new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0800, DoorDefinitions.DemoSet3024),
     ]);
 
     /// <summary>The ScrollingSkyTilemapsWreckedShipEntrance library-background program.</summary>
     public static LibraryBackgroundProgram ScrollingSkyTilemapsWreckedShipEntrance { get; } = new(nameof(ScrollingSkyTilemapsWreckedShipEntrance), [
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0800, DoorDefinitions.BowlingAlleyPath0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, DoorDefinitions.Moat1),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB980, 0x4C00, 0x0800, DoorDefinitions.BowlingAlley0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, DoorDefinitions.WreckedShipEntrance0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB180, 0x4800, 0x0800, DoorDefinitions.Attic2),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC980, 0x4C00, 0x0800, DoorDefinitions.GravitySuit0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0800, CrateriaDoorDefinitions.BowlingAlleyPath0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, CrateriaDoorDefinitions.Moat1),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB980, 0x4C00, 0x0800, WreckedShipDoorDefinitions.BowlingAlley0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, WreckedShipDoorDefinitions.WreckedShipEntrance0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB180, 0x4800, 0x0800, WreckedShipDoorDefinitions.Attic2),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC980, 0x4C00, 0x0800, WreckedShipDoorDefinitions.GravitySuit0),
     ]);
 
     /// <summary>The ScrollingSkyTilemapsEastOcean library-background program.</summary>
     public static LibraryBackgroundProgram ScrollingSkyTilemapsEastOcean { get; } = new(nameof(ScrollingSkyTilemapsEastOcean), [
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, DoorDefinitions.ForgottenHighwayKagos0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, DoorDefinitions.ElectricDeath0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, CrateriaDoorDefinitions.ForgottenHighwayKagos0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, WreckedShipDoorDefinitions.ElectricDeath0),
     ]);
 
     /// <summary>The ScrollingSkyTilemapsBowlingAlley library-background program.</summary>

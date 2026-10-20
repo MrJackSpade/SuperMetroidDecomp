@@ -143,7 +143,7 @@ internal sealed record MusicTrackAnalysis(
         public void KeysPublished(int keyOn, int keyOff)
         {
             ManagedSpcPlayer player = Required(renderer).Player;
-            if (player.musicPortToSnes != 0)
+            if (player.Music.musicPortToSnes != 0)
             {
                 byte tempo = player.ReadTempo();
                 StartSample ??= tickSample;

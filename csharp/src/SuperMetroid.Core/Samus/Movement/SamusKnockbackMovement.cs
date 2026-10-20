@@ -142,7 +142,7 @@ public static class SamusKnockbackMovement
             // Native interrupted poses pass through the same expansion check as ordinary
             // input poses before command one initializes knockback. Scripted cinematic
             // callers without room terrain retain their explicitly positioned behavior.
-            if (level is not null && !SamusPoseTransitions.TryResolveKnockbackPoseCollision(samus, 
+            if (level is not null && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus, 
 level, targetPose, nmiFrameCounter, plms))
                 return false;
             samus.Pose = targetPose;
@@ -328,7 +328,7 @@ level, targetPose, nmiFrameCounter, plms))
         // stored shine. The selected target's delay stream starts at frame zero.
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (!SamusPoseTransitions.InitializeInstalledNormalJumpPose(samus, SamusMovementType.DamageBoost, controllerNewInput))
+        if (!SamusAerialPoseTransitions.InitializeInstalledNormalJumpPose(samus, SamusMovementType.DamageBoost, controllerNewInput))
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 

@@ -106,11 +106,11 @@ internal static class CoreAccess
     extension(EndingCreditsState ending)
     {
         /// <summary>Current credits fade brightness, 0 (black) through 15 (full), from the private cinematic state.</summary>
-        internal int Brightness => ending.Brightness;
+        internal int Brightness => ending.Stage.Brightness;
         /// <summary>Cinematic calls the ending has made so far.</summary>
-        internal int CinematicFrame => ending.CinematicFrame;
+        internal int CinematicFrame => ending.Flyaway.CinematicFrame;
         /// <summary>Whole-pixel vertical credits scroll position, or zero before credits exist.</summary>
-        internal int CreditsVerticalScroll => ending.CurrentCredits?.ScrollPosition.Y ?? 0;
+        internal int CreditsVerticalScroll => ending.InstalledArtwork.CurrentCredits?.ScrollPosition.Y ?? 0;
     }
 
     /// <summary>Exposes pause indicator placement, page transition, and displayed map tile state.</summary>

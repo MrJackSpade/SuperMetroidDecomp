@@ -138,7 +138,7 @@ internal static class EnemyRomTablePointersVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             system.BombTorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0, isGolden: true);
-            system.BombTorizoBehavior.SpawnGoldenTorizoSuperMissile(torizo);
+            system.BombTorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo);
             RoomEnemyProjectileSlot projectile = system.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.IsActive);
             AssertEqual(

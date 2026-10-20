@@ -22,7 +22,7 @@ internal static class RidleyPlayerOpeningVerification
     /// <summary>Checks arrival collision edges, then compares boss motion while feeding recorded Samus position and RNG as isolated inputs.</summary>
     internal static void VerifyRidleyPlayerOpening()
     {
-        Func<RoomEnemySlot, Position16<RoomPixels>, Extent16<RoomPixels>, bool> overlaps = CeresRidleyBehavior.IsWithinRidleyRectangle;
+        Func<RoomEnemySlot, Position16<RoomPixels>, Extent16<RoomPixels>, bool> overlaps = CeresRidleyFlight.IsWithinRidleyRectangle;
         var bounds = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
         bounds.Radius = new(8, 8);
         // Native $A9:EF06 adds both radii plus one before its unsigned comparison.

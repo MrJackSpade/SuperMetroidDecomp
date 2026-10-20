@@ -51,7 +51,7 @@ internal static class MotherBrainContactHitboxesVerification
         var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
         var state = new MotherBrainEnemyState(body);
         Func<MotherBrainEnemyState, SamusState, MotherBrainContactPart,
-                Position16<RoomPixels>, bool> resolve = MotherBrainBehavior.ResolveMotherBrainSamusCollisionPart;
+                Position16<RoomPixels>, bool> resolve = MotherBrainBody.ResolveMotherBrainSamusCollisionPart;
 
         const ushort originX = 0x0200;
         const ushort originY = 0x0200;

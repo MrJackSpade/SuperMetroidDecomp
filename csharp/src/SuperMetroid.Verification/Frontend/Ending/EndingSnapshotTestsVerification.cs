@@ -30,8 +30,8 @@ internal static class EndingSnapshotTestsVerification
             var captured = CreateRetailEndingFixture(otherAudio, hours, 59);
             var credits = CreditsPresentation.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus)));
-            legacy.BindStaffCredits(credits);
-            captured.BindStaffCredits(credits);
+            legacy.InstalledArtwork.BindStaffCredits(credits);
+            captured.InstalledArtwork.BindStaffCredits(credits);
             var phases = new HashSet<EndingCreditsPhase>();
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
@@ -47,13 +47,13 @@ internal static class EndingSnapshotTestsVerification
                 if (previousPacket is not null)
                     AssertTrue(previousPixels.SequenceEqual(RenderForComparison(previousPacket)),
                         "ending packet survives subsequent palette/tile/sprite updates");
-                bool firstPhaseFrame = phases.Add(legacy.Phase);
-                if (firstPhaseFrame) phaseEntryFrames.Add(legacy.Phase, tick);
-                if (legacy.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
+                bool firstPhaseFrame = phases.Add(legacy.Stage.Phase);
+                if (firstPhaseFrame) phaseEntryFrames.Add(legacy.Stage.Phase, tick);
+                if (legacy.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion];
                     var explosion = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.FadeInZebesExplosion)
+                    if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.FadeInZebesExplosion)
                         explosionBackgroundSource = explosion.Memory.Cgram.Slice(112, 16).ToArray();
                     for (int i = 0; i < 16; i++)
                     {
@@ -75,13 +75,13 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(explosion.LayersOf<ObjRenderLayer>().Single().AddToScreen,
                         "explosion transition adds OBJ subscreen to BG1 and backdrop");
                 }
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
+                if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
                     AssertEqual(64, tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion],
                         "native shared explosion countdown includes screen fade-in and expires after 64 calls");
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsWaitingSamus)
+                if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus)
                     AssertEqual(212, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShootingStars],
                         "native post-credits backdrop has 32 fade frames followed by 180 waiting frames before producer text");
-                if (legacy.Phase == EndingCreditsPhase.PostCreditsShootingStars)
+                if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsShootingStars)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShootingStars];
                     var colors = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory.Cgram;
@@ -95,7 +95,7 @@ internal static class EndingSnapshotTestsVerification
                     }
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
-                if (legacy.Phase == EndingCreditsPhase.ZebesExplosionAnimation &&
+                if (legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation &&
                     EndingCreditsPresentation.CaptureRenderSnapshot(legacy).LayersOf<BgSubscreenAddRenderLayer>().Any(layer => layer.MainObjects))
                 {
                     var burst = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
@@ -105,7 +105,7 @@ internal static class EndingSnapshotTestsVerification
 
                     burstDisplayFrames++;
                 }
-                if (legacy.Phase == EndingCreditsPhase.ZebesExplosionAnimation
+                if (legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation
                     && EndingCreditsPresentation.CaptureRenderSnapshot(legacy).LayersOf<BgSubscreenAddRenderLayer>().Any(layer => layer.IncludeObjects))
                 {
                     var finale = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
@@ -121,7 +121,7 @@ internal static class EndingSnapshotTestsVerification
                     }
                     finaleDisplayFrames++;
                 }
-                if (legacy.Phase == EndingCreditsPhase.PostCreditsGesture)
+                if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsGesture)
                 {
                     AssertEqual(308, phaseEntryFrames[EndingCreditsPhase.PostCreditsGesture]
                         - phaseEntryFrames[EndingCreditsPhase.PostCreditsReward],
@@ -130,14 +130,14 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(gestureFrame.Layers.All(layer => layer is ObjRenderLayer),
                         "E342 gesture renders OBJ without the stale waiting or copyright backgrounds");
                 }
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsJump)
+                if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsJump)
                     AssertEqual(hours < 3 ? 244 : 329,
                         tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsGesture],
                         "live reward owner consumes the complete native gesture before handing off");
-                if (legacy.Phase == EndingCreditsPhase.PostCreditsJump)
+                if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsJump)
                 {
                     if (firstPhaseFrame)
-                        referenceJump = new EndingRewardJump(legacy.EndingReward, _ => { });
+                        referenceJump = new EndingRewardJump(legacy.Stage.EndingReward, _ => { });
                     else
                         (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step();
                     var jumpFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
@@ -157,7 +157,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(jumpFrame.Layers.All(layer => layer is ObjRenderLayer),
                         "reward flight and landing keep BG disabled during icon graphics replacement");
                 }
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsShot)
+                if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsShot)
                 {
                     AssertEqual(hours < 3 ? 279 : 200,
                         tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsJump],
@@ -167,10 +167,10 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(icon.AsSpan(0, 0x8000).SequenceEqual(EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory.Vram[..0x8000]),
                         "live landing uploads all sixteen chunks of the native interleaved icon graphics");
                 }
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
+                if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                     AssertEqual(216, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot],
                         "live post-shot owner includes rotation and the complete native hold");
-                if (legacy.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
+                if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsWhiteFlash];
                     var flash = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
@@ -182,11 +182,11 @@ internal static class EndingSnapshotTestsVerification
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)), "post-shot flash begins fully white");
                 }
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsLogo)
+                if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsLogo)
                     AssertEqual(32, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsWhiteFlash], "native white flash lasts 32 calls");
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ItemPercentage)
+                if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.ItemPercentage)
                     AssertEqual(187, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsLogo], "live logo completes its native approach and palette handoff");
-                if (legacy.Phase == EndingCreditsPhase.PostCreditsShot)
+                if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsShot)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot];
                     var shotFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
@@ -202,7 +202,7 @@ internal static class EndingSnapshotTestsVerification
                     }
                 }
                 if (hours < 10 && phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int rewardStart)
-                    && legacy.Phase is EndingCreditsPhase.PostCreditsReward or EndingCreditsPhase.PostCreditsCopyright)
+                    && legacy.Stage.Phase is EndingCreditsPhase.PostCreditsReward or EndingCreditsPhase.PostCreditsCopyright)
                 {
                     int elapsed = tick - rewardStart;
                     int activeElapsed = elapsed <= 64 ? elapsed : elapsed < 244 ? 64 : elapsed - 180;
@@ -224,7 +224,7 @@ internal static class EndingSnapshotTestsVerification
                 if (phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsCopyright, out int copyrightStart)
                     && tick - copyrightStart <= 180)
                     AssertEqual(tick - copyrightStart < 180 ? EndingCreditsPhase.PostCreditsCopyright : EndingCreditsPhase.PostCreditsReward,
-                        legacy.Phase, "native copyright holds for exactly 180 frames before resuming reward reveal");
+                        legacy.Stage.Phase, "native copyright holds for exactly 180 frames before resuming reward reveal");
                 if (phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int revealStart)
                     && tick - revealStart == 64)
                 {
@@ -234,7 +234,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertEqual(0x4800, copyright.LayersOf<Bg4BppRenderLayer>().Single().TilemapWord,
                         "native E293 selects copyright BG1 after first 64 reveal frames");
                 }
-                if (legacy.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
+                if (legacy.Stage.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
                 {
                     var flash = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
@@ -243,7 +243,7 @@ internal static class EndingSnapshotTestsVerification
                         AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)),
                             "explosion whiteout is white across the actual rendered viewport");
                 }
-                if (legacy.Phase == EndingCreditsPhase.PostCreditsReward)
+                if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsReward)
                 {
                     var backgrounds = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).LayersOf<Bg4BppRenderLayer>();
                     AssertEqual(hours >= 10 ? 0 : 1, backgrounds.Length, "native reward reveal background enable mask");
@@ -253,7 +253,7 @@ internal static class EndingSnapshotTestsVerification
                         AssertEqual(0x5000, backgrounds[0].CharacterWord, "reward reveal uses waiting BG2 characters");
                     }
                 }
-                if (legacy.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
+                if (legacy.Stage.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
                 {
                     gunshipPalettes.Add(string.Join(',', EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory.Cgram.Slice(80, 16).ToArray()));
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PlanetEscapeFast];
@@ -271,16 +271,16 @@ internal static class EndingSnapshotTestsVerification
                     }
 
                 }
-                if (legacy.Phase == EndingCreditsPhase.OperationSuccessfulText && tick % 97 == 0)
+                if (legacy.Stage.Phase == EndingCreditsPhase.OperationSuccessfulText && tick % 97 == 0)
                 {
                     var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory;
                     AssertTrue(memory.SpriteParts().All(part => part.Part.Palette <= 2),
                         "explosion actors delete before operation text, leaving only text OBJ palettes");
                 }
-                if (legacy.Phase >= EndingCreditsPhase.ItemPercentage)
+                if (legacy.Stage.Phase >= EndingCreditsPhase.ItemPercentage)
                 {
                     // E58A clears cinematic actors; the independent star field survives.
-                    var stars = legacy.ShootingStars;
+                    var stars = legacy.CreditsRoll.ShootingStars;
                     var starOnlyOam = ScreenSpritesFixtures.Blank();
                     starOnlyOam.BeginFrame();
                     stars?.Draw(starOnlyOam);
@@ -289,7 +289,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.Memory.SpriteParts()),
                         "native E58A leaves only the independent shooting stars before final percentage text");
                 }
-                if (legacy.Phase == EndingCreditsPhase.PlanetEscapeFast && sample)
+                if (legacy.Stage.Phase == EndingCreditsPhase.PlanetEscapeFast && sample)
                 {
                     var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory;
                     byte[] characters = RomDataReader.Decompress(bus, 0x95a82f, 0x8000);
@@ -304,7 +304,7 @@ internal static class EndingSnapshotTestsVerification
                     if (firstPhaseFrame)
                         AssertEqual(0x7fff, memory.Cgram[81], "native gunship emergence palette starts white");
                 }
-                if (legacy.Phase == EndingCreditsPhase.PostCreditsBlank)
+                if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsBlank)
                 {
                     var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Memory;
                     for (int color = 4; color < 256; color++)
@@ -322,25 +322,25 @@ internal static class EndingSnapshotTestsVerification
                     // this ending's sprite state. Independent owners still guard against
                     // an accidental producer-side mutation introduced by extraction.
                     expected = legacy.Render();
-                    if (legacy.Brightness == 15)
+                    if (legacy.Stage.Brightness == 15)
                     {
 
                     }
                     packet = new(new(++samples, 1, (ushort)tick), EndingCreditsPresentation.CaptureRenderSnapshot(captured));
                     AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
-                        $"ending reward {hours}, phase {legacy.Phase}, tick {tick} pixel parity");
+                        $"ending reward {hours}, phase {legacy.Stage.Phase}, tick {tick} pixel parity");
                 }
                 audio.AdvanceFrame(default); otherAudio.AdvanceFrame(default);
-                AssertEqual(legacy.Phase, captured.Phase, "ending capture preserves phase");
-                AssertEqual(legacy.CinematicFrame, captured.CinematicFrame, "ending capture preserves timer");
+                AssertEqual(legacy.Stage.Phase, captured.Stage.Phase, "ending capture preserves phase");
+                AssertEqual(legacy.Flyaway.CinematicFrame, captured.Flyaway.CinematicFrame, "ending capture preserves timer");
                 AssertEqual(legacy.CreditsVerticalScroll, captured.CreditsVerticalScroll, "ending capture preserves half-pixel scroll result");
                 if (packet is not null)
                     AssertTrue(expected.SequenceEqual(RenderForComparison(packet)), "ending packet repeat rendering is observational");
                 previousPacket = packet;
                 previousPixels = expected;
-                if (legacy.Phase == EndingCreditsPhase.SeeYouNextMission) break;
+                if (legacy.Stage.Phase == EndingCreditsPhase.SeeYouNextMission) break;
             }
-            AssertEqual(EndingCreditsPhase.SeeYouNextMission, legacy.Phase, "ending capture fixture completes");
+            AssertEqual(EndingCreditsPhase.SeeYouNextMission, legacy.Stage.Phase, "ending capture fixture completes");
             AssertTrue(gunshipPalettes.Count >= 10, "gunship emergence executes changing native palette records");
             AssertTrue(finaleDisplayFrames > 10, "ending executes the actual callback-driven Mode1 explosion finale");
             AssertTrue(burstDisplayFrames > 10, "ending executes the callback-driven explosion burst before its finale");

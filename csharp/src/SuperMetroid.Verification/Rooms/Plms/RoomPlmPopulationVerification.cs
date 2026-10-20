@@ -386,7 +386,7 @@ internal static class RoomPlmPopulationVerification
             "Bomb Torizo grey door loads through the shared room population");
 
         var enteringDoor = new CartridgeDoorHeader(
-            Name: nameof(DoorDefinitions.Flyway1),
+            Name: nameof(CrateriaDoorDefinitions.Flyway1),
             DestinationRoom: RoomHeaderDefinitions.BombTorizo,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(doorX, doorY),
@@ -493,7 +493,7 @@ internal static class RoomPlmPopulationVerification
             "Brinstar pre-map grey door loads through the shared population path");
 
         var enteringDoor = new CartridgeDoorHeader(
-            Name: nameof(DoorDefinitions.GreenBrinstarMainShaft1),
+            Name: nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaft1),
             DestinationRoom: RoomHeaderDefinitions.BrinstarPreMap,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(doorX, doorY),
@@ -866,7 +866,7 @@ internal static class RoomPlmPopulationVerification
         var escape = PlmFixtures.Unbound();
         PlmFixtures.LoadPopulation(ref escape, new PlmRoom(escapeLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         var motherBrainExit = new CartridgeDoorHeader(
-            Name: nameof(DoorDefinitions.MotherBrain1),
+            Name: nameof(TourianDoorDefinitions.MotherBrain1),
             DestinationRoom: RoomHeaderDefinitions.TourianEscape1,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             PlmBlock: new(gateX, gateY),

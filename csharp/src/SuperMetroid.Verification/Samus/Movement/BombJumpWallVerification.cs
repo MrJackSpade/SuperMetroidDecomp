@@ -59,7 +59,7 @@ internal static class BombJumpWallVerification
         var hit = SamusMorphBallMovement.StepGrounded(level, samus, 0, PlmFixtures.Unbound());
         AssertTrue(hit.Vertical.Collided && hit.HitCeiling, "upward platform carry publishes a ceiling collision, not a floor contact");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "movement leaves ceiling response deferred until pose priority is resolved");
-        SamusPoseTransitions.ApplySolidCeilingCollision(samus);
+        SamusPosturePoseTransitions.ApplySolidCeilingCollision(samus);
         AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "native ceiling pose command selects down even from grounded carry");
         AssertEqual(71, samus.Position.Y.Whole, "carried Morph Ball remains at the ceiling boundary");
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0);

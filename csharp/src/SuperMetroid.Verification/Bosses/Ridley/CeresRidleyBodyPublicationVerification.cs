@@ -45,7 +45,7 @@ internal static class CeresRidleyBodyPublicationVerification
         SnesAngle? previousAngle = null;
         foreach ((int nmiFrame, CeresMode7TransferList wings) in new[] { (0, CeresMode7TransferList.WingFrame1), (8, CeresMode7TransferList.WingFrame0) })
         {
-            runtime.Enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway(ridley, null, nmiFrame);
+            runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway(ridley, null, nmiFrame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             AssertTrue(previousAngle is not { } previous || ridley.Mode7Angle != previous, "the getaway turns Ridley between the two frames");
             previousAngle = ridley.Mode7Angle;

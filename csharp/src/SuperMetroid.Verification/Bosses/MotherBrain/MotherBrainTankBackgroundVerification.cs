@@ -40,7 +40,7 @@ internal static class MotherBrainTankBackgroundVerification
             AssertEqual((ushort)0x0338, ReadStaged(index), "Initializer prepares all enemy BG2 staging words");
         var state = runtime.Enemies.MotherBrainEncounter.MotherBrain;
         AssertEqual(0x800, (state ?? throw new InvalidOperationException("Verification requires state.")).EnemyBg2TilemapSize, "Native default transfer size is bytes, not words");
-        runtime.Enemies.MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics(state);
+        runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         var blank = Enumerable.Repeat((ushort)0x0338, 0x400).ToArray();
         expectedVram.ExecuteWordTransfer(blank, 0x4800, 1);
         AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(

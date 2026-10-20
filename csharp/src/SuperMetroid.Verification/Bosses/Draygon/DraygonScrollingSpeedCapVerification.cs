@@ -45,7 +45,7 @@ internal static class DraygonScrollingSpeedCapVerification
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
         state.Body.Position = state.Body.Position.WithWhole(body);
         state.FacingRight = true;
-        enemies.DraygonBehavior.MoveSamusWithDraygon(state, samus);
+        enemies.DraygonBehavior.Grab.MoveSamusWithDraygon(state, samus);
         return samus.PeekPreviousPositionWords(checkpoint);
     }
 

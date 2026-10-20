@@ -151,13 +151,13 @@ internal static class InstalledFixtures
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
         var ending = new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
-        ending.BindFlightArtwork(IntroArtwork.CeresFlight);
-        ending.BindMode7Artwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
-        ending.BindObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
-        ending.BindPaletteArtwork(RepositoryInstallation.Installation.LoadEndingPalettes());
-        ending.BindPaletteFxColors(Maps.RoomPaletteFx);
-        ending.BindEndingFont(Maps.EndingFont);
-        ending.BindStaffCredits(Maps.StaffCredits);
+        ending.Flyaway.BindFlightArtwork(IntroArtwork.CeresFlight);
+        ending.Stage.BindMode7Artwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
+        ending.InstalledArtwork.BindObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
+        ending.InstalledArtwork.BindPaletteArtwork(RepositoryInstallation.Installation.LoadEndingPalettes());
+        ending.InstalledArtwork.BindPaletteFxColors(Maps.RoomPaletteFx);
+        ending.Stage.BindEndingFont(Maps.EndingFont);
+        ending.InstalledArtwork.BindStaffCredits(Maps.StaffCredits);
         return ending;
     }
 

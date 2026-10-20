@@ -38,7 +38,7 @@ internal static class MotherBrainRingBabyHealthVerification
         ring.Variable0 = 0;
         (state.BabyMetroid ?? throw new InvalidOperationException("Verification requires state.BabyMetroid.")).Position = state.BabyMetroid.Position.WithWhole(new(0x00ce, 0x00b0));
 
-        runtime.Enemies.MotherBrainBehavior.RunMotherBrainOnionRingPreInstruction(ring, runtime.Player.Samus, 0);
+        runtime.Enemies.MotherBrainBehavior.Projectiles.RunMotherBrainOnionRingPreInstruction(ring, runtime.Player.Samus, 0);
         AssertEqual(0x0c30, state.BabyMetroid.Health, "the ring charges the Baby $50");
         AssertEqual(0x0c30, babySlot.Health, "the Baby slot's health drops within the projectile pass");
         Console.WriteLine("Mother Brain ring Baby health: the hit writes the Baby slot's health immediately.");

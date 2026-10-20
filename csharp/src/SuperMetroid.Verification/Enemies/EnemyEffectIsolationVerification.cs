@@ -33,7 +33,7 @@ internal static class EnemyEffectIsolationVerification
             AssertTrue(!baseline.Vram.ImageEquals(edited.Vram), "authored melt map reaches VRAM");
 
             byte[] tail = baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..].ToArray();
-            baseline.Call(c => c.InitializeCrocomireMeltingGraphics); edited.Call(c => c.InitializeCrocomireMeltingGraphics);
+            baseline.Call(c => c.Melting.InitializeCrocomireMeltingGraphics); edited.Call(c => c.Melting.InitializeCrocomireMeltingGraphics);
             AssertCrocomireEffectMechanics(baseline, edited, "melt graphics replacement");
             AssertTrue(!baseline.Effect.MeltingGraphics.SequenceEqual(edited.Effect.MeltingGraphics), "authored melt pixels reach scratch");
             AssertTrue(tail.SequenceEqual(baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..]),
@@ -41,7 +41,7 @@ internal static class EnemyEffectIsolationVerification
             CrocomireDeathPhase phase = baseline.Actor.DeathSequenceIndex;
             for (int record = 0; record <= pass.Uploads.Length; record++)
             {
-                baseline.Call(c => c.UploadNextCrocomireMeltingGraphicsSlice); edited.Call(c => c.UploadNextCrocomireMeltingGraphicsSlice);
+                baseline.Call(c => c.Melting.UploadNextCrocomireMeltingGraphicsSlice); edited.Call(c => c.Melting.UploadNextCrocomireMeltingGraphicsSlice);
                 AssertCrocomireEffectMechanics(baseline, edited, "melt upload " + record);
                 AssertEqual(record == pass.Uploads.Length ? phase.Next() : phase, baseline.Actor.DeathSequenceIndex,
                     "only the native transfer terminator advances the phase");
@@ -54,7 +54,7 @@ internal static class EnemyEffectIsolationVerification
                 }
             }
 
-            baseline.Call(c => c.BeginCrocomireMelting); edited.Call(c => c.BeginCrocomireMelting);
+            baseline.Call(c => c.Melting.BeginCrocomireMelting); edited.Call(c => c.Melting.BeginCrocomireMelting);
             phase = baseline.Actor.DeathSequenceIndex;
             // The compiled slope starts at 256, grows by 384 to 20480, then completes on
             // the following call. This explicit bound comes from the source, not a probe.
@@ -75,7 +75,7 @@ internal static class EnemyEffectIsolationVerification
                         baseline.Effect.MeltingColumnHeights[CrocomireMeltingDefinitions.SelectColumn(column)], "exact erased-column height");
             }
             AssertEqual(pass.NextHeaderOffset, baseline.Effect.MeltingTableOffset, "exact next-pass header");
-            baseline.Call(c => c.FinishCrocomireMeltingPass); edited.Call(c => c.FinishCrocomireMeltingPass);
+            baseline.Call(c => c.Melting.FinishCrocomireMeltingPass); edited.Call(c => c.Melting.FinishCrocomireMeltingPass);
             AssertCrocomireEffectMechanics(baseline, edited, "finished melt pass");
             AssertTrue(baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "both visual variants clear the completed melt tilemap");
             AssertTrue(baseline.Vram.Bytes.Slice(EnemyBg2FrameLayout.VramBase * 2, 2048)

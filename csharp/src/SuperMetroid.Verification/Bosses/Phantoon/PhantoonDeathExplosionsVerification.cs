@@ -31,8 +31,8 @@ internal static class PhantoonDeathExplosionsVerification
             var body = enemies.SlotTable.Slots[0];
             var tentacles = enemies.SlotTable.Slots[2];
             var state = new PhantoonEnemyState(body) { Tentacles = tentacles };
-            enemies.PhantoonBehavior.Phantoon = state;
-            Action<RoomEnemySlot, PhantoonEnemyState> step = enemies.PhantoonBehavior.RunPhantoonDyingExplosions;
+            enemies.PhantoonBehavior.Combat.Phantoon = state;
+            Action<RoomEnemySlot, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
             state.Parts[body.SlotIndex].FunctionTimer = 15;
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingExplosions;

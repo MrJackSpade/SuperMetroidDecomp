@@ -40,11 +40,11 @@ internal sealed class EnemyPlmSpawns(
     public void DisableDraygonCannon(DraygonCannonControlWord word) => draygon.DisableDraygonCannon(word);
 
     /// <inheritdoc/>
-    public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request) => motherBrain.SpawnMotherBrainGlassProjectile(request);
+    public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request) => motherBrain.Projectiles.SpawnMotherBrainGlassProjectile(request);
 
     /// <inheritdoc/>
     public RoomEnemyProjectileSlot? SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
-        bombTorizo.SpawnBombTorizoStatueBreakingProjectile(request);
+        bombTorizo.Attacks.SpawnBombTorizoStatueBreakingProjectile(request);
 
     /// <inheritdoc/>
     public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, ushort inheritedX) =>

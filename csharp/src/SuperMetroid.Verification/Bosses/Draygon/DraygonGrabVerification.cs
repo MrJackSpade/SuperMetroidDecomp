@@ -57,7 +57,7 @@ internal static class DraygonGrabVerification
         samus.Pose = SamusPoseId.MovingLeftNormalPose;
         samus.XSpeedDivisor = 1;
         samus.PendingTransitionalPose = pendingPose;
-        DraygonEnemyState draygon = runtime.Enemies.DraygonBehavior.Draygon
+        DraygonEnemyState draygon = runtime.Enemies.DraygonBehavior.Parts.Draygon
             ?? throw new InvalidOperationException("Draygon's room loads the Draygon encounter.");
         draygon.Function = DraygonAiFunction.TryGrabSamus;
         draygon.SpiralCenter = draygon.SpiralCenter.WithFractionY(spiralYFraction);
@@ -66,7 +66,7 @@ internal static class DraygonGrabVerification
         draygon.Body.Position = FixedPosition<RoomPixels>.FromWhole(
             new(checked((ushort)(samus.Position.X.Whole - clawOffset)), samus.Position.Y.Whole));
 
-        runtime.Enemies.DraygonBehavior.ChaseAndTryToGrabSamus(draygon, samus, frameCounterLow: 1);
+        runtime.Enemies.DraygonBehavior.Grab.ChaseAndTryToGrabSamus(draygon, samus, frameCounterLow: 1);
         return (runtime, samus, draygon);
     }
 

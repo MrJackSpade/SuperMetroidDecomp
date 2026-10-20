@@ -22,14 +22,14 @@ internal static class EndingFlyawayArtworkVerification
         var installedAudio = new CartridgeAudioState();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
-        installed.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
+        installed.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         int uploadedFrames = 0;
         for (int frame = 0; frame < 10000 &&
-            native.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
+            native.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
-            AssertEqual(native.Phase, installed.Phase,
+            AssertEqual(native.Stage.Phase, installed.Stage.Phase,
                 $"installed ending flyaway preserves native phase at frame {frame}");
-            if (native.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
+            if (native.Stage.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
             {
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                 LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
@@ -45,9 +45,9 @@ internal static class EndingFlyawayArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, native.Phase,
+        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, native.Stage.Phase,
             "ending fixture reaches flyaway scene");
-        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, installed.Phase,
+        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, installed.Stage.Phase,
             "installed ending fixture reaches flyaway scene");
         AssertEqual(16, uploadedFrames,
             "the cartridge still uploads eight character and eight map chunks");
@@ -75,24 +75,24 @@ internal static class EndingFlyawayArtworkVerification
         var rebindGuard = NewIntroArtworkSourceReadGuard(rebindBus);
         var rebindAudio = new CartridgeAudioState();
         var restored = CreateRetailEndingFixture(rebindAudio, 0, 0);
-        restored.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
+        restored.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         for (int frame = 0; frame < 10000 &&
-            restored.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
+            restored.Stage.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
         {
             restored.Step();
             rebindAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, restored.Phase,
+        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, restored.Stage.Phase,
             "rebind fixture remains inside the native upload phase");
         for (int chunk = 0; chunk < 9; chunk++)
         {
             restored.Step();
             rebindAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, restored.Phase,
+        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, restored.Stage.Phase,
             "first map chunk leaves seven scheduled uploads pending");
         byte originalMapByte = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Memory.Vram[0];
-        restored.BindFlightArtwork(overrideArt);
+        restored.Flyaway.BindFlightArtwork(overrideArt);
         AssertEqual((byte)edited.FrontTiles[0], EndingCreditsPresentation.CaptureRenderSnapshot(restored).Memory.Vram[0],
             "restored ending reuploads the edited front-view map byte");
         AssertTrue(originalMapByte != edited.FrontTiles[0],

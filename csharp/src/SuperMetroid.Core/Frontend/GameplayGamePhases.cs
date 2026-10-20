@@ -182,14 +182,14 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                     endingSamus.MaxPowerBombs,
                     endingSamus.CollectedItems,
                     endingSamus.CollectedBeams), JapaneseText = session.GameplayRuntime.JapaneseText, CrittersEscaped = session.GameplayRuntime.System.HasEvent(EventNumber.CrittersEscaped) }));
-            session.ActiveEndingCredits.BindEndingText(session.Artwork.MapPresentation?.EndingText);
-            session.ActiveEndingCredits.BindFlightArtwork(session.Artwork.IntroCinematicArt?.CeresFlight);
-            session.ActiveEndingCredits.BindMode7Artwork(session.Artwork.EndingMode7Art);
-            session.ActiveEndingCredits.BindObjectArtwork(session.Artwork.EndingObjectArt);
-            session.ActiveEndingCredits.BindPaletteArtwork(session.Artwork.EndingPaletteArt);
-            session.ActiveEndingCredits.BindPaletteFxColors(session.Artwork.MapPresentation?.RoomPaletteFx);
-            session.ActiveEndingCredits.BindEndingFont(session.Artwork.MapPresentation?.EndingFont);
-            session.ActiveEndingCredits.BindStaffCredits(session.Artwork.MapPresentation?.StaffCredits);
+            session.ActiveEndingCredits.InstalledArtwork.BindEndingText(session.Artwork.MapPresentation?.EndingText);
+            session.ActiveEndingCredits.Flyaway.BindFlightArtwork(session.Artwork.IntroCinematicArt?.CeresFlight);
+            session.ActiveEndingCredits.Stage.BindMode7Artwork(session.Artwork.EndingMode7Art);
+            session.ActiveEndingCredits.InstalledArtwork.BindObjectArtwork(session.Artwork.EndingObjectArt);
+            session.ActiveEndingCredits.InstalledArtwork.BindPaletteArtwork(session.Artwork.EndingPaletteArt);
+            session.ActiveEndingCredits.InstalledArtwork.BindPaletteFxColors(session.Artwork.MapPresentation?.RoomPaletteFx);
+            session.ActiveEndingCredits.Stage.BindEndingFont(session.Artwork.MapPresentation?.EndingFont);
+            session.ActiveEndingCredits.InstalledArtwork.BindStaffCredits(session.Artwork.MapPresentation?.StaffCredits);
             session.GameState = SuperMetroidGameState.EndingAndCredits;
             session.display.PublishBlack();
         }

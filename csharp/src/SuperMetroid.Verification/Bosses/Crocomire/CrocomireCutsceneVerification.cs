@@ -96,8 +96,8 @@ internal static class CrocomireCutsceneVerification
         var body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(1480, 144));
         var state = new CrocomireEnemyState(body);
-        enemies.CrocomireBehavior.Crocomire = state;
-        enemies.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();
+        enemies.CrocomireBehavior.Access.Crocomire = state;
+        enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
         enemies.VerificationServices().SetRoomScrollState = scrolls.SetStorage;
         enemies.Presentation.BindCgram(new SnesCgram());
         enemies.VerificationServices().NextRandom = () => 1;

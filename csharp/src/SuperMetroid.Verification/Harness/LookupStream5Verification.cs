@@ -195,14 +195,14 @@ internal static class LookupStream5Verification
             var body = system.SlotTable.Slots[0];
             var eye = system.SlotTable.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.SlotTable.Slots[2], Mouth = system.SlotTable.Slots[3] };
-            system.PhantoonBehavior.Phantoon = state;
+            system.PhantoonBehavior.Combat.Phantoon = state;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
             // The fade writes Phantoon's palette rows toward its installed fade colors.
             system.Presentation.BindCgram(new SnesCgram());
             system.TileArtwork = InstalledFixtures.EnemyTiles;
-            Action<RoomEnemySlot, PhantoonEnemyState> fade = system.PhantoonBehavior.RunPhantoonFlameRainFadeOut;
-            Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.RunPhantoonHiddenFlameRain;
+            Action<RoomEnemySlot, PhantoonEnemyState> fade = system.PhantoonBehavior.Patterns.RunPhantoonFlameRainFadeOut;
+            Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain;
             body.Position = body.Position.WithWhole(new(111, 99)); state.Parts[body.SlotIndex].PathCursor = 42; state.Parts[body.SlotIndex].FunctionTimer = 17;
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.FadeOutDuringFlameRain;
             fade(body, state); // The eye's independent fade has not completed yet.
@@ -255,11 +255,11 @@ internal static class LookupStream5Verification
             var eye = system.SlotTable.Slots[1];
             var mouth = system.SlotTable.Slots[3];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.SlotTable.Slots[2], Mouth = mouth };
-            system.PhantoonBehavior.Phantoon = state;
+            system.PhantoonBehavior.Combat.Phantoon = state;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => { randomCalls++; return (ushort)(reversed ? 1 : 0); };
-            Action<RoomEnemySlot, PhantoonEnemyState> begin = system.PhantoonBehavior.RunPhantoonPickFirstRoundPattern;
-            Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.RunPhantoonFirstRoundFigureEight;
+            Action<RoomEnemySlot, PhantoonEnemyState> begin = system.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern;
+            Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
             system.FrameContext.SeedNmiFrameCounter((ushort)(bucket << 1));
             body.Position = body.Position.WithWhole(new(128, 96)); state.Parts[body.SlotIndex].FunctionTimer = 1; state.Parts[body.SlotIndex].FlameRainRequested = true;
@@ -400,10 +400,10 @@ internal static class LookupStream5Verification
             var eye = system.SlotTable.Slots[1];
             var tentacles = system.SlotTable.Slots[2];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = tentacles, Mouth = system.SlotTable.Slots[3] };
-            system.PhantoonBehavior.Phantoon = state;
+            system.PhantoonBehavior.Combat.Phantoon = state;
             system.VerificationServices().NextRandom = () => (ushort)bucket;
             Action<PhantoonEnemyState> open = system.PhantoonBehavior.BeginPhantoonEyeTracking;
-            Action<RoomEnemySlot, PhantoonEnemyState, SamusState> tick = PhantoonBehavior.RunPhantoonEyeTracking;
+            Action<RoomEnemySlot, PhantoonEnemyState, SamusState> tick = PhantoonPatterns.RunPhantoonEyeTracking;
             body.Position = body.Position.WithWhole(new(128, 96));
             open(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd41 + bucket * 2);
@@ -480,7 +480,7 @@ internal static class LookupStream5Verification
             {
                 TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresEscapeOverlayTilemaps = result }),
             };
-            system.CeresRidleyBehavior.DrawCeresEmergencyText();
+            system.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
             int first = ReadVerificationWord(rom, 0xa6c162) - GameplayVramLayout.Bg1TilemapWord;
             int count = ReadVerificationWord(rom, 0xa6c15d) / sizeof(ushort);
             AssertEqual(count, overlay.Overlay.Words.Count(word => word != RoomTilemapOverlay.Unwritten), "Native emergency word extent");
@@ -1075,7 +1075,7 @@ internal static class LookupStream5Verification
         {
             Eye = enemies.SlotTable.Slots[1], Tentacles = enemies.SlotTable.Slots[2], Mouth = enemies.SlotTable.Slots[3],
         };
-        Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = enemies.PhantoonBehavior.ResolvePhantoonShotReaction;
+        Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction;
         ushort random = 0;
         int calls = 0;
         enemies.VerificationServices().NextRandom = () => { calls++; return random; };
@@ -1480,10 +1480,10 @@ internal static class LookupStream5Verification
             var body = enemies.SlotTable.Slots[0];
             var eye = enemies.SlotTable.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };
-            enemies.PhantoonBehavior.Phantoon = state;
+            enemies.PhantoonBehavior.Combat.Phantoon = state;
             state.Parts[body.SlotIndex].FunctionTimer = 1;
             state.Parts[eye.SlotIndex].FigureEightReversed = true;
-            new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.RunPhantoonHiddenFlameRain)(body, state);
+            new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.Parts[body.SlotIndex].PathCursor, "Real rain cursor handoff");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
@@ -1514,7 +1514,7 @@ internal static class LookupStream5Verification
                 $"native Phantoon eye direction {direction}");
         }
         var eyeEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, PhantoonEnemyState, SamusState> pointEye = PhantoonBehavior.PointPhantoonEyeAtSamus;
+        Action<RoomEnemySlot, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemySlot eyeBody = eyeEnemies.SlotTable.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.SlotTable.Slots[1];
         var eyeState = new PhantoonEnemyState(eyeBody) { Eye = trackingEye, Tentacles = eyeEnemies.SlotTable.Slots[2], Mouth = eyeEnemies.SlotTable.Slots[3] };
@@ -1853,7 +1853,7 @@ internal static class LookupStream5Verification
         {
             door.Position = door.Position.WithWholeX(x); enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(phase);
             var actual = new OamBuffer(); actual.BeginFrame();
-            actual.AppendDrawn(frame => enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(camera, 0))); actual.FinalizeFrame();
+            actual.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(camera, 0))); actual.FinalizeFrame();
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase);
             AssertEqual(native & 0x1ff, CeresDoorQuakeDefinitions.XOffset(phase) & 0x1ff,
                 "Native overlapping high byte retains the same ninth coordinate bit");

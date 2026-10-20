@@ -49,7 +49,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// <summary>Number of boss-defeated event publications.</summary>
         internal int BossBitCalls { get; private set; }
         /// <summary>Golden Torizo's state when this fixture contains the boss.</summary>
-        internal TorizoEnemyState? Torizo => Enemies.BombTorizoBehavior.GoldenTorizo;
+        internal TorizoEnemyState? Torizo => Enemies.BombTorizoBehavior.Attacks.GoldenTorizo;
 
         /// <summary>Creates matching terrain and services, then initializes either Boyon or a fixed Torizo attack phase.</summary>
         internal EnemyAnimationFixture(EnemyTileArtworkCatalog artwork, bool golden)
@@ -81,7 +81,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             {
                 Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)EnemyExtraProperties.UsesExtendedSpritemap);
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
-                Enemies.BombTorizoBehavior.TorizoState = new TorizoEnemyState(Actor, isGolden: true)
+                Enemies.BombTorizoBehavior.Access.TorizoState = new TorizoEnemyState(Actor, isGolden: true)
                 {
                     Function = TorizoFunction.GoldenPreInstruction,
                     PreInstruction = TorizoPreInstruction.Idle,
@@ -118,7 +118,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         }
 
         /// <summary>Starts Golden Torizo's compiled death sequence after its orb attack.</summary>
-        internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(Enemies.BombTorizoBehavior.BeginBombTorizoDeath)(Actor, (Torizo ?? throw new InvalidOperationException("Verification requires Torizo.")));
+        internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(Enemies.BombTorizoBehavior.Combat.BeginBombTorizoDeath)(Actor, (Torizo ?? throw new InvalidOperationException("Verification requires Torizo.")));
 
         /// <summary>Advances the fixture's deterministic RNG and records each consumption.</summary>
         private ushort NextRandom()

@@ -67,7 +67,7 @@ internal sealed class EnemyInstructionInterpreter
         if (destinationWord < 0 || words.Length == 0 ||
             destinationWord + words.Length > CrocomireDeathState.Bg2WorkingWordCount)
             throw new InvalidDataException("Extended BG2 write exceeds the enemy tilemap buffer.");
-        if (_crocomireBehavior.CrocomireDeath is { } death)
+        if (_crocomireBehavior.Access.CrocomireDeath is { } death)
             words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));
         if (_motherBrainEncounter.MotherBrain is not null)
         {

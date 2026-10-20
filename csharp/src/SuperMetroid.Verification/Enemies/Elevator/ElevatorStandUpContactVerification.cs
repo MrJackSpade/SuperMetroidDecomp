@@ -36,7 +36,7 @@ internal static class ElevatorStandUpContactVerification
         samus.Position = samus.Position.WithWholeY((ushort)(DoorRow * 16 - samus.Kinematics.Radius.Y));
         AssertTrue(level.ConsumeElevatorDoorContact() is false, "no contact before the stand-up");
 
-        AssertTrue(SamusPoseTransitions.TryApplyDirectCrouchToStandingTransition(samus, level, SamusPoseId.FacingLeftNormalPose, 0),
+        AssertTrue(SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(samus, level, SamusPoseId.FacingLeftNormalPose, 0),
             "the standing body fits above the elevator");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose, "Samus stands");
         AssertTrue(level.ConsumeElevatorDoorContact(),

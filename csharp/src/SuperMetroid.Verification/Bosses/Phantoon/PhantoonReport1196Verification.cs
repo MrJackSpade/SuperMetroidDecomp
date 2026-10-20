@@ -19,10 +19,10 @@ internal static class PhantoonReport1196Verification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = CreatePhantoonSystem();
-        var state = enemies.PhantoonBehavior.Phantoon;
+        var state = enemies.PhantoonBehavior.Combat.Phantoon;
         enemies.BeginEnemySoundRequestFrame();
         (state ?? throw new InvalidOperationException("Verification requires state.")).Parts[state.Body.SlotIndex].FunctionTimer = 1;
-        enemies.PhantoonBehavior.RunPhantoonStartingFlameSpawner(state.Body, state);
+        enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
         enemies.CollectLegacyEnemyAudioRequests();
         AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");
         var audio = new CartridgeAudioState();
@@ -54,7 +54,7 @@ internal static class PhantoonReport1196Verification
     internal static void VerifyPhantoonDeathWaveInitialization()
     {
         var enemies = CreatePhantoonSystem();
-        var boss = enemies.PhantoonBehavior.Phantoon;
+        var boss = enemies.PhantoonBehavior.Combat.Phantoon;
         (boss ?? throw new InvalidOperationException("Verification requires boss.")).Bg2Scroll = boss.Bg2Scroll.WithX(9);
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
@@ -67,8 +67,8 @@ internal static class PhantoonReport1196Verification
         wave.Step(boss);
         boss.Bg2Scroll = boss.Bg2Scroll.WithX(13);
         boss.Body.Health = 0;
-        enemies.PhantoonBehavior.ResolvePhantoonShotReaction(boss.Body, boss, 0x0100, 100);
-        PhantoonBehavior.BeginPhantoonWavyMosaicDeath(boss.Body, boss);
+        enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(boss.Body, boss, 0x0100, 100);
+        PhantoonDeath.BeginPhantoonWavyMosaicDeath(boss.Body, boss);
         wave.Step(boss);
         wave.LatchDisplay();
         AssertEqual(PhantoonWaveRomData.InitialPhase, wave.Phase, "first death HDMA call remains setup-only");

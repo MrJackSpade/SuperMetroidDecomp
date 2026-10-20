@@ -39,7 +39,7 @@ internal static class GrappleEndpointGeometryVerification
             };
             grapple.SegmentAnimationTimers[15] = NativeCountdown.Start(1);
             var oamFrame = new SpriteFrameBuffer();
-            SamusGrappleMovement.DrawConnectedBeam(grapple, oamFrame, new(camera, camera), SpriteFrameTestArtwork.BlankGrapple, samusPose: pose, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, oamFrame, new(camera, camera), SpriteFrameTestArtwork.BlankGrapple, samusPose: pose, standardObjects: SpriteFrameTestArtwork.StandardObjects);
             OamBuffer oam = oamFrame.FinalizeAsOam();
             bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
             ushort relativeY = unchecked((ushort)(endpointY - camera));

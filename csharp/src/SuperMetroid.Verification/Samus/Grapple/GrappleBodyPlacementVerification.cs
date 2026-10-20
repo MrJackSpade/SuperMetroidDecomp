@@ -23,7 +23,7 @@ internal static class GrappleBodyPlacementVerification
     /// <summary>Compares installed and edited swing art across mirrored angles, facing, anchor wrap, and pendulum updates.</summary>
     internal static void VerifyGrappleBodyPlacement(SuperMetroidAddressSpace rom)
     {
-        var position = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.PositionSamusFromPendulum);
+        var position = new Action<SamusState, SamusGrappleState>(SamusGrappleSwing.PositionSamusFromPendulum);
         CartridgeReadGuard bus = new CartridgeReadGuard(rom)
             .Forbid(address => address is >= 0x9bc1c2 and < 0x9bc2c2,
                 _ => "Installed swing art still reads the ROM selector.")

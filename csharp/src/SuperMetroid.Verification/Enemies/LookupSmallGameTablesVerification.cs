@@ -32,12 +32,12 @@ internal static class LookupSmallGameTablesVerification
     {
         for (int tube = 0; tube < 5; tube++)
         {
-            var body = MotherBrainBehavior.MotherBrainFallingTubeBody(tube);
+            var body = MotherBrainFakeDeath.MotherBrainFallingTubeBody(tube);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b5d + 2 * tube)), body.Radius.X, $"Falling tube {tube} X radius");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b67 + 2 * tube)), body.Radius.Y, $"Falling tube {tube} Y radius");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b71 + 2 * tube)), body.Floor, $"Falling tube {tube} floor");
         }
-        AssertThrows<InvalidDataException>(() => MotherBrainBehavior.MotherBrainFallingTubeBody(5), "Falling tube upper bound");
+        AssertThrows<InvalidDataException>(() => MotherBrainFakeDeath.MotherBrainFallingTubeBody(5), "Falling tube upper bound");
     }
 
     /// <summary>Checks every bomb-bounce gravity stage and its shared ordinary fall value.</summary>
@@ -60,11 +60,11 @@ internal static class LookupSmallGameTablesVerification
             int call = 0xa48f35 + 20 * puff;
             AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call), $"Dust {puff} X operand opcode");
             AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call + 5), $"Dust {puff} Y operand opcode");
-            (ushort x, ushort y) = CrocomireBehavior.CrocomireBridgeDustPosition(puff);
+            (ushort x, ushort y) = CrocomireBridgeCollapse.CrocomireBridgeDustPosition(puff);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((call + 1)), x, $"Crocomire bridge dust {puff} X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((call + 6)), y, $"Crocomire bridge dust {puff} Y");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBehavior.CrocomireBridgeDustPosition(7), "Dust upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBridgeCollapse.CrocomireBridgeDustPosition(7), "Dust upper bound");
     }
 
     /// <summary>Reads a retail opcode byte when checking Crocomire's unrolled dust spawns.</summary>

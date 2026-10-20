@@ -73,7 +73,7 @@ internal static class SpcCommandPortsVerification
             pcm.AppendData(MemoryMarshal.AsBytes(samples.AsSpan()));
             CartridgeAudioAcknowledgements sessionAcknowledgements = session.Acknowledgements;
             // Port zero is the sequencer's music echo, which gameplay never reads; the recording took it from the driver.
-            acknowledgementBytes.Add(checked((byte)session.PlayerForVerification.musicPortToSnes));
+            acknowledgementBytes.Add(checked((byte)session.PlayerForVerification.Music.musicPortToSnes));
             foreach (ApuPort port in ApuPorts.SoundLibraryPorts)
                 acknowledgementBytes.Add(checked((byte)sessionAcknowledgements[port]));
 

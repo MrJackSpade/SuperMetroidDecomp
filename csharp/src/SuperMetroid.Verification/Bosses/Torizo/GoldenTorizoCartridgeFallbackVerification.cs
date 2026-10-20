@@ -36,7 +36,7 @@ internal static class GoldenTorizoCartridgeFallbackVerification
         samus.Health = 1499;
         RoomEnemySlot boss = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
-        TorizoEnemyState state = runtime.Enemies.BombTorizoBehavior.GoldenTorizo
+        TorizoEnemyState state = runtime.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo
             ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.");
         bool enteredCombat = false;
         for (int frame = 0; frame < 850; frame++)

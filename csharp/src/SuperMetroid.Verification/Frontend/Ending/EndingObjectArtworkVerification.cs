@@ -200,14 +200,14 @@ internal static class EndingObjectArtworkVerification
         var installedAudio = new CartridgeAudioState();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
-        installed.BindObjectArtwork(stock);
+        installed.InstalledArtwork.BindObjectArtwork(stock);
         var phases = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 12000 &&
-            native.Phase != EndingCreditsPhase.FadeOutToCredits; frame++)
+            native.Stage.Phase != EndingCreditsPhase.FadeOutToCredits; frame++)
         {
-            AssertEqual(native.Phase, installed.Phase,
+            AssertEqual(native.Stage.Phase, installed.Stage.Phase,
                 $"installed ending OBJ art preserves phase at frame {frame}");
-            if (phases.Add(native.Phase) || frame % 211 == 0)
+            if (phases.Add(native.Stage.Phase) || frame % 211 == 0)
             {
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                 LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
@@ -222,9 +222,9 @@ internal static class EndingObjectArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.FadeOutToCredits, native.Phase,
+        AssertEqual(EndingCreditsPhase.FadeOutToCredits, native.Stage.Phase,
             "ending OBJ fixture reaches the completed-time credits handoff");
-        AssertEqual(EndingCreditsPhase.FadeOutToCredits, installed.Phase,
+        AssertEqual(EndingCreditsPhase.FadeOutToCredits, installed.Stage.Phase,
             "installed OBJ art retains the native completed-time credits handoff");
         AssertTrue(phases.Contains(EndingCreditsPhase.WaitForEscapeMusic) &&
                 phases.Contains(EndingCreditsPhase.FadeInEscapeSceneB) &&
@@ -256,23 +256,23 @@ internal static class EndingObjectArtworkVerification
         EndingObjectArtworkCatalog editedCloudSprites = installation.LoadEndingObjectArt();
         var cloudAudio = new CartridgeAudioState();
         var cloudScene = CreateRetailEndingFixture(cloudAudio, 0, 0);
-        cloudScene.BindObjectArtwork(stock);
+        cloudScene.InstalledArtwork.BindObjectArtwork(stock);
         for (int frame = 0; frame < 2000 &&
-            cloudScene.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
+            cloudScene.Stage.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
         {
             cloudScene.Step();
             cloudAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.EscapeSceneA, cloudScene.Phase,
+        AssertEqual(EndingCreditsPhase.EscapeSceneA, cloudScene.Stage.Phase,
             "ending cloud edit reaches visible first atmospheric scene");
         bool visibleCloudEdit = false;
         for (int frame = 0; frame < 700 &&
-            cloudScene.Phase < EndingCreditsPhase.FadeInEscapeSceneB &&
+            cloudScene.Stage.Phase < EndingCreditsPhase.FadeInEscapeSceneB &&
             !visibleCloudEdit; frame++)
         {
-            cloudScene.BindObjectArtwork(stock);
+            cloudScene.InstalledArtwork.BindObjectArtwork(stock);
             LayeredRenderSnapshot beforeCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
-            cloudScene.BindObjectArtwork(editedCloudSprites);
+            cloudScene.InstalledArtwork.BindObjectArtwork(editedCloudSprites);
             LayeredRenderSnapshot afterCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
             visibleCloudEdit = !beforeCloudEdit.Memory.SpriteParts().SequenceEqual(
                     afterCloudEdit.Memory.SpriteParts()) &&
@@ -317,23 +317,23 @@ internal static class EndingObjectArtworkVerification
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
             var scene = CreateRetailEndingFixture(audio, 0, 0);
-            scene.BindObjectArtwork(stock);
+            scene.InstalledArtwork.BindObjectArtwork(stock);
             EndingCreditsPhase target = resource == 0
                 ? EndingCreditsPhase.WaitForEscapeMusic :
                 EndingCreditsPhase.FadeInZebesExplosion;
-            for (int frame = 0; frame < 10000 && scene.Phase != target; frame++)
+            for (int frame = 0; frame < 10000 && scene.Stage.Phase != target; frame++)
             {
                 scene.Step();
                 audio.AdvanceFrame(default);
             }
-            AssertEqual(target, scene.Phase, $"ending {name} reaches its actual scene");
-            for (int frame = 0; frame < 1200 && scene.Brightness == 0; frame++)
+            AssertEqual(target, scene.Stage.Phase, $"ending {name} reaches its actual scene");
+            for (int frame = 0; frame < 1200 && scene.Stage.Brightness == 0; frame++)
             {
                 scene.Step();
                 audio.AdvanceFrame(default);
             }
             LayeredRenderSnapshot baseline = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-            EndingCreditsPhase baselinePhase = scene.Phase;
+            EndingCreditsPhase baselinePhase = scene.Stage.Phase;
             AssertTrue(baseline.Brightness > 0,
                 $"ending {name} reaches a visible override frame");
 
@@ -348,26 +348,26 @@ internal static class EndingObjectArtworkVerification
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
-            scene.BindObjectArtwork(edited);
+            scene.InstalledArtwork.BindObjectArtwork(edited);
             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             AssertTrue(!baseline.Memory.Vram.SequenceEqual(changed.Memory.Vram) &&
                     baseline.Memory.Vram[..(EndingVramLayout.ExplosionObjects.Offset * 2)]
                         .SequenceEqual(changed.Memory.Vram
                             [..(EndingVramLayout.ExplosionObjects.Offset * 2)]) &&
                     baseline.Memory.Cgram.SequenceEqual(changed.Memory.Cgram) &&
-                    scene.Phase == baselinePhase,
+                    scene.Stage.Phase == baselinePhase,
                 $"edited {name} changes OBJ VRAM without touching Mode-7 graphics or CGRAM");
             bool visibleEdit = false;
             for (int frame = 0; frame < 2400 && !visibleEdit &&
-                scene.Phase < (resource == 0
+                scene.Stage.Phase < (resource == 0
                     ? EndingCreditsPhase.FadeInZebesExplosion :
                     EndingCreditsPhase.PlanetEscapeFast); frame++)
             {
                 if (frame % 6 == 0)
                 {
-                    scene.BindObjectArtwork(stock);
+                    scene.InstalledArtwork.BindObjectArtwork(stock);
                     LayeredRenderSnapshot nativeArt = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                    scene.BindObjectArtwork(edited);
+                    scene.InstalledArtwork.BindObjectArtwork(edited);
                     LayeredRenderSnapshot editedArt = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                     visibleEdit = !SoftwareLayeredSnapshotRenderer.Render(nativeArt)
                         .SequenceEqual(

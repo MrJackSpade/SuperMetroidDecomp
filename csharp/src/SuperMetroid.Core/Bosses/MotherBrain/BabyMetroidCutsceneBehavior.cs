@@ -179,12 +179,12 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         {
             MotherBrainBodyProgram bodyProgram = sequence.RequestedBodyProgram ?? throw new InvalidDataException(
                 "Baby requested Mother Brain body movement without a body program.");
-            MotherBrainBehavior.SetMotherBrainBodyProgram(state, bodyProgram);
+            MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, bodyProgram);
         }
 
         // Cross-enemy writes happen during the later Baby slot and become visible in the
         // body record immediately, though body AI cannot execute them until the next frame.
-        state.Function = sequence.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body function yet.");
+        state.Function = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body function yet.");
 
         if (baby.Program != state.BabyAppliedProgram)
             SetBabyMetroidCutsceneProgram(state, slot, baby.Program);

@@ -233,16 +233,16 @@ internal static class EndingPaletteArtworkVerification
         var installedAudio = new CartridgeAudioState();
         var nativeState = CreateRetailEndingFixture(nativeAudio, 2, 59);
         var installedState = CreateRetailEndingFixture(installedAudio, 2, 59);
-        installedState.BindPaletteArtwork(stock);
-        installedState.BindPaletteFxColors(maps.RoomPaletteFx);
-        installedState.BindEndingText(maps.EndingText);
-        installedState.BindEndingFont(maps.EndingFont);
-        installedState.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
-        installedState.BindMode7Artwork(installation.LoadEndingMode7Art());
-        installedState.BindObjectArtwork(installation.LoadEndingObjectArt());
+        installedState.InstalledArtwork.BindPaletteArtwork(stock);
+        installedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
+        installedState.InstalledArtwork.BindEndingText(maps.EndingText);
+        installedState.Stage.BindEndingFont(maps.EndingFont);
+        installedState.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
+        installedState.Stage.BindMode7Artwork(installation.LoadEndingMode7Art());
+        installedState.InstalledArtwork.BindObjectArtwork(installation.LoadEndingObjectArt());
         CreditsPresentation credits = maps.StaffCredits;
-        nativeState.BindStaffCredits(credits);
-        installedState.BindStaffCredits(credits);
+        nativeState.InstalledArtwork.BindStaffCredits(credits);
+        installedState.InstalledArtwork.BindStaffCredits(credits);
         // This matches the playable host's installed ending bindings. The fallback
         // bus remains available in narrower native-reference tests below, but the
         // production-shaped scene must complete without *any* cartridge read.
@@ -252,11 +252,11 @@ internal static class EndingPaletteArtworkVerification
             "ending ROM guard rejects an otherwise valid non-palette cartridge source");
         var reached = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 60_000 &&
-            nativeState.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
+            nativeState.Stage.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
         {
-            AssertEqual(nativeState.Phase, installedState.Phase,
+            AssertEqual(nativeState.Stage.Phase, installedState.Stage.Phase,
                 $"installed ending palettes preserve phase at frame {frame}");
-            bool first = reached.Add(nativeState.Phase);
+            bool first = reached.Add(nativeState.Stage.Phase);
             if (first || frame % 173 == 0)
             {
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeState);
@@ -271,9 +271,9 @@ internal static class EndingPaletteArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.SeeYouNextMission, nativeState.Phase,
+        AssertEqual(EndingCreditsPhase.SeeYouNextMission, nativeState.Stage.Phase,
             "native ending reaches final hold in palette parity fixture");
-        AssertEqual(nativeState.Phase, installedState.Phase,
+        AssertEqual(nativeState.Stage.Phase, installedState.Stage.Phase,
             "installed ending reaches the same final hold");
         rejectAllCartridgeReads = false;
         foreach (EndingCreditsPhase phase in new[]
@@ -333,8 +333,8 @@ internal static class EndingPaletteArtworkVerification
             {
                 var editedAudio = new CartridgeAudioState();
                 var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
-                editedState.BindPaletteArtwork(edited);
-                editedState.BindPaletteFxColors(maps.RoomPaletteFx);
+                editedState.InstalledArtwork.BindPaletteArtwork(edited);
+                editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
                 var stockAudio = new CartridgeAudioState();
                 var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
                 // The ending's setup dispatch loads the escape palette only after its own NMI
@@ -434,27 +434,27 @@ internal static class EndingPaletteArtworkVerification
         var stockAudio = new CartridgeAudioState();
         var editedScene = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockScene = CreateRetailEndingFixture(stockAudio, 2, 59);
-        editedScene.BindPaletteArtwork(installation.LoadEndingPalettes());
+        editedScene.InstalledArtwork.BindPaletteArtwork(installation.LoadEndingPalettes());
         AreaMapPresentationCatalog maps = installation.LoadMaps();
-        editedScene.BindPaletteFxColors(maps.RoomPaletteFx);
+        editedScene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         CreditsPresentation credits = maps.StaffCredits;
-        editedScene.BindStaffCredits(credits);
-        stockScene.BindStaffCredits(credits);
+        editedScene.InstalledArtwork.BindStaffCredits(credits);
+        stockScene.InstalledArtwork.BindStaffCredits(credits);
         bool visibleDifference = false;
         bool reboundDuringScene = false;
         for (int frame = 0; frame < 60_000 &&
-            stockScene.Phase != EndingCreditsPhase.Credits; frame++)
+            stockScene.Stage.Phase != EndingCreditsPhase.Credits; frame++)
         {
             if (frame == 20)
             {
                 Bgr555[] before = EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Memory.Cgram.ToArray();
-                editedScene.BindPaletteFxColors(editedColors);
+                editedScene.InstalledArtwork.BindPaletteFxColors(editedColors);
                 AssertTrue(before.SequenceEqual(
                         EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Memory.Cgram),
                     "rebinding ending palette-FX preserves already-drawn CGRAM state");
                 reboundDuringScene = true;
             }
-            AssertEqual(stockScene.Phase, editedScene.Phase,
+            AssertEqual(stockScene.Stage.Phase, editedScene.Stage.Phase,
                 $"edited ending palette-FX preserves cinematic phase at frame {frame}");
             editedScene.Step();
             stockScene.Step();
@@ -534,21 +534,21 @@ internal static class EndingPaletteArtworkVerification
         var stockAudio = new CartridgeAudioState();
         var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
-        editedState.BindPaletteArtwork(edited);
+        editedState.InstalledArtwork.BindPaletteArtwork(edited);
         AreaMapPresentationCatalog maps = installation.LoadMaps();
-        editedState.BindPaletteFxColors(maps.RoomPaletteFx);
+        editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         CreditsPresentation credits = maps.StaffCredits;
-        editedState.BindStaffCredits(credits);
-        stockState.BindStaffCredits(credits);
+        editedState.InstalledArtwork.BindStaffCredits(credits);
+        stockState.InstalledArtwork.BindStaffCredits(credits);
         bool visibleDifference = false;
         for (int frame = 0; frame < 60_000 &&
-            stockState.Phase != EndingCreditsPhase.PostCreditsBlank; frame++)
+            stockState.Stage.Phase != EndingCreditsPhase.PostCreditsBlank; frame++)
         {
             editedState.Step();
             stockState.Step();
             editedAudio.AdvanceFrame(default);
             stockAudio.AdvanceFrame(default);
-            if (stockState.Phase != EndingCreditsPhase.Credits || stockState.Brightness == 0 ||
+            if (stockState.Stage.Phase != EndingCreditsPhase.Credits || stockState.Stage.Brightness == 0 ||
                 frame % 19 != 0) continue;
             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
             LayeredRenderSnapshot original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
@@ -584,21 +584,21 @@ internal static class EndingPaletteArtworkVerification
         var stockAudio = new CartridgeAudioState();
         var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
-        editedState.BindPaletteArtwork(edited);
+        editedState.InstalledArtwork.BindPaletteArtwork(edited);
         AreaMapPresentationCatalog maps = installation.LoadMaps();
-        editedState.BindPaletteFxColors(maps.RoomPaletteFx);
+        editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         CreditsPresentation credits = maps.StaffCredits;
-        editedState.BindStaffCredits(credits);
-        stockState.BindStaffCredits(credits);
+        editedState.InstalledArtwork.BindStaffCredits(credits);
+        stockState.InstalledArtwork.BindStaffCredits(credits);
         bool visibleDifference = false;
         for (int frame = 0; frame < 60_000 &&
-            stockState.Phase != EndingCreditsPhase.ItemPercentage; frame++)
+            stockState.Stage.Phase != EndingCreditsPhase.ItemPercentage; frame++)
         {
             editedState.Step();
             stockState.Step();
             editedAudio.AdvanceFrame(default);
             stockAudio.AdvanceFrame(default);
-            if (stockState.Phase != EndingCreditsPhase.PostCreditsLogo || frame % 3 != 0)
+            if (stockState.Stage.Phase != EndingCreditsPhase.PostCreditsLogo || frame % 3 != 0)
                 continue;
             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
             LayeredRenderSnapshot original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);

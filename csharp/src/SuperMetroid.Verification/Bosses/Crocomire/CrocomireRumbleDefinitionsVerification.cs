@@ -84,7 +84,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             RumbleTableOffset = 4,
         };
         enemies.Presentation.BindCgram(cgram);
-        enemies.CrocomireBehavior.CrocomireDeath = death;
+        enemies.CrocomireBehavior.Access.CrocomireDeath = death;
 
         // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the
         // comparisons read back as words.
@@ -104,7 +104,7 @@ internal static class CrocomireRumbleDefinitionsVerification
                 ref referenceCooldown,
                 ref referenceDelta,
                 ref referenceDeathIndex);
-            enemies.CrocomireBehavior.RunCrocomireWallRumble(state);
+            enemies.CrocomireBehavior.Skeleton.RunCrocomireWallRumble(state);
             frames++;
 
             AssertEqual(referenceIndex, state.RumbleTableOffset,

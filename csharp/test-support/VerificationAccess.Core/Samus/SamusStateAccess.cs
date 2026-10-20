@@ -33,7 +33,7 @@ internal static class SamusStateAccess
                 throw new InvalidOperationException(
                     $"Spin-fire compatibility route requires pose $13/$14, not ${(int)targetPose:X2}.");
             }
-            return SamusPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(self, 
+            return SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(self, 
 
                 level,
                 targetPose,

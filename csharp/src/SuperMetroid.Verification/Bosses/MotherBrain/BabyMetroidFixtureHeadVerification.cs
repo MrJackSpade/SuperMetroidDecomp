@@ -13,5 +13,5 @@ internal static class BabyMetroidFixtureHeadVerification
     /// stands in for <c>Enemy[1]</c> after they step its neck.
     /// </summary>
     internal static Position16<RoomPixels> HeadOf(MotherBrainRainbowBeamAttackSequence sequence) =>
-        sequence.BrainPosition;
+        sequence.State.BrainPosition;
 }

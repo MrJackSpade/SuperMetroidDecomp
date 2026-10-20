@@ -48,7 +48,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, SoundEffectLibrary2Sounds.SmallExplosion),
         };
         state.LastSoundEffectLibrary3 = null;
-        runtime.Enemies.MotherBrainBehavior.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(), death);
+        runtime.Enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(), death);
         AssertEqual(null, state.LastSoundEffectLibrary3, "neither sound goes to library three");
         AssertSequenceEqual(
             new[]

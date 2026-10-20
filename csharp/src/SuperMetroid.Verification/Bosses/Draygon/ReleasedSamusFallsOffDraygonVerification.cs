@@ -29,7 +29,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
-        DraygonEnemyState draygon = (runtime.Enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.DraygonBehavior.Draygon."));
+        DraygonEnemyState draygon = (runtime.Enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.DraygonBehavior.Draygon."));
         // Stage the end of the intro rather than replaying the dance; the fight's hitboxes
         // carry Draygon's own touch routine.
         draygon.FunctionTimer = NativeCountdown.Start(0x100);

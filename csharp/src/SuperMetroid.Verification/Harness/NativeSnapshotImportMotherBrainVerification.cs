@@ -180,31 +180,31 @@ internal static class NativeSnapshotImportMotherBrainVerification
     {
         var artwork = runtime.Enemies.Room.MotherBrainCorpseArtwork;
         var sequence = new MotherBrainRainbowBeamAttackSequence(artwork);
-        sequence.Phase = phase;
-        sequence.FunctionTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BodyFunctionTimer));
-        sequence.AngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
-        sequence.SoundQueueCount = NativeCountdown.FromRaw(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
-        sequence.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
-        sequence.BrainMainShakeTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
-        sequence.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
-        sequence.HealthBasedPaletteHandlingEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
-        sequence.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
-        sequence.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
-        sequence.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
-        sequence.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
-        sequence.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
-        sequence.BrainPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex));
-        sequence.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
-        sequence.RainbowBeamPaletteAnimationIndex = W(MotherBrainMemory.RainbowPaletteIndex);
-        sequence.DeathExplosionIntervalTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunction));
-        sequence.DeathAndEscapeExplosionIndex = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunctionTimer));
+        sequence.State.Phase = phase;
+        sequence.State.FunctionTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BodyFunctionTimer));
+        sequence.RainbowAttack.AngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
+        sequence.RainbowAttack.SoundQueueCount = NativeCountdown.FromRaw(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
+        sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
+        sequence.State.BrainMainShakeTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
+        sequence.State.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
+        sequence.State.HealthBasedPaletteHandlingEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
+        sequence.State.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
+        sequence.State.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
+        sequence.State.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
+        sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
+        sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
+        sequence.ThirdPhaseDeath.BrainPalette = SnesObjAttributeWord.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex));
+        sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
+        sequence.FinishSamusOff.RainbowBeamPaletteAnimationIndex = W(MotherBrainMemory.RainbowPaletteIndex);
+        sequence.ThirdPhaseDeath.DeathExplosionIntervalTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunction));
+        sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunctionTimer));
         sequence.LowerNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
         sequence.UpperNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
-        sequence.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
-        sequence.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
-        sequence.LowerNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+        sequence.State.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
+        sequence.State.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
+        sequence.State.LowerNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
-        sequence.UpperNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+        sequence.State.UpperNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.RainbowBeamSequence = sequence;
     }

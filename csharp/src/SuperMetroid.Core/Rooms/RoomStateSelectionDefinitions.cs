@@ -21,489 +21,489 @@ public static class RoomStateSelectionDefinitions
     {
         [RoomHeaderDefinitions.LandingSite] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), RoomStateDefinitions.LandingSite3)) return RoomStateDefinitions.LandingSite3;
-            if (match(selection.HasPowerBombs, RoomStateDefinitions.LandingSite2)) return RoomStateDefinitions.LandingSite2;
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.LandingSite1)) return RoomStateDefinitions.LandingSite1;
-            return RoomStateDefinitions.LandingSite0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.LandingSite3)) return CrateriaRoomStateDefinitions.LandingSite3;
+            if (match(selection.HasPowerBombs, CrateriaRoomStateDefinitions.LandingSite2)) return CrateriaRoomStateDefinitions.LandingSite2;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.LandingSite1)) return CrateriaRoomStateDefinitions.LandingSite1;
+            return CrateriaRoomStateDefinitions.LandingSite0;
         },
         [RoomHeaderDefinitions.GauntletEntrance] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.GauntletEntrance1)) return RoomStateDefinitions.GauntletEntrance1;
-            return RoomStateDefinitions.GauntletEntrance0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.GauntletEntrance1)) return CrateriaRoomStateDefinitions.GauntletEntrance1;
+            return CrateriaRoomStateDefinitions.GauntletEntrance0;
         },
         [RoomHeaderDefinitions.Parlor] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), RoomStateDefinitions.Parlor2)) return RoomStateDefinitions.Parlor2;
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.Parlor1)) return RoomStateDefinitions.Parlor1;
-            return RoomStateDefinitions.Parlor0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.Parlor2)) return CrateriaRoomStateDefinitions.Parlor2;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.Parlor1)) return CrateriaRoomStateDefinitions.Parlor1;
+            return CrateriaRoomStateDefinitions.Parlor0;
         },
         [RoomHeaderDefinitions.Climb] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), RoomStateDefinitions.Climb2)) return RoomStateDefinitions.Climb2;
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.Climb1)) return RoomStateDefinitions.Climb1;
-            return RoomStateDefinitions.Climb0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.Climb2)) return CrateriaRoomStateDefinitions.Climb2;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.Climb1)) return CrateriaRoomStateDefinitions.Climb1;
+            return CrateriaRoomStateDefinitions.Climb0;
         },
         [RoomHeaderDefinitions.Pit] = static (selection, match) =>
         {
-            if (match(selection.HasMorphBallAndMissiles, RoomStateDefinitions.Pit1)) return RoomStateDefinitions.Pit1;
-            return RoomStateDefinitions.Pit0;
+            if (match(selection.HasMorphBallAndMissiles, CrateriaRoomStateDefinitions.Pit1)) return CrateriaRoomStateDefinitions.Pit1;
+            return CrateriaRoomStateDefinitions.Pit0;
         },
         [RoomHeaderDefinitions.ElevToBlueBrinstar] = static (selection, match) =>
         {
-            if (match(selection.HasMorphBallAndMissiles, RoomStateDefinitions.ElevToBlueBrinstar1)) return RoomStateDefinitions.ElevToBlueBrinstar1;
-            return RoomStateDefinitions.ElevToBlueBrinstar0;
+            if (match(selection.HasMorphBallAndMissiles, CrateriaRoomStateDefinitions.ElevToBlueBrinstar1)) return CrateriaRoomStateDefinitions.ElevToBlueBrinstar1;
+            return CrateriaRoomStateDefinitions.ElevToBlueBrinstar0;
         },
         [RoomHeaderDefinitions.BombTorizo] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), RoomStateDefinitions.BombTorizo2)) return RoomStateDefinitions.BombTorizo2;
-            if (match(selection.IsBossDead(BossBits.AreaTorizo), RoomStateDefinitions.BombTorizo1)) return RoomStateDefinitions.BombTorizo1;
-            return RoomStateDefinitions.BombTorizo0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.BombTorizo2)) return CrateriaRoomStateDefinitions.BombTorizo2;
+            if (match(selection.IsBossDead(BossBits.AreaTorizo), CrateriaRoomStateDefinitions.BombTorizo1)) return CrateriaRoomStateDefinitions.BombTorizo1;
+            return CrateriaRoomStateDefinitions.BombTorizo0;
         },
         [RoomHeaderDefinitions.Flyway] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), RoomStateDefinitions.Flyway2)) return RoomStateDefinitions.Flyway2;
-            if (match(selection.IsBossDead(BossBits.AreaTorizo), RoomStateDefinitions.Flyway1)) return RoomStateDefinitions.Flyway1;
-            return RoomStateDefinitions.Flyway0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.Flyway2)) return CrateriaRoomStateDefinitions.Flyway2;
+            if (match(selection.IsBossDead(BossBits.AreaTorizo), CrateriaRoomStateDefinitions.Flyway1)) return CrateriaRoomStateDefinitions.Flyway1;
+            return CrateriaRoomStateDefinitions.Flyway0;
         },
         [RoomHeaderDefinitions.FinalMissileBombway] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.FinalMissileBombway1)) return RoomStateDefinitions.FinalMissileBombway1;
-            return RoomStateDefinitions.FinalMissileBombway0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.FinalMissileBombway1)) return CrateriaRoomStateDefinitions.FinalMissileBombway1;
+            return CrateriaRoomStateDefinitions.FinalMissileBombway0;
         },
         [RoomHeaderDefinitions.FinalMissile] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.FinalMissile1)) return RoomStateDefinitions.FinalMissile1;
-            return RoomStateDefinitions.FinalMissile0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.FinalMissile1)) return CrateriaRoomStateDefinitions.FinalMissile1;
+            return CrateriaRoomStateDefinitions.FinalMissile0;
         },
         [RoomHeaderDefinitions.SporeSpawn] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaMiniBoss), RoomStateDefinitions.SporeSpawn1)) return RoomStateDefinitions.SporeSpawn1;
-            return RoomStateDefinitions.SporeSpawn0;
+            if (match(selection.IsBossDead(BossBits.AreaMiniBoss), BrinstarRoomStateDefinitions.SporeSpawn1)) return BrinstarRoomStateDefinitions.SporeSpawn1;
+            return BrinstarRoomStateDefinitions.SporeSpawn0;
         },
         [RoomHeaderDefinitions.MorphBall] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.MorphBall1)) return RoomStateDefinitions.MorphBall1;
-            return RoomStateDefinitions.MorphBall0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.MorphBall1)) return BrinstarRoomStateDefinitions.MorphBall1;
+            return BrinstarRoomStateDefinitions.MorphBall0;
         },
         [RoomHeaderDefinitions.ConstructionZone] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.ConstructionZone1)) return RoomStateDefinitions.ConstructionZone1;
-            return RoomStateDefinitions.ConstructionZone0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.ConstructionZone1)) return BrinstarRoomStateDefinitions.ConstructionZone1;
+            return BrinstarRoomStateDefinitions.ConstructionZone0;
         },
         [RoomHeaderDefinitions.BlueBrinstarETank] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.BlueBrinstarETank1)) return RoomStateDefinitions.BlueBrinstarETank1;
-            return RoomStateDefinitions.BlueBrinstarETank0;
+            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.BlueBrinstarETank1)) return BrinstarRoomStateDefinitions.BlueBrinstarETank1;
+            return BrinstarRoomStateDefinitions.BlueBrinstarETank0;
         },
         [RoomHeaderDefinitions.MiniKraid] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.MiniKraid1)) return RoomStateDefinitions.MiniKraid1;
-            return RoomStateDefinitions.MiniKraid0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), BrinstarRoomStateDefinitions.MiniKraid1)) return BrinstarRoomStateDefinitions.MiniKraid1;
+            return BrinstarRoomStateDefinitions.MiniKraid0;
         },
         [RoomHeaderDefinitions.Kraid] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Kraid1)) return RoomStateDefinitions.Kraid1;
-            return RoomStateDefinitions.Kraid0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), BrinstarRoomStateDefinitions.Kraid1)) return BrinstarRoomStateDefinitions.Kraid1;
+            return BrinstarRoomStateDefinitions.Kraid0;
         },
         [RoomHeaderDefinitions.Crocomire] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaMiniBoss), RoomStateDefinitions.Crocomire1)) return RoomStateDefinitions.Crocomire1;
-            return RoomStateDefinitions.Crocomire0;
+            if (match(selection.IsBossDead(BossBits.AreaMiniBoss), NorfairRoomStateDefinitions.Crocomire1)) return NorfairRoomStateDefinitions.Crocomire1;
+            return NorfairRoomStateDefinitions.Crocomire0;
         },
         [RoomHeaderDefinitions.GoldenTorizo] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaTorizo), RoomStateDefinitions.GoldenTorizo1)) return RoomStateDefinitions.GoldenTorizo1;
-            return RoomStateDefinitions.GoldenTorizo0;
+            if (match(selection.IsBossDead(BossBits.AreaTorizo), NorfairRoomStateDefinitions.GoldenTorizo1)) return NorfairRoomStateDefinitions.GoldenTorizo1;
+            return NorfairRoomStateDefinitions.GoldenTorizo0;
         },
         [RoomHeaderDefinitions.Ridley] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Ridley1)) return RoomStateDefinitions.Ridley1;
-            return RoomStateDefinitions.Ridley0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), NorfairRoomStateDefinitions.Ridley1)) return NorfairRoomStateDefinitions.Ridley1;
+            return NorfairRoomStateDefinitions.Ridley0;
         },
         [RoomHeaderDefinitions.BowlingAlley] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.BowlingAlley1)) return RoomStateDefinitions.BowlingAlley1;
-            return RoomStateDefinitions.BowlingAlley0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.BowlingAlley1)) return WreckedShipRoomStateDefinitions.BowlingAlley1;
+            return WreckedShipRoomStateDefinitions.BowlingAlley0;
         },
         [RoomHeaderDefinitions.WreckedShipEntrance] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WreckedShipEntrance1)) return RoomStateDefinitions.WreckedShipEntrance1;
-            return RoomStateDefinitions.WreckedShipEntrance0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipEntrance1)) return WreckedShipRoomStateDefinitions.WreckedShipEntrance1;
+            return WreckedShipRoomStateDefinitions.WreckedShipEntrance0;
         },
         [RoomHeaderDefinitions.Attic] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Attic1)) return RoomStateDefinitions.Attic1;
-            return RoomStateDefinitions.Attic0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.Attic1)) return WreckedShipRoomStateDefinitions.Attic1;
+            return WreckedShipRoomStateDefinitions.Attic0;
         },
         [RoomHeaderDefinitions.AssemblyLine] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.AssemblyLine1)) return RoomStateDefinitions.AssemblyLine1;
-            return RoomStateDefinitions.AssemblyLine0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.AssemblyLine1)) return WreckedShipRoomStateDefinitions.AssemblyLine1;
+            return WreckedShipRoomStateDefinitions.AssemblyLine0;
         },
         [RoomHeaderDefinitions.WreckedShipMainShaft] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WreckedShipMainShaft1)) return RoomStateDefinitions.WreckedShipMainShaft1;
-            return RoomStateDefinitions.WreckedShipMainShaft0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipMainShaft1)) return WreckedShipRoomStateDefinitions.WreckedShipMainShaft1;
+            return WreckedShipRoomStateDefinitions.WreckedShipMainShaft0;
         },
         [RoomHeaderDefinitions.SpikyDeath] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.SpikyDeath1)) return RoomStateDefinitions.SpikyDeath1;
-            return RoomStateDefinitions.SpikyDeath0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.SpikyDeath1)) return WreckedShipRoomStateDefinitions.SpikyDeath1;
+            return WreckedShipRoomStateDefinitions.SpikyDeath0;
         },
         [RoomHeaderDefinitions.ElectricDeath] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.ElectricDeath1)) return RoomStateDefinitions.ElectricDeath1;
-            return RoomStateDefinitions.ElectricDeath0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.ElectricDeath1)) return WreckedShipRoomStateDefinitions.ElectricDeath1;
+            return WreckedShipRoomStateDefinitions.ElectricDeath0;
         },
         [RoomHeaderDefinitions.WreckedShipETank] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WreckedShipETank1)) return RoomStateDefinitions.WreckedShipETank1;
-            return RoomStateDefinitions.WreckedShipETank0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipETank1)) return WreckedShipRoomStateDefinitions.WreckedShipETank1;
+            return WreckedShipRoomStateDefinitions.WreckedShipETank0;
         },
         [RoomHeaderDefinitions.Basement] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Basement1)) return RoomStateDefinitions.Basement1;
-            return RoomStateDefinitions.Basement0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.Basement1)) return WreckedShipRoomStateDefinitions.Basement1;
+            return WreckedShipRoomStateDefinitions.Basement0;
         },
         [RoomHeaderDefinitions.WreckedShipMap] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WreckedShipMap1)) return RoomStateDefinitions.WreckedShipMap1;
-            return RoomStateDefinitions.WreckedShipMap0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipMap1)) return WreckedShipRoomStateDefinitions.WreckedShipMap1;
+            return WreckedShipRoomStateDefinitions.WreckedShipMap0;
         },
         [RoomHeaderDefinitions.Phantoon] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Phantoon1)) return RoomStateDefinitions.Phantoon1;
-            return RoomStateDefinitions.Phantoon0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.Phantoon1)) return WreckedShipRoomStateDefinitions.Phantoon1;
+            return WreckedShipRoomStateDefinitions.Phantoon0;
         },
         [RoomHeaderDefinitions.SpongeBath] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.SpongeBath1)) return RoomStateDefinitions.SpongeBath1;
-            return RoomStateDefinitions.SpongeBath0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.SpongeBath1)) return WreckedShipRoomStateDefinitions.SpongeBath1;
+            return WreckedShipRoomStateDefinitions.SpongeBath0;
         },
         [RoomHeaderDefinitions.WSWestSuper] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WSWestSuper1)) return RoomStateDefinitions.WSWestSuper1;
-            return RoomStateDefinitions.WSWestSuper0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WSWestSuper1)) return WreckedShipRoomStateDefinitions.WSWestSuper1;
+            return WreckedShipRoomStateDefinitions.WSWestSuper0;
         },
         [RoomHeaderDefinitions.WSEastSuper] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WSEastSuper1)) return RoomStateDefinitions.WSEastSuper1;
-            return RoomStateDefinitions.WSEastSuper0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WSEastSuper1)) return WreckedShipRoomStateDefinitions.WSEastSuper1;
+            return WreckedShipRoomStateDefinitions.WSEastSuper0;
         },
         [RoomHeaderDefinitions.GravitySuit] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.GravitySuit1)) return RoomStateDefinitions.GravitySuit1;
-            return RoomStateDefinitions.GravitySuit0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.GravitySuit1)) return WreckedShipRoomStateDefinitions.GravitySuit1;
+            return WreckedShipRoomStateDefinitions.GravitySuit0;
         },
         [RoomHeaderDefinitions.WreckedShipSave] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WreckedShipSave1)) return RoomStateDefinitions.WreckedShipSave1;
-            return RoomStateDefinitions.WreckedShipSave0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipSave1)) return WreckedShipRoomStateDefinitions.WreckedShipSave1;
+            return WreckedShipRoomStateDefinitions.WreckedShipSave0;
         },
         [RoomHeaderDefinitions.GlassTunnel] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.MaridiaNoobTubeBroken), RoomStateDefinitions.GlassTunnel1)) return RoomStateDefinitions.GlassTunnel1;
-            return RoomStateDefinitions.GlassTunnel0;
+            if (match(selection.IsEventSet((byte)EventNumber.MaridiaNoobTubeBroken), MaridiaRoomStateDefinitions.GlassTunnel1)) return MaridiaRoomStateDefinitions.GlassTunnel1;
+            return MaridiaRoomStateDefinitions.GlassTunnel0;
         },
         [RoomHeaderDefinitions.ThePrecious] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.ThePrecious1)) return RoomStateDefinitions.ThePrecious1;
-            return RoomStateDefinitions.ThePrecious0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), MaridiaRoomStateDefinitions.ThePrecious1)) return MaridiaRoomStateDefinitions.ThePrecious1;
+            return MaridiaRoomStateDefinitions.ThePrecious0;
         },
         [RoomHeaderDefinitions.Shaktool] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ShaktoolClearedPath), RoomStateDefinitions.Shaktool1)) return RoomStateDefinitions.Shaktool1;
-            return RoomStateDefinitions.Shaktool0;
+            if (match(selection.IsEventSet((byte)EventNumber.ShaktoolClearedPath), MaridiaRoomStateDefinitions.Shaktool1)) return MaridiaRoomStateDefinitions.Shaktool1;
+            return MaridiaRoomStateDefinitions.Shaktool0;
         },
         [RoomHeaderDefinitions.Botwoon] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaMiniBoss), RoomStateDefinitions.Botwoon1)) return RoomStateDefinitions.Botwoon1;
-            return RoomStateDefinitions.Botwoon0;
+            if (match(selection.IsBossDead(BossBits.AreaMiniBoss), MaridiaRoomStateDefinitions.Botwoon1)) return MaridiaRoomStateDefinitions.Botwoon1;
+            return MaridiaRoomStateDefinitions.Botwoon0;
         },
         [RoomHeaderDefinitions.Draygon] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Draygon1)) return RoomStateDefinitions.Draygon1;
-            return RoomStateDefinitions.Draygon0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), MaridiaRoomStateDefinitions.Draygon1)) return MaridiaRoomStateDefinitions.Draygon1;
+            return MaridiaRoomStateDefinitions.Draygon0;
         },
         [RoomHeaderDefinitions.Metroids1] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.FirstMetroidHallCleared), RoomStateDefinitions.Metroids11)) return RoomStateDefinitions.Metroids11;
-            return RoomStateDefinitions.Metroids10;
+            if (match(selection.IsEventSet((byte)EventNumber.FirstMetroidHallCleared), TourianRoomStateDefinitions.Metroids11)) return TourianRoomStateDefinitions.Metroids11;
+            return TourianRoomStateDefinitions.Metroids10;
         },
         [RoomHeaderDefinitions.Metroids2] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.FirstMetroidShaftCleared), RoomStateDefinitions.Metroids21)) return RoomStateDefinitions.Metroids21;
-            return RoomStateDefinitions.Metroids20;
+            if (match(selection.IsEventSet((byte)EventNumber.FirstMetroidShaftCleared), TourianRoomStateDefinitions.Metroids21)) return TourianRoomStateDefinitions.Metroids21;
+            return TourianRoomStateDefinitions.Metroids20;
         },
         [RoomHeaderDefinitions.Metroids3] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.SecondMetroidHallCleared), RoomStateDefinitions.Metroids31)) return RoomStateDefinitions.Metroids31;
-            return RoomStateDefinitions.Metroids30;
+            if (match(selection.IsEventSet((byte)EventNumber.SecondMetroidHallCleared), TourianRoomStateDefinitions.Metroids31)) return TourianRoomStateDefinitions.Metroids31;
+            return TourianRoomStateDefinitions.Metroids30;
         },
         [RoomHeaderDefinitions.Metroids4] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.SecondMetroidShaftCleared), RoomStateDefinitions.Metroids41)) return RoomStateDefinitions.Metroids41;
-            return RoomStateDefinitions.Metroids40;
+            if (match(selection.IsEventSet((byte)EventNumber.SecondMetroidShaftCleared), TourianRoomStateDefinitions.Metroids41)) return TourianRoomStateDefinitions.Metroids41;
+            return TourianRoomStateDefinitions.Metroids40;
         },
         [RoomHeaderDefinitions.BlueHopper] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.Unused14), RoomStateDefinitions.BlueHopper1)) return RoomStateDefinitions.BlueHopper1;
-            return RoomStateDefinitions.BlueHopper0;
+            if (match(selection.IsEventSet((byte)EventNumber.Unused14), TourianRoomStateDefinitions.BlueHopper1)) return TourianRoomStateDefinitions.BlueHopper1;
+            return TourianRoomStateDefinitions.BlueHopper0;
         },
         [RoomHeaderDefinitions.DustTorizo] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.Unused14), RoomStateDefinitions.DustTorizo1)) return RoomStateDefinitions.DustTorizo1;
-            return RoomStateDefinitions.DustTorizo0;
+            if (match(selection.IsEventSet((byte)EventNumber.Unused14), TourianRoomStateDefinitions.DustTorizo1)) return TourianRoomStateDefinitions.DustTorizo1;
+            return TourianRoomStateDefinitions.DustTorizo0;
         },
         [RoomHeaderDefinitions.BigBoy] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.Unused14), RoomStateDefinitions.BigBoy1)) return RoomStateDefinitions.BigBoy1;
-            return RoomStateDefinitions.BigBoy0;
+            if (match(selection.IsEventSet((byte)EventNumber.Unused14), TourianRoomStateDefinitions.BigBoy1)) return TourianRoomStateDefinitions.BigBoy1;
+            return TourianRoomStateDefinitions.BigBoy0;
         },
         [RoomHeaderDefinitions.MotherBrain] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(RoomStateSelectorOperands.MainAreaBoss), RoomStateDefinitions.MotherBrain2)) return RoomStateDefinitions.MotherBrain2;
-            if (match(selection.IsEventSet((byte)EventNumber.MotherBrainGlassDestroyed), RoomStateDefinitions.MotherBrain1)) return RoomStateDefinitions.MotherBrain1;
-            return RoomStateDefinitions.MotherBrain0;
+            if (match(selection.IsBossDead(RoomStateSelectorOperands.MainAreaBoss), TourianRoomStateDefinitions.MotherBrain2)) return TourianRoomStateDefinitions.MotherBrain2;
+            if (match(selection.IsEventSet((byte)EventNumber.MotherBrainGlassDestroyed), TourianRoomStateDefinitions.MotherBrain1)) return TourianRoomStateDefinitions.MotherBrain1;
+            return TourianRoomStateDefinitions.MotherBrain0;
         },
         [RoomHeaderDefinitions.CeresElev] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.CeresElev1)) return RoomStateDefinitions.CeresElev1;
-            return RoomStateDefinitions.CeresElev0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.CeresElev1)) return CeresRoomStateDefinitions.CeresElev1;
+            return CeresRoomStateDefinitions.CeresElev0;
         },
         [RoomHeaderDefinitions.FallingTile] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.FallingTile1)) return RoomStateDefinitions.FallingTile1;
-            return RoomStateDefinitions.FallingTile0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.FallingTile1)) return CeresRoomStateDefinitions.FallingTile1;
+            return CeresRoomStateDefinitions.FallingTile0;
         },
         [RoomHeaderDefinitions.MagnetStairs] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.MagnetStairs1)) return RoomStateDefinitions.MagnetStairs1;
-            return RoomStateDefinitions.MagnetStairs0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.MagnetStairs1)) return CeresRoomStateDefinitions.MagnetStairs1;
+            return CeresRoomStateDefinitions.MagnetStairs0;
         },
         [RoomHeaderDefinitions.DeadScientist] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.DeadScientist1)) return RoomStateDefinitions.DeadScientist1;
-            return RoomStateDefinitions.DeadScientist0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.DeadScientist1)) return CeresRoomStateDefinitions.DeadScientist1;
+            return CeresRoomStateDefinitions.DeadScientist0;
         },
         [RoomHeaderDefinitions.Room58Escape] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Room58Escape1)) return RoomStateDefinitions.Room58Escape1;
-            return RoomStateDefinitions.Room58Escape0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.Room58Escape1)) return CeresRoomStateDefinitions.Room58Escape1;
+            return CeresRoomStateDefinitions.Room58Escape0;
         },
         [RoomHeaderDefinitions.CeresRidley] = static (selection, match) =>
         {
-            if (match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.CeresRidley1)) return RoomStateDefinitions.CeresRidley1;
-            return RoomStateDefinitions.CeresRidley0;
+            if (match(selection.IsBossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.CeresRidley1)) return CeresRoomStateDefinitions.CeresRidley1;
+            return CeresRoomStateDefinitions.CeresRidley0;
         },
-        [RoomHeaderDefinitions.CrateriaPowerBombs] = static (_, _) => RoomStateDefinitions.CrateriaPowerBombs,
-        [RoomHeaderDefinitions.CrateriaSave] = static (_, _) => RoomStateDefinitions.CrateriaSave,
-        [RoomHeaderDefinitions.WestOcean] = static (_, _) => RoomStateDefinitions.WestOcean,
-        [RoomHeaderDefinitions.BowlingAlleyPath] = static (_, _) => RoomStateDefinitions.BowlingAlleyPath,
-        [RoomHeaderDefinitions.CrateriaKihunter] = static (_, _) => RoomStateDefinitions.CrateriaKihunter,
-        [RoomHeaderDefinitions.ForgottenHighwayElev] = static (_, _) => RoomStateDefinitions.ForgottenHighwayElev,
-        [RoomHeaderDefinitions.EastOcean] = static (_, _) => RoomStateDefinitions.EastOcean,
-        [RoomHeaderDefinitions.ForgottenHighwayKagos] = static (_, _) => RoomStateDefinitions.ForgottenHighwayKagos,
-        [RoomHeaderDefinitions.CrabMaze] = static (_, _) => RoomStateDefinitions.CrabMaze,
-        [RoomHeaderDefinitions.ForgottenHighwayElbow] = static (_, _) => RoomStateDefinitions.ForgottenHighwayElbow,
-        [RoomHeaderDefinitions.CrateriaTube] = static (_, _) => RoomStateDefinitions.CrateriaTube,
-        [RoomHeaderDefinitions.Moat] = static (_, _) => RoomStateDefinitions.Moat,
-        [RoomHeaderDefinitions.RedBinstarElev] = static (_, _) => RoomStateDefinitions.RedBinstarElev,
-        [RoomHeaderDefinitions.GauntletETank] = static (_, _) => RoomStateDefinitions.GauntletETank,
-        [RoomHeaderDefinitions.PreBowling] = static (_, _) => RoomStateDefinitions.PreBowling,
-        [RoomHeaderDefinitions.PreMapFlyway] = static (_, _) => RoomStateDefinitions.PreMapFlyway,
-        [RoomHeaderDefinitions.Terminator] = static (_, _) => RoomStateDefinitions.Terminator,
-        [RoomHeaderDefinitions.GreenBrinstarElev] = static (_, _) => RoomStateDefinitions.GreenBrinstarElev,
-        [RoomHeaderDefinitions.LowerMushrooms] = static (_, _) => RoomStateDefinitions.LowerMushrooms,
-        [RoomHeaderDefinitions.CrateriaMap] = static (_, _) => RoomStateDefinitions.CrateriaMap,
-        [RoomHeaderDefinitions.GreenPiratesShaft] = static (_, _) => RoomStateDefinitions.GreenPiratesShaft,
-        [RoomHeaderDefinitions.CrateriaSuper] = static (_, _) => RoomStateDefinitions.CrateriaSuper,
-        [RoomHeaderDefinitions.GreenBrinstarMainShaft] = static (_, _) => RoomStateDefinitions.GreenBrinstarMainShaft,
-        [RoomHeaderDefinitions.SporeSpawnSuper] = static (_, _) => RoomStateDefinitions.SporeSpawnSuper,
-        [RoomHeaderDefinitions.BrinstarPreMap] = static (_, _) => RoomStateDefinitions.BrinstarPreMap,
-        [RoomHeaderDefinitions.EarlySupers] = static (_, _) => RoomStateDefinitions.EarlySupers,
-        [RoomHeaderDefinitions.BrinstarReserveTank] = static (_, _) => RoomStateDefinitions.BrinstarReserveTank,
-        [RoomHeaderDefinitions.GreenBrinstarMap] = static (_, _) => RoomStateDefinitions.GreenBrinstarMap,
-        [RoomHeaderDefinitions.GreenBrinstarFirefleas] = static (_, _) => RoomStateDefinitions.GreenBrinstarFirefleas,
-        [RoomHeaderDefinitions.GreenBrinstarMissileRefill] = static (_, _) => RoomStateDefinitions.GreenBrinstarMissileRefill,
-        [RoomHeaderDefinitions.Dachora] = static (_, _) => RoomStateDefinitions.Dachora,
-        [RoomHeaderDefinitions.BigPink] = static (_, _) => RoomStateDefinitions.BigPink,
-        [RoomHeaderDefinitions.SporeSpawnKihunters] = static (_, _) => RoomStateDefinitions.SporeSpawnKihunters,
-        [RoomHeaderDefinitions.PinkBrinstarPowerBombs] = static (_, _) => RoomStateDefinitions.PinkBrinstarPowerBombs,
-        [RoomHeaderDefinitions.GreenHillZone] = static (_, _) => RoomStateDefinitions.GreenHillZone,
-        [RoomHeaderDefinitions.NoobBridge] = static (_, _) => RoomStateDefinitions.NoobBridge,
-        [RoomHeaderDefinitions.GreenBrinstarBeetoms] = static (_, _) => RoomStateDefinitions.GreenBrinstarBeetoms,
-        [RoomHeaderDefinitions.EtecoonETank] = static (_, _) => RoomStateDefinitions.EtecoonETank,
-        [RoomHeaderDefinitions.EtecoonSuper] = static (_, _) => RoomStateDefinitions.EtecoonSuper,
-        [RoomHeaderDefinitions.DachoraEnergyRefill] = static (_, _) => RoomStateDefinitions.DachoraEnergyRefill,
-        [RoomHeaderDefinitions.SporeSpawnFarming] = static (_, _) => RoomStateDefinitions.SporeSpawnFarming,
-        [RoomHeaderDefinitions.WaterwayETank] = static (_, _) => RoomStateDefinitions.WaterwayETank,
-        [RoomHeaderDefinitions.FirstMissile] = static (_, _) => RoomStateDefinitions.FirstMissile,
-        [RoomHeaderDefinitions.PinkBrinstarHoppers] = static (_, _) => RoomStateDefinitions.PinkBrinstarHoppers,
-        [RoomHeaderDefinitions.HopperETank] = static (_, _) => RoomStateDefinitions.HopperETank,
-        [RoomHeaderDefinitions.BigPinkSaveRoom] = static (_, _) => RoomStateDefinitions.BigPinkSaveRoom,
-        [RoomHeaderDefinitions.BlueBrinstarBoulders] = static (_, _) => RoomStateDefinitions.BlueBrinstarBoulders,
-        [RoomHeaderDefinitions.BillyMays] = static (_, _) => RoomStateDefinitions.BillyMays,
-        [RoomHeaderDefinitions.GreenBrinstarSave] = static (_, _) => RoomStateDefinitions.GreenBrinstarSave,
-        [RoomHeaderDefinitions.EtecoonSave] = static (_, _) => RoomStateDefinitions.EtecoonSave,
-        [RoomHeaderDefinitions.RedTower] = static (_, _) => RoomStateDefinitions.RedTower,
-        [RoomHeaderDefinitions.RedBrinstarFirefleas] = static (_, _) => RoomStateDefinitions.RedBrinstarFirefleas,
-        [RoomHeaderDefinitions.XrayScope] = static (_, _) => RoomStateDefinitions.XrayScope,
-        [RoomHeaderDefinitions.Hellway] = static (_, _) => RoomStateDefinitions.Hellway,
-        [RoomHeaderDefinitions.Caterpillar] = static (_, _) => RoomStateDefinitions.Caterpillar,
-        [RoomHeaderDefinitions.BetaPowerBomb] = static (_, _) => RoomStateDefinitions.BetaPowerBomb,
-        [RoomHeaderDefinitions.AlphaPowerBomb] = static (_, _) => RoomStateDefinitions.AlphaPowerBomb,
-        [RoomHeaderDefinitions.SkreeBoost] = static (_, _) => RoomStateDefinitions.SkreeBoost,
-        [RoomHeaderDefinitions.BelowSpazer] = static (_, _) => RoomStateDefinitions.BelowSpazer,
-        [RoomHeaderDefinitions.Spazer] = static (_, _) => RoomStateDefinitions.Spazer,
-        [RoomHeaderDefinitions.WarehouseZeela] = static (_, _) => RoomStateDefinitions.WarehouseZeela,
-        [RoomHeaderDefinitions.WarehouseETank] = static (_, _) => RoomStateDefinitions.WarehouseETank,
-        [RoomHeaderDefinitions.WarehouseKihunter] = static (_, _) => RoomStateDefinitions.WarehouseKihunter,
-        [RoomHeaderDefinitions.KraidEyeDoor] = static (_, _) => RoomStateDefinitions.KraidEyeDoor,
-        [RoomHeaderDefinitions.StatuesHallway] = static (_, _) => RoomStateDefinitions.StatuesHallway,
-        [RoomHeaderDefinitions.RedTowerRefill] = static (_, _) => RoomStateDefinitions.RedTowerRefill,
-        [RoomHeaderDefinitions.KraidRefill] = static (_, _) => RoomStateDefinitions.KraidRefill,
-        [RoomHeaderDefinitions.Statues] = static (_, _) => RoomStateDefinitions.Statues,
-        [RoomHeaderDefinitions.WarehouseEntrance] = static (_, _) => RoomStateDefinitions.WarehouseEntrance,
-        [RoomHeaderDefinitions.VariaSuit] = static (_, _) => RoomStateDefinitions.VariaSuit,
-        [RoomHeaderDefinitions.WarehouseSave] = static (_, _) => RoomStateDefinitions.WarehouseSave,
-        [RoomHeaderDefinitions.RedBrinstarSave] = static (_, _) => RoomStateDefinitions.RedBrinstarSave,
-        [RoomHeaderDefinitions.IceBeamAcid] = static (_, _) => RoomStateDefinitions.IceBeamAcid,
-        [RoomHeaderDefinitions.Cathedral] = static (_, _) => RoomStateDefinitions.Cathedral,
-        [RoomHeaderDefinitions.CathedralEntrance] = static (_, _) => RoomStateDefinitions.CathedralEntrance,
-        [RoomHeaderDefinitions.BusinessCenter] = static (_, _) => RoomStateDefinitions.BusinessCenter,
-        [RoomHeaderDefinitions.IceBeamGate] = static (_, _) => RoomStateDefinitions.IceBeamGate,
-        [RoomHeaderDefinitions.IceBeamTutorial] = static (_, _) => RoomStateDefinitions.IceBeamTutorial,
-        [RoomHeaderDefinitions.IceBeam] = static (_, _) => RoomStateDefinitions.IceBeam,
-        [RoomHeaderDefinitions.IceBeamSnake] = static (_, _) => RoomStateDefinitions.IceBeamSnake,
-        [RoomHeaderDefinitions.CrumbleShaft] = static (_, _) => RoomStateDefinitions.CrumbleShaft,
-        [RoomHeaderDefinitions.CrocomireSpeedway] = static (_, _) => RoomStateDefinitions.CrocomireSpeedway,
-        [RoomHeaderDefinitions.HiJumpBoots] = static (_, _) => RoomStateDefinitions.HiJumpBoots,
-        [RoomHeaderDefinitions.CrocomireEscape] = static (_, _) => RoomStateDefinitions.CrocomireEscape,
-        [RoomHeaderDefinitions.HiJumpETank] = static (_, _) => RoomStateDefinitions.HiJumpETank,
-        [RoomHeaderDefinitions.PostCrocFarming] = static (_, _) => RoomStateDefinitions.PostCrocFarming,
-        [RoomHeaderDefinitions.PostCrocSave] = static (_, _) => RoomStateDefinitions.PostCrocSave,
-        [RoomHeaderDefinitions.PostCrocPowerBombs] = static (_, _) => RoomStateDefinitions.PostCrocPowerBombs,
-        [RoomHeaderDefinitions.PostCrocShaft] = static (_, _) => RoomStateDefinitions.PostCrocShaft,
-        [RoomHeaderDefinitions.PostCrocMissile] = static (_, _) => RoomStateDefinitions.PostCrocMissile,
-        [RoomHeaderDefinitions.GrappleTutorial3] = static (_, _) => RoomStateDefinitions.GrappleTutorial3,
-        [RoomHeaderDefinitions.PostCrocJump] = static (_, _) => RoomStateDefinitions.PostCrocJump,
-        [RoomHeaderDefinitions.GrappleTutorial2] = static (_, _) => RoomStateDefinitions.GrappleTutorial2,
-        [RoomHeaderDefinitions.GrappleTutorial1] = static (_, _) => RoomStateDefinitions.GrappleTutorial1,
-        [RoomHeaderDefinitions.GrappleBeam] = static (_, _) => RoomStateDefinitions.GrappleBeam,
-        [RoomHeaderDefinitions.NorfairReserveTank] = static (_, _) => RoomStateDefinitions.NorfairReserveTank,
-        [RoomHeaderDefinitions.GreenBubblesMissiles] = static (_, _) => RoomStateDefinitions.GreenBubblesMissiles,
-        [RoomHeaderDefinitions.BubbleMountain] = static (_, _) => RoomStateDefinitions.BubbleMountain,
-        [RoomHeaderDefinitions.SpeedBoosterHall] = static (_, _) => RoomStateDefinitions.SpeedBoosterHall,
-        [RoomHeaderDefinitions.SpeedBooster] = static (_, _) => RoomStateDefinitions.SpeedBooster,
-        [RoomHeaderDefinitions.SingleChamber] = static (_, _) => RoomStateDefinitions.SingleChamber,
-        [RoomHeaderDefinitions.DoubleChamber] = static (_, _) => RoomStateDefinitions.DoubleChamber,
-        [RoomHeaderDefinitions.WaveBeam] = static (_, _) => RoomStateDefinitions.WaveBeam,
-        [RoomHeaderDefinitions.SpikyPlatformsTunnel] = static (_, _) => RoomStateDefinitions.SpikyPlatformsTunnel,
-        [RoomHeaderDefinitions.Volcano] = static (_, _) => RoomStateDefinitions.Volcano,
-        [RoomHeaderDefinitions.KronicBoost] = static (_, _) => RoomStateDefinitions.KronicBoost,
-        [RoomHeaderDefinitions.MagdolliteTunnel] = static (_, _) => RoomStateDefinitions.MagdolliteTunnel,
-        [RoomHeaderDefinitions.PurpleShaft] = static (_, _) => RoomStateDefinitions.PurpleShaft,
-        [RoomHeaderDefinitions.LavaDive] = static (_, _) => RoomStateDefinitions.LavaDive,
-        [RoomHeaderDefinitions.LowerNorfairElev] = static (_, _) => RoomStateDefinitions.LowerNorfairElev,
-        [RoomHeaderDefinitions.UpperNorfairFarming] = static (_, _) => RoomStateDefinitions.UpperNorfairFarming,
-        [RoomHeaderDefinitions.RisingTide] = static (_, _) => RoomStateDefinitions.RisingTide,
-        [RoomHeaderDefinitions.AcidSnakesTunnel] = static (_, _) => RoomStateDefinitions.AcidSnakesTunnel,
-        [RoomHeaderDefinitions.SpikyAcidSnakesTunnel] = static (_, _) => RoomStateDefinitions.SpikyAcidSnakesTunnel,
-        [RoomHeaderDefinitions.UpperNorfairRefill] = static (_, _) => RoomStateDefinitions.UpperNorfairRefill,
-        [RoomHeaderDefinitions.PurpleFarming] = static (_, _) => RoomStateDefinitions.PurpleFarming,
-        [RoomHeaderDefinitions.BatCave] = static (_, _) => RoomStateDefinitions.BatCave,
-        [RoomHeaderDefinitions.NorfairMap] = static (_, _) => RoomStateDefinitions.NorfairMap,
-        [RoomHeaderDefinitions.BubbleMountainSave] = static (_, _) => RoomStateDefinitions.BubbleMountainSave,
-        [RoomHeaderDefinitions.FrogSpeedway] = static (_, _) => RoomStateDefinitions.FrogSpeedway,
-        [RoomHeaderDefinitions.RedPirateShaft] = static (_, _) => RoomStateDefinitions.RedPirateShaft,
-        [RoomHeaderDefinitions.FrogSave] = static (_, _) => RoomStateDefinitions.FrogSave,
-        [RoomHeaderDefinitions.CrocomireSave] = static (_, _) => RoomStateDefinitions.CrocomireSave,
-        [RoomHeaderDefinitions.LNElevSave] = static (_, _) => RoomStateDefinitions.LNElevSave,
-        [RoomHeaderDefinitions.AcidStatue] = static (_, _) => RoomStateDefinitions.AcidStatue,
-        [RoomHeaderDefinitions.MainHall] = static (_, _) => RoomStateDefinitions.MainHall,
-        [RoomHeaderDefinitions.FastRipper] = static (_, _) => RoomStateDefinitions.FastRipper,
-        [RoomHeaderDefinitions.GTEnergyRefill] = static (_, _) => RoomStateDefinitions.GTEnergyRefill,
-        [RoomHeaderDefinitions.LNFarming] = static (_, _) => RoomStateDefinitions.LNFarming,
-        [RoomHeaderDefinitions.FastPillarsSetup] = static (_, _) => RoomStateDefinitions.FastPillarsSetup,
-        [RoomHeaderDefinitions.UnusedRoom8FB3E1] = static (_, _) => RoomStateDefinitions.UnusedRoom8FB3EE,
-        [RoomHeaderDefinitions.MickeyMouse] = static (_, _) => RoomStateDefinitions.MickeyMouse,
-        [RoomHeaderDefinitions.Pillar] = static (_, _) => RoomStateDefinitions.Pillar,
-        [RoomHeaderDefinitions.Plowerhouse] = static (_, _) => RoomStateDefinitions.Plowerhouse,
-        [RoomHeaderDefinitions.WorstRoomInTheGame] = static (_, _) => RoomStateDefinitions.WorstRoomInTheGame,
-        [RoomHeaderDefinitions.Amphitheatre] = static (_, _) => RoomStateDefinitions.Amphitheatre,
-        [RoomHeaderDefinitions.LNSpringBallMaze] = static (_, _) => RoomStateDefinitions.LNSpringBallMaze,
-        [RoomHeaderDefinitions.LNEscapePowerBombs] = static (_, _) => RoomStateDefinitions.LNEscapePowerBombs,
-        [RoomHeaderDefinitions.RedKihunterShaft] = static (_, _) => RoomStateDefinitions.RedKihunterShaft,
-        [RoomHeaderDefinitions.Wasteland] = static (_, _) => RoomStateDefinitions.Wasteland,
-        [RoomHeaderDefinitions.MetalPirates] = static (_, _) => RoomStateDefinitions.MetalPirates,
-        [RoomHeaderDefinitions.ThreeMusketeers] = static (_, _) => RoomStateDefinitions.ThreeMusketeers,
-        [RoomHeaderDefinitions.RidleyETank] = static (_, _) => RoomStateDefinitions.RidleyETank,
-        [RoomHeaderDefinitions.ScrewAttack] = static (_, _) => RoomStateDefinitions.ScrewAttack,
-        [RoomHeaderDefinitions.LNFireflea] = static (_, _) => RoomStateDefinitions.LNFireflea,
-        [RoomHeaderDefinitions.LNSave] = static (_, _) => RoomStateDefinitions.LNSave,
-        [RoomHeaderDefinitions.GlassTunnelSave] = static (_, _) => RoomStateDefinitions.GlassTunnelSave,
-        [RoomHeaderDefinitions.WestTunnel] = static (_, _) => RoomStateDefinitions.WestTunnel,
-        [RoomHeaderDefinitions.EastTunnel] = static (_, _) => RoomStateDefinitions.EastTunnel,
-        [RoomHeaderDefinitions.MainStreet] = static (_, _) => RoomStateDefinitions.MainStreet,
-        [RoomHeaderDefinitions.FishTank] = static (_, _) => RoomStateDefinitions.FishTank,
-        [RoomHeaderDefinitions.MamaTurtle] = static (_, _) => RoomStateDefinitions.MamaTurtle,
-        [RoomHeaderDefinitions.CrabTunnel] = static (_, _) => RoomStateDefinitions.CrabTunnel,
-        [RoomHeaderDefinitions.MtEverest] = static (_, _) => RoomStateDefinitions.MtEverest,
-        [RoomHeaderDefinitions.RedFish] = static (_, _) => RoomStateDefinitions.RedFish,
-        [RoomHeaderDefinitions.WateringHole] = static (_, _) => RoomStateDefinitions.WateringHole,
-        [RoomHeaderDefinitions.NWestMaridiaBug] = static (_, _) => RoomStateDefinitions.NWestMaridiaBug,
-        [RoomHeaderDefinitions.CrabShaft] = static (_, _) => RoomStateDefinitions.CrabShaft,
-        [RoomHeaderDefinitions.PseudoPlasmaSpark] = static (_, _) => RoomStateDefinitions.PseudoPlasmaSpark,
-        [RoomHeaderDefinitions.CrabHole] = static (_, _) => RoomStateDefinitions.CrabHole,
-        [RoomHeaderDefinitions.WestSandHallTunnel] = static (_, _) => RoomStateDefinitions.WestSandHallTunnel,
-        [RoomHeaderDefinitions.PlasmaTutorial] = static (_, _) => RoomStateDefinitions.PlasmaTutorial,
-        [RoomHeaderDefinitions.Plasma] = static (_, _) => RoomStateDefinitions.Plasma,
-        [RoomHeaderDefinitions.ThreadTheNeedle] = static (_, _) => RoomStateDefinitions.ThreadTheNeedle,
-        [RoomHeaderDefinitions.MaridiaElev] = static (_, _) => RoomStateDefinitions.MaridiaElev,
-        [RoomHeaderDefinitions.PlasmaSpark] = static (_, _) => RoomStateDefinitions.PlasmaSpark,
-        [RoomHeaderDefinitions.Kassiuz] = static (_, _) => RoomStateDefinitions.Kassiuz,
-        [RoomHeaderDefinitions.MaridiaMap] = static (_, _) => RoomStateDefinitions.MaridiaMap,
-        [RoomHeaderDefinitions.ForgottenHighwaySave] = static (_, _) => RoomStateDefinitions.ForgottenHighwaySave,
-        [RoomHeaderDefinitions.Toilet] = static (_, _) => RoomStateDefinitions.Toilet,
-        [RoomHeaderDefinitions.BugSandHole] = static (_, _) => RoomStateDefinitions.BugSandHole,
-        [RoomHeaderDefinitions.WestSandHall] = static (_, _) => RoomStateDefinitions.WestSandHall,
-        [RoomHeaderDefinitions.Oasis] = static (_, _) => RoomStateDefinitions.Oasis,
-        [RoomHeaderDefinitions.EastSandHall] = static (_, _) => RoomStateDefinitions.EastSandHall,
-        [RoomHeaderDefinitions.WestSandHole] = static (_, _) => RoomStateDefinitions.WestSandHole,
-        [RoomHeaderDefinitions.EastSandHole] = static (_, _) => RoomStateDefinitions.EastSandHole,
-        [RoomHeaderDefinitions.WestAqueductQuicksand] = static (_, _) => RoomStateDefinitions.WestAqueductQuicksand,
-        [RoomHeaderDefinitions.EastAqueductQuicksand] = static (_, _) => RoomStateDefinitions.EastAqueductQuicksand,
-        [RoomHeaderDefinitions.Aqueduct] = static (_, _) => RoomStateDefinitions.Aqueduct,
-        [RoomHeaderDefinitions.Butterfly] = static (_, _) => RoomStateDefinitions.Butterfly,
-        [RoomHeaderDefinitions.BotwoonHallway] = static (_, _) => RoomStateDefinitions.BotwoonHallway,
-        [RoomHeaderDefinitions.Pants] = static (_, _) => RoomStateDefinitions.Pants,
-        [RoomHeaderDefinitions.EastPants] = static (_, _) => RoomStateDefinitions.EastPants,
-        [RoomHeaderDefinitions.Springball] = static (_, _) => RoomStateDefinitions.Springball,
-        [RoomHeaderDefinitions.BelowBotwoonETank] = static (_, _) => RoomStateDefinitions.BelowBotwoonETank,
-        [RoomHeaderDefinitions.Colosseum] = static (_, _) => RoomStateDefinitions.Colosseum,
-        [RoomHeaderDefinitions.AqueductSave] = static (_, _) => RoomStateDefinitions.AqueductSave,
-        [RoomHeaderDefinitions.BotwoonETank] = static (_, _) => RoomStateDefinitions.BotwoonETank,
-        [RoomHeaderDefinitions.DraygonSave] = static (_, _) => RoomStateDefinitions.DraygonSave,
-        [RoomHeaderDefinitions.MaridiaMissileRefill] = static (_, _) => RoomStateDefinitions.MaridiaMissileRefill,
-        [RoomHeaderDefinitions.PlasmaBeachQuicksand] = static (_, _) => RoomStateDefinitions.PlasmaBeachQuicksand,
-        [RoomHeaderDefinitions.BotwoonQuicksand] = static (_, _) => RoomStateDefinitions.BotwoonQuicksand,
-        [RoomHeaderDefinitions.HalfieClimb] = static (_, _) => RoomStateDefinitions.HalfieClimb,
-        [RoomHeaderDefinitions.SpaceJump] = static (_, _) => RoomStateDefinitions.SpaceJump,
-        [RoomHeaderDefinitions.MaridiaEnergyRefill] = static (_, _) => RoomStateDefinitions.MaridiaEnergyRefill,
-        [RoomHeaderDefinitions.WestCactusAlley] = static (_, _) => RoomStateDefinitions.WestCactusAlley,
-        [RoomHeaderDefinitions.EastCactusAlley] = static (_, _) => RoomStateDefinitions.EastCactusAlley,
-        [RoomHeaderDefinitions.TourianFirst] = static (_, _) => RoomStateDefinitions.TourianFirst,
-        [RoomHeaderDefinitions.Seaweed] = static (_, _) => RoomStateDefinitions.Seaweed,
-        [RoomHeaderDefinitions.TourianRecharge] = static (_, _) => RoomStateDefinitions.TourianRecharge,
-        [RoomHeaderDefinitions.TourianEyeDoor] = static (_, _) => RoomStateDefinitions.TourianEyeDoor,
-        [RoomHeaderDefinitions.RinkaShaft] = static (_, _) => RoomStateDefinitions.RinkaShaft,
-        [RoomHeaderDefinitions.MotherBrainSave] = static (_, _) => RoomStateDefinitions.MotherBrainSave,
-        [RoomHeaderDefinitions.TourianEscape1] = static (_, _) => RoomStateDefinitions.TourianEscape1,
-        [RoomHeaderDefinitions.TourianEscape2] = static (_, _) => RoomStateDefinitions.TourianEscape2,
-        [RoomHeaderDefinitions.TourianEscape3] = static (_, _) => RoomStateDefinitions.TourianEscape3,
-        [RoomHeaderDefinitions.TourianEscape4] = static (_, _) => RoomStateDefinitions.TourianEscape4,
-        [RoomHeaderDefinitions.UpperTourianSave] = static (_, _) => RoomStateDefinitions.UpperTourianSave,
+        [RoomHeaderDefinitions.CrateriaPowerBombs] = static (_, _) => CrateriaRoomStateDefinitions.CrateriaPowerBombs,
+        [RoomHeaderDefinitions.CrateriaSave] = static (_, _) => CrateriaRoomStateDefinitions.CrateriaSave,
+        [RoomHeaderDefinitions.WestOcean] = static (_, _) => CrateriaRoomStateDefinitions.WestOcean,
+        [RoomHeaderDefinitions.BowlingAlleyPath] = static (_, _) => CrateriaRoomStateDefinitions.BowlingAlleyPath,
+        [RoomHeaderDefinitions.CrateriaKihunter] = static (_, _) => CrateriaRoomStateDefinitions.CrateriaKihunter,
+        [RoomHeaderDefinitions.ForgottenHighwayElev] = static (_, _) => CrateriaRoomStateDefinitions.ForgottenHighwayElev,
+        [RoomHeaderDefinitions.EastOcean] = static (_, _) => CrateriaRoomStateDefinitions.EastOcean,
+        [RoomHeaderDefinitions.ForgottenHighwayKagos] = static (_, _) => CrateriaRoomStateDefinitions.ForgottenHighwayKagos,
+        [RoomHeaderDefinitions.CrabMaze] = static (_, _) => CrateriaRoomStateDefinitions.CrabMaze,
+        [RoomHeaderDefinitions.ForgottenHighwayElbow] = static (_, _) => CrateriaRoomStateDefinitions.ForgottenHighwayElbow,
+        [RoomHeaderDefinitions.CrateriaTube] = static (_, _) => CrateriaRoomStateDefinitions.CrateriaTube,
+        [RoomHeaderDefinitions.Moat] = static (_, _) => CrateriaRoomStateDefinitions.Moat,
+        [RoomHeaderDefinitions.RedBinstarElev] = static (_, _) => CrateriaRoomStateDefinitions.RedBinstarElev,
+        [RoomHeaderDefinitions.GauntletETank] = static (_, _) => CrateriaRoomStateDefinitions.GauntletETank,
+        [RoomHeaderDefinitions.PreBowling] = static (_, _) => CrateriaRoomStateDefinitions.PreBowling,
+        [RoomHeaderDefinitions.PreMapFlyway] = static (_, _) => CrateriaRoomStateDefinitions.PreMapFlyway,
+        [RoomHeaderDefinitions.Terminator] = static (_, _) => CrateriaRoomStateDefinitions.Terminator,
+        [RoomHeaderDefinitions.GreenBrinstarElev] = static (_, _) => CrateriaRoomStateDefinitions.GreenBrinstarElev,
+        [RoomHeaderDefinitions.LowerMushrooms] = static (_, _) => CrateriaRoomStateDefinitions.LowerMushrooms,
+        [RoomHeaderDefinitions.CrateriaMap] = static (_, _) => CrateriaRoomStateDefinitions.CrateriaMap,
+        [RoomHeaderDefinitions.GreenPiratesShaft] = static (_, _) => CrateriaRoomStateDefinitions.GreenPiratesShaft,
+        [RoomHeaderDefinitions.CrateriaSuper] = static (_, _) => CrateriaRoomStateDefinitions.CrateriaSuper,
+        [RoomHeaderDefinitions.GreenBrinstarMainShaft] = static (_, _) => BrinstarRoomStateDefinitions.GreenBrinstarMainShaft,
+        [RoomHeaderDefinitions.SporeSpawnSuper] = static (_, _) => BrinstarRoomStateDefinitions.SporeSpawnSuper,
+        [RoomHeaderDefinitions.BrinstarPreMap] = static (_, _) => BrinstarRoomStateDefinitions.BrinstarPreMap,
+        [RoomHeaderDefinitions.EarlySupers] = static (_, _) => BrinstarRoomStateDefinitions.EarlySupers,
+        [RoomHeaderDefinitions.BrinstarReserveTank] = static (_, _) => BrinstarRoomStateDefinitions.BrinstarReserveTank,
+        [RoomHeaderDefinitions.GreenBrinstarMap] = static (_, _) => BrinstarRoomStateDefinitions.GreenBrinstarMap,
+        [RoomHeaderDefinitions.GreenBrinstarFirefleas] = static (_, _) => BrinstarRoomStateDefinitions.GreenBrinstarFirefleas,
+        [RoomHeaderDefinitions.GreenBrinstarMissileRefill] = static (_, _) => BrinstarRoomStateDefinitions.GreenBrinstarMissileRefill,
+        [RoomHeaderDefinitions.Dachora] = static (_, _) => BrinstarRoomStateDefinitions.Dachora,
+        [RoomHeaderDefinitions.BigPink] = static (_, _) => BrinstarRoomStateDefinitions.BigPink,
+        [RoomHeaderDefinitions.SporeSpawnKihunters] = static (_, _) => BrinstarRoomStateDefinitions.SporeSpawnKihunters,
+        [RoomHeaderDefinitions.PinkBrinstarPowerBombs] = static (_, _) => BrinstarRoomStateDefinitions.PinkBrinstarPowerBombs,
+        [RoomHeaderDefinitions.GreenHillZone] = static (_, _) => BrinstarRoomStateDefinitions.GreenHillZone,
+        [RoomHeaderDefinitions.NoobBridge] = static (_, _) => BrinstarRoomStateDefinitions.NoobBridge,
+        [RoomHeaderDefinitions.GreenBrinstarBeetoms] = static (_, _) => BrinstarRoomStateDefinitions.GreenBrinstarBeetoms,
+        [RoomHeaderDefinitions.EtecoonETank] = static (_, _) => BrinstarRoomStateDefinitions.EtecoonETank,
+        [RoomHeaderDefinitions.EtecoonSuper] = static (_, _) => BrinstarRoomStateDefinitions.EtecoonSuper,
+        [RoomHeaderDefinitions.DachoraEnergyRefill] = static (_, _) => BrinstarRoomStateDefinitions.DachoraEnergyRefill,
+        [RoomHeaderDefinitions.SporeSpawnFarming] = static (_, _) => BrinstarRoomStateDefinitions.SporeSpawnFarming,
+        [RoomHeaderDefinitions.WaterwayETank] = static (_, _) => BrinstarRoomStateDefinitions.WaterwayETank,
+        [RoomHeaderDefinitions.FirstMissile] = static (_, _) => BrinstarRoomStateDefinitions.FirstMissile,
+        [RoomHeaderDefinitions.PinkBrinstarHoppers] = static (_, _) => BrinstarRoomStateDefinitions.PinkBrinstarHoppers,
+        [RoomHeaderDefinitions.HopperETank] = static (_, _) => BrinstarRoomStateDefinitions.HopperETank,
+        [RoomHeaderDefinitions.BigPinkSaveRoom] = static (_, _) => BrinstarRoomStateDefinitions.BigPinkSaveRoom,
+        [RoomHeaderDefinitions.BlueBrinstarBoulders] = static (_, _) => BrinstarRoomStateDefinitions.BlueBrinstarBoulders,
+        [RoomHeaderDefinitions.BillyMays] = static (_, _) => BrinstarRoomStateDefinitions.BillyMays,
+        [RoomHeaderDefinitions.GreenBrinstarSave] = static (_, _) => BrinstarRoomStateDefinitions.GreenBrinstarSave,
+        [RoomHeaderDefinitions.EtecoonSave] = static (_, _) => BrinstarRoomStateDefinitions.EtecoonSave,
+        [RoomHeaderDefinitions.RedTower] = static (_, _) => BrinstarRoomStateDefinitions.RedTower,
+        [RoomHeaderDefinitions.RedBrinstarFirefleas] = static (_, _) => BrinstarRoomStateDefinitions.RedBrinstarFirefleas,
+        [RoomHeaderDefinitions.XrayScope] = static (_, _) => BrinstarRoomStateDefinitions.XrayScope,
+        [RoomHeaderDefinitions.Hellway] = static (_, _) => BrinstarRoomStateDefinitions.Hellway,
+        [RoomHeaderDefinitions.Caterpillar] = static (_, _) => BrinstarRoomStateDefinitions.Caterpillar,
+        [RoomHeaderDefinitions.BetaPowerBomb] = static (_, _) => BrinstarRoomStateDefinitions.BetaPowerBomb,
+        [RoomHeaderDefinitions.AlphaPowerBomb] = static (_, _) => BrinstarRoomStateDefinitions.AlphaPowerBomb,
+        [RoomHeaderDefinitions.SkreeBoost] = static (_, _) => BrinstarRoomStateDefinitions.SkreeBoost,
+        [RoomHeaderDefinitions.BelowSpazer] = static (_, _) => BrinstarRoomStateDefinitions.BelowSpazer,
+        [RoomHeaderDefinitions.Spazer] = static (_, _) => BrinstarRoomStateDefinitions.Spazer,
+        [RoomHeaderDefinitions.WarehouseZeela] = static (_, _) => BrinstarRoomStateDefinitions.WarehouseZeela,
+        [RoomHeaderDefinitions.WarehouseETank] = static (_, _) => BrinstarRoomStateDefinitions.WarehouseETank,
+        [RoomHeaderDefinitions.WarehouseKihunter] = static (_, _) => BrinstarRoomStateDefinitions.WarehouseKihunter,
+        [RoomHeaderDefinitions.KraidEyeDoor] = static (_, _) => BrinstarRoomStateDefinitions.KraidEyeDoor,
+        [RoomHeaderDefinitions.StatuesHallway] = static (_, _) => CrateriaRoomStateDefinitions.StatuesHallway,
+        [RoomHeaderDefinitions.RedTowerRefill] = static (_, _) => BrinstarRoomStateDefinitions.RedTowerRefill,
+        [RoomHeaderDefinitions.KraidRefill] = static (_, _) => BrinstarRoomStateDefinitions.KraidRefill,
+        [RoomHeaderDefinitions.Statues] = static (_, _) => CrateriaRoomStateDefinitions.Statues,
+        [RoomHeaderDefinitions.WarehouseEntrance] = static (_, _) => BrinstarRoomStateDefinitions.WarehouseEntrance,
+        [RoomHeaderDefinitions.VariaSuit] = static (_, _) => BrinstarRoomStateDefinitions.VariaSuit,
+        [RoomHeaderDefinitions.WarehouseSave] = static (_, _) => BrinstarRoomStateDefinitions.WarehouseSave,
+        [RoomHeaderDefinitions.RedBrinstarSave] = static (_, _) => BrinstarRoomStateDefinitions.RedBrinstarSave,
+        [RoomHeaderDefinitions.IceBeamAcid] = static (_, _) => NorfairRoomStateDefinitions.IceBeamAcid,
+        [RoomHeaderDefinitions.Cathedral] = static (_, _) => NorfairRoomStateDefinitions.Cathedral,
+        [RoomHeaderDefinitions.CathedralEntrance] = static (_, _) => NorfairRoomStateDefinitions.CathedralEntrance,
+        [RoomHeaderDefinitions.BusinessCenter] = static (_, _) => NorfairRoomStateDefinitions.BusinessCenter,
+        [RoomHeaderDefinitions.IceBeamGate] = static (_, _) => NorfairRoomStateDefinitions.IceBeamGate,
+        [RoomHeaderDefinitions.IceBeamTutorial] = static (_, _) => NorfairRoomStateDefinitions.IceBeamTutorial,
+        [RoomHeaderDefinitions.IceBeam] = static (_, _) => NorfairRoomStateDefinitions.IceBeam,
+        [RoomHeaderDefinitions.IceBeamSnake] = static (_, _) => NorfairRoomStateDefinitions.IceBeamSnake,
+        [RoomHeaderDefinitions.CrumbleShaft] = static (_, _) => NorfairRoomStateDefinitions.CrumbleShaft,
+        [RoomHeaderDefinitions.CrocomireSpeedway] = static (_, _) => NorfairRoomStateDefinitions.CrocomireSpeedway,
+        [RoomHeaderDefinitions.HiJumpBoots] = static (_, _) => NorfairRoomStateDefinitions.HiJumpBoots,
+        [RoomHeaderDefinitions.CrocomireEscape] = static (_, _) => NorfairRoomStateDefinitions.CrocomireEscape,
+        [RoomHeaderDefinitions.HiJumpETank] = static (_, _) => NorfairRoomStateDefinitions.HiJumpETank,
+        [RoomHeaderDefinitions.PostCrocFarming] = static (_, _) => NorfairRoomStateDefinitions.PostCrocFarming,
+        [RoomHeaderDefinitions.PostCrocSave] = static (_, _) => NorfairRoomStateDefinitions.PostCrocSave,
+        [RoomHeaderDefinitions.PostCrocPowerBombs] = static (_, _) => NorfairRoomStateDefinitions.PostCrocPowerBombs,
+        [RoomHeaderDefinitions.PostCrocShaft] = static (_, _) => NorfairRoomStateDefinitions.PostCrocShaft,
+        [RoomHeaderDefinitions.PostCrocMissile] = static (_, _) => NorfairRoomStateDefinitions.PostCrocMissile,
+        [RoomHeaderDefinitions.GrappleTutorial3] = static (_, _) => NorfairRoomStateDefinitions.GrappleTutorial3,
+        [RoomHeaderDefinitions.PostCrocJump] = static (_, _) => NorfairRoomStateDefinitions.PostCrocJump,
+        [RoomHeaderDefinitions.GrappleTutorial2] = static (_, _) => NorfairRoomStateDefinitions.GrappleTutorial2,
+        [RoomHeaderDefinitions.GrappleTutorial1] = static (_, _) => NorfairRoomStateDefinitions.GrappleTutorial1,
+        [RoomHeaderDefinitions.GrappleBeam] = static (_, _) => NorfairRoomStateDefinitions.GrappleBeam,
+        [RoomHeaderDefinitions.NorfairReserveTank] = static (_, _) => NorfairRoomStateDefinitions.NorfairReserveTank,
+        [RoomHeaderDefinitions.GreenBubblesMissiles] = static (_, _) => NorfairRoomStateDefinitions.GreenBubblesMissiles,
+        [RoomHeaderDefinitions.BubbleMountain] = static (_, _) => NorfairRoomStateDefinitions.BubbleMountain,
+        [RoomHeaderDefinitions.SpeedBoosterHall] = static (_, _) => NorfairRoomStateDefinitions.SpeedBoosterHall,
+        [RoomHeaderDefinitions.SpeedBooster] = static (_, _) => NorfairRoomStateDefinitions.SpeedBooster,
+        [RoomHeaderDefinitions.SingleChamber] = static (_, _) => NorfairRoomStateDefinitions.SingleChamber,
+        [RoomHeaderDefinitions.DoubleChamber] = static (_, _) => NorfairRoomStateDefinitions.DoubleChamber,
+        [RoomHeaderDefinitions.WaveBeam] = static (_, _) => NorfairRoomStateDefinitions.WaveBeam,
+        [RoomHeaderDefinitions.SpikyPlatformsTunnel] = static (_, _) => NorfairRoomStateDefinitions.SpikyPlatformsTunnel,
+        [RoomHeaderDefinitions.Volcano] = static (_, _) => NorfairRoomStateDefinitions.Volcano,
+        [RoomHeaderDefinitions.KronicBoost] = static (_, _) => NorfairRoomStateDefinitions.KronicBoost,
+        [RoomHeaderDefinitions.MagdolliteTunnel] = static (_, _) => NorfairRoomStateDefinitions.MagdolliteTunnel,
+        [RoomHeaderDefinitions.PurpleShaft] = static (_, _) => NorfairRoomStateDefinitions.PurpleShaft,
+        [RoomHeaderDefinitions.LavaDive] = static (_, _) => NorfairRoomStateDefinitions.LavaDive,
+        [RoomHeaderDefinitions.LowerNorfairElev] = static (_, _) => NorfairRoomStateDefinitions.LowerNorfairElev,
+        [RoomHeaderDefinitions.UpperNorfairFarming] = static (_, _) => NorfairRoomStateDefinitions.UpperNorfairFarming,
+        [RoomHeaderDefinitions.RisingTide] = static (_, _) => NorfairRoomStateDefinitions.RisingTide,
+        [RoomHeaderDefinitions.AcidSnakesTunnel] = static (_, _) => NorfairRoomStateDefinitions.AcidSnakesTunnel,
+        [RoomHeaderDefinitions.SpikyAcidSnakesTunnel] = static (_, _) => NorfairRoomStateDefinitions.SpikyAcidSnakesTunnel,
+        [RoomHeaderDefinitions.UpperNorfairRefill] = static (_, _) => NorfairRoomStateDefinitions.UpperNorfairRefill,
+        [RoomHeaderDefinitions.PurpleFarming] = static (_, _) => NorfairRoomStateDefinitions.PurpleFarming,
+        [RoomHeaderDefinitions.BatCave] = static (_, _) => NorfairRoomStateDefinitions.BatCave,
+        [RoomHeaderDefinitions.NorfairMap] = static (_, _) => NorfairRoomStateDefinitions.NorfairMap,
+        [RoomHeaderDefinitions.BubbleMountainSave] = static (_, _) => NorfairRoomStateDefinitions.BubbleMountainSave,
+        [RoomHeaderDefinitions.FrogSpeedway] = static (_, _) => NorfairRoomStateDefinitions.FrogSpeedway,
+        [RoomHeaderDefinitions.RedPirateShaft] = static (_, _) => NorfairRoomStateDefinitions.RedPirateShaft,
+        [RoomHeaderDefinitions.FrogSave] = static (_, _) => NorfairRoomStateDefinitions.FrogSave,
+        [RoomHeaderDefinitions.CrocomireSave] = static (_, _) => NorfairRoomStateDefinitions.CrocomireSave,
+        [RoomHeaderDefinitions.LNElevSave] = static (_, _) => NorfairRoomStateDefinitions.LNElevSave,
+        [RoomHeaderDefinitions.AcidStatue] = static (_, _) => NorfairRoomStateDefinitions.AcidStatue,
+        [RoomHeaderDefinitions.MainHall] = static (_, _) => NorfairRoomStateDefinitions.MainHall,
+        [RoomHeaderDefinitions.FastRipper] = static (_, _) => NorfairRoomStateDefinitions.FastRipper,
+        [RoomHeaderDefinitions.GTEnergyRefill] = static (_, _) => NorfairRoomStateDefinitions.GTEnergyRefill,
+        [RoomHeaderDefinitions.LNFarming] = static (_, _) => NorfairRoomStateDefinitions.LNFarming,
+        [RoomHeaderDefinitions.FastPillarsSetup] = static (_, _) => NorfairRoomStateDefinitions.FastPillarsSetup,
+        [RoomHeaderDefinitions.UnusedRoom8FB3E1] = static (_, _) => NorfairRoomStateDefinitions.UnusedRoom8FB3EE,
+        [RoomHeaderDefinitions.MickeyMouse] = static (_, _) => NorfairRoomStateDefinitions.MickeyMouse,
+        [RoomHeaderDefinitions.Pillar] = static (_, _) => NorfairRoomStateDefinitions.Pillar,
+        [RoomHeaderDefinitions.Plowerhouse] = static (_, _) => NorfairRoomStateDefinitions.Plowerhouse,
+        [RoomHeaderDefinitions.WorstRoomInTheGame] = static (_, _) => NorfairRoomStateDefinitions.WorstRoomInTheGame,
+        [RoomHeaderDefinitions.Amphitheatre] = static (_, _) => NorfairRoomStateDefinitions.Amphitheatre,
+        [RoomHeaderDefinitions.LNSpringBallMaze] = static (_, _) => NorfairRoomStateDefinitions.LNSpringBallMaze,
+        [RoomHeaderDefinitions.LNEscapePowerBombs] = static (_, _) => NorfairRoomStateDefinitions.LNEscapePowerBombs,
+        [RoomHeaderDefinitions.RedKihunterShaft] = static (_, _) => NorfairRoomStateDefinitions.RedKihunterShaft,
+        [RoomHeaderDefinitions.Wasteland] = static (_, _) => NorfairRoomStateDefinitions.Wasteland,
+        [RoomHeaderDefinitions.MetalPirates] = static (_, _) => NorfairRoomStateDefinitions.MetalPirates,
+        [RoomHeaderDefinitions.ThreeMusketeers] = static (_, _) => NorfairRoomStateDefinitions.ThreeMusketeers,
+        [RoomHeaderDefinitions.RidleyETank] = static (_, _) => NorfairRoomStateDefinitions.RidleyETank,
+        [RoomHeaderDefinitions.ScrewAttack] = static (_, _) => NorfairRoomStateDefinitions.ScrewAttack,
+        [RoomHeaderDefinitions.LNFireflea] = static (_, _) => NorfairRoomStateDefinitions.LNFireflea,
+        [RoomHeaderDefinitions.LNSave] = static (_, _) => NorfairRoomStateDefinitions.LNSave,
+        [RoomHeaderDefinitions.GlassTunnelSave] = static (_, _) => MaridiaRoomStateDefinitions.GlassTunnelSave,
+        [RoomHeaderDefinitions.WestTunnel] = static (_, _) => MaridiaRoomStateDefinitions.WestTunnel,
+        [RoomHeaderDefinitions.EastTunnel] = static (_, _) => MaridiaRoomStateDefinitions.EastTunnel,
+        [RoomHeaderDefinitions.MainStreet] = static (_, _) => MaridiaRoomStateDefinitions.MainStreet,
+        [RoomHeaderDefinitions.FishTank] = static (_, _) => MaridiaRoomStateDefinitions.FishTank,
+        [RoomHeaderDefinitions.MamaTurtle] = static (_, _) => MaridiaRoomStateDefinitions.MamaTurtle,
+        [RoomHeaderDefinitions.CrabTunnel] = static (_, _) => MaridiaRoomStateDefinitions.CrabTunnel,
+        [RoomHeaderDefinitions.MtEverest] = static (_, _) => MaridiaRoomStateDefinitions.MtEverest,
+        [RoomHeaderDefinitions.RedFish] = static (_, _) => MaridiaRoomStateDefinitions.RedFish,
+        [RoomHeaderDefinitions.WateringHole] = static (_, _) => MaridiaRoomStateDefinitions.WateringHole,
+        [RoomHeaderDefinitions.NWestMaridiaBug] = static (_, _) => MaridiaRoomStateDefinitions.NWestMaridiaBug,
+        [RoomHeaderDefinitions.CrabShaft] = static (_, _) => MaridiaRoomStateDefinitions.CrabShaft,
+        [RoomHeaderDefinitions.PseudoPlasmaSpark] = static (_, _) => MaridiaRoomStateDefinitions.PseudoPlasmaSpark,
+        [RoomHeaderDefinitions.CrabHole] = static (_, _) => MaridiaRoomStateDefinitions.CrabHole,
+        [RoomHeaderDefinitions.WestSandHallTunnel] = static (_, _) => MaridiaRoomStateDefinitions.WestSandHallTunnel,
+        [RoomHeaderDefinitions.PlasmaTutorial] = static (_, _) => MaridiaRoomStateDefinitions.PlasmaTutorial,
+        [RoomHeaderDefinitions.Plasma] = static (_, _) => MaridiaRoomStateDefinitions.Plasma,
+        [RoomHeaderDefinitions.ThreadTheNeedle] = static (_, _) => MaridiaRoomStateDefinitions.ThreadTheNeedle,
+        [RoomHeaderDefinitions.MaridiaElev] = static (_, _) => MaridiaRoomStateDefinitions.MaridiaElev,
+        [RoomHeaderDefinitions.PlasmaSpark] = static (_, _) => MaridiaRoomStateDefinitions.PlasmaSpark,
+        [RoomHeaderDefinitions.Kassiuz] = static (_, _) => MaridiaRoomStateDefinitions.Kassiuz,
+        [RoomHeaderDefinitions.MaridiaMap] = static (_, _) => MaridiaRoomStateDefinitions.MaridiaMap,
+        [RoomHeaderDefinitions.ForgottenHighwaySave] = static (_, _) => MaridiaRoomStateDefinitions.ForgottenHighwaySave,
+        [RoomHeaderDefinitions.Toilet] = static (_, _) => MaridiaRoomStateDefinitions.Toilet,
+        [RoomHeaderDefinitions.BugSandHole] = static (_, _) => MaridiaRoomStateDefinitions.BugSandHole,
+        [RoomHeaderDefinitions.WestSandHall] = static (_, _) => MaridiaRoomStateDefinitions.WestSandHall,
+        [RoomHeaderDefinitions.Oasis] = static (_, _) => MaridiaRoomStateDefinitions.Oasis,
+        [RoomHeaderDefinitions.EastSandHall] = static (_, _) => MaridiaRoomStateDefinitions.EastSandHall,
+        [RoomHeaderDefinitions.WestSandHole] = static (_, _) => MaridiaRoomStateDefinitions.WestSandHole,
+        [RoomHeaderDefinitions.EastSandHole] = static (_, _) => MaridiaRoomStateDefinitions.EastSandHole,
+        [RoomHeaderDefinitions.WestAqueductQuicksand] = static (_, _) => MaridiaRoomStateDefinitions.WestAqueductQuicksand,
+        [RoomHeaderDefinitions.EastAqueductQuicksand] = static (_, _) => MaridiaRoomStateDefinitions.EastAqueductQuicksand,
+        [RoomHeaderDefinitions.Aqueduct] = static (_, _) => MaridiaRoomStateDefinitions.Aqueduct,
+        [RoomHeaderDefinitions.Butterfly] = static (_, _) => MaridiaRoomStateDefinitions.Butterfly,
+        [RoomHeaderDefinitions.BotwoonHallway] = static (_, _) => MaridiaRoomStateDefinitions.BotwoonHallway,
+        [RoomHeaderDefinitions.Pants] = static (_, _) => MaridiaRoomStateDefinitions.Pants,
+        [RoomHeaderDefinitions.EastPants] = static (_, _) => MaridiaRoomStateDefinitions.EastPants,
+        [RoomHeaderDefinitions.Springball] = static (_, _) => MaridiaRoomStateDefinitions.Springball,
+        [RoomHeaderDefinitions.BelowBotwoonETank] = static (_, _) => MaridiaRoomStateDefinitions.BelowBotwoonETank,
+        [RoomHeaderDefinitions.Colosseum] = static (_, _) => MaridiaRoomStateDefinitions.Colosseum,
+        [RoomHeaderDefinitions.AqueductSave] = static (_, _) => MaridiaRoomStateDefinitions.AqueductSave,
+        [RoomHeaderDefinitions.BotwoonETank] = static (_, _) => MaridiaRoomStateDefinitions.BotwoonETank,
+        [RoomHeaderDefinitions.DraygonSave] = static (_, _) => MaridiaRoomStateDefinitions.DraygonSave,
+        [RoomHeaderDefinitions.MaridiaMissileRefill] = static (_, _) => MaridiaRoomStateDefinitions.MaridiaMissileRefill,
+        [RoomHeaderDefinitions.PlasmaBeachQuicksand] = static (_, _) => MaridiaRoomStateDefinitions.PlasmaBeachQuicksand,
+        [RoomHeaderDefinitions.BotwoonQuicksand] = static (_, _) => MaridiaRoomStateDefinitions.BotwoonQuicksand,
+        [RoomHeaderDefinitions.HalfieClimb] = static (_, _) => MaridiaRoomStateDefinitions.HalfieClimb,
+        [RoomHeaderDefinitions.SpaceJump] = static (_, _) => MaridiaRoomStateDefinitions.SpaceJump,
+        [RoomHeaderDefinitions.MaridiaEnergyRefill] = static (_, _) => MaridiaRoomStateDefinitions.MaridiaEnergyRefill,
+        [RoomHeaderDefinitions.WestCactusAlley] = static (_, _) => MaridiaRoomStateDefinitions.WestCactusAlley,
+        [RoomHeaderDefinitions.EastCactusAlley] = static (_, _) => MaridiaRoomStateDefinitions.EastCactusAlley,
+        [RoomHeaderDefinitions.TourianFirst] = static (_, _) => TourianRoomStateDefinitions.TourianFirst,
+        [RoomHeaderDefinitions.Seaweed] = static (_, _) => TourianRoomStateDefinitions.Seaweed,
+        [RoomHeaderDefinitions.TourianRecharge] = static (_, _) => TourianRoomStateDefinitions.TourianRecharge,
+        [RoomHeaderDefinitions.TourianEyeDoor] = static (_, _) => TourianRoomStateDefinitions.TourianEyeDoor,
+        [RoomHeaderDefinitions.RinkaShaft] = static (_, _) => TourianRoomStateDefinitions.RinkaShaft,
+        [RoomHeaderDefinitions.MotherBrainSave] = static (_, _) => TourianRoomStateDefinitions.MotherBrainSave,
+        [RoomHeaderDefinitions.TourianEscape1] = static (_, _) => TourianRoomStateDefinitions.TourianEscape1,
+        [RoomHeaderDefinitions.TourianEscape2] = static (_, _) => TourianRoomStateDefinitions.TourianEscape2,
+        [RoomHeaderDefinitions.TourianEscape3] = static (_, _) => TourianRoomStateDefinitions.TourianEscape3,
+        [RoomHeaderDefinitions.TourianEscape4] = static (_, _) => TourianRoomStateDefinitions.TourianEscape4,
+        [RoomHeaderDefinitions.UpperTourianSave] = static (_, _) => TourianRoomStateDefinitions.UpperTourianSave,
     };
 
     /// <summary>Selects a state with native first-match precedence.</summary>

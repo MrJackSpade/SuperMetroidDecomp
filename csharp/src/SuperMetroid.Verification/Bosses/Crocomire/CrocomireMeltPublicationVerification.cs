@@ -26,13 +26,13 @@ internal static class CrocomireMeltPublicationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Crocomire);
         CrocomireBehavior crocomire = runtime.Enemies.CrocomireBehavior;
-        CrocomireEnemyState state = crocomire.Crocomire ?? throw new InvalidOperationException("Crocomire's room loads Crocomire.");
-        CrocomireDeathState death = crocomire.CrocomireDeath ?? throw new InvalidOperationException("Crocomire's room loads his death state.");
+        CrocomireEnemyState state = crocomire.Access.Crocomire ?? throw new InvalidOperationException("Crocomire's room loads Crocomire.");
+        CrocomireDeathState death = crocomire.Access.CrocomireDeath ?? throw new InvalidOperationException("Crocomire's room loads his death state.");
         // The death sequence's order: the melting tilemap loads, then the pass's graphics, then the dissolve begins.
-        crocomire.LoadFirstCrocomireMeltingTilemap(state);
+        crocomire.Melting.LoadFirstCrocomireMeltingTilemap(state);
         death.MeltingTableOffset = (ushort)CrocomireMeltingHeader.First;
-        crocomire.InitializeCrocomireMeltingGraphics(state);
-        crocomire.BeginCrocomireMelting(state);
+        crocomire.Melting.InitializeCrocomireMeltingGraphics(state);
+        crocomire.Melting.BeginCrocomireMelting(state);
 
         int frames = 0;
         for (int frame = 0; frame < 12; frame++)
@@ -41,7 +41,7 @@ internal static class CrocomireMeltPublicationVerification
             int recordOffset = death.MeltingTableOffset + death.MeltingTransferOffset;
             if (!CrocomireMeltingTransferDefinitions.TryUpload(recordOffset, out CrocomireMeltingUpload upload))
                 AssertTrue(CrocomireMeltingTransferDefinitions.TryUpload(death.MeltingTableOffset, out upload), "a melt pass restarts at its first record");
-            crocomire.RunCrocomireMelting(state, null);
+            crocomire.Melting.RunCrocomireMelting(state, null);
             AssertTrue(!heightsBefore.AsSpan().SequenceEqual(death.MeltingColumnHeights), $"melt frame {frame} erases a column");
 
             runtime.FrameBoundary.BeginAcceptedFrame(0);

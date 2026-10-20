@@ -34,7 +34,7 @@ internal static class MotherBrainTubeTimingVerification
         for (int frame = 0; frame < 200 && secondSpawn < 0; frame++)
         {
             int before = Tubes();
-            runtime.Enemies.MotherBrainBehavior.RunMotherBrainTubeCollapse(state);
+            runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainTubeCollapse(state);
             if (Tubes() > before)
             {
                 if (firstSpawn < 0) firstSpawn = frame;

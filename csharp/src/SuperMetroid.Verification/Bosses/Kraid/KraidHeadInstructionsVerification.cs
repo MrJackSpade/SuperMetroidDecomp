@@ -22,7 +22,7 @@ internal static class KraidHeadInstructionsVerification
         Suite(nameof(VerifyTimerAndGrowthConsumers), () => VerifyTimerAndGrowthConsumers(rom));
 
         var unstarted = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
-        Func<RoomEnemySlot, KraidEnemyState, ushort> run = unstarted.KraidBehavior.ExecuteKraidHeadInstruction;
+        Func<RoomEnemySlot, KraidEnemyState, ushort> run = unstarted.KraidBehavior.Head.ExecuteKraidHeadInstruction;
         AssertThrows<InvalidDataException>(() => run(unstarted.SlotTable.Slots[0], new KraidEnemyState()),
             "an unstarted Kraid head program fails loudly, as an unset native cursor did");
 
@@ -39,7 +39,7 @@ internal static class KraidHeadInstructionsVerification
             var guard = new KraidHeadProgramReadGuard(rom);
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
             enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
-            Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.ExecuteKraidHeadInstruction;
+            Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             var state = new KraidEnemyState { HeadProgram = record.Cursor };
 
@@ -70,7 +70,7 @@ internal static class KraidHeadInstructionsVerification
             if (!record.IsPose && !record.IsTerminator)
             {
                 AssertEqual((byte)record.Sound,
-                    (enemies.KraidBehavior.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect.Value,
+                    (enemies.KraidBehavior.Access.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect.Value,
                     $"Kraid sound command ${record.Pointer:X4} queues exact sound");
             }
             AssertEqual(0, guard.ForbiddenReadAttempts, $"Kraid command ${record.Pointer:X4} avoids compiled stream");
@@ -82,12 +82,12 @@ internal static class KraidHeadInstructionsVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
         var state = new KraidEnemyState();
-        enemies.KraidBehavior.Kraid = state;
+        enemies.KraidBehavior.Access.Kraid = state;
         var guard = new KraidHeadProgramReadGuard(rom);
         enemies.Presentation.BindCgram(new SnesCgram());
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
-        var glow = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.InitializeKraidEyeGlow);
-        var death = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.InitializeKraidDeath);
+        var glow = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);
+        var death = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath);
         var combat = new Action<RoomEnemySlot, KraidEnemyState, VramWriteQueue?, ushort>(enemies.KraidBehavior.RunKraidCombatFunction);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         state.InitialHealth = 1000;

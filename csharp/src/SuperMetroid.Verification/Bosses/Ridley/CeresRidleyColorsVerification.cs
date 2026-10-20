@@ -94,14 +94,14 @@ internal static class CeresRidleyColorsVerification
         var cgram = new SnesCgram();
         enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.InitializeCeresRidley;
+        Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;
         initialize(slot);
         CheckCgram(document.Start.Length, CeresRidleyPaletteRomData.StartCgramIndex,
             edited.CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
 
-        Action<RidleyEnemyState> eyeTick = enemies.CeresRidleyBehavior.TickCeresRidleyEyeFade;
-        Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.TickCeresRidleyBodyFade;
-        Action<RidleyEnemyState> healthTick = enemies.CeresRidleyBehavior.UpdateCeresRidleyHealthPalette;
+        Action<RidleyEnemyState> eyeTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyEyeFade;
+        Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyBodyFade;
+        Action<RidleyEnemyState> healthTick = enemies.CeresRidleyBehavior.Hits.UpdateCeresRidleyHealthPalette;
         var state = new RidleyEnemyState { Function = RidleyAiFunction.FadeInEyes };
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.PaletteStepCount; step++)
         {
@@ -239,9 +239,9 @@ internal static class CeresRidleyColorsVerification
             {
                 owner.Presentation.BindCgram(palette);
             }
-            var nativeTick = new Action<RidleyEnemyState, int>(nativeEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
-            var stockTick = new Action<RidleyEnemyState, int>(stockEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
-            var editedTick = new Action<RidleyEnemyState, int>(editedEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
+            var nativeTick = new Action<RidleyEnemyState, int>(nativeEnemy.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette);
+            var stockTick = new Action<RidleyEnemyState, int>(stockEnemy.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette);
+            var editedTick = new Action<RidleyEnemyState, int>(editedEnemy.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette);
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
             var editedState = new RidleyEnemyState();
@@ -296,9 +296,9 @@ internal static class CeresRidleyColorsVerification
             {
                 owner.Presentation.BindCgram(palette);
             }
-            var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(nativeEnemy.RidleyBehavior.UpdateNorfairRidleyHealthPalette);
-            var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(stockEnemy.RidleyBehavior.UpdateNorfairRidleyHealthPalette);
-            var editedTick = new Action<RoomEnemySlot, RidleyEnemyState>(editedEnemy.RidleyBehavior.UpdateNorfairRidleyHealthPalette);
+            var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(nativeEnemy.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette);
+            var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(stockEnemy.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette);
+            var editedTick = new Action<RoomEnemySlot, RidleyEnemyState>(editedEnemy.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette);
             RoomEnemySlot nativeSlot = nativeEnemy.SlotTable.Slots[0];
             RoomEnemySlot stockSlot = stockEnemy.SlotTable.Slots[0];
             RoomEnemySlot editedSlot = editedEnemy.SlotTable.Slots[0];

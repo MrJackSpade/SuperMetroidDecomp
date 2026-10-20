@@ -45,7 +45,7 @@ internal static class MotherBrainTurretDefinitionsVerification
 
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0;
-            enemies.MotherBrainBehavior.SpawnMotherBrainTurret(parameter);
+            enemies.MotherBrainBehavior.Body.SpawnMotherBrainTurret(parameter);
 
             RoomEnemyProjectileSlot turret =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
@@ -82,7 +82,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                     ? candidate
                     : unchecked((byte)(current + expectedDelta));
 
-                MotherBrainBehavior.SelectNextMotherBrainTurretDirection(rotation);
+                MotherBrainProjectiles.SelectNextMotherBrainTurretDirection(rotation);
                 AssertEqual(unchecked(
                         SnesLittleEndian.Word(expectedDirection, unchecked((byte)expectedDelta))),
                     rotation.Position.Y.Fraction,
@@ -121,7 +121,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             {
                 Position = new(new(0x0400, 0), new(0x0200, direction)),
             };
-            enemies.MotherBrainBehavior.SpawnMotherBrainTurretBullet(turret);
+            enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainTurretBullet(turret);
 
             RoomEnemyProjectileSlot bullet =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);

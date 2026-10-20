@@ -33,23 +33,23 @@ internal static class EndingScreenPublicationVerification
         EndingCreditsState ending = InstalledFixtures.CreateEnding(audio, 3, 0);
         foreach (EndingCreditsPhase target in new[] { EndingCreditsPhase.Credits, EndingCreditsPhase.PostCreditsLogo })
         {
-            for (int frame = 0; frame < 40_000 && ending.Phase != target; frame++)
+            for (int frame = 0; frame < 40_000 && ending.Stage.Phase != target; frame++)
             {
                 ending.Step();
                 audio.AdvanceFrame(default);
             }
-            AssertEqual(target, ending.Phase, $"the ending reaches {target}");
+            AssertEqual(target, ending.Stage.Phase, $"the ending reaches {target}");
             AssertTrue(ending.screen.Uploads.Count < 64, $"the ending's transfer record stays bounded at {target}");
             PpuMemorySnapshot shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory;
             EndingCreditsState restored = RoundTrip(ending);
-            restored.BindFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
-            restored.BindMode7Artwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
-            restored.BindObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
-            restored.BindPaletteArtwork(RepositoryInstallation.Installation.LoadEndingPalettes());
-            restored.BindPaletteFxColors(InstalledFixtures.Maps.RoomPaletteFx);
-            restored.BindEndingFont(InstalledFixtures.Maps.EndingFont);
-            restored.BindStaffCredits(InstalledFixtures.Maps.StaffCredits);
-            restored.BindEndingText(InstalledFixtures.Maps.EndingText);
+            restored.Flyaway.BindFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
+            restored.Stage.BindMode7Artwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
+            restored.InstalledArtwork.BindObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
+            restored.InstalledArtwork.BindPaletteArtwork(RepositoryInstallation.Installation.LoadEndingPalettes());
+            restored.InstalledArtwork.BindPaletteFxColors(InstalledFixtures.Maps.RoomPaletteFx);
+            restored.Stage.BindEndingFont(InstalledFixtures.Maps.EndingFont);
+            restored.InstalledArtwork.BindStaffCredits(InstalledFixtures.Maps.StaffCredits);
+            restored.InstalledArtwork.BindEndingText(InstalledFixtures.Maps.EndingText);
             PpuMemorySnapshot restoredShown = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Memory;
             AssertTrue(shown.Vram.SequenceEqual(restoredShown.Vram), $"a restored ending shows the same image at {target}");
             AssertTrue(shown.Cgram.SequenceEqual(restoredShown.Cgram), $"a restored ending shows the same palette at {target}");

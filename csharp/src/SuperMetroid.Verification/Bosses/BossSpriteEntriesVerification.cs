@@ -105,7 +105,7 @@ internal static class BossSpriteEntriesVerification
         };
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.CeresRidleyBehavior.DrawRidleySupplementalSprites(sprites, EnemyFormatDrawAccess.BlankObjectPage, slot, Position16<RoomPixels>.Zero);
+        enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, EnemyFormatDrawAccess.BlankObjectPage, slot, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
         SpriteSource[] expected = [.. new[] { 6, 5, 4, 3, 2, 1, 0 }.Select(segment => new SpriteSource(SpriteSourceKind.RidleyTail, segment)),
             new SpriteSource(SpriteSourceKind.RidleyWings)];

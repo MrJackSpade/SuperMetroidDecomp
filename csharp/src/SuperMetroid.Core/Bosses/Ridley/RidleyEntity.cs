@@ -21,9 +21,9 @@ internal sealed class RidleyEntity(
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => RidleyPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        RidleyPart.Ridley => ridley.InitializeNorfairRidley,
-        RidleyPart.Ceres => ceres.InitializeCeresRidley,
-        RidleyPart.Explosion => ridley.RunRidleyExplosionInitializationAi,
+        RidleyPart.Ridley => ridley.Combat.InitializeNorfairRidley,
+        RidleyPart.Ceres => ceres.Flight.InitializeCeresRidley,
+        RidleyPart.Explosion => ridley.Death.RunRidleyExplosionInitializationAi,
         _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -32,21 +32,21 @@ internal sealed class RidleyEntity(
     {
         RidleyPart.Ridley => ridley.RunRidleyMainAi,
         RidleyPart.Ceres => ceres.RunCeresRidleyMainAi,
-        RidleyPart.Explosion => (enemy, _) => ridley.RunNorfairRidleyExplosionMain(enemy),
+        RidleyPart.Explosion => (enemy, _) => ridley.Death.RunNorfairRidleyExplosionMain(enemy),
         _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RidleyPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        RidleyPart.Ridley or RidleyPart.Ceres => ridley.AdvanceRidleyBodyTypedAnimation,
-        RidleyPart.Explosion => (enemy, _) => ridley.AdvanceRidleyBreakupAnimation(enemy),
+        RidleyPart.Ridley or RidleyPart.Ceres => ridley.Animation.AdvanceRidleyBodyTypedAnimation,
+        RidleyPart.Explosion => (enemy, _) => ridley.Animation.AdvanceRidleyBreakupAnimation(enemy),
         _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) =>
-        RidleyBehavior.FindRidleyHitboxCallback(Slot, probe, out callback);
+        RidleyInteractions.FindRidleyHitboxCallback(Slot, probe, out callback);
 
     /// <summary>
     /// Both Ridley bodies use a hand-authored extended body plus a separately solved tail tip, resolved by their own
@@ -63,7 +63,7 @@ internal sealed class RidleyEntity(
     public void ResolveAfterSamusContact(SamusState samus)
     {
         if (IsBody)
-            _ = ceres.ResolveRidleyBodySamusContact(samus);
+            _ = ceres.Hits.ResolveRidleyBodySamusContact(samus);
     }
 
     /// <summary>Ceres Ridley never enters the ordinary shot pass; its encounter resolves its own shots.</summary>
@@ -76,7 +76,7 @@ internal sealed class RidleyEntity(
     public void DrawBeforeBody(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
     {
         if (IsBody)
-            ceres.DrawRidleySupplementalSprites(sprites, objects, Slot, camera);
+            ceres.BabyScene.DrawRidleySupplementalSprites(sprites, objects, Slot, camera);
     }
 
     /// <summary>

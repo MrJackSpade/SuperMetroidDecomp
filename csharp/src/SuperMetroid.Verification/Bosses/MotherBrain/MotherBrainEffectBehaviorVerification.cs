@@ -49,7 +49,7 @@ internal static class MotherBrainEffectBehaviorVerification
             Head = new RoomEnemySlot(1, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(311, 139)) },
         };
         rainbowEnemies.MotherBrainEncounter.MotherBrain = rainbowState;
-        rainbowEnemies.MotherBrainBehavior.SpawnMotherBrainRainbowChargingProjectile();
+        rainbowEnemies.MotherBrainBehavior.Head.SpawnMotherBrainRainbowChargingProjectile();
         RoomEnemyProjectileSlot rainbow = rainbowEnemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging);
         AssertEqual(311, rainbow.Position.X.Whole, "real rainbow-charge producer pins its initial X to Mother Brain's head");
@@ -57,7 +57,7 @@ internal static class MotherBrainEffectBehaviorVerification
         AssertLifetime(rainbowEnemies, rainbow, 30, "rainbow charge survives all six five-frame stages");
 
         RoomEnemySystem explosionEnemies = CreateRoomEnemySystem();
-        explosionEnemies.MotherBrainBehavior.SpawnMotherBrainRainbowExplosion(new Position16<RoomPixels>(256, 128),
+        explosionEnemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainRainbowExplosion(new Position16<RoomPixels>(256, 128),
             new MotherBrainRainbowExplosionRequest(Offset: new(-9, 7)));
         RoomEnemyProjectileSlot explosion = explosionEnemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion);
@@ -75,7 +75,7 @@ internal static class MotherBrainEffectBehaviorVerification
             RoomEnemySystem deathEnemies = CreateRoomEnemySystem();
             deathEnemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(
                 new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) });
-            deathEnemies.MotherBrainBehavior.SpawnMotherBrainDeathExplosion(
+            deathEnemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(
                 new MotherBrainDeathExplosionRequest(Offset: new(-5, 9), ProjectileParameter: parameter, SoundEffect: MotherBrainSoundDefinitions.Explosion));
             RoomEnemyProjectileSlot deathExplosion = deathEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainDeathExplosion);
@@ -122,7 +122,7 @@ internal static class MotherBrainEffectBehaviorVerification
             var handBeamState = new MotherBrainEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(112, 144)) });
             handBeamEnemies.MotherBrainEncounter.MotherBrain = handBeamState;
             var handBeamTarget = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
-            handBeamEnemies.MotherBrainBehavior.SpawnMotherBrainHandBeamCharging(handBeamState, handBeamTarget);
+            handBeamEnemies.MotherBrainBehavior.Body.SpawnMotherBrainHandBeamCharging(handBeamState, handBeamTarget);
             RoomEnemyProjectileSlot handBeam = handBeamEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainHandBeamCharging);
             ushort referenceCursor = MotherBrainNativeListAddresses.HandBeamProgram;
@@ -168,7 +168,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 Head = new RoomEnemySlot(1, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) },
             };
             ringEnemies.MotherBrainEncounter.MotherBrain = ringState;
-            ringEnemies.MotherBrainBehavior.SpawnMotherBrainOnionRing(ringState, new SnesByteAngle(0));
+            ringEnemies.MotherBrainBehavior.Head.SpawnMotherBrainOnionRing(ringState, new SnesByteAngle(0));
             RoomEnemyProjectileSlot ring = ringEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing);
             for (int frame = 0; frame < 52; frame++)
@@ -208,7 +208,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 NeckAngleDelta = neckAngleDelta,
             };
             droolEnemies.MotherBrainEncounter.MotherBrain = state;
-            droolEnemies.MotherBrainBehavior.SpawnMotherBrainDrool(state);
+            droolEnemies.MotherBrainBehavior.Head.SpawnMotherBrainDrool(state);
             RoomEnemyProjectileSlot drool = droolEnemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == expectedKind);
             ushort attachedY = drool.Position.Y.Whole;
 
@@ -224,7 +224,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 $"{expectedKind} release frame holds at its program's sleep");
 
             drool.Position = drool.Position.WithWholeY(215);
-            MotherBrainBehavior.RunMotherBrainFallingDroolPreInstruction(drool);
+            MotherBrainProjectiles.RunMotherBrainFallingDroolPreInstruction(drool);
             AssertTrue(drool.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.DroolHitFloor },
                 $"{expectedKind} floor impact starts the splash program");
             AssertLifetime(droolEnemies, drool, 40, $"{expectedKind} splash survives all four ten-frame stages");

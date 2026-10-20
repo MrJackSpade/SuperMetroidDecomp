@@ -26,7 +26,7 @@ internal static class SpcFirAddressingVerification
         int nativeBase = SnesLittleEndian.Word(Read(0x1a9b), Read(0x1a9c));
         var player = new ManagedSpcPlayer();
         byte[] ram = player.ram;
-        Action<ManagedSpcMusicChannel, byte> effect = player.HandleEffect;
+        Action<ManagedSpcMusicChannel, byte> effect = player.Music.HandleEffect;
         // Distinguish low-byte aliases from incorrectly carrying into later RAM pages.
         for (int address = nativeBase; address < nativeBase + 2048; address++)
             ram[address] = (byte)(SnesLittleEndian.HighByte(unchecked((ushort)address)) ^ unchecked((byte)address));

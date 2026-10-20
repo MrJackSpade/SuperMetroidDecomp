@@ -340,7 +340,7 @@ internal static class FrontendRomFreeVerification
                         {
                             RoomEnemySlot boss = game.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.Single(
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
-                            (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram =
+                            (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSonicBoomsFacingRightLeftFootFwd0);
                             boss.InstructionTimer = NativeCountdown.Start(1);
                         }
@@ -351,7 +351,7 @@ internal static class FrontendRomFreeVerification
                         {
                             RoomEnemySlot boss = game.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.Single(
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
-                            (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram =
+                            (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSonicBoomsFacingRightRightFootFwd0);
                             boss.InstructionTimer = NativeCountdown.Start(1);
                         }
@@ -363,11 +363,11 @@ internal static class FrontendRomFreeVerification
                             RoomEnemySystem enemies = game.GameplayRuntimeForVerification.Enemies;
                             RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
-                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
+                            (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.Stunned0);
                             boss.InstructionTimer = NativeCountdown.Start(1);
-                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).Behavior |= TorizoBehaviorFlags.Stunned;
-                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnCursor =
+                            (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).Behavior |= TorizoBehaviorFlags.Stunned;
+                            (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnCursor =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenWalkingLeftRightLegMoving);
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenStun = true });
@@ -388,10 +388,10 @@ internal static class FrontendRomFreeVerification
                             RoomEnemySystem enemies = game.GameplayRuntimeForVerification.Enemies;
                             RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
-                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
+                            (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd0);
                             boss.InstructionTimer = NativeCountdown.Start(1);
-                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnCursor =
+                            (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnCursor =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenWalkingLeftRightLegMoving);
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenLeftFootOrb = true });
@@ -436,7 +436,7 @@ internal static class FrontendRomFreeVerification
             "restored Kraid room selects the relocated HUD character base");
         // Kraid's body is a published frame (#1352), not VRAM pages.
         static ushort[] Body(SuperMetroidGame game) =>
-            [.. game.GameplayRuntimeForVerification.Enemies.KraidBehavior.CaptureBodyLayer()?.Tilemap.Words ?? []];
+            [.. game.GameplayRuntimeForVerification.Enemies.KraidBehavior.BodyLayer.CaptureBodyLayer()?.Tilemap.Words ?? []];
         AssertTrue(Body(nativeRoom).Length != 0 && Body(nativeRoom).SequenceEqual(Body(installedRoom)),
             "restored Kraid body matches before the first accepted NMI");
         FrontendFrame expected = nativeRoom.Step(0);
@@ -602,7 +602,7 @@ internal static class FrontendRomFreeVerification
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed {room.RoomName} phase at frame {frame}");
             TorizoBodyProgram? goldenProgram = awakenedGoldenTorizo is null ? null
-                : (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo
+                : (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo
                     ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram.Program;
             bool GoldenRuns(TorizoBodyProgram first, TorizoBodyProgram last) =>
                 goldenProgram is { } running && running >= first && running <= last;
@@ -626,8 +626,8 @@ internal static class FrontendRomFreeVerification
             // The stun's ClearAnimationLock and its return path's UnmarkStunned release the
             // boss; later attacks may lock again, so observe the release, not the last frame.
             else if (forcedGoldenStunObserved && !forcedGoldenStunReleased &&
-                     (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).AnimationLocked == false &&
-                     (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).Behavior.HasFlag(TorizoBehaviorFlags.Stunned) == false)
+                     (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).AnimationLocked == false &&
+                     (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).Behavior.HasFlag(TorizoBehaviorFlags.Stunned) == false)
                 forcedGoldenStunReleased = true;
             if (awakenedGoldenTorizo is not null &&
                 golden.ForcedGoldenLeftTurnStart is not null &&

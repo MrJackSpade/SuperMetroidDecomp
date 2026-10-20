@@ -732,7 +732,7 @@ internal static class SamusPoseMetadata
                 // The special target installs through $91:F433, which dispatches the new
                 // normal-jumping type to $91:F543 ($51/$52 cannot start a spark there). $F433
                 // then restores the suit palette after a wall jump with Screw Attack.
-                SamusPoseTransitions.InitializeInstalledNormalJumpPose(samus, movementType, controllerNewInput);
+                SamusAerialPoseTransitions.InitializeInstalledNormalJumpPose(samus, movementType, controllerNewInput);
                 if (movementType == SamusMovementType.WallJumping &&
                     samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
                     samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();

@@ -49,7 +49,7 @@ internal static class KraidArmSamusContactVerification
 
         AssertEqual(4, samus.Kinematics.ExtraDisplacement.X.WholePixels, "$A7:94A4 pushes Samus four pixels right");
         AssertEqual((short)-8, samus.Kinematics.ExtraDisplacement.Y.WholePixels, "$A7:94AA pushes Samus eight pixels up");
-        AssertEqual(KraidAiFunction.LintFire, (runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("The Kraid room has no Kraid state.")).Parts[4].Function,
+        AssertEqual(KraidAiFunction.LintFire, (runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("The Kraid room has no Kraid state.")).Parts[4].Function,
             "the arm touch makes the bottom lint fire");
         AssertTrue(!samus.InvincibilityTimer.IsZero, "the arm's contact damage starts invincibility");
         Console.WriteLine("  Kraid arm Samus contact: the extended arm frame pushes Samus back and fires the bottom lint.");

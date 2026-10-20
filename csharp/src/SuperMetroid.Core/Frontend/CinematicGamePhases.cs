@@ -85,10 +85,10 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.EndingAndCredits"/>.</summary>
     internal void DispatchEndingAndCredits()
     {
-        EndingCreditsPhase previousEndingPhase = session.ActiveEndingCredits.Phase;
+        EndingCreditsPhase previousEndingPhase = session.ActiveEndingCredits.Stage.Phase;
         session.ActiveEndingCredits.Step();
         if (previousEndingPhase != EndingCreditsPhase.SeeYouNextMission &&
-            session.ActiveEndingCredits.Phase == EndingCreditsPhase.SeeYouNextMission)
+            session.ActiveEndingCredits.Stage.Phase == EndingCreditsPhase.SeeYouNextMission)
         {
             session.saves.SetGameCompleted(true);
             session.RaiseSaveRamChanged();

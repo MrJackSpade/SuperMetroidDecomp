@@ -52,6 +52,26 @@ counted as services). Every flag names a shape the design forbids (`manifesto.md
 explicit dependencies, no context bags, no reach-backs, no monoliths), so "it is a large boss translation" or
 "the Samus aggregate constructs its parts" is not a reason; it is the finding restated. Those types are fixed.
 
+## Large types split along their own structure
+
+A `large` finding is fixed by splitting the type where its content already divides, never by moving an arbitrary
+slice of lines out (#1395):
+
+- A catalog splits by the domain key its entries already carry. Room states, doors, enemy populations and enemy
+  graphics sets split by room-header region (`CrateriaRoomStateDefinitions`, `NorfairDoorDefinitions`, ...). The
+  original catalog keeps the one table that concatenates the regions in native order, so lookups and ordering are
+  unchanged. Body programs split by encounter concern (`TorizoFacingLeftPrograms`, `GoldenTorizoPrograms`), sharing
+  the step vocabulary (`TorizoProgramSteps`).
+- Each part keeps the catalog suffix of its source (`Definitions.cs`), because catalog status, and with it the
+  cartridge-encoding analyzer's treatment of the literals it holds, follows the file name.
+- A helper type used by only one part moves into that part; a type used by several stays with the source and is
+  named through it.
+- A static class of operations splits by the situation each operation handles (`SamusAerialPoseTransitions`,
+  `SamusGroundedPoseTransitions`, `SamusPosturePoseTransitions`), not by size.
+- A behaviour with injected collaborators splits into components that each take only the collaborators they use.
+  A component never receives its creator: dependencies between components run one way, passed at construction,
+  so the split introduces no `back-reference` finding.
+
 ## Partial types
 
 The build analyzer enforces partial-type rules in every project:

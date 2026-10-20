@@ -21,7 +21,7 @@ internal static class PhantoonPathVerification
         var enemies = new RoomEnemySystem(new EnemySession());
         var body = enemies.SlotTable.Slots[0];
         var eye = enemies.SlotTable.Slots[1];
-        Action<RoomEnemySlot, PhantoonPartState, PhantoonPartState> step = PhantoonBehavior.StepPhantoonFigureEight;
+        Action<RoomEnemySlot, PhantoonPartState, PhantoonPartState> step = PhantoonPatterns.StepPhantoonFigureEight;
         var bodyWords = new PhantoonPartState();
         var eyeWords = new PhantoonPartState();
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })

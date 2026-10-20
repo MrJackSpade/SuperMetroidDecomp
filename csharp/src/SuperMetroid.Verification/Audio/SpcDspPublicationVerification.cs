@@ -27,18 +27,18 @@ internal static class SpcDspPublicationVerification
                 direct[address] = value;
                 register = value;
             }
-            Set(ref player.keyOff, 0x46, 0x81);
-            Set(ref player.keyOn, 0x45, 0x42);
-            Set(ref player.noiseEnable, 0x49, 0x24);
-            Set(ref player.dspFlags, 0x48, 0x17);
-            Set(ref player.echoEnable, 0x4a, 0x18);
-            Set(ref player.echoFeedback, 0x4e, 0xb3);
-            player.echoVolumeLeft = 0x3567;
-            player.echoVolumeRight = 0xa912;
+            Set(ref player.Voices.keyOff, 0x46, 0x81);
+            Set(ref player.Voices.keyOn, 0x45, 0x42);
+            Set(ref player.Voices.noiseEnable, 0x49, 0x24);
+            Set(ref player.Voices.dspFlags, 0x48, 0x17);
+            Set(ref player.Voices.echoEnable, 0x4a, 0x18);
+            Set(ref player.Music.echoFeedback, 0x4e, 0xb3);
+            player.Music.echoVolumeLeft = 0x3567;
+            player.Music.echoVolumeRight = 0xa912;
             direct[0x61] = 0x35;
             direct[0x63] = 0xa9;
-            player.echoStoredTime = stored;
-            player.echoDelay = 2;
+            player.Music.echoStoredTime = stored;
+            player.Music.echoDelay = 2;
             // Seed all destinations so skipped echo writes are observable.
             for (int index = 0; index < 10; index++)
                 dsp.WriteRegister(rom.ReadCartridgeByte(0xcf8a5a + index), 0x55);
@@ -52,8 +52,8 @@ internal static class SpcDspPublicationVerification
             player.LoopPartOne();
             for (int address = 0; address < 128; address++)
                 AssertEqual(expected[address], dsp.ReadRegister((byte)address), "native DSP publication map and echo gating");
-            AssertEqual(0, player.keyOff, "pending key-off clears after publication");
-            AssertEqual(0, player.keyOn, "pending key-on clears after publication");
+            AssertEqual(0, player.Voices.keyOff, "pending key-off clears after publication");
+            AssertEqual(0, player.Voices.keyOn, "pending key-on clears after publication");
 
         }
     }

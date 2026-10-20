@@ -24,14 +24,14 @@ internal static class MotherBrainInheritedExplosionIndexVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
 
         state.BodySubFunctionTimer = NativeCountdown.Start(2);
-        runtime.Enemies.MotherBrainBehavior.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, null);
+        runtime.Enemies.MotherBrainBehavior.Attacks.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, null);
         MotherBrainRainbowBeamAttackSequence sequence = (state.RainbowBeamSequence ?? throw new InvalidOperationException("Verification requires state.RainbowBeamSequence."));
-        AssertEqual((ushort)2, sequence.DeathAndEscapeExplosionIndex.RawValue, "the sequence inherits word $0FF2");
+        AssertEqual((ushort)2, sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex.RawValue, "the sequence inherits word $0FF2");
 
         var requests = new List<MotherBrainDeathExplosionRequest>();
-        sequence.GenerateDeathExplosions(MotherBrainDeathExplosionStyle.Smoky, () => 0, requests);
+        sequence.ThirdPhaseDeath.GenerateDeathExplosions(MotherBrainDeathExplosionStyle.Smoky, () => 0, requests);
         AssertEqual(2, requests.Count, "a smoky burst spawns two explosions");
-        AssertEqual((ushort)1, sequence.DeathAndEscapeExplosionIndex.RawValue, "the first burst decrements to row 1");
+        AssertEqual((ushort)1, sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex.RawValue, "the first burst decrements to row 1");
         AssertEqual(((short)0x0011, unchecked((short)0xffc9)), (requests[0].Offset.X, requests[0].Offset.Y),
             "row 1's first offset pair");
         AssertEqual(((short)0x001e, unchecked((short)0xffea)), (requests[1].Offset.X, requests[1].Offset.Y),

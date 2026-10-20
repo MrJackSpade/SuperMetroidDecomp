@@ -755,7 +755,7 @@ public static class SamusAerialMovement
             : (ushort)11;
         if (samus.AnimationFrame < firstEligibleFrame)
         {
-            SamusPoseTransitions.ApplyWallContactAnimationRewind(samus);
+            SamusAerialPoseTransitions.ApplyWallContactAnimationRewind(samus);
             return new WallJumpCheckResult(Triggered: false, Contact: true, Distance: distance);
         }
 

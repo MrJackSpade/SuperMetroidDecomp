@@ -263,16 +263,16 @@ internal sealed class GameplayActorDrawing
             else
             {
                 bool grappleHandlerInstalled =
-                    SamusGrappleMovement.UsesGrappleDrawingHandler(_player.Samus.Grapple.Phase);
+                    SamusGrappleBeamDrawing.UsesGrappleDrawingHandler(_player.Samus.Grapple.Phase);
                 bool grappleBeamSpecificPath = grappleHandlerInstalled &&
-                    SamusGrappleMovement.UsesBeamSpecificDrawingPath(_player.Samus.Grapple.Phase);
+                    SamusGrappleBeamDrawing.UsesBeamSpecificDrawingPath(_player.Samus.Grapple.Phase);
 
                 if (grappleBeamSpecificPath)
                 {
                     // Active `$90:EB86` begins with `$9B:C036`. Firing also refreshes
                     // its hand origins here from Samus's post-movement position. This
                     // flare is a different animation owner from the charge flare below.
-                    SamusGrappleMovement.DrawFlareBeforeSamus(
+                    SamusGrappleBeamDrawing.DrawFlareBeforeSamus(
                         _player.Samus,
                         _sprites,
                         _room.Camera.PixelPosition,
@@ -342,7 +342,7 @@ internal sealed class GameplayActorDrawing
                     // Active `$90:EB86` deliberately omits `Samus_DrawEchoes`. It updates
                     // endpoint/segment tiles after Samus, increments flare time, and only
                     // then emits rope pieces when length is nonzero.
-                    SamusGrappleMovement.DrawConnectedBeam(
+                    SamusGrappleBeamDrawing.DrawConnectedBeam(
                         _player.Samus.Grapple,
                         _sprites,
                         _room.Camera.PixelPosition,

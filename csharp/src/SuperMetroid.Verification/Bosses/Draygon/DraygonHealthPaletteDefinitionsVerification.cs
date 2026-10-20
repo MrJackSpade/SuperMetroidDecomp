@@ -51,7 +51,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = DraygonColorCatalog.Load(colors) }),
         };
         enemies.Presentation.BindCgram(new SnesCgram());
-        Action<DraygonEnemyState> update = enemies.DraygonBehavior.UpdateDraygonHealthPalette;
+        Action<DraygonEnemyState> update = enemies.DraygonBehavior.Combat.UpdateDraygonHealthPalette;
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 
         ushort[] productionHealth =

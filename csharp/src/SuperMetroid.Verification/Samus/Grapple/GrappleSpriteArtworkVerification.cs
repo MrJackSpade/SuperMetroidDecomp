@@ -43,11 +43,11 @@ internal static class GrappleSpriteArtworkVerification
             for (int tick = 0; tick < 25; tick++)
             {
                 var originalOamFrame = new SpriteFrameBuffer(); var stockOamFrame = new SpriteFrameBuffer(); var editedOamFrame = new SpriteFrameBuffer();
-                SamusGrappleMovement.DrawConnectedBeam(originalState, originalOamFrame, new(0, 0), SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                SamusGrappleBeamDrawing.DrawConnectedBeam(originalState, originalOamFrame, new(0, 0), SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);
                 OamBuffer originalOam = originalOamFrame.FinalizeAsOam();
-                SamusGrappleMovement.DrawConnectedBeam(stockState, stockOamFrame, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                SamusGrappleBeamDrawing.DrawConnectedBeam(stockState, stockOamFrame, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
                 OamBuffer stockOam = stockOamFrame.FinalizeAsOam();
-                SamusGrappleMovement.DrawConnectedBeam(editedState, editedOamFrame, new(0, 0), changed, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                SamusGrappleBeamDrawing.DrawConnectedBeam(editedState, editedOamFrame, new(0, 0), changed, standardObjects: SpriteFrameTestArtwork.StandardObjects);
                 OamBuffer editedOam = editedOamFrame.FinalizeAsOam();
                 AssertTrue(originalOam.ImageEquals(stockOam), "Stock JSON preserves entire native OAM");
                 AssertEqual((stockOam.LastFinalizedSpriteCount * 4), (editedOam.LastFinalizedSpriteCount * 4), "Visual edit preserves segment count");

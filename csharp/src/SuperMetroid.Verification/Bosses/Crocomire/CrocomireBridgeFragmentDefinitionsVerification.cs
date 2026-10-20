@@ -33,8 +33,8 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         // $86:92A5 reads the seed without advancing it; generating one would fail here.
         enemies.VerificationServices().ReadRandom = () => 0x1234;
-        enemies.CrocomireBehavior.CrocomireDeath = death;
-        Action spawn = enemies.CrocomireBehavior.SpawnNextCrocomireBridgeFragment;
+        enemies.CrocomireBehavior.Access.CrocomireDeath = death;
+        Action spawn = enemies.CrocomireBehavior.BridgeCollapse.SpawnNextCrocomireBridgeFragment;
 
         for (ushort fragment = 0; fragment < 11; fragment++)
         {

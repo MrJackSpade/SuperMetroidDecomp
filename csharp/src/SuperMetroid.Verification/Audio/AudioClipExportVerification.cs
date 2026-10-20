@@ -81,7 +81,7 @@ internal static class AudioClipExportVerification
             catalog,
             AudioBank.GreenBrinstar,
             new CartridgeAudioCommand.WritePort(ApuPort.Music, unchecked((byte)track)),
-            player => player.musicPortToSnes == track,
+            player => player.Music.musicPortToSnes == track,
             byte.MaxValue,
             frames + (frames - loopStart));
         AssertSequenceEqual(clip, independent[..(int)(frames * 2)], $"track {track} clip equals the independent render");
@@ -163,7 +163,7 @@ internal static class AudioClipExportVerification
         var backend = new ManagedSpcAudioBackend(catalog);
         backend.Player.dsp.OutputVoices = voices;
         var observer = new StartObserver(backend.Player, started);
-        backend.Player.observer = observer;
+        backend.Player.Music.observer = observer;
         short[] frame = new short[ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 2];
         var pcm = new List<short>();
         IReadOnlyList<CartridgeAudioCommand>[] script =

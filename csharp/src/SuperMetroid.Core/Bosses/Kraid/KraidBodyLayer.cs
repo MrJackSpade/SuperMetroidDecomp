@@ -1,0 +1,63 @@
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
+
+namespace SuperMetroid.Core.Bosses.Kraid;
+
+/// <summary>Kraid's BG2 body layer: his working map composed from the installed artwork and the tilemap of the frame he shows.</summary>
+[RoomLifetime]
+internal sealed class KraidBodyLayer
+{
+    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
+    private readonly EnemyRoomBinding _room;
+    /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
+    private readonly KraidEncounterAccess _access;
+
+    /// <summary>Builds the component from the collaborators it uses.</summary>
+    internal KraidBodyLayer(EnemyRoomBinding room, KraidEncounterAccess access)
+    {
+        _room = room;
+        _access = access;
+    }
+
+    /// <summary>
+    /// The body tilemap Kraid shows while he owns BG2, at his BG2 scroll (#1352); null when he does not. Resolved from
+    /// his installed artwork once per distinct body frame.
+    /// </summary>
+    internal BossBg2Layer? CaptureBodyLayer()
+    {
+        if (_access.Kraid is not { OwnsBg2Tilemap: true } state)
+            return null;
+        if (bodyTilemap is not { } cached || cached.Frame != state.DisplayedBody)
+        {
+            KraidBackgroundArtwork art = RequireBackgroundArtwork();
+            bodyTilemap = cached = (state.DisplayedBody, KraidBodyTilemap.Resolve(state.DisplayedBody, WorkingMap(), art));
+        }
+        return new BossBg2Layer(cached.Tilemap, state.Bg2Scroll);
+    }
+
+    /// <summary>The last body frame resolved, and its tilemap.</summary>
+    [NonSerialized]
+    private (KraidBodyFrame Frame, BossBg2Tilemap Tilemap)? bodyTilemap;
+
+    /// <summary>Kraid's working map composed from his installed artwork, and that artwork.</summary>
+    [NonSerialized]
+    private (KraidBackgroundArtwork Art, ushort[] Words)? workingMap;
+
+    /// <summary>The body the installed artwork composes; a rebound installation recomposes it.</summary>
+    internal ushort[] WorkingMap()
+    {
+        KraidBackgroundArtwork art = RequireBackgroundArtwork();
+        if (workingMap is { } composed && ReferenceEquals(composed.Art, art))
+            return composed.Words;
+        ushort[] words = KraidBodyTilemap.ComposeWorkingMap(art);
+        workingMap = (art, words);
+        bodyTilemap = null;
+        return words;
+    }
+
+    /// <summary>Kraid's installed BG2 artwork.</summary>
+    private KraidBackgroundArtwork RequireBackgroundArtwork() =>
+        _room.Artwork?.KraidBackground ?? throw new InvalidOperationException("Kraid BG2 requires installed enemy artwork.");
+}

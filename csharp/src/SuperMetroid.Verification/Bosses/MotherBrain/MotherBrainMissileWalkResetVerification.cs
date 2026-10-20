@@ -27,8 +27,8 @@ internal static class MotherBrainMissileWalkResetVerification
         RoomEnemySlot head = state.Head;
 
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        sequence.Body.Form = MotherBrainForm.ThirdPhase;
-        sequence.Phase3WalkCounter = MotherBrainWalkCredit.Of(64);
+        sequence.State.Body.Form = MotherBrainForm.ThirdPhase;
+        sequence.ThirdPhaseFight.Phase3WalkCounter = MotherBrainWalkCredit.Of(64);
         state.RainbowBeamSequence = sequence;
         state.Form = MotherBrainForm.ThirdPhase;
         state.WalkCounter = MotherBrainWalkCredit.Of(64);
@@ -38,8 +38,8 @@ internal static class MotherBrainMissileWalkResetVerification
         shot.Type = 0x8100; shot.Damage = 100; shot.Direction = 8;
         shot.Position = shot.Position.WithWhole(head.Position.Whole);
         shot.Radius = new(8, 8);
-        runtime.Enemies.MotherBrainBehavior.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, new SamusProjectileTypeWord(0x8100), 100);
-        AssertEqual(MotherBrainWalkCredit.Empty, sequence.Phase3WalkCounter, "a missile empties the sequence-owned walk credit");
+        runtime.Enemies.MotherBrainBehavior.Combat.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, new SamusProjectileTypeWord(0x8100), 100);
+        AssertEqual(MotherBrainWalkCredit.Empty, sequence.ThirdPhaseFight.Phase3WalkCounter, "a missile empties the sequence-owned walk credit");
         AssertEqual(MotherBrainWalkCredit.Empty, state.WalkCounter, "the encounter projection publishes the reset");
         Console.WriteLine("Mother Brain missile walk reset: the reaction reaches the counter's owner.");
     }
@@ -55,10 +55,10 @@ internal static class MotherBrainMissileWalkResetVerification
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { WalkCounter = MotherBrainWalkCredit.Of(0x0180) };
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         state.RainbowBeamSequence = sequence;
-        AssertEqual(MotherBrainWalkCredit.Of(0x0180), sequence.Phase3WalkCounter, "an attached sequence reads the encounter's credit");
+        AssertEqual(MotherBrainWalkCredit.Of(0x0180), sequence.ThirdPhaseFight.Phase3WalkCounter, "an attached sequence reads the encounter's credit");
         state.WalkCounter = state.WalkCounter.SpendForShot(MotherBrainWalkCredit.StepCredit);
-        AssertEqual(MotherBrainWalkCredit.Of(0x0080), sequence.Phase3WalkCounter, "a spend through the encounter reaches the sequence");
-        sequence.Phase3WalkCounter = MotherBrainWalkCredit.Of(0x0040);
+        AssertEqual(MotherBrainWalkCredit.Of(0x0080), sequence.ThirdPhaseFight.Phase3WalkCounter, "a spend through the encounter reaches the sequence");
+        sequence.ThirdPhaseFight.Phase3WalkCounter = MotherBrainWalkCredit.Of(0x0040);
         AssertEqual(MotherBrainWalkCredit.Of(0x0040), state.WalkCounter, "the sequence's writes are the encounter's");
         Console.WriteLine("Mother Brain walk credit: the encounter and its attached sequence share one word.");
     }

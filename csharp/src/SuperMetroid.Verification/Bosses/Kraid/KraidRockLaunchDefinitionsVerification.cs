@@ -40,7 +40,7 @@ internal static class KraidRockLaunchDefinitionsVerification
         int reads = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return random; };
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Kraid rock must not advance RNG.");
-        Func<RoomEnemySlot, bool> spawn = enemies.KraidBehavior.SpawnKraidSpitRock;
+        Func<RoomEnemySlot, bool> spawn = enemies.KraidBehavior.Head.SpawnKraidSpitRock;
         var body = enemies.SlotTable.Slots[0];
         var rock = enemies.Projectiles.EnemyProjectiles[^1];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

@@ -21,22 +21,22 @@ internal static class EndingWavySamusTests
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var maps = installed.LoadMaps();
         var scene = new EndingCreditsState(new CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
-        scene.BindObjectArtwork(installed.LoadEndingObjectArt());
-        scene.BindPaletteArtwork(installed.LoadEndingPalettes());
-        scene.BindPaletteFxColors(maps.RoomPaletteFx);
-        scene.BindEndingFont(maps.EndingFont);
-        scene.BindEndingText(maps.EndingText);
-        scene.LoadCreditsAndPostCreditsAssets();
-        scene.SetupPostCreditsBlank();
-        scene.Phase = EndingCreditsPhase.PostCreditsShootingStars;
-        scene.PhaseTimer = 1;
-        scene.Brightness = 15;
+        scene.InstalledArtwork.BindObjectArtwork(installed.LoadEndingObjectArt());
+        scene.InstalledArtwork.BindPaletteArtwork(installed.LoadEndingPalettes());
+        scene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
+        scene.Stage.BindEndingFont(maps.EndingFont);
+        scene.InstalledArtwork.BindEndingText(maps.EndingText);
+        scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();
+        scene.CreditsRoll.SetupPostCreditsBlank();
+        scene.Stage.Phase = EndingCreditsPhase.PostCreditsShootingStars;
+        scene.Stage.PhaseTimer = 1;
+        scene.Stage.Brightness = 15;
         Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<BgSubscreenAddRenderLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();
         Rgba32[]? previous = null;
         for (int age = 0; age < 180; age++)
         {
-            Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
+            Require(scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             var wave = snapshot.LayersOf<BgSubscreenAddRenderLayer>().Single();
             for (int line = 0; line < 224; line++)
@@ -80,7 +80,7 @@ internal static class EndingWavySamusTests
             }
             scene.Step();
         }
-        Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus, "Result panel replaces the wave after its wait");
+        Require(scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus, "Result panel replaces the wave after its wait");
         Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<BgSubscreenAddRenderLayer>().Any(), "Result panel disables BG3 addition");
         Console.WriteLine($"{device.Kind}: ending wave native scrolls, moving blue pixels, BG2-only addition and 180-frame lifecycle passed.");
 

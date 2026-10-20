@@ -269,7 +269,7 @@ internal static class EnemyTileArtworkKraidVerification
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         Action<RoomEnemySlot, KraidEnemyState, int,
-                KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.AdvanceKraidDeathBg3Transfer;
+                KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.Death.AdvanceKraidDeathBg3Transfer;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         var state = new KraidEnemyState();
         var queue = new VramWriteQueue();
@@ -351,7 +351,7 @@ internal static class EnemyTileArtworkKraidVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
-        Action upload = enemies.KraidBehavior.UploadKraidRoomBackgroundTiles;
+        Action upload = enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles;
         upload();
         return BgArtworkFixtures.ComposedVram(vram);
     }
@@ -361,7 +361,7 @@ internal static class EnemyTileArtworkKraidVerification
     {
         KraidHeadFrame frame = KraidHeadFrame.ByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
         var state = new KraidEnemyState();
-        KraidBehavior.TransferKraidHeadTilemap(state, frame);
+        KraidHead.TransferKraidHeadTilemap(state, frame);
         return (state, KraidBodyFixtures.Shown(artwork, state));
     }
 
@@ -372,7 +372,7 @@ internal static class EnemyTileArtworkKraidVerification
     private static KraidEnemyState InitializeKraidBackground(EnemyTileArtworkCatalog artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
-        Action<KraidEnemyState> initialize = enemies.KraidBehavior.InitializeKraidBackground;
+        Action<KraidEnemyState> initialize = enemies.KraidBehavior.Rise.InitializeKraidBackground;
         var state = new KraidEnemyState();
         initialize(state);
         return state;
@@ -382,8 +382,8 @@ internal static class EnemyTileArtworkKraidVerification
     private static ushort[] ShowKraidVisiblePages(EnemyTileArtworkCatalog artwork)
     {
         KraidEnemyState state = InitializeKraidBackground(artwork);
-        KraidBehavior.TransferKraidTopTilemap(state);
-        KraidBehavior.TransferKraidBottomTilemap(state);
+        KraidBackground.TransferKraidTopTilemap(state);
+        KraidBackground.TransferKraidBottomTilemap(state);
         AssertEqual(1, state.TopTilemapUploadCount, "Kraid upper page transfer count");
         AssertEqual(1, state.BottomTilemapUploadCount, "Kraid lower page transfer count");
         return KraidBodyFixtures.Shown(artwork, state);

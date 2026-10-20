@@ -97,7 +97,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             Eye = eye,
             Tentacles = tentacles,
         };
-        enemies.PhantoonBehavior.Phantoon = state;
+        enemies.PhantoonBehavior.Combat.Phantoon = state;
         for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
         {
             body.Health = unchecked((ushort)(band * 312 + 1));
@@ -107,7 +107,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                 cgram.SetColor(PhantoonColorRomData.BodyDestination + color, new Bgr555(0, 0, 0));
             state.Parts[eye.SlotIndex].FadeNumerator = 1;
             state.Parts[eye.SlotIndex].FadeComplete = false;
-            enemies.PhantoonBehavior.AdvancePhantoonFadeIn(body, state, 0);
+            enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, 0);
             AssertBodyBand(band, $"Phantoon live materialization band {band}");
             AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
                 $"Phantoon fade-in band {band} retains native numerator advance");
@@ -123,7 +123,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
 
         state.Parts[eye.SlotIndex].FadeNumerator = 1;
         state.Parts[eye.SlotIndex].FadeComplete = false;
-        enemies.PhantoonBehavior.AdvancePhantoonFadeOut(state, 0);
+        enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, 0);
         for (int color = 0; color < PhantoonColorRomData.FadeOutCount; color++)
             AssertEqual(colors.ResolveFadeOut(color),
                 cgram.Colors[PhantoonColorRomData.BodyDestination + color],
@@ -133,7 +133,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
 
         state.Parts[eye.SlotIndex].FadeDenominator = 0;
         state.Parts[eye.SlotIndex].FadeNumerator = 1;
-        bool complete = enemies.PhantoonBehavior.AdvanceWreckedShipPowerPalette(state.Parts[eye.SlotIndex]);
+        bool complete = enemies.PhantoonBehavior.Death.AdvanceWreckedShipPowerPalette(state.Parts[eye.SlotIndex]);
         AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
         for (int color = 0; color < PhantoonColorRomData.PowerOnCount; color++)
             AssertEqual(colors.ResolvePowerOn(color),

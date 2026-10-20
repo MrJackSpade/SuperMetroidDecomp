@@ -78,15 +78,15 @@ internal static class MotherBrainAnimationsVerification
         foreach (MotherBrainHeadProgram program in new[] { MotherBrainHeadProgram.Initial, MotherBrainHeadProgram.NeutralPhase2, MotherBrainHeadProgram.Laser })
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
-            MotherBrainBehavior.SetMotherBrainBrainProgram(state, program);
+            MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, program);
             var steps = MotherBrainAnimations.Head.Steps(program);
             var shown = steps.OfType<AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue>.ShowStep>().First();
             int duration = shown.Duration;
             for (int draw = 0; draw < duration; draw++)
-                AssertEqual((MotherBrainHeadFrame?)shown.Frame, enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null),
+                AssertEqual((MotherBrainHeadFrame?)shown.Frame, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null),
                     $"{program} shows its first frame on draw {draw}");
             AssertEqual((ushort)(duration + 1), state.BrainFrameTimer, $"{program}'s timer counts up past the duration");
-            enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);
+            enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
             AssertEqual(1, state.BrainFrameTimer, $"{program} installs its next frame once the timer exceeds the duration");
             AssertTrue(MotherBrainAnimations.Head.Steps((state.BrainCursor ?? throw new InvalidOperationException("Verification requires state.BrainCursor.")).Program)[state.BrainCursor.Value.Position] is AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue>.ShowStep, $"{program}'s cursor rests on the frame it shows");
         }
@@ -102,9 +102,9 @@ internal static class MotherBrainAnimationsVerification
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             enemies.VerificationServices().ReadRandom = () => random;
-            MotherBrainBehavior.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.NeutralPhase2Hold);
+            MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.NeutralPhase2Hold);
             for (int draw = 0; draw <= 8; draw++)
-                enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);
+                enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
             AssertEqual(holds ? new AnimationProgramCursor<MotherBrainHeadProgram>(MotherBrainHeadProgram.NeutralPhase2Hold, 0)
                     : new AnimationProgramCursor<MotherBrainHeadProgram>(MotherBrainHeadProgram.NeutralPhase2Hold, 2),
                 state.BrainCursor, $"random {random} {(holds ? "holds" : "leaves")} the phase-two neutral pose");
@@ -113,9 +113,9 @@ internal static class MotherBrainAnimationsVerification
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             enemies.VerificationServices().ReadRandom = () => random;
-            MotherBrainBehavior.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.DyingDroolLoop);
+            MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.DyingDroolLoop);
             for (int draw = 0; draw <= 2; draw++)
-                enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);
+                enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
             AssertEqual(bursts ? MotherBrainHeadProgram.DyingDroolBurst : MotherBrainHeadProgram.DyingDroolLoop, (state.BrainCursor ?? throw new InvalidOperationException("Verification requires state.BrainCursor.")).Program,
                 $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
         }
@@ -133,10 +133,10 @@ internal static class MotherBrainAnimationsVerification
         Position16<RoomPixels> origin = state.Body.Position.Whole;
         void Run(MotherBrainBodyProgram program)
         {
-            MotherBrainBehavior.SetMotherBrainBodyProgram(state, program);
+            MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, program);
             for (int update = 0; update < 256; update++)
             {
-                enemies.MotherBrainBehavior.AdvanceMotherBrainSlotAnimation(state.Body, samus: null);
+                enemies.MotherBrainBehavior.Body.AdvanceMotherBrainSlotAnimation(state.Body, samus: null);
                 if (state.HasBg2ScrollOverride)
                     scrolls.Add(state.Bg2Scroll);
             }

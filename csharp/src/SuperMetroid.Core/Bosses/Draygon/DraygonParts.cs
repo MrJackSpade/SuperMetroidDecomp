@@ -1,0 +1,394 @@
+﻿using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Drawing;
+
+namespace SuperMetroid.Core.Bosses.Draygon;
+
+/// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
+[RoomLifetime]
+internal sealed class DraygonParts
+{
+    /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
+    private readonly EnemyRoomBinding _room;
+    /// <summary>Allocates Draygon's goop, eye drops, and other enemy projectiles.</summary>
+    private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Publishes the room shaking caused by Draygon's attacks and death.</summary>
+    private readonly RoomEarthquake _earthquake;
+    /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
+    private readonly RoomSpriteObjectPool _spriteObjects;
+    /// <summary>Updates the body and eye palette bands used by Draygon's presentation.</summary>
+    private readonly EnemyPresentation _presentation;
+    /// <summary>Supplies frame timing for the body and linked-part AI callbacks.</summary>
+    private readonly EnemyFrameContext _frameContext;
+
+    /// <summary>Builds the component from the collaborators it uses.</summary>
+    internal DraygonParts(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, EnemyFrameContext frameContext)
+    {
+        _room = room;
+        _projectiles = projectiles;
+        _earthquake = earthquake;
+        _spriteObjects = spriteObjects;
+        _presentation = presentation;
+        _frameContext = frameContext;
+    }
+
+    /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
+    public DraygonEnemyState? Draygon { get; internal set; }
+
+    /// <summary>Ports <c>InitAI_DraygonBody</c> at <c>$A5:8687</c>.</summary>
+    internal void InitializeDraygonBody(RoomEnemySlot body)
+    {
+        if (body.SlotIndex != 0)
+            throw new InvalidDataException("Draygon's body must own native enemy slot $0000.");
+
+        // The native copy targets colors 144..168. This runtime has one concrete CGRAM
+        // surface instead of a second fade-target array, so publish those exact 25 colors
+        // immediately; the room's normal fade-in controls when they become visible.
+        (_room.Artwork?.DraygonColors ?? throw new InvalidOperationException(
+            "Draygon requires installed color artwork.")).ApplyIntro(_presentation.Cgram);
+
+        // $7E:2000 is the enemy BG2 staging surface: all $800 words are filled, not merely the currently visible page.
+        // Draygon owns that image (#1354); his body frames draw into it and it publishes as his body on BG2.
+        _presentation.AttachBg2Image(new EnemyBg2Image(EnemyBg2SurfaceDefinitions.BlankTile.Raw));
+
+        body.PaletteIndex = EnemyPaletteBits.Palette7;
+        body.InstructionTimer = NativeCountdown.Start(1);
+
+        _frameContext.RequestFullSweep();
+        Draygon = new DraygonEnemyState(body)
+        {
+            BackgroundTilemapPrepared = true,
+            RoomLoadingIrqCommand = RoomLoadingInterruptCommand.BeginHudDraw,
+            MinimapDisabledAndBossTilesExplored = true,
+            Function = DraygonAiFunction.IntroInitialDelay,
+        };
+        body.SetSpeciesState(Draygon, Draygon.ClearWithRecord);
+        Draygon.SetCursor(body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingLeftIdle));
+        Draygon.DisabledCannonWords.Add(DraygonCannonControlWord.UnusedBottom);
+    }
+
+    /// <summary>Ports the independent initializers at <c>$A5:C46B/C599/C5AD</c>.</summary>
+    internal void InitializeDraygonPart(RoomEnemySlot part)
+    {
+        DraygonEnemyState state = Draygon ??
+            throw new InvalidDataException("Draygon part appeared before the body record.");
+
+        part.InstructionTimer = NativeCountdown.Start(1);
+        switch (DraygonPartDefinitions.Parts[part.EnemyDefinitionPointer])
+        {
+            case DraygonPart.Eye:
+                if (part.SlotIndex != 1)
+                    throw new InvalidDataException("Draygon's eye must own native slot $0040.");
+                // Inert until the body publishes facing AI.
+                var eyeState = new DraygonEyeState { Function = DraygonEyeFunction.Inert };
+                part.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
+                state.Eye = part;
+                state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingLeftIdle));
+                return;
+
+            case DraygonPart.Tail:
+                if (part.SlotIndex != 2)
+                    throw new InvalidDataException("Draygon's tail must own native slot $0080.");
+                part.PaletteIndex = EnemyPaletteBits.Palette7;
+                state.Tail = part;
+                state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingLeftInitialFakeWhip));
+                return;
+
+            case DraygonPart.Arms:
+                if (part.SlotIndex != 3)
+                    throw new InvalidDataException("Draygon's arms must own native slot $00C0.");
+                // Body init briefly writes $9813 before this record exists. Retail part init
+                // clears that lost write and installs the ordinary idle loop at $97E7.
+                part.PaletteIndex = EnemyPaletteBits.Palette7;
+                part.Layer = 2;
+                state.Arms = part;
+                state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftIdle));
+                return;
+
+            case DraygonPart.Body:
+            default:
+                throw new InvalidDataException(
+                    $"Enemy ${(int)part.EnemyDefinitionPointer:X4} is not a Draygon part.");
+        }
+    }
+
+    /// <summary>Ports the no-op tail/arms main AI and the active eye dispatcher.</summary>
+    internal void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
+    {
+        if (part.EnemyDefinitionPointer is EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms)
+            return;
+        if (part.EnemyDefinitionPointer != EnemyDefinitionId.DraygonEye)
+            throw new InvalidDataException("Draygon part dispatcher received another family.");
+
+        DraygonEyeFunction function = part.RequireSpeciesState<DraygonEyeState>().Function
+            ?? throw new InvalidDataException("Draygon's eye has no function.");
+        switch (function)
+        {
+            case DraygonEyeFunction.Inert:
+                return;
+            case DraygonEyeFunction.FacingLeft:
+                TrackSamusWithDraygonEye(part, samus, facing: HorizontalDirection.Left);
+                return;
+            case DraygonEyeFunction.FacingRight:
+                TrackSamusWithDraygonEye(part, samus, facing: HorizontalDirection.Right);
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined Draygon eye function {function}.");
+        }
+    }
+
+    /// <summary>Restarts a linked Draygon part's program on its next update, as a native list install does.</summary>
+    internal void StartDraygonProgram(RoomEnemySlot part, DraygonProgram program)
+    {
+        DraygonEnemyState state = Draygon ??
+            throw new InvalidDataException("Draygon program started without encounter state.");
+        state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(program));
+        part.InstructionTimer = NativeCountdown.Start(1);
+    }
+
+    /// <summary>
+    /// Runs a Draygon part's program where the enemy instruction interpreter would: the frame expires on the update
+    /// its native timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
+    /// part. The part's loop counter is its native timer word.
+    /// </summary>
+    internal void AdvanceDraygonPartAnimation(RoomEnemySlot part, SamusState? samus)
+    {
+        DraygonEnemyState state = Draygon ??
+            throw new InvalidDataException("Draygon part ran without encounter state.");
+        ushort oldTimer = part.InstructionTimer.RawValue;
+        part.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        if (oldTimer != 1)
+        {
+            part.ExtraProperties = part.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            return;
+        }
+
+        AnimationProgramCursor<DraygonProgram> cursor = state.Cursor(part);
+        NativeCountdown counter = part.Timer;
+        AnimationProgramAdvance<DraygonFrame> advance = DraygonAnimations.Programs.Advance(ref cursor, ref counter,
+            (cue, continuation) => ApplyDraygonCue(state, part, samus, cue));
+        part.Timer = counter;
+        switch (advance)
+        {
+            case AnimationProgramAdvance<DraygonFrame>.Show shown:
+                state.SetCursor(part, cursor);
+                part.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                part.Frame = DraygonFrameDefinitions.ShownFrames.Of(shown.Frame);
+                part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                return;
+            case AnimationProgramAdvance<DraygonFrame>.Wait waiting:
+                state.SetCursor(part, cursor);
+                part.InstructionTimer = NativeCountdown.FromRaw((ushort)waiting.Duration);
+                return;
+            case AnimationProgramAdvance<DraygonFrame>.Hold:
+                // The native sleep: the timer wraps from zero and the last frame stays.
+                state.SetCursor(part, cursor);
+                return;
+            case AnimationProgramAdvance<DraygonFrame>.Stop:
+                // The native stop deletes the part and leaves its instruction pointer unwritten.
+                part.Properties = part.Properties.With(EnemyProperties.Deleted);
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined animation program advance {advance}.");
+        }
+    }
+
+    /// <summary>
+    /// Carries out one cue of a Draygon program run by <paramref name="part"/>. Program starts write the parts'
+    /// stored cursors, so the running part's own write is replaced when its update ends, as the native interpreter's
+    /// final instruction-pointer store replaces it.
+    /// </summary>
+    /// <returns>Always null: Draygon's cues never redirect the running program.</returns>
+    private DraygonProgram? ApplyDraygonCue(DraygonEnemyState state, RoomEnemySlot part, SamusState? samus, DraygonCue cue)
+    {
+        switch (cue)
+        {
+            case DraygonCue.StartPartPrograms start:
+                state.SetCursor(state.Body, AnimationProgramCursor<DraygonProgram>.Start(start.Body));
+                state.SetCursor(RequirePart(state.Eye), AnimationProgramCursor<DraygonProgram>.Start(start.Eye));
+                state.SetCursor(RequirePart(state.Tail), AnimationProgramCursor<DraygonProgram>.Start(start.Tail));
+                state.SetCursor(RequirePart(state.Arms), AnimationProgramCursor<DraygonProgram>.Start(start.Arms));
+                state.Arms.InstructionTimer = NativeCountdown.Start(1);
+                state.Tail.InstructionTimer = NativeCountdown.Start(1);
+                state.Eye.InstructionTimer = NativeCountdown.Start(1);
+                state.Body.InstructionTimer = NativeCountdown.Start(1);
+                return null;
+            case DraygonCue.BeginHudDraw:
+                state.RoomLoadingIrqCommand = RoomLoadingInterruptCommand.BeginHudDraw;
+                return null;
+            case DraygonCue.SetEyeFunction eyeFunction:
+                (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = eyeFunction.Function;
+                return null;
+            case DraygonCue.SetOwnEyeFunction ownFunction:
+                part.RequireSpeciesState<DraygonEyeState>().Function = ownFunction.Function;
+                return null;
+            case DraygonCue.DisplaceBodyGraphics displace:
+                state.BodyGraphicsDisplacement = displace.Offset;
+                return null;
+            case DraygonCue.QueueSound { Sound.Library: SoundEffectLibrary.Library2 } sound:
+                state.LastSoundLibrary2 = sound.Sound;
+                return null;
+            case DraygonCue.QueueSound { Sound.Library: SoundEffectLibrary.Library3 } sound:
+                state.LastSoundLibrary3 = sound.Sound;
+                return null;
+            case DraygonCue.SpawnDyingObject dying:
+                SpawnRandomDyingDraygonObject(state, dying.Kind);
+                return null;
+            case DraygonCue.ParalyseTailAndArms:
+                StartDraygonProgram(RequirePart(state.Tail), DraygonProgram.Sleep);
+                StartDraygonProgram(RequirePart(state.Arms), DraygonProgram.Sleep);
+                return null;
+            case DraygonCue.SetBodyIntangible:
+                state.Body.Properties = state.Body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                return null;
+            case DraygonCue.SetBodyFunction bodyFunction:
+                state.Function = bodyFunction.Function;
+                return null;
+            case DraygonCue.TailWhipHit:
+                ApplyDraygonTailWhipHit(state, samus);
+                return null;
+            case DraygonCue.SpawnGoop goop:
+                SpawnDraygonGoop(state, goop.Direction == HorizontalDirection.Right);
+                return null;
+            default:
+                throw new InvalidOperationException($"Undefined Draygon cue {cue}.");
+        }
+    }
+
+    /// <summary>A linked Draygon part, failing if its record never loaded.</summary>
+    internal static RoomEnemySlot RequirePart(RoomEnemySlot? part) =>
+        part ?? throw new InvalidDataException("A Draygon program ran before all four parts loaded.");
+
+    /// <summary>Ports the eye direction partition at <c>$A5:C48D/C513</c>.</summary>
+    internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, HorizontalDirection facing)
+    {
+        // Native emission precedes the angle-change early return, so a stationary
+        // target must not suppress the periodic particle. It shares the real pool.
+        if ((eye.FrameCounter & DraygonEyeEffects.CadenceMask) == 0)
+            _projectiles.SpawnRoomGraphicsDustExplosion(
+                new(unchecked((ushort)(eye.Position.X.Whole + (facing == HorizontalDirection.Right
+                    ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset))), unchecked((ushort)(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset))),
+                DraygonEyeEffects.DustVariant);
+        if (samus is null)
+            return;
+
+        short deltaX = unchecked((short)(samus.Position.X.Whole - unchecked((ushort)(
+            eye.Position.X.Whole + (facing == HorizontalDirection.Right ? 24 : -24)))));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - unchecked((ushort)(eye.Position.Y.Whole - 32))));
+        byte angle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).RawValue;
+        DraygonEyeState eyeState = eye.RequireSpeciesState<DraygonEyeState>();
+        if (angle == (byte)eyeState.LookAngle)
+            return;
+
+        eyeState.LookAngle = angle;
+        DraygonProgram look = angle switch
+        {
+            < 32 => facing == HorizontalDirection.Right
+                ? DraygonProgram.EyeFacingRightLookingUp
+                : DraygonProgram.EyeFacingLeftLookingUp,
+            < 96 => facing == HorizontalDirection.Right
+                ? DraygonProgram.EyeFacingRightLookingRight
+                : DraygonProgram.EyeFacingLeftLookingRight,
+            < 160 => facing == HorizontalDirection.Right
+                ? DraygonProgram.EyeFacingRightLookingDown
+                : DraygonProgram.EyeFacingLeftLookingDown,
+            < 224 => facing == HorizontalDirection.Right
+                ? DraygonProgram.EyeFacingRightLookingLeft
+                : DraygonProgram.EyeFacingLeftLookingLeft,
+            _ => facing == HorizontalDirection.Right
+                ? DraygonProgram.EyeFacingRightLookingUp
+                : DraygonProgram.EyeFacingLeftLookingUp,
+        };
+        StartDraygonProgram(eye, look);
+        eye.Timer = NativeCountdown.Start(0);
+    }
+
+    /// <summary>Places a death-animation sprite at a room-RNG offset from the body.</summary>
+    private void SpawnRandomDyingDraygonObject(
+        DraygonEnemyState state,
+        RoomSpriteObjectKind kind)
+    {
+        int random = _room.Random.Generate();
+        short xOffset = unchecked((short)((random & 127) - 64));
+        short yOffset = unchecked((short)((SnesLittleEndian.HighByte(random) & 127) - 64));
+        if (_spriteObjects.SpawnRoomSpriteObject(
+                new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(state.Body.Position.Y.Whole + yOffset))),
+                kind,
+                graphicsIndex: 0) is not null)
+        {
+            state.DeathAnimationObjectsSpawned++;
+        }
+    }
+
+    /// <summary>Ports tail instruction <c>$A5:9B9A</c>, including suit damage.</summary>
+    private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState? samus)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("Draygon's tail-hit instruction requires Samus state.");
+
+        state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
+        ushort rawDamage = state.Body.Definition.Damage;
+        ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            ? unchecked((ushort)(rawDamage >> 2))
+            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
+                ? unchecked((ushort)(rawDamage >> 1))
+                : rawDamage;
+        samus.Health = samus.Health <= damage
+            ? 0
+            : samus.Health - damage;
+
+        // `$A5:9B9A` also publishes the same 32-frame, type-seven quake used by the
+        // cartridge's grabbed-tail impact. Keeping it on the shared room-enemy surface lets
+        // the ordinary camera renderer observe the hit instead of reducing it to HP loss.
+        _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
+        _earthquake.EarthquakeType = 7;
+
+        state.TailWhipHits++;
+        _spriteObjects.SpawnRoomSpriteObject(
+            new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + 16))),
+            RoomSpriteObjectKind.DustCloud,
+            graphicsIndex: 0);
+    }
+
+    /// <summary>Ports the two body instruction producers at <c>$A5:9F7C/9FAE</c>.</summary>
+    internal void SpawnDraygonGoop(DraygonEnemyState state, bool movingRight)
+    {
+        RoomEnemyProjectileSlot? goop = _projectiles.AllocateEnemyProjectile();
+        if (goop is null)
+            return;
+
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            goop,
+            RoomEnemyProjectileKind.DraygonGoop,
+            graphicsIndex: EnemyPaletteBits.Palette2);
+        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.Goop));
+        goop.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + (movingRight ? 24 : -28))), unchecked((ushort)(state.Body.Position.Y.Whole - 16))));
+
+        int random = _room.Random.Generate();
+        byte angle = unchecked((byte)((random & 63) + (movingRight ? 192 : 128)));
+        SetDraygonProjectileVelocity(goop, new SnesByteAngle(angle), DraygonProjectileSpeeds.Goop);
+        state.GoopProjectilesSpawned++;
+    }
+
+    /// <summary>Splits sine-derived projectile velocity into native 8.8 and fraction words.</summary>
+    internal static void SetDraygonProjectileVelocity(
+        RoomEnemyProjectileSlot projectile,
+        SnesByteAngle angle,
+        ushort speed)
+    {
+        projectile.DirectionParameter = angle.RawValue;
+        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, speed);
+        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, speed);
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesFixedPosition.WholeOf(xMagnitude)));
+        projectile.Variable0 = unchecked((ushort)xMagnitude);
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(SnesFixedPosition.WholeOf(yMagnitude)));
+        projectile.Variable1 = unchecked((ushort)yMagnitude);
+    }
+}

@@ -56,7 +56,7 @@ internal static class GoldenTorizoRoomSetupVerification
                     EnemyDefinitionId.GoldenTorizo);
             AssertTrue(boss.SpritemapPointer != GoldenTorizoFacingScreenFrame,
                 "forced left-turn starts before the shared facing-screen frame");
-            (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo
+            (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo
                 ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(program);
             boss.InstructionTimer = NativeCountdown.Start(1);
         }

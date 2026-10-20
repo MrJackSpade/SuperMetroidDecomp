@@ -28,9 +28,9 @@ internal static class AudioMusicProgramsVerification
             programCount += bank.MusicPrograms.Count;
             instructionCount += bank.MusicPrograms.Sum(program => program.Instructions.Count);
             var raw = new ManagedSpcPlayer();
-            raw.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
+            raw.Uploads.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
             if (definition.Bank != AudioBank.SpcEngine)
-                raw.Upload(stock.GetUpload(definition.Bank).Span);
+                raw.Uploads.Upload(stock.GetUpload(definition.Bank).Span);
             foreach ((int address, byte value) in SpcMusicDefinitionCodec.CompileBank(bank))
             {
                 AssertEqual(

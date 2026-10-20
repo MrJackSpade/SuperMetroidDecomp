@@ -115,7 +115,7 @@ public static class StockAttractDemoScenes
     {
         Demonstration.LandingSite => new(
             Room: RoomHeaderDefinitions.LandingSite,
-            Door: DoorDefinitions.Parlor1,
+            Door: CrateriaDoorDefinitions.Parlor1,
             CameraPosition: CameraAtScreen(new(4, 4)),
             SamusOffset: new(1, 64),
             Duration: 1235,
@@ -131,7 +131,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractLandingSite),
         Demonstration.MissileDoor => new(
             Room: RoomHeaderDefinitions.ConstructionZone,
-            Door: DoorDefinitions.MorphBall1,
+            Door: BrinstarDoorDefinitions.MorphBall1,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-46, GroundedY(8, demonstration)),
             Duration: 337,
@@ -147,7 +147,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractMissileDoor),
         Demonstration.PreSporeSpawnHall => new(
             Room: RoomHeaderDefinitions.SporeSpawnKihunters,
-            Door: DoorDefinitions.BigPink0,
+            Door: BrinstarDoorDefinitions.BigPink0,
             CameraPosition: CameraAtScreen(new(1, 0)),
             SamusOffset: new(-32, GroundedY(13, demonstration)),
             Duration: 378,
@@ -163,7 +163,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractPreSporeSpawnHall),
         Demonstration.SpeedBooster => new(
             Room: RoomHeaderDefinitions.FrogSpeedway,
-            Door: DoorDefinitions.UpperNorfairFarming0,
+            Door: NorfairDoorDefinitions.UpperNorfairFarming0,
             CameraPosition: CameraAtScreen(new(7, 0)),
             SamusOffset: new(72, GroundedY(10, demonstration)),
             Duration: 420,
@@ -179,7 +179,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractSpeedBooster),
         Demonstration.GrappleBeam => new(
             Room: RoomHeaderDefinitions.SpikyAcidSnakesTunnel,
-            Door: DoorDefinitions.UpperNorfairRefill1,
+            Door: NorfairDoorDefinitions.UpperNorfairRefill1,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-62, GroundedY(10, demonstration)),
             Duration: 444,
@@ -195,7 +195,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractGrappleBeam),
         Demonstration.PseudoScrewAttack => new(
             Room: RoomHeaderDefinitions.BigPink,
-            Door: DoorDefinitions.GreenHillZone0,
+            Door: BrinstarDoorDefinitions.GreenHillZone0,
             CameraPosition: CameraAtScreen(new(2, 6)),
             SamusOffset: new(39, GroundedY(10, demonstration)),
             Duration: 613,
@@ -211,7 +211,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractPseudoScrewAttack),
         Demonstration.IceBeam => new(
             Room: RoomHeaderDefinitions.BelowSpazer,
-            Door: DoorDefinitions.WestTunnel1,
+            Door: MaridiaDoorDefinitions.WestTunnel1,
             CameraPosition: CameraAtScreen(new(1, 1)),
             SamusOffset: new(86, GroundedY(10, demonstration)),
             Duration: 509,
@@ -227,7 +227,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractIceBeam),
         Demonstration.FirefleaRoom => new(
             Room: RoomHeaderDefinitions.GreenBrinstarFirefleas,
-            Door: DoorDefinitions.GreenBrinstarMainShaft3,
+            Door: BrinstarDoorDefinitions.GreenBrinstarMainShaft3,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(73, GroundedY(10, demonstration)),
             Duration: 410,
@@ -243,7 +243,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractFirefleaRoom),
         Demonstration.BrinstarDiagonalRoom => new(
             Room: RoomHeaderDefinitions.GreenHillZone,
-            Door: DoorDefinitions.BigPink3,
+            Door: BrinstarDoorDefinitions.BigPink3,
             CameraPosition: CameraAtScreen(new(5, 3)),
             SamusOffset: new(-30, GroundedY(12, demonstration)),
             Duration: 279,
@@ -259,7 +259,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractBrinstarDiagonalRoom),
         Demonstration.LowerNorfairEntrance => new(
             Room: RoomHeaderDefinitions.LavaDive,
-            Door: DoorDefinitions.KronicBoost2,
+            Door: NorfairDoorDefinitions.KronicBoost2,
             CameraPosition: CameraAtScreen(new(3, 0)),
             SamusOffset: new(75, GroundedY(10, demonstration)),
             Duration: 970,
@@ -275,7 +275,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractLowerNorfairEntrance),
         Demonstration.ScrewAttack => new(
             Room: RoomHeaderDefinitions.Flyway,
-            Door: DoorDefinitions.Parlor3,
+            Door: CrateriaDoorDefinitions.Parlor3,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-15, GroundedY(13, demonstration)),
             Duration: 213,
@@ -291,7 +291,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractScrewAttack),
         Demonstration.Dachora => new(
             Room: RoomHeaderDefinitions.Dachora,
-            Door: DoorDefinitions.BigPink1,
+            Door: BrinstarDoorDefinitions.BigPink1,
             CameraPosition: CameraAtScreen(new(4, 2)),
             SamusOffset: new(5, 128),
             Duration: 791,
@@ -307,7 +307,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractDachora),
         Demonstration.PrePhantoonHall => new(
             Room: RoomHeaderDefinitions.Basement,
-            Door: DoorDefinitions.WreckedShipMainShaft3,
+            Door: WreckedShipDoorDefinitions.WreckedShipMainShaft3,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(4, 96),
             Duration: 751,
@@ -323,7 +323,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractPrePhantoonHall),
         Demonstration.DiagonalShinespark => new(
             Room: RoomHeaderDefinitions.LandingSite,
-            Door: DoorDefinitions.Parlor1,
+            Door: CrateriaDoorDefinitions.Parlor1,
             CameraPosition: CameraAtScreen(new(3, 4)),
             SamusOffset: new(0, 176),
             Duration: 199,
@@ -339,7 +339,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractDiagonalShinespark),
         Demonstration.EyeDoor => new(
             Room: RoomHeaderDefinitions.KraidEyeDoor,
-            Door: DoorDefinitions.MiniKraid1,
+            Door: BrinstarDoorDefinitions.MiniKraid1,
             CameraPosition: CameraAtScreen(new(0, 1)),
             SamusOffset: new(-46, GroundedY(10, demonstration)),
             Duration: 723,
@@ -355,7 +355,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractEyeDoor),
         Demonstration.RedBrinstarElevator => new(
             Room: RoomHeaderDefinitions.Caterpillar,
-            Door: DoorDefinitions.AlphaPowerBomb0,
+            Door: BrinstarDoorDefinitions.AlphaPowerBomb0,
             CameraPosition: CameraAtScreen(new(0, 7)),
             SamusOffset: new(-86, GroundedY(10, demonstration)),
             Duration: 356,
@@ -371,7 +371,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractRedBrinstarElevator),
         Demonstration.Kraid => new(
             Room: RoomHeaderDefinitions.Kraid,
-            Door: DoorDefinitions.KraidEyeDoor1,
+            Door: BrinstarDoorDefinitions.KraidEyeDoor1,
             CameraPosition: CameraAtScreen(new(0, 1)),
             SamusOffset: new(-65, GroundedY(10, demonstration)),
             Duration: 319,
@@ -387,7 +387,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractKraid),
         Demonstration.TourianEntrance => new(
             Room: RoomHeaderDefinitions.Statues,
-            Door: DoorDefinitions.StatuesHallway1,
+            Door: CrateriaDoorDefinitions.StatuesHallway1,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-79, GroundedY(10, demonstration)),
             Duration: 407,
@@ -419,7 +419,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractGauntletEntrance),
         Demonstration.AdvancedGrappleBeam => new(
             Room: RoomHeaderDefinitions.MtEverest,
-            Door: DoorDefinitions.RedFish0,
+            Door: MaridiaDoorDefinitions.RedFish0,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(0, GroundedY(12, demonstration)),
             Duration: 818,
@@ -451,7 +451,7 @@ public static class StockAttractDemoScenes
             InputObject: DemoInputObjectDefinitions.AttractInfiniteBombJump),
         Demonstration.SpecialBeamAttack => new(
             Room: RoomHeaderDefinitions.GreenBrinstarMainShaft,
-            Door: DoorDefinitions.BrinstarPreMap1,
+            Door: BrinstarDoorDefinitions.BrinstarPreMap1,
             CameraPosition: CameraAtScreen(new(0, 4)),
             SamusOffset: new(-73, GroundedY(10, demonstration)),
             Duration: 394,

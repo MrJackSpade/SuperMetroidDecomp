@@ -183,7 +183,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5),
                 $"Mother Brain leg transfer {page} destination");
 
-            bool completed = enemies.MotherBrainBehavior.ProcessMotherBrainSpriteTileTransfer(state);
+            bool completed = enemies.MotherBrainBehavior.Ascent.ProcessMotherBrainSpriteTileTransfer(state);
             AssertEqual(page + 1 == MotherBrainLegTileTransferDefinitions.PageCount,
                 completed, $"Mother Brain leg transfer {page} completion frame");
             AssertEqual(completed ? 0 : page + 1, state.NextLegTilePage,

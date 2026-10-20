@@ -38,7 +38,7 @@ internal static class DmaArtworkBoundaryVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art, Presentation = { HudTileArtwork = maps.HudTiles } };
         var background = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(background));
-        Action upload = new Action(enemies.KraidBehavior.UploadKraidRoomBackgroundTiles);
+        Action upload = new Action(enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles);
         upload();
         var expected = new SnesVram();
         ImportedVramOracle.ExecuteQueued(expected, reference,
@@ -52,13 +52,13 @@ internal static class DmaArtworkBoundaryVerification
             "missing Kraid background artwork is not a cartridge fallback");
         enemies.TileArtwork = art;
 
-        Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.AdvanceKraidDeathBg3Transfer;
+        Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.Death.AdvanceKraidDeathBg3Transfer;
         foreach (bool queued in new[] { false, true })
         {
             var actual = new SnesVram(); expected = new SnesVram();
             enemies.Presentation.BindVram(BgArtworkFixtures.For(actual));
             var state = new KraidEnemyState(); var writes = new VramWriteQueue();
-            enemies.KraidBehavior.Kraid = state;
+            enemies.KraidBehavior.Access.Kraid = state;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount; quarter++)
             {

@@ -17,7 +17,7 @@ internal static class AudioSoundProgramsVerification
         string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
         ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
         var rawPlayer = new ManagedSpcPlayer();
-        rawPlayer.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
+        rawPlayer.Uploads.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
 
         int instructionCount = 0;
         foreach (AudioSoundProgramMetadata program in stock.SoundPrograms)

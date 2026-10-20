@@ -25,8 +25,8 @@ internal static class PhantoonMotionDefinitionsVerification
             native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native[i], definitions[i], "Phantoon compiled motion native word");
         }
-        Action<PhantoonPartState> forward = PhantoonBehavior.AdjustPhantoonForwardFigureEightSpeed;
-        Action<PhantoonPartState> reverse = PhantoonBehavior.AdjustPhantoonReverseFigureEightSpeed;
+        Action<PhantoonPartState> forward = PhantoonPatterns.AdjustPhantoonForwardFigureEightSpeed;
+        Action<PhantoonPartState> reverse = PhantoonPatterns.AdjustPhantoonReverseFigureEightSpeed;
         var words = new PhantoonPartState();
         ushort[] phases = [0, 1, 2, 3, 0xffff];
         ushort[] fractions = [0, 1, 0x5ff, 0x600, 0xefff, 0xf000, 0xf9ff, 0xfa00, 0xffff];

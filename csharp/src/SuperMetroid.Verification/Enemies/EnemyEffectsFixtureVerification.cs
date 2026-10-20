@@ -48,8 +48,8 @@ internal static class EnemyEffectsFixtureVerification
             Effect.MutableBg2WorkingTilemap.Fill(0x137);
             Effect.MutableBg2ScrollByScanline.Fill(19);
             Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
-            Enemies.CrocomireBehavior.Crocomire = Actor;
-            Enemies.CrocomireBehavior.CrocomireDeath = Effect;
+            Enemies.CrocomireBehavior.Access.Crocomire = Actor;
+            Enemies.CrocomireBehavior.Access.CrocomireDeath = Effect;
             Enemies.VerificationServices().ReadRandom = () => 0x1234;
         }
 
@@ -61,18 +61,18 @@ internal static class EnemyEffectsFixtureVerification
         {
             var address = (CrocomireMeltingTilemapAddress)source;
             if (address == CrocomireMeltingTilemapAddress.FirstTilemap)
-                Enemies.CrocomireBehavior.LoadFirstCrocomireMeltingTilemap(Actor);
+                Enemies.CrocomireBehavior.Melting.LoadFirstCrocomireMeltingTilemap(Actor);
             else if (address == CrocomireMeltingTilemapAddress.SecondTilemap)
-                Enemies.CrocomireBehavior.LoadSecondCrocomireMeltingTilemap(Actor);
+                Enemies.CrocomireBehavior.Melting.LoadSecondCrocomireMeltingTilemap(Actor);
             else
-                _ = Enemies.CrocomireBehavior.RequireCrocomireMeltingTilemap(address);
+                _ = Enemies.CrocomireBehavior.Melting.RequireCrocomireMeltingTilemap(address);
         }
 
         /// <summary>Runs one Crocomire melting step, selected from the fixture's Crocomire behavior, on its actor.</summary>
         internal void Call(Func<CrocomireBehavior, Action<CrocomireEnemyState>> select) => select(Enemies.CrocomireBehavior)(Actor);
 
         /// <summary>Advances the production melting behavior for the bound Crocomire actor.</summary>
-        internal void Dissolve() => new Action<CrocomireEnemyState, SamusState?>(Enemies.CrocomireBehavior.RunCrocomireMelting)(Actor, null);
+        internal void Dissolve() => new Action<CrocomireEnemyState, SamusState?>(Enemies.CrocomireBehavior.Melting.RunCrocomireMelting)(Actor, null);
     }
 
     /// <summary>Compares actor, effect, slots, RAM, audio, and PLM requests after a melt operation.</summary>

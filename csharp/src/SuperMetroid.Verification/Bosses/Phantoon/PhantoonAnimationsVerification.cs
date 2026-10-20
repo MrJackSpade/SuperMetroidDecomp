@@ -36,7 +36,7 @@ internal static class PhantoonAnimationsVerification
         eye.Bind(EnemyDefinitionId.PhantoonEye, eye.Definition);
         tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.Definition);
         mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.Definition);
-        enemies.PhantoonBehavior.Phantoon = new PhantoonEnemyState(body)
+        enemies.PhantoonBehavior.Combat.Phantoon = new PhantoonEnemyState(body)
         {
             Eye = eye,
             Tentacles = tentacles,
@@ -51,7 +51,7 @@ internal static class PhantoonAnimationsVerification
 
     /// <summary>The system's Phantoon state.</summary>
     private static PhantoonEnemyState RequireState(RoomEnemySystem enemies) =>
-        enemies.PhantoonBehavior.Phantoon ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
+        enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
 
     /// <summary>
     /// Every part program's typed steps equal its native list, and the eye-opening and mouth programs run their
@@ -239,7 +239,7 @@ internal static class PhantoonAnimationsVerification
     /// <summary>Spawns one destroyable flame through the real producer.</summary>
     private static RoomEnemyProjectileSlot SpawnDestroyable(RoomEnemySystem enemies, PhantoonFlameSpawnType type)
     {
-        AssertTrue(enemies.PhantoonBehavior.SpawnPhantoonDestroyableFlame(enemies.SlotTable.Slots[0], type, 0), $"the real {type} producer allocates a flame");
+        AssertTrue(enemies.PhantoonBehavior.Patterns.SpawnPhantoonDestroyableFlame(enemies.SlotTable.Slots[0], type, 0), $"the real {type} producer allocates a flame");
         return enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame);
     }
 
@@ -247,7 +247,7 @@ internal static class PhantoonAnimationsVerification
     private static void VerifyFlameProducers()
     {
         RoomEnemySystem starting = NewFlameSystem();
-        AssertTrue(starting.PhantoonBehavior.SpawnPhantoonStartingFlame(starting.SlotTable.Slots[0], 0), "the real starting producer allocates a flame");
+        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(starting.SlotTable.Slots[0], 0), "the real starting producer allocates a flame");
         AssertStarted(starting.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             PhantoonFlameProgram.StartingFlame, "starting flame");
         RoomEnemySystem casual = NewFlameSystem();

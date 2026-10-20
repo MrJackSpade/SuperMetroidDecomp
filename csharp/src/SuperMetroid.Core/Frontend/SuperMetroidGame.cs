@@ -417,7 +417,7 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.EndingAndCredits,
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (_, _) => CinematicPhases.DispatchEndingAndCredits(),
-                name: () => $"Ending: {Session.ScreenAs<EndingCreditsState>()?.Phase}",
+                name: () => $"Ending: {Session.ScreenAs<EndingCreditsState>()?.Stage.Phase}",
                 resumesNmiWait: () => Session.ScreenAs<EndingCreditsState>()?.ResumesAfterNmiWait == true),
             new GamePhase(SuperMetroidGameState.TransitionToDemoA,
                 MainLoopRandomCall.RuntimeOwned,

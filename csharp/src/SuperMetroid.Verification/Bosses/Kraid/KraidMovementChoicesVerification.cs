@@ -79,12 +79,12 @@ internal static class KraidMovementChoicesVerification
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         var foot = enemies.SlotTable.Slots[5];
         var part = new KraidPartState();
-        enemies.KraidBehavior.Kraid = state;
+        enemies.KraidBehavior.Access.Kraid = state;
         ushort rng = 0;
         int reads = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return rng; };
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Movement choice must not advance RNG.");
-        Action<RoomEnemySlot, RoomEnemySlot, KraidPartState> think = enemies.KraidBehavior.RunKraidSecondPhaseThinking;
+        Action<RoomEnemySlot, RoomEnemySlot, KraidPartState> think = enemies.KraidBehavior.Limbs.RunKraidSecondPhaseThinking;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             body.Position = body.Position.WithWholeX((ushort)raw);

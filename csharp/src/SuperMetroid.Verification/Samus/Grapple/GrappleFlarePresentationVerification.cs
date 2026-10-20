@@ -108,7 +108,7 @@ internal static class GrappleFlarePresentationVerification
             }
             int expectedFrame = native.Grapple.FlareAnimationFrame;
             ushort expectedTimer = native.Grapple.FlareAnimationTimer.RawValue;
-            if (SamusGrappleMovement.UsesBeamSpecificDrawingPath(native.Grapple.Phase) && native.Grapple.FlareCounter != 0)
+            if (SamusGrappleBeamDrawing.UsesBeamSpecificDrawingPath(native.Grapple.Phase) && native.Grapple.FlareCounter != 0)
             {
                 if (native.Grapple.FlareCounter == 1) { expectedFrame = 16; expectedTimer = 3; }
                 NativeWordCounterStep expectedStep = NativeWordCounter.Decrement(expectedTimer);
@@ -127,11 +127,11 @@ internal static class GrappleFlarePresentationVerification
                 }
             }
             var aFrame = new SpriteFrameBuffer(); var bFrame = new SpriteFrameBuffer(); var cFrame = new SpriteFrameBuffer();
-            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(native, aFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            bool visible = SamusGrappleBeamDrawing.DrawFlareBeforeSamus(native, aFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
             OamBuffer a = aFrame.FinalizeAsOam();
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(actual, bFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple catalog retains native flare visibility");
+            AssertEqual(visible, SamusGrappleBeamDrawing.DrawFlareBeforeSamus(actual, bFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple catalog retains native flare visibility");
             OamBuffer b = bFrame.FinalizeAsOam();
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(changed, cFrame, Position16<RoomPixels>.Zero, edited, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple art edit retains origin visibility gate");
+            AssertEqual(visible, SamusGrappleBeamDrawing.DrawFlareBeforeSamus(changed, cFrame, Position16<RoomPixels>.Zero, edited, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple art edit retains origin visibility gate");
             OamBuffer c = cFrame.FinalizeAsOam();
             AssertEqual((expectedFrame, expectedTimer), (actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.ImageEquals(b) && (a.LastFinalizedSpriteCount * 4) == (b.LastFinalizedSpriteCount * 4), "Grapple stock parts preserve native complete OAM");

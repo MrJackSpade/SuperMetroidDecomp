@@ -9,7 +9,7 @@ internal static class RidleyNeutralTailVerification
     /// <summary>Confirms an armed Power Bomb resets tail function and angle delta, preserves animated foot displacement, and leaves inactive or death modes unchanged.</summary>
     internal static void VerifyRidleyPowerBombNeutralTail()
     {
-        Action<RidleyEnemyState, SamusBombProjectileSystem> prepare = RidleyBehavior.PrepareNorfairRidleyCombatFrame;
+        Action<RidleyEnemyState, SamusBombProjectileSystem> prepare = NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame;
         var armed = new SamusBombProjectileSystem();
         armed.PowerBombExplosion.Arm();
         var unarmed = new SamusBombProjectileSystem();

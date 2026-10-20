@@ -31,10 +31,10 @@ internal static class MotherBrainGlitchMechanicsVerification
         AssertEqual(SamusMovementType.SpinJumping, SamusPoseMetadata.ReadMovementType(spinning), "cached $0A1F keeps the spin-jump movement type");
 
         // $90:9DB2 tests only the Screw Attack poses; any other pose rewinds to frame $0A.
-        SamusPoseTransitions.ApplyWallContactAnimationRewind(spinning);
+        SamusAerialPoseTransitions.ApplyWallContactAnimationRewind(spinning);
         AssertEqual(0x0a, spinning.AnimationFrame, "wall-contact rewind runs for the drained pose");
         // $91:EABE is gated by the spin mover, i.e. the cached type, not the live pose.
-        SamusPoseTransitions.ApplyWallJumpTrigger(spinning);
+        SamusAerialPoseTransitions.ApplyWallJumpTrigger(spinning);
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.Pose, "a drained spinning Samus wall-jumps out");
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.InitializedPose, "the wall jump initializes its pose");
 

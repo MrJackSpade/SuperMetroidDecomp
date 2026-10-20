@@ -32,7 +32,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
         for (ushort parameter = 0; parameter < 8; parameter++)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            enemies.MotherBrainBehavior.SpawnMotherBrainDoorFragment(parameter);
+            enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDoorFragment(parameter);
 
             MotherBrainDoorFragmentDefinition definition =
                 MotherBrainDoorFragmentDefinitions.ForParameter(parameter);

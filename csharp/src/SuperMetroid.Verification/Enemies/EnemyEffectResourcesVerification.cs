@@ -27,17 +27,17 @@ internal static class EnemyEffectResourcesVerification
         RoomCharacterAtlas shortArt = RoomCharacterAtlas.Load(shortPng, RoomCharacterAtlasFormat.BytesPerTile);
         AssertThrows<InvalidDataException>(() => corpse.Initialize(staging, shortArt), "wrong-size corpse art fails loudly");
         AssertTrue(before.SequenceEqual(StagingBytes(staging)), "wrong-size corpse art leaves the staging unchanged");
-        AssertThrows<InvalidDataException>(() => new MotherBrainRainbowBeamAttackSequence(corpseStaging: staging).InitializeCorpseRotting(),
+        AssertThrows<InvalidDataException>(() => new MotherBrainRainbowBeamAttackSequence(corpseStaging: staging).ThirdPhaseDeath.InitializeCorpseRotting(),
             "sequence setup requires corpse art");
         AssertTrue(before.SequenceEqual(StagingBytes(staging)), "missing sequence corpse art leaves the staging unchanged");
 
         CheckCrocomireResourceFailure(null, fixture => fixture.InitializeMap((int)CrocomireMeltingTilemapAddress.FirstTilemap),
             "missing melt tilemap");
-        CheckCrocomireResourceFailure(null, fixture => fixture.Call(c => c.InitializeCrocomireMeltingGraphics),
+        CheckCrocomireResourceFailure(null, fixture => fixture.Call(c => c.Melting.InitializeCrocomireMeltingGraphics),
             "missing melt graphics");
         CrocomireMeltingArtwork art = MeltEffectArtwork();
         CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap(0), "unknown melt tilemap");
-        CheckCrocomireResourceFailure(art, fixture => fixture.Call(c => c.InitializeCrocomireMeltingGraphics),
+        CheckCrocomireResourceFailure(art, fixture => fixture.Call(c => c.Melting.InitializeCrocomireMeltingGraphics),
             "unknown melt header", invalidHeader: true);
         Suite(nameof(VerifyDeadTourianMissingArtwork), () => VerifyDeadTourianMissingArtwork());
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");

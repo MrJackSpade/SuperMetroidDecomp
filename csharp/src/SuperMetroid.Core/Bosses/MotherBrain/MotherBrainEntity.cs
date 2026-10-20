@@ -14,9 +14,9 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => MotherBrainPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        MotherBrainPart.Body => species.InitializeMotherBrainBody,
-        MotherBrainPart.Head => species.InitializeMotherBrainHead,
-        MotherBrainPart.Tubes => species.InitializeMotherBrainFallingTube,
+        MotherBrainPart.Body => species.Body.InitializeMotherBrainBody,
+        MotherBrainPart.Head => species.Head.InitializeMotherBrainHead,
+        MotherBrainPart.Tubes => species.FakeDeath.InitializeMotherBrainFallingTube,
         _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -25,20 +25,20 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     {
         MotherBrainPart.Body => species.RunMotherBrainBodyMainAi,
         MotherBrainPart.Head => species.RunMotherBrainHeadMainAi,
-        MotherBrainPart.Tubes => (enemy, _) => species.RunMotherBrainFallingTubeMain(enemy),
+        MotherBrainPart.Tubes => (enemy, _) => species.FakeDeath.RunMotherBrainFallingTubeMain(enemy),
         _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => MotherBrainPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        MotherBrainPart.Tubes => (enemy, _) => species.AdvanceMotherBrainTubeAnimation(enemy),
+        MotherBrainPart.Tubes => (enemy, _) => species.Body.AdvanceMotherBrainTubeAnimation(enemy),
         MotherBrainPart.Body or MotherBrainPart.Head => species.AdvanceMotherBrainBodyTypedAnimation,
         _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => MotherBrainBehavior.FindMotherBrainHitboxCallback(Slot, probe, out callback);
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => MotherBrainCombat.FindMotherBrainHitboxCallback(Slot, probe, out callback);
 
     /// <inheritdoc/>
     public EnemyBg2FrameLookup? FindBg2Frame(ushort selected, EnemyRoomBinding room)

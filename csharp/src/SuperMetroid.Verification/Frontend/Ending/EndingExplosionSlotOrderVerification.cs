@@ -18,12 +18,12 @@ internal static class EndingExplosionSlotOrderVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
-        for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
+        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Phase, "native flyaway handoff reached");
+        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Stage.Phase, "native flyaway handoff reached");
         for (int frame = 0; frame < 100; frame++) ending.Step();
         var definition = EndingCreditsRomData.Sprites.ExplosionAfterglow;
         var afterglow = new IntroDiscoverySprite(new(definition.Position.X, definition.Position.Y),

@@ -28,7 +28,7 @@ internal static class PhantoonBodyPublicationVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Phantoon);
-        PhantoonEnemyState state = runtime.Enemies.PhantoonBehavior.Phantoon
+        PhantoonEnemyState state = runtime.Enemies.PhantoonBehavior.Combat.Phantoon
             ?? throw new InvalidOperationException("Phantoon's room loads Phantoon.");
         RoomEnemySlot body = runtime.Enemies.SlotTable.Slots[0];
 

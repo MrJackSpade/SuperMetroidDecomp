@@ -24,11 +24,11 @@ internal static class PhantoonTimersVerification
         var body = enemies.SlotTable.Slots[0];
         var eye = enemies.SlotTable.Slots[1];
         var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = enemies.SlotTable.Slots[2], Mouth = enemies.SlotTable.Slots[3] };
-        enemies.PhantoonBehavior.Phantoon = state;
+        enemies.PhantoonBehavior.Combat.Phantoon = state;
         var open = new Action<PhantoonEnemyState>(enemies.PhantoonBehavior.BeginPhantoonEyeTracking);
-        var second = new Action<PhantoonEnemyState>(enemies.PhantoonBehavior.PickPhantoonSecondRoundPattern);
-        var first = new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.RunPhantoonPickFirstRoundPattern);
-        var rain = new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.RunPhantoonFlameRainFadeOut);
+        var second = new Action<PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.PickPhantoonSecondRoundPattern);
+        var first = new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern);
+        var rain = new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonFlameRainFadeOut);
         ushort randomValue = 0;
         int calls = 0;
         enemies.VerificationServices().NextRandom = () => { calls++; return randomValue; };

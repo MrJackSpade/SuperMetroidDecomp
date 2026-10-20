@@ -48,7 +48,7 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation)) + 2,
             (ushort)SnesButton.Right);
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        var expected = new AttractDemoScene(RoomHeaderDefinitions.LandingSite, DoorDefinitions.Parlor1, new(0x100, 0x200), new(-46, 0x40),
+        var expected = new AttractDemoScene(RoomHeaderDefinitions.LandingSite, CrateriaDoorDefinitions.Parlor1, new(0x100, 0x200), new(-46, 0x40),
             0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, (SamusEquipmentFlags)0x3105, 10, 5, 2, 399, (SamusBeamFlags)0x100f, (SamusBeamFlags)0x100b, DemoInputObjectDefinitions.AttractLandingSite);
         if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index.");

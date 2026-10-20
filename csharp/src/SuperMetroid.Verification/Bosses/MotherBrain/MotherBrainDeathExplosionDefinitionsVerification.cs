@@ -32,7 +32,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
                 Offset: new(-7, 9),
                 ProjectileParameter: parameter,
                 SoundEffect: MotherBrainSoundDefinitions.Explosion);
-            enemies.MotherBrainBehavior.SpawnMotherBrainDeathExplosion(request);
+            enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(request);
 
             RoomEnemyProjectileSlot projectile =
                 enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);

@@ -79,14 +79,14 @@ internal static class RoomEnemySystemAccess
             Ensure.NotNull(bus);
             Ensure.NotNull(projectiles);
             Ensure.NotNull(sharedProjectiles);
-            var kraid = self.KraidBehavior.Kraid;
+            var kraid = self.KraidBehavior.Access.Kraid;
             RoomEnemySlot body = self.SlotTable.Slots[0];
             if (kraid is null || body.EnemyDefinitionPointer != EnemyDefinitionId.Kraid ||
                 body.Properties.HasAny(EnemyProperties.Deleted))
                 return 0;
             var shots = new KraidBehavior.KraidShotSlots(projectiles, sharedProjectiles);
-            return self.KraidBehavior.ResolveKraidMouthProjectileHits(body, kraid, shots) +
-                self.KraidBehavior.ResolveKraidBodyProjectileHits(body, kraid, shots);
+            return self.KraidBehavior.Combat.ResolveKraidMouthProjectileHits(body, kraid, shots) +
+                self.KraidBehavior.Combat.ResolveKraidBodyProjectileHits(body, kraid, shots);
         }
 
         /// <summary>Botwoon's live state while its room is loaded.</summary>
@@ -323,7 +323,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Pickup requests emitted by shot destroyable flames in this room load.</summary>
         internal IReadOnlyList<PhantoonFlameDropRequest> PhantoonFlameDropRequests =>
-            self.PhantoonBehavior.PhantoonFlameDropRequests;
+            self.PhantoonBehavior.Combat.PhantoonFlameDropRequests;
 
         /// <summary>Typed native state for every loaded Yapping Maw slot.</summary>
         internal IReadOnlyList<YappingMawEnemyState?> YappingMawStates =>
@@ -343,7 +343,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Bomb Torizo's state while definition $EEFF owns slot zero.</summary>
         internal TorizoEnemyState? BombTorizo =>
-            self.BombTorizoBehavior.TorizoState is { IsGolden: false } ? self.BombTorizoBehavior.TorizoState : null;
+            self.BombTorizoBehavior.Access.TorizoState is { IsGolden: false } ? self.BombTorizoBehavior.Access.TorizoState : null;
 
         /// <summary>Growing shutter extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates =>
@@ -351,7 +351,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Pickup requests emitted by shot Chozo orbs during this room load.</summary>
         internal IReadOnlyList<TorizoOrbDropRequest> TorizoOrbDropRequests =>
-            self.BombTorizoBehavior.TorizoOrbDropRequests;
+            self.BombTorizoBehavior.Attacks.TorizoOrbDropRequests;
 
         /// <summary>Number of live actors in the shared bank-$86 enemy-projectile pool.</summary>
         internal int ActiveEnemyProjectileCount =>
@@ -390,7 +390,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
         internal bool ResolveRidleySamusContact(SamusState samus) =>
-            self.CeresRidleyBehavior.ResolveRidleyBodySamusContact(samus) ||
+            self.CeresRidleyBehavior.Hits.ResolveRidleyBodySamusContact(samus) ||
             self.RidleyTail.ResolveRidleyTailSamusContact(samus);
     }
 }

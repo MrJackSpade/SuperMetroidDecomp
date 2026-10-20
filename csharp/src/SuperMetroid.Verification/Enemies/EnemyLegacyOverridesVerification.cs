@@ -127,7 +127,7 @@ internal static class EnemyLegacyOverridesVerification
     /// </summary>
     private static (int Version, int Count)[] EnemyOamSchemaFixtures() =>
         [.. Enum.GetValues<EnemySpritemapSchema>()
-            .Select(schema => ((int)schema, EnemySpritemapDefinitions.FrameCount(schema)))
+            .Select(schema => ((int)schema, EnemySpritemapFrameCounts.FrameCount(schema)))
             .OrderBy(schema => schema.Item1)];
 
     /// <summary>Runs ordinary, extended, and projectile legacy override checks.</summary>

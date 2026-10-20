@@ -1,0 +1,202 @@
+﻿using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Rooms;
+
+namespace SuperMetroid.Core.Frontend.Ending;
+
+/// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork's uploads.</summary>
+[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
+internal sealed class EndingFlyaway
+{
+    /// <summary>Controls the animals' escape detail in the planet cinematic.</summary>
+    private readonly bool crittersEscaped;
+    /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
+    private readonly EndingScreen screen ;
+    /// <summary>Dynamic cinematic actors in native slot traversal order.</summary>
+    private readonly List<EndingSprite> sprites ;
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    private readonly EndingStage _stage;
+
+    /// <summary>Builds the component from the collaborators it uses.</summary>
+    internal EndingFlyaway(bool crittersEscaped, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage)
+    {
+        this.crittersEscaped = crittersEscaped;
+        this.screen = screen;
+        this.sprites = sprites;
+        _stage = stage;
+    }
+
+    /// <summary>
+    /// Cinematic calls made so far. Only its parity and quarter phase are read (the alternating
+    /// atmospheric rotation and the planet turn cadence), so a growing count reproduces the
+    /// cartridge's wrapping word exactly.
+    /// </summary>
+    internal int CinematicFrame { get; set; }
+
+    /// <summary>Position in the current planet-escape shake pattern, cycling through its entries.</summary>
+    internal int PlanetMotionIndex { get; set; }
+
+    /// <summary>Planet-escape velocity: a signed 16.16 displacement that grows more negative every accelerating update.</summary>
+    internal SnesSignedSixteenSixteen PlanetVelocity { get; private set; }
+
+    /// <summary>Clears flash backdrop colors and starts the accelerating planet flyaway with its authored palette effects.</summary>
+    internal void SetupPlanetEscape()
+    {
+        // Func120 clears the explosion flash's backdrop and transparent palette entries.
+        var palettes = new FrontendPalettes(screen.Palette);
+        palettes.EndingBackdrop.Write(0, Bgr555.Black);
+        palettes.EndingLogoBackground.Write(0, Bgr555.Black);
+        palettes.EndingObjectTransparent.Write(0, Bgr555.Black);
+        _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
+        _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
+        _stage.Mode7 = new(_stage.Mode7.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
+        _stage.Mode7Zoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
+        _stage.Mode7Angle = SnesAngle.NormalizeTableIndex(-112);
+        _stage.PhaseTimer = 192;
+        flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
+        flyawayFadeCountdown = EndingFlyawayFadeDefinitions.InitialCountdown;
+        PlanetMotionIndex = 0;
+        _stage.Phase = EndingCreditsPhase.PlanetEscapeFast;
+    }
+
+    /// <summary>Runs the first rotating planet-escape motion pattern until the fast zoom threshold.</summary>
+    internal void StepPlanetEscapeFast()
+    {
+        if (_stage.PhaseTimer > 0)
+            _stage.PhaseTimer--;
+        else StepFlyawayFade();
+        _stage.Mode7Angle = _stage.Mode7Angle.AddTableUnits(-4);
+        _stage.Mode7 = _stage.Mode7.WithX(AddSignedFixed(_stage.Mode7.X, EndingCreditsRomData.Motion.PlanetFastDelta(PlanetMotionIndex)));
+        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetFastPatternLength;
+        _stage.Mode7Zoom -= 8;
+        if (_stage.Mode7Zoom < EndingCreditsRomData.Motion.PlanetFastEndScale)
+        {
+            PlanetMotionIndex = 0;
+            _stage.Phase = EndingCreditsPhase.PlanetEscapeSlow;
+        }
+    }
+
+    /// <summary>Runs the slower motion pattern and starts the accelerating leg, optionally spawning the escaped animals.</summary>
+    internal void StepPlanetEscapeSlow()
+    {
+        StepFlyawayFade();
+        if (_stage.Mode7Angle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)
+            _stage.Mode7Angle = _stage.Mode7Angle.AddTableUnits(-1);
+        _stage.Mode7 = _stage.Mode7.WithX(AddSignedFixed(_stage.Mode7.X, EndingCreditsRomData.Motion.PlanetSlowDelta(PlanetMotionIndex)));
+        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetSlowPatternLength;
+        _stage.Mode7Zoom -= 2;
+        if (_stage.Mode7Zoom < EndingCreditsRomData.Motion.PlanetSlowEndScale)
+        {
+            PlanetVelocity = SnesSignedSixteenSixteen.FromParts(0, EndingCreditsRomData.Motion.InitialAccelerationFraction);
+            _stage.Phase = EndingCreditsPhase.PlanetEscapeAccelerating;
+            if (crittersEscaped)
+            {
+                _stage.SpawnSprite(new(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin),
+                    EndingAnimalEscapeDefinitions.Palette, CinematicSpriteProgram.EndingAnimalEscape,
+                    EndingSpriteRole.AnimalEscape);
+                IntroDiscoverySprite pod = sprites[^1].Sprite;
+                pod.GeneralTimer = EndingAnimalEscapeDefinitions.GeneralTimer;
+                // Native cinematic dispatch precedes actors, so a newly spawned pod
+                // moves and selects its first animation frame on this same call.
+                _stage.StepEndingSpritePreInstruction(sprites[^1]);
+                pod.Step();
+            }
+        }
+    }
+
+    /// <summary>Accumulates split planet velocity and turns toward the final gunship text at the exit scale.</summary>
+    internal void StepPlanetEscapeAccelerating()
+    {
+        StepFlyawayFade();
+        PlanetVelocity -= SnesSignedSixteenSixteen.FromRaw(EndingCreditsRomData.Motion.AccelerationDelta16Point16);
+        _stage.Mode7 = _stage.Mode7.WithX(AddSignedFixed(_stage.Mode7.X, PlanetVelocity.RawValue));
+        if (_stage.Mode7Zoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&
+            (CinematicFrame & 3) == 0 &&
+            _stage.Mode7Angle != EndingCreditsRomData.Motion.PlanetExitTargetAngle)
+        {
+            _stage.Mode7Angle = _stage.Mode7Angle.AddTableUnits(2);
+        }
+        if (_stage.Mode7Zoom < EndingCreditsRomData.Motion.PlanetExitScale)
+        {
+            _stage.LoadStaticPalette(EndingPaletteId.FinalGunship, 0, 16, 80);
+            _stage.SpawnSprite(
+                EndingCreditsRomData.Sprites.OperationWasText,
+                EndingSpriteRole.OperationWasText);
+            _stage.Phase = EndingCreditsPhase.OperationSuccessfulText;
+        }
+        else
+        {
+            _stage.Mode7Zoom -= 4;
+        }
+    }
+
+    /// <summary>Adds a signed 16.16 motion delta to a Mode-7 coordinate with native word wrapping.</summary>
+    private static SnesFixedPosition AddSignedFixed(SnesFixedPosition position, int delta) =>
+        SnesSignedSixteenSixteen
+            .FromRaw(delta)
+            .AddTo(position.Whole, position.Fraction);
+
+    /// <summary>Fixed-color white component over the planet escape, from full white (31) fading to zero, where it stays.</summary>
+    private int flyawayWhite;
+
+    /// <summary>Countdown between native flyaway fixed-color decrements.</summary>
+    private int flyawayFadeCountdown;
+
+    /// <summary>Fixed-color addition active only during visible planet flyaway phases.</summary>
+    internal FixedColorAddRenderLayer? FlyawayFixedColor => flyawayWhite != 0
+        && _stage.Phase >= EndingCreditsPhase.PlanetEscapeFast && _stage.Phase <= EndingCreditsPhase.FadeOutToCredits
+        ? WhiteAddition(flyawayWhite) : null;
+
+    /// <summary>Adds the same five-bit <paramref name="white"/> component to all three channels of the composed screen.</summary>
+    internal static FixedColorAddRenderLayer WhiteAddition(int white)
+    {
+        byte component = checked((byte)white);
+        return new(component, component, component);
+    }
+
+    /// <summary>Decreases the flyaway white component at its cartridge interval.</summary>
+    private void StepFlyawayFade()
+    {
+        if (--flyawayFadeCountdown > 0) return;
+        if (flyawayWhite > 0) flyawayWhite--;
+        flyawayFadeCountdown = EndingFlyawayFadeDefinitions.Interval;
+    }
+
+    /// <summary>
+    /// The ending's first flyaway reuses the Ceres approach's cartridge source.
+    /// Rebind only chunks already transferred by the native 16-NMI DMA sequence;
+    /// future chunks must still arrive on their original scheduled frames.
+    /// </summary>
+    internal void BindFlightArtwork(CeresFlightArtworkCatalog? value)
+    {
+        FlightArtwork = value;
+        screen.Invalidate();
+    }
+
+    /// <summary>Prepares Ceres-derived flyaway streams while restoring the explosion's BG palette half.</summary>
+    internal void PrepareFlyawayUploads()
+    {
+        PrepareFlyawayStreams();
+        // Func117 restores the BG half before disabling BG1. OBJ VRAM and palettes
+        // remain live while Func118 replaces the two Mode-7 lanes over sixteen NMIs.
+        _stage.LoadStaticPalette(EndingPaletteId.Explosion, 0, 128, 0);
+    }
+
+    /// <summary>Requires the Ceres flight artwork the native sixteen-NMI flyaway DMA sequence transfers.</summary>
+    private void PrepareFlyawayStreams()
+    {
+        CeresFlightArtworkCatalog artwork = FlightArtwork ?? throw new InvalidOperationException(
+            "Ending flyaway requires installed flight artwork.");
+        EndingStage.RequireMinimum(artwork.Mode7Characters, EndingCreditsRomData.Rendering.Mode7Bytes, "flyaway characters");
+        EndingStage.RequireMinimum(artwork.Mode7Maps, EndingCreditsRomData.Rendering.FlyawayMapDataBytes, "flyaway map");
+    }
+
+    /// <summary>Transfers one scheduled flyaway chunk to its Mode-7 character or map lane.</summary>
+    internal void UploadFlyawayChunk(int index) => screen.Record(EndingUploadKind.FlyawayChunk, index);
+
+    /// <summary>The gunship flight's installed artwork.</summary>
+    [field: NonSerialized]
+    internal CeresFlightArtworkCatalog? FlightArtwork { get; private set; }
+}

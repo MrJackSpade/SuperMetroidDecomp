@@ -70,7 +70,7 @@ internal static class PhantoonWaveVerification
              mosaic <= PhantoonDeathDefinitions.FinalMosaicRegister;
              mosaic += PhantoonDeathDefinitions.MosaicSizeStep)
         {
-            AssertEqual(BackgroundMosaicSamplingConstants.ForBg2((byte)mosaic).Size, PhantoonBehavior.MosaicBlockSizeOf((byte)mosaic),
+            AssertEqual(BackgroundMosaicSamplingConstants.ForBg2((byte)mosaic).Size, PhantoonDeath.MosaicBlockSizeOf((byte)mosaic),
                 $"death mosaic step {steps} block size");
             steps++;
         }
@@ -85,10 +85,10 @@ internal static class PhantoonWaveVerification
         // and the old extra-step denominator without requiring the local CPU trace.
         foreach (var (current, target, expected) in new[] { (14, 0, 12), (9692, 0, 8601), (0, 14, 1), (0, 9692, 34) })
         {
-            Bgr555 actual = PhantoonBehavior.CalculatePhantoonTransitionColor(1, 12, Bgr555.FromWord((ushort)current), Bgr555.FromWord((ushort)target));
+            Bgr555 actual = PhantoonPresentation.CalculatePhantoonTransitionColor(1, 12, Bgr555.FromWord((ushort)current), Bgr555.FromWord((ushort)target));
             AssertEqual(expected, actual, "original-CPU Phantoon fixed-point palette component rounding");
         }
-        AssertEqual(0, PhantoonBehavior.CalculatePhantoonTransitionColor(1, 1, Bgr555.FromWord(14), Bgr555.Black),
+        AssertEqual(0, PhantoonPresentation.CalculatePhantoonTransitionColor(1, 1, Bgr555.FromWord(14), Bgr555.Black),
             "fast fade reaches target on first interpolated update");
     }
 

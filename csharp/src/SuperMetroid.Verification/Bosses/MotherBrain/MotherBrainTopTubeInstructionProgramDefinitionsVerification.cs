@@ -62,7 +62,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            enemies.MotherBrainBehavior.SpawnMotherBrainTopTube(item.Kind, new Position16<RoomPixels>(item.X, item.Y));
+            enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(item.Kind, new Position16<RoomPixels>(item.X, item.Y));
             RoomEnemyProjectileSlot tube = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == item.Kind);
             AssertEqual(item.Program, NativePointer(tube),
@@ -78,7 +78,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         }
 
         RoomEnemySystem shotSystem = NewSystem();
-        shotSystem.MotherBrainBehavior.SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, new Position16<RoomPixels>(152, 47));
+        shotSystem.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, new Position16<RoomPixels>(152, 47));
         RoomEnemyProjectileSlot shot = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainTopRightTube);
         shot.StartAnimation(EnemyProjectileDeleteAnimation.Instance);

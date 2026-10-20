@@ -34,18 +34,18 @@ internal static class PostCreditsCharacterArtworkVerification
             var installedAudio = new CartridgeAudioState();
             var native = CreateRetailEndingFixture(nativeAudio, hours, 0);
             var installed = CreateRetailEndingFixture(installedAudio, hours, 0);
-            native.BindStaffCredits(credits);
-            installed.BindStaffCredits(credits);
-            installed.BindObjectArtwork(stock);
-            installed.BindMode7Artwork(stockMode7);
+            native.InstalledArtwork.BindStaffCredits(credits);
+            installed.InstalledArtwork.BindStaffCredits(credits);
+            installed.InstalledArtwork.BindObjectArtwork(stock);
+            installed.Stage.BindMode7Artwork(stockMode7);
             var checkedPhases = new HashSet<EndingCreditsPhase>();
             for (int frame = 0; frame < 60_000 &&
-                native.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
+                native.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
             {
-                AssertEqual(native.Phase, installed.Phase,
+                AssertEqual(native.Stage.Phase, installed.Stage.Phase,
                     $"post-credits installed/native phase for {hours}h at frame {frame}");
-                if (native.Phase >= EndingCreditsPhase.Credits &&
-                    checkedPhases.Add(native.Phase))
+                if (native.Stage.Phase >= EndingCreditsPhase.Credits &&
+                    checkedPhases.Add(native.Stage.Phase))
                 {
                     LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                     LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
@@ -53,16 +53,16 @@ internal static class PostCreditsCharacterArtworkVerification
                             actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
                             SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                 SoftwareLayeredSnapshotRenderer.Render(expected)),
-                        $"installed post-credits art preserves VRAM, palette, and pixels in {hours}h {native.Phase}");
+                        $"installed post-credits art preserves VRAM, palette, and pixels in {hours}h {native.Stage.Phase}");
                 }
                 native.Step();
                 installed.Step();
                 nativeAudio.AdvanceFrame(default);
                 installedAudio.AdvanceFrame(default);
             }
-            AssertEqual(EndingCreditsPhase.PostCreditsShot, native.Phase,
+            AssertEqual(EndingCreditsPhase.PostCreditsShot, native.Stage.Phase,
                 $"native {hours}h reward reaches the post-credit shot");
-            AssertEqual(EndingCreditsPhase.PostCreditsShot, installed.Phase,
+            AssertEqual(EndingCreditsPhase.PostCreditsShot, installed.Stage.Phase,
                 $"installed {hours}h reward reaches the post-credit shot");
             AssertTrue(checkedPhases.Contains(EndingCreditsPhase.Credits) &&
                     checkedPhases.Contains(EndingCreditsPhase.PostCreditsWaitingSamus) &&
@@ -95,11 +95,11 @@ internal static class PostCreditsCharacterArtworkVerification
                 // Continue the installed suitless route through all four logo
                 // actors, not merely the initial logo upload after the shot.
                 for (int frame = 0; frame < 2000 &&
-                    native.Phase != EndingCreditsPhase.ItemPercentage; frame++)
+                    native.Stage.Phase != EndingCreditsPhase.ItemPercentage; frame++)
                 {
-                    AssertEqual(native.Phase, installed.Phase,
+                    AssertEqual(native.Stage.Phase, installed.Stage.Phase,
                         $"installed logo phase at frame {frame}");
-                    if (frame % 29 == 0 || native.Phase == EndingCreditsPhase.PostCreditsLogo)
+                    if (frame % 29 == 0 || native.Stage.Phase == EndingCreditsPhase.PostCreditsLogo)
                     {
                         LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                         LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
@@ -108,14 +108,14 @@ internal static class PostCreditsCharacterArtworkVerification
                                 SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(expected)),
                             $"installed logo pixels at frame {frame}");
-                        if (native.Phase == EndingCreditsPhase.PostCreditsLogo)
+                        if (native.Stage.Phase == EndingCreditsPhase.PostCreditsLogo)
                         {
-                            installed.BindObjectArtwork(editedLogo);
+                            installed.InstalledArtwork.BindObjectArtwork(editedLogo);
                             LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                             visibleLogoEdit |= !actual.Memory.SpriteParts().SequenceEqual(changed.Memory.SpriteParts()) &&
                                 !SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(changed));
-                            installed.BindObjectArtwork(stock);
+                            installed.InstalledArtwork.BindObjectArtwork(stock);
                         }
                     }
                     native.Step();
@@ -123,9 +123,9 @@ internal static class PostCreditsCharacterArtworkVerification
                     nativeAudio.AdvanceFrame(default);
                     installedAudio.AdvanceFrame(default);
                 }
-                AssertEqual(EndingCreditsPhase.ItemPercentage, native.Phase,
+                AssertEqual(EndingCreditsPhase.ItemPercentage, native.Stage.Phase,
                     "native logo reaches item percentage");
-                AssertEqual(EndingCreditsPhase.ItemPercentage, installed.Phase,
+                AssertEqual(EndingCreditsPhase.ItemPercentage, installed.Stage.Phase,
                     "compiled installed logo reaches item percentage");
                 AssertTrue(visibleLogoEdit,
                     "edited right logo circle changes live OAM and visible ending pixels");
@@ -201,24 +201,24 @@ internal static class PostCreditsCharacterArtworkVerification
                 var editedAudio = new CartridgeAudioState();
                 var stockState = CreateRetailEndingFixture(stockAudio, hours, 0);
                 var editedState = CreateRetailEndingFixture(editedAudio, hours, 0);
-                stockState.BindStaffCredits(credits);
-                editedState.BindStaffCredits(credits);
-                stockState.BindObjectArtwork(stock);
-                editedState.BindObjectArtwork(edited);
-                stockState.BindMode7Artwork(stockMode7);
-                editedState.BindMode7Artwork(stockMode7);
-                for (int frame = 0; frame < 60_000 && stockState.Phase != target; frame++)
+                stockState.InstalledArtwork.BindStaffCredits(credits);
+                editedState.InstalledArtwork.BindStaffCredits(credits);
+                stockState.InstalledArtwork.BindObjectArtwork(stock);
+                editedState.InstalledArtwork.BindObjectArtwork(edited);
+                stockState.Stage.BindMode7Artwork(stockMode7);
+                editedState.Stage.BindMode7Artwork(stockMode7);
+                for (int frame = 0; frame < 60_000 && stockState.Stage.Phase != target; frame++)
                 {
-                    AssertEqual(stockState.Phase, editedState.Phase,
+                    AssertEqual(stockState.Stage.Phase, editedState.Stage.Phase,
                         $"edited {fileName} does not alter reward timing at frame {frame}");
                     stockState.Step();
                     editedState.Step();
                     stockAudio.AdvanceFrame(default);
                     editedAudio.AdvanceFrame(default);
                 }
-                AssertEqual(target, stockState.Phase,
+                AssertEqual(target, stockState.Stage.Phase,
                     $"edited {fileName} reaches the native reward scene");
-                AssertEqual(target, editedState.Phase,
+                AssertEqual(target, editedState.Stage.Phase,
                     $"edited {fileName} retains reward scene timing");
                 bool visible = false;
                 // The logo map is BG2 only after the 216-frame post-shot hold,
@@ -266,9 +266,9 @@ internal static class PostCreditsCharacterArtworkVerification
                         $"edited {fileName} changes visible post-credits pixels");
                 if (postShotLogo)
                 {
-                    EndingCreditsPhase phaseBeforeRebind = stockState.Phase;
-                    stockState.BindObjectArtwork(edited);
-                    AssertEqual(phaseBeforeRebind, stockState.Phase,
+                    EndingCreditsPhase phaseBeforeRebind = stockState.Stage.Phase;
+                    stockState.InstalledArtwork.BindObjectArtwork(edited);
+                    AssertEqual(phaseBeforeRebind, stockState.Stage.Phase,
                         $"rebind {fileName} preserves the live ending phase");
                     LayeredRenderSnapshot rebound = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
                     LayeredRenderSnapshot expectedRebind = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);

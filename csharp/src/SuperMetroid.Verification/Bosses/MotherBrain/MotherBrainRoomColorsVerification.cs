@@ -31,8 +31,8 @@ internal static class MotherBrainRoomColorsVerification
         var native = CreateEnemy(nativeCgram, extracted);
         var installed = CreateEnemy(installedCgram,
             original.MotherBrainRoomColors);
-        native.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
-        installed.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
+        native.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
+        installed.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed Mother Brain room-entry glass and tube palettes match full native CGRAM");
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(original.MotherBrainRoomColors, extracted));
@@ -57,8 +57,8 @@ internal static class MotherBrainRoomColorsVerification
                 installedState.RoomFlashTimer,
                 "room-flash presentation leaves the flash timer unchanged");
         }
-        native.MotherBrainBehavior.StopMotherBrainRoomPalette(nativeState);
-        installed.MotherBrainBehavior.StopMotherBrainRoomPalette(installedState);
+        native.MotherBrainBehavior.FakeDeath.StopMotherBrainRoomPalette(nativeState);
+        installed.MotherBrainBehavior.FakeDeath.StopMotherBrainRoomPalette(installedState);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed final grey room colors match all native CGRAM words");
         AssertEqual(nativeState.RoomFlashFrame,
@@ -67,8 +67,8 @@ internal static class MotherBrainRoomColorsVerification
 
         Seed(nativeCgram);
         Seed(installedCgram);
-        native.MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics(nativeState);
-        installed.MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics(installedState);
+        native.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(nativeState);
+        installed.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(installedState);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed phase-two attack/rear-leg colors match full native CGRAM");
         AssertEqual(nativeState.Function, installedState.Function,
@@ -104,9 +104,9 @@ internal static class MotherBrainRoomColorsVerification
             "installed Mother Brain room colors reach the production enemy binding");
         AssertEdited(nameof(MotherBrainBehavior.RunMotherBrainRoomPalette), behavior => behavior.RunMotherBrainRoomPalette, original, edited,
             MotherBrainRoomColorRomData.FirstColor, 1, flash: true);
-        AssertEdited(nameof(MotherBrainBehavior.StopMotherBrainRoomPalette), behavior => behavior.StopMotherBrainRoomPalette, original, edited,
+        AssertEdited(nameof(MotherBrainFakeDeath.StopMotherBrainRoomPalette), behavior => behavior.FakeDeath.StopMotherBrainRoomPalette, original, edited,
             MotherBrainRoomColorRomData.SecondColor, 2);
-        AssertEdited(nameof(MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics), behavior => behavior.SetupMotherBrainPhaseTwoGraphics, original, edited,
+        AssertEdited(nameof(MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics), behavior => behavior.Ascent.SetupMotherBrainPhaseTwoGraphics, original, edited,
             MotherBrainRoomColorRomData.PhaseTwoAttackColor, 2);
         AssertRoomEntryEdited(original, edited);
         AssertRecoveryLightsEdited(original, edited);
@@ -260,8 +260,8 @@ internal static class MotherBrainRoomColorsVerification
             original.MotherBrainRoomColors);
         var editedEnemy = CreateEnemy(editedCgram,
             edited.MotherBrainRoomColors);
-        stockEnemy.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
-        editedEnemy.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
+        stockEnemy.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
+        editedEnemy.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
         AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.InitialGlassShardColor] !=
             editedCgram.Colors[MotherBrainRoomColorRomData.InitialGlassShardColor],
             "room-entry glass edit reaches the production color copy");

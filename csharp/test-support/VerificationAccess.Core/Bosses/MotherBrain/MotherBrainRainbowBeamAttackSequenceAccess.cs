@@ -16,10 +16,10 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         /// </summary>
         internal void StartFinishOffSequence()
         {
-            self.RequestWalkForwardReallySlow(unchecked((ushort)(self.Body.Position.X + 0x0010)));
-            self.BabyMetroidTileTransferIndex = 0;
-            self.BabyMetroidSpawned = false;
-            self.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOff;
+            self.RainbowAttack.RequestWalkForwardReallySlow(unchecked((ushort)(self.State.Body.Position.X + 0x0010)));
+            self.State.BabyMetroidTileTransferIndex = 0;
+            self.State.BabyMetroidSpawned = false;
+            self.State.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOff;
         }
 
         /// <summary>
@@ -33,9 +33,9 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         {
             // Generic enemy damage saturates at zero. A host subtraction with ushort wrapping
             // would resurrect a nearly dead boss, so perform the borrow test before the write.
-            self.BrainHealth = damage >= self.BrainHealth
+            self.State.BrainHealth = damage >= self.State.BrainHealth
                 ? (ushort)0
-                : unchecked((ushort)(self.BrainHealth - damage));
+                : unchecked((ushort)(self.State.BrainHealth - damage));
         }
 
         /// <summary>
@@ -47,27 +47,27 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         {
             Ensure.NotNull(bus);
             Ensure.NotNull(samus);
-            if (self.NeckMovementEnabled)
+            if (self.State.NeckMovementEnabled)
             {
                 SnesAngle lowerAngle = self.LowerNeckAngle;
                 SnesAngle upperAngle = self.UpperNeckAngle;
-                MotherBrainNeckMovement lowerIndex = self.LowerNeckMovementIndex;
-                MotherBrainNeckMovement upperIndex = self.UpperNeckMovementIndex;
+                MotherBrainNeckMovement lowerIndex = self.State.LowerNeckMovementIndex;
+                MotherBrainNeckMovement upperIndex = self.State.UpperNeckMovementIndex;
                 MotherBrainNeckKinematics.StepAngles(
                     ref lowerAngle,
                     ref upperAngle,
                     ref lowerIndex,
                     ref upperIndex,
-                    self.NeckAngleDelta,
-                    self.BrainPosition.Y,
+                    self.State.NeckAngleDelta,
+                    self.State.BrainPosition.Y,
                     samus.Position.Y.Whole);
                 self.LowerNeckAngle = lowerAngle;
                 self.UpperNeckAngle = upperAngle;
-                self.LowerNeckMovementIndex = lowerIndex;
-                self.UpperNeckMovementIndex = upperIndex;
+                self.State.LowerNeckMovementIndex = lowerIndex;
+                self.State.UpperNeckMovementIndex = upperIndex;
             }
 
-            self.BrainPosition = MotherBrainNeckKinematics.CalculateGeometry(self.Body.Position, self.LowerNeckAngle, self.UpperNeckAngle,
+            self.State.BrainPosition = MotherBrainNeckKinematics.CalculateGeometry(self.State.Body.Position, self.LowerNeckAngle, self.UpperNeckAngle,
                 MotherBrainNeckJointDefinitions.InitialDistances)[MotherBrainNeckJointDefinitions.BrainAnchor];
         }
 
@@ -78,9 +78,9 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         /// </summary>
         internal ushort StepBrainShakeForDraw()
         {
-            if (!self.BrainMainShakeTimer.IsZero)
-                self.BrainMainShakeTimer = self.BrainMainShakeTimer.Decrement().Remaining;
-            return unchecked((ushort)(self.BrainMainShakeTimer.RawValue & 6));
+            if (!self.State.BrainMainShakeTimer.IsZero)
+                self.State.BrainMainShakeTimer = self.State.BrainMainShakeTimer.Decrement().Remaining;
+            return unchecked((ushort)(self.State.BrainMainShakeTimer.RawValue & 6));
         }
     }
 }

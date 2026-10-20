@@ -60,7 +60,7 @@ internal static class CeresEscapeTileArtworkVerification
             bool finished;
             do
             {
-                finished = installed.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(state, installedQueue);
+                finished = installed.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(state, installedQueue);
             } while (!finished);
         }
         AssertEqual(15, installedQueue.Entries.Count,
@@ -134,7 +134,7 @@ internal static class CeresEscapeTileArtworkVerification
             },
         };
         var editedQueue = new VramWriteQueue();
-        _ = editedEnemies.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(editedState, editedQueue);
+        _ = editedEnemies.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(editedState, editedQueue);
         var editedVram = new SnesVram();
         editedQueue.DrainTo(editedVram, new CeresEscapeArtworkProvider(edited, timer), null, BgArtworkFixtures.For(editedVram));
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
@@ -163,7 +163,7 @@ internal static class CeresEscapeTileArtworkVerification
         };
         try
         {
-            missing.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(new RidleyEnemyState
+            missing.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(new RidleyEnemyState
                     {
                         CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites with
             {

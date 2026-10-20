@@ -176,7 +176,7 @@ internal static class AudioClipExporter
         ManagedSpcSoundLibrary Configure(int priority, int mode)
         {
             var library = new ManagedSpcSoundLibrary { Priority = priority, Mode = mode };
-            ManagedSpcPlayer.ConfigureSoundLibrary(libraryIndex, library, configuration);
+            SpcSoundLibraries.ConfigureSoundLibrary(libraryIndex, library, configuration);
             return library;
         }
 
@@ -202,8 +202,8 @@ internal static class AudioClipExporter
             fromLow.VoicesToSetup,
             priority,
             mode,
-            IgnoresPriority: !ManagedSpcPlayer.RejectsRequest(libraryIndex, command, priority: 1, mode: 0),
-            IgnoresLowHealthMode: libraryIndex == 2 && !ManagedSpcPlayer.RejectsRequest(libraryIndex, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
+            IgnoresPriority: !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 1, mode: 0),
+            IgnoresLowHealthMode: libraryIndex == 2 && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
     }
 
     /// <summary>Writes <paramref name="pcm"/> once under its SHA-256 and returns its manifest file record.</summary>

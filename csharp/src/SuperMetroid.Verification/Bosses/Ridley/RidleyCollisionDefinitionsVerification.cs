@@ -125,7 +125,7 @@ internal static class RidleyCollisionDefinitionsVerification
                             // component/list data without invoking an unrelated callback.
                             bool expectedCeres = NativeCeresOverlap(frame, new Position16<RoomPixels>(originX, originY),
                                 new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
-                            bool actualCeres = CeresRidleyBehavior.ExtendedSpritemapOverlapsRectangle(
+                            bool actualCeres = CeresRidleyHits.ExtendedSpritemapOverlapsRectangle(
                                 compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
                             AssertEqual(expectedCeres, actualCeres,
                                 $"Ceres private Ridley projectile overlap $A6:{frame:X4}");

@@ -30,7 +30,7 @@ internal static class EndingDmaVerification
         // The setup's NMI waits each end a dispatcher call; the call after the last runs the scene setup.
         for (int call = 0; call <= EndingCreditsRomData.SetupNmiWaits; call++)
             ending.Step();
-        AssertEqual(EndingCreditsPhase.WaitForEscapeMusic, ending.Phase, "ending setup completes after its NMI waits");
+        AssertEqual(EndingCreditsPhase.WaitForEscapeMusic, ending.Stage.Phase, "ending setup completes after its NMI waits");
         var projection = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Registers;
         AssertEqual((short)0, projection.Scroll.X, "native atmospheric scroll X");
         AssertEqual((short)0, projection.Scroll.Y, "native atmospheric scroll Y");
@@ -47,12 +47,12 @@ internal static class EndingDmaVerification
             AssertEqual(characters[word], memory.Vram[word * 2 + 1], "ending native high-lane character DMA");
         }
         Console.WriteLine("Ending escape DMA matches native low/high VRAM lanes.");
-        for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.Credits; frame++)
+        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.Credits; frame++)
         {
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.Credits, ending.Phase, "ending reaches credits setup");
+        AssertEqual(EndingCreditsPhase.Credits, ending.Stage.Phase, "ending reaches credits setup");
         byte[] reward = RomDataReader.Decompress(bus, 0x97b957, 0x8000);
         AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory.Vram[..0x4000]),
             "native post-credits reward DMA writes contiguous bytes, not the Mode-7 high lane");

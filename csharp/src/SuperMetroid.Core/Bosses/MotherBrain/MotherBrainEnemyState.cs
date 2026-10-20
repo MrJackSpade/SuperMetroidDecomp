@@ -361,7 +361,7 @@ public sealed class MotherBrainEnemyState
     internal MotherBrainHeadProgram? RainbowAppliedHeadProgram { get; set; }
 
     /// <summary>
-    /// Last <see cref="MotherBrainRainbowBeamAttackSequence.SmallPurpleBreathGenerationWriteCount"/>
+    /// Last <see cref="MotherBrainLateFightState.SmallPurpleBreathGenerationWriteCount"/>
     /// published to <see cref="SmallPurpleBreathGenerationEnabled"/>, so a brain-list clear
     /// survives until the body next writes the flag.
     /// </summary>

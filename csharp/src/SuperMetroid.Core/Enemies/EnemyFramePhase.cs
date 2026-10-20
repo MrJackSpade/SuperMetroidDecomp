@@ -123,7 +123,7 @@ internal sealed class EnemyFramePhase
                     rainbowHead.Position.Whole,
                     rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
             }
-            if (room.Enemies.PhantoonBehavior.Phantoon is { } phantoon)
+            if (room.Enemies.PhantoonBehavior.Combat.Phantoon is { } phantoon)
             {
                 // Phantoon's body is BG2 artwork anchored by the bank-$A7 scroll writes,
                 // while eye/tentacle collision follows enemy positions. Publish those

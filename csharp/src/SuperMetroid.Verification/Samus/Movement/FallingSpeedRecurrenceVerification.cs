@@ -16,7 +16,7 @@ internal static class FallingSpeedRecurrenceVerification
         foreach (SamusAccelerationMode previousMode in Enum.GetValues<SamusAccelerationMode>())
         {
             var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose };
-            SamusPoseTransitions.ApplyStandingLeftToRunningLeft(samus);
+            SamusGroundedPoseTransitions.ApplyStandingLeftToRunningLeft(samus);
             samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0xc000);
             samus.HorizontalSpeed.AccelerationMode = previousMode;
             samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(extraWhole, extraFraction);

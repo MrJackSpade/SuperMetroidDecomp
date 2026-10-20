@@ -35,8 +35,8 @@ internal static class RidleyAcidVerification
         expectedEmptyOam.FinalizeFrame();
         var ridleyOam = new OamBuffer();
         ridleyOam.BeginFrame();
-        ridleyOam.AppendDrawn(frame => runtime.Enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 256)));
-        ridleyOam.AppendDrawn(frame => runtime.Enemies.CeresRidleyBehavior.DrawCeresRidleyPostEnemyHook(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 256)));
+        ridleyOam.AppendDrawn(frame => runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 256)));
+        ridleyOam.AppendDrawn(frame => runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyPostEnemyHook(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 256)));
         ridleyOam.FinalizeFrame();
         AssertTrue(ridleyOam.ImageEquals(expectedEmptyOam),
             "Norfair Ridley does not draw the Ceres Baby or arena-door overlay");

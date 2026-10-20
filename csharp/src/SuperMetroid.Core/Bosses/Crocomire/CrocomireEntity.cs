@@ -14,8 +14,8 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        CrocomirePart.Crocomire => species.InitializeCrocomire,
-        CrocomirePart.Tongue => species.InitializeCrocomireTongue,
+        CrocomirePart.Crocomire => species.Fight.InitializeCrocomire,
+        CrocomirePart.Tongue => species.Fight.InitializeCrocomireTongue,
         _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -32,7 +32,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
         CrocomirePart.Crocomire => species.AdvanceCrocomireTypedAnimation,
-        CrocomirePart.Tongue => (enemy, _) => species.AdvanceCrocomireTongueAnimation(enemy),
+        CrocomirePart.Tongue => (enemy, _) => species.Fight.AdvanceCrocomireTongueAnimation(enemy),
         _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -40,8 +40,8 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        return CrocomireBehavior.FindCrocomireBodyHitboxCallback(Slot, probe, out callback) ??
-            CrocomireBehavior.FindCrocomireTongueHitboxCallback(Slot, probe, out callback);
+        return CrocomireCombat.FindCrocomireBodyHitboxCallback(Slot, probe, out callback) ??
+            CrocomireCombat.FindCrocomireTongueHitboxCallback(Slot, probe, out callback);
     }
 
     /// <summary>The Crocomire body takes normal bombs on its extended frames although its header names no shot callback.</summary>

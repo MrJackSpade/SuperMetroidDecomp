@@ -228,7 +228,7 @@ public static class ManagedAudioRegressionSmokeTest
         foreach (ApuPort port in Enum.GetValues<ApuPort>())
             ports[(int)port] = checked((byte)acknowledgements[port]);
         // The corpus pinned port zero as the sequencer's music echo, which the session never publishes.
-        ports[(int)ApuPort.Music] = checked((byte)engine.PlayerForVerification.musicPortToSnes);
+        ports[(int)ApuPort.Music] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
         tally.Acknowledgements.AppendData(ports);
         tally.Frames++;
         tally.Samples += pcm.Length;

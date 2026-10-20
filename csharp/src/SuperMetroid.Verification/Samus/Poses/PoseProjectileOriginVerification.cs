@@ -22,7 +22,7 @@ internal static class PoseProjectileOriginVerification
     {
         short Word(int a) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a));
         var initialize = new Action<SamusState, SamusProjectileSlot>(BeamFiring.InitializePosition);
-        var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
+        var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleBeamDrawing.RefreshFiringDrawOrigins);
         SamusPoseId guardedPose = default;
         var bus = new CartridgeReadGuard(rom)
             .Forbid(address => address == 0x91b629 + (int)guardedPose * 8 + 3,

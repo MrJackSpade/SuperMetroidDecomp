@@ -943,7 +943,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(timer);
         var doorOam = new OamBuffer();
         doorOam.BeginFrame();
-        doorOam.AppendDrawn(frame => enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
+        doorOam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
         doorOam.FinalizeFrame();
         AssertEqual(100 + expectedDoorOffsets[timer], doorOam.GetEntry(0).Position.X,
             $"Ceres private door hook byte-indexed quake phase {timer}");
@@ -1120,7 +1120,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Slots[0].Position.X.Whole - projectiles.Slots[0].Radius.X > ridley.Position.X.Whole + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
-        AssertEqual(1, enemies.CeresRidleyBehavior.ResolveCeresRidleyProjectileHits(
+        AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
         observedNormalRidleyPalette |= state.CommonDrawPaletteIndex.PaletteBits == 0x0e00;
@@ -1168,7 +1168,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         if (state.Function == RidleyAiFunction.CeresPublishEscapeHandoff)
             retreatBackgroundColor ??= cgram.Colors[0x51];
         // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
-        enemies.CeresRidleyBehavior.RunCeresRidleyGetawayRoomMain(samus, 0);
+        enemies.CeresRidleyBehavior.Getaway.RunCeresRidleyGetawayRoomMain(samus, 0);
         observedFakeRetreat |= state.Function is
             RidleyAiFunction.CeresFakeRetreatMoveToPosition or
             RidleyAiFunction.CeresFakeRetreatRising or
@@ -1213,7 +1213,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     void GetawayFrame()
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
-        enemies.CeresRidleyBehavior.RunCeresRidleyGetawayRoomMain(samus, 0);
+        enemies.CeresRidleyBehavior.Getaway.RunCeresRidleyGetawayRoomMain(samus, 0);
     }
     ushort expectedX = 0xff80, expectedY = 0x20;
     for (int curveIndex = 0; curveIndex < 112; curveIndex++)

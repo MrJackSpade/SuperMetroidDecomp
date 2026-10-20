@@ -114,8 +114,8 @@ internal static class CrocomireAnimationsVerification
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
         var state = new CrocomireEnemyState(body);
-        enemies.CrocomireBehavior.Crocomire = state;
-        enemies.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();
+        enemies.CrocomireBehavior.Access.Crocomire = state;
+        enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return (enemies, state);
@@ -153,7 +153,7 @@ internal static class CrocomireAnimationsVerification
             AssertEqual(native.Timer, state.Body.InstructionTimer.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, state.Body.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, state.Body.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
-            AssertEqual(callbacks.Select(BodySound).LastOrDefault(sound => sound is not null), enemies.CrocomireBehavior.LastCrocomireSoundEffect,
+            AssertEqual(callbacks.Select(BodySound).LastOrDefault(sound => sound is not null), enemies.CrocomireBehavior.Access.LastCrocomireSoundEffect,
                 $"{at}: sound");
             AssertEqual(HasReached(native, CrocomireBodyProgram.SkeletonStable), state.BodyResidentProgram >= CrocomireBodyProgram.SkeletonStable,
                 $"{at}: the stable-skeleton test reads the native cursor");
@@ -245,19 +245,19 @@ internal static class CrocomireAnimationsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
 
         (RoomEnemySystem mouthSystem, CrocomireEnemyState mouthState) = NewCrocomire();
-        mouthSystem.CrocomireBehavior.SpawnCrocomireProjectile(mouthState.Body, 2);
+        mouthSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(mouthState.Body, 2);
         RoomEnemyProjectileSlot mouth = mouthSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
         CompareProjectile(cartridge, mouthSystem, mouth, RoomEnemyProjectileKind.CrocomireProjectile, shot: false, "mouth");
 
         (RoomEnemySystem bridgeSystem, _) = NewCrocomire();
-        bridgeSystem.CrocomireBehavior.SpawnNextCrocomireBridgeFragment();
+        bridgeSystem.CrocomireBehavior.BridgeCollapse.SpawnNextCrocomireBridgeFragment();
         RoomEnemyProjectileSlot bridge = bridgeSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireBridgeCrumbling);
         CompareProjectile(cartridge, bridgeSystem, bridge, RoomEnemyProjectileKind.CrocomireBridgeCrumbling, shot: false, "bridge");
 
         (RoomEnemySystem spikeSystem, _) = NewCrocomire();
-        spikeSystem.CrocomireBehavior.SpawnCrocomireSpikeWallPieces();
+        spikeSystem.CrocomireBehavior.Skeleton.SpawnCrocomireSpikeWallPieces();
         RoomEnemyProjectileSlot[] spikes = [.. spikeSystem.Projectiles.EnemyProjectiles.Where(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireSpikeWallPieces)];
         AssertEqual(8, spikes.Length, "the spike wall breaks into eight pieces");
@@ -266,7 +266,7 @@ internal static class CrocomireAnimationsVerification
 
         (RoomEnemySystem shotSystem, CrocomireEnemyState shotState) = NewCrocomire();
         shotSystem.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
-        shotSystem.CrocomireBehavior.SpawnCrocomireProjectile(shotState.Body, 2);
+        shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, 2);
         RoomEnemyProjectileSlot exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
         exploding.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));

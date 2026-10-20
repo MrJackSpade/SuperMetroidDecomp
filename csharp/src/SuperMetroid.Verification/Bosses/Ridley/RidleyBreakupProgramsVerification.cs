@@ -30,7 +30,7 @@ internal static class RidleyBreakupProgramsVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> death = enemies.RidleyBehavior.TickNorfairRidleyDeathExplosions;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> death = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
         var process = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
         var body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
@@ -101,7 +101,7 @@ internal static class RidleyBreakupProgramsVerification
         expiringState.Lifetime = NativeCountdown.Start(0);
         expiringState.Velocity = default;
         expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);
-        enemies.RidleyBehavior.RunNorfairRidleyExplosionMain(expiring);
+        enemies.RidleyBehavior.Death.RunNorfairRidleyExplosionMain(expiring);
         AssertEqual(EnemyDefinitionId.None, expiring.EnemyDefinitionPointer, "native breakup expiry clears the actor immediately");
         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         AssertEqual(deathX, explosion.Position.X.Whole, "fragment death effect retains final X");

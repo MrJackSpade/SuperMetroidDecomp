@@ -209,22 +209,22 @@ internal static class EndingExplosionSpriteArtworkVerification
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             var audio = new CartridgeAudioState();
             var scene = CreateRetailEndingFixture(audio, 0, 0);
-            scene.BindObjectArtwork(stock);
+            scene.InstalledArtwork.BindObjectArtwork(stock);
             for (int frame = 0; frame < 10000 &&
-                scene.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
+                scene.Stage.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
             {
                 scene.Step();
                 audio.AdvanceFrame(default);
             }
-            AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, scene.Phase,
+            AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, scene.Stage.Phase,
                 "ending explosion edit reaches its actual scene");
             bool visible = false;
             for (int frame = 0; frame < 2400 &&
-                scene.Phase != EndingCreditsPhase.PlanetEscapeFast && !visible; frame++)
+                scene.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast && !visible; frame++)
             {
-                scene.BindObjectArtwork(stock);
+                scene.InstalledArtwork.BindObjectArtwork(stock);
                 LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                scene.BindObjectArtwork(edited);
+                scene.InstalledArtwork.BindObjectArtwork(edited);
                 LayeredRenderSnapshot after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 visible = !before.Memory.SpriteParts().SequenceEqual(after.Memory.SpriteParts()) &&
                     !SoftwareLayeredSnapshotRenderer.Render(before).SequenceEqual(

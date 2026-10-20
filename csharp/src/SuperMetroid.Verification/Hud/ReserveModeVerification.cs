@@ -93,7 +93,7 @@ internal static class ReserveModeVerification
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
-        AssertTrue(SamusPoseTransitions.TryApplyPostureTransition(knockbackVariant, 
+        AssertTrue(SamusPosturePoseTransitions.TryApplyPostureTransition(knockbackVariant, 
 
                 level,
                 SamusPoseId.CrouchingTransitionRightPose,

@@ -28,8 +28,8 @@ internal static class RetailCrocomireCaptureTests
         samus.Position = samus.Position.WithWhole(new(CrocomireCaptureFixture.InitialSamusX, 120));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
-        var boss = runtime.Enemies.CrocomireBehavior.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
-        var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath;
+        var boss = runtime.Enemies.CrocomireBehavior.Access.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
+        var death = runtime.Enemies.CrocomireBehavior.Access.CrocomireDeath;
         // Before either melting object is spawned, BG2 must use the actor's ordinary
         // scroll register. Comparing two renderers alone missed this shared defect.
         int latchedScrollChanges = 0;
@@ -37,12 +37,12 @@ internal static class RetailCrocomireCaptureTests
         {
             // Crocomire AI writes the BG2HOFS/BG2VOFS shadows during the main loop; the
             // next accepted NMI uploads them with the rest of that frame's latch (#1307).
-            Position16<Bg2Pixels> previousScroll = runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll;
+            Position16<Bg2Pixels> previousScroll = runtime.Enemies.CrocomireBehavior.Bg2.CrocomireBg2Scroll;
             runtime.StepFrame(0);
             GameplayDisplayFrame published = runtime.PublishDisplayFrame();
             if (published.Latched.Bosses.CrocomireBg2Scroll != previousScroll)
                 throw new InvalidOperationException($"Crocomire BG2 scroll was not published by the following NMI at tick {tick}.");
-            if (previousScroll != runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll) latchedScrollChanges++;
+            if (previousScroll != runtime.Enemies.CrocomireBehavior.Bg2.CrocomireBg2Scroll) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);
             var baseLayer = (OrdinaryGameplayRenderLayer)scene.Layers[0];
             if (!baseLayer.Bg2LineScrolls.Vertical.IsEmpty || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingHdmaActive)

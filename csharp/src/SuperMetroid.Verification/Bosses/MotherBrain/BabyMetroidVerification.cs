@@ -70,9 +70,9 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     var motherBrain = new MotherBrainRainbowBeamAttackSequence
     {
-        BrainPosition = new(0x0040, 0x0060),
+        State = { BrainPosition = new(0x0040, 0x0060) },
     };
-    motherBrain.Body.Position = new(0x0040, 0x0064);
+    motherBrain.State.Body.Position = new(0x0040, 0x0064);
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
     var baby = new BabyMetroidCutsceneState();
@@ -124,7 +124,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         latch = baby.Step(samus, motherBrain, HeadOf(motherBrain));
         calls++;
         sawBodyStumbleRequest |= latch.BodyStumbleRequested;
-        sawMotherBrainInterrupt |= motherBrain.Phase ==
+        sawMotherBrainInterrupt |= motherBrain.State.Phase ==
             MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback;
         sawLatchSound |= latch.LatchSoundQueued;
 
@@ -162,39 +162,39 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(ExpectedBabyPoint(0x0040, 0xc500, 0x0048, 0xf000),
         BabyPoint(),
         "Baby pin changes whole coordinates but retains native subpositions");
-    AssertEqual(MotherBrainBodyProgram.WalkBackwardReallyFast, motherBrain.Body.Program,
+    AssertEqual(MotherBrainBodyProgram.WalkBackwardReallyFast, motherBrain.State.Body.Program,
         "Baby stumble uses animation-delay index two");
     AssertEqual(MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback,
-        motherBrain.Phase,
+        motherBrain.State.Phase,
         "Baby installs Mother Brain $BE38 for the following actor turn");
 
     MotherBrainRainbowBeamAttackStepResult takenAback = motherBrain.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
     AssertEqual(MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance,
         takenAback.PhaseAfter,
         "Mother Brain taken-aback setup falls through into regain balance");
-    AssertEqual(0x002f, motherBrain.FunctionTimer.RawValue,
+    AssertEqual(0x002f, motherBrain.State.FunctionTimer.RawValue,
         "Mother Brain first regain call decrements $30 to $2F");
-    AssertEqual(MotherBrainForm.DrainedByBabyMetroid, motherBrain.Body.Form, "Baby drain changes Mother Brain to her drained form");
-    AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.LowerNeckMovementIndex,
+    AssertEqual(MotherBrainForm.DrainedByBabyMetroid, motherBrain.State.Body.Form, "Baby drain changes Mother Brain to her drained form");
+    AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.State.LowerNeckMovementIndex,
         "Mother Brain taken-aback lower neck index");
-    AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.UpperNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.State.UpperNeckMovementIndex,
         "Mother Brain taken-aback upper neck index");
-    AssertEqual(0x0700, motherBrain.NeckAngleDelta,
+    AssertEqual(0x0700, motherBrain.State.NeckAngleDelta,
         "Mother Brain taken-aback neck delta");
 
     int regainCalls = 1;
-    while (motherBrain.Phase == MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance)
+    while (motherBrain.State.Phase == MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance)
     {
         motherBrain.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         regainCalls++;
     }
     AssertEqual(49, regainCalls, "Mother Brain regain balance includes setup fallthrough call");
     AssertEqual(MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam,
-        motherBrain.Phase,
+        motherBrain.State.Phase,
         "Mother Brain advances to painful firing function");
-    AssertEqual(MotherBrainNeckMovement.BobDown, motherBrain.LowerNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.BobDown, motherBrain.State.LowerNeckMovementIndex,
         "Mother Brain drained firing lower neck index");
-    AssertEqual(MotherBrainNeckMovement.BobUp, motherBrain.UpperNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.BobUp, motherBrain.State.UpperNeckMovementIndex,
         "Mother Brain drained firing upper neck index");
 
     Console.WriteLine(

@@ -22,12 +22,12 @@ internal static class EndingCloudPlacementVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
-        for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInEscapeSceneB; frame++)
+        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.FadeInEscapeSceneB; frame++)
         {
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.FadeInEscapeSceneB, ending.Phase, "cloud scene setup reached");
+        AssertEqual(EndingCreditsPhase.FadeInEscapeSceneB, ending.Stage.Phase, "cloud scene setup reached");
         // $8B:D731 spawns EED3/EED9/EEDF/EEE5 with parameter zero.
         // F0B2/F0E1/F0E9/F0F1 therefore all use X=128 and these four Y origins.
         short[] nativeY = [-96, -32, 288, 352];
@@ -44,7 +44,7 @@ internal static class EndingCloudPlacementVerification
         for (int frame = 0; frame < 200; frame++)
         {
             ending.Step();
-            if (ending.Phase is not (EndingCreditsPhase.FadeInEscapeSceneB or
+            if (ending.Stage.Phase is not (EndingCreditsPhase.FadeInEscapeSceneB or
                 EndingCreditsPhase.EscapeSceneB or EndingCreditsPhase.FadeOutEscapeSceneB))
                 break;
             for (int index = 0; index < actors.Length; index++)
@@ -73,10 +73,10 @@ internal static class EndingCloudPlacementVerification
             {
 
             }
-            AssertTrue(pixels.SequenceEqual(expected), $"scene B cloud positions/motion frame {frame} ({ending.Phase})");
+            AssertTrue(pixels.SequenceEqual(expected), $"scene B cloud positions/motion frame {frame} ({ending.Stage.Phase})");
             checkedFrames++;
         }
-        AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Phase, "complete scene B checked through fade-out");
+        AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Stage.Phase, "complete scene B checked through fade-out");
         Console.WriteLine($"Ending scene B: {checkedFrames} full frames match independently stepped native cloud origins/motion; graphics source is shared, not a full cartridge pixel oracle.");
     }
 
@@ -87,12 +87,12 @@ internal static class EndingCloudPlacementVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
-        for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
+        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
         {
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.EscapeSceneA, ending.Phase, "takeoff color-math scene reached");
+        AssertEqual(EndingCreditsPhase.EscapeSceneA, ending.Stage.Phase, "takeoff color-math scene reached");
         for (int frame = 0; frame < 90; frame++) ending.Step();
         var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
         var memory = new SoftwarePpuSnapshotMemory(snapshot.Memory);

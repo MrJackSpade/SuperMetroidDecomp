@@ -95,7 +95,7 @@ internal static class BombTorizoMovementDefinitionsVerification
                 Radius = new(8, 8),
             };
             var state = new TorizoEnemyState(slot, isGolden: false);
-            var next = enemies.BombTorizoBehavior.ProcessBombTorizoWalkInstruction(slot, state, null, level, new TorizoWalkStep { TableOffset = tableOffset, CollisionFacingRight = TorizoBodyProgram.FacingLeftTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightTurningRight });
+            var next = enemies.BombTorizoBehavior.Choices.ProcessBombTorizoWalkInstruction(slot, state, null, level, new TorizoWalkStep { TableOffset = tableOffset, CollisionFacingRight = TorizoBodyProgram.FacingLeftTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightTurningRight });
 
             AssertEqual(BombTorizoMovementDefinitions.WalkVelocity(tableOffset),
                 state.Velocity.X.RawValue,

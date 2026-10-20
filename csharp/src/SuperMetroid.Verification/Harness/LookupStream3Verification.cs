@@ -1304,14 +1304,14 @@ internal static class LookupStream3Verification
         foreach (bool mixed in new[] { false, true })
         {
             var scatter = new MotherBrainRainbowBeamAttackSequence();
-            scatter.Body.Position = new(320, 192);
+            scatter.State.Body.Position = new(320, 192);
             for (int burst = 0; burst < 8; burst++)
             {
-                scatter.DeathExplosionIntervalTimer = NativeCountdown.Start(0);
+                scatter.ThirdPhaseDeath.DeathExplosionIntervalTimer = NativeCountdown.Start(0);
                 int calls = 0;
                 Func<int> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();
-                scatter.GenerateDeathExplosions(mixed ? MotherBrainDeathExplosionStyle.Mixed : MotherBrainDeathExplosionStyle.Smoky, random, requests);
+                scatter.ThirdPhaseDeath.GenerateDeathExplosions(mixed ? MotherBrainDeathExplosionStyle.Mixed : MotherBrainDeathExplosionStyle.Smoky, random, requests);
                 int group = 6 - burst % 7;
                 AssertEqual(mixed ? 4 : 2, requests.Count, "stream 3 death scatter burst size");
                 AssertEqual(requests.Count, calls, "stream 3 one RNG call per death projectile");
@@ -1319,16 +1319,16 @@ internal static class LookupStream3Verification
                 {
                     short x = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 16 * group + 4 * item));
                     short y = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 16 * group + 4 * item));
-                    AssertEqual((ushort)group, scatter.DeathAndEscapeExplosionIndex.RawValue, "stream 3 death scatter reverse group order");
+                    AssertEqual((ushort)group, scatter.ThirdPhaseDeath.DeathAndEscapeExplosionIndex.RawValue, "stream 3 death scatter reverse group order");
                     AssertEqual((x, y), (requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
-                    AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.Body.Position.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
-                    AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.Body.Position.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
+                    AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.State.Body.Position.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
+                    AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.State.Body.Position.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
                     AssertEqual(mixed ? (ushort)2 : (ushort)1, requests[item].ProjectileParameter, "stream 3 independent death type case");
                 }
             }
         }
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        sequence.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStartEscape;
+        sequence.State.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStartEscape;
         var bus = new TestAddressSpace();
         var samus = new SamusState { Health = 99 };
         var firstPage = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
@@ -1361,12 +1361,12 @@ internal static class LookupStream3Verification
         foreach (ushort stage in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
         {
             var sequence = new MotherBrainRainbowBeamAttackSequence();
-            sequence.Body.Position = sequence.Body.Position.WithX(0);
-            sequence.PainfulWalkingStage = stage;
+            sequence.State.Body.Position = sequence.State.Body.Position.WithX(0);
+            sequence.DrainedByBaby.PainfulWalkingStage = stage;
             // As the stagger's setup does before each walk: the stage selects its delay (terminal stages keep the last).
-            sequence.PainfulWalkingAnimationDelay = MotherBrainPainfulWalkingDefinitions.AnimationDelay(Math.Min(stage, (ushort)7));
-            sequence.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * Math.Min(stage, (ushort)7))), sequence.PainfulWalkingFunctionTimer.RawValue,
+            sequence.DrainedByBaby.PainfulWalkingAnimationDelay = MotherBrainPainfulWalkingDefinitions.AnimationDelay(Math.Min(stage, (ushort)7));
+            sequence.DrainedByBaby.StepPainfulWalking();
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * Math.Min(stage, (ushort)7))), sequence.DrainedByBaby.PainfulWalkingFunctionTimer.RawValue,
                 "stream 3 real stagger timer clamps terminal stages");
         }
     }
@@ -1376,8 +1376,8 @@ internal static class LookupStream3Verification
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        Func<MotherBrainSpriteTileTransferRequest> timer = sequence.CreateNextEscapeTimerTileTransfer;
-        Func<MotherBrainSpriteTileTransferRequest> door = sequence.CreateNextExplodedDoorTileTransfer;
+        Func<MotherBrainSpriteTileTransferRequest> timer = sequence.ThirdPhaseDeath.CreateNextEscapeTimerTileTransfer;
+        Func<MotherBrainSpriteTileTransferRequest> door = sequence.ThirdPhaseDeath.CreateNextExplodedDoorTileTransfer;
         foreach (bool timerList in new[] { true, false })
         {
             int count = timerList ? 7 : 2;
@@ -1393,7 +1393,7 @@ internal static class LookupStream3Verification
                 AssertEqual(expected, calculated, "stream 3 native escape graphics record");
                 AssertEqual(expected, method(),
                     "stream 3 production escape transfer selection");
-                AssertEqual((ushort)(index + 1), timerList ? sequence.EscapeTimerTileTransferIndex : sequence.ExplodedDoorTileTransferIndex,
+                AssertEqual((ushort)(index + 1), timerList ? sequence.ThirdPhaseDeath.EscapeTimerTileTransferIndex : sequence.ThirdPhaseDeath.ExplodedDoorTileTransferIndex,
                     "stream 3 production escape cursor advances once");
             }
             try

@@ -49,6 +49,9 @@ public sealed class CrocomireEnemyState
     /// </summary>
     internal CrocomireBodyProgram BodyResidentProgram => CrocomireBodyAnimations.Programs.ResidentProgram(BodyCursor);
 
+    /// <summary>The camera position the last main update saw; its X places the BG2 body and decides whether the body is on screen.</summary>
+    internal Position16<RoomPixels> Camera { get; set; }
+
     /// <summary>The tongue's animation program.</summary>
     internal CrocomireTongueProgram TongueProgram { get; set; }
 

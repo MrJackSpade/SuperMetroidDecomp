@@ -106,7 +106,7 @@ internal static class TorizoProjectileAnimationsVerification
         {
             ushort random = (ushort)(index << 2);
             AssertEqual(cartridge.ReadCartridgeWord(word),
-                ProjectileEntry(BombTorizoBehavior.SelectLowHealthDroolProgram(random)), $"low-health drool delay table entry {index}");
+                ProjectileEntry(TorizoAttacks.SelectLowHealthDroolProgram(random)), $"low-health drool delay table entry {index}");
         }
 
         foreach (TorizoProjectileProgram sleeping in new[] { TorizoProjectileProgram.EggBouncingLeft, TorizoProjectileProgram.EggBouncingRight })

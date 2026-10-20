@@ -40,7 +40,7 @@ internal static class KraidReportedCollisionsVerification
             state.HeadProgram = closed
                 ? AnimationProgramCursor<KraidHeadProgram>.Start(KraidHeadProgram.Roar)
                 : new AnimationProgramCursor<KraidHeadProgram>(KraidHeadProgram.Roar, 4);
-            runtime.Enemies.KraidBehavior.ExecuteKraidHeadInstruction(body, state);
+            runtime.Enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction(body, state);
             bool marked = false;
             bool spawned = false;
             for (int frame = 0; frame < 24; frame++)
@@ -93,7 +93,7 @@ internal static class KraidReportedCollisionsVerification
             lint.Properties = lint.Properties.Without(EnemyProperties.IgnoreSamusCollision);
             state.Parts[lint.SlotIndex].Function = KraidAiFunction.LintInactive;
             ResetSamus(100, 400);
-            runtime.Enemies.KraidBehavior.RunKraidLintMain(lint, samus);
+            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint, samus);
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
             AssertEqual((short)-25, samus.Kinematics.ExtraDisplacement.X.WholePixels, "Native complement-based lint push");
             AssertEqual(true, lint.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Lint becomes intangible after contact");
@@ -104,7 +104,7 @@ internal static class KraidReportedCollisionsVerification
             body.Position = body.Position.WithWhole(new(176, 457));
             state.Parts[0].Function = KraidAiFunction.RaiseBody;
             state.DisplayedHeadFrame = null;
-            runtime.Enemies.KraidBehavior.RunKraidRiseFunction(body, state, samus);
+            runtime.Enemies.KraidBehavior.Rise.RunKraidRiseFunction(body, state, samus);
             AssertEqual((AnimationProgramCursor<KraidHeadProgram>?)KraidHeadAnimations.RoarAfterEntryFrame, state.HeadProgram, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Slots[0];
             shot.Type = 0x8004; shot.Damage = 40;

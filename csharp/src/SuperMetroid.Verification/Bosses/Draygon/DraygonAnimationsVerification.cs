@@ -141,7 +141,7 @@ internal static class DraygonAnimationsVerification
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })
             state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.Sleep));
-        enemies.DraygonBehavior.Draygon = state;
+        enemies.DraygonBehavior.Parts.Draygon = state;
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.VerificationServices().ReadRandom = () => 4660;
         return (enemies, state);
@@ -227,7 +227,7 @@ internal static class DraygonAnimationsVerification
             "the projectile catalog lists every frame");
 
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
-        enemies.DraygonBehavior.SpawnDraygonGoop(state, movingRight: true);
+        enemies.DraygonBehavior.Parts.SpawnDraygonGoop(state, movingRight: true);
         RoomEnemyProjectileSlot goop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonGoop);
         AssertTrue(goop.Animation is DraygonProjectileAnimation, "the real goop producer starts the typed goop program");
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));

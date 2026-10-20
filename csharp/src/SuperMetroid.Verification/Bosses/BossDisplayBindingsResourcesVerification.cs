@@ -108,7 +108,7 @@ internal static class BossDisplayBindingsResourcesVerification
             Tentacles = fixture.Actor,
             Mouth = fixture.Enemies.SlotTable.Slots[3],
         };
-        fixture.Enemies.PhantoonBehavior.Phantoon = state;
+        fixture.Enemies.PhantoonBehavior.Combat.Phantoon = state;
         fixture.SetFrame(0, false);
         state.PartProgram(fixture.Actor) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.Tentacles);
         fixture.Actor.InstructionTimer = NativeCountdown.Start(1);

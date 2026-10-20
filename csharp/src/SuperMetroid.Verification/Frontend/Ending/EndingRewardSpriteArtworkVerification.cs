@@ -71,11 +71,11 @@ internal static class EndingRewardSpriteArtworkVerification
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             var audio = new CartridgeAudioState();
             var scene = CreateRetailEndingFixture(audio, 2, 0);
-            scene.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
+            scene.InstalledArtwork.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
                 CreditsPresentationExtractor.Extract(
                     SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")))));
-            scene.BindObjectArtwork(stock);
-            scene.BindMode7Artwork(installation.LoadEndingMode7Art());
+            scene.InstalledArtwork.BindObjectArtwork(stock);
+            scene.Stage.BindMode7Artwork(installation.LoadEndingMode7Art());
             AssertTrue(FindVisibleEdit(EndingCreditsPhase.PostCreditsReward, 60000, 150),
                 "edited suitless idle frame changes live OAM and visible reward pixels");
             AssertTrue(FindVisibleEdit(EndingCreditsPhase.PostCreditsGesture, 2000, 400),
@@ -94,18 +94,18 @@ internal static class EndingRewardSpriteArtworkVerification
 
             bool FindVisibleEdit(EndingCreditsPhase target, int arrivalLimit, int visibleLimit)
             {
-                for (int frame = 0; frame < arrivalLimit && scene.Phase != target; frame++)
+                for (int frame = 0; frame < arrivalLimit && scene.Stage.Phase != target; frame++)
                 {
                     scene.Step();
                     audio.AdvanceFrame(default);
                 }
-                AssertEqual(target, scene.Phase,
+                AssertEqual(target, scene.Stage.Phase,
                     $"reward sprite edit reaches {target}");
-                for (int frame = 0; frame < visibleLimit && scene.Phase == target; frame++)
+                for (int frame = 0; frame < visibleLimit && scene.Stage.Phase == target; frame++)
                 {
-                    scene.BindObjectArtwork(stock);
+                    scene.InstalledArtwork.BindObjectArtwork(stock);
                     LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                    scene.BindObjectArtwork(edited);
+                    scene.InstalledArtwork.BindObjectArtwork(edited);
                     LayeredRenderSnapshot after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                     if (!before.Memory.SpriteParts().SequenceEqual(after.Memory.SpriteParts()) &&
                         !SoftwareLayeredSnapshotRenderer.Render(before).SequenceEqual(

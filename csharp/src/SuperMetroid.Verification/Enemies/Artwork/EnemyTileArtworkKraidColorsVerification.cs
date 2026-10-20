@@ -30,7 +30,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
         var colorReaderOwner = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
-        Func<KraidPaletteSource, int, Bgr555> productionReader = colorReaderOwner.KraidBehavior.ReadKraidColor;
+        Func<KraidPaletteSource, int, Bgr555> productionReader = colorReaderOwner.KraidBehavior.Background.ReadKraidColor;
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         {
             int count = KraidPaletteRomData.ColorCount(source);
@@ -200,12 +200,12 @@ internal static class EnemyTileArtworkKraidColorsVerification
         body.Health = 1000;
         var state = new KraidEnemyState();
         // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.
-        enemies.KraidBehavior.Kraid = state;
+        enemies.KraidBehavior.Access.Kraid = state;
         switch (consumer)
         {
             case KraidPaletteConsumer.BackdropLoad:
             case KraidPaletteConsumer.InitialTargetLoad:
-                new Action<KraidPaletteSource, CgramPalette>(enemies.KraidBehavior.LoadKraidColorBand)(
+                new Action<KraidPaletteSource, CgramPalette>(enemies.KraidBehavior.Rise.LoadKraidColorBand)(
                         consumer == KraidPaletteConsumer.BackdropLoad
                             ? KraidPaletteSource.RoomBackdrop
                             : KraidPaletteSource.InitialTarget,
@@ -216,21 +216,21 @@ internal static class EnemyTileArtworkKraidColorsVerification
             case KraidPaletteConsumer.BackdropFade:
                 for (int step = 0; step < 13; step++)
                     enemies.Presentation.GradualColorChange.Advance();
-                _ = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.AdvanceKraidRoomBackgroundFade)(KraidBackdropFade.ToRoomColors);
+                _ = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade)(KraidBackdropFade.ToRoomColors);
                 break;
             case KraidPaletteConsumer.HealthNormal:
             case KraidPaletteConsumer.HealthFlash:
                 state.HurtFrame = consumer == KraidPaletteConsumer.HealthFlash
                     ? (ushort)1 : (ushort)0;
-                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.UpdateKraidHealthPalettes)(body, state);
+                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UpdateKraidHealthPalettes)(body, state);
                 break;
             case KraidPaletteConsumer.EyeUnglow:
                 for (int eye = 0; eye < 3; eye++)
                     cgram.SetColor(113 + eye, Bgr555.FromWord(0x03ff));
-                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.UnglowKraidEye)(body, state);
+                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UnglowKraidEye)(body, state);
                 break;
             case KraidPaletteConsumer.DeathArm:
-                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.InitializeKraidDeath)(body, state);
+                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath)(body, state);
                 break;
             default:
                 throw new InvalidOperationException($"Unknown Kraid palette consumer {consumer}.");

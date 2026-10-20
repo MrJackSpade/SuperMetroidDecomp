@@ -666,7 +666,7 @@ internal static class LookupStream4Verification
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 enemies.Presentation.BindCgram(cgram);
-                Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.UpdateCeresSelfDestructPalette;
+                Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette;
                 var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
                 for (ushort nmi = 0; nmi < 64; nmi++)
                 {
@@ -783,10 +783,10 @@ internal static class LookupStream4Verification
         {
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
             var state = new EndingCreditsState(new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
-            state.Mode7 = state.Mode7.WithWholeX(100).WithFractionX(0xC000);
-            state.Mode7Zoom = 0xC00; state.PhaseTimer = 100;
-            state.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
-            Action step = fast ? state.StepPlanetEscapeFast : state.StepPlanetEscapeSlow;
+            state.Stage.Mode7 = state.Stage.Mode7.WithWholeX(100).WithFractionX(0xC000);
+            state.Stage.Mode7Zoom = 0xC00; state.Stage.PhaseTimer = 100;
+            state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
+            Action step = fast ? state.Flyaway.StepPlanetEscapeFast : state.Flyaway.StepPlanetEscapeSlow;
             uint expected = 100u << 16 | 0xC000;
             int expectedAngle = 0, expectedZoom = 0xC00;
             for (int frame = 0; frame <= count; frame++)
@@ -795,25 +795,25 @@ internal static class LookupStream4Verification
                 if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
                 expectedZoom -= fast ? 8 : 2;
                 step();
-                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), state.Mode7Angle, "rotation context advances independently of selected signs");
-                AssertEqual((ushort)expectedZoom, state.Mode7Zoom, "zoom context advances independently of selected signs");
-                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), state.Mode7.X.Whole, "production shake whole position follows native indexed values");
-                AssertEqual((ushort)expected, state.Mode7.X.Fraction, "production shake fraction preserves carry/borrow");
-                AssertEqual((ushort)((frame + 1) % count), state.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
+                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), state.Stage.Mode7Angle, "rotation context advances independently of selected signs");
+                AssertEqual((ushort)expectedZoom, state.Stage.Mode7Zoom, "zoom context advances independently of selected signs");
+                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), state.Stage.Mode7.X.Whole, "production shake whole position follows native indexed values");
+                AssertEqual((ushort)expected, state.Stage.Mode7.X.Fraction, "production shake fraction preserves carry/borrow");
+                AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
             }
-            state.Mode7Zoom = fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale;
-            state.PlanetMotionIndex = (ushort)(count - 1);
-            state.Mode7 = state.Mode7.WithWholeX(0).WithFractionX(0x4000);
+            state.Stage.Mode7Zoom = fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale;
+            state.Flyaway.PlanetMotionIndex = (ushort)(count - 1);
+            state.Stage.Mode7 = state.Stage.Mode7.WithWholeX(0).WithFractionX(0x4000);
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), state.Mode7.X.Whole, "terminal negative sample wraps whole position before handoff");
-            AssertEqual((ushort)finalPosition, state.Mode7.X.Fraction, "terminal fraction is preserved before handoff");
-            AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Phase, "native zoom boundary chooses next phase after selected motion");
-            AssertEqual(0, state.PlanetMotionIndex, "handoff preserves wrapped/reset index");
+            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), state.Stage.Mode7.X.Whole, "terminal negative sample wraps whole position before handoff");
+            AssertEqual((ushort)finalPosition, state.Stage.Mode7.X.Fraction, "terminal fraction is preserved before handoff");
+            AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Stage.Phase, "native zoom boundary chooses next phase after selected motion");
+            AssertEqual(0, state.Flyaway.PlanetMotionIndex, "handoff preserves wrapped/reset index");
             if (!fast)
             {
-                AssertEqual((short)0, state.PlanetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
-                AssertEqual((ushort)0x8000, state.PlanetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
+                AssertEqual((short)0, state.Flyaway.PlanetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
+                AssertEqual((ushort)0x8000, state.Flyaway.PlanetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
             }
         }
         foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
@@ -1316,7 +1316,7 @@ internal static class LookupStream4Verification
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         enemies.Presentation.BindCgram(new SnesCgram());
         enemies.Room.Session.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
-        Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway;
+        Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway;
         var state = new RidleyEnemyState { Mode7TableIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
@@ -1808,8 +1808,8 @@ internal static class LookupStream4Verification
                 RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement), "Named movement policy preserves each movement type's release duration");
         }
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Func<SamusState?, bool> canGrab = RidleyBehavior.SamusMovementUsesRidleyGrab;
-        Action<RidleyEnemyState, SamusState?> release = RidleyBehavior.ReleaseNorfairRidleyGrab;
+        Func<SamusState?, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
+        Action<RidleyEnemyState, SamusState?> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
         for (int pose = 0; pose <= 0xfc; pose++)
         {
             var samus = new SamusState { Pose = (SamusPoseId)pose };
@@ -2459,10 +2459,10 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies=new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork}; var actual=new SnesCgram(); var vram=new SnesVram();
                 enemies.Presentation.BindCgram(actual); enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
-                new Action<RoomEnemySlot>(enemies.DraygonBehavior.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
+                new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
-                AssertEqual(true,(enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");
-                AssertEqual(DraygonAiFunction.IntroInitialDelay,enemies.DraygonBehavior.Draygon.Function,"Actual initializer phase");
+                AssertEqual(true,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");
+                AssertEqual(DraygonAiFunction.IntroInitialDelay,enemies.DraygonBehavior.Parts.Draygon.Function,"Actual initializer phase");
             }
         }
         ushort[] escape=Enumerable.Range(0,15).Select(index=>CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e+index*2))).ToArray();
@@ -2527,7 +2527,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies=new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork}; var cgram=new SnesCgram();
                 enemies.Presentation.BindCgram(cgram);                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=5};
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
                     body.FlashTimer=NativeCountdown.FromRaw(timer); hurt(body,state,null);
@@ -2591,7 +2591,7 @@ internal static class LookupStream4Verification
                 var enemies=new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork}; var cgram=new SnesCgram();
                 enemies.Presentation.BindCgram(cgram);
                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=3};
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
                     body.FlashTimer=NativeCountdown.FromRaw(timer); hurt(body,state,null);
@@ -2645,8 +2645,8 @@ internal static class LookupStream4Verification
                 var cgram = new SnesCgram();
                 enemies.Presentation.BindCgram(cgram);
                 RoomEnemySlot body = enemies.SlotTable.Slots[0]; var state = new DraygonEnemyState(body);
-                Action<DraygonEnemyState> update = enemies.DraygonBehavior.UpdateDraygonHealthPalette;
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
+                Action<DraygonEnemyState> update = enemies.DraygonBehavior.Combat.UpdateDraygonHealthPalette;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
                 {
                     body.Health = (ushort)((7 - band) * 750); state.HealthPaletteBand = null;
@@ -2784,10 +2784,10 @@ internal static class LookupStream4Verification
                 enemies.Presentation.BindCgram(cgram);
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
-                new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
+                new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
                 state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = NativeCountdown.Start(0);
-                Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.TickNorfairRidleyArenaReveal;
+                Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
                 {
                     tick(slot, state);
@@ -2876,7 +2876,7 @@ internal static class LookupStream4Verification
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
-                new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
+                new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
                         : color is >= 113 and <= 127 or >= 241 and <= 255 ? (ushort)0 : (ushort)0x1234,
@@ -3045,7 +3045,7 @@ internal static class LookupStream4Verification
             for (int index = 1; index <= freeSlots; index++) enemies.SlotTable.Slots[index].Clear();
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);
-            Action<RidleyEnemyState> spawn = enemies.RidleyBehavior.SpawnNorfairRidleyBreakupActors;
+            Action<RidleyEnemyState> spawn = enemies.RidleyBehavior.Death.SpawnNorfairRidleyBreakupActors;
             var state = new RidleyEnemyState
             {
                 TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
@@ -3328,7 +3328,7 @@ internal static class LookupStream4Verification
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = selected } };
             enemies.Presentation.BindCgram(cgram);
-            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrames.Spritemap(enemies.CeresRidleyBehavior.AdvanceCeresBabyDrawInstruction(baby));
+            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrames.Spritemap(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
             for (int phase = 0; phase < 12; phase++)
             {
                 int cursor = 0xbf5d + phase * 8;
@@ -3418,7 +3418,7 @@ internal static class LookupStream4Verification
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyMode7Colors = selected } };
             enemies.Presentation.BindCgram(cgram);
-            Action<ushort> apply = enemies.CeresRidleyBehavior.UpdateCeresRidleyMode7Palette;
+            Action<ushort> apply = enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyMode7Palette;
             for (int row = 0; row < 9; row++)
             {
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
@@ -3521,8 +3521,8 @@ internal static class LookupStream4Verification
             var enemies = new RoomEnemySystem(new EnemySession()) { Presentation = { CeresRidleyColors = selected } };
             var cgram = new SnesCgram();
             enemies.Presentation.BindCgram(cgram);
-            Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.UpdateNorfairRidleyHealthPalette;
-            Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.UpdateCeresRidleyHealthPalette;
+            Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette;
+            Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.Hits.UpdateCeresRidleyHealthPalette;
             void Fill() { for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234)); }
             void Check(int row)
             {

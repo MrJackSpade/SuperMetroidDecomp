@@ -46,8 +46,8 @@ internal static class SamusBallBounceDefinitionsVerification
                 samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
                 bool grounded = spring
-                    ? SamusPoseTransitions.ApplySpringBallLanding(samus, controllerInput: 0)
-                    : SamusPoseTransitions.ApplyMorphBallLanding(samus);
+                    ? SamusPosturePoseTransitions.ApplySpringBallLanding(samus, controllerInput: 0)
+                    : SamusPosturePoseTransitions.ApplyMorphBallLanding(samus);
                 bool first = phase == 0 && unchecked((short)(raw - 3)) >= 0;
                 bool rebound = first || phase == 1;
                 AssertEqual(!rebound, grounded, "Native rebound versus grounded return");

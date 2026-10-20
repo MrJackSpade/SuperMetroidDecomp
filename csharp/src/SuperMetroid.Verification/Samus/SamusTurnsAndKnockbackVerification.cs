@@ -140,7 +140,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
             ? targetFacesLeft ? SamusPoseId.TurningRightToLeftJumpPose : SamusPoseId.TurningLeftToRightJumpPose
             : targetFacesLeft ? SamusPoseId.TurningRightToLeftFallingPose : SamusPoseId.TurningLeftToRightFallingPose;
         AssertTrue(
-            SamusPoseTransitions.TryApplyAerialTurn(samus, level, genericTarget, nmiFrameCounter: 0),
+            SamusAerialPoseTransitions.TryApplyAerialTurn(samus, level, genericTarget, nmiFrameCounter: 0),
             $"{(jumping ? "jump" : "fall")} turn direction {shotDirection} fits");
         AssertEqual(expectedPose, samus.Pose, $"{(jumping ? "jump" : "fall")} selector direction {shotDirection}");
         AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseFixed, "aerial selector folds extra speed");
@@ -161,7 +161,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     turn.Kinematics.YDirection = SamusVerticalDirection.Up;
     turn.Kinematics.YSpeed = turn.Kinematics.YSpeed.WithWhole(2);
     turn.Kinematics.YAcceleration = turn.Kinematics.YAcceleration.WithFraction(0x2800);
-    AssertTrue(SamusPoseTransitions.TryApplyAerialTurn(turn, level, SamusPoseId.TurningRightToLeftJumpPose, 0), "diagonal-up aerial turn installs");
+    AssertTrue(SamusAerialPoseTransitions.TryApplyAerialTurn(turn, level, SamusPoseId.TurningRightToLeftJumpPose, 0), "diagonal-up aerial turn installs");
     uint turnXBefore = turn.Kinematics.Position.X.RawValue;
     SamusAerialMovement.StepTurningInAir(level, turn, 0);
     AssertEqual(0x00010000, unchecked((int)(turn.Kinematics.Position.X.RawValue - turnXBefore)), "turn retains old rightward momentum after native 0.8000 deceleration");
@@ -209,7 +209,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPresentation.InitializeAnimation(endpoint);
         endpoint.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         ushort timerBeforeRelease = endpoint.AnimationFrameTimer.RawValue;
-        SamusPoseTransitions.ApplyTurnInputFallback(endpoint, SamusPoseMetadata.ReadMovementType(endpoint));
+        SamusGroundedPoseTransitions.ApplyTurnInputFallback(endpoint, SamusPoseMetadata.ReadMovementType(endpoint));
         AssertEqual(SamusAccelerationMode.Accelerating, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
         AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
         AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer.RawValue, "released turn does not restart animation");
@@ -235,7 +235,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
 
     var earlyContact = CreateSpinSamus(animationFrame: 0);
     var releasedWallJump = CreateSpinSamus(animationFrame: 0x0b);
-    SamusPoseTransitions.ApplyWallJumpTrigger(releasedWallJump);
+    SamusAerialPoseTransitions.ApplyWallJumpTrigger(releasedWallJump);
     uint beforeReleasedWallX = releasedWallJump.Kinematics.Position.X.RawValue;
     SamusAerialMovement.StepWallJump(level, releasedWallJump, 0, 0);
     AssertEqual(SamusAccelerationMode.Decelerating, releasedWallJump.HorizontalSpeed.AccelerationMode,
@@ -362,7 +362,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     eligible.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0x7000);
     eligible.HorizontalSpeed.HasRunningMomentum = true;
     eligible.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPoseTransitions.ApplyWallJumpTrigger(eligible);
+    SamusAerialPoseTransitions.ApplyWallJumpTrigger(eligible);
     SamusAtmosphericEffectSlot wallDust = eligible.LiquidPhysics.AtmosphericEffects.Slots[3];
     AssertEqual(0x0600, wallDust.FrameAndType, "wall jump creates native dust in slot three");
     AssertEqual(3, wallDust.AnimationTimer.RawValue, "wall dust begins with timer three");

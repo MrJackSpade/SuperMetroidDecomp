@@ -62,7 +62,7 @@ internal static class MotherBrainSmallPurpleBreathVerification
         // The brain-list opcode $A9:9F8E also clears generation. Publishing the rainbow body's
         // state must not restore the flag unless the body itself wrote it (#1269).
         state.SmallPurpleBreathGenerationEnabled = false;
-        runtime.Enemies.MotherBrainBehavior.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, null);
+        runtime.Enemies.MotherBrainBehavior.Attacks.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, null);
         AssertTrue(!state.SmallPurpleBreathGenerationEnabled,
             "an unwritten rainbow-body flag leaves the brain-list clear in place");
         Console.WriteLine("Mother Brain small purple breath: RNG-gated spawn, one at a time, flag cleared on its last instruction.");

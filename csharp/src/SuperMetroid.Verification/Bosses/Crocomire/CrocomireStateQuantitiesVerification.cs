@@ -116,7 +116,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 0; frame < 400; frame++)
         {
             bool moving = NativeSinkStep(ref acceleration, ref speed, ref subposition, ref y);
-            enemies.CrocomireBehavior.RunCrocomireSink(state);
+            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state);
             if (!moving)
             {
                 AssertEqual(CrocomireDeathPhase.FirstHopSink.Next(), state.DeathSequenceIndex, $"{name}: ends on the native frame");
@@ -141,7 +141,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 0; frame < 400; frame++)
         {
             bool moving = NativeRiseStep(ref acceleration, ref speed, ref subposition, ref y);
-            enemies.CrocomireBehavior.RunCrocomireRise(state);
+            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireRise(state);
             if (!moving)
             {
                 AssertEqual(CrocomireDeathPhase.FirstHopRise.Next(), state.DeathSequenceIndex, $"{name}: ends on the native frame");
@@ -229,7 +229,7 @@ internal static class CrocomireStateQuantitiesVerification
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemySlot body = state.Body;
         CrocomireBehavior behavior = enemies.CrocomireBehavior;
-        CrocomireDeathState death = behavior.CrocomireDeath ?? throw new InvalidOperationException("Verification requires the death state.");
+        CrocomireDeathState death = behavior.Access.CrocomireDeath ?? throw new InvalidOperationException("Verification requires the death state.");
         ushort fraction = 0;
         ushort whole = 0;
         state.SkeletonVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction);
@@ -246,7 +246,7 @@ internal static class CrocomireStateQuantitiesVerification
             position = position.WithX(NativeAdvance(position.X, fraction, whole));
             if (frame == delay)
                 fraction = 0;
-            behavior.RunCrocomireWallBreakDelay(state);
+            behavior.Skeleton.RunCrocomireWallBreakDelay(state);
             AssertSkeletonWords(state, fraction, whole, position, $"skeleton drift frame {frame}");
         }
         AssertEqual(CrocomireDeathPhase.DelaySkeletonFall.Next(), state.DeathSequenceIndex, "the drift ends with its delay");
@@ -257,7 +257,7 @@ internal static class CrocomireStateQuantitiesVerification
             NativeAccelerate(ref fraction, ref whole, SnesSixteenSixteen.FromEightEight(8u), 5);
             position = position.WithY(NativeAdvance(position.Y, SnesLittleEndian.Word(0, 224), 0));
             position = position.WithX(NativeAdvance(position.X, fraction, whole));
-            behavior.RunCrocomireSkeletonArc(state);
+            behavior.Skeleton.RunCrocomireSkeletonArc(state);
             AssertSkeletonWords(state, fraction, whole, position, $"skeleton arc frame {frame}");
             if (unchecked((short)(position.X.Whole - 576)) >= 0)
                 break;
@@ -269,7 +269,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 1; frame <= 20; frame++)
         {
             NativeAccelerate(ref fraction, ref whole, SnesSixteenSixteen.FromEightEight(16u), 6);
-            behavior.RunCrocomireSkeletonCollapse(state);
+            behavior.Skeleton.RunCrocomireSkeletonCollapse(state);
             AssertEqual(fraction, state.SkeletonVelocity.Fraction, $"skeleton collapse frame {frame}: speed fraction word");
             AssertEqual(whole, state.SkeletonVelocity.WholeWord, $"skeleton collapse frame {frame}: speed whole word");
         }
@@ -307,10 +307,10 @@ internal static class CrocomireStateQuantitiesVerification
         var fixture = new EnemyEffectsFixtureVerification.CrocomireEffectFixture(EnemyEffectsFixtureVerification.MeltEffectArtwork());
         CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Passes[0];
         fixture.InitializeMap((int)CrocomireMeltingTilemapAddress.FirstTilemap);
-        fixture.Call(c => c.InitializeCrocomireMeltingGraphics);
+        fixture.Call(c => c.Melting.InitializeCrocomireMeltingGraphics);
         for (int record = 0; record <= pass.Uploads.Length; record++)
-            fixture.Call(c => c.UploadNextCrocomireMeltingGraphicsSlice);
-        fixture.Call(c => c.BeginCrocomireMelting);
+            fixture.Call(c => c.Melting.UploadNextCrocomireMeltingGraphicsSlice);
+        fixture.Call(c => c.Melting.BeginCrocomireMelting);
         AssertEqual(0, fixture.Effect.MeltShakeCounter.RawValue, "the melt shake counter starts from zero");
 
         int startX = fixture.Effect.BodyXBeforeMelting;
@@ -334,8 +334,8 @@ internal static class CrocomireStateQuantitiesVerification
         body.Position = body.Position.WithWhole(new(576, 144));
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
         var state = new CrocomireEnemyState(body);
-        enemies.CrocomireBehavior.Crocomire = state;
-        enemies.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();
+        enemies.CrocomireBehavior.Access.Crocomire = state;
+        enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return (enemies, state);

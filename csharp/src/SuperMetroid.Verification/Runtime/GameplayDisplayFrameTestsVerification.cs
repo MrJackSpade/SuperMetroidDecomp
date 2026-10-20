@@ -95,13 +95,13 @@ internal static class GameplayDisplayFrameTestsVerification
     {
         OrdinaryGameplayRegisters before = Registers(runtime);
         var kraid = new KraidEnemyState { OwnsBg2Tilemap = true, Bg2Scroll = new Position16<Bg2Pixels>(320, 88) };
-        runtime.Enemies.KraidBehavior.Kraid = kraid;
+        runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
         MarkMainLoopWrite(runtime);
         AssertPending(runtime, registers => registers.Bg2MapSize == before.Bg2MapSize &&
             registers.Bg2Scroll == before.Bg2Scroll, "Kraid's body on BG2");
         AssertPublished(runtime, registers => registers.Bg2MapSize == new Extent16<TilemapCells>(64, 64) &&
             registers.Bg2Scroll == kraid.Bg2Scroll, "Kraid's body on BG2");
-        runtime.Enemies.KraidBehavior.Kraid = null;
+        runtime.Enemies.KraidBehavior.Access.Kraid = null;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { HasBg2ScrollOverride = true, DeathBg2Hidden = true };

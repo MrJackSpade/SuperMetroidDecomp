@@ -67,24 +67,24 @@ internal static class EndingShootingStarsTests
         var installed = RepositoryInstallation.Installation;
         var maps = installed.LoadMaps();
         var scene = new EndingCreditsState(new CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
-        scene.BindObjectArtwork(installed.LoadEndingObjectArt());
-        scene.BindPaletteArtwork(installed.LoadEndingPalettes());
-        scene.BindPaletteFxColors(maps.RoomPaletteFx);
-        scene.BindEndingFont(maps.EndingFont); scene.BindEndingText(maps.EndingText);
-        scene.LoadCreditsAndPostCreditsAssets();
-        scene.SetupPostCreditsBlank();
+        scene.InstalledArtwork.BindObjectArtwork(installed.LoadEndingObjectArt());
+        scene.InstalledArtwork.BindPaletteArtwork(installed.LoadEndingPalettes());
+        scene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
+        scene.Stage.BindEndingFont(maps.EndingFont); scene.InstalledArtwork.BindEndingText(maps.EndingText);
+        scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();
+        scene.CreditsRoll.SetupPostCreditsBlank();
         var seen = new HashSet<EndingCreditsPhase>();
         for (int tick = 0; tick < 400; tick++)
         {
             scene.Step();
-            if (scene.Brightness == 0 || !seen.Add(scene.Phase)) continue;
+            if (scene.Brightness == 0 || !seen.Add(scene.Stage.Phase)) continue;
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             Require(snapshot.Memory.SpriteDraws.Length > 0, "Post-credits owner emits star OAM");
             var emptyMemory = new PpuMemorySnapshot(snapshot.Memory.Vram, snapshot.Memory.Cgram, []);
             var withoutStars = new LayeredRenderSnapshot(emptyMemory, snapshot.Layers.ToArray(), snapshot.ObjectSelection, snapshot.Brightness);
             var pixels = scene.Render();
             var noStars = SoftwareLayeredSnapshotRenderer.Render(withoutStars);
-            bool hidden = scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
+            bool hidden = scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
             Require(pixels.SequenceEqual(noStars) == hidden, "Stars are visible except behind the native text-only TM");
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), snapshot);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Post-credits stars CPU/GPU rendering");
@@ -98,8 +98,8 @@ internal static class EndingShootingStarsTests
         // the icon's actor program completes and the final text remains on screen.
         var cgram = scene.screen.Palette;
         var logo = new EndingLogo(cgram, () => { }, installed.LoadEndingPalettes());
-        scene.CurrentEndingLogo = logo;
-        scene.Phase = EndingCreditsPhase.PostCreditsLogo;
+        scene.InstalledArtwork.CurrentEndingLogo = logo;
+        scene.Stage.Phase = EndingCreditsPhase.PostCreditsLogo;
         logo.PaletteStep = 16;
         logo.CrossfadeStarted = true;
         var final = EndingCreditsPresentation.CaptureRenderSnapshot(scene);

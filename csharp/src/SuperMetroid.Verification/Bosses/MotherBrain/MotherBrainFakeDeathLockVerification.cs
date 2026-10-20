@@ -65,7 +65,7 @@ internal static class MotherBrainFakeDeathLockVerification
         foreach (int expected in expectedIndices)
         {
             state.FakeDeathExplosionTimer = NativeCountdown.Start(0);
-            runtime.Enemies.MotherBrainBehavior.RunMotherBrainFadeToGray(state);
+            runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray(state);
             AssertEqual(expected, state.FakeDeathExplosionIndex,
                 $"an expired explosion timer steps back to position {expected}");
         }

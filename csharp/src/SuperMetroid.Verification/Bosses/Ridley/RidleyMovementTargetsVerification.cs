@@ -40,10 +40,10 @@ internal static class RidleyMovementTargetsVerification
         var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords, RidleyMovementTargets.HoverDivisorIndexes, 4);
         var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords, RidleyMovementTargets.GrabDivisorIndexes, 4);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, RidleyEnemyState> beginCarry = RidleyBehavior.BeginNorfairRidleyCarry;
-        Func<RidleyEnemyState, int> readDivisor = RidleyBehavior.ReadRidleyHealthMovementDivisorIndex;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, VerticalDirection> pogo = enemies.RidleyBehavior.TickNorfairRidleyPogo;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> moveSide = enemies.RidleyBehavior.TickNorfairRidleyGroundAttackMoveToSide;
+        Action<RoomEnemySlot, RidleyEnemyState> beginCarry = NorfairRidleyCombat.BeginNorfairRidleyCarry;
+        Func<RidleyEnemyState, int> readDivisor = NorfairRidleyCombat.ReadRidleyHealthMovementDivisorIndex;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, VerticalDirection> pogo = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogo;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> moveSide = enemies.RidleyBehavior.Combat.TickNorfairRidleyGroundAttackMoveToSide;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
         var slot = enemies.SlotTable.Slots[0];
         var state = new RidleyEnemyState();
@@ -109,7 +109,7 @@ internal static class RidleyMovementTargetsVerification
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> approach = enemies.RidleyBehavior.TickNorfairRidleyGrabApproach;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> approach = enemies.RidleyBehavior.Combat.TickNorfairRidleyGrabApproach;
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 256)) };
         for (int health = 0; health <= ushort.MaxValue; health++)
         {

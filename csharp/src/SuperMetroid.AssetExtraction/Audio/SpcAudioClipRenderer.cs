@@ -32,7 +32,7 @@ internal sealed class SpcAudioClipRenderer
     internal SpcAudioClipRenderer(ExtractedAudioAssetCatalog catalog, ISpcDriverObserver? observer = null)
     {
         backend = new ManagedSpcAudioBackend(Ensure.NotNull(catalog));
-        backend.Player.observer = observer;
+        backend.Player.Music.observer = observer;
     }
 
     /// <summary>Frames advanced so far; the next frame's first native sample is <c>Frame * 534</c>.</summary>

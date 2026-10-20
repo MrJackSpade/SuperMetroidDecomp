@@ -22,8 +22,8 @@ internal static class GrappleCompiledMathVerification
 
         // No bus argument is accepted by either production delegate. This makes an
         // accidental ROM dependency a failing contract, not merely equal output.
-        var point = new Func<SamusGrappleState, byte, int, GrappleCollisionPoint>((grapple, angle, distance) => SamusGrappleMovement.CalculateCollisionPoint(grapple, new SnesByteAngle(angle), distance));
-        var release = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.PropelSamusFromSwing);
+        var point = new Func<SamusGrappleState, byte, int, GrappleCollisionPoint>((grapple, angle, distance) => SamusGrappleSwing.CalculateCollisionPoint(grapple, new SnesByteAngle(angle), distance));
+        var release = new Action<SamusState, SamusGrappleState>(SamusGrappleSwing.PropelSamusFromSwing);
         var state = new SamusState();
         (ushort X, ushort Y)[] anchors = [(0, 0), (7, 8), (128, 255), (4095, 4096), (65520, 65535), (65535, 0)];
         int pointCount = 0;

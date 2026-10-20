@@ -68,22 +68,22 @@ internal static class EndingCompletionTextSpriteArtworkVerification
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             var audio = new CartridgeAudioState();
             var scene = CreateRetailEndingFixture(audio, 0, 0);
-            scene.BindObjectArtwork(stock);
+            scene.InstalledArtwork.BindObjectArtwork(stock);
             for (int frame = 0; frame < 12000 &&
-                scene.Phase != EndingCreditsPhase.OperationSuccessfulText; frame++)
+                scene.Stage.Phase != EndingCreditsPhase.OperationSuccessfulText; frame++)
             {
                 scene.Step();
                 audio.AdvanceFrame(default);
             }
-            AssertEqual(EndingCreditsPhase.OperationSuccessfulText, scene.Phase,
+            AssertEqual(EndingCreditsPhase.OperationSuccessfulText, scene.Stage.Phase,
                 "ending completion sprite edit reaches its actual scene");
             bool visible = false;
             for (int frame = 0; frame < 1500 &&
-                scene.Phase == EndingCreditsPhase.OperationSuccessfulText && !visible; frame++)
+                scene.Stage.Phase == EndingCreditsPhase.OperationSuccessfulText && !visible; frame++)
             {
-                scene.BindObjectArtwork(stock);
+                scene.InstalledArtwork.BindObjectArtwork(stock);
                 LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                scene.BindObjectArtwork(edited);
+                scene.InstalledArtwork.BindObjectArtwork(edited);
                 LayeredRenderSnapshot after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 visible = !before.Memory.SpriteParts().SequenceEqual(after.Memory.SpriteParts()) &&
                     !SoftwareLayeredSnapshotRenderer.Render(before).SequenceEqual(

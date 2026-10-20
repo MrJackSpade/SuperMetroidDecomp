@@ -559,7 +559,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         bridgeBombs.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, 0, 0);
         bridgeProjectiles.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), bridgeBombs);
     }
-    SamusPoseTransitions.ApplyOrdinaryJumpTransition(bridgeSamus, 
+    SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(bridgeSamus, 
         SamusPoseId.NeutralJumpTransitionRightPose,
         controllerNewInput: SnesButton.X);
     AssertEqual(0x8002, bridgeSamus.PoseTransitionShotDirection,
@@ -575,7 +575,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "pose-direction bridge supplies stored low-byte direction");
     AssertEqual(0, bridgeProjectiles.Charge.FlareCounter,
         "pose-direction bridge consumes charge counter");
-    SamusPoseTransitions.ClearPoseTransitionShotDirection(bridgeSamus);
+    SamusAerialPoseTransitions.ClearPoseTransitionShotDirection(bridgeSamus);
     AssertEqual(0, bridgeSamus.PoseTransitionShotDirection,
         "current-state epilogue clears pose-direction bridge");
 

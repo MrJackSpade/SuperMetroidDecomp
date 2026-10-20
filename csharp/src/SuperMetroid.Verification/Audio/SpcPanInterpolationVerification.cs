@@ -20,7 +20,7 @@ internal static class SpcPanInterpolationVerification
         byte Instruction(int address) => rom.ReadCartridgeByte(0xcf6c08 + address);
         var player = new ManagedSpcPlayer();
         byte[] ram = player.ram;
-        Action<ManagedSpcMusicChannel, int> write = player.WriteVolume;
+        Action<ManagedSpcMusicChannel, int> write = player.Voices.WriteVolume;
         var channel = new ManagedSpcMusicChannel { FinalVolume = 255 };
         for (int index = 0; index <= 256; index++)
             ram[0x1e1d + index] = rom.ReadCartridgeByte(0xcf8a25 + index);

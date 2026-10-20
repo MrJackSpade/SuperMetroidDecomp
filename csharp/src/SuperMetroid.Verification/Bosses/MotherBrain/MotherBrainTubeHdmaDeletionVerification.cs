@@ -31,14 +31,14 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         AssertEqual(0xadb9, runtime.System.RandomNumber, "the live acid object swaps the RNG bytes");
 
         // The real main-tube landing raises the deletion of HDMA objects 0-3.
-        runtime.Enemies.MotherBrainBehavior.SpawnMotherBrainFallingTube(MotherBrainTubePiece.Main);
+        runtime.Enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(MotherBrainTubePiece.Main);
         RoomEnemySlot tube = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes);
         MotherBrainFallingTubeState tubeState = tube.SpeciesState<MotherBrainFallingTubeState>()
             ?? throw new InvalidOperationException("The spawned main tube has no state.");
         tubeState.Function = MotherBrainTubeFunction.MainTube_Falling;
         tubeState.FallSpeed = default;
         tube.Position = tube.Position.WithWholeY(0x00fc); // the head follows at Y-$38 = $C4, the landing height
-        runtime.Enemies.MotherBrainBehavior.RunMotherBrainFallingTubeMain(tube);
+        runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain(tube);
         AssertTrue(runtime.Enemies.LastEnemyFrame.DeleteLiquidHdmaObjects, "the main tube's landing deletes HDMA objects 0-3");
 
         fx.DeleteLiquidHdmaObjects();

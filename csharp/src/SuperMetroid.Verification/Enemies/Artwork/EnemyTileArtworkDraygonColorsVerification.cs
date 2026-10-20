@@ -100,8 +100,8 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
-        enemies.DraygonBehavior.InitializeDraygonBody(body);
-        DraygonEnemyState state = enemies.DraygonBehavior.Draygon ??
+        enemies.DraygonBehavior.Parts.InitializeDraygonBody(body);
+        DraygonEnemyState state = enemies.DraygonBehavior.Parts.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");
         AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
             "installed Draygon colors leave intro mechanics unchanged");
@@ -109,7 +109,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             DraygonColorRomData.IntroCount, colors.ResolveIntro, "intro CGRAM");
 
         state.HealthPaletteBand = 1;
-        enemies.DraygonBehavior.ApplyDraygonHurt(body, state, null);
+        enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
         for (int color = 0; color < DraygonColorRomData.BackgroundCount; color++)
         {
             Bgr555 expected = color is >= 9 and <= 12
@@ -123,7 +123,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             DraygonColorRomData.SpriteCount, colors.ResolveSprite,
             "normal hurt sprite CGRAM");
         body.FlashTimer = NativeCountdown.Start(2);
-        enemies.DraygonBehavior.ApplyDraygonHurt(body, state, null);
+        enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
         AssertBand(DraygonColorRomData.BackgroundDestination,
             DraygonColorRomData.WhiteFlashCount, colors.ResolveWhiteFlash,
             "white hurt background CGRAM");
@@ -133,7 +133,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
         {
             state.HealthPaletteBand = band;
-            enemies.DraygonBehavior.CopyDraygonHealthColors(state);
+            enemies.DraygonBehavior.Combat.CopyDraygonHealthColors(state);
             for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),
                     cgram.Colors[DraygonColorRomData.HealthDestination + color],

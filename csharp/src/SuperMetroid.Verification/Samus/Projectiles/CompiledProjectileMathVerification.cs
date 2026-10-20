@@ -42,13 +42,13 @@ internal static class CompiledProjectileMathVerification
         var baby = new Func<ushort, byte, ushort>(BabyMetroidCutsceneState.CalculateVelocityComponent);
         var rainbow = new Func<ushort, SnesAngle, ushort>(MotherBrainRainbowBeamSamusMovement.CalculateYVelocity);
         var fly = new Func<int, short>(FliesBehavior.ReadSignedSineCosine);
-        var glass = new Func<int, ushort>(MotherBrainBehavior.ReadSignedSineSample);
+        var glass = new Func<int, ushort>(MotherBrainProjectiles.ReadSignedSineSample);
         var eye = new Func<int, short>(EyeDoorBehavior.ReadEyeDoorAcceleration);
         var rio = new Func<byte, ushort>(angle => RioBehavior.ReadRioSignedSineCosineSample(new SnesByteAngle(angle)));
         var shaktool = new Func<int, ushort>(ShaktoolBehavior.ReadShaktoolCommonSineSample);
-        var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonBehavior.ReadPhantoonFlameComponent(new SnesByteAngle(unchecked((byte)angle)), radius));
+        var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new SnesByteAngle(unchecked((byte)angle)), radius));
         var arc = new Action<RoomEnemyProjectileSlot, ushort>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
-        var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireBehavior.CalculateCrocomireProjectileVelocity(new SnesBearing(bearing)));
+        var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new SnesBearing(bearing)));
         var echo = new Func<SnesAngle, byte, Offset16<RoomPixels>>(SamusShinesparkState.ProjectileSinLookup);
 
         // Every angle high byte (with zero, mid and saturated fractions, which the reader

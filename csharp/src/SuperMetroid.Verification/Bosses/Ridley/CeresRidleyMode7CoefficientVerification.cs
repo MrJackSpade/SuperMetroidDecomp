@@ -16,11 +16,11 @@ internal static class CeresRidleyMode7CoefficientVerification
         {
             ushort word = unchecked((ushort)raw);
             ushort nativeNegation = unchecked((ushort)-(short)word);
-            AssertEqual(nativeNegation, CeresRidleyBehavior.NegateMode7Coefficient(new SnesSignedEightEight(word)).RawValue,
+            AssertEqual(nativeNegation, CeresRidleyGetaway.NegateMode7Coefficient(new SnesSignedEightEight(word)).RawValue,
                 $"Mode 7 coefficient {raw} negates as the native word does");
         }
         AssertEqual(short.MinValue,
-            CeresRidleyBehavior.NegateMode7Coefficient(SnesSignedEightEight.FromSignedRaw(short.MinValue)).SignedRawValue,
+            CeresRidleyGetaway.NegateMode7Coefficient(SnesSignedEightEight.FromSignedRaw(short.MinValue)).SignedRawValue,
             "the most negative coefficient negates to itself");
 
         var getaway = new RidleyEnemyState

@@ -29,7 +29,7 @@ internal static class KraidBodyPublicationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
-        KraidEnemyState state = runtime.Enemies.KraidBehavior.Kraid
+        KraidEnemyState state = runtime.Enemies.KraidBehavior.Access.Kraid
             ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
         EnemyTileArtworkCatalog art = runtime.EnemySession.TileArtwork
             ?? throw new InvalidOperationException("The retail runtime installs enemy artwork.");
@@ -39,8 +39,8 @@ internal static class KraidBodyPublicationVerification
         AssertTrue(state.OwnsBg2Tilemap, "Kraid takes BG2 when his room loads");
 
         // Risen: both body pages uploaded, at the scroll his body position computed.
-        KraidBehavior.TransferKraidTopTilemap(state);
-        KraidBehavior.TransferKraidBottomTilemap(state);
+        KraidBackground.TransferKraidTopTilemap(state);
+        KraidBackground.TransferKraidBottomTilemap(state);
         state.Bg2Scroll = new Position16<Bg2Pixels>(320, 88);
         BossBg2Layer risen = Published(runtime);
         AssertEqual(new KraidBodyFrame(KraidBodyPage.Body, null, KraidBodyPage.Body), state.DisplayedBody, "the risen body shows both pages");
@@ -52,7 +52,7 @@ internal static class KraidBodyPublicationVerification
             "the capture draws the published body on BG2 at its map size");
 
         // Mouth open: the head frame shows over the upper page, which a later upload would cover.
-        KraidBehavior.TransferKraidHeadTilemap(state, KraidHeadFrame.Open);
+        KraidHead.TransferKraidHeadTilemap(state, KraidHeadFrame.Open);
         state.Bg2Scroll = new Position16<Bg2Pixels>(300, 96);
         BossBg2Layer roaring = Published(runtime);
         ReadOnlySpan<ushort> head = (art.KraidBackground ?? throw new InvalidOperationException("Kraid art installs his BG2."))

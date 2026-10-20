@@ -59,7 +59,7 @@ internal static class SamusGrappleMovementAccess
             grapple.SpecialAngleHandling = false;
             grapple.WallJumpTimer = NativeCountdown.Start(0);
             grapple.CancelFromConnectedPose = false;
-            SamusGrappleMovement.InitializeBeamAnimation(grapple);
+            SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
 
             samus.Pose = faceRight
                 ? SamusPoseId.GrappleSwingRightPose
@@ -69,7 +69,7 @@ internal static class SamusGrappleMovementAccess
 
             // $94:AC11 and $9B:BD95 run as soon as the connection is accepted. Publishing the
             // first pendulum position now prevents one frame of stale pre-grapple coordinates.
-            SamusGrappleMovement.PositionSamusFromPendulum(samus, grapple);
+            SamusGrappleSwing.PositionSamusFromPendulum(samus, grapple);
 
             // This helper represents a connection that has already passed `$9B:C79D`; publish
             // the handler-tail flag that retail would leave for the following swing frame.

@@ -39,7 +39,7 @@ internal static class MotherBrainBodyPublicationVerification
         // Phase two: the transition publishes the staged image; her posture scroll places it.
         ushort[] staged = Enumerable.Range(0, state.EnemyBg2TilemapSize / 2)
             .Select(word => runtime.Enemies.Room.Staging.EnemyBg2Tilemap[word]).ToArray();
-        runtime.Enemies.MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics(state);
+        runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         state.Bg2Scroll = new Position16<Bg2Pixels>(unchecked((ushort)-27), unchecked((ushort)-217));
         state.HasBg2ScrollOverride = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);

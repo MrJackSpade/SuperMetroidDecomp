@@ -44,14 +44,14 @@ internal static class EndingMode7ArtworkVerification
         var installedAudio = new CartridgeAudioState();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
-        installed.BindMode7Artwork(stock);
+        installed.Stage.BindMode7Artwork(stock);
         var phases = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 10000 &&
-            native.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
+            native.Stage.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
         {
-            AssertEqual(native.Phase, installed.Phase,
+            AssertEqual(native.Stage.Phase, installed.Stage.Phase,
                 $"installed ending Mode-7 art preserves phase at frame {frame}");
-            bool first = phases.Add(native.Phase);
+            bool first = phases.Add(native.Stage.Phase);
             if (first || frame % 173 == 0)
             {
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
@@ -67,9 +67,9 @@ internal static class EndingMode7ArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, native.Phase,
+        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, native.Stage.Phase,
             "ending art fixture reaches the post-explosion flyaway upload");
-        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, installed.Phase,
+        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, installed.Stage.Phase,
             "installed art preserves the flyaway handoff");
         AssertTrue(phases.Contains(EndingCreditsPhase.WaitForEscapeMusic) &&
                 phases.Contains(EndingCreditsPhase.FadeInEscapeSceneB) &&
@@ -92,15 +92,15 @@ internal static class EndingMode7ArtworkVerification
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
             var state = CreateRetailEndingFixture(audio, 0, 0);
-            state.BindMode7Artwork(stock);
-            for (int frame = 0; frame < 10000 && state.Phase != target; frame++)
+            state.Stage.BindMode7Artwork(stock);
+            for (int frame = 0; frame < 10000 && state.Stage.Phase != target; frame++)
             {
                 state.Step();
                 audio.AdvanceFrame(default);
             }
-            AssertEqual(target, state.Phase, $"ending {id} override fixture reaches its scene");
+            AssertEqual(target, state.Stage.Phase, $"ending {id} override fixture reaches its scene");
             for (int visibleFrame = 0; visibleFrame < 1200 &&
-                state.Brightness == 0; visibleFrame++)
+                state.Stage.Brightness == 0; visibleFrame++)
             {
                 state.Step();
                 audio.AdvanceFrame(default);
@@ -122,7 +122,7 @@ internal static class EndingMode7ArtworkVerification
             using (var output = File.Create(mapOverride))
                 EndingMode7SceneArtwork.WriteMap(output, map);
             EndingMode7ArtworkCatalog editedMap = installation.LoadEndingMode7Art();
-            state.BindMode7Artwork(editedMap);
+            state.Stage.BindMode7Artwork(editedMap);
             LayeredRenderSnapshot mapSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
             byte[] mapVram = mapSnapshot.Memory.Vram.ToArray();
             AssertTrue(!baseline.SequenceEqual(mapVram) &&
@@ -136,14 +136,14 @@ internal static class EndingMode7ArtworkVerification
                     SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
                 var partialAudio = new CartridgeAudioState();
                 var partial = CreateRetailEndingFixture(partialAudio, 0, 0);
-                partial.BindMode7Artwork(stock);
+                partial.Stage.BindMode7Artwork(stock);
                 for (int frame = 0; frame < 2000 &&
-                    partial.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
+                    partial.Stage.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
                 {
                     partial.Step();
                     partialAudio.AdvanceFrame(default);
                 }
-                AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, partial.Phase,
+                AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, partial.Stage.Phase,
                     "explosion override fixture reaches partial flyaway DMA");
                 for (int chunk = 0; chunk < 9; chunk++)
                 {
@@ -151,7 +151,7 @@ internal static class EndingMode7ArtworkVerification
                     partialAudio.AdvanceFrame(default);
                 }
                 byte[] partiallyUploaded = EndingCreditsPresentation.CaptureRenderSnapshot(partial).Memory.Vram.ToArray();
-                partial.BindMode7Artwork(editedMap);
+                partial.Stage.BindMode7Artwork(editedMap);
                 byte[] rebound = EndingCreditsPresentation.CaptureRenderSnapshot(partial).Memory.Vram.ToArray();
                 for (int word = 0; word < EndingCreditsRomData.Rendering.FlyawayUploadBytes; word++)
                     AssertEqual(partiallyUploaded[word * 2], rebound[word * 2],
@@ -169,7 +169,7 @@ internal static class EndingMode7ArtworkVerification
                     "partial explosion rebind never reads authored cartridge sources");
             }
             File.Delete(mapOverride);
-            state.BindMode7Artwork(stock);
+            state.Stage.BindMode7Artwork(stock);
 
             string pngName = EndingMode7ArtworkFormat.CharacterFileName(id);
             string pngOverride = Path.Combine(installation.EndingMode7OverrideDirectory, pngName);
@@ -180,7 +180,7 @@ internal static class EndingMode7ArtworkVerification
             using (var output = File.Create(pngOverride))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EndingMode7ArtworkCatalog editedCharacters = installation.LoadEndingMode7Art();
-            state.BindMode7Artwork(editedCharacters);
+            state.Stage.BindMode7Artwork(editedCharacters);
             LayeredRenderSnapshot characterSnapshot = EndingCreditsPresentation.CaptureRenderSnapshot(state);
             byte[] characterVram = characterSnapshot.Memory.Vram.ToArray();
             AssertTrue(!baseline.SequenceEqual(characterVram) &&

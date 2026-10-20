@@ -290,7 +290,7 @@ internal static class NativeSnapshotImportVerification
             NativeEnemyFamilyStateImport.Import(runtime.Enemies, slot, words);
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
-            if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Kraid is { } kraid)
+            if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Access.Kraid is { } kraid)
                 kraid.HeadProgram = kraidHeadCursors.TryCursorAt(words.B);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
             if (runtime.Enemies.PipeBugStates[index] is { } pipeBug)

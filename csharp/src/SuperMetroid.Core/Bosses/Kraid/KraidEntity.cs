@@ -12,14 +12,14 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => KraidPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        KraidPart.Kraid => species.InitializeKraidBody,
-        KraidPart.Arm => species.InitializeKraidArm,
-        KraidPart.LintTop => species.RunKraidLintTopInitializationAi,
-        KraidPart.LintMiddle => species.RunKraidLintMiddleInitializationAi,
-        KraidPart.LintBottom => species.RunKraidLintBottomInitializationAi,
-        KraidPart.Foot => species.InitializeKraidFoot,
-        KraidPart.Nail => species.RunKraidNailInitializationAi,
-        KraidPart.NailBad => species.RunKraidNailBadInitializationAi,
+        KraidPart.Kraid => species.Rise.InitializeKraidBody,
+        KraidPart.Arm => species.Limbs.InitializeKraidArm,
+        KraidPart.LintTop => species.Projectiles.RunKraidLintTopInitializationAi,
+        KraidPart.LintMiddle => species.Projectiles.RunKraidLintMiddleInitializationAi,
+        KraidPart.LintBottom => species.Projectiles.RunKraidLintBottomInitializationAi,
+        KraidPart.Foot => species.Limbs.InitializeKraidFoot,
+        KraidPart.Nail => species.Projectiles.RunKraidNailInitializationAi,
+        KraidPart.NailBad => species.Projectiles.RunKraidNailBadInitializationAi,
         _ => throw new InvalidOperationException($"Kraid entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -37,7 +37,7 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => KraidPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        KraidPart.Arm or KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom or KraidPart.Foot or KraidPart.Nail or KraidPart.NailBad => (enemy, _) => species.AdvanceKraidPartAnimation(enemy),
+        KraidPart.Arm or KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom or KraidPart.Foot or KraidPart.Nail or KraidPart.NailBad => (enemy, _) => species.Limbs.AdvanceKraidPartAnimation(enemy),
         KraidPart.Kraid => null,
         _ => throw new InvalidOperationException($"Kraid entity bound to {Slot.EnemyDefinitionPointer}."),
     };
@@ -46,8 +46,8 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        return KraidBehavior.FindKraidFootHitboxCallback(Slot, probe, out callback) ??
-            KraidBehavior.FindKraidArmHitboxCallback(Slot, probe, out callback);
+        return KraidCombat.FindKraidFootHitboxCallback(Slot, probe, out callback) ??
+            KraidCombat.FindKraidArmHitboxCallback(Slot, probe, out callback);
     }
 
     /// <summary>The arm and foot take both extended-spritemap walkers; Kraid's body takes only the projectile walker; the lint and nails take neither.</summary>

@@ -33,8 +33,8 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 FakeDeathExplosionTimer = NativeCountdown.Start(100),
             };
             Action<MotherBrainEnemyState> step = toGrey
-                ? enemies.MotherBrainBehavior.RunMotherBrainFadeToGray
-                : enemies.MotherBrainBehavior.TransitionMotherBrainFromGray;
+                ? enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray
+                : enemies.MotherBrainBehavior.FakeDeath.TransitionMotherBrainFromGray;
             int table = toGrey ? MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable :
                 MotherBrainFakeDeathPaletteRomData.FromGreyPointerTable;
             for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.GreyFrameCount; frame++)
@@ -91,8 +91,8 @@ internal static class MotherBrainFakeDeathPaletteVerification
             FakeDeathExplosionTimer = NativeCountdown.Start(100),
         };
         Action<MotherBrainEnemyState> step = toGrey
-            ? enemies.MotherBrainBehavior.RunMotherBrainFadeToGray
-            : enemies.MotherBrainBehavior.TransitionMotherBrainFromGray;
+            ? enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray
+            : enemies.MotherBrainBehavior.FakeDeath.TransitionMotherBrainFromGray;
         step(state);
         return (cgram.Colors.ToArray(), state.FunctionTimer.RawValue, state.Function);
     }

@@ -62,7 +62,7 @@ internal static class BombTorizoAttackDefinitionsVerification
                 BombTorizoAttackDefinitions.Swipe(parameter);
             (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                 CreateBombTorizoAttackFixture(facingRight);
-            enemies.BombTorizoBehavior.SpawnBombTorizoExplosiveSwipe(torizo, parameter);
+            enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoExplosiveSwipe(torizo, parameter);
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
 
             AssertTrue(projectile.IsActive,
@@ -83,7 +83,7 @@ internal static class BombTorizoAttackDefinitionsVerification
                     BombTorizoAttackDefinitions.LowHealthExplosion(parameter, facingRight);
                 (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                     CreateBombTorizoAttackFixture(facingRight);
-                enemies.BombTorizoBehavior.SpawnBombTorizoLowHealthExplosion(torizo, parameter);
+                enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoLowHealthExplosion(torizo, parameter);
                 RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
 
                 AssertTrue(projectile.IsActive,

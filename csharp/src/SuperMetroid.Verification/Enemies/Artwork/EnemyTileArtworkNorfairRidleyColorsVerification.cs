@@ -211,7 +211,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             enemy.VerificationServices().IsAreaBossDefeated = () => false;
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
-            enemy.RidleyBehavior.InitializeNorfairRidley(slot);
+            enemy.RidleyBehavior.Combat.InitializeNorfairRidley(slot);
             RidleyEnemyState state = enemy.RidleyEncounter.Ridley ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.Function = RidleyAiFunction.WaitBeforeLiftoff;
@@ -222,7 +222,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         // Executes one production arena-reveal callback.
         static void Tick(RoomEnemySystem enemy, RoomEnemySlot slot, RidleyEnemyState state)
         {
-            enemy.RidleyBehavior.TickNorfairRidleyArenaReveal(slot, state);
+            enemy.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal(slot, state);
         }
     }
 }

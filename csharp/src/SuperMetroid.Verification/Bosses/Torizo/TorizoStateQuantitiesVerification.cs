@@ -19,7 +19,7 @@ internal static class TorizoStateQuantitiesVerification
         var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new TorizoEnemyState(slot, isGolden: true);
-        enemies.BombTorizoBehavior.TorizoState = state;
+        enemies.BombTorizoBehavior.Access.TorizoState = state;
         var inputs = new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 };
         void Apply(TorizoCueKind kind) =>
             AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot, state, inputs, new TorizoCue.Command(kind),

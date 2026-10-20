@@ -32,9 +32,9 @@ internal static class KraidCeilingRockPositionsVerification
         ushort Word(int a) => SnesLittleEndian.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
-        enemies.KraidBehavior.Kraid = state;
+        enemies.KraidBehavior.Access.Kraid = state;
         enemies.VerificationServices().ReadRandom = () => 63;
-        Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.RunKraidGrowthFunction;
+        Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Rise.RunKraidGrowthFunction;
         var requests = enemies.FrameResults.KraidPlms;
         var body = enemies.SlotTable.Slots[0];
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.

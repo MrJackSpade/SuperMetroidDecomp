@@ -26,7 +26,7 @@ internal static class KnockbackShinesparkLaunchVerification
         samus.Shinespark.RelinquishMovementHandler();
         AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "normal movement replaced the windup handler");
 
-        SamusPoseTransitions.ApplyShinesparkDirectionTransition(samus, SamusPoseId.ShinesparkHorizontalLeftPose);
+        SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, SamusPoseId.ShinesparkHorizontalLeftPose);
 
         AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "the left launch installs the horizontal handler");
         AssertEqual(SamusPoseId.ShinesparkHorizontalLeftPose, samus.Pose, "Samus takes the left launch pose");

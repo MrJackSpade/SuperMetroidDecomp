@@ -106,7 +106,7 @@ internal static class KraidAnimationsVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState { InitialHealth = 104 };
-        enemies.KraidBehavior.Kraid = state;
+        enemies.KraidBehavior.Access.Kraid = state;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         RoomEnemySlot arm = enemies.SlotTable.Slots[1];
@@ -165,7 +165,7 @@ internal static class KraidAnimationsVerification
         {
             (RoomEnemySystem enemies, _, _, _) = NewKraid();
             enemies.VerificationServices().ReadRandom = () => 32;
-            AssertTrue(enemies.KraidBehavior.SpawnKraidSpitRock(NewRockSource()), "the real spit producer allocates a rock");
+            AssertTrue(enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource()), "the real spit producer allocates a rock");
             RoomEnemyProjectileSlot rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
             rock.StartAnimation(new KraidRockAnimation(program));
             var native = new NativeEnemyProjectileListDefinitions.Reader(entry, rock.InstructionTimer.RawValue);
@@ -205,14 +205,14 @@ internal static class KraidAnimationsVerification
         enemies.VerificationServices().ReadRandom = () => random;
         RoomEnemySlot source = NewRockSource();
         random = 32;
-        AssertTrue(enemies.KraidBehavior.SpawnKraidSpitRock(source), "the real spit producer allocates its rock");
+        AssertTrue(enemies.KraidBehavior.Head.SpawnKraidSpitRock(source), "the real spit producer allocates its rock");
         random = 32;
-        AssertTrue(enemies.KraidBehavior.SpawnKraidCeilingRock(96), "the real ceiling producer allocates its rock");
+        AssertTrue(enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96), "the real ceiling producer allocates its rock");
         var state = new KraidEnemyState();
         random = 0;
-        enemies.KraidBehavior.RequestKraidRisingRock(source, state);
+        enemies.KraidBehavior.Rise.RequestKraidRisingRock(source, state);
         random = 16;
-        enemies.KraidBehavior.RequestKraidRisingRock(source, state);
+        enemies.KraidBehavior.Rise.RequestKraidRisingRock(source, state);
         random = 2;
         AssertTrue(enemies.KagoBehavior.SpawnKagoBug(source), "the real Kago producer allocates its bug");
         foreach ((RoomEnemyProjectileKind kind, KraidRockProgram program) in new[]

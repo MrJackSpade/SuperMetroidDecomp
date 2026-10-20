@@ -36,7 +36,7 @@ internal static class RidleyPogoDefinitionsVerification
         ushort seed = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return seed; };
         enemies.VerificationServices().NextRandom = () => { advances++; return (ushort)(seed ^ 1); };
-        Action<RidleyEnemyState> initialize = enemies.RidleyBehavior.InitializeNorfairRidleyPogoVelocity;
+        Action<RidleyEnemyState> initialize = enemies.RidleyBehavior.Combat.InitializeNorfairRidleyPogoVelocity;
         var state = new RidleyEnemyState();
         ushort[] healthStages = [0, 1, 2, 3, 4, 0xffff];
         ushort[] velocities = [0, 0x7fff, 0x8000, 0xffff];
@@ -75,7 +75,7 @@ internal static class RidleyPogoDefinitionsVerification
         enemies.VerificationServices().ReadRandom = () => { reads++; return seed; };
         enemies.VerificationServices().NextRandom = () => { advances++; return (ushort)(seed ^ 1); };
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> attack = enemies.RidleyBehavior.TickNorfairRidleyGroundAttackMoveToHeight;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> attack = enemies.RidleyBehavior.Combat.TickNorfairRidleyGroundAttackMoveToHeight;
         var slot = enemies.SlotTable.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

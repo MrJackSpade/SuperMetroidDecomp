@@ -36,16 +36,16 @@ internal static class DraygonStateQuantitiesVerification
         (RoomEnemySystem enemies, _) = NewDraygon();
         var samus = new SamusState { XSpeedDivisor = 1 };
         RoomEnemyProjectileSlot goop = AttachedGoop(enemies, lifetime: 2);
-        enemies.DraygonBehavior.RunAttachedDraygonGoop(goop, samus);
+        enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(goop.IsActive, "an attached goop with lifetime two holds for its first update");
         AssertEqual(1, goop.Variable0, "the first update leaves one update of lifetime");
-        enemies.DraygonBehavior.RunAttachedDraygonGoop(goop, samus);
+        enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(!goop.IsActive, "the goop falls off on the update its lifetime reaches zero");
         AssertEqual(0, samus.XSpeedDivisor, "the goop that falls off restores one X-speed divisor step");
 
         samus.XSpeedDivisor = 1;
         RoomEnemyProjectileSlot cleared = AttachedGoop(enemies, lifetime: 0);
-        enemies.DraygonBehavior.RunAttachedDraygonGoop(cleared, samus);
+        enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(cleared, samus);
         AssertTrue(cleared.IsActive, "a cleared lifetime wraps below zero instead of releasing the goop");
         AssertEqual(ushort.MaxValue, cleared.Variable0, "a cleared lifetime wraps to the full word");
     }
@@ -70,11 +70,11 @@ internal static class DraygonStateQuantitiesVerification
         (_, DraygonEnemyState state) = NewDraygon();
         state.SwoopVelocity = 0;
         state.GoopYOscillationAngle = SnesAngle.FromTableIndex(byte.MaxValue);
-        DraygonBehavior.MoveDraygonAlongGoopPath(state, movingRight: true);
+        DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
             "the bob reads the phase before advancing it");
         AssertEqual(SnesAngle.Zero, state.GoopYOscillationAngle, "the phase wraps from the last table unit to zero");
-        DraygonBehavior.MoveDraygonAlongGoopPath(state, movingRight: true);
+        DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(0), 32))), state.Body.Position.Y.Whole,
             "the next bob reads the wrapped phase");
         AssertEqual(1, (int)state.GoopYOscillationAngle.TableIndex, "the wrapped phase advances by one unit");
@@ -98,7 +98,7 @@ internal static class DraygonStateQuantitiesVerification
         Position16<RoomPixels> center = state.SpiralCenter.Whole;
         state.Function = DraygonAiFunction.FlailWithSamus;
 
-        enemies.DraygonBehavior.CarrySamusInDraygonSpiral(state, new SamusState());
+        enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState());
 
         Position16<RoomPixels> expectedBody = center + new Offset16<RoomPixels>(
             unchecked((short)EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(angle), radiusWhole)),
@@ -125,7 +125,7 @@ internal static class DraygonStateQuantitiesVerification
         ushort native = 24;
         for (int hit = 0; hit < 20; hit++)
         {
-            DraygonBehavior.AdvanceDraygonShotAcceleration(state);
+            DraygonCombat.AdvanceDraygonShotAcceleration(state);
             ushort candidate = unchecked((ushort)(native + 8));
             if (unchecked((short)(candidate - 160)) < 0)
                 native = candidate;
@@ -148,7 +148,7 @@ internal static class DraygonStateQuantitiesVerification
         state.SwoopAcceleration = new EightEightVector<RoomPixels>(0, 40);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(200, 400)) };
 
-        DraygonBehavior.BuildDraygonSwoopYPositions(state, samus);
+        DraygonSwoops.BuildDraygonSwoopYPositions(state, samus);
 
         var expected = new List<ushort>();
         ushort y = 384, speed = 0;
@@ -189,7 +189,7 @@ internal static class DraygonStateQuantitiesVerification
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })
             state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.Sleep));
-        enemies.DraygonBehavior.Draygon = state;
+        enemies.DraygonBehavior.Parts.Draygon = state;
         // A nonzero low byte keeps the spiral from inserting a tail whip.
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.VerificationServices().ReadRandom = () => 4660;

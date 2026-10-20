@@ -38,16 +38,16 @@ internal static class EndingRewardIconArtworkVerification
         var installedAudio = new CartridgeAudioState();
         var nativeScene = CreateRetailEndingFixture(nativeAudio, 3, 0);
         var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
-        nativeScene.BindStaffCredits(credits);
-        installedScene.BindStaffCredits(credits);
-        installedScene.BindMode7Artwork(stock);
+        nativeScene.InstalledArtwork.BindStaffCredits(credits);
+        installedScene.InstalledArtwork.BindStaffCredits(credits);
+        installedScene.Stage.BindMode7Artwork(stock);
         int jumpFrames = 0;
         for (int frame = 0; frame < 60_000 &&
-            nativeScene.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
+            nativeScene.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
         {
-            AssertEqual(nativeScene.Phase, installedScene.Phase,
+            AssertEqual(nativeScene.Stage.Phase, installedScene.Stage.Phase,
                 $"reward icon installed/native phase at frame {frame}");
-            if (nativeScene.Phase == EndingCreditsPhase.PostCreditsJump)
+            if (nativeScene.Stage.Phase == EndingCreditsPhase.PostCreditsJump)
             {
                 jumpFrames++;
                 LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeScene);
@@ -63,9 +63,9 @@ internal static class EndingRewardIconArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.PostCreditsShot, nativeScene.Phase,
+        AssertEqual(EndingCreditsPhase.PostCreditsShot, nativeScene.Stage.Phase,
             "native reward reaches Mode-7 shot");
-        AssertEqual(EndingCreditsPhase.PostCreditsShot, installedScene.Phase,
+        AssertEqual(EndingCreditsPhase.PostCreditsShot, installedScene.Stage.Phase,
             "installed reward reaches Mode-7 shot");
         AssertTrue(jumpFrames >= 200,
             "reward icon integration covers the full native jump and landing upload interval");
@@ -125,37 +125,37 @@ internal static class EndingRewardIconArtworkVerification
                 var sceneBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var sceneAudio = new CartridgeAudioState();
                 var scene = CreateRetailEndingFixture(sceneAudio, 3, 0);
-                scene.BindStaffCredits(credits);
-                scene.BindMode7Artwork(stock);
+                scene.InstalledArtwork.BindStaffCredits(credits);
+                scene.Stage.BindMode7Artwork(stock);
                 for (int frame = 0; frame < 60_000 &&
-                    scene.Phase != EndingCreditsPhase.PostCreditsJump; frame++)
+                    scene.Stage.Phase != EndingCreditsPhase.PostCreditsJump; frame++)
                 {
                     scene.Step();
                     sceneAudio.AdvanceFrame(default);
                 }
-                AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Phase,
+                AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Stage.Phase,
                     $"{name} override reaches the native reward jump");
                 for (int frame = 0; frame < 190; frame++)
                 {
                     scene.Step();
                     sceneAudio.AdvanceFrame(default);
                 }
-                AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Phase,
+                AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Stage.Phase,
                     $"{name} override fixture remains in the native landing upload");
                 LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                scene.BindMode7Artwork(edited);
+                scene.Stage.BindMode7Artwork(edited);
                 LayeredRenderSnapshot rebound = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                AssertTrue(scene.Phase == EndingCreditsPhase.PostCreditsJump &&
+                AssertTrue(scene.Stage.Phase == EndingCreditsPhase.PostCreditsJump &&
                         before.Memory.Cgram.SequenceEqual(rebound.Memory.Cgram) &&
                         !before.Memory.Vram.SequenceEqual(rebound.Memory.Vram),
                     $"{name} rebind replaces completed chunks without resetting the jump");
                 for (int frame = 0; frame < 400 &&
-                    scene.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
+                    scene.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
                 {
                     scene.Step();
                     sceneAudio.AdvanceFrame(default);
                 }
-                AssertEqual(EndingCreditsPhase.PostCreditsShot, scene.Phase,
+                AssertEqual(EndingCreditsPhase.PostCreditsShot, scene.Stage.Phase,
                     $"{name} edited icon reaches the native shooting phase");
                 AssertTrue(EndingCreditsPresentation.CaptureRenderSnapshot(scene).Memory.Vram
                         [..EndingRewardIconArtworkFormat.TransferBytes]

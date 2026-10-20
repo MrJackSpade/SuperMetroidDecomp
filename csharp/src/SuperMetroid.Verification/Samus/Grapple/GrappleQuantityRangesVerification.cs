@@ -27,7 +27,7 @@ internal static class GrappleQuantityRangesVerification
                 FlareCounter = start,
                 PointAnimationTimer = NativeCountdown.Start(5),
             };
-            SamusGrappleMovement.DrawConnectedBeam(grapple, new SpriteFrameBuffer(), new(0, 0),
+            SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, new SpriteFrameBuffer(), new(0, 0),
                 SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);
             ushort word = (ushort)start;
             if (unchecked((short)(word - 120)) < 0)

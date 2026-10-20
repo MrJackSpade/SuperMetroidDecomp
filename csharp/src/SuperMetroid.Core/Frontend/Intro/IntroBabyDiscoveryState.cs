@@ -104,7 +104,7 @@ internal sealed class IntroBabyDiscoveryState
             demo.Step((_, preInstruction) => RunDemoPreInstruction(preInstruction, introCrossfadeTimer), HandleDemoCue);
             // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
-            SamusPoseTransitions.ClearPoseTransitionShotDirection(Samus);
+            SamusAerialPoseTransitions.ClearPoseTransitionShotDirection(Samus);
             Samus.ProjectileInheritance.ClearMovement();
 
             // An end instruction read above already replaced the new-state handler, so this

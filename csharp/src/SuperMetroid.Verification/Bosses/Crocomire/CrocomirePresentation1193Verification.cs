@@ -42,8 +42,8 @@ internal static class CrocomirePresentation1193Verification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Crocomire);
-        var boss = runtime.Enemies.CrocomireBehavior.Crocomire;
-        var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath;
+        var boss = runtime.Enemies.CrocomireBehavior.Access.Crocomire;
+        var death = runtime.Enemies.CrocomireBehavior.Access.CrocomireDeath;
         var samus = runtime.Player.IntroducedSamus;
         PlaceSamusInArena();
 

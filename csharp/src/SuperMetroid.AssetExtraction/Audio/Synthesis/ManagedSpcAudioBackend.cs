@@ -77,10 +77,10 @@ public sealed class ManagedSpcAudioBackend
     /// <summary>Installs one bank's upload and its decoded definitions, as the cartridge upload does.</summary>
     private void LoadBank(AudioBank bank)
     {
-        Player.Upload(assets.GetUpload(bank).Span);
-        Player.ApplyInstrumentDefinitions(assets.GetInstrumentBank(bank));
-        Player.ApplyMusicDefinitions(assets.GetMusicBank(bank));
-        Player.ApplySoundEffectDefinitions(assets.SoundPrograms, assets.SoundLibraries);
+        Player.Uploads.Upload(assets.GetUpload(bank).Span);
+        Player.Uploads.ApplyInstrumentDefinitions(assets.GetInstrumentBank(bank));
+        Player.Uploads.ApplyMusicDefinitions(assets.GetMusicBank(bank));
+        Player.Uploads.ApplySoundEffectDefinitions(assets.SoundPrograms, assets.SoundLibraries);
         Player.SetSampleBank(assets.GetSampleBank(bank));
     }
 

@@ -144,7 +144,7 @@ internal static class CrocomireSkeletonArtworkVerification
 
         static void Upload(RoomEnemySystem system, CrocomireDeathState state)
         {
-            system.CrocomireBehavior.UploadNextCrocomireSkeletonTileChunk(state);
+            system.CrocomireBehavior.Skeleton.UploadNextCrocomireSkeletonTileChunk(state);
         }
     }
 

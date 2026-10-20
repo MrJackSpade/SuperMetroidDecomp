@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyRoomMainHooks(CrocomireBehavior crocomire, SporeSpawnBehavior sporeSpawn, ZebetiteBehavior zebetites) : IEnemyRoomMainHooks
 {
     /// <inheritdoc/>
-    public CrocomireEnemyState? Crocomire => crocomire.Crocomire;
+    public CrocomireEnemyState? Crocomire => crocomire.Access.Crocomire;
 
     /// <inheritdoc/>
-    public CrocomireDeathState? CrocomireDeath => crocomire.CrocomireDeath;
+    public CrocomireDeathState? CrocomireDeath => crocomire.Access.CrocomireDeath;
 
     /// <inheritdoc/>
     public void RunSporeSpawnScrollingFinishedHook(ScrollBoundaryCamera camera) => sporeSpawn.RunScrollingFinishedHook(camera);

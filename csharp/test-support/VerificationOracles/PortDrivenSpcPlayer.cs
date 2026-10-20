@@ -25,7 +25,7 @@ internal sealed class PortDrivenSpcPlayer
     /// <summary>Applies an upload stream to the player and its port half to the port model.</summary>
     internal void Upload(ReadOnlySpan<byte> stream)
     {
-        Player.Upload(stream);
+        Player.Uploads.Upload(stream);
         ports.ResetForUpload();
     }
 
@@ -39,5 +39,5 @@ internal sealed class PortDrivenSpcPlayer
 
     /// <summary>Reads one SPC-to-CPU port: the sequencer's music echo or a sound-effect acknowledgement.</summary>
     internal byte ReadPort(ApuPort port) =>
-        port == ApuPort.Music ? checked((byte)Player.musicPortToSnes) : ports.ReadSoundEffectPort(port);
+        port == ApuPort.Music ? checked((byte)Player.Music.musicPortToSnes) : ports.ReadSoundEffectPort(port);
 }

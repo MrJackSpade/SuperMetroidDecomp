@@ -88,11 +88,11 @@ internal static class IntroSamusDemoMovement
         SamusPoseId? candidate = prospective is { } proposed
             ? proposed.ProspectivePose
             : fallback;
-        SamusPoseId? wallPose = SamusPoseTransitions.CheckProspectiveRunningPoseForWall(samus, level, candidate,
+        SamusPoseId? wallPose = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(samus, level, candidate,
             movement.Horizontal.Collided, out _);
         if (wallPose is { } stoppedPose)
         {
-            SamusPoseTransitions.ApplyRanIntoWallPoseChange(samus, stoppedPose);
+            SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, stoppedPose);
             samus.CommitPoseHistory();
             return;
         }
@@ -136,21 +136,21 @@ internal static class IntroSamusDemoMovement
         if ((SamusPoseMetadata.IsLeftFacingRunningPose(sourcePose) && targetPose == SamusPoseId.SpinJumpLeftPose) ||
             (SamusPoseMetadata.IsLeftFacingStandingPose(sourcePose) && targetPose == SamusPoseId.NeutralJumpTransitionLeftPose))
         {
-            SamusPoseTransitions.ApplyOrdinaryJumpTransition(samus, targetPose);
+            SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(samus, targetPose);
             return;
         }
 
         if (sourcePose == SamusPoseId.FacingLeftNormalPose &&
             targetPose == SamusPoseId.MovingLeftNormalPose)
         {
-            SamusPoseTransitions.ApplyStandingLeftToRunningLeft(samus);
+            SamusGroundedPoseTransitions.ApplyStandingLeftToRunningLeft(samus);
             return;
         }
 
         if (sourcePose == SamusPoseId.MovingLeftNormalPose &&
             targetPose == SamusPoseId.FacingLeftNormalPose)
         {
-            SamusPoseTransitions.ApplyRunningLeftToStandingLeft(samus);
+            SamusGroundedPoseTransitions.ApplyRunningLeftToStandingLeft(samus);
             return;
         }
 
@@ -159,7 +159,7 @@ internal static class IntroSamusDemoMovement
             (SamusPoseMetadata.IsLeftFacingStandingPose(targetPose) ||
              SamusPoseMetadata.IsLeftFacingRunningPose(targetPose)))
         {
-            SamusPoseTransitions.ApplyGroundedAimTransition(samus, targetPose);
+            SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, targetPose);
             return;
         }
 

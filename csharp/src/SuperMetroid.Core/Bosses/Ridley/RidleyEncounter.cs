@@ -56,7 +56,7 @@ internal sealed class RidleyEncounter
     /// <summary>Requires a slot-zero Ridley definition and its shared bank-$A6 state extension.</summary>
     internal RidleyEnemyState RequireRidley(RoomEnemySlot slot)
     {
-        if (!RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
+        if (!RidleyInteractions.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
             slot.SlotIndex != 0 ||
             Ridley is null)
         {

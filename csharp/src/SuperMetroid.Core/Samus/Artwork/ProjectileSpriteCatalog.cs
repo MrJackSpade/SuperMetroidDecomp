@@ -75,42 +75,42 @@ public sealed class ProjectileSpriteCatalog
                 compiled[i] = new(SnesSpritemapXWord.Create(p.OffsetX, p.Size == 16), new SnesSpritemapYByte(unchecked((byte)p.OffsetY)), attributes, false);
             }
             var composition = new SpriteComposition(compiled);
-            if (ProjectileSpriteDefinitions.TrySingleBeamPhase(id, out int phase))
-                composition = composition.CalculateIfMatching(ProjectileSpriteDefinitions.SingleBeamPoses[phase]);
-            else if (ProjectileSpriteDefinitions.TryChargedBeamPhase(id, out phase, out bool ice))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.ChargedBeamParts(phase, ice));
-            else if (ProjectileSpriteDefinitions.TryWavePhase(id, out phase))
-                composition = composition.CalculateIfMatching(ProjectileSpriteDefinitions.WavePoses[phase]);
-            else if (ProjectileSpriteDefinitions.TryVerticalChargedWavePhase(id, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.VerticalChargedWaveParts(phase));
-            else if (ProjectileSpriteDefinitions.TryAxialSuperMissilePose(id, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.AxialSuperMissileParts(phase));
-            else if (ProjectileSpriteDefinitions.TryDiagonalMissilePose(id, out phase, out bool super))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.DiagonalMissileParts(phase, super));
-            else if (ProjectileSpriteDefinitions.TrySimpleEffectPose(id, out phase, out bool quad))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SimpleEffectParts(phase, quad));
-            else if (ProjectileSpriteDefinitions.TryHorizontalChargedWavePhase(id, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.HorizontalChargedWaveParts(phase));
-            else if (ProjectileSpriteDefinitions.TrySpazerSeedPose(id, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerSeedParts(phase));
-            else if (ProjectileSpriteDefinitions.TrySpazerDiagonalSpread(id, out int pose, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerDiagonalSpreadParts(pose, phase));
-            else if (ProjectileSpriteDefinitions.TrySpazerAxialSpread(id, out pose, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerAxialSpreadParts(pose, phase));
-            else if (ProjectileSpriteDefinitions.TryHorizontalChargedSpazer(id, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.HorizontalChargedSpazerParts(phase));
-            else if (ProjectileSpriteDefinitions.TryVerticalChargedSpazerSpread(id, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.VerticalChargedSpazerSpreadParts(phase));
-            else if (ProjectileSpriteDefinitions.TrySpazerAxialStartup(id, out int group, out int length))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerAxialStartupParts(group, length));
-            else if (ProjectileSpriteDefinitions.TrySpazerDiagonalStartup(id, out group, out length))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerDiagonalStartupParts(group, length));
-            else if (ProjectileSpriteDefinitions.TryAlternateDiagonalStartup(id, out bool reflected, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.AlternateDiagonalStartupParts(reflected, phase));
-            else if (ProjectileSpriteDefinitions.TryPlasmaStartupCore(id, out group))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.PlasmaStartupCoreParts(group));
-            else if (ProjectileSpriteDefinitions.TryHorizontalPlasmaWaveShort(id, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.HorizontalPlasmaWaveShortParts(phase));
+            if (ProjectileSpritePartDefinitions.TrySingleBeamPhase(id, out int phase))
+                composition = composition.CalculateIfMatching(ProjectileSpritePartDefinitions.SingleBeamPoses[phase]);
+            else if (ProjectileSpritePartDefinitions.TryChargedBeamPhase(id, out phase, out bool ice))
+                composition = composition.CalculateIfMatching(new ChargedBeamParts(phase, ice));
+            else if (ProjectileSpritePartDefinitions.TryWavePhase(id, out phase))
+                composition = composition.CalculateIfMatching(ProjectileSpritePartDefinitions.WavePoses[phase]);
+            else if (ProjectileSpritePartDefinitions.TryVerticalChargedWavePhase(id, out phase))
+                composition = composition.CalculateIfMatching(new VerticalChargedWaveParts(phase));
+            else if (ProjectileSpritePartDefinitions.TryAxialSuperMissilePose(id, out phase))
+                composition = composition.CalculateIfMatching(new AxialSuperMissileParts(phase));
+            else if (ProjectileSpritePartDefinitions.TryDiagonalMissilePose(id, out phase, out bool super))
+                composition = composition.CalculateIfMatching(new DiagonalMissileParts(phase, super));
+            else if (ProjectileSpritePartDefinitions.TrySimpleEffectPose(id, out phase, out bool quad))
+                composition = composition.CalculateIfMatching(new SimpleEffectParts(phase, quad));
+            else if (ProjectileSpritePartDefinitions.TryHorizontalChargedWavePhase(id, out phase))
+                composition = composition.CalculateIfMatching(new HorizontalChargedWaveParts(phase));
+            else if (ProjectileSpritePartDefinitions.TrySpazerSeedPose(id, out phase))
+                composition = composition.CalculateIfMatching(new SpazerSeedParts(phase));
+            else if (ProjectileSpritePartDefinitions.TrySpazerDiagonalSpread(id, out int pose, out phase))
+                composition = composition.CalculateIfMatching(new SpazerDiagonalSpreadParts(pose, phase));
+            else if (ProjectileSpritePartDefinitions.TrySpazerAxialSpread(id, out pose, out phase))
+                composition = composition.CalculateIfMatching(new SpazerAxialSpreadParts(pose, phase));
+            else if (ProjectileSpritePartDefinitions.TryHorizontalChargedSpazer(id, out phase))
+                composition = composition.CalculateIfMatching(new HorizontalChargedSpazerParts(phase));
+            else if (ProjectileSpritePartDefinitions.TryVerticalChargedSpazerSpread(id, out phase))
+                composition = composition.CalculateIfMatching(new VerticalChargedSpazerSpreadParts(phase));
+            else if (ProjectileSpritePartDefinitions.TrySpazerAxialStartup(id, out int group, out int length))
+                composition = composition.CalculateIfMatching(new SpazerAxialStartupParts(group, length));
+            else if (ProjectileSpritePartDefinitions.TrySpazerDiagonalStartup(id, out group, out length))
+                composition = composition.CalculateIfMatching(new SpazerDiagonalStartupParts(group, length));
+            else if (ProjectileSpritePartDefinitions.TryAlternateDiagonalStartup(id, out bool reflected, out phase))
+                composition = composition.CalculateIfMatching(new AlternateDiagonalStartupParts(reflected, phase));
+            else if (ProjectileSpritePartDefinitions.TryPlasmaStartupCore(id, out group))
+                composition = composition.CalculateIfMatching(new PlasmaStartupCoreParts(group));
+            else if (ProjectileSpritePartDefinitions.TryHorizontalPlasmaWaveShort(id, out phase))
+                composition = composition.CalculateIfMatching(new HorizontalPlasmaWaveShortParts(phase));
             frames.Add(id, composition);
         }
         return new(frames);

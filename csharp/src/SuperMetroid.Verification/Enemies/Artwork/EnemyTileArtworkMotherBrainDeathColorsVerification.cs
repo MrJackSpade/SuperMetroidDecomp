@@ -125,7 +125,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         cgram.SetColor(MotherBrainDeathRomData.CorpseColors - 1, Bgr555.FromWord(0x1234));
         for (int frame = 0; frame < MotherBrainDeathRomData.BodyFadeFrameCount; frame++)
         {
-            enemies.MotherBrainBehavior.LoadMotherBrainDeathBodyFade(frame);
+            enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathBodyFade(frame);
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
             {
                 Bgr555 shared = colors.BodyColor(frame, color);
@@ -140,13 +140,13 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         }
         for (int frame = 0; frame < MotherBrainDeathRomData.CorpseFadeFrameCount; frame++)
         {
-            enemies.MotherBrainBehavior.LoadMotherBrainDeathCorpseFade(frame);
+            enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathCorpseFade(frame);
             for (int color = 0; color < MotherBrainDeathRomData.CorpseColorCount; color++)
                 AssertEqual(colors.CorpseColor(frame, color),
                     cgram.Colors[MotherBrainDeathRomData.CorpseColors + color],
                     $"live Mother Brain corpse death frame {frame} color {color}");
         }
-        enemies.MotherBrainBehavior.LoadMotherBrainDeathDoorPalette();
+        enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathDoorPalette();
         for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
             AssertEqual(colors.ExplodedDoorColor(color),
                 cgram.Colors[MotherBrainDeathRomData.BrainColors + color],

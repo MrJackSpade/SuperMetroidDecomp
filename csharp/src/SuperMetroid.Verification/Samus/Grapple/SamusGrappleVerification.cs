@@ -639,15 +639,15 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // function-pointer test selects beam-specific graphics only through `$9B:C832`. The
     // later one-frame functions must therefore suppress both ordinary charge flare and rope
     // while still falling through to the normal atmosphere/body/cannon/echo subroutine.
-    AssertTrue(SamusGrappleMovement.UsesGrappleDrawingHandler(GrapplePhase.Firing),
+    AssertTrue(SamusGrappleBeamDrawing.UsesGrappleDrawingHandler(GrapplePhase.Firing),
         "grapple firing owns replacement draw handler");
-    AssertTrue(SamusGrappleMovement.UsesBeamSpecificDrawingPath(GrapplePhase.WallGrabRelease),
+    AssertTrue(SamusGrappleBeamDrawing.UsesBeamSpecificDrawingPath(GrapplePhase.WallGrabRelease),
         "grapple wall-release remains inside beam-specific pointer range");
-    AssertTrue(SamusGrappleMovement.UsesGrappleDrawingHandler(GrapplePhase.CancelPending),
+    AssertTrue(SamusGrappleBeamDrawing.UsesGrappleDrawingHandler(GrapplePhase.CancelPending),
         "grapple cancel keeps replacement draw handler for pending frame");
-    AssertTrue(!SamusGrappleMovement.UsesBeamSpecificDrawingPath(GrapplePhase.CancelPending),
+    AssertTrue(!SamusGrappleBeamDrawing.UsesBeamSpecificDrawingPath(GrapplePhase.CancelPending),
         "grapple cancel takes ordinary body-and-echo fallback");
-    AssertTrue(!SamusGrappleMovement.UsesGrappleDrawingHandler(GrapplePhase.Inactive),
+    AssertTrue(!SamusGrappleBeamDrawing.UsesGrappleDrawingHandler(GrapplePhase.Inactive),
         "inactive grapple restores default draw handler");
 
     // Give bank-$93 table index 16 one deliberately recognizable one-piece spritemap.
@@ -662,7 +662,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
     var grappleFlareOamFrame = new SpriteFrameBuffer();
     grappleFlareOamFrame.BeginFrame();
-    AssertTrue(SamusGrappleMovement.DrawFlareBeforeSamus(
+    AssertTrue(SamusGrappleBeamDrawing.DrawFlareBeforeSamus(
             samus, grappleFlareOamFrame, layer1: new(100, 50), compositions: fixtureFlareSprites,
             standardObjects: SpriteFrameTestArtwork.StandardObjects),
         "connected grapple flare passes unsigned screen-Y gate");
@@ -692,7 +692,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
 
     var grappleOamFrame = new SpriteFrameBuffer();
     grappleOamFrame.BeginFrame();
-    SamusGrappleMovement.DrawConnectedBeam(
+    SamusGrappleBeamDrawing.DrawConnectedBeam(
         samus.Grapple,
         grappleOamFrame,
         layer1: new(100, 50),
@@ -746,7 +746,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     };
     var zeroLengthOamFrame = new SpriteFrameBuffer();
     zeroLengthOamFrame.BeginFrame();
-    SamusGrappleMovement.DrawConnectedBeam(
+    SamusGrappleBeamDrawing.DrawConnectedBeam(
         zeroLengthGrapple,
         zeroLengthOamFrame,
         layer1: new(100, 50),

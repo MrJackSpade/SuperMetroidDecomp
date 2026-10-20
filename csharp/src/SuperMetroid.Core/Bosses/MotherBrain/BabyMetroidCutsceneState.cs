@@ -345,7 +345,7 @@ public sealed class BabyMetroidCutsceneState
             {
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
                 Position = Position.WithWhole(head + ShakingOffsets[shakingIndex] + BrainLatchOffset);
-                if (motherBrain.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
+                if (motherBrain.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
                     FunctionTimer = NativeCountdown.Start(64);

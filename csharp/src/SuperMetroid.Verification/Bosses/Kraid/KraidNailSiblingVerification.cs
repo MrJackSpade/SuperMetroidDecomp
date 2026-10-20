@@ -59,12 +59,12 @@ internal static class KraidNailSiblingVerification
         ushort Word(int a) => SnesLittleEndian.Word(KraidNailSiblingRomByte(rom, a), KraidNailSiblingRomByte(rom, a + 1));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
-        enemies.KraidBehavior.Kraid = state;
+        enemies.KraidBehavior.Access.Kraid = state;
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.Kraid, enemies.SlotTable.Slots[0].Definition);
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Nail initialization must not advance RNG.");
-        Action<RoomEnemySlot, KraidPartState> initialize = enemies.KraidBehavior.InitializeKraidNailFlight;
+        Action<RoomEnemySlot, KraidPartState> initialize = enemies.KraidBehavior.Projectiles.InitializeKraidNailFlight;
         foreach (int slot in new[] { 6, 7 })
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         foreach (bool siblingAlternate in new[] { false, true })

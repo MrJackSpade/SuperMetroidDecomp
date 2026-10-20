@@ -10,7 +10,7 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunBombTorizoInitializationAi;
+    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.Movement.RunBombTorizoInitializationAi;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => BombTorizoPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
@@ -27,7 +27,7 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        return BombTorizoBehavior.FindTorizoHitboxCallback(Slot, probe, out callback);
+        return TorizoCombat.FindTorizoHitboxCallback(Slot, probe, out callback);
     }
 
     /// <summary>Both Torizos' contact and shots enter the extended-spritemap walker over their own hitboxes.</summary>

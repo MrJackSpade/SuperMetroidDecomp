@@ -53,7 +53,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
             RoomSpriteObjectKind kind = entry >= 3
                 ? RoomSpriteObjectKind.DraygonIntroEvir
                 : RoomSpriteObjectKind.DraygonDeathEvirFacingRight;
-            enemies.DraygonBehavior.SpawnDraygonDeathEvir(entry, kind);
+            enemies.DraygonBehavior.Death.SpawnDraygonDeathEvir(entry, kind);
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects[
                 spriteSlotCount - 1 - (5 - entry)];
             DraygonBurialEvirDefinition definition =
@@ -68,7 +68,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
                 $"Draygon burial Evir {entry} palette");
         }
 
-        enemies.DraygonBehavior.MoveDraygonDeathEvirs();
+        enemies.DraygonBehavior.Death.MoveDraygonDeathEvirs();
         for (int entry = 5; entry >= 0; entry--)
         {
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects[

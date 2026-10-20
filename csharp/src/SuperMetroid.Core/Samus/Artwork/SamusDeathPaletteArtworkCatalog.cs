@@ -217,11 +217,15 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <param name="palette">Pointer-table row 0..9: base, flash, seven whitening steps, then final foreground row.</param>
     /// <param name="color">Ink index 0..15, copied by the consumer to CGRAM 192..207; index-zero pixels remain transparent.</param>
     /// <returns>The selected RGB5 word with red in bits 0..4, green in 5..9, and blue in 10..14; no palette is written.</returns>
-    /// <exception cref="IndexOutOfRangeException">Any index is outside its documented range.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Any index is outside its documented range.</exception>
     public Bgr555 SuitedColor(int suit, int palette, int color)
     {
-        if ((uint)suit >= SuitCount || (uint)palette >= SamusPaletteRomData.Death.PaletteCount || (uint)color >= ColorCount)
-            throw new IndexOutOfRangeException();
+        if ((uint)suit >= SuitCount)
+            throw new ArgumentOutOfRangeException(nameof(suit));
+        if ((uint)palette >= SamusPaletteRomData.Death.PaletteCount)
+            throw new ArgumentOutOfRangeException(nameof(palette));
+        if ((uint)color >= ColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
         int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
         if (suited.TryGetValue(key, out Bgr555 value)) return value;
         if (palette == 0) return SuitedColor(0, 0, color);
@@ -240,11 +244,13 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <param name="palette">Pointer-table row 0..9; stock rows 0 and 1 repeat the base, 2..8 whiten it, and 9 is the final foreground row.</param>
     /// <param name="color">Ink index 0..15, copied by the consumer to CGRAM 240..255; index-zero pixels remain transparent.</param>
     /// <returns>The selected RGB5 word without changing CGRAM or advancing the death sequence.</returns>
-    /// <exception cref="IndexOutOfRangeException">Either index is outside its documented range.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Either index is outside its documented range.</exception>
     public Bgr555 SuitlessColor(int palette, int color)
     {
-        if ((uint)palette >= SamusPaletteRomData.Death.PaletteCount || (uint)color >= ColorCount)
-            throw new IndexOutOfRangeException();
+        if ((uint)palette >= SamusPaletteRomData.Death.PaletteCount)
+            throw new ArgumentOutOfRangeException(nameof(palette));
+        if ((uint)color >= ColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
         int key = palette * ColorCount + color;
         if (suitless.TryGetValue(key, out Bgr555 value)) return value;
         if (palette == 0 && color == 5)
@@ -391,7 +397,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <summary>Resolves a $9B:B835 ShadesOfWhite entry, retaining independent edits to the calculated two-rate whiteout.</summary>
     /// <param name="index">Whiteout shade 0..21, not an explosion frame; the terminal call selects 21 explicitly.</param>
     /// <returns>The RGB5 word used by the consumer to fill CGRAM 0..191 and 208..239, excluding suited and suitless Samus palettes.</returns>
-    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside 0..21.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside 0..21.</exception>
     public Bgr555 WhiteoutColor(int index) => whiteout.Resolve(index);
 
     /// <summary>Independent edits to the calculated two-rate whiteout.</summary>
@@ -436,7 +442,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// This establishes an exact two-rate ramp,not the identity of its historical tool.</remarks>
     internal static Bgr555 DefaultWhiteoutColor(int index)
     {
-        if ((uint)index >= SamusPaletteRomData.Death.WhiteoutShadeCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= SamusPaletteRomData.Death.WhiteoutShadeCount) throw new ArgumentOutOfRangeException(nameof(index));
         const int firstLitIntensity = 1, fullWhiteIntensity = 31;
         const int halfBrightnessIndex = 7, completionIndex = 21;
         const int halfRise = (fullWhiteIntensity - firstLitIntensity) / 2;
@@ -453,7 +459,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// selectors remain independent. Preserve the original array bounds exception.</remarks>
     /// <param name="frame">Explosion drawing index 0..8, selecting one of the nine native timing/selector records.</param>
     /// <returns>A row index 0..9 for both foreground palette families, not a RGB5 word or countdown duration.</returns>
-    /// <exception cref="IndexOutOfRangeException"><paramref name="frame"/> is outside 0..8.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside 0..8.</exception>
     public ushort ExplosionPaletteIndex(int frame)
     {
         ushort expected = DefaultExplosionPaletteIndex(frame);
@@ -463,7 +469,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <summary>Maps frame zero to base row zero and later frames past the flash-only row.</summary>
     private static ushort DefaultExplosionPaletteIndex(int frame)
     {
-        if ((uint)frame >= SamusDeathExplosionTimingDefinitions.RecordCount) throw new IndexOutOfRangeException();
+        if ((uint)frame >= SamusDeathExplosionTimingDefinitions.RecordCount) throw new ArgumentOutOfRangeException(nameof(frame));
         return (ushort)(frame == 0 ? 0 : frame + 1);
     }
 }

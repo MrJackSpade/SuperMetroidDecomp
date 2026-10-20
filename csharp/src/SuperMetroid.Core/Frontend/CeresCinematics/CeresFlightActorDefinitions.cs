@@ -17,7 +17,7 @@ internal static class CeresFlightActorDefinitions
     /// <remarks>Explicit role selection in native spawn order $BE3B..BE5C. Addresses identify
     /// X/Y operands in each role's initializer, including the nonzero-parameter vortex/star branches.
     /// #1165 independently verifies the five original entries and ROM operands; unsupported indices
-    /// preserve the former array's IndexOutOfRangeException contract.</remarks>
+    /// throw ArgumentOutOfRangeException.</remarks>
     public static (string Id, ushort XAddress, ushort YAddress) RearViewPlacementSource(int index) => index switch
     {
         0 => ("large-asteroid", 0xbf23, 0xbf29),
@@ -25,7 +25,7 @@ internal static class CeresFlightActorDefinitions
         2 => ("small-asteroid", 0xbf77, 0xbf7d),
         3 => ("vortex", 0xbfb4, 0xbfba),
         4 => ("rear-stars", 0xbea3, 0xbea9),
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
     /// <summary><c>$8B:BEC2</c>, signed-8.8 acceleration applied to the opening star field.</summary>

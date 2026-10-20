@@ -12,7 +12,7 @@ internal static class GameConfigurationPackageVerification
     public static void Run(string gameAssemblyPath)
     {
         string publish = (Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath))."));
-        string template = File.ReadAllText(Path.Combine((publish ?? throw new InvalidOperationException("Verification requires publish.")), "SuperMetroid.defaults.ini"));
+        string template = File.ReadAllText(Path.Combine((publish), "SuperMetroid.defaults.ini"));
         if (template.Replace("\r\n", "\n") != SuperMetroidGameOptionsIni.DefaultFileContents.Replace("\r\n", "\n") ||
             SuperMetroidGameOptionsIni.Parse(template) != new SuperMetroidGameOptions() ||
             SuperMetroidGameOptionsIni.Parse("") != new SuperMetroidGameOptions())
@@ -20,7 +20,7 @@ internal static class GameConfigurationPackageVerification
 
         Assembly game = Assembly.LoadFrom(Path.GetFullPath(gameAssemblyPath));
         Type config = (game.GetType("SuperMetroid.Game.GameConfigurationFile", throwOnError: true) ?? throw new InvalidOperationException("Verification requires game.GetType(\"SuperMetroid.Game.GameConfigurationFile\", throwOnError: true)."));
-        MethodInfo loadInstalled = ((config ?? throw new InvalidOperationException("Verification requires config.")).GetMethod("LoadInstalled") ?? throw new InvalidOperationException("Verification requires (config ?? throw new InvalidOperationException(\"Verification requires config.\")).GetMet...."));
+        MethodInfo loadInstalled = (config.GetMethod("LoadInstalled") ?? throw new InvalidOperationException("Verification requires (config ?? throw new InvalidOperationException(\"Verification requires config.\")).GetMet...."));
         // The temporary directory is test-owned. No ROM is needed: this is the same
         // loader called after installation, not a substitute INI parser.
         using var rootScratch = new TestScratchDirectory("config-515");
@@ -46,7 +46,7 @@ internal static class GameConfigurationPackageVerification
             if (Load(data, publish) is not { MasterVolumePercent: 17, SkipOpeningCinematic: true } ||
                 File.ReadAllText(active) != edited)
                 throw new InvalidDataException("Relaunch ignored or overwrote edited player settings.");
-            object installedResult = ((loadInstalled ?? throw new InvalidOperationException("Verification requires loadInstalled.")).Invoke(null, [data, publish]) ?? throw new InvalidOperationException("Verification requires (loadInstalled ?? throw new InvalidOperationException(\"Verification requires loadInstal...."));
+            object installedResult = (loadInstalled.Invoke(null, [data, publish]) ?? throw new InvalidOperationException("Verification requires (loadInstalled ?? throw new InvalidOperationException(\"Verification requires loadInstal...."));
             if ((string)((config.GetProperty("Path") ?? throw new InvalidOperationException("Verification requires config.GetProperty(\"Path\").")).GetValue(installedResult) ?? throw new InvalidOperationException("Verification requires (config.GetProperty(\"Path\") ?? throw new InvalidOperationException(\"Verification requir....")) != active ||
                 (SuperMetroidGameOptions)((config.GetProperty("Options") ?? throw new InvalidOperationException("Verification requires config.GetProperty(\"Options\").")).GetValue(installedResult) ?? throw new InvalidOperationException("Verification requires (config.GetProperty(\"Options\") ?? throw new InvalidOperationException(\"Verification req....")) !=
                 SuperMetroidGameOptionsIni.Parse(edited))

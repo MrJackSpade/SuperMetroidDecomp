@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 

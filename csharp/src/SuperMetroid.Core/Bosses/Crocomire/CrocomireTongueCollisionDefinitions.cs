@@ -20,7 +20,7 @@ internal static class CrocomireTongueCollisionDefinitions
     /// count word and one eight-byte component give a ten-byte frame stride.</summary>
     internal static ushort FramePointer(int index)
     {
-        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         return (ushort)(index < 4
             ? (int)CrocomireTongueFrame.Fight0 + 10 * index
             : (int)CrocomireTongueFrame.MeltingPose0 + 10 * (index - 4));

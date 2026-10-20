@@ -18,7 +18,7 @@ internal readonly record struct KraidArmHitboxSequence(int Start, int Length) : 
     {
         get
         {
-            if ((uint)index >= (uint)Length) throw new IndexOutOfRangeException();
+            if ((uint)index >= (uint)Length) throw new ArgumentOutOfRangeException(nameof(index));
             return KraidArmCollisionDefinitions.Rectangle(Start + index);
         }
     }

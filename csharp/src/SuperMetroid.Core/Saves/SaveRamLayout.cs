@@ -192,7 +192,7 @@ public static class SaveRamLayout
     /// <summary>$81:812B SaveSlotOffsets: three adjacent payloads, each exactly $065C bytes long.</summary>
     public static ushort SlotOffset(int slot)
     {
-        if ((uint)slot >= SlotCount) throw new IndexOutOfRangeException();
+        if ((uint)slot >= SlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
         return (ushort)(FirstSlotOffset + slot * SlotByteCount);
     }
 }

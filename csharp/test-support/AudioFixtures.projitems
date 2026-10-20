@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AudioFixtures/**/*.cs" LinkBase="TestSupport/AudioFixtures" />
+  </ItemGroup>
+</Project>

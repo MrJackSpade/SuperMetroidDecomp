@@ -19,6 +19,6 @@ internal static class RoomPlmHeaders
         5 => PlmHeaderId.ContactCrumble2x1Permanent,
         6 => PlmHeaderId.ContactCrumble1x2Permanent,
         7 => PlmHeaderId.ContactCrumble2x2Permanent,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 }

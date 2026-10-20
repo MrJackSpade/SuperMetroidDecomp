@@ -149,7 +149,7 @@ internal static class InstallationOverrideLifecycleVerification
             }
             string identity = catalog is InstalledProjectilePresentation projectile
                 ? projectile.SelectedSha256
-                : (catalog ?? throw new InvalidOperationException("Verification requires catalog.")).GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
+                : catalog.GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
                     ?? throw new InvalidDataException($"Catalog {loader.Name} lacks selected-content identity.");
             result.Add(loader.Name, identity);
         }

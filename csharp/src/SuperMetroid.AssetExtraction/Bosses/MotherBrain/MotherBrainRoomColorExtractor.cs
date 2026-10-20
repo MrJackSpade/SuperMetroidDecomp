@@ -17,7 +17,7 @@ internal static class MotherBrainRoomColorExtractor
             ? checked((ushort)(MotherBrainRoomFlashSourceDefinitions.FlashList +
                 index * MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes +
                 MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset))
-            : throw new IndexOutOfRangeException();
+            : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>Imports room-flash rows and selected encounter palettes into an editable RGB5 document.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)

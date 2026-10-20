@@ -53,8 +53,10 @@ public sealed class TourianStatueColorCatalog
     /// <summary>Gets packed RGB5 eye ink 0–3 from row 0–3 of $86:B91E, in Phantoon, Ridley, Draygon, Kraid order.</summary>
     public Bgr555 ResolveEye(int row, int color)
     {
-        if ((uint)row >= TourianStatuePaletteRomData.EyeRowCount ||
-            (uint)color >= TourianStatuePaletteRomData.EyeColorCount) throw new IndexOutOfRangeException();
+        if ((uint)row >= TourianStatuePaletteRomData.EyeRowCount)
+            throw new ArgumentOutOfRangeException(nameof(row));
+        if ((uint)color >= TourianStatuePaletteRomData.EyeColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
         return eyeColors.Read(row * TourianStatuePaletteRomData.EyeColorCount + color);
     }
     /// <summary>Gets packed RGB5 ink 0–7 from the statue's grey-transition band corresponding to $87:839C; destination and transition ordering remain animation-owned.</summary>
@@ -162,7 +164,7 @@ public sealed class TourianStatueColorCatalog
         /// <summary>Resolves an edited color or calculates its stock paint after validating the index.</summary>
         internal Bgr555 Read(int color)
         {
-            if ((uint)color >= count) throw new IndexOutOfRangeException();
+            if ((uint)color >= count) throw new ArgumentOutOfRangeException(nameof(color));
             return edits.TryGetValue(color, out Bgr555 edited) ? edited : TourianStatuePaintDefinitions.Color(band, color);
         }
         /// <summary>Materializes the selected band for content hashing in indexed color order.</summary>

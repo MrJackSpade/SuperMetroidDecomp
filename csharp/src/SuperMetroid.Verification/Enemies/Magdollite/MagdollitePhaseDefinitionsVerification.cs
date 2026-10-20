@@ -52,11 +52,11 @@ internal static class MagdollitePhaseDefinitionsVerification
         MagdolliteEnemyState headState = (enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[0]."));
         MagdolliteEnemyState bodyState = (enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[1]."));
         MagdolliteEnemyState overlayState = (enemies.MagdolliteStates[2] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[2]."));
-        (headState ?? throw new InvalidOperationException("Verification requires headState.")).DownwardVelocity = SnesSignedSixteenSixteen.Zero;
+        headState.DownwardVelocity = SnesSignedSixteenSixteen.Zero;
         headState.UpwardVelocity = SnesSignedSixteenSixteen.Zero;
 
         AssertEqual(MagdollitePhaseDefinitions.Phase(0).BodyProgram,
-            (bodyState ?? throw new InvalidOperationException("Verification requires bodyState.")).DesiredProgram, "Magdollite production initial body list");
+            bodyState.DesiredProgram, "Magdollite production initial body list");
 
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {
@@ -64,7 +64,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             bodyState.BodyReachedApex = false;
             bodyState.BodyPhase = phaseIndex;
             body.Position = body.Position.WithWholeY(0x0300);
-            trackRise(overlay, (overlayState ?? throw new InvalidOperationException("Verification requires overlayState.")), null);
+            trackRise(overlay, (overlayState), null);
             AssertEqual(unchecked((ushort)(0x0300 - phase.OverlayYOffset)), overlay.Position.Y.Whole,
                 $"Magdollite production overlay Y {phaseIndex}");
 

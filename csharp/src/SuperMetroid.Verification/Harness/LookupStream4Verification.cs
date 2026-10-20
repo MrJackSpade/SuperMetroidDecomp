@@ -816,9 +816,9 @@ internal static class LookupStream4Verification
             }
         }
         foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetFastDelta(index), "fast shake bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetFastDelta(index), "fast shake bounds");
         foreach (int index in new[] { -1, 8, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetSlowDelta(index), "slow shake bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetSlowDelta(index), "slow shake bounds");
         Console.WriteLine("Ending shake:24 native signed values, common two-pixel cycle displacement, both production cycles/index wraps, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
     }
 
@@ -1186,7 +1186,7 @@ internal static class LookupStream4Verification
             expectedHeading[region.Column + letter] = EndingTextDefinitions.CompileGlyph("TEST"[letter], EndingTextStyle.ResultSmall);
         AssertTrue(expectedHeading.SequenceEqual(heading.BuildResultPanel()), "Provided heading retains original fixed origin, padding and precedence over template words");
         foreach (int invalid in new[] { -1, native.Length })
-            AssertThrows<IndexOutOfRangeException>(() => EndingTextLayoutDefinitions.ResultWord(invalid, "PRODUCED BY"), "Calculated result layout bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextLayoutDefinitions.ResultWord(invalid, "PRODUCED BY"), "Calculated result layout bounds");
         Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, independent edits, heading precedence and immutable output snapshots pass; chosen wording has a narrow nonsense disposition; palette choices and font pixels remain required.");
     }
 
@@ -1214,7 +1214,7 @@ internal static class LookupStream4Verification
             Verify(stock, -1);
         }
         foreach (int invalid in new[] { int.MinValue, -1, native.Length, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = stock.JapaneseSubtitle[invalid], "Calculated subtitle preserves indexed bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.JapaneseSubtitle[invalid], "Calculated subtitle preserves indexed bounds");
         ushort[] shortBuffer = new ushort[native.Length - 1];
         Array.Fill(shortBuffer, (ushort)0x1234);
         AssertThrows<ArgumentException>(() => stock.JapaneseSubtitle.CopyTo(shortBuffer), "Subtitle rejects short output before writing");
@@ -1262,7 +1262,7 @@ internal static class LookupStream4Verification
         for (int link = 1; link < 7; link++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), RidleyTailDefinitions.RestDistance(link), "Native shrink threshold equals initialized rest geometry");
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => RidleyTailDefinitions.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailDefinitions.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
         Action<RidleyEnemyState> update = RidleyTail.UpdateRidleyTailDistances;
         foreach (int delta in new[] { -1, 0, 1 })
         {
@@ -1308,7 +1308,7 @@ internal static class LookupStream4Verification
         for (int phase = 0; phase < 4; phase++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), (ushort)CeresMode7TransferDefinitions.BabyFrameForPhase(phase), "Baby reflected phase preserves native transfer identity");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresMode7TransferDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
         var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyMode7Colors = colors } };
         var vram = new SnesVram();
@@ -1408,7 +1408,7 @@ internal static class LookupStream4Verification
             for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+1+cell%width],"Independent supplied icon anchor");
         }
         foreach(int invalid in new[]{-1,5,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.IconWord(invalid,0),"Icon item domain");
-        for(int item=0;item<5;item++)foreach(int invalid in new[]{-1,GameplayHudDefinitions.IconWidth(item)*2})AssertThrows<IndexOutOfRangeException>(()=>GameplayHudDefinitions.IconWord(item,invalid),"Icon cell domain");
+        for(int item=0;item<5;item++)foreach(int invalid in new[]{-1,GameplayHudDefinitions.IconWidth(item)*2})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.IconWord(item,invalid),"Icon cell domain");
         const int scale=6,imageWidth=128*scale,imageHeight=16*scale;byte[] pixels=new byte[imageWidth*imageHeight];int sourceIndex=0,startX=0;
         for(int item=0;item<5;item++)
         {
@@ -1435,7 +1435,7 @@ internal static class LookupStream4Verification
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         var stock=GameplayHudPresentation.Load(new MemoryStream(json));
-        AssertEqual(0,(stock.templateOverrides).Count,"HUD template zero native overrides");
+        AssertEqual(0,stock.templateOverrides.Count,"HUD template zero native overrides");
         for(int edit=-1;edit<576;edit++)
         {
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
@@ -1462,7 +1462,7 @@ internal static class LookupStream4Verification
                 for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.Tiles[64+x],"Actual initializer preserves selected ENERGY typography");
             }
         }
-        foreach(int invalid in new[]{-1,96,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>GameplayHudDefinitions.TemplateWord(invalid),"Template index domain");
+        foreach(int invalid in new[]{-1,96,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.TemplateWord(invalid),"Template index domain");
         Console.WriteLine("HUD template:96native words/zero overrides,576independent edits/hash/577full applications,three actual initializers/readguard/top-row independence/bounds pass.");
     }
 
@@ -1473,7 +1473,7 @@ internal static class LookupStream4Verification
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         var stock=GameplayHudPresentation.Load(new MemoryStream(json));
-        AssertEqual(0,(stock.topRowOverrides).Count,"HUD top row zero native overrides");
+        AssertEqual(0,stock.topRowOverrides.Count,"HUD top row zero native overrides");
         for(int edit=-1;edit<192;edit++)
         {
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
@@ -1497,7 +1497,7 @@ internal static class LookupStream4Verification
             for(int index=0;index<64;index++)AssertEqual(transfer.Span[index],vram.Bytes[0xb000+index],"Existing top-row upload byte contract");
             ushort[] actual=new ushort[96],original=new ushort[96];selected.ApplyTemplate(actual);stock.ApplyTemplate(original);AssertTrue(actual.SequenceEqual(original),"Top-row edits leave mutable template independent");
         }
-        foreach(int invalid in new[]{-1,32,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>GameplayHudDefinitions.TopRowWord(invalid),"Top-row column domain");
+        foreach(int invalid in new[]{-1,32,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.TopRowWord(invalid),"Top-row column domain");
         const int scale=8,width=256,height=64;byte[] pixels=new byte[width*height];
         for(int cell=0;cell<4;cell++)for(int y=0;y<8;y++)for(int x=0;x<8;x++)
         {
@@ -1556,7 +1556,7 @@ internal static class LookupStream4Verification
         GameplayHudPresentation stock = GameplayHudPresentation.Load(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertTrue(!MetadataShape.DeclaresField(typeof(GameplayHudPresentation), "autoReserveBasis", flags), "AUTO no longer stores whole-word basis cells");
-        AssertEqual(0, (stock.autoReserveOverrides).Count,
+        AssertEqual(0, stock.autoReserveOverrides.Count,
             "AUTO all twelve stock words calculate without stored overrides");
         ushort[] tiles = new ushort[96];
         for (int state = 0; state < 2; state++)
@@ -1591,7 +1591,7 @@ internal static class LookupStream4Verification
             }
         }
         foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveWord(invalid, true),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveWord(invalid, true),
                 "AUTO calculated cell exact domain");
     }
 
@@ -1633,7 +1633,7 @@ internal static class LookupStream4Verification
         AssertEqual((ushort)((CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + 6)) & ~0x1c00) | 0x1000), tiles[75], "independent ammo digit palette applied");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + 8)), tiles[76], "unedited trailing ammo digit unchanged");
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.DigitWord(invalid), "HUD digit exact domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudDefinitions.DigitWord(invalid), "HUD digit exact domain");
     }
 
     /// <summary>Checks title screen sprite identities against the native artwork pointers.</summary>
@@ -1660,7 +1660,7 @@ internal static class LookupStream4Verification
             AssertEqual((ushort)0x3800, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0006 + transfer)), "native baby transfer destination");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = TitleSequenceRomData.Vram.BabyAnimationSourcePages[invalid], "title baby exact phase domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleSequenceRomData.Vram.BabyAnimationSourcePages[invalid], "title baby exact phase domain");
         Console.WriteLine("Title identities: 31 sorted native selectors, four Baby source pages, DMA sizes/destinations and invalid phases pass.");
     }
 
@@ -1724,7 +1724,7 @@ internal static class LookupStream4Verification
             AssertEqual(frame, RidleyCollisionDefinitions.FramePointers[ordinal++], "Frame identity indexing preserves order");
             var components = RidleyCollisionDefinitions.ComponentsAt(frame);
             foreach (int invalid in new[] { -1, components.Length })
-                AssertThrows<IndexOutOfRangeException>(() => _ = components[invalid], "Calculated component view rejects out-of-range indices");
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = components[invalid], "Calculated component view rejects out-of-range indices");
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(nativeFrames.Contains((ushort)pointer), RidleyCollisionDefinitions.HasFrame((ushort)pointer), "Calculated frame membership preserves complete native identity domain");
@@ -1738,7 +1738,7 @@ internal static class LookupStream4Verification
             .Count();
         AssertEqual(nativeLists.Count, compiledLists, "Components select one compiled list per distinct native hitbox list");
         foreach (int invalid in new[] { -1, nativeFrames.Count })
-            AssertThrows<IndexOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
     }
 
     /// <summary>Checks beam palette relations and installed CGRAM and VRAM output against native data.</summary>
@@ -1985,7 +1985,7 @@ internal static class LookupStream4Verification
             var id = (GameplayMessageId)raw;
             if (raw is < 1 or > 27)
             {
-                AssertThrows<IndexOutOfRangeException>(() => GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
+                AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
                 continue;
             }
             if (!Enum.IsDefined(id))
@@ -2370,15 +2370,15 @@ internal static class LookupStream4Verification
         for (int slot = 0; slot < 3; slot++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x81812b + slot * 2)), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
         foreach (int invalid in new[] { int.MinValue, -1, 20, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => EyeDoorEnemyProjectileRomData.ProjectileOriginWord(invalid), "eye-door origin word domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => EyeDoorEnemyProjectileRomData.ProjectileOriginWord(invalid), "eye-door origin word domain");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => EyeDoorEnemyProjectileRomData.SweatVelocityWord(invalid), "eye-door sweat word domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => EyeDoorEnemyProjectileRomData.SweatVelocityWord(invalid), "eye-door sweat word domain");
         }
         foreach (DraygonFiringCannon invalid in new[] { (DraygonFiringCannon)4, (DraygonFiringCannon)byte.MaxValue })
             AssertThrows<InvalidOperationException>(() => DraygonCannonData.FiringTarget(invalid), "Draygon cannon role domain");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
         foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailInstructionDefinitions.Program(invalid), "Oum animation exact domain");
     }
@@ -2420,8 +2420,8 @@ internal static class LookupStream4Verification
         var intro = stock.intro;
         var primary = intro.primary;
         var surface = intro.surface;
-        AssertEqual(0,(primary.edits).Count,"Intro primary zero native overrides");
-        AssertEqual(0,(surface.edits).Count,"Intro surface zero native overrides");
+        AssertEqual(0,primary.edits.Count,"Intro primary zero native overrides");
+        AssertEqual(0,surface.edits.Count,"Intro surface zero native overrides");
         AssertEqual<object?>(null,intro.clearEdit,"Intro clear has no native override");
         for(int edit=-1;edit<75;edit++)
         {
@@ -2485,7 +2485,7 @@ internal static class LookupStream4Verification
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorCatalog.Load(new MemoryStream(json));
         var material = stock.sprite;
-        AssertEqual(0,(material.edits).Count,"Shared native sprite material has zero overrides");
+        AssertEqual(0,material.edits.Count,"Shared native sprite material has zero overrides");
         for(int edit=-1;edit<48;edit++)
         {
             var document=RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
@@ -2547,7 +2547,7 @@ internal static class LookupStream4Verification
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorCatalog.Load(new MemoryStream(json));
         var material = stock.background;
-        AssertEqual(0,(material.edits).Count,"All16 background colors calculate without unexplained stock overrides");
+        AssertEqual(0,material.edits.Count,"All16 background colors calculate without unexplained stock overrides");
         for (int edit = -1; edit < 48; edit++)
         {
             var document = RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
@@ -2676,7 +2676,7 @@ internal static class LookupStream4Verification
         var stock = DraygonColorCatalog.Load(new MemoryStream(original));
         AssertEqual(0, stock.whiteFlash.Count, "Draygon stock flash is calculated without stored colors");
         var health = stock.healthBands;
-        AssertEqual(0, (health.edits).Count, "All native Draygon health colors calculate without overrides");
+        AssertEqual(0, health.edits.Count, "All native Draygon health colors calculate without overrides");
         for (int variation = -1; variation < 4; variation++)
         {
             var document = RequiredJson.Deserialize<DraygonColorDocument>(original, options);
@@ -2733,7 +2733,7 @@ internal static class LookupStream4Verification
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var stock = NorfairRidleyColorCatalog.Load(new MemoryStream(json));
         var definition = stock.reveal;
-        AssertEqual(0, (definition.edits).Count,
+        AssertEqual(0, definition.edits.Count,
             "All210 native reveal words calculate without residual samples");
         byte[] roomPalette = RomDataReader.Decompress(CartridgeImportSource.Require(rom), RoomTilesetDefinitions.Get(9).PaletteAddress);
         for (int color = 0; color < 14; color++)
@@ -2785,7 +2785,7 @@ internal static class LookupStream4Verification
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
-                (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = NativeCountdown.Start(0);
+                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = NativeCountdown.Start(0);
                 Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
                 {
@@ -2807,10 +2807,10 @@ internal static class LookupStream4Verification
         }
         foreach (int row in new[] { -1, 15, int.MinValue, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => stock.ResolveReveal(row, 0), "Original reveal row domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveReveal(row, 0), "Original reveal row domain");
         }
         foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => stock.ResolveReveal(0, color), "Original reveal color domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveReveal(0, color), "Original reveal color domain");
         Console.WriteLine("Norfair reveal:210 native words/14 shared room endpoints/zero overrides,630 independent RGB edits/hash,9465 full row copies,138 real producer calls/read guard/cadence/terminator and domain checks pass.");
     }
 
@@ -2904,7 +2904,7 @@ internal static class LookupStream4Verification
             }
         }
         foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => stock.ResolveInitial(color), "Initial existing array-domain contract");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveInitial(color), "Initial existing array-domain contract");
         Console.WriteLine("Norfair initial:32 native words,30 shared material identities,zero stock overrides,96 RGB edits/hash,97 full copies,three real initializers/read guard,90 normal/escape source edits and unchanged210 reveal words pass.");
     }
 
@@ -2995,7 +2995,7 @@ internal static class LookupStream4Verification
         foreach (ushort expectedFrame in nativeFrames.Keys)
             AssertEqual(expectedFrame, MaridiaLargeSnailCollisionDefinitions.FramePointers[ordinal++], "Oum calculated frame indexing preserves native order");
         foreach (int invalid in new[] { int.MinValue, -1, nativeFrames.Count, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = MaridiaLargeSnailCollisionDefinitions.FramePointers[invalid], "Oum calculated frame view preserves index bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = MaridiaLargeSnailCollisionDefinitions.FramePointers[invalid], "Oum calculated frame view preserves index bounds");
         var selectedLists = new HashSet<ushort>();
         int rectangles = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -3610,11 +3610,11 @@ internal static class LookupStream4Verification
         AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(new MemoryStream(), document),
             "sparse HUD anchor compilation preserves overlap rejection");
         foreach (int invalid in new[] { -1, 14, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.EnergyTankCell(invalid), "tank exact domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudDefinitions.EnergyTankCell(invalid), "tank exact domain");
         foreach (int invalid in new[] { -1, 5, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.ItemCell(invalid), "item exact domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudDefinitions.ItemCell(invalid), "item exact domain");
         foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveCellIndex(invalid), "AUTO exact domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveCellIndex(invalid), "AUTO exact domain");
     }
 
     /// <summary>Runs the beam geometry verification against a pinned cartridge image.</summary>

@@ -62,6 +62,7 @@ using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
@@ -404,7 +405,7 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        AssertEqual(64, (stock.independentTiles).Length,
+        AssertEqual(64, stock.independentTiles.Length,
             "stream 3 Grapple retains only eight independent binary coverage patterns");
         foreach (object? cache in new object?[] { stock.firstPoint, stock.secondPoint, stock.thirdPoint, stock.fourthPoint, stock.verticalSegments })
             AssertTrue(cache is null,
@@ -451,8 +452,8 @@ internal static class LookupStream3Verification
             }
             AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
             nativeCharacters += expected.Count;
-            AssertThrows<IndexOutOfRangeException>(() => _ = stock.GetLines(source.Id)[-1], "narration line lower bound");
-            AssertThrows<IndexOutOfRangeException>(() => _ = stock.GetLines(source.Id)[stock.GetLines(source.Id).Count], "narration line upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.GetLines(source.Id)[-1], "narration line lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.GetLines(source.Id)[stock.GetLines(source.Id).Count], "narration line upper bound");
         }
         AssertEqual(770, nativeCharacters, "six native narration pages contain770 characters");
         var document = RequiredJson.Deserialize<IntroNarrationDocument>(json, ArtworkJson.Options);
@@ -992,7 +993,7 @@ internal static class LookupStream3Verification
                 "stream 3 native beam quadrant dispatcher including null and retaining entries");
         }
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBeamRomData.DirectionForQuadrants(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBeamRomData.DirectionForQuadrants(invalid),
                 "stream 3 beam dispatcher preserves span index bounds");
         IntroCinematicRomData.Palette.Regions[] introRegions =
         [IntroCinematicRomData.Palette.Gameplay, IntroCinematicRomData.Palette.GameplayClear,
@@ -1023,7 +1024,7 @@ internal static class LookupStream3Verification
                     CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 4), "stream 3 intro native count");
             }
             foreach (int invalid in new[] { -1, introRegions[group].Count, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => _ = introRegions[group][invalid], "stream 3 intro region bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = introRegions[group][invalid], "stream 3 intro region bounds");
         }
         ushort[] motherBrainRoots =
         [
@@ -1043,7 +1044,7 @@ internal static class LookupStream3Verification
                 "stream 3 native OAM record widths used for root strides");
         }
         foreach (int invalid in new[] { -1, 18, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainVisualDefinitions.Frame(invalid), "stream 3 visual root bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = MotherBrainVisualDefinitions.Frame(invalid), "stream 3 visual root bounds");
         MotherBrainSpecialSpriteSheetDefinition[] expectedSheets =
         [
             new("mother-brain-leg-tiles.png", 0xb79000, 8, 0x7400),
@@ -1207,7 +1208,7 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => _ = GrappleSpriteDefinitions.SegmentAttributeAddresses[invalid], "stream 3 rope operand address bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = GrappleSpriteDefinitions.SegmentAttributeAddresses[invalid], "stream 3 rope operand address bounds");
             AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
         }
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(
@@ -1261,21 +1262,21 @@ internal static class LookupStream3Verification
         AssertTrue(credits.fixtureRows is null, "stream 3 credits stock has no cached row storage");
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(creditsJson)), credits.ContentIdentity, "stream 3 credits source identity preserved");
         foreach (int invalid in new[] { -1, credits.RowCount, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = credits.GetRow(invalid).Length, "stream 3 calculated credits row bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = credits.GetRow(invalid).Length, "stream 3 calculated credits row bounds");
         var escapePrograms = CrateriaEscapeLightningPaletteFxColorDefinitions.All;
         AssertEqual(2, escapePrograms.Count, "stream 3 escape lightning owner count");
         AssertTrue(escapePrograms.Select(program => program.Owner).SequenceEqual(new[] { CrateriaEscapeLightningPaletteOwner.YellowLightning, CrateriaEscapeLightningPaletteOwner.CreBlockPixel }), "stream 3 escape lightning owner order");
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = escapePrograms[invalid], "stream 3 escape lightning owner bounds");
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.Duration(invalid), "stream 3 escape lightning duration bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.Duration(invalid), "stream 3 escape lightning duration bounds");
         Suite(nameof(VerifyGrappleConnectionDefinitions), () => VerifyGrappleConnectionDefinitions((SuperMetroidAddressSpace)rom));
         Suite(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom));
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
         {
             var regions = MotherBrainContactHitboxDefinitions.Get(part);
             foreach (int invalid in new[] { -1, regions.Count, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => _ = regions[invalid], "stream 3 contact region bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = regions[invalid], "stream 3 contact region bounds");
         }
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
     }
@@ -1347,9 +1348,9 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.AnimationDelay(invalid), "stream 3 stagger delay bounds");
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(invalid), "stream 3 stagger neck bounds");
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.FunctionTimer(invalid), "stream 3 stagger timer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.AnimationDelay(invalid), "stream 3 stagger delay bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(invalid), "stream 3 stagger neck bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.FunctionTimer(invalid), "stream 3 stagger timer bounds");
         }
         foreach (ushort stage in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
         {
@@ -1398,14 +1399,14 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageSource(invalid), "stream 3 text page source bounds");
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageDestination(invalid), "stream 3 text page destination bounds");
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageByteCount(invalid), "stream 3 text page size bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageSource(invalid), "stream 3 text page source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageDestination(invalid), "stream 3 text page destination bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageByteCount(invalid), "stream 3 text page size bounds");
         }
         foreach (int invalid in new[] { -1, 7, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.Transfer(invalid), "stream 3 escape transfer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.Transfer(invalid), "stream 3 escape transfer bounds");
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(invalid), "stream 3 door transfer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(invalid), "stream 3 door transfer bounds");
         using var temporary = new TestScratchDirectory("map-catalog");
         SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Extract(rom, temporary.Root, SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256);
         Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(temporary.Root,
@@ -1481,9 +1482,9 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.VramPageSource(invalid), "stream 3 corpse source bounds");
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.VramPageDestination(invalid), "stream 3 corpse destination bounds");
-            AssertThrows<IndexOutOfRangeException>(() => _ = transfers[invalid], "stream 3 corpse transfer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.VramPageSource(invalid), "stream 3 corpse source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.VramPageDestination(invalid), "stream 3 corpse destination bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = transfers[invalid], "stream 3 corpse transfer bounds");
         }
         Suite(nameof(VerifyMotherBrainCorpseStockArtwork), () => VerifyMotherBrainCorpseStockArtwork());
     }
@@ -2398,7 +2399,7 @@ internal static class LookupStream3Verification
             }
         }
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(invalid),
                 "stream 3 room palette operand index bounds");
         for (int frame = 0; frame < 14; frame++)
             for (int color = 0; color < 24; color++)
@@ -2548,7 +2549,7 @@ internal static class LookupStream3Verification
         ];
         AssertTrue(definitions.SequenceEqual(EnemyAuxiliaryColorDefinitions.All), "stream 3 auxiliary definition fields/order");
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = EnemyAuxiliaryColorDefinitions.All[invalid], "stream 3 auxiliary definition bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = EnemyAuxiliaryColorDefinitions.All[invalid], "stream 3 auxiliary definition bounds");
         var words = definitions.ToDictionary(definition => definition.Id, definition =>
             Enumerable.Range(0, definition.FrameCount).Select(frame =>
                 Enumerable.Range(0, definition.ColorCount).Select(color =>
@@ -2723,8 +2724,8 @@ internal static class LookupStream3Verification
             document.Frames[frame.Name] = original.Append(part).ToArray(); Check(Load());
             document.Frames[frame.Name] = []; Check(Load());
             document.Frames[frame.Name] = original;
-            AssertThrows<IndexOutOfRangeException>(() => _ = parts[-1], "stream 3 calculated part lower bound");
-            AssertThrows<IndexOutOfRangeException>(() => _ = parts[30], "stream 3 calculated part upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[-1], "stream 3 calculated part lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[30], "stream 3 calculated part upper bound");
         }
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }

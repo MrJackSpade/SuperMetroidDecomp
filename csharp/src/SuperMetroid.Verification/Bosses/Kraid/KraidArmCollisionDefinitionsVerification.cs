@@ -74,11 +74,11 @@ internal static class KraidArmCollisionDefinitionsVerification
             AssertTrue(compiled.SequenceEqual(Enumerable.Range(0, compiled.Length).Select(i => compiled[i])),
                 "Arm slice materialization preserves native rectangle order");
             foreach (int invalid in new[] { int.MinValue, -1, compiled.Length, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => _ = compiled[invalid], "Arm slice rejects invalid ordinal");
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = compiled[invalid], "Arm slice rejects invalid ordinal");
         }
         AssertEqual(24, hitboxCount, "Kraid arm compiled physical rectangles");
         AssertEqual(0, default(KraidArmHitboxSequence).ToArray().Length, "Default arm slice is empty");
-        AssertThrows<IndexOutOfRangeException>(() => _ = default(KraidArmHitboxSequence)[0], "Default arm slice has no rectangle");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = default(KraidArmHitboxSequence)[0], "Default arm slice has no rectangle");
     }
 
     /// <summary>Reads a bank-$A7 arm word from the retail cartridge for selector comparisons.</summary>

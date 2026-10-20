@@ -35,7 +35,7 @@ internal static class PhantoonBg2FrameDefinitions
     /// count word plus eight bytes per component explains both record sizes.</summary>
     internal static EnemyBg2FrameDefinition Frame(int index)
     {
-        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = (ushort)(index < 16 ? BodyEyeStart + 10 * index
             : index < 19 ? (ushort)PhantoonCollisionFrame.Tentacles0 + 18 * (index - 16)
             : MouthStart + 10 * (index - 19));
@@ -63,7 +63,7 @@ internal static class PhantoonBg2FrameDefinitions
             19 => "mouth_0",
             20 => "mouth_1",
             21 => "mouth_2",
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         return new(pointer, name);
     }

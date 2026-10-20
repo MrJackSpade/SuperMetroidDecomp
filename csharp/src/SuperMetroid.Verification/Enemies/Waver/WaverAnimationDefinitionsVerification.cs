@@ -60,12 +60,13 @@ internal static class WaverAnimationDefinitionsVerification
             slot.SetSpawnParameter1(parameter);
             WaverBehavior.InitializeWaver(slot);
             var expected = (WaverAnimationSelector)parameter;
-            AssertEqual(expected, (enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].")).RequestedInstructionListIndex,
+            WaverEnemyState waver = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
+            AssertEqual(expected, waver.RequestedInstructionListIndex,
                 $"production Waver initial requested selector {parameter}");
-            AssertEqual(expected, (enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].")).CurrentInstructionListIndex,
+            AssertEqual(expected, waver.CurrentInstructionListIndex,
                 $"production Waver initial current selector {parameter}");
             AssertEqual(AnimationProgramCursor<WaverProgram>.Start(WaverAnimationDefinitions.Program(expected)),
-                (enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].")).Program,
+                waver.Program,
                 $"production Waver initial animation {parameter}");
         }
 

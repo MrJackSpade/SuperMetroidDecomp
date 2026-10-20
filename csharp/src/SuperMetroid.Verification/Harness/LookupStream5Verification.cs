@@ -57,6 +57,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -80,7 +81,7 @@ internal static class LookupStream5Verification
                 CrocomireMeltingTilemapAddress source = phase == 0 ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap;
                 native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, (int)source + i * 2)).ToArray();
                 var calculated = new CrocomireMeltingTilemap(phase != 0, native[phase]);
-                AssertEqual(0, (calculated.edits).Count,
+                AssertEqual(0, calculated.edits.Count,
                     "Every native melt tilemap word calculates without fallback");
                 AssertTrue(calculated.Words().SequenceEqual(native[phase]), "All native melt words");
                 AssertTrue((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source).SequenceEqual(native[phase]), "Installed melt words");
@@ -128,7 +129,7 @@ internal static class LookupStream5Verification
                 SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(directory, null));
             AssertThrows<InvalidDataException>(() => CrocomireSkeletonTransferDefinitions.TryGet(-1, out _),
                 "Skeleton negative transfer index rejects");
-            AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireSkeletonTransferDefinitions.Frames[6],
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireSkeletonTransferDefinitions.Frames[6],
                 "Skeleton view excludes sentinel");
         }
         finally
@@ -146,8 +147,8 @@ internal static class LookupStream5Verification
             AssertEqual((unchecked((short)ReadVerificationWord(rom, 0xa6f840 + 4 * index)),
                 unchecked((short)ReadVerificationWord(rom, 0xa6f842 + 4 * index))),
                 CeresDoorRumbleGeometryDefinitions.Offset(index), "All eight native anchor words");
-        AssertThrows<IndexOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(-1), "Rumble lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(4), "Rumble upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(-1), "Rumble lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(4), "Rumble upper bound");
         foreach (Position16<RoomPixels> origin in new Position16<RoomPixels>[] { new(232, 631), new(1, 65530) })
         {
             var system = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
@@ -325,7 +326,7 @@ internal static class LookupStream5Verification
         var stock = Load(document);
         CheckPlatformActor(stock, document);
         CheckHash(stock, document);
-        AssertEqual(0, (stock.platformEdits).Count, "No stored stock platform cells");
+        AssertEqual(0, stock.platformEdits.Count, "No stored stock platform cells");
         for (int frame = 0; frame < 2; frame++)
         for (int cell = 0; cell < 4; cell++)
         {
@@ -333,14 +334,14 @@ internal static class LookupStream5Verification
             frames[frame][cell] ^= 255;
             var changed = document with { Mode7DoorFrames = frames };
             var edited = Load(changed);
-            AssertEqual(1, (edited.platformEdits).Count, "One independent platform override");
+            AssertEqual(1, edited.platformEdits.Count, "One independent platform override");
             CheckPlatformActor(edited, changed);
             CheckHash(edited, changed);
         }
-        AssertThrows<IndexOutOfRangeException>(() => stock.Mode7DoorFrame(-1), "Platform lower frame domain");
-        AssertThrows<IndexOutOfRangeException>(() => stock.Mode7DoorFrame(2), "Platform upper frame domain");
-        AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, -1), "Canonical platform lower column domain");
-        AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, 4), "Canonical platform upper column domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Mode7DoorFrame(-1), "Platform lower frame domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Mode7DoorFrame(2), "Platform upper frame domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, -1), "Canonical platform lower column domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, 4), "Canonical platform upper column domain");
         Console.WriteLine("Ceres platform: eight native cells/eight independent edits,99 actual phase calls through wrap, high-byte/neighbor preservation, canonical hashes and domains pass.");
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
         {
@@ -592,10 +593,10 @@ internal static class LookupStream5Verification
             AssertTrue(!CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(page.SourceAddress, page.WordCount * 2 - 1), "Partial overlay extent rejected");
             AssertTrue(CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(page.SourceAddress) && CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(page.SourceAddress + page.WordCount * 2 - 1), "Overlay byte endpoints admitted");
         }
-        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[-1], "Tile page lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[2], "Tile page upper bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[-1], "Overlay lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[5], "Overlay upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[-1], "Tile page lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[2], "Tile page upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[-1], "Overlay lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[5], "Overlay upper bound");
         Console.WriteLine("Ceres source page cases: two character sheets/five overlays preserve exact identities, order, extents, enumeration and range domains.");
     }
     /// <summary>Checks authored area-map landmark tiles and their native reveal cases.</summary>
@@ -637,8 +638,8 @@ internal static class LookupStream5Verification
                 }
             AssertEqual(count, bosses.Count, "Native boss slot count");
             AssertEqual(count, bosses.ToArray().Length, "Boss enumeration count");
-            AssertThrows<IndexOutOfRangeException>(() => _ = bosses[-1], "Boss lower bound");
-            AssertThrows<IndexOutOfRangeException>(() => _ = bosses[count], "Boss upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = bosses[-1], "Boss lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = bosses[count], "Boss upper bound");
             bossSlots += count;
             if (area == AreaId.Ceres) continue;
             var elevators = MapLandmarkDefinitions.Elevators(area);
@@ -654,8 +655,8 @@ internal static class LookupStream5Verification
             }
             AssertEqual(count, elevators.Count, "Native elevator count");
             AssertEqual(count, elevators.ToArray().Length, "Elevator enumeration count");
-            AssertThrows<IndexOutOfRangeException>(() => _ = elevators[-1], "Elevator lower bound");
-            AssertThrows<IndexOutOfRangeException>(() => _ = elevators[count], "Elevator upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = elevators[-1], "Elevator lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = elevators[count], "Elevator upper bound");
             elevatorSlots += count;
         }
         foreach (AreaId area in Enum.GetValues<AreaId>())
@@ -748,7 +749,7 @@ internal static class LookupStream5Verification
                 }
             }
             AssertEqual(components.Count, components.ToArray().Length, "Component enumeration compatibility");
-            AssertThrows<IndexOutOfRangeException>(() => _ = components[components.Count], "Component upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = components[components.Count], "Component upper bound");
         }
         AssertEqual(25, componentCount, "All native components");
         AssertEqual(3, lists.Count, "All native hitbox lists");
@@ -1019,9 +1020,9 @@ internal static class LookupStream5Verification
                 });
             }
         }
-        AssertThrows<IndexOutOfRangeException>(() => stock.ResolveEye(0, 4), "Eye color cannot cross into next row");
-        AssertThrows<IndexOutOfRangeException>(() => stock.ResolveStatue(16), "Statue upper bound");        AssertThrows<IndexOutOfRangeException>(() => stock.ResolveBase(-1), "Base ramp lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => stock.ResolveGrey(8), "Grey ramp upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveEye(0, 4), "Eye color cannot cross into next row");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStatue(16), "Statue upper bound");        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBase(-1), "Base ramp lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveGrey(8), "Grey ramp upper bound");
         Console.WriteLine("Tourian statue ramps: all56 native palette colors,168 independent full-range channel edits, zero stock overrides, actual CGRAM and canonical identities pass; selected material paint scope complete.");
 
         void CheckResidualCount(Dictionary<int, Bgr555> edits, int expected) =>
@@ -1226,8 +1227,8 @@ internal static class LookupStream5Verification
                 "Actual angle quantization/wrap retained");
             Check(direction, "Actual begin-extension held offset");
         }
-        AssertThrows<IndexOutOfRangeException>(() => YappingMawRomData.HeldSamusOffset(-1), "Held direction lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => YappingMawRomData.HeldSamusOffset(8), "Held direction upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawRomData.HeldSamusOffset(-1), "Held direction lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawRomData.HeldSamusOffset(8), "Held direction upper bound");
         Console.WriteLine("Yapping Maw offsets:16 native words, eight actual held callbacks,256 angle-quantized begin-extension writes and direction bounds pass.");
 
         void Check(int direction, string context)
@@ -1259,10 +1260,11 @@ internal static class LookupStream5Verification
                 new Action<RoomEnemySlot>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(slot);
                 AssertEqual(unchecked((ushort)(origin + expected.Item1)), slot.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Item2)), slot.Position.Y.Whole, "Actual mount Y with native wrap");
+                MorphBallEyeEnemyState eye = enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("The mount has no state.");
                 AssertEqual(AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program),
-                    (enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("The mount has no state.")).Program,
+                    eye.Program,
                     "Actual directional mount program");
-                AssertEqual(MorphBallEyeAiFunction.MountNoOp, (enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MorphBallEyeBehavior.MorphBallEyeStates[0].")).Function, "Mount remains decorative");
+                AssertEqual(MorphBallEyeAiFunction.MountNoOp, eye.Function, "Mount remains decorative");
             }
         }
         var owner = new RoomEnemySystem(new EnemySession());
@@ -1305,9 +1307,9 @@ internal static class LookupStream5Verification
         }).ToArray();
         var original = new MapPaletteCycleDocument { Version = 1, Frames = frames };
         MapPaletteCycle stock = Check(original);
-        AssertEqual(0, (stock.durationEdits).Count, "No stock duration lookup retained");
-        AssertEqual(0, (stock.reverseColorEdits).Count, "No stock reverse-frame lookup retained");
-        AssertEqual(8, (stock.colors).Length, "Only independent color phases remain");
+        AssertEqual(0, stock.durationEdits.Count, "No stock duration lookup retained");
+        AssertEqual(0, stock.reverseColorEdits.Count, "No stock reverse-frame lookup retained");
+        AssertEqual(8, stock.colors.Length, "Only independent color phases remain");
         for (int frame = 0; frame < 14; frame++)
         {
             AssertEqual((byte)Math.Min(frame, 14 - frame), rom.ReadCartridgeByte(MapAnimationRomData.PaletteTiming + frame * 3 + 1), "Native highlight phase traversal");
@@ -1325,8 +1327,8 @@ internal static class LookupStream5Verification
         }
         foreach (int count in new[] { 1, 15, 255 })
             Check(original with { Frames = Enumerable.Range(0, count).Select(i => frames[i % 14]).ToArray() });
-        AssertThrows<IndexOutOfRangeException>(() => stock.Duration(-1), "Highlight lower frame bound");
-        AssertThrows<IndexOutOfRangeException>(() => stock.Apply(new SnesCgram(), 14, 0), "Highlight upper frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Duration(-1), "Highlight lower frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SnesCgram(), 14, 0), "Highlight upper frame bound");
         Console.WriteLine("Map highlight: 224 native colors,14 timing/phase records, all independent color/hold edits and custom frame counts pass actual CGRAM application; eight color seed rows remain pending.");
 
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
@@ -1532,8 +1534,8 @@ internal static class LookupStream5Verification
         AssertThrows<InvalidDataException>(
             () => PhantoonPatternDefinitions.EyeProgram(9),
             "Phantoon eye direction beyond authored table");
-        AssertThrows<IndexOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[-1], "rain pattern lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[8], "rain pattern upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[-1], "rain pattern lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[8], "rain pattern upper bound");
         Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers have a separately reviewed random-bucket exception.");
     }
 
@@ -1563,11 +1565,11 @@ internal static class LookupStream5Verification
         Check(stock,document);
         var animation = stock.animation;
         var escape = stock.escape;
-        AssertEqual(0, (animation.seedEdits).Count,
+        AssertEqual(0, animation.seedEdits.Count,
             "stock animation seeds derive from the normal paint");
-        AssertEqual(0, (animation.edits).Count,
+        AssertEqual(0, animation.edits.Count,
             "stock animation phases require no cell storage");
-        AssertEqual(0, (escape.edits).Count,
+        AssertEqual(0, escape.edits.Count,
             "stock escape colors derive from the normal paint");
         for (int palette = 0; palette < 2; palette++)
         for (int color = 0; color < 15; color++)
@@ -1592,8 +1594,8 @@ internal static class LookupStream5Verification
             var changed = document with { Animation = rows };
             Check(Load(changed),changed);
         }
-        AssertThrows<IndexOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),-1),"Ceres animation lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),8),"Ceres animation upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),-1),"Ceres animation lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),8),"Ceres animation upper bound");
         Console.WriteLine("Stream 5 Ceres door ramp:48 native colors,48 independently edited cells, actual CGRAM,90 independent setup-channel edits, six shared setup slots and canonical identities pass; stock seeds, phases and escape colors store no edits.");
 
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
@@ -1640,8 +1642,8 @@ internal static class LookupStream5Verification
                 expected.Add(row);
             }
             AssertEqual(rows.Length, index, "corpse DMA enumeration count");
-            AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "corpse DMA negative index");
-            AssertThrows<IndexOutOfRangeException>(() => { _ = rows[rows.Length]; }, "corpse DMA past end");
+            AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[-1]; }, "corpse DMA negative index");
+            AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[rows.Length]; }, "corpse DMA past end");
         }
         AssertTrue(expected.SequenceEqual(DeadMonsterRottingDefinitionsAccess.AllTransfers), "audit DMA order matches all native lists");
         AssertThrows<InvalidDataException>(() => DeadMonsterRottingDefinitions.ForTransferTable(0xe0e1), "unaligned DMA list rejected");
@@ -1718,8 +1720,8 @@ internal static class LookupStream5Verification
                 AssertTrue(installed.Placements is not null, "Independent Ceres coordinate edit remains supplied");
                 Verify(installed, changed);
             }
-            AssertThrows<IndexOutOfRangeException>(() => stock.Read(-1), "Ceres layout lower bound");
-            AssertThrows<IndexOutOfRangeException>(() => stock.Read(original.Length), "Ceres layout upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Read(-1), "Ceres layout lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Read(original.Length), "Ceres layout upper bound");
 
             void Verify((object Layout, object? Placements, Func<int, T> Read, string Identity) actual, T[] expected)
             {
@@ -1958,12 +1960,12 @@ internal static class LookupStream5Verification
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorNormalPaintDefinitions stock = Check();
-        AssertEqual(13, (stock.paint).Count, "Thirteen local material seeds remain after shared warm extraction");
+        AssertEqual(13, stock.paint.Count, "Thirteen local material seeds remain after shared warm extraction");
         string[] warmSeeds = ["highlightBlue", "amberRed", "amberGreen", "red", "goldRed", "goldGreen", "goldBlue"];
         AssertTrue(warmSeeds.Order(StringComparer.Ordinal).SequenceEqual(MetadataShape.Fields(typeof(CeresDoorWarmTargetPaintDefinitions), flags)
             .Where(field => field.FieldType == typeof(int)).Select(field => field.Name).Order(StringComparer.Ordinal)), "Seven exact shared warm material inputs");
-        AssertEqual(0, (stock.WarmTargets.edits).Count, "Shared native warm shades need no overrides");
-        AssertEqual(0, (stock.edits).Count, "Native calculated channels need no unexplained overrides");
+        AssertEqual(0, stock.WarmTargets.edits.Count, "Shared native warm shades need no overrides");
+        AssertEqual(0, stock.edits.Count, "Native calculated channels need no unexplained overrides");
         for (int color = 0; color < 15; color++)
         {
             PaletteRgb5 before = document.Normal[color];
@@ -1974,8 +1976,8 @@ internal static class LookupStream5Verification
             }
             document.Normal[color] = before;
         }
-        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(-1), "Normal lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(15), "Normal upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1), "Normal lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(15), "Normal upper bound");
         Console.WriteLine("Ceres normal: fifteen native colors, thirteen local plus seven shared seeds/zero overrides,45 independent channel edits,92 actual initializer palette copies, hash and bounds pass.");
 
         CeresDoorNormalPaintDefinitions Check()
@@ -2028,7 +2030,7 @@ internal static class LookupStream5Verification
         // The highlight/edge/outline levels live in the surface paint the escape palette composes.
         object surface = stock.surface;
         AssertEqual(4, (((CeresDoorEscapeSurfacePaintDefinitions)surface).highlightAndEdgeLevels).Length, "Four selected highlight/edge/outline levels");
-        AssertEqual(0, (stock.edits).Count, "Native calculated channels need no unexplained overrides");
+        AssertEqual(0, stock.edits.Count, "Native calculated channels need no unexplained overrides");
         AssertEqual(0, (((CeresDoorEscapeSurfacePaintDefinitions)surface).edits).Count, "Native calculated surface channels need no unexplained overrides");
         for (int color = 0; color < 15; color++)
         {
@@ -2040,8 +2042,8 @@ internal static class LookupStream5Verification
             }
             document.Escape[color] = before;
         }
-        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(-1), "Escape lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(15), "Escape upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1), "Escape lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(15), "Escape upper bound");
         Console.WriteLine("Ceres escape: fifteen native colors, eight paint seeds/zero overrides,45 independent channel edits,92 actual escape initializer palette copies, hash and bounds pass.");
 
         CeresDoorEscapePaintDefinitions Check()
@@ -2106,10 +2108,10 @@ internal static class LookupStream5Verification
             }
             document.Animation[row][color] = before;
         }
-        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(-1, 0), "Beacon row lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(8, 0), "Beacon row upper bound");
-        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(0, -1), "Beacon color lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(0, 6), "Beacon color upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1, 0), "Beacon row lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(8, 0), "Beacon row upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(0, -1), "Beacon color lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(0, 6), "Beacon color upper bound");
         Console.WriteLine("Ceres beacon:48native colors/zero stock overrides,144independent RGB edits,208actual row selections including64-tick cycle, untouched neighbors/hash/bounds pass.");
 
         CeresDoorAnimationPaintDefinitions Check(int editedRow)

@@ -147,7 +147,10 @@ public static class GameplayDisplayCapture
             Bg2Mosaic: latched.Phantoon is { } phantoonDisplay ? new BackgroundMosaicSampling(phantoonDisplay.MosaicBlockSize) : default);
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
-        IReadOnlyList<ushort>? phantoonScrolls = latched.Phantoon?.Wave?.GameplayScrolls();
+        // Phantoon's wave owns the BG2 horizontal scroll while it shows; otherwise lava, water or the sky does.
+        IReadOnlyList<ushort>? bg2HorizontalScrolls = lavaX ?? waterX ?? skyX;
+        if (latched.Phantoon?.Wave is { } phantoonWave)
+            bg2HorizontalScrolls = phantoonWave.GameplayScrolls();
         // A sky room shows the sky's rows on BG2 (#1347); Kraid shows his body there while he owns it (#1352), and a
         // boss that owns the enemy BG2 image shows it through BG2's map size (#1353).
         RoomBackgrounds rooms = (latched.Rooms
@@ -157,7 +160,7 @@ public static class GameplayDisplayCapture
                 BossBg2 = kraidBody?.Tilemap ?? bosses.EnemyBg2?.Tilemap(registers.Bg2MapSize),
             };
         var layer = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2HdmaScrollTables(
-            VisibleLines(phantoonScrolls ?? lavaX ?? waterX ?? skyX),
+            VisibleLines(bg2HorizontalScrolls),
             VisibleLines(crocomireBg2Scroll is not null ? live.CrocomireMeltingScrolls : lavaY)),
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainRisingHdmaActive
                 ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default);

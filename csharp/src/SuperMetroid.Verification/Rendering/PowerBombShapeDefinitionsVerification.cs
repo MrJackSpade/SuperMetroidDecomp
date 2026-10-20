@@ -20,7 +20,7 @@ internal static class PowerBombShapeDefinitionsVerification
             AssertEqual(rom.ReadCartridgeByte(PowerBombShapeReferenceData.Width + i), PowerBombShapeDefinitions.Width(i),
                 "Power Bomb quantized sine width");
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => PowerBombShapeDefinitions.Width(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => PowerBombShapeDefinitions.Width(invalid),
                 "Power Bomb width bounds");
     }
 
@@ -32,7 +32,7 @@ internal static class PowerBombShapeDefinitionsVerification
             AssertEqual(rom.ReadCartridgeByte(PowerBombShapeReferenceData.TopOffset + i), PowerBombShapeDefinitions.TopOffset(i),
                 "Power Bomb doubly quantized vertical boundary");
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => PowerBombShapeDefinitions.TopOffset(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => PowerBombShapeDefinitions.TopOffset(invalid),
                 "Power Bomb top offset bounds");
     }
 

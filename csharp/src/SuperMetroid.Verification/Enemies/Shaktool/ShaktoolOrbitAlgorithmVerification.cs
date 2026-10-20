@@ -29,7 +29,7 @@ internal static class ShaktoolOrbitAlgorithmVerification
             AssertEqual((SnesEightEight.FromWhole(Original(angle + 64)), SnesEightEight.FromWhole(Original(angle))),
                 ShaktoolOrbitTables.Displacement(new SnesByteAngle((byte)angle)), $"Shaktool displacement {angle}");
         foreach (int invalid in new[] { int.MinValue, -1, 320, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => ShaktoolOrbitTables.Sample(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => ShaktoolOrbitTables.Sample(invalid),
                 $"Orbit invalid index {invalid}");
     }
 }

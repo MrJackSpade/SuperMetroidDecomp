@@ -20,7 +20,7 @@ internal static class KraidCeilingRockPositionsVerification
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + offset),
                 KraidCeilingRockPositionDefinitions.AtByteOffset(offset), "Native byte-addressed ceiling rock lookup");
         foreach (int invalid in new[] { int.MinValue, -1, 19, 20, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => KraidCeilingRockPositionDefinitions.AtByteOffset(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => KraidCeilingRockPositionDefinitions.AtByteOffset(invalid),
                 "Ceiling rock byte-window bounds");
     }
 

@@ -80,12 +80,12 @@ public sealed class FileSelectMapMenuState
         roomGraphics = new FileSelectRoomMapGraphics(system, typedArea, mapPresentation: mapPresentation);
         this.mapPresentation = mapPresentation;
         scroll = CreateScrollForCurrentContent();
-        marker = new FileSelectStationMarker(typedArea, slot.SaveStation, mapPresentation?.SaveMarkers);
+        marker = new FileSelectStationMarker(typedArea, slot.SaveStation, mapPresentation.SaveMarkers);
         navigation = new FileSelectMapNavigation(area, initialHeldInput);
-        navigation.BindLabels(mapPresentation?.Labels);
-        animations = new FileSelectMapAnimations(mapPresentation?.Arrows);
-        animations.BindPalette(mapPresentation?.HighlightCycle);
-        entry = new FileSelectMapEntry(mapPresentation?.Palettes ?? throw new InvalidOperationException(
+        navigation.BindLabels(mapPresentation.Labels);
+        animations = new FileSelectMapAnimations(mapPresentation.Arrows);
+        animations.BindPalette(mapPresentation.HighlightCycle);
+        entry = new FileSelectMapEntry(mapPresentation.Palettes ?? throw new InvalidOperationException(
             "File-select map requires installed map palettes."));
     }
 

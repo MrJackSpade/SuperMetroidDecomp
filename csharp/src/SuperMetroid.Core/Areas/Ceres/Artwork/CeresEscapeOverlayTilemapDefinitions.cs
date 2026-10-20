@@ -93,7 +93,7 @@ internal static class CeresEscapeOverlayTilemapDefinitions
             2 => JapaneseSecond,
             3 => JapaneseThird,
             4 => JapaneseFourth,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         /// <summary>Yields the five warning pages in transfer order.</summary>
         public IEnumerator<CeresEscapeOverlayTilemapDefinition> GetEnumerator()

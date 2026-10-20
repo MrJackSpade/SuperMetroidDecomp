@@ -17,6 +17,6 @@ internal static class EnemyDropSelectionDefinitions
         3 => EnemyPickupKind.NoDrop,
         4 => EnemyPickupKind.SuperMissile,
         5 => EnemyPickupKind.PowerBomb,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(column)),
     };
 }

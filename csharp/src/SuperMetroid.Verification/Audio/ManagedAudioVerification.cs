@@ -12,6 +12,8 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.TestSupport.AudioFixtures;
 
 /// <summary>Checks managed SPC, DSP, PCM replacement, and audio editor boundaries.</summary>
 internal static class ManagedAudioVerification

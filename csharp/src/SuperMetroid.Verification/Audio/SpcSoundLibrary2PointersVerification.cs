@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>Checks SPC sound-effect stream pointer tables and invalid-command handling.</summary>
 internal static class SpcSoundLibrary2PointersVerification
@@ -36,11 +37,11 @@ internal static class SpcSoundLibrary2PointersVerification
             AssertEqual(native, SpcSoundEffectTables.StreamPointer(library, command), "original sound stream dispatch");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.StreamPointer(library, invalid), "unsupported stream command");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.StreamPointer(library, invalid), "unsupported stream command");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.StreamPointer(invalid, 1), "unsupported stream library");
-            AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.CommandCount(invalid), "unsupported command-count library");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.StreamPointer(invalid, 1), "unsupported stream library");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.CommandCount(invalid), "unsupported command-count library");
         }
 
         short[] pcm = new short[SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2];

@@ -153,11 +153,11 @@ internal static class ShotBlockPlmProgramsVerification
 
             foreach (int invalid in new[] {int.MinValue,-1,int.MaxValue})
             {
-                AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(invalid, 0), "shot-block invalid run");
-                AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(0, invalid), "shot-block invalid block");
+                AssertThrows<ArgumentOutOfRangeException>(() => calculated.WordAt(invalid, 0), "shot-block invalid run");
+                AssertThrows<ArgumentOutOfRangeException>(() => calculated.WordAt(0, invalid), "shot-block invalid block");
             }
-            AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(calculated.RunCount, 0), "shot-block run upper bound");
-            AssertThrows<IndexOutOfRangeException>(() => calculated.WordAt(0, calculated.WordsPerRun), "shot-block word upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => calculated.WordAt(calculated.RunCount, 0), "shot-block run upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => calculated.WordAt(0, calculated.WordsPerRun), "shot-block word upper bound");
 
             drawListCount++;
         }
@@ -209,9 +209,9 @@ internal static class ShotBlockPlmProgramsVerification
             AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
                 RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.RespawningShot(size)), "respawning shot native shape selection");
         for (int size = 4; size <= byte.MaxValue; size++)
-            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.RespawningShot(size), "respawning shot rejects other BTS values without masking");
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionPlmPrograms.RespawningShot(size), "respawning shot rejects other BTS values without masking");
         foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.RespawningShot(size), "respawning shot size domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionPlmPrograms.RespawningShot(size), "respawning shot size domain");
     }
 
     /// <summary>Checks the four permanent shapes after the caller's BTS offset and rejects invalid selector inputs.</summary>
@@ -222,9 +222,9 @@ internal static class ShotBlockPlmProgramsVerification
             AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
                 RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.PermanentShot(size)), "permanent shot native shape selection after caller subtracts four");
         for (int size = 4; size <= byte.MaxValue; size++)
-            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.PermanentShot(size), "permanent shot rejects out-of-range size without masking");
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionPlmPrograms.PermanentShot(size), "permanent shot rejects out-of-range size without masking");
         foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.PermanentShot(size), "permanent shot size domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionPlmPrograms.PermanentShot(size), "permanent shot size domain");
     }
 
     /// <summary>Lists the thirteen native timed-list layouts used to derive control and draw operand addresses.</summary>

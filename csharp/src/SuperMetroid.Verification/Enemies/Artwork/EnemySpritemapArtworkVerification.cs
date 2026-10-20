@@ -79,6 +79,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

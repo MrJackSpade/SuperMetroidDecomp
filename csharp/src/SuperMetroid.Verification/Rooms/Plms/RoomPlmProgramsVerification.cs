@@ -325,14 +325,14 @@ internal static class RoomPlmProgramsVerification
     private static bool DownwardGateCueAt(IImportCartridgeSource cartridge, ushort cursor, out DownwardGateCue cue, out int length)
     {
         ushort operand = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
-        (DownwardGateCue Cue, int Length)? decoded = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
+        (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.ClearDownwardGateTrigger => (DownwardGateCue.ClearTrigger, 2),
-            RoomPlmInstruction.InstallPreInstruction => ((DownwardGatePreInstruction)operand == DownwardGatePreInstruction.WakeIfTriggered
+            RoomPlmInstruction.ClearDownwardGateTrigger => (true, DownwardGateCue.ClearTrigger, 2),
+            RoomPlmInstruction.InstallPreInstruction => (true, (DownwardGatePreInstruction)operand == DownwardGatePreInstruction.WakeIfTriggered
                 ? DownwardGateCue.ArmWakeIfTriggered : DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow, 4),
-            RoomPlmInstruction.SpawnDownwardGateProjectile => (DownwardGateCue.SpawnMovingGate, 4),
-            RoomPlmInstruction.WakeDownwardGateProjectile => (DownwardGateCue.WakeGateProjectile, 4),
-            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (DownwardGateCue.QueueMovementSound, 3),
+            RoomPlmInstruction.SpawnDownwardGateProjectile => (true, DownwardGateCue.SpawnMovingGate, 4),
+            RoomPlmInstruction.WakeDownwardGateProjectile => (true, DownwardGateCue.WakeGateProjectile, 4),
+            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (true, DownwardGateCue.QueueMovementSound, 3),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
@@ -383,11 +383,10 @@ internal static class RoomPlmProgramsVerification
                 RoomPlmInstruction.MoveTourianAccessDown or
                 RoomPlmInstruction.TransformSpikesToSlopes or
                 RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight => null,
-            _ => null,
+                RoomPlmInstruction.SetLoweredAcidHeight => (false, default, 0),
+            _ => (false, default, 0),
         };
-        (cue, length) = decoded ?? default;
-        if (decoded is null)
+        if (!known)
             return false;
         if (cue == DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow)
             AssertEqual((ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow, operand, "downward gate closed wake");
@@ -456,10 +455,10 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The blue caps' sound and BTS-restore instructions.</summary>
     private static bool BlueDoorCueAt(IImportCartridgeSource cartridge, ushort cursor, out BlueDoorCue cue, out int length)
     {
-        (BlueDoorCue Cue, int Length)? decoded = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
+        (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (DoorSoundCue(Library3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
-            RoomPlmInstruction.SetPlmBtsFromByte => (BlueDoorCue.RestoreBlueBts, 3),
+            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (true, DoorSoundCue(Library3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
+            RoomPlmInstruction.SetPlmBtsFromByte => (true, BlueDoorCue.RestoreBlueBts, 3),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
@@ -513,11 +512,10 @@ internal static class RoomPlmProgramsVerification
                 RoomPlmInstruction.MoveTourianAccessDown or
                 RoomPlmInstruction.TransformSpikesToSlopes or
                 RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight => null,
-            _ => null,
+                RoomPlmInstruction.SetLoweredAcidHeight => (false, default, 0),
+            _ => (false, default, 0),
         };
-        (cue, length) = decoded ?? default;
-        return decoded is not null;
+        return known;
     }
 
     /// <summary>The library-3 sound a queue-sound instruction at <paramref name="cursor"/> names.</summary>
@@ -978,13 +976,13 @@ internal static class RoomPlmProgramsVerification
     /// <summary>The plants' hold, chew-sound, damage, release and clear instructions.</summary>
     private static bool SamusEaterCueAt(IImportCartridgeSource cartridge, ushort cursor, out SamusEaterCue cue, out int length)
     {
-        (SamusEaterCue Cue, int Length)? decoded = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
+        (bool known, cue, length) = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.InstallPreInstruction => (SamusEaterCue.HoldSamus, 4),
-            RoomPlmInstruction.QueueSoundLibrary2Maximum6 => (SamusEaterCue.QueueChewSound, 3),
-            RoomPlmInstruction.SamusEaterDamage => (SamusEaterCue.DamageSamus, 2),
-            RoomPlmInstruction.SamusEaterReleaseImmunity => (SamusEaterCue.ReleaseSamus, 2),
-            RoomPlmInstruction.ClearPreInstruction => (SamusEaterCue.ClearPreInstruction, 2),
+            RoomPlmInstruction.InstallPreInstruction => (true, SamusEaterCue.HoldSamus, 4),
+            RoomPlmInstruction.QueueSoundLibrary2Maximum6 => (true, SamusEaterCue.QueueChewSound, 3),
+            RoomPlmInstruction.SamusEaterDamage => (true, SamusEaterCue.DamageSamus, 2),
+            RoomPlmInstruction.SamusEaterReleaseImmunity => (true, SamusEaterCue.ReleaseSamus, 2),
+            RoomPlmInstruction.ClearPreInstruction => (true, SamusEaterCue.ClearPreInstruction, 2),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
@@ -1035,11 +1033,10 @@ internal static class RoomPlmProgramsVerification
                 RoomPlmInstruction.MoveTourianAccessDown or
                 RoomPlmInstruction.TransformSpikesToSlopes or
                 RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight => null,
-            _ => null,
+                RoomPlmInstruction.SetLoweredAcidHeight => (false, default, 0),
+            _ => (false, default, 0),
         };
-        (cue, length) = decoded ?? default;
-        if (decoded is null)
+        if (!known)
             return false;
         if (cue == SamusEaterCue.HoldSamus)
             AssertEqual(SamusEaterPlmRomDataConstants.HoldPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
@@ -1057,21 +1054,21 @@ internal static class RoomPlmProgramsVerification
         ushort Operand(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
         NoobTubeProgram Entry(ushort address) => NoobTubeEntries.Single(entry => entry.Entry == address).Program;
         RoomPlmInstruction instruction = InstructionAt<RoomPlmInstruction>(cartridge, cursor);
-        (NoobTubeCue Cue, int Length)? decoded = instruction switch
+        (bool known, cue, length) = instruction switch
         {
-            RoomPlmInstruction.GotoIfEventSet => (NoobTubeCue.SkipIfBroken, 6),
-            RoomPlmInstruction.LinkInstruction => (Entry(Operand(2)) == NoobTubeProgram.WaitForInput ? NoobTubeCue.LinkInputWait : NoobTubeCue.LinkBreak, 4),
+            RoomPlmInstruction.GotoIfEventSet => (true, NoobTubeCue.SkipIfBroken, 6),
+            RoomPlmInstruction.LinkInstruction => (true, Entry(Operand(2)) == NoobTubeProgram.WaitForInput ? NoobTubeCue.LinkInputWait : NoobTubeCue.LinkBreak, 4),
             RoomPlmInstruction.InstallPreInstruction =>
-                ((NoobTubePlmPreInstruction)Operand(2) == NoobTubePlmPreInstruction.WakeOnPowerBomb ? NoobTubeCue.ArmPowerBombWake : NoobTubeCue.ArmInputWake, 4),
-            RoomPlmInstruction.ClearPreInstruction => (NoobTubeCue.ClearPreInstruction, 2),
-            RoomPlmInstruction.LockSamus => (NoobTubeCue.LockSamus, 2),
-            RoomPlmInstruction.SpawnNoobTubeCrack => (NoobTubeCue.SpawnCrack, 2),
-            RoomPlmInstruction.QueueSoundLibrary2Maximum6 => (NoobTubeCue.QueueBreakSound, 3),
-            RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles => (NoobTubeCue.SpawnShardsAndBubbles, 2),
-            RoomPlmInstruction.TriggerNoobTubeEarthquake => (NoobTubeCue.TriggerEarthquake, 2),
-            RoomPlmInstruction.SetEvent => (NoobTubeCue.SetBrokenEvent, 4),
-            RoomPlmInstruction.EnableNoobTubeWaterPhysics => (NoobTubeCue.EnableWaterPhysics, 2),
-            RoomPlmInstruction.UnlockSamus => (NoobTubeCue.UnlockSamus, 2),
+                (true, (NoobTubePlmPreInstruction)Operand(2) == NoobTubePlmPreInstruction.WakeOnPowerBomb ? NoobTubeCue.ArmPowerBombWake : NoobTubeCue.ArmInputWake, 4),
+            RoomPlmInstruction.ClearPreInstruction => (true, NoobTubeCue.ClearPreInstruction, 2),
+            RoomPlmInstruction.LockSamus => (true, NoobTubeCue.LockSamus, 2),
+            RoomPlmInstruction.SpawnNoobTubeCrack => (true, NoobTubeCue.SpawnCrack, 2),
+            RoomPlmInstruction.QueueSoundLibrary2Maximum6 => (true, NoobTubeCue.QueueBreakSound, 3),
+            RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles => (true, NoobTubeCue.SpawnShardsAndBubbles, 2),
+            RoomPlmInstruction.TriggerNoobTubeEarthquake => (true, NoobTubeCue.TriggerEarthquake, 2),
+            RoomPlmInstruction.SetEvent => (true, NoobTubeCue.SetBrokenEvent, 4),
+            RoomPlmInstruction.EnableNoobTubeWaterPhysics => (true, NoobTubeCue.EnableWaterPhysics, 2),
+            RoomPlmInstruction.UnlockSamus => (true, NoobTubeCue.UnlockSamus, 2),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
@@ -1115,11 +1112,10 @@ internal static class RoomPlmProgramsVerification
                 RoomPlmInstruction.MoveTourianAccessDown or
                 RoomPlmInstruction.TransformSpikesToSlopes or
                 RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight => null,
-            _ => null,
+                RoomPlmInstruction.SetLoweredAcidHeight => (false, default, 0),
+            _ => (false, default, 0),
         };
-        (cue, length) = decoded ?? default;
-        if (decoded is null)
+        if (!known)
             return false;
         switch (cue)
         {

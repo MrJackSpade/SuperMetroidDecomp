@@ -279,7 +279,7 @@ public static class EndingCreditsRomData
         /// a different schedule changes that composition. Rotation, zoom and other paths are separate.</remarks>
         public static int PlanetFastDelta(int index)
         {
-            if ((uint)index >= PlanetFastPatternLength) throw new IndexOutOfRangeException();
+            if ((uint)index >= PlanetFastPatternLength) throw new ArgumentOutOfRangeException(nameof(index));
             int period = FastPositiveRun + FastNegativeRun;
             int completeRuns = PlanetFastPatternLength / period * period;
             int positiveRun = index < completeRuns ? FastPositiveRun : PlanetFastPatternLength - completeRuns - FastNegativeRun;
@@ -289,7 +289,7 @@ public static class EndingCreditsRomData
         /// <summary>$8B:DDAD..DDCC: two selected positive runs separated by negative shake phases.</summary>
         public static int PlanetSlowDelta(int index)
         {
-            if ((uint)index >= PlanetSlowPatternLength) throw new IndexOutOfRangeException();
+            if ((uint)index >= PlanetSlowPatternLength) throw new ArgumentOutOfRangeException(nameof(index));
             int secondStart = SlowFirstPositiveRun + SlowFirstNegativeRun;
             bool positive = index < SlowFirstPositiveRun || index >= secondStart && index < secondStart + SlowSecondPositiveRun;
             return positive ? PlanetSlowShakeAmplitude : -PlanetSlowShakeAmplitude;

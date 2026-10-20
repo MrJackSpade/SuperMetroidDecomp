@@ -49,7 +49,7 @@ public static class GameOverRomData
             GameOverTextElement.Prompt => new(element, 0x0414, "TRY AGAIN"),
             GameOverTextElement.ReturnToGame => new(element, 0x04ce, "YES - RETURN TO GAME"),
             GameOverTextElement.ReturnToTitle => new(element, 0x05ce, "NO - GO TO TITLE"),
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(element)),
         };
 
         /// <summary>Enumerates the five native load calls in their original order, without a stored table.</summary>

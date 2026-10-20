@@ -8,7 +8,7 @@ internal static class MotherBrainVisualToolingDefinitions
     /// <summary>$A9:ADA1-AE5D: the final five catalog frames are the falling-tube compositions.</summary>
     internal static EnemySpritemapDefinition TubeFrame(int index)
     {
-        if ((uint)index >= 5) throw new IndexOutOfRangeException();
+        if ((uint)index >= 5) throw new ArgumentOutOfRangeException(nameof(index));
         return MotherBrainVisualDefinitions.Frame(MotherBrainVisualDefinitions.FrameCount - 5 + index);
     }
 }

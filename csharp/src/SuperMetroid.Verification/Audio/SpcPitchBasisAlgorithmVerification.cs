@@ -39,7 +39,7 @@ internal static class SpcPitchBasisAlgorithmVerification
                 $"Pitch decimal rounding margin {note}");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 13, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.BaseNoteFrequency(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcMusicTables.BaseNoteFrequency(invalid),
                 $"Pitch invalid semitone {invalid}");
     }
 }

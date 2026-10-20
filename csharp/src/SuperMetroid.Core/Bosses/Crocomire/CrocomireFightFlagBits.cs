@@ -2,25 +2,28 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// The codec of Crocomire's fight-flag word: the saturating hit count the cartridge keeps in the word's low
-/// nibble beside the independently set latch bits. It is the one place that reads the nibble out of the flags
-/// and the one place that turns the flags into the stored word, so the field layout is owned here.
+/// nibble beside the independently set latch bits. It is the one place that splits the word into the latches
+/// and the count and the one place that combines them, so the field layout is owned here.
 /// </summary>
 [SnesEncodingOwner]
 public static class CrocomireFightFlagBits
 {
     /// <summary>The highest count the nibble reaches.</summary>
-    private const int MaximumHitCount = 15;
+    public const int MaximumHitCount = 15;
 
-    /// <summary>The hit count stored in the low nibble.</summary>
-    public static int HitCount(this CrocomireFightFlags flags) => (int)(flags & CrocomireFightFlags.HitCountField);
+    /// <summary>The low-nibble hit count field of the word.</summary>
+    private const ushort HitCountMask = 0x000f;
 
     /// <summary>The count plus one, saturating at fifteen: the value both mouth-hit routines compute.</summary>
-    public static int NextHitCount(this CrocomireFightFlags flags) => Math.Min(flags.HitCount() + 1, MaximumHitCount);
+    public static int NextHitCount(int hitCount) => Math.Min(hitCount + 1, MaximumHitCount);
 
-    /// <summary>A hit count placed in its nibble so it can be combined with the latches.</summary>
-    public static CrocomireFightFlags AsHitCountField(int count) =>
-        (CrocomireFightFlags)Ensure.BetweenInclusive(0, MaximumHitCount, count);
+    /// <summary>The latch bits of a stored word.</summary>
+    public static CrocomireFightFlags Flags(ushort word) => (CrocomireFightFlags)(word & ~HitCountMask);
+
+    /// <summary>The hit count of a stored word.</summary>
+    public static int HitCount(ushort word) => word & HitCountMask;
 
     /// <summary>The latches and hit count as the single word the body slot stores them in.</summary>
-    public static ushort ToNativeWord(this CrocomireFightFlags flags) => (ushort)flags;
+    public static ushort ToNativeWord(CrocomireFightFlags flags, int hitCount) =>
+        (ushort)((ushort)flags | Ensure.BetweenInclusive(0, MaximumHitCount, hitCount));
 }

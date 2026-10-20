@@ -6,7 +6,7 @@ internal static class KraidHealthThresholdDefinitions
     /// <summary>$A7:AA02-AA16: truncate health/8, then accumulate eight multiples.</summary>
     public static int Eighth(int initialHealth, int index)
     {
-        if ((uint)index >= 8) throw new IndexOutOfRangeException();
+        if ((uint)index >= 8) throw new ArgumentOutOfRangeException(nameof(index));
         return (initialHealth >> 3) * (index + 1);
     }
 }

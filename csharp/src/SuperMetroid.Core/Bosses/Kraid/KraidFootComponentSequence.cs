@@ -8,7 +8,7 @@ internal readonly record struct KraidFootComponentSequence(int Frame, int Length
     {
         get
         {
-            if ((uint)index >= (uint)Length) throw new IndexOutOfRangeException();
+            if ((uint)index >= (uint)Length) throw new ArgumentOutOfRangeException(nameof(index));
             return index == 0
                 ? new(new(KraidFootCollisionDefinitions.FirstX(Frame), KraidFootCollisionDefinitions.FirstY(Frame)), KraidFootCollisionDefinitions.SharedHitboxes)
                 : new(new(KraidFootCollisionDefinitions.SecondX(Frame), KraidFootCollisionDefinitions.SecondY(Frame)), KraidFootCollisionDefinitions.SharedHitboxes);

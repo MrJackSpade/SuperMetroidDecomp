@@ -15,7 +15,7 @@ public static class BombSpecialBlockReactions
     internal static PlmProgramStart ProgramAt(int index)
     {
         if ((uint)index >= Count)
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 8)
             return PlmProgramStart.Typed(BlockReactionPlmPrograms.CrumbleReveal(index & 3));
         return index is 14 or 15 or >= 26 and <= 29

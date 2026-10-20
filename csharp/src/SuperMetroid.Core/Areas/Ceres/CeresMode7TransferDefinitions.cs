@@ -14,7 +14,7 @@ public static class CeresMode7TransferDefinitions
     /// </summary>
     internal static CeresMode7TransferList BabyFrameForPhase(int phase)
     {
-        if ((uint)phase >= 4) throw new IndexOutOfRangeException();
+        if ((uint)phase >= 4) throw new ArgumentOutOfRangeException(nameof(phase));
         int reflectedPhase = Math.Min(phase, 4 - phase);
         return reflectedPhase switch
         {
@@ -62,12 +62,12 @@ public static class CeresMode7TransferDefinitions
         /// <summary>Calculates one descriptor's VRAM word destination and ordered tile selectors without reading its native ROM list.</summary>
         /// <param name="index">Zero-based descriptor ordinal in 0..<c>Count - 1</c>; capsule and wing ordinals also select their respective drawn rows.</param>
         /// <returns>A contiguous low-byte map transfer with its native placement and authored width.</returns>
-        /// <exception cref="IndexOutOfRangeException">The descriptor ordinal is outside this view.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The descriptor ordinal is outside this view.</exception>
         public CeresMode7Transfer this[int index]
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 if (pointer is CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark)
                     return new(PlatformRow * MapColumns + PlatformColumn, new(pointer, index, 4),
                         pointer == CeresMode7TransferList.ElevatorLight ? PlatformLightSource : PlatformDarkSource);
@@ -105,8 +105,8 @@ public static class CeresMode7TransferDefinitions
         /// <summary>Calculates the selected frame's character number at a transfer-relative column, retaining transparent wing cells as tile $FF.</summary>
         /// <param name="index">Zero-based column within this row transfer, not the absolute map column.</param>
         /// <returns>The eight-bit Mode 7 character selector.</returns>
-        /// <exception cref="IndexOutOfRangeException">The column is outside this view.</exception>
-        public byte this[int index] => (uint)index < Count ? TileAt(pointer, row, index) : throw new IndexOutOfRangeException();
+        /// <exception cref="ArgumentOutOfRangeException">The column is outside this view.</exception>
+        public byte this[int index] => (uint)index < Count ? TileAt(pointer, row, index) : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Enumerates character selectors from left to right in their native row-transfer order.</summary>
         /// <returns>An enumerator yielding the same tile bytes as indexed access.</returns>
         public IEnumerator<byte> GetEnumerator()
@@ -126,8 +126,10 @@ public static class CeresMode7TransferDefinitions
     /// <summary>Canonical two-phase four-cell platform composition. Selected light/dark left-cap identities, phase membership and the four-cell cap/interior/interior/cap topology are the exact authored strip imagery; generating different choices would change its drawn ends or width. Interior and paired right-cap atlas addresses calculate. This does not select animation timing, map placement, pixels or paint.</summary>
     internal static byte PlatformTile(int frame, int column)
     {
-        if ((uint)frame >= CeresDoorVisualRomData.Mode7FrameCount ||
-            (uint)column >= CeresDoorVisualRomData.Mode7FrameByteCount) throw new IndexOutOfRangeException();
+        if ((uint)frame >= CeresDoorVisualRomData.Mode7FrameCount)
+            throw new ArgumentOutOfRangeException(nameof(frame));
+        if ((uint)column >= CeresDoorVisualRomData.Mode7FrameByteCount)
+            throw new ArgumentOutOfRangeException(nameof(column));
         byte left = frame == 0 ? LightPlatformLeftCap : DarkPlatformLeftCap;
         return column == 0 ? left : column == CeresDoorVisualRomData.Mode7FrameByteCount - 1
             ? (byte)(PlatformRightCapPair + frame) : (byte)(left + 1);

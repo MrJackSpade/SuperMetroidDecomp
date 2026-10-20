@@ -12,7 +12,7 @@ internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPas
     {
         get
         {
-            if ((uint)index >= Length) throw new IndexOutOfRangeException();
+            if ((uint)index >= Length) throw new ArgumentOutOfRangeException(nameof(index));
             CrocomireMeltingHeader pass = Pass.HeaderOffset == (ushort)CrocomireMeltingHeader.First
                 ? CrocomireMeltingHeader.First
                 : CrocomireMeltingHeader.Second;

@@ -105,7 +105,7 @@ internal static class PaletteJsonContractsVisibleVerification
         {
             object stockSlot = (stockSlots.GetValue(slot) ?? throw new InvalidOperationException("Verification requires stockSlots.GetValue(slot)."));
             object editedSlot = (editedSlots.GetValue(slot) ?? throw new InvalidOperationException("Verification requires editedSlots.GetValue(slot)."));
-            foreach (PropertyInfo property in (stockSlot ?? throw new InvalidOperationException("Verification requires stockSlot.")).GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            foreach (PropertyInfo property in stockSlot.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
                 AssertEqual(property.GetValue(stockSlot), property.GetValue(editedSlot),
                     "every native palette slot field unchanged: " + property.Name);
         }

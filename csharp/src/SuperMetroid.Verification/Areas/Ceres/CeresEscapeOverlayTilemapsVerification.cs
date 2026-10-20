@@ -150,18 +150,4 @@ internal static class CeresEscapeOverlayTilemapsVerification
         }
     }
 
-    /// <summary>Supplies installed Ceres tilemap bytes to a guarded VRAM transfer fixture.</summary>
-    internal sealed class CeresEscapeOverlayProvider(EnemyTileArtworkCatalog art)
-        : IVramAssetProvider, IInstalledArtworkTransferSource
-    {
-        /// <summary>Rejects unrelated asset requests from the overlay-only transfer fixture.</summary>
-        public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
-            throw new InvalidOperationException(
-                $"Ceres overlay fixture did not expect asset {asset}.");
-
-        /// <summary>Resolves a native Ceres overlay source range from installed tilemap artwork.</summary>
-        public bool TryResolve(int sourceAddress, int byteCount,
-            out ReadOnlyMemory<byte> data) =>
-            art.TryResolve(sourceAddress, byteCount, out data);
-    }
 }

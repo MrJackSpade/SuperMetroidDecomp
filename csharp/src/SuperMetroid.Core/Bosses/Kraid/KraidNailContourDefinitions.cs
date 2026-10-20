@@ -27,7 +27,7 @@ internal static class KraidNailContourDefinitions
     /// </remarks>
     internal static ushort LeftAt(int record)
     {
-        if ((uint)record >= RecordCount) throw new IndexOutOfRangeException();
+        if ((uint)record >= RecordCount) throw new ArgumentOutOfRangeException(nameof(record));
         if (record < 4) return unchecked((ushort)(-64 + 24 * record));
         return record == 4 ? unchecked((ushort)(CallOpcode | HandleFirstPhase << 8)) : ArmInstructionAddress;
     }
@@ -41,7 +41,7 @@ internal static class KraidNailContourDefinitions
     /// </remarks>
     internal static ushort TopAt(int record)
     {
-        if ((uint)record >= RecordCount) throw new IndexOutOfRangeException();
+        if ((uint)record >= RecordCount) throw new ArgumentOutOfRangeException(nameof(record));
         if (record < 3) return unchecked((ushort)(16 - 56 * record));
         return record switch
         {

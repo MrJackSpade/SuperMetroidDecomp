@@ -395,8 +395,8 @@ internal static class SamusChargeColorsVerification
         }
         foreach (int invalid in new[] { -1, 22, int.MinValue, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => death.WhiteoutColor(invalid), "Invalid whiteout selector");
-            AssertThrows<IndexOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.DefaultWhiteoutColor(invalid), "Invalid calculated whiteout selector");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.WhiteoutColor(invalid), "Invalid whiteout selector");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.DefaultWhiteoutColor(invalid), "Invalid calculated whiteout selector");
         }
         for (int channel = 0; channel < 3; channel++)
         for (int intensity = 0; intensity < 32; intensity++)
@@ -501,18 +501,18 @@ internal static class SamusChargeColorsVerification
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(Bgr555.FromWord(checked(invalid)), 0), "Invalid fade RGB5");
         foreach (int invalid in new[] { -1, 9, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => death.ExplosionPaletteIndex(invalid), "Invalid explosion frame");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.ExplosionPaletteIndex(invalid), "Invalid explosion frame");
         foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => death.SuitedColor(0, invalid, 0), "Invalid suited death palette");
-            AssertThrows<IndexOutOfRangeException>(() => death.SuitlessColor(invalid, 0), "Invalid suitless death palette");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(0, invalid, 0), "Invalid suited death palette");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitlessColor(invalid, 0), "Invalid suitless death palette");
         }
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => death.SuitedColor(invalid, 0, 0), "Invalid death suit");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(invalid, 0, 0), "Invalid death suit");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => death.SuitedColor(0, 0, invalid), "Invalid suited color");
-            AssertThrows<IndexOutOfRangeException>(() => death.SuitlessColor(0, invalid), "Invalid suitless color");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(0, 0, invalid), "Invalid suited color");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitlessColor(0, invalid), "Invalid suitless color");
         }
         // Distinct edits, source-only edits and repeated-phase-only edits must remain independent.
         for (int editScope = 0; editScope < 5; editScope++)

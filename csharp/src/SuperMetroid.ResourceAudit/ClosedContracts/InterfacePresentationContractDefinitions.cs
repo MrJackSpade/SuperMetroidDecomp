@@ -78,18 +78,18 @@ internal static class InterfacePresentationContractDefinitions
     /// <summary>Lists the source-owned implementations for audited palette or cinematic dispatch, returning null for contracts outside this closed set.</summary>
     internal static string[]? Implementations(string type) => type switch
     {
-        "SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource" => [(typeof(RoomPaletteFxPresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(RoomPaletteFxPresentation).FullName.")), (typeof(TitlePalettePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(TitlePalettePresentation).FullName."))],
+        "SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource" => [ContractTypeNames.MetadataName(typeof(RoomPaletteFxPresentation)), ContractTypeNames.MetadataName(typeof(TitlePalettePresentation))],
         "SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation" =>
-            [(typeof(IntroDiscoveryActorSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(IntroDiscoveryActorSpritePresentation).FullName.")), (typeof(IntroEggEffectSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(IntroEggEffectSpritePresentation).FullName.")),
-             (typeof(IntroRinkaSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(IntroRinkaSpritePresentation).FullName.")), (typeof(IntroScientistSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(IntroScientistSpritePresentation).FullName.")),
-             (typeof(CeresFlightSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(CeresFlightSpritePresentation).FullName.")), (typeof(CeresDestructionSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(CeresDestructionSpritePresentation).FullName.")),
-             (typeof(CeresSceneSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(CeresSceneSpritePresentation).FullName.")), (typeof(EndingCloudSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingCloudSpritePresentation).FullName.")),
-             (typeof(EndingCompletionTextSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingCompletionTextSpritePresentation).FullName.")), (typeof(EndingExplosionSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingExplosionSpritePresentation).FullName.")),
-             (typeof(EndingLogoSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingLogoSpritePresentation).FullName.")), (typeof(EndingRewardSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingRewardSpritePresentation).FullName.")),
-             (typeof(SuperMetroid.Core.Frontend.Ending.EndingAnimalEscapeDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingAnimalEscapeDefinitions).FullName."))],
-        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [(typeof(AreaMapPresentationCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(AreaMapPresentationCatalog).FullName."))],
-        "SuperMetroid.Core.Map.IAreaMapSource" => [(typeof(AreaMapPresentationCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(AreaMapPresentationCatalog).FullName.")),
-            (typeof(IGameplayPresentationContent).FullName ?? throw new InvalidOperationException("Verification requires typeof(IGameplayPresentationContent).FullName."))],
+            [ContractTypeNames.MetadataName(typeof(IntroDiscoveryActorSpritePresentation)), ContractTypeNames.MetadataName(typeof(IntroEggEffectSpritePresentation)),
+             ContractTypeNames.MetadataName(typeof(IntroRinkaSpritePresentation)), ContractTypeNames.MetadataName(typeof(IntroScientistSpritePresentation)),
+             ContractTypeNames.MetadataName(typeof(CeresFlightSpritePresentation)), ContractTypeNames.MetadataName(typeof(CeresDestructionSpritePresentation)),
+             ContractTypeNames.MetadataName(typeof(CeresSceneSpritePresentation)), ContractTypeNames.MetadataName(typeof(EndingCloudSpritePresentation)),
+             ContractTypeNames.MetadataName(typeof(EndingCompletionTextSpritePresentation)), ContractTypeNames.MetadataName(typeof(EndingExplosionSpritePresentation)),
+             ContractTypeNames.MetadataName(typeof(EndingLogoSpritePresentation)), ContractTypeNames.MetadataName(typeof(EndingRewardSpritePresentation)),
+             ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Frontend.Ending.EndingAnimalEscapeDefinitions))],
+        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentationCatalog))],
+        "SuperMetroid.Core.Map.IAreaMapSource" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentationCatalog)),
+            ContractTypeNames.MetadataName(typeof(IGameplayPresentationContent))],
         _ => null,
     };
 }

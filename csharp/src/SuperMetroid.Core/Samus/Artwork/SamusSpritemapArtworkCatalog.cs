@@ -111,19 +111,19 @@ public sealed class SamusSpritemapArtworkCatalog
     /// <summary>Resolves the installed upper-half base corresponding to native $92:9263, using calculated stock selection unless independently edited.</summary>
     /// <param name="pose">Native Samus pose identity, $00..$FC.</param>
     /// <returns>A pointer-table element index, not a bank address or byte offset; add the current animation frame before composition lookup.</returns>
-    /// <exception cref="IndexOutOfRangeException">The pose is outside the 253 supported identities.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is outside the 253 supported identities.</exception>
     public ushort TopBase(SamusPoseId pose)
     {
-        if ((int)pose >= SamusBodyArtworkCatalog.PoseCount) throw new IndexOutOfRangeException();
+        if ((int)pose >= SamusBodyArtworkCatalog.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
         return topBases.TryGetValue((int)pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.TopBase(pose);
     }
     /// <summary>Resolves the installed lower-half base corresponding to native $92:945D, independently of whether the current draw policy displays that half.</summary>
     /// <param name="pose">Native Samus pose identity, $00..$FC.</param>
     /// <returns>A pointer-table element index to which the current animation frame is added.</returns>
-    /// <exception cref="IndexOutOfRangeException">The pose is outside the 253 supported identities.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is outside the 253 supported identities.</exception>
     public ushort BottomBase(SamusPoseId pose)
     {
-        if ((int)pose >= SamusBodyArtworkCatalog.PoseCount) throw new IndexOutOfRangeException();
+        if ((int)pose >= SamusBodyArtworkCatalog.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
         return bottomBases.TryGetValue((int)pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.BottomBase(pose);
     }
 

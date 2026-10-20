@@ -149,7 +149,7 @@ public sealed class CeresDoorVisualCatalog
     public void LoadAnimationColors(IPaletteColors cgram, int row)
     {
         Ensure.NotNull(cgram);
-        if ((uint)row >= CeresDoorVisualRomData.AnimationRowCount) throw new IndexOutOfRangeException();
+        if ((uint)row >= CeresDoorVisualRomData.AnimationRowCount) throw new ArgumentOutOfRangeException(nameof(row));
         for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
             new BossPalettes(cgram).CeresDoorAnimation.Write(color, AnimationColor(row, color));
     }

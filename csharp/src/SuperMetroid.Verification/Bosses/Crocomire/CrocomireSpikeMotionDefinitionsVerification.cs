@@ -18,8 +18,8 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
             AssertEqual(expected, CrocomireSpikeMotionDefinitions.AccelerationDelta(slot),
                 $"Crocomire spike acceleration increment, physical slot {slot}");
         }
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.AccelerationDelta(-1), "negative increment slot");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.AccelerationDelta(18), "increment slot past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.AccelerationDelta(-1), "negative increment slot");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.AccelerationDelta(18), "increment slot past end");
     }
 
     /// <summary>Checks each slot's acceleration cap and native table bounds.</summary>
@@ -33,8 +33,8 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
             AssertEqual(expected, CrocomireSpikeMotionDefinitions.MaximumAcceleration(slot),
                 $"Crocomire spike acceleration limit, physical slot {slot}");
         }
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.MaximumAcceleration(-1), "negative acceleration limit slot");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.MaximumAcceleration(18), "acceleration limit slot past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.MaximumAcceleration(-1), "negative acceleration limit slot");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.MaximumAcceleration(18), "acceleration limit slot past end");
     }
 
     /// <summary>Checks the low byte of each slot's velocity cap and native table bounds.</summary>
@@ -44,7 +44,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
         for (int slot = 0; slot < 18; slot++)
             AssertEqual(rom.ReadCartridgeByte(0x86920b + 2 * slot), CrocomireSpikeMotionDefinitions.MaximumVelocity(slot),
                 $"Crocomire spike velocity limit low byte, physical slot {slot}");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.MaximumVelocity(-1), "negative velocity limit slot");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.MaximumVelocity(18), "velocity limit slot past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.MaximumVelocity(-1), "negative velocity limit slot");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.MaximumVelocity(18), "velocity limit slot past end");
     }
 }

@@ -32,7 +32,7 @@ public sealed class CreditsPresentation
     public ReadOnlySpan<ushort> GetRow(int index)
     {
         if ((uint)index >= RowCount)
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(index));
         if (fixtureRows is not null)
             return fixtureRows[index];
         int row = 0;

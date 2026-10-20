@@ -21,7 +21,7 @@ internal static class Program
         // never escape to the CLR/Windows reporter or open a modal error dialog.
         try
         {
-            if (OperatingSystem.IsWindows()) NativeConsoleProcess.SetErrorMode(ConsoleErrorPolicy.FailCriticalErrors |
+            if (OperatingSystem.IsWindows()) _ = NativeConsoleProcess.SetErrorMode(ConsoleErrorPolicy.FailCriticalErrors |
                 ConsoleErrorPolicy.NoFaultDialog | ConsoleErrorPolicy.NoOpenFileDialog);
             if (args is ["--pause-presentation-contract-check"])
             {

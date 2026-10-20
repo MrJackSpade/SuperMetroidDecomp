@@ -72,7 +72,7 @@ internal static class LookupBombTorizoHandDrawVerification
                         AssertEqual(count, frame.Runs.Span[run].LevelWords.Length, "Torizo hand DTO width");
                     }
                     foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(run,bad), "Torizo hand cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(run,bad), "Torizo hand cell bounds");
                 }
                 for (int word = 0; word < count; word++, cursor += 2)
                 {
@@ -108,11 +108,11 @@ internal static class LookupBombTorizoHandDrawVerification
             if (field == 0)
             foreach (int bad in new[] {int.MinValue,-1,run,int.MaxValue})
             {
-                AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(bad,0), "Torizo hand run bounds");
-                AssertThrows<IndexOutOfRangeException>(() => shape.OriginX(bad), "Torizo hand X bounds");
-                AssertThrows<IndexOutOfRangeException>(() => shape.OriginY(bad), "Torizo hand Y bounds");
-                AssertThrows<IndexOutOfRangeException>(() => shape.NextX(bad), "Torizo hand next X bounds");
-                AssertThrows<IndexOutOfRangeException>(() => shape.NextY(bad), "Torizo hand next Y bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(bad,0), "Torizo hand run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.OriginX(bad), "Torizo hand X bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.OriginY(bad), "Torizo hand Y bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(bad), "Torizo hand next X bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(bad), "Torizo hand next Y bounds");
             }
         }
         AssertEqual(24, cells, "Torizo hand complete native cell domain");

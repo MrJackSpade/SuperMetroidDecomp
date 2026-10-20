@@ -8,7 +8,7 @@ internal readonly record struct KraidFootHitboxSequence(int Length)
     {
         get
         {
-            if ((uint)index >= (uint)Length) throw new IndexOutOfRangeException();
+            if ((uint)index >= (uint)Length) throw new ArgumentOutOfRangeException(nameof(index));
             return new(-6, -6, 6, 6, KraidHitboxTouch.Background, KraidHitboxShot.Inert);
         }
     }

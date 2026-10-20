@@ -111,7 +111,7 @@ internal static class MaridiaLargeSnailCollisionDefinitions
         /// <summary>Calculates an aligned frame pointer from its native ordinal.</summary>
         public ushort this[int index] => (uint)index < Count
             ? (ushort)(FirstFrame + index * FrameStride)
-            : throw new IndexOutOfRangeException();
+            : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Visits Oum frame pointers in ascending native address order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {

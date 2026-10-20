@@ -40,7 +40,7 @@ internal static class CrocomireBodyVisualDefinitions
     /// The selected instruction programs omit the gaps between these runs.</summary>
     internal static ushort FramePointer(int index)
     {
-        if ((uint)index >= BodyFrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= BodyFrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         return (ushort)(index < 12 ? ChargeStepStart + 0x32 * index
             : index < 18 ? AttackStart + 0x3a * (index - 12)
             : index < 24 ? AttackClawStart + 0x32 * (index - 18)

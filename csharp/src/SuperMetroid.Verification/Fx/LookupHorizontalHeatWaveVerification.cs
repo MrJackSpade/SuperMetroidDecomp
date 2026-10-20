@@ -16,7 +16,7 @@ internal static class LookupHorizontalHeatWaveVerification
             AssertEqual(Original(index), RoomFxRomData.LavaAcid.HorizontalWaveDisplacement(index),
                 "Original horizontal heat wave including unequal zero gaps");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => RoomFxRomData.LavaAcid.HorizontalWaveDisplacement(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxRomData.LavaAcid.HorizontalWaveDisplacement(invalid),
                 "Horizontal wave retains original span bounds");
 
         for (int phase = 0; phase < 16; phase++)
@@ -29,7 +29,7 @@ internal static class LookupHorizontalHeatWaveVerification
                 { LavaAcidBg2WavePhase = phase };
             ushort[] scrolls = (SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(fx,
                 new Position16<Bg2Pixels>(baseScroll, (ushort)cameraPhase)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(fx, new Position16<Bg2Pixel...."));
-            for (int line = 0; line < (scrolls ?? throw new InvalidOperationException("Verification requires scrolls.")).Length; line++)
+            for (int line = 0; line < scrolls.Length; line++)
                 AssertEqual(unchecked((ushort)(baseScroll + Original((phase + cameraPhase + line) & 15))),
                     scrolls[line], "Production horizontal wave phase, camera nibble, signed addition and wrap");
         }

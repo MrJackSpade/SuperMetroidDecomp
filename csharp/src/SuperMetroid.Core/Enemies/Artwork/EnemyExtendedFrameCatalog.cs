@@ -257,7 +257,7 @@ public sealed class EnemyExtendedFrameCatalog
             (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).frames);
         foreach ((int identity, EnemyExtendedDrawComponent[] components) in frames)
             merged[identity] = components;
-        var mergedBindings = new Dictionary<int, int>((stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).displayFrames);
+        var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
         if (schema is EnemyExtendedFrameSchema.PirateDisplayBindings
             or EnemyExtendedFrameSchema.PreDraygon
             or EnemyExtendedFrameSchema.PreSporeIdentity

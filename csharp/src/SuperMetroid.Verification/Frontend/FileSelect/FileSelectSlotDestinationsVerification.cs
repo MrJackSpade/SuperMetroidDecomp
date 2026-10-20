@@ -67,7 +67,7 @@ internal static class FileSelectSlotDestinationsVerification
                 }
             }
             foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => destination(invalid, field), "slot index bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => destination(invalid, field), "slot index bounds");
             foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => destination(0, (FileSelectSlotField)invalid), "slot field bounds");
         }
@@ -91,7 +91,7 @@ internal static class FileSelectSlotDestinationsVerification
                 "slot label record includes terminal word");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, 65536, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => FileSelectTilemapDefinitions.SlotLabel(invalid), "slot label source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => FileSelectTilemapDefinitions.SlotLabel(invalid), "slot label source bounds");
     }
 
     /// <summary>Reads native slot-label source instructions for the layout comparison.</summary>

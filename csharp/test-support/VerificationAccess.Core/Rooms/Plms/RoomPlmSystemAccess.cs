@@ -504,7 +504,8 @@ internal static class RoomPlmSystemAccess
         ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Waiting or ColoredDoorProgram.Sleep } => ColoredDoorPhase.Waiting,
         ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Hit } => ColoredDoorPhase.Flashing,
         ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Open } => ColoredDoorPhase.Opening,
-        _ => throw new InvalidOperationException($"Coloured cap at block {slot.BlockIndex} runs {slot.Animation?.RunningProgram}."),
+        null => throw new InvalidOperationException($"Coloured cap at block {slot.BlockIndex} has no animation."),
+        _ => throw new InvalidOperationException($"Coloured cap at block {slot.BlockIndex} runs {slot.Animation.RunningProgram}."),
     };
 
     /// <summary>The test view of a grey cap's phase, from the program its typed animation runs.</summary>
@@ -514,6 +515,7 @@ internal static class RoomPlmSystemAccess
         GreyDoorPlmAnimation { Program: GreyDoorProgram.Waiting or GreyDoorProgram.Sleep } => GreyDoorPhase.Locked,
         GreyDoorPlmAnimation { Program: GreyDoorProgram.Activate or GreyDoorProgram.Flash or GreyDoorProgram.Hit } => GreyDoorPhase.Flashing,
         GreyDoorPlmAnimation { Program: GreyDoorProgram.Open } => GreyDoorPhase.Opening,
-        _ => throw new InvalidOperationException($"Grey cap at block {slot.BlockIndex} runs {slot.Animation?.RunningProgram}."),
+        null => throw new InvalidOperationException($"Grey cap at block {slot.BlockIndex} has no animation."),
+        _ => throw new InvalidOperationException($"Grey cap at block {slot.BlockIndex} runs {slot.Animation.RunningProgram}."),
     };
 }

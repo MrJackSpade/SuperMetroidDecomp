@@ -207,7 +207,7 @@ internal static class EndingPaletteArtworkVerification
         });
         AssertEqual(originalIdentity, catalog.ContentIdentity, "ending palette identity preserves original role order");
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = catalog[(EndingPaletteId)invalid], "ending palette invalid role compatibility");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingPaletteId)invalid], "ending palette invalid role compatibility");
     }
 
     /// <summary>Checks installed ending colors and visible scene overrides with cartridge reads guarded.</summary>

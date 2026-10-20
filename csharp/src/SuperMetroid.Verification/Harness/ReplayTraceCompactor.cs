@@ -72,7 +72,7 @@ internal static class ReplayTraceCompactor
             initialRecord = source.Updates.GetProperty("initialRecord").GetInt32();
             sourceCheckpointsSha256 = source.SourceCheckpointsSha256;
         }
-        ReplayTraceLayout layout = layoutForMovie((movieSha256 ?? throw new InvalidOperationException("Verification requires movieSha256.")));
+        ReplayTraceLayout layout = layoutForMovie((movieSha256));
         Directory.CreateDirectory(destinationDirectory);
 
         using (FileStream input = File.OpenRead(Path.Combine(sourceDirectory, ReplayTrace.UpdatesJsonFile)))

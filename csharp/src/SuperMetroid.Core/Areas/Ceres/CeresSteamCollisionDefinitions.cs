@@ -94,7 +94,7 @@ internal static class CeresSteamCollisionDefinitions
         public int Length => Count;
         /// <summary>Returns an indexed frame pointer at a ten-byte native stride.</summary>
         public ushort this[int index] => (uint)index < Count
-            ? (ushort)(FirstFrame + 10 * index) : throw new IndexOutOfRangeException();
+            ? (ushort)(FirstFrame + 10 * index) : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Yields all frame pointers in native order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {

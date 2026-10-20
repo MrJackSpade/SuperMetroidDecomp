@@ -39,7 +39,7 @@ internal static class CrocomireSkeletonTransferDefinitions
     /// <summary>Computes a contiguous bank-$AD source page and its discontinuous OBJ atlas destination for one upload.</summary>
     internal static CrocomireSkeletonTransferDefinition Frame(int index)
     {
-        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         int tile = index < FirstRegionRows
             ? FirstAtlasTile + index * TilesPerRow
             : SecondAtlasTile + (index - FirstRegionRows) * TilesPerRow;

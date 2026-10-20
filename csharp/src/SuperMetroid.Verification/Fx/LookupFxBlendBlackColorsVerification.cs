@@ -51,7 +51,7 @@ internal static class LookupFxBlendBlackColorsVerification
         {
             var owner = (RoomFxBlendColors)(field.GetValue(stock) ?? throw new InvalidOperationException("Verification requires field.GetValue(stock)."));
             bool weather = field.Name is "landingSiteRain" or "fog";
-            AssertEqual(weather, (owner ?? throw new InvalidOperationException("Verification requires owner.")).thirdOverride is not null, "Stock black values are not stored");
+            AssertEqual(weather, owner.thirdOverride is not null, "Stock black values are not stored");
             _ = owner.CreateColors();
             AssertEqual(weather, owner.thirdOverride is not null, "Output creation does not cache black");
         }

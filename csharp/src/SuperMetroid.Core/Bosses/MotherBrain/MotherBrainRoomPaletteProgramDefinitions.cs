@@ -19,6 +19,6 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
         2 or 11 or 13 => 2,
         3 or 7 or 10 => 3,
         0 or 4 or 6 or 9 or 12 => 0,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 }

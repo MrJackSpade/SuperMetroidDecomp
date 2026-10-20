@@ -56,9 +56,9 @@ internal static class LookupTubeDrawsVerification
                 AssertEqual(pointer, byId.Pointer, "Tube reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordCount(invalid), "Tube run bounds");
-                    AssertThrows<IndexOutOfRangeException>(() => shape.NextY(invalid), "Tube offset bounds");
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(invalid, 0), "Tube word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Tube run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Tube offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Tube word run bounds");
                 }
             }
             int cursor = 0x840000 | pointer;
@@ -82,7 +82,7 @@ internal static class LookupTubeDrawsVerification
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Tube cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Tube cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {

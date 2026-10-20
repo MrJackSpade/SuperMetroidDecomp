@@ -11,7 +11,7 @@ internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingP
     {
         get
         {
-            if ((uint)index >= Length) throw new IndexOutOfRangeException();
+            if ((uint)index >= Length) throw new ArgumentOutOfRangeException(nameof(index));
             return new(CrocomireMeltingTransferDefinitions.UploadByteCount,
                 index * CrocomireMeltingTransferDefinitions.UploadVramWordStride,
                 CrocomireMeltingTransferDefinitions.ScratchBank,

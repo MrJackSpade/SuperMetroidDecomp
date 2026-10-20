@@ -32,8 +32,8 @@ internal static class KraidArmPhysicalFrameMappingsVerification
         AssertEqual(expected.Length, KraidArmCollisionDefinitions.FrameCount, "Calculated arm frame count");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index], KraidArmCollisionDefinitions.FramePointer(index), "Native arm frame ordinal");
-        AssertThrows<IndexOutOfRangeException>(() => KraidArmCollisionDefinitions.FramePointer(-1), "Negative arm frame ordinal");
-        AssertThrows<IndexOutOfRangeException>(() => KraidArmCollisionDefinitions.FramePointer(22), "Past arm frame ordinal");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidArmCollisionDefinitions.FramePointer(-1), "Negative arm frame ordinal");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidArmCollisionDefinitions.FramePointer(22), "Past arm frame ordinal");
     }
 
     /// <summary>Compares the fixed anchor component in every native arm frame with compiled collision offsets.</summary>

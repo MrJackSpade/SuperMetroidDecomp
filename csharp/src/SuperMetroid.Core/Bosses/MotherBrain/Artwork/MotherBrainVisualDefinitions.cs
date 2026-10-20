@@ -35,7 +35,7 @@ internal static class MotherBrainVisualDefinitions
     /// <summary>Calculates a bounded native OAM pointer from each composition family's record size.</summary>
     internal static EnemySpritemapDefinition Frame(int index)
     {
-        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = (ushort)(index < 2 ? HeadStart + RecordBytes(11) * index
             : index < 6 ? MouthStart + RecordBytes(10) * (index - 2)
             : index < 8 ? DamagedHeadStart + RecordBytes(12) * (index - 6)

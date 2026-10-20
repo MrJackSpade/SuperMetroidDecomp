@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Enemies.Yard;
 

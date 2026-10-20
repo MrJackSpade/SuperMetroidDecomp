@@ -26,7 +26,7 @@ public static class ProjectileSpriteDefinitions
         /// <summary>Returns one sprite identity in the original sorted native-pointer order, not an instruction-list pointer or animation-stage number.</summary>
         /// <param name="index">Zero-based identity index 0..416.</param>
         /// <returns>Bank-relative spritemap offset in bank $93.</returns>
-        /// <exception cref="IndexOutOfRangeException">The index is outside 0..416.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside 0..416.</exception>
         public ushort this[int index] => PointerAt(index);
         /// <summary>Enumerates the complete required identity set in ascending native-pointer order without retaining a backing pointer array.</summary>
         /// <returns>An enumerator yielding all 417 bank-relative spritemap offsets.</returns>
@@ -741,7 +741,7 @@ public static class ProjectileSpriteDefinitions
     /// <summary>Calculates the sorted bank-$93 composition pointer at one catalog index from native group layouts.</summary>
     private static ushort PointerAt(int index)
     {
-        if ((uint)index >= 417) throw new IndexOutOfRangeException();
+        if ((uint)index >= 417) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 1) return (ushort)(NothingStart + index * RecordBytes(0));
         index -= 1;
         if (index < 8) return (ushort)(PowerStart + index * RecordBytes(1));
@@ -908,7 +908,7 @@ public static class ProjectileSpriteDefinitions
         9 => PlasmaWaveShape.DownLeftAlternate,
         10 => PlasmaWaveShape.DownLeftShort,
         11 => PlasmaWaveShape.DownLeftLong,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(group)),
     };
     /// <summary>Resolves a flattened PlasmaWave frame index to a shape and spread phase.</summary>
     private static ushort PlasmaWavePointer(int index) => PlasmaWavePointer(PlasmaWaveShapeAt(index / 5), index % 5);
@@ -931,7 +931,7 @@ public static class ProjectileSpriteDefinitions
             PlasmaWaveShape.DownLeftAlternate => (PlasmaWaveDownLeftAlternate, 12),
             PlasmaWaveShape.DownLeftShort => (PlasmaWaveDownLeftShort, 6),
             PlasmaWaveShape.DownLeftLong => (PlasmaWaveDownLeftLong, 10),
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(shape)),
         };
         return (ushort)(start + (phase == 0 ? 0 : RecordBytes(coreParts) + (phase - 1) * RecordBytes(2 * coreParts)));
     }
@@ -967,7 +967,7 @@ public static class ProjectileSpriteDefinitions
             1 => PlasmaGrowthStage.Short,
             2 => PlasmaGrowthStage.Long,
             3 => PlasmaGrowthStage.Full,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         int selectedLength = (stage, diagonal) switch
         {
@@ -979,7 +979,7 @@ public static class ProjectileSpriteDefinitions
             (PlasmaGrowthStage.Short, true) => 2,
             (PlasmaGrowthStage.Long, true) => 4,
             (PlasmaGrowthStage.Full, true) => 5,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         int preceding = selectedLength - 1;
         int offset = preceding * sizeof(ushort) + 5 * (diagonal ? 2 : 1) * preceding * (preceding + 1) / 2;
@@ -1033,7 +1033,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= 2) throw new IndexOutOfRangeException();
+                if ((uint)index >= 2) throw new ArgumentOutOfRangeException(nameof(index));
                 bool vertical = (pose & 1) != 0;
                 bool reflected = pose >= 2;
                 int x = vertical ? -8 / 2 : -index * 8;
@@ -1067,7 +1067,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if (index != 0) throw new IndexOutOfRangeException();
+                ArgumentOutOfRangeException.ThrowIfNotEqual(index, 0);
                 int tile = PowerTile + 2 - Math.Abs(2 - (phase & 3));
                 var flips = (phase is >= 3 and <= 5 ? SnesTileFlipFlags.Horizontal : 0) |
                     (phase >= 4 ? SnesTileFlipFlags.Vertical : 0);
@@ -1093,7 +1093,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= 4) throw new IndexOutOfRangeException();
+                if ((uint)index >= 4) throw new ArgumentOutOfRangeException(nameof(index));
                 int column = ice ? index % 2 : index / 2;
                 int row = ice ? index / 2 : index % 2;
                 int tile = ChargedBeamTile + (ice ? phase % 2 : phase / 8);
@@ -1147,7 +1147,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if (index != 0) throw new IndexOutOfRangeException();
+                ArgumentOutOfRangeException.ThrowIfNotEqual(index, 0);
                 int x = -8 / 2, y = -8 / 2, tile = PowerTile;
                 if (phase != 0)
                 {
@@ -1162,7 +1162,7 @@ public static class ProjectileSpriteDefinitions
                         5 => WaveDirection.Left,
                         6 => WaveDirection.UpLeft,
                         7 => WaveDirection.DownRight,
-                        _ => throw new IndexOutOfRangeException(),
+                        _ => throw new ArgumentOutOfRangeException(nameof(index)),
                     };
                     (int dx, int dy) = direction switch
                     {
@@ -1174,7 +1174,7 @@ public static class ProjectileSpriteDefinitions
                         WaveDirection.Left => (-1, 0),
                         WaveDirection.UpLeft => (-1, -1),
                         WaveDirection.DownRight => (1, 1),
-                        _ => throw new IndexOutOfRangeException(),
+                        _ => throw new ArgumentOutOfRangeException(nameof(index)),
                     };
                     int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(step);
                     if (dx != 0 && dy != 0) distance = distance * WaveDiagonalNumerator / WaveDiagonalDenominator;
@@ -1213,7 +1213,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int lobe = index / 4, quadrant = index % 4;
                 int column = quadrant % 2, row = quadrant / 2;
                 int centerY = phase < 2 ? 0 : (lobe == 0 ? 1 : -1) * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance((phase - 2) / 2);
@@ -1264,7 +1264,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= 3) throw new IndexOutOfRangeException();
+                if ((uint)index >= 3) throw new ArgumentOutOfRangeException(nameof(index));
                 int corner = (index + (super ? SuperMissileFirstCorner : MissileFirstCorner)) % 3;
                 int x = (super ? SuperMissileDiagonalX : MissileDiagonalX) + (corner == 0 ? 8 : 0);
                 int y = (super ? SuperMissileDiagonalY : MissileDiagonalY) + (corner == 2 ? 0 : 8);
@@ -1308,7 +1308,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int column = index / 2, row = index % 2;
                 int x = quad ? -column * 8 : -8 / 2;
                 int y = quad ? -row * 8 : -8 / 2;
@@ -1341,7 +1341,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int lobe = index / 4, corner = index % 4;
                 bool left = lobe == 0;
                 // The left lobe follows upper-right,lower-right,lower-left,upper-left;
@@ -1412,7 +1412,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int size = SpazerCompositionGeometryDefinitions.TileSize;
                 SpazerSeedDirection direction = (SpazerSeedDirection)pose;
                 int x, y, tile;
@@ -1472,7 +1472,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 var seed = new SpazerSeedParts(pose)[index % 4];
                 int lane = index / 4;
                 int direction = lane == 0 ? 0 : lane == 1 ? -1 : 1;
@@ -1513,7 +1513,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int distance = phase == 0 ? SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread : SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase - 1);
                 bool vertical = pose is 4 or 6;
                 int seedIndex, lane;
@@ -1565,7 +1565,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int lane = index / ChargedSpazerHorizontalCells;
                 int direction = phase <= 1 ? (lane == 0 ? 0 : lane == 1 ? 1 : -1) : 1 - lane;
                 int distance = phase <= 1 ? SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread : SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase - 2);
@@ -1599,7 +1599,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int size = SpazerCompositionGeometryDefinitions.TileSize;
                 int lane = index / ChargedSpazerVerticalCells;
                 int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase);
@@ -1637,7 +1637,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int size = SpazerCompositionGeometryDefinitions.TileSize;
                 bool vertical = (group & 1) != 0;
                 bool reflected = group is 2 or 3;
@@ -1681,7 +1681,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int size = SpazerCompositionGeometryDefinitions.TileSize;
                 int x = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX + (2 - pairs) * size / 2 +
                     (index / 2 + index % 2) * size;
@@ -1738,7 +1738,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int size = SpazerCompositionGeometryDefinitions.TileSize;
                 int x, y, tile;
                 bool rotated;
@@ -1783,7 +1783,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int orientation = group % 4;
                 if (orientation < 2)
                     return new SpazerAxialStartupParts(group < 4 ? orientation : orientation + 4, 1)[index];
@@ -1825,7 +1825,7 @@ public static class ProjectileSpriteDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int size = SpazerCompositionGeometryDefinitions.TileSize;
                 int x = (PlasmaWaveShortCells / 2 - 1 - index % PlasmaWaveShortCells) * size;
                 int direction = phase == 0 ? 0 : index < PlasmaWaveShortCells ? 1 : -1;

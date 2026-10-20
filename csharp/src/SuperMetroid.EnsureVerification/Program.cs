@@ -29,7 +29,7 @@ internal static class Program
         try
         {
             if (OperatingSystem.IsWindows())
-                NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
+                _ = NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
             if (args is ["--palette-fx-contract"])
             {
                 VerifyPaletteFxDependencyContract();

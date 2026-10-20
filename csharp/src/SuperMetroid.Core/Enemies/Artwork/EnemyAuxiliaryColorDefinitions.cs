@@ -33,7 +33,7 @@ internal static class EnemyAuxiliaryColorDefinitions
             1 => DeadSidehopper,
             2 => GoldenTorizoBody,
             3 => GoldenTorizoBelly,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         /// <summary>Yields the four native palette source definitions in stable order.</summary>
         public IEnumerator<EnemyAuxiliaryPaletteDefinition> GetEnumerator()

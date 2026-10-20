@@ -57,7 +57,10 @@ internal sealed class CeresDoorAnimationPaintDefinitions
     /// <summary>Resolves an edited beacon cell or reconstructs its mirrored fade color.</summary>
     internal Bgr555 ColorAt(int row, int color)
     {
-        if ((uint)row >= 8 || (uint)color >= 6) throw new IndexOutOfRangeException();
+        if ((uint)row >= 8)
+            throw new ArgumentOutOfRangeException(nameof(row));
+        if ((uint)color >= 6)
+            throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(row * 6 + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 

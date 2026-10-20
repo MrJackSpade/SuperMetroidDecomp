@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// Verification's native view of the enemy renderer: a draw named by bank and word writes the installed frame shown there

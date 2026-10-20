@@ -20,6 +20,6 @@ internal static class CrateriaEscapeLightningPaletteFxColorDefinitionsConstants
         5 => 17,
         7 => 24,
         >= 0 and < CrateriaEscapeLightningPaletteFxColorDefinitions.FrameCount => 1,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 }

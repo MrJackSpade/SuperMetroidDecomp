@@ -102,8 +102,7 @@ internal sealed class NoobTubePlms
     {
         (_bindings.Earthquake ?? throw new InvalidOperationException(
             "N00b tube has no earthquake-type writer.")).SetType(NoobTubePlmRomData.EarthquakeType);
-        (_bindings.Earthquake ?? throw new InvalidOperationException(
-            "N00b tube has no earthquake-timer writer.")).SetTimer(NoobTubePlmRomData.EarthquakeTimer);
+        _bindings.Earthquake.SetTimer(NoobTubePlmRomData.EarthquakeTimer);
     }
 
     /// <summary>Sets the tube's broken event.</summary>

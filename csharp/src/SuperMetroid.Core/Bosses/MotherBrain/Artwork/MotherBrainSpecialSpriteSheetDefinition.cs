@@ -22,7 +22,7 @@ public readonly record struct MotherBrainSpecialSpriteSheetDefinition(
     public MotherBrainSpriteTileTransferRequest Transfer(int page) => (uint)page < PageCount
         ? new(page, PageByteCount, (uint)(SourceAddress + page * PageByteCount),
             (ushort)(FirstDestinationWord + page * DestinationWordStride))
-        : throw new IndexOutOfRangeException();
+        : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>Checks the cartridge's page alignment, size and destination.</summary>
     public int ResolvePage(uint sourceAddress, int byteCount, int destinationWord)

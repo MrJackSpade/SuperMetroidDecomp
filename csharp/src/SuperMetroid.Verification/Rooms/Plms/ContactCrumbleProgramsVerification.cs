@@ -130,9 +130,9 @@ internal static class ContactCrumbleProgramsVerification
             AssertEqual(run, draw.RunCount, "contact restoration complete calculated runs");
             AssertEqual(run, list.Runs.Length, "contact restoration complete exported runs");
             foreach (int invalid in new[] {int.MinValue, -1, run, int.MaxValue})
-                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(invalid, 0), "contact restoration run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.WordAt(invalid, 0), "contact restoration run bounds");
             foreach (int invalid in new[] {int.MinValue, -1, 2, int.MaxValue})
-                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(0, invalid), "contact restoration block bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.WordAt(0, invalid), "contact restoration block bounds");
         }
     }
 

@@ -10,7 +10,7 @@ internal static class PirateArtworkNameDefinitions
     /// three look ordinals. The shared pose has no facing or ordinal suffix.</summary>
     internal static string Walking(int index)
     {
-        if ((uint)index >= EnemyExtendedFrameDefinitions.WalkingFrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= EnemyExtendedFrameDefinitions.WalkingFrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 2) return index == 0 ? "walking_pirate_flinch_left" : "walking_pirate_flinch_right";
         if (index == 19) return "walking_pirate_look_shared";
         bool right = index >= 20;
@@ -24,7 +24,7 @@ internal static class PirateArtworkNameDefinitions
     /// all nine left-facing identities precede the nine right-facing identities.</summary>
     internal static string Wall(int index)
     {
-        if ((uint)index >= EnemyExtendedFrameDefinitions.WallFrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= EnemyExtendedFrameDefinitions.WallFrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         int pose = index % 9;
         string action = pose < 4 ? "fire_jump" : "climb";
         int ordinal = pose < 4 ? pose : pose - 4;

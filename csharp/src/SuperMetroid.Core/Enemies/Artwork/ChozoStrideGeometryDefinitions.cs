@@ -121,7 +121,7 @@ internal static class ChozoStrideGeometryDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 if (index == leftIndex) return left.At(SupportFootX(phase));
                 if (index == rightIndex) return right.At(SupportFootX(phase) + TilePixels);
                 return otherParts[index - (index > leftIndex ? 1 : 0) - (index > rightIndex ? 1 : 0)];

@@ -41,7 +41,7 @@ internal static class CrocomireSkeletonVisualDefinitions
     /// single-component records. Every root is selected, in ascending order.</summary>
     internal static ushort FramePointer(int index)
     {
-        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         return index switch
         {
             <= 13 => (ushort)(CrocomireBodyVisualDefinitions.FirstSkeletonFrame + (2 + 8 * 5) * index),

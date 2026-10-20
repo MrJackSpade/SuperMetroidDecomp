@@ -20,26 +20,26 @@ internal static class SamusEaterPlmDrawDefinitions
         {
             0 or 1 => 2,
             2 => 4,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(run)),
         };
         /// <summary>Moves left between mouth blocks while keeping the foliage run in its original column.</summary>
         internal static sbyte NextX(int run) => run switch
         {
             0 or 1 => -2,
             2 => 0,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(run)),
         };
         /// <summary>Offsets the second mouth run toward the plant body, reversing the step for ceiling plants.</summary>
         internal sbyte NextY(int run) => run switch
         {
             0 or 2 => 0,
             1 => Ceiling ? (sbyte)1 : (sbyte)-1,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(run)),
         };
         /// <summary>Encodes the phase tile, collision type, and orientation flips for a single mouth or foliage block.</summary>
         internal ushort WordAt(int run, int block)
         {
-            if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
+            if ((uint)block >= Count(run)) throw new ArgumentOutOfRangeException(nameof(block));
             int tile, collision, horizontalFlip;
             if (run == 2)
             {

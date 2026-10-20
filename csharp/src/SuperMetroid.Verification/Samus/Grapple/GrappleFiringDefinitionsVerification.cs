@@ -264,8 +264,8 @@ internal static class GrappleFiringDefinitionsVerification
             ushort original = SnesLittleEndian.Word(GrappleLaunchFieldRomByte(rom, address), GrappleLaunchFieldRomByte(rom, address + 1));
             AssertEqual(original, select(direction), $"Original grapple {label}, direction {direction}");
         }
-        AssertThrows<IndexOutOfRangeException>(() => select(10), $"Grapple {label} upper bound");
-        AssertThrows<IndexOutOfRangeException>(() => select(byte.MaxValue), $"Grapple {label} invalid maximum");
+        AssertThrows<ArgumentOutOfRangeException>(() => select(10), $"Grapple {label} upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => select(byte.MaxValue), $"Grapple {label} invalid maximum");
     }
 
     /// <summary>Reads a native Grapple launch byte for the comparison oracle.</summary>

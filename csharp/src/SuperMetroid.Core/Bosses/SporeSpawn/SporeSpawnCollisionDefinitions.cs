@@ -50,7 +50,7 @@ internal static class SporeSpawnCollisionDefinitions
         {
             0 => new(Offset16<RoomPixels>.Zero, Head),
             1 when InnerPoint is { } innerPoint => new(Offset16<RoomPixels>.Zero, innerPoint),
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         /// <summary>Enumerates the frame's head and optional inner point in native order.</summary>
         public Enumerator GetEnumerator() => new(this);

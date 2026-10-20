@@ -27,7 +27,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
     {
         0 => new(RoomPlmInstructionListsConstants.RespawningBreakableGrappleBlock, true),
         1 => new(RoomPlmInstructionListsConstants.PermanentBreakableGrappleBlock, false),
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
     /// <summary>Resolves interleaved visual operands, including the reverse-order respawn poses.</summary>

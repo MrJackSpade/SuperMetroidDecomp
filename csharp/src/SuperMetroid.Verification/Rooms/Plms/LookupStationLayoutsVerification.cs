@@ -60,10 +60,10 @@ internal static class LookupStationLayoutsVerification
                 AssertEqual(pointer, byId.Pointer, "Station layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordCount(invalid), "Station layout run bounds");
-                    AssertThrows<IndexOutOfRangeException>(() => shape.NextX(invalid), "Station layout X bounds");
-                    AssertThrows<IndexOutOfRangeException>(() => shape.NextY(invalid), "Station layout offset bounds");
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(invalid, 0), "Station layout word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Station layout run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Station layout X bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Station layout offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Station layout word run bounds");
                 }
             }
             var level = CreateRoom(new(32, 16), new ushort[512], new byte[512], blockDefinitions: new byte[0x400 * 8]);
@@ -103,7 +103,7 @@ internal static class LookupStationLayoutsVerification
                     drawY = 8 + unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Station layout cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Station layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {

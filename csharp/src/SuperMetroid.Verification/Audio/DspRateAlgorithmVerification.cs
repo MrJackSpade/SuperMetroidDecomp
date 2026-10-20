@@ -22,7 +22,7 @@ internal static class DspRateAlgorithmVerification
             AssertEqual(original[selector], (int)SnesDspTables.RatePeriod(selector),
                 $"Original DSP period selector {selector}");
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SnesDspTables.RatePeriod(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => SnesDspTables.RatePeriod(invalid),
                 $"DSP rate invalid selector {invalid}");
     }
 

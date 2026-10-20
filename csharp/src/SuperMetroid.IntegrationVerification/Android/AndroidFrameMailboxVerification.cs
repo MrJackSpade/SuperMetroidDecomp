@@ -17,7 +17,7 @@ internal static class AndroidFrameMailboxVerification
         {
             if (frame.Any(pixel => pixel != original)) throw new InvalidDataException("Publisher mutation changed pending pixels.");
         })) throw new InvalidDataException("Published pixels missing.");
-        if (mailbox.Consume(_ => throw new Exception("Must not consume twice"))) throw new InvalidDataException("Frame consumed twice.");
+        if (mailbox.Consume(_ => throw new InvalidOperationException("Must not consume twice"))) throw new InvalidDataException("Frame consumed twice.");
         mailbox.Publish(source);
         if (!mailbox.Publish(source)) throw new InvalidDataException("Pending replacement was not counted.");
 

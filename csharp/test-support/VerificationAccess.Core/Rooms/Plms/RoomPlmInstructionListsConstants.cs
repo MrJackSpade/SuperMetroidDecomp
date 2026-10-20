@@ -110,7 +110,7 @@ internal static class RoomPlmInstructionListsConstants
         5 => CollisionBombBlock2x1Permanent,
         6 => CollisionBombBlock1x2Permanent,
         7 => CollisionBombBlock2x2Permanent,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
     /// <summary>Selects the named bomb reaction program from native $94:A012 PLM headers.
     /// Indices encode 1x1, 2x1, 1x2, 2x2; where present, permanent forms follow respawning forms.</summary>
@@ -124,7 +124,7 @@ internal static class RoomPlmInstructionListsConstants
         5 => ReactionBombBlock2x1Permanent,
         6 => ReactionBombBlock1x2Permanent,
         7 => ReactionBombBlock2x2Permanent,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
     /// <summary>Selects the named contact crumble program from native $94:9139 PLM headers.
     /// Indices encode 1x1, 2x1, 1x2, 2x2; where present, permanent forms follow respawning forms.</summary>
@@ -138,6 +138,6 @@ internal static class RoomPlmInstructionListsConstants
         5 => ContactCrumble2x1Permanent,
         6 => ContactCrumble1x2Permanent,
         7 => ContactCrumble2x2Permanent,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 }

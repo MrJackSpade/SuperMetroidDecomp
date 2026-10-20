@@ -44,13 +44,13 @@ public sealed class MapPaletteCycle
     /// <summary>Rejects a frame index outside the selected cycle.</summary>
     private void CheckFrame(int frame)
     {
-        if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
     }
 
     /// <summary>Returns the authored hold for one color frame in map-palette animation updates.</summary>
     /// <param name="frame">Zero-based selected frame index, strictly below <see cref="FrameCount"/>; not automatically wrapped.</param>
     /// <returns>A hold of one through 254 ticks; stock frame zero holds fifteen ticks and other stock frames hold three.</returns>
-    /// <exception cref="IndexOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
     public byte Duration(int frame)
     {
         CheckFrame(frame);
@@ -62,7 +62,7 @@ public sealed class MapPaletteCycle
     /// <param name="frame">Zero-based frame index, strictly below <see cref="FrameCount"/>.</param>
     /// <param name="firstColor">CGRAM color index of the first destination, zero through 240; map consumers use 176 for colors 176-191, not a byte address.</param>
     /// <remarks>Writes all sixteen colors including the row's first color. Destination bounds are checked per write, so an invalid range can leave earlier colors already written.</remarks>
-    /// <exception cref="IndexOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
     /// <exception cref="ArgumentOutOfRangeException">A destination color index falls outside CGRAM's 256 slots.</exception>
     [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
     public void Apply(IPaletteColors destination, int frame, int firstColor)

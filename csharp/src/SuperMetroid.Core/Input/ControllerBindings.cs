@@ -58,7 +58,7 @@ public readonly record struct ControllerBindings(
     /// indexes the same seven choices. The managed menu scans these cases backward and
     /// AssignAndSwap validates membership through the inverse mapping. Each case selects
     /// a named hardware button, so no numerical curve or stored span is needed.
-    /// Only indices 0..6 are supported; preserve the former span's IndexOutOfRangeException.
+    /// Only indices 0..6 are supported; throw ArgumentOutOfRangeException.
     /// </remarks>
     public static SnesButton AssignableButton(int index) => index switch
     {
@@ -69,7 +69,7 @@ public readonly record struct ControllerBindings(
         4 => SnesButton.Y,
         5 => SnesButton.L,
         6 => SnesButton.R,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
     /// <summary>

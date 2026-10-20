@@ -100,9 +100,9 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         }
         var closedSpore = SporeSpawnCollisionDefinitions.ComponentsAt(0xee6f);
         var openSpore = SporeSpawnCollisionDefinitions.ComponentsAt(0xef3d);
-        AssertThrows<IndexOutOfRangeException>(() => _ = closedSpore[1], "Spore closed frame has no inner point");
-        AssertThrows<IndexOutOfRangeException>(() => _ = openSpore[-1], "Spore component rejects negative index");
-        AssertThrows<IndexOutOfRangeException>(() => _ = openSpore[2], "Spore open frame has exactly two components");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = closedSpore[1], "Spore closed frame has no inner point");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = openSpore[-1], "Spore component rejects negative index");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = openSpore[2], "Spore open frame has exactly two components");
         Console.WriteLine($"  Spore Spawn collision: {frameCount} roots, {seenLists.Count} lists and {callbackComparisons} live touch/shot comparisons match the cartridge with installed ROM reads denied.");
 
         // Compares one compiled hitbox list with the cartridge list its component names.

@@ -30,7 +30,7 @@ internal static class DeadTorizoVramTransferDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 if (index == 6)
                     return new(odd ? (ushort)0x100 : (ushort)0x120, 0x7e00,
                         (ushort)(SandSource + (odd ? 0 : 0x120)),

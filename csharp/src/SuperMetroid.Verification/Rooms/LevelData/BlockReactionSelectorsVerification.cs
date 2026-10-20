@@ -96,10 +96,10 @@ internal static class BlockReactionSelectorsVerification
             AssertEqual(ReadRomWord(rom, 0x949139 + 2 * index),
                 (ushort)RoomPlmHeaders.ContactCrumbleByReactionIndex(index), "contact crumble native header selection");
         for (int index = 8; index <= byte.MaxValue; index++)
-            AssertThrows<IndexOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
                 "contact crumble header rejects unsupported BTS without masking");
         foreach (int index in new[] {int.MinValue, -1, 256, int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
                 "contact crumble header int bounds");
     }
 
@@ -143,8 +143,8 @@ internal static class BlockReactionSelectorsVerification
             AssertEqual(instruction, select(index), $"{label}: native instruction at BTS {index:X2}");
         }
         for (int index = count; index <= byte.MaxValue; index++)
-            AssertThrows<IndexOutOfRangeException>(() => select(index), $"{label}: rejects unsupported BTS without masking");
+            AssertThrows<ArgumentOutOfRangeException>(() => select(index), $"{label}: rejects unsupported BTS without masking");
         foreach (int index in new[] {int.MinValue, -1, 256, int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => select(index), $"{label}: int bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => select(index), $"{label}: int bounds");
     }
 }

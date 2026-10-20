@@ -183,16 +183,16 @@ internal static class SpacePirateCollisionDefinitionsVerification
                             unchecked((ushort)(bottom + 1))];
                         for (int xi = 0; xi < xs.Length; xi++)
                         for (int yi = 0; yi < ys.Length; yi++)
-                        for (int mode = 0; mode < 2; mode++)
+                        foreach (bool mode in (bool[])[false, true])
                         {
                             ushort radiusX = unchecked((ushort)((xi + yi) & 1));
                             ushort radiusY = unchecked((ushort)((xi + yi * 2) & 1));
                             (bool nativeHit, ushort nativeCallback) = Invoke(
                                 native.Enemies, native.Slot, xs[xi], ys[yi],
-                                radiusX, radiusY, mode != 0);
+                                radiusX, radiusY, mode);
                             (bool compiledHit, ushort compiledCallback) = Invoke(
                                 compiled.Enemies, compiled.Slot, xs[xi], ys[yi],
-                                radiusX, radiusY, mode != 0);
+                                radiusX, radiusY, mode);
                             AssertEqual(nativeHit, compiledHit,
                                 $"Space Pirate frame $B2:{frame.Pointer:X4} native overlap");
                             AssertEqual(nativeCallback, compiledCallback,

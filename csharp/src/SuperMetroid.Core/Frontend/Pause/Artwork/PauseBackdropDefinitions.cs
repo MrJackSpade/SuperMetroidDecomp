@@ -64,7 +64,7 @@ public static class PauseBackdropDefinitions
     internal static ushort StockAreaWord(AreaId area, int cell)
     {
         string name = AreaName(area);
-        if ((uint)cell >= Cells) throw new IndexOutOfRangeException();
+        if ((uint)cell >= Cells) throw new ArgumentOutOfRangeException(nameof(cell));
         int letter = cell - LabelCell - (LabelWords - name.Length) / 2;
         if ((uint)(cell - LabelCell) < LabelWords)
             return (uint)letter < name.Length && name[letter] != ' '
@@ -75,7 +75,7 @@ public static class PauseBackdropDefinitions
     /// <summary>$B6:E400-E7FF is the lower sixteen rows of the same backdrop template.</summary>
     internal static ushort StockButtonWord(int cell)
     {
-        if ((uint)cell >= ButtonCells) throw new IndexOutOfRangeException();
+        if ((uint)cell >= ButtonCells) throw new ArgumentOutOfRangeException(nameof(cell));
         return StockFrameWord(cell + (Rows - ButtonRows) * Columns);
     }
 

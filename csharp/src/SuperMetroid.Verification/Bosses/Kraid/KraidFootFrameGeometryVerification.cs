@@ -32,8 +32,8 @@ internal static class KraidFootFrameGeometryVerification
             AssertEqual(expected[ordinal++], frame, "Kraid foot enumeration order");
         AssertEqual(35, ordinal, "Kraid foot enumeration count");
         AssertTrue(expected.SequenceEqual(KraidFootVisualDefinitions.Frames.ToArray()), "Kraid foot materialization");
-        AssertThrows<IndexOutOfRangeException>(() => KraidFootVisualDefinitions.Frame(-1), "negative foot index");
-        AssertThrows<IndexOutOfRangeException>(() => KraidFootVisualDefinitions.Frame(35), "foot index past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidFootVisualDefinitions.Frame(-1), "negative foot index");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidFootVisualDefinitions.Frame(35), "foot index past end");
     }
 
     /// <summary>Reads a native foot presentation operand or spritemap count byte.</summary>

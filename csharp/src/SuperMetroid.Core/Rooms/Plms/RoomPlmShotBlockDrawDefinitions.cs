@@ -71,8 +71,10 @@ internal static class RoomPlmShotBlockDrawDefinitions
         /// <summary>Calculates breakup air or a restored parent/child collision word at a block position.</summary>
         internal ushort WordAt(int run, int block)
         {
-            if ((uint)run >= RunCount || (uint)block >= WordsPerRun)
-                throw new IndexOutOfRangeException();
+            if ((uint)run >= RunCount)
+                throw new ArgumentOutOfRangeException(nameof(run));
+            if ((uint)block >= WordsPerRun)
+                throw new ArgumentOutOfRangeException(nameof(block));
             if (!Restore) return Frame == 3 ? (ushort)0x00ff : (ushort)(0x0053 + Frame);
             int row = Vertical ? block : run;
             int column = Vertical ? 0 : block;

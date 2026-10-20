@@ -50,7 +50,7 @@ internal sealed class CeresDoorEscapePaintDefinitions
     /// <summary>Selects an extracted edit when present, otherwise resolves the derived surface or target color.</summary>
     internal Bgr555 ColorAt(int index)
     {
-        if ((uint)index >= 15) throw new IndexOutOfRangeException();
+        if ((uint)index >= 15) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
     }
 

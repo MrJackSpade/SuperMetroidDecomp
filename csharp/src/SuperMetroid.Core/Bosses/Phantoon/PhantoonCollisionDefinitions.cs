@@ -56,7 +56,7 @@ internal static class PhantoonCollisionDefinitions
             2 => ((short)-SideTentacleOuterExtent, (short)-SideTentacleInnerExtent),
             3 => ((short)(SideTentacleInnerExtent - 1), (short)(SideTentacleOuterExtent - 1)),
             4 => Centered(CenterTentacleHalfWidth),
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         return new(left, vertical.Top, right, vertical.Bottom, PhantoonHitboxTouch.Contact, PhantoonHitboxShot.Vulnerable);
 
@@ -90,7 +90,7 @@ internal static class PhantoonCollisionDefinitions
         public int Count => count;
         /// <summary>Gets a zero-offset component holding the frame's hitbox list.</summary>
         public PhantoonCollisionComponent this[int index] => (uint)index < Count
-            ? new(Offset16<RoomPixels>.Zero, hitboxes) : throw new IndexOutOfRangeException();
+            ? new(Offset16<RoomPixels>.Zero, hitboxes) : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Yields the frame's collision components in native order.</summary>
         public IEnumerator<PhantoonCollisionComponent> GetEnumerator()
         {

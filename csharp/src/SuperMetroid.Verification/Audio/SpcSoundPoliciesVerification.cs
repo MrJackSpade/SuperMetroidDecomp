@@ -83,10 +83,10 @@ internal static class SpcSoundPoliciesVerification
             AssertEqual(0x3c, untouched.Mode, "rejected policy preserves mode");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.Configuration(library, invalid), "unsupported sound command");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.Configuration(library, invalid), "unsupported sound command");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.Configuration(invalid, 1), "unsupported library");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.Configuration(invalid, 1), "unsupported library");
             AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.GetVoiceCount(invalid, 0), "unsupported voice-count library");
         }
     }

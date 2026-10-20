@@ -47,14 +47,14 @@ internal static class LookupMotherBrainBoundaryVerification
                     AssertEqual(y, draw.Runs.Span[run].Next.Y, "Mother Brain DTO Y");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(run,bad), "Mother Brain boundary cell bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(run,bad), "Mother Brain boundary cell bounds");
             }
             AssertEqual(index == 0 ? 0x94b1 : 0x94c9, cursor, "Mother Brain exact boundary record end");
             foreach (int bad in new[] {int.MinValue,-1,2,int.MaxValue})
             {
-                AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(bad,0), "Mother Brain boundary run bounds");
-                AssertThrows<IndexOutOfRangeException>(() => shape.NextX(bad), "Mother Brain boundary X bounds");
-                AssertThrows<IndexOutOfRangeException>(() => shape.NextY(bad), "Mother Brain boundary Y bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(bad,0), "Mother Brain boundary run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(bad), "Mother Brain boundary X bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(bad), "Mother Brain boundary Y bounds");
             }
         }
     }

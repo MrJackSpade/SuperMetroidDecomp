@@ -22,7 +22,7 @@ internal static class DownwardGatePlmDrawDefinitions
         /// <summary>Columns write five vertical cells; right triggers write two cells; each left-trigger run writes one.</summary>
         internal int WordCount(int run)
         {
-            if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
             return Column ? 5 : Right ? 2 : 1;
         }
         /// <summary>Sets the vertical-run bit for the gate column while preserving native block count.</summary>
@@ -31,13 +31,13 @@ internal static class DownwardGatePlmDrawDefinitions
         /// <summary>Moves left between the two left-trigger runs; other runs stay in their column.</summary>
         internal sbyte NextX(int run)
         {
-            if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
             return !Column && !Right && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
         /// <summary>Calculates the stationary/moving top tile, filled shootable rows, or color-specific trigger tile.</summary>
         internal ushort WordAt(int run, int word)
         {
-            if ((uint)word >= WordCount(run)) throw new IndexOutOfRangeException();
+            if ((uint)word >= WordCount(run)) throw new ArgumentOutOfRangeException(nameof(word));
             if (Column)
                 return word == 0 ? (Frame is 0 or 5 ? (ushort)0xc0d6 : (ushort)0xc0d7) :
                     (ushort)(0xff | (word <= Frame ? 0xc000 : 0));

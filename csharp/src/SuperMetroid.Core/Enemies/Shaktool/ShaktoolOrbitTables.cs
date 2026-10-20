@@ -19,7 +19,7 @@ public static class ShaktoolOrbitTables
     /// <remarks>Terms through x^47/47! keep full-cycle remainder and decimal roundoff below 1e-19 before scaling; the original-table proof checks both bounds at every index.</remarks>
     internal static decimal UnquantizedSample(int index)
     {
-        if ((uint)index >= 320) throw new IndexOutOfRangeException();
+        if ((uint)index >= 320) throw new ArgumentOutOfRangeException(nameof(index));
         int angle = (index + 192) % 256;
         decimal x = angle * 3.14159m / 128;
         decimal squared = x * x;

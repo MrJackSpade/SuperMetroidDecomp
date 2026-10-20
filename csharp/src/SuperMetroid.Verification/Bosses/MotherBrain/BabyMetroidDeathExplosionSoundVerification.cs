@@ -34,7 +34,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             DeathExplosion: new BabyMetroidDeathExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
             BabyPaletteTransfer: null, AttackTileTransfer: null, BackgroundPaletteTransfer: null);
 
-        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects((state ?? throw new InvalidOperationException("Verification requires state.")), step);
+        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects((state), step);
         AssertEqual((SoundEffectId?)MotherBrainSoundDefinitions.Explosion, state.LastSoundEffectLibrary3, "the explosion queues library-three $13");
         AssertEqual(null, state.LastSoundEffect, "and nothing in library two");
 

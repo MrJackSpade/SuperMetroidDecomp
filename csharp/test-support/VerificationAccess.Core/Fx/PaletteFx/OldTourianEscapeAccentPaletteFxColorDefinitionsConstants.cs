@@ -20,7 +20,7 @@ internal static class OldTourianEscapeAccentPaletteFxColorDefinitionsConstants
     /// <summary>Applies each five-stage pass's authored neutral hold and extra-tick tint phase.</summary>
     internal static ushort Duration(int frame)
     {
-        if ((uint)frame >= OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)frame >= OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         FlickerPass pass = AuthoredCadence[frame / TintPhases];
         int tint = frame % TintPhases;
         return tint == 0 ? pass.NeutralHold : (ushort)(tint == pass.ExtendedTintPhase ? 2 : 1);

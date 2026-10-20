@@ -138,7 +138,7 @@ public static class GameplayMessageRomData
         /// <summary>$85:8749..877E Special_Button_Tilemap_Offsets, ID minus one; 1B is the native dummy boundary.</summary>
         public static ushort SpecialGlyphByteOffset(GameplayMessageId messageId)
         {
-            if ((uint)((byte)messageId - 1) >= 27) throw new IndexOutOfRangeException();
+            if ((uint)((byte)messageId - 1) >= 27) throw new ArgumentOutOfRangeException(nameof(messageId));
             return messageId switch
             {
                 GameplayMessageId.MissileTank or GameplayMessageId.SuperMissileTank or GameplayMessageId.Bombs => 0x12a,

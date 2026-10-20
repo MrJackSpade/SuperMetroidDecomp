@@ -27,7 +27,7 @@ public sealed class MapArrowVisual
     /// Custom cycle lengths and individual delays remain document-owned inputs.</remarks>
     public byte Duration(int phase)
     {
-        if ((uint)phase >= (uint)PhaseCount) throw new IndexOutOfRangeException();
+        if ((uint)phase >= (uint)PhaseCount) throw new ArgumentOutOfRangeException(nameof(phase));
         return durationOverrides is not null && durationOverrides.TryGetValue(phase, out byte value)
             ? value : MenuSelectorTiming.Duration(phase);
     }

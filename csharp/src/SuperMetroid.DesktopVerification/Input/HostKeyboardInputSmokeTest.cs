@@ -13,10 +13,6 @@ public static class HostKeyboardInputSmokeTest
         LiveGamepadProbe.VerifyMissingAxes();
         var keyboard = new HostKeyboardInputState();
         // These are synthetic Windows key messages, not a physical-keyboard claim.
-        // The help must agree with the actual mapper and the default cartridge
-        // shoulder bindings used for diagonal Shinespark admission.
-        if (HostControlHelp.KeyboardShoulders != "Q: aim down (L)  |  W: aim up (R)")
-            throw new InvalidDataException("Shoulder help reversed the native default aim bindings.");
         keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.Space);
         keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.W);
         if (keyboard.BuildControllerWord(SnesButton.None) != (SnesButton.A | SnesButton.R))

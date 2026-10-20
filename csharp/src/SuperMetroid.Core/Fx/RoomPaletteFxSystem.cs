@@ -285,10 +285,12 @@ public sealed class RoomPaletteFxSystem
                 // X is the native byte offset, not a count of objects spawned. F621
                 // deliberately indexes from Enable rather than IDs. Use the live owner
                 // arrays so deletions earlier in this descending pass are visible.
+                // Slot 0 reads the enable word, which is always set while the handler runs; the
+                // current-index slot reads its own nonzero byte offset.
                 bool adjacentWordSet = slotIndex switch
                 {
-                    0 => PaletteFxMemoryLayout.HandlerEnabled != 0,
-                    PaletteFxMemoryLayout.CurrentIndexWordOffset => slotIndex * sizeof(ushort) != 0,
+                    0 => true,
+                    PaletteFxMemoryLayout.CurrentIndexWordOffset => true,
                     _ => slots[slotIndex - PaletteFxMemoryLayout.IdArrayWordOffset].Object is not null,
                 };
                 if (adjacentWordSet) slot.Clear();

@@ -197,7 +197,7 @@ public sealed class SamusArmCannonArtworkCatalog
     /// <summary>Gets the packed small-OBJ character, palette, priority, and flip attributes for native direction 0–9; supplied words override the stock $90:C791 table.</summary>
     public ushort SpriteAttributes(int direction)
     {
-        if ((uint)direction >= SamusRenderingRomData.ArmCannon.DirectionCount) throw new IndexOutOfRangeException();
+        if ((uint)direction >= SamusRenderingRomData.ArmCannon.DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
         return attributes.TryGetValue(direction, out ushort supplied) ? supplied
             : SamusArmCannonArtworkFormat.StockSpriteAttributes((SamusProjectileDirection)direction);
     }
@@ -205,8 +205,10 @@ public sealed class SamusArmCannonArtworkCatalog
     /// <summary>Gets the bank-$9A tile-source identity for native direction 0–9 and cover frame 0–3; frame 0 is the closed no-transfer sentinel, while frames 1–3 select installed opening artwork.</summary>
     public ushort TileSource(int direction, int frame)
     {
-        if ((uint)direction >= SamusRenderingRomData.ArmCannon.DirectionCount ||
-            (uint)frame >= SamusArmCannonArtworkFormat.FramesPerDirection) throw new IndexOutOfRangeException();
+        if ((uint)direction >= SamusRenderingRomData.ArmCannon.DirectionCount)
+            throw new ArgumentOutOfRangeException(nameof(direction));
+        if ((uint)frame >= SamusArmCannonArtworkFormat.FramesPerDirection)
+            throw new ArgumentOutOfRangeException(nameof(frame));
         return tileSources.TryGetValue(direction * SamusArmCannonArtworkFormat.FramesPerDirection + frame, out ushort supplied) ? supplied
             : SamusArmCannonArtworkFormat.StockTileSource((SamusProjectileDirection)direction, frame);
     }

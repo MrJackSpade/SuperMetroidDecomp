@@ -21,9 +21,9 @@ internal static class LookupLiquidWaveVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => RoomFxRomData.Water.WaveDisplacement(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxRomData.Water.WaveDisplacement(invalid),
                 "Water retains original sixteen-word bounds");
-            AssertThrows<IndexOutOfRangeException>(() => RoomFxRomData.LavaAcid.VerticalWaveDisplacement(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxRomData.LavaAcid.VerticalWaveDisplacement(invalid),
                 "Heat alias retains original sixteen-word bounds");
         }
 
@@ -50,14 +50,14 @@ internal static class LookupLiquidWaveVerification
                     new Position16<Bg2Pixels>(baseScroll, cameraY)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(water, new Position16<Bg2Pixel...."));
                 var heat = water with { Type = RoomFxType.Lava, LavaAcidBg2WavePhase = phase };
                 ushort[] heatScroll = (SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(heat, cameraY) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(heat, cameraY)."));
-                for (int line = 0; line < (bg2 ?? throw new InvalidOperationException("Verification requires bg2.")).Length; line++)
+                for (int line = 0; line < bg2.Length; line++)
                 {
                     int y = line + SnesGameplayFrameRenderer.HudHeight;
                     int waterOffset = y > 100 ? Water((phase + cameraPhase + y - 101) & 15) : 0;
                     AssertEqual(unchecked((ushort)(baseScroll + waterOffset)), bg2[line],
                         "Water BG2 phase addition, surface boundary and signed wrap");
                     AssertEqual(unchecked((ushort)(cameraY + Heat((phase + cameraPhase + line) & 15))),
-                        (heatScroll ?? throw new InvalidOperationException("Verification requires heatScroll."))[line], "Vertical heat HDMA phase and signed wrap");
+                        (heatScroll)[line], "Vertical heat HDMA phase and signed wrap");
                 }
             }
         }

@@ -36,7 +36,7 @@ internal static class BlueDoorPlmDrawDefinitions
         /// </summary>
         internal ushort WordAt(int cell)
         {
-            if ((uint)cell >= 4) throw new IndexOutOfRangeException();
+            if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
             int frame = Math.Max(Frame, 0);
             bool inner = cell is 1 or 2;
             int tile = Vertical ? 0x0c + frame + (inner ? 32 : 0) :

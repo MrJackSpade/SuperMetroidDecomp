@@ -70,12 +70,12 @@ public static class EnemyTrigonometryTables
     /// <remarks>
     /// Independently checked for #1165 against all 128 NTSC bytes and bank_A0.asm.
     /// Scale 256 before truncation; only the exact quarter-turn saturates to 255.
-    /// Invalid indices preserve the former span's IndexOutOfRangeException.
+    /// Invalid indices throw ArgumentOutOfRangeException.
     /// Sign, radius truncation and separate whole/fraction negation stay in callers.
     /// </remarks>
     public static byte EightBitHalfWave(int index)
     {
-        if ((uint)index >= 128) throw new IndexOutOfRangeException();
+        if ((uint)index >= 128) throw new ArgumentOutOfRangeException(nameof(index));
         return (byte)Math.Min(255, (int)(256 * UnitHalfWave(index)));
     }
 
@@ -86,11 +86,11 @@ public static class EnemyTrigonometryTables
     /// pinned bank_A0.asm. Scale 65535, not saturated 65536; preserve quantization
     /// before multiplication and before SignedSixteenBitSine's shift and sign.
     /// This identifies the exact numerical convention, not the historical authoring tool.
-    /// Invalid indices preserve the former span's IndexOutOfRangeException.
+    /// Invalid indices throw ArgumentOutOfRangeException.
     /// </remarks>
     public static ushort UnsignedHalfWave(int index)
     {
-        if ((uint)index >= 128) throw new IndexOutOfRangeException();
+        if ((uint)index >= 128) throw new ArgumentOutOfRangeException(nameof(index));
         return (ushort)(65535 * UnitHalfWave(index));
     }
 
@@ -98,7 +98,7 @@ public static class EnemyTrigonometryTables
     /// <remarks>The omitted term is below 5.2e-21; the reviewed 1e-19 margin covers rounding and the 28-place pi constant. Full-domain cartridge comparisons establish the integer outputs without libm or correction tables.</remarks>
     internal static decimal UnitHalfWave(int index)
     {
-        if ((uint)index >= 128) throw new IndexOutOfRangeException();
+        if ((uint)index >= 128) throw new ArgumentOutOfRangeException(nameof(index));
         int phase = Math.Min(index, 128 - index);
         if (phase == 0) return 0;
         if (phase == 64) return 1;

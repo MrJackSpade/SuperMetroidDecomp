@@ -23,7 +23,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         /// <summary>Rejects a draw-run index outside this frame's native write order.</summary>
         private void CheckRun(int run)
         {
-            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
         /// <summary>Counts cells in a horizontal cannon row or split left-side run.</summary>
         internal int WordCount(int run)
@@ -46,7 +46,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         /// <summary>Calculates a cannon cell's collision nibble, mirror bit, and shield or damage tile.</summary>
         internal ushort WordAt(int run, int cell)
         {
-            if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
+            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             int row = Right ? run : run == 2 ? 1 : 0;
             bool core = Right ? cell == 0 : run == 0 || run == 2 && cell == 1;
             if (!Shield && !core) return 0x00ff;

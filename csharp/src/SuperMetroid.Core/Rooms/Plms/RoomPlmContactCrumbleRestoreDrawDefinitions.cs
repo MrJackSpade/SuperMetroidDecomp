@@ -16,8 +16,10 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
         /// <summary>Rebuilds parent type B and linked child type 5 or D while keeping the common crumble visual tile.</summary>
         internal ushort WordAt(int run, int block)
         {
-            if ((uint)run >= RunCount || (uint)block >= 2)
-                throw new IndexOutOfRangeException();
+            if ((uint)run >= RunCount)
+                throw new ArgumentOutOfRangeException(nameof(run));
+            if ((uint)block >= 2)
+                throw new ArgumentOutOfRangeException(nameof(block));
             int row = Vertical ? block : run;
             int column = Vertical ? 0 : block;
             // Every cell shows the same crumble tile. Children link left on the

@@ -75,7 +75,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Atomic vertical movement {state.VerticalMovement?.ToString() ?? "none"} is not translated.");
+                    $"Atomic vertical movement {state.VerticalMovement.ToString() ?? "none"} is not translated.");
         }
 
         switch (state.HorizontalMovement)
@@ -90,7 +90,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Atomic horizontal movement {state.HorizontalMovement?.ToString() ?? "none"} is not translated.");
+                    $"Atomic horizontal movement {state.HorizontalMovement.ToString() ?? "none"} is not translated.");
         }
     }
 

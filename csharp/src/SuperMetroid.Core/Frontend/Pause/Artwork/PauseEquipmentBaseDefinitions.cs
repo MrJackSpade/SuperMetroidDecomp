@@ -140,7 +140,7 @@ public static class PauseEquipmentBaseDefinitions
     /// the presentation stores exact independent differences rather than dropping them.</remarks>
     internal static ushort StockWord(int cell)
     {
-        if ((uint)cell >= Cells) throw new IndexOutOfRangeException();
+        if ((uint)cell >= Cells) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / Columns, column = cell % Columns;
         foreach (var label in PauseEquipmentLabelDefinitions.Labels())
         {

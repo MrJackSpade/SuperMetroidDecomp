@@ -12,6 +12,7 @@
     <Compile Include="../../tools/MagicNumberAudit/**/*.cs" LinkBase="MagicNumberAudit" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../test-support/AudioFixtures.projitems" />
   <Import Project="../../test-support/RepositoryInstallation.Verification.projitems" />
   <Import Project="../../test-support/RoomHeaderImport.projitems" />
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />

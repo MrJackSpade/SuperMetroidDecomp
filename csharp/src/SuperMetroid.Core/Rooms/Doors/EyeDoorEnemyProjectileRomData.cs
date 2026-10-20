@@ -22,7 +22,7 @@ public static class EyeDoorEnemyProjectileRomData
     /// <returns>The signed whole-pixel origin offset.</returns>
     public static short ProjectileOriginWord(int index)
     {
-        if ((uint)index >= ProjectileOriginWordCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= ProjectileOriginWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         int pair = index / 2;
         bool yAxis = (index & 1) != 0;
         if (pair is 0 or 5)
@@ -38,7 +38,7 @@ public static class EyeDoorEnemyProjectileRomData
     /// <returns>The signed 8.8 velocity word, in 1/256-pixel units per gameplay update.</returns>
     public static short SweatVelocityWord(int index)
     {
-        if ((uint)index >= SweatVelocityWordCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= SweatVelocityWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return (short)((index & 1) != 0 ? 512 : 64 * (index - 1));
     }
 }

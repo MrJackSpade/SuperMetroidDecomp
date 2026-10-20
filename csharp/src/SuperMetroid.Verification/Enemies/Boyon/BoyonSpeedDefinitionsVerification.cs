@@ -25,7 +25,7 @@ internal static class BoyonSpeedDefinitionsVerification
                 actor.SetSpawnParameter1((ushort)((height << 8) | multiplier));
                 initialize(actor);
                 BoyonEnemyState initialized = (enemies.BoyonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BoyonStates[0]."));
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286df + multiplier * 2)), (initialized ?? throw new InvalidOperationException("Verification requires initialized.")).SpeedMultiplier, "Boyon real initialized multiplier without bus");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286df + multiplier * 2)), initialized.SpeedMultiplier, "Boyon real initialized multiplier without bus");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286ef + height * 2)), initialized.JumpHeight, "Boyon real initialized height without bus");
             }
         }

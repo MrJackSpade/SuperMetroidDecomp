@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core;
+namespace SuperMetroid.TestSupport.AudioFixtures;
 
 /// <summary>
 /// Measures temporal PCM steps within each stereo channel, including across submitted

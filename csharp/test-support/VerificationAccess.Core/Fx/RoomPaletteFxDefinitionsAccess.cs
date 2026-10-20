@@ -15,7 +15,7 @@ internal static class RoomPaletteFxDefinitionsAccess
         /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).</remarks>
         internal static ushort NativeAreaListPointer(int areaIndex)
         {
-            if ((uint)areaIndex >= RoomPaletteFxDefinitions.AreaCount) throw new IndexOutOfRangeException();
+            if ((uint)areaIndex >= RoomPaletteFxDefinitions.AreaCount) throw new ArgumentOutOfRangeException(nameof(areaIndex));
             return (ushort)(0xac66 + areaIndex * 0x20);
         }
     }

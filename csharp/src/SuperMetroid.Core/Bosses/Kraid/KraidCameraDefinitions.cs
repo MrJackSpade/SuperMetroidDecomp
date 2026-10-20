@@ -8,7 +8,7 @@ internal static class KraidCameraDefinitions
     /// <summary>Scrolls[0..3] written at $A7:A9EA-A9F4: only the lower-left screen is open.</summary>
     public static RoomScrollState InitialScroll(int screen)
     {
-        if ((uint)screen >= ScreenCount) throw new IndexOutOfRangeException();
+        if ((uint)screen >= ScreenCount) throw new ArgumentOutOfRangeException(nameof(screen));
         return screen == 2 ? RoomScrollState.Blue : RoomScrollState.RedBoundary;
     }
 
@@ -16,7 +16,7 @@ internal static class KraidCameraDefinitions
     /// <remarks>The two-column room permits vertical scrolling on the upper row only.</remarks>
     public static RoomScrollState GrownScroll(int screen)
     {
-        if ((uint)screen >= ScreenCount) throw new IndexOutOfRangeException();
+        if ((uint)screen >= ScreenCount) throw new ArgumentOutOfRangeException(nameof(screen));
         return screen < 2 ? RoomScrollState.Green : RoomScrollState.Blue;
     }
 

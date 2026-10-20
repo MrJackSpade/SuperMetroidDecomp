@@ -38,7 +38,7 @@ public static class MotherBrainCorpseArtworkDefinitions
 
     /// <summary>$A9:E262 has eight row offsets, including two beyond the visible six rows.</summary>
     public static int TileRowOffset(int row) => (uint)row < 8
-        ? row * RowBytes : throw new IndexOutOfRangeException();
+        ? row * RowBytes : throw new ArgumentOutOfRangeException(nameof(row));
 
     /// <summary>$A9:EA40/$EB0B skip absent upper pixels at the outline's outer columns.</summary>
     public static int ColumnMinimumY(int column) => column switch
@@ -47,15 +47,15 @@ public static class MotherBrainCorpseArtworkDefinitions
         1 or 5 => 8,
         6 => 32,
         >= 2 and <= 4 => 0,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(column)),
     };
 
     /// <summary>$A9:E08B initial MVN sources select the right frame in each source page.</summary>
     public static int InitialCopySource(int row) => (uint)row < RowCount
-        ? SourceAddress + row * SourcePageBytes + RightFrameColumn * TileBytes : throw new IndexOutOfRangeException();
+        ? SourceAddress + row * SourcePageBytes + RightFrameColumn * TileBytes : throw new ArgumentOutOfRangeException(nameof(row));
     /// <summary>$A9:E08B omits the empty final tile in the first four source rows.</summary>
     public static int InitialCopyLength(int row) => (uint)row < RowCount
-        ? (row < 4 ? ColumnCount - 1 : ColumnCount) * TileBytes : throw new IndexOutOfRangeException();
+        ? (row < 4 ? ColumnCount - 1 : ColumnCount) * TileBytes : throw new ArgumentOutOfRangeException(nameof(row));
 
     /// <summary>Calculated per-row corpse decay uploads exposed without a copied transfer table.</summary>
     private static readonly RotTransferList rotTransfers = new();
@@ -72,7 +72,7 @@ public static class MotherBrainCorpseArtworkDefinitions
         {
             get
             {
-                if ((uint)row >= RowCount) throw new IndexOutOfRangeException();
+                if ((uint)row >= RowCount) throw new ArgumentOutOfRangeException(nameof(row));
                 int firstColumn = Math.Max(2 - row, 0);
                 int columns = row < 2 ? 3 + 2 * row : row < 4 ? 6 : 7;
                 return new((ushort)row, (ushort)(columns * TileBytes),
@@ -91,11 +91,11 @@ public static class MotherBrainCorpseArtworkDefinitions
 
     /// <summary>The six bank-$B7 source pages consumed by Mother Brain's corpse VRAM transfer list.</summary>
     public static uint VramPageSource(int page) => (uint)page < RowCount
-        ? (uint)(SourceAddress + page * SourcePageBytes) : throw new IndexOutOfRangeException();
+        ? (uint)(SourceAddress + page * SourcePageBytes) : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>The corresponding OBJ VRAM word destinations from $A9:9003-$902E.</summary>
     public static ushort VramPageDestination(int page) => (uint)page < RowCount
-        ? (ushort)(FirstVramPage + page * VramPageWords) : throw new IndexOutOfRangeException();
+        ? (ushort)(FirstVramPage + page * VramPageWords) : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>Whether a native transfer begins in this installed corpse source sheet.</summary>
     public static bool ContainsSource(uint sourceAddress) =>

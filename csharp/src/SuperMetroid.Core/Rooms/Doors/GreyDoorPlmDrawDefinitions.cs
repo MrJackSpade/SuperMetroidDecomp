@@ -31,7 +31,7 @@ internal static class GreyDoorPlmDrawDefinitions
         /// </summary>
         internal ushort WordAt(int cell)
         {
-            if ((uint)cell >= 4) throw new IndexOutOfRangeException();
+            if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
             bool inner = cell is 1 or 2;
             int tile;
             if (Frame < 0)

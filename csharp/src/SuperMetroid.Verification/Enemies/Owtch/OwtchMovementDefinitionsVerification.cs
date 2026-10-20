@@ -39,7 +39,7 @@ internal static class OwtchMovementDefinitionsVerification
                     OwtchEnemyState state = (enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires enemies.OwtchStates[0]."));
                     ushort distance = OwtchMovementDefinitions.TravelDistance(distanceIndex);
                     AssertEqual(OwtchMovementDefinitions.UndergroundTimer(timerIndex),
-                        (state ?? throw new InvalidOperationException("Verification requires state.")).UndergroundTimer.RawValue,
+                        state.UndergroundTimer.RawValue,
                         $"Owtch production timer {spawnX:X4}/{timerIndex}/{distanceIndex}");
                     AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumPosition.X,
                         $"Owtch minimum X {spawnX:X4}/{timerIndex}/{distanceIndex}");

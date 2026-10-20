@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.ResourceAudit.Reports;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.ResourceAudit.Resources;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 

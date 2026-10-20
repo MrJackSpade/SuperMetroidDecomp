@@ -582,7 +582,7 @@ internal static class MapPresentationVerification
         PaletteRgb5 authoredTail = (document.ToGrey[0].TrailingColor ?? throw new InvalidOperationException("Verification requires document.ToGrey[0].TrailingColor."));
         document.ToGrey[0] = document.ToGrey[0] with
         {
-            TrailingColor = (authoredTail ?? throw new InvalidOperationException("Verification requires authoredTail.")) with
+            TrailingColor = authoredTail with
             {
                 Green = authoredTail.Green == 31 ? 30 : authoredTail.Green + 1,
             },

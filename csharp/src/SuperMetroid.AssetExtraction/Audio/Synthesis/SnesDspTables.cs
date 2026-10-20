@@ -20,7 +20,7 @@ internal static class SnesDspTables
     internal static ushort RatePeriod(int selector)
     {
         if ((uint)selector >= 32)
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(selector));
         if (selector == 0) return 0;
         if (selector == 31) return 1;
         int group = (selector - 1) / 3;
@@ -34,7 +34,7 @@ internal static class SnesDspTables
     /// them separately with decimal Taylor series dominated real-time frame processing.</remarks>
     internal static (ushort Tap0, ushort Tap1, ushort Tap2, ushort Tap3) GaussianCoefficients(int phase)
     {
-        if ((uint)phase >= 256) throw new IndexOutOfRangeException();
+        if ((uint)phase >= 256) throw new ArgumentOutOfRangeException(nameof(phase));
         double tap0 = GaussianRaw(255 - phase);
         double tap1 = GaussianRaw(511 - phase);
         double tap2 = GaussianRaw(256 + phase);

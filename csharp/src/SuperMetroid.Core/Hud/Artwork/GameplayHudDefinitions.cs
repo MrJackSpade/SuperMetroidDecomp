@@ -70,30 +70,30 @@ public static class GameplayHudDefinitions
     /// <summary><c>HandleHUDTilemap_PausedAndRunning.etankIconOffsets</c> at $80:9CCE: two seven-cell rows, bottom first.</summary>
     /// <param name="tank">Zero-based tank cell 0..13, counting across the lower row before the upper row.</param>
     /// <returns>Cell index in the 32-by-3 mutable HUD tilemap (the native table holds twice this, a byte offset).</returns>
-    /// <exception cref="IndexOutOfRangeException"><paramref name="tank"/> is outside the fourteen tank cells.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="tank"/> is outside the fourteen tank cells.</exception>
     public static int EnergyTankCell(int tank) => (uint)tank < EnergyTankCount
         ? 1 + tank % 7 + (tank < 7 ? Width : 0)
-        : throw new IndexOutOfRangeException();
+        : throw new ArgumentOutOfRangeException(nameof(tank));
 
     /// <summary><c>ToggleHUDItemHighlight.HUDItemOffsets</c> at $80:9D6E: three-cell missiles, then two-cell icons, each with a blank gap.</summary>
     /// <param name="item">Zero-based icon index 0..4 in <see cref="IconNames"/> order, rather than the live selection's one-based item code.</param>
     /// <returns>Cell index of the icon's upper-left word in the mutable HUD tilemap (the native table holds twice this).</returns>
-    /// <exception cref="IndexOutOfRangeException"><paramref name="item"/> is outside the five item icons.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="item"/> is outside the five item icons.</exception>
     public static int ItemCell(int item) => (uint)item < ItemCount
         ? 10 + item * 3 + (item > 0 ? 1 : 0)
-        : throw new IndexOutOfRangeException();
+        : throw new ArgumentOutOfRangeException(nameof(item));
 
     /// <summary>Native AUTO stores at $80:9B64..9B87 occupy columns eight/nine across all three mutable HUD rows.</summary>
     /// <param name="cell">Zero-based composition cell 0..5, ordered left-to-right and top-to-bottom.</param>
     /// <returns>Word index in the 32-by-3 mutable HUD tilemap, not a byte offset.</returns>
-    /// <exception cref="IndexOutOfRangeException"><paramref name="cell"/> is outside the six AUTO cells.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="cell"/> is outside the six AUTO cells.</exception>
     public static int AutoReserveCellIndex(int cell) => (uint)cell < AutoReserveCellCount
         ? 8 + cell % 2 + cell / 2 * Width
-        : throw new IndexOutOfRangeException();
+        : throw new ArgumentOutOfRangeException(nameof(cell));
     /// <summary>Both HUD digit rows at $80:9DBF/$9DD3 use palette three, priority, and glyphs 1..9 followed by zero.</summary>
     internal static ushort DigitWord(int digit) => (uint)digit < 10
         ? (ushort)(0x2c00 | (digit + 9) % 10)
-        : throw new IndexOutOfRangeException();
+        : throw new ArgumentOutOfRangeException(nameof(digit));
     /// <summary>$9A:B530: HUD glyph $33 is the left arrow tip used above and below AUTO.</summary>
     private const int AutoArrowTipGlyph = 0x33;
     /// <summary>
@@ -114,7 +114,7 @@ public static class GameplayHudDefinitions
     /// <summary>Builds one reflected AUTO label or arrow cell with palette seven for stored energy and palette three otherwise.</summary>
     internal static ushort AutoReserveWord(int cell, bool containsEnergy)
     {
-        if ((uint)cell >= AutoReserveCellCount) throw new IndexOutOfRangeException();
+        if ((uint)cell >= AutoReserveCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / 2, column = cell % 2;
         int glyph = row == 1 ? AutoArrowShaftGlyph + 1 + column
             : column == 0 ? AutoArrowTipGlyph : AutoArrowShaftGlyph;
@@ -143,7 +143,7 @@ public static class GameplayHudDefinitions
     /// <summary>Builds a static top-row word, leaving the HUD blank until the right-aligned minimap border.</summary>
     internal static ushort TopRowWord(int column)
     {
-        if ((uint)column >= Width) throw new IndexOutOfRangeException();
+        if ((uint)column >= Width) throw new ArgumentOutOfRangeException(nameof(column));
         int firstEdge = Width - MinimapVisibleColumns - 1;
         if (column < firstEdge) return BlankWord;
         int glyph = MinimapTopRightCapGlyph + (column == Width - 1 ? 0 : 1);
@@ -168,7 +168,7 @@ public static class GameplayHudDefinitions
     /// <summary>Builds one initial mutable HUD cell, including the energy label and native minimap starter picture.</summary>
     internal static ushort TemplateWord(int index)
     {
-        if ((uint)index >= CellCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= CellCount) throw new ArgumentOutOfRangeException(nameof(index));
         int row = index / Width, column = index % Width;
         int firstMapColumn = Width - MinimapVisibleColumns - 1;
         if (column >= firstMapColumn)
@@ -217,7 +217,7 @@ public static class GameplayHudDefinitions
     internal static ushort IconWord(int item, int cell)
     {
         int width = IconWidth(item);
-        if ((uint)cell >= width * 2) throw new IndexOutOfRangeException();
+        if ((uint)cell >= width * 2) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / width, column = cell % width;
         int glyph = item == 0 ? MissileShaftStartGlyph + row + (column == 1 ? 0 : 2)
             : TwoColumnItemStartGlyph + (item - 1) * 2 + row;

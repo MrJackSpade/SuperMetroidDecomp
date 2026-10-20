@@ -10,7 +10,7 @@ internal static class KraidHealthThresholdDefinitionsAccess
         /// <summary>$A7:AA23-AA43: truncate health/4, then accumulate four multiples.</summary>
         internal static int Quarter(int initialHealth, int index)
         {
-            if ((uint)index >= 4) throw new IndexOutOfRangeException();
+            if ((uint)index >= 4) throw new ArgumentOutOfRangeException(nameof(index));
             return (initialHealth >> 2) * (index + 1);
         }
     }

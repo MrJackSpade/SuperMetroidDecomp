@@ -406,7 +406,7 @@ internal sealed class GameplayActorDrawing
         }
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded &&
-            _player.Samus?.Xray.AreEnemyProjectilesSuspended != true)
+            !_player.Samus.Xray.AreEnemyProjectilesSuspended)
         {
             room.Enemies.Projectiles.DrawLowPriorityEnemyProjectiles(
                 _sprites, ObjectPage,

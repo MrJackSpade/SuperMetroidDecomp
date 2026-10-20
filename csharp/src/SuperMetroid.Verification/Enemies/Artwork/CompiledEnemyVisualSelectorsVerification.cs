@@ -19,7 +19,7 @@ internal static class CompiledEnemyVisualSelectorsVerification
         AssertEqual(4011, CompiledEnemyVisualSelectorsTooling.Count,
             "generated fixed visual-selector count");
         foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectorsTooling.Count, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CompiledEnemyVisualSelectorsTooling.At(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => CompiledEnemyVisualSelectorsTooling.At(index),
                 "Shared selector enumeration bounds");
         int previousAddress = -1;
         for (int index = 0; index < CompiledEnemyVisualSelectorsTooling.Count; index++)

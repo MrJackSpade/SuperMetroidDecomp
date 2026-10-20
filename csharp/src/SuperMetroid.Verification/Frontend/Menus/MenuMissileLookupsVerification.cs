@@ -20,7 +20,7 @@ internal static class MenuMissileLookupsVerification
             AssertEqual(ReadVerificationWord(rom, 0x82bab2 + frame * 2),
                 MenuMissileAnimationDefinitions.SpritemapId(frame), $"menu missile frame {frame}");
         foreach (int frame in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MenuMissileAnimationDefinitions.SpritemapId(frame),
+            AssertThrows<ArgumentOutOfRangeException>(() => MenuMissileAnimationDefinitions.SpritemapId(frame),
                 $"menu missile invalid frame {frame}");
     }
 

@@ -20,12 +20,12 @@ public static class MenuMissileAnimationDefinitions
     /// Independently reviewed for #1165 against the supported ROM and pinned bank_82.asm.
     /// The four consecutive menu spritemaps play in reverse ID order: 0x37-frame.
     /// Native indexing doubles the frame to select a word; wrap belongs to the caller.
-    /// Reject unsupported indices with the former arrays' IndexOutOfRangeException,
+    /// Reject unsupported indices with ArgumentOutOfRangeException,
     /// rather than masking them. All three menu views and extraction share this function.
     /// </remarks>
     public static ushort SpritemapId(int frame)
     {
-        if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         return (ushort)(0x37 - frame);
     }
 

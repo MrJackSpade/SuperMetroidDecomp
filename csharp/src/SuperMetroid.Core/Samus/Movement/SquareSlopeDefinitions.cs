@@ -16,7 +16,7 @@ public static class SquareSlopeDefinitions
     /// </remarks>
     public static byte ReadSamusQuadrant(int tableIndex)
     {
-        if ((uint)tableIndex >= 20) throw new IndexOutOfRangeException();
+        if ((uint)tableIndex >= 20) throw new ArgumentOutOfRangeException(nameof(tableIndex));
         bool right = (tableIndex & 1) != 0;
         bool bottom = (tableIndex & 2) != 0;
         bool solid = (tableIndex / 4) switch

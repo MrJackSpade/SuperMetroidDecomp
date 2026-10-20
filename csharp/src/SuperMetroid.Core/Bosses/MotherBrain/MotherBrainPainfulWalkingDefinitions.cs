@@ -25,5 +25,5 @@ internal static class MotherBrainPainfulWalkingDefinitions
 
     /// <summary>Maps each forward/backward stagger stage to its shared timing pair, rejecting stages outside the eight-entry sequence.</summary>
     private static int Pair(int stage) => (uint)stage < StageCount
-        ? stage / 2 : throw new IndexOutOfRangeException();
+        ? stage / 2 : throw new ArgumentOutOfRangeException(nameof(stage));
 }

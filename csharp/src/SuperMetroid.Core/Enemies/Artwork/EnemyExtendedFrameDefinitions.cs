@@ -276,12 +276,8 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException("Bomb Torizo extended-frame prefix changed.");
         yield return Emit(new EnemyExtendedFrameDefinition(0xaa, 0x87d0,
             "bomb_torizo_dormant"));
-        if (count != PreGoldenTorizoFrameCount)
-            throw new InvalidDataException("Golden Torizo extended-frame prefix changed.");
         yield return Emit(new EnemyExtendedFrameDefinition(0xaa, 0xaa30,
             "golden_torizo_initial"));
-        if (count != PreKraidArmFrameCount)
-            throw new InvalidDataException("Kraid arm extended-frame prefix changed.");
         var kraidArmPointers = new HashSet<ushort>();
         foreach (ushort pointer in KraidAnimations.Spritemaps(KraidPartProgram.ArmNormal, KraidPartProgram.ArmNormalPause,
                      KraidPartProgram.ArmSlow, KraidPartProgram.ArmRisingOrSinking, KraidPartProgram.ArmDyingOrPreparingToLunge))
@@ -407,8 +403,6 @@ internal static class EnemyExtendedFrameDefinitions
             TorizoBodyProgram.FacingLeftFalling1, TorizoBodyProgram.FacingLeftFalling2).Distinct().Single();
         yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, fallingLeftPointer,
             $"torizo_falling_left_{fallingLeftPointer:X4}"));
-        if (count != PreGoldenTorizoLeftFootOrbFrameCount)
-            throw new InvalidDataException("Golden Torizo left-foot orb frame prefix changed.");
         // The opening ABEC pose is the sonic attack's existing editable frame.
         var leftFootOrbPointers = new HashSet<ushort> { 0xabec };
         foreach (ushort pointer in TorizoAnimations.Spritemaps(

@@ -33,12 +33,12 @@ public static class PhantoonPatternDefinitions
         /// <summary>First flame's zero-based column immediately after the selected body's column, wrapping from eight to zero.</summary>
         /// <param name="pattern">Native rain-pattern index, 0..7.</param>
         /// <returns>A column from 0..8; following eight consecutive columns leaves the body placement's column empty.</returns>
-        /// <exception cref="IndexOutOfRangeException">The pattern is outside the eight-entry lookup.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The pattern is outside the eight-entry lookup.</exception>
         public byte this[int pattern]
         {
             get
             {
-                if ((uint)pattern >= Count) throw new IndexOutOfRangeException();
+                if ((uint)pattern >= Count) throw new ArgumentOutOfRangeException(nameof(pattern));
                 int origin = PhantoonFlameSpawnDefinitions.RainX(0);
                 int spacing = PhantoonFlameSpawnDefinitions.RainX(1) - origin;
                 int bodyColumn = (RainPlacement(pattern).X - origin) / spacing;

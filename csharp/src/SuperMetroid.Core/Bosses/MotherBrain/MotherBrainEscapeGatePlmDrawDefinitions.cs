@@ -20,7 +20,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         /// </summary>
         internal ushort WordAt(int row)
         {
-            if ((uint)row >= 4) throw new IndexOutOfRangeException();
+            if ((uint)row >= 4) throw new ArgumentOutOfRangeException(nameof(row));
             int tile = Pointer == MotherBrainEscapeGateDraw.Open ? 0xff : row is 0 or 3 ? 0x30f :
                 Pointer == MotherBrainEscapeGateDraw.HalfClosed ? 0xff : 0x2e8 | (row == 1 ? 0x800 : 0);
             return (ushort)(0x8000 | tile);

@@ -51,14 +51,14 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     internal Bgr555 ColorAt(int row, int color)
     {
         ValidateRow(row);
-        if ((uint)color >= Colors) throw new IndexOutOfRangeException();
+        if ((uint)color >= Colors) throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(row * Colors + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Restricts lookup to the fifteen native reveal phases.</summary>
     internal static void ValidateRow(int row)
     {
-        if ((uint)row >= Rows) throw new IndexOutOfRangeException();
+        if ((uint)row >= Rows) throw new ArgumentOutOfRangeException(nameof(row));
     }
 
     /// <summary>Applies the shared biased fade to one selected arena material endpoint.</summary>
@@ -72,7 +72,7 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     /// </summary>
     internal static Bgr555 Endpoint(int color)
     {
-        if ((uint)color >= Colors) throw new IndexOutOfRangeException();
+        if ((uint)color >= Colors) throw new ArgumentOutOfRangeException(nameof(color));
         if (color < 3)
         {
             int green = color switch { 0 => TrimHighlightGreen, 1 => TrimMiddleGreen, _ => TrimShadowGreen };

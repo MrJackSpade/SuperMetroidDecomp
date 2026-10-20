@@ -51,7 +51,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
     /// <summary>Resolves a supplied edit or calculates the requested one-based door paint slot.</summary>
     internal Bgr555 ColorAt(int index)
     {
-        if ((uint)index >= 15) throw new IndexOutOfRangeException();
+        if ((uint)index >= 15) throw new ArgumentOutOfRangeException(nameof(index));
         int slot = index + 1;
         return edits.TryGetValue(slot, out Bgr555 color) ? color : Calculate(slot);
     }

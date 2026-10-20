@@ -74,7 +74,7 @@ public sealed class XrayOverlayVisualCatalog
     /// <summary>Selects the installed item reveal metatile by native graphics-slot index, independently of whether an item has been collected.</summary>
     /// <param name="graphicsSlot">Zero-based slot 0..7: four dynamic item graphics followed by the four fixed collectible graphics.</param>
     /// <returns>The selected twelve-bit visual metatile reference.</returns>
-    /// <exception cref="IndexOutOfRangeException">The slot is outside the installed eight-entry array.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The slot is outside the installed eight-entry array.</exception>
     public ushort ItemMetatile(int graphicsSlot) => itemMetatiles[graphicsSlot];
 
     /// <summary>Identity of selected item metatiles and room overlay coordinates/tiles, in native record order.</summary>

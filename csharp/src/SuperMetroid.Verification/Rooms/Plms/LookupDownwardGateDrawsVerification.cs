@@ -77,7 +77,7 @@ internal static class LookupDownwardGateDrawsVerification
                     AssertEqual(length, dto.Runs.Span[run].LevelWords.Length, "Gate DTO width");
                     AssertEqual(length, exported[index].Runs.Span[run].LevelWords.Length, "Gate export width");
                     foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
-                        AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(run, invalid), "Gate cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(run, invalid), "Gate cell bounds");
                 }
                 for (int word = 0; word < length; word++, cursor += 2)
                 {
@@ -114,9 +114,9 @@ internal static class LookupDownwardGateDrawsVerification
                 AssertEqual(end, cursor, "Gate original record end");
                 foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
                 {
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(invalid, 0), "Gate run bounds");
-                    AssertThrows<IndexOutOfRangeException>(() => shape.NextX(invalid), "Gate offset bounds");
-                    AssertThrows<IndexOutOfRangeException>(() => shape.DirectionAndCount(invalid), "Gate direction bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Gate run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Gate offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.DirectionAndCount(invalid), "Gate direction bounds");
                 }
             }
         }

@@ -26,7 +26,7 @@ internal static class ElevatorPlatformPlmDefinitions
         /// <summary>Rejects a strip index outside this platform draw.</summary>
         private void CheckRun(int run)
         {
-            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
         /// <summary>Gets one edge cell or four lower-row cells for a selected strip.</summary>
         internal int WordCount(int run)
@@ -49,7 +49,7 @@ internal static class ElevatorPlatformPlmDefinitions
         /// <summary>Calculates a solid platform tile word, mirroring right-side artwork where needed.</summary>
         internal ushort WordAt(int run, int cell)
         {
-            if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
+            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             bool right = run == 1 || run == 2 && cell >= 2;
             int tile = run < 2 ? 0x85 + Frame : 0x88 + Frame * 2 + Math.Min(cell, 3 - cell);
             return (ushort)(0x8000 | (right ? 0x400 : 0) | tile);

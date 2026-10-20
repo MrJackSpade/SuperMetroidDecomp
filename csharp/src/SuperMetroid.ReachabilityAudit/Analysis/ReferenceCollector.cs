@@ -193,14 +193,13 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
     /// </summary>
     private void AddWrappedRecordValueReads(ExpressionSyntax expression, SymbolInfo info, List<ISymbol?> targets)
     {
-        INamedTypeSymbol? constructed = info.Symbol switch
-        {
-            INamedTypeSymbol { IsGenericType: true } type when expression is GenericNameSyntax => type,
-            IMethodSymbol { ContainingType: { IsGenericType: true } owner } => owner,
-            IPropertySymbol { ContainingType: { IsGenericType: true } owner } => owner,
-            _ => null,
-        };
-        if (constructed is null)
+        if (info.Symbol switch
+            {
+                INamedTypeSymbol { IsGenericType: true } type when expression is GenericNameSyntax => type,
+                IMethodSymbol { ContainingType: { IsGenericType: true } owner } => owner,
+                IPropertySymbol { ContainingType: { IsGenericType: true } owner } => owner,
+                _ => null,
+            } is not { } constructed)
             return;
         foreach (int ordinal in HashedTypeParameters(constructed.OriginalDefinition, 0))
             AddRecordMembers(constructed.TypeArguments[ordinal], targets);

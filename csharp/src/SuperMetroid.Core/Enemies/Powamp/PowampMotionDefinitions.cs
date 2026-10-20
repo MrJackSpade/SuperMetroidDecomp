@@ -20,7 +20,7 @@ public static class PowampMotionDefinitions
     public static short BalloonOffset(int pose, bool sinking)
     {
         if ((uint)pose >= 3)
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(pose));
         return (short)(sinking ? -20 + 4 * pose : -12 - 4 * pose);
     }
 

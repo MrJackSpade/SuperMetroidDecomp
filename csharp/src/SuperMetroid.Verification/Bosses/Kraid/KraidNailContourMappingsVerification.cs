@@ -14,8 +14,8 @@ internal static class KraidNailContourMappingsVerification
         AssertEqual(6, KraidNailContourDefinitions.RecordCount, "Bounded nail contour record count");
         for (int record = 0; record < 6; record++)
             AssertEqual(Word(0xa7bf1d + 4 * record), KraidNailContourDefinitions.LeftAt(record), "Original nail left word");
-        AssertThrows<IndexOutOfRangeException>(() => KraidNailContourDefinitions.LeftAt(-1), "Negative nail left record");
-        AssertThrows<IndexOutOfRangeException>(() => KraidNailContourDefinitions.LeftAt(6), "Past nail left record");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContourDefinitions.LeftAt(-1), "Negative nail left record");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContourDefinitions.LeftAt(6), "Past nail left record");
         // Independent original-word walk confirms signed wrapping and bounded overreads.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -44,8 +44,8 @@ internal static class KraidNailContourMappingsVerification
             ushort expected = SnesLittleEndian.Word(KraidNailTopBoundariesRomByte(rom, address), KraidNailTopBoundariesRomByte(rom, address + 1));
             AssertEqual(expected, KraidNailContourDefinitions.TopAt(record), "Original nail top boundary");
         }
-        AssertThrows<IndexOutOfRangeException>(() => KraidNailContourDefinitions.TopAt(-1), "Negative nail top record");
-        AssertThrows<IndexOutOfRangeException>(() => KraidNailContourDefinitions.TopAt(6), "Past nail top record");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContourDefinitions.TopAt(-1), "Negative nail top record");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidNailContourDefinitions.TopAt(6), "Past nail top record");
     }
 
     /// <summary>Reads a source byte for the independent Kraid nail top-boundary oracle.</summary>

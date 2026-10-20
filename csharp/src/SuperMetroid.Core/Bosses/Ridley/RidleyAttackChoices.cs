@@ -14,11 +14,11 @@ public static class RidleyAttackChoices
     /// <param name="situation">The mutually exclusive distribution already selected from Ridley's health and Samus's movement and position.</param>
     /// <param name="choice">An equally likely index from 0 through 7, normally the low three bits of the caller's RNG result.</param>
     /// <returns>The translated AI entry; this lookup does not draw RNG or execute the selected action.</returns>
-    /// <exception cref="IndexOutOfRangeException">The choice is outside 0..7, including for a distribution whose entries are identical.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The choice is outside 0..7, including for a distribution whose entries are identical.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The situation is not a defined distribution.</exception>
     public static RidleyAiFunction Resolve(RidleyAttackSituation situation, int choice)
     {
-        if ((uint)choice >= 8) throw new IndexOutOfRangeException();
+        if ((uint)choice >= 8) throw new ArgumentOutOfRangeException(nameof(choice));
         return situation switch
         {
             RidleyAttackSituation.BelowHalfHealth => choice < 4 ? NorfairFireballMoveToSide : NorfairSwoopSetup,

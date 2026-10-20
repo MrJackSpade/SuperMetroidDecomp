@@ -71,7 +71,7 @@ internal sealed class InstructionProgramLayout
     /// <summary>Address of the <paramref name="index"/>th presentation slot.</summary>
     internal ushort PresentationSlotAddress(int index)
     {
-        if ((uint)index >= PresentationSlotCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= PresentationSlotCount) throw new ArgumentOutOfRangeException(nameof(index));
         return this.index.Value.Words[this.index.Value.Presentation[index]].Address;
     }
 

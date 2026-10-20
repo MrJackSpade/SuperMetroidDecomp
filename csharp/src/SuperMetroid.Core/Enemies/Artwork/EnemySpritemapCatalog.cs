@@ -148,7 +148,7 @@ public sealed class EnemySpritemapCatalog
         var merged = new Dictionary<int, EnemySpritemapParts>((stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).frames);
         foreach ((int identity, EnemySpritemapParts parts) in frames)
             merged[identity] = parts;
-        var mergedBindings = new Dictionary<int, int>((stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).displayFrames);
+        var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
         foreach ((int identity, int selected) in displayFrames)
             mergedBindings[identity] = selected;
         return new EnemySpritemapCatalog(merged, mergedBindings);

@@ -21,7 +21,7 @@ internal static class CeresDoorRumbleGeometryDefinitions
     internal static (short X, short Y) Offset(int index)
     {
         if ((uint)index >= Count)
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(index));
         int pair = index / 2;
         int side = index % 2;
         return ((short)(ColumnSpacing * (2 * side + pair - 2)), VerticalPlacements[index]);

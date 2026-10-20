@@ -19,7 +19,7 @@ internal static class LookupSkySectionsVerification
             AssertEqual(ReadVerificationWord(rom, 0x88aec1 + index * 8),
                 RoomFxRomData.ScrollingSky.GetSection(index).TopPosition, "Sky native band boundary");
         foreach (int invalid in new[] { int.MinValue, -1, 23, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => RoomFxRomData.ScrollingSky.GetSection(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxRomData.ScrollingSky.GetSection(invalid),
                 "Sky preserves former indexed row bounds");
 
         var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);

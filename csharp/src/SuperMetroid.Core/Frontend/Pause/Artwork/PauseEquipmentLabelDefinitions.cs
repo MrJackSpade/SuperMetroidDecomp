@@ -146,7 +146,7 @@ public static class PauseEquipmentLabelDefinitions
     /// <remarks>The referenced glyph pixels remain independently authored interface artwork.</remarks>
     internal static ushort StockWord(string key, int index)
     {
-        if ((uint)index >= StockWordCount(key)) throw new IndexOutOfRangeException();
+        if ((uint)index >= StockWordCount(key)) throw new ArgumentOutOfRangeException(nameof(index));
         if (index == 0) return LabelPalette << 10 | Marker;
         int text = index - 1;
         int glyph = key switch

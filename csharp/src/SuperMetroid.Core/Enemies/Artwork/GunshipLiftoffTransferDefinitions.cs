@@ -14,7 +14,7 @@ internal static class GunshipLiftoffTransferDefinitions
     internal static GunshipLiftoffTransferDefinition Frame(int index)
     {
         if ((uint)index >= 5)
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(index));
         return new(FirstSourceAddress + index * ByteCount, (ushort)(FirstDestinationWord + index * ByteCount / 2),
             VramAssetId.GunshipLiftoffFirstTiles + index);
     }

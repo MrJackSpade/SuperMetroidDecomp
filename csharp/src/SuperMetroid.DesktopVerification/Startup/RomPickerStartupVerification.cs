@@ -36,7 +36,7 @@ internal static partial class RomPickerStartupVerification
                     {
                         // Close only the native common dialog on this test-owned thread.
                         var className = new System.Text.StringBuilder(64);
-                        GetClassName(window, className, className.Capacity);
+                        _ = GetClassName(window, className, className.Capacity);
                         if (className.ToString() == "#32770")
                         {
                             opened = true;

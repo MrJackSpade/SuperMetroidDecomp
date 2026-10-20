@@ -20,7 +20,7 @@ internal static class EndingTextLayoutDefinitions
     /// </summary>
     internal static ushort SubtitleWord(int cell)
     {
-        if ((uint)cell >= SubtitleCellCount) throw new IndexOutOfRangeException();
+        if ((uint)cell >= SubtitleCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / EndingTextDefinitions.TilemapWidth;
         int column = cell % EndingTextDefinitions.TilemapWidth;
         int glyph = column - (EndingTextDefinitions.TilemapWidth - SubtitleGlyphCount) / 2;
@@ -57,7 +57,7 @@ internal static class EndingTextLayoutDefinitions
     /// </summary>
     internal static ushort ResultWord(int cell, string producedBy)
     {
-        if ((uint)cell >= ResultCellCount) throw new IndexOutOfRangeException();
+        if ((uint)cell >= ResultCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / EndingTextDefinitions.TilemapWidth;
         int column = cell % EndingTextDefinitions.TilemapWidth;
         int groupRow = EndingTextDefinitions.Native.SmallGlyphHeight + CreditLineGap;

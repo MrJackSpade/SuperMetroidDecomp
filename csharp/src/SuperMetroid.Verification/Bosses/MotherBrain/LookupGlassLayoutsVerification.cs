@@ -57,9 +57,9 @@ internal static class LookupGlassLayoutsVerification
                 AssertEqual(pointer, byId.Pointer, "Glass layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordCount(invalid), "Glass layout run bounds");
-                    AssertThrows<IndexOutOfRangeException>(() => shape.NextY(invalid), "Glass layout offset bounds");
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(invalid, 0), "Glass layout word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Glass layout run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Glass layout offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Glass layout word run bounds");
                 }
             }
             int cursor = 0x840000 | pointer;
@@ -83,7 +83,7 @@ internal static class LookupGlassLayoutsVerification
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Glass layout cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Glass layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {

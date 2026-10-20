@@ -40,7 +40,7 @@ internal sealed class NorfairRidleyInitialPaintDefinitions
     /// <summary>Uses an edited clear slot when supplied; otherwise resolves the matching armor or organ material.</summary>
     internal Bgr555 ColorAt(int index)
     {
-        if ((uint)index >= 32) throw new IndexOutOfRangeException();
+        if ((uint)index >= 32) throw new ArgumentOutOfRangeException(nameof(index));
         if (edits.TryGetValue(index, out Bgr555 edited)) return edited;
         if (index is 0 or 16) return ClearSlot;
         return index < 16 ? armor.ColorAt(index - 1) : organ.Resolve(0, index - 17);

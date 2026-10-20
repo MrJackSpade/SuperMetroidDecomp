@@ -25,7 +25,7 @@ internal static class CrocomireBg2FrameDefinitions
     internal static EnemyBg2FrameDefinition Frame(int index)
     {
         if ((uint)index >= CrocomireBodyVisualDefinitions.MixedBg2FrameCount)
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = CrocomireBodyVisualDefinitions.FramePointer(index);
         return new(pointer, $"crocomire_body_bg2_{pointer:X4}");
     }

@@ -15,10 +15,10 @@ public static class PauseReserveTankDefinitions
     /// <summary>$82:C1D6..C1E2: six eight-pixel columns starting at24, at Y96 minus the draw bias.</summary>
     /// <param name="index">Zero-based tank/cap anchor, 0..5, not a reserve-energy quantity.</param>
     /// <returns>The stock screen-pixel origin before editable anchor deviations are applied.</returns>
-    /// <exception cref="IndexOutOfRangeException">The anchor is outside the six-entry strip.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The anchor is outside the six-entry strip.</exception>
     public static Position16<OamPixels> StockAnchor(int index)
     {
-        if ((uint)index >= AnchorCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= AnchorCount) throw new ArgumentOutOfRangeException(nameof(index));
         return new(checked((ushort)(24 + index * 8)), 95);
     }
     /// <summary>$82:C1D6, EquipmentScreen_ReserveTank_Xpositions: import-only pointer to the six native horizontal origins; runtime uses the compiled stock anchors and editable deviations.</summary>

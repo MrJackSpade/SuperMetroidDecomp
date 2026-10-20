@@ -73,7 +73,7 @@ public static class PowerBombShapeDefinitions
     /// this quantization in the renderer. Invalid indices preserve span bounds behavior.</remarks>
     public static byte Width(int index)
     {
-        if ((uint)index >= 32) throw new IndexOutOfRangeException();
+        if ((uint)index >= 32) throw new ArgumentOutOfRangeException(nameof(index));
         return EnemyTrigonometryTables.EightBitHalfWave(2 * index);
     }
 
@@ -84,7 +84,7 @@ public static class PowerBombShapeDefinitions
     /// The renderer then scales by radius and fills inclusive band boundaries.</remarks>
     public static byte TopOffset(int index)
     {
-        if ((uint)index >= 32) throw new IndexOutOfRangeException();
+        if ((uint)index >= 32) throw new ArgumentOutOfRangeException(nameof(index));
         return (byte)(EnemyTrigonometryTables.EightBitHalfWave(63 - 2 * index) * 3 / 4);
     }
 }

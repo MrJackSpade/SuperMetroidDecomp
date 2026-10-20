@@ -499,58 +499,73 @@ internal sealed class StationPlms : IPlmFamilySource
         StationKind kind)
     {
         ushort original = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
-        if (kind == StationKind.Save)
+        switch (kind)
         {
-            WriteStationBlock(
-                level,
-                slot.BlockIndex,
-                original,
-                RoomCollisionType.SpecialBlock,
-                new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
-            StationAnimationList saveList = ClosedNativeWords.Decode<StationAnimationList>(
-                RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction, "save-station animation list");
-            slot.Family = new StationPlmState(
-                kind,
-                area,
-                saveList,
-                completedAnimationList: saveList,
-                animationFrameCount: 1);
-            return;
+            case StationKind.Save:
+                SetupSaveStation(level, area, slot, original);
+                return;
+            case StationKind.Map:
+                SetupAccessStation(level, system, area, slot, original, StationAccessLayouts.Map);
+                return;
+            case StationKind.Energy:
+                SetupAccessStation(level, system, area, slot, original, StationAccessLayouts.Energy);
+                return;
+            case StationKind.Missile:
+                SetupAccessStation(level, system, area, slot, original, StationAccessLayouts.Missile);
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(StationKind)} {kind}.");
         }
+    }
 
+    /// <summary>A save station: its trigger floor and its one save animation.</summary>
+    private static void SetupSaveStation(RoomLevelData level, AreaId area, PlmSlot slot, ushort original)
+    {
+        WriteStationBlock(
+            level,
+            slot.BlockIndex,
+            original,
+            RoomCollisionType.SpecialBlock,
+            new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
+        StationAnimationList saveList = ClosedNativeWords.Decode<StationAnimationList>(
+            RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction, "save-station animation list");
+        slot.Family = new StationPlmState(
+            StationKind.Save,
+            area,
+            saveList,
+            completedAnimationList: saveList,
+            animationFrameCount: 1);
+    }
+
+    /// <summary>
+    /// A map, energy or missile station: its solid block, the access blocks either side, and its animations. Only the map
+    /// station has a separate acquired animation, shown from the start once its area map is held.
+    /// </summary>
+    private static void SetupAccessStation(
+        RoomLevelData level,
+        Bank80SystemState system,
+        AreaId area,
+        PlmSlot slot,
+        ushort original,
+        StationAccessLayout layout)
+    {
         WriteStationBlock(level, slot.BlockIndex, original, RoomCollisionType.SolidBlock, behavior: null);
-        (int rightOffset, int leftOffset, StationAccessBehavior rightBts,
-            StationAccessBehavior leftBts) = kind switch
-        {
-            StationKind.Map => (1, -2, StationAccessBehavior.MapRight,
-                StationAccessBehavior.MapLeft),
-            StationKind.Energy => (1, -1, StationAccessBehavior.EnergyRight,
-                StationAccessBehavior.EnergyLeft),
-            StationKind.Missile => (1, -1, StationAccessBehavior.MissileRight,
-                StationAccessBehavior.MissileLeft),
-            StationKind.Save => throw new InvalidOperationException("Save stations use their trigger setup."),
-            _ => throw new InvalidOperationException("Save stations use their trigger setup."),
-        };
-        WriteAccessBlock(level, slot.BlockIndex + rightOffset, rightBts);
-        WriteAccessBlock(level, slot.BlockIndex + leftOffset, leftBts);
+        WriteAccessBlock(level, slot.BlockIndex + layout.RightOffset, layout.RightBehavior);
+        WriteAccessBlock(level, slot.BlockIndex + layout.LeftOffset, layout.LeftBehavior);
 
         StationAnimationList normalAnimationList = ClosedNativeWords.Decode<StationAnimationList>(
             unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction + StationNormalAnimationOffset)),
             "station animation list");
-        StationAnimationList completedAnimationList = kind switch
-        {
-            StationKind.Map => ClosedNativeWords.Decode<StationAnimationList>(
+        StationAnimationList completedAnimationList = layout.HasAcquiredAnimation
+            ? ClosedNativeWords.Decode<StationAnimationList>(
                 unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction + MapStationAcquiredAnimationOffset)),
-                "map-station acquired animation list"),
-            StationKind.Energy or StationKind.Missile => normalAnimationList,
-            StationKind.Save => throw new InvalidOperationException(),
-            _ => throw new InvalidOperationException(),
-        };
-        StationAnimationList initialAnimationList = kind == StationKind.Map && system.HasAreaMap(area)
+                "map-station acquired animation list")
+            : normalAnimationList;
+        StationAnimationList initialAnimationList = layout.HasAcquiredAnimation && system.HasAreaMap(area)
             ? completedAnimationList
             : normalAnimationList;
         slot.Family = new StationPlmState(
-            kind,
+            layout.Kind,
             area,
             initialAnimationList,
             completedAnimationList,

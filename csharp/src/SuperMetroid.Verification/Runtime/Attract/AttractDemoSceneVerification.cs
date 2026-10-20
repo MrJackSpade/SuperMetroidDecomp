@@ -126,7 +126,7 @@ internal static class AttractDemoSceneVerification
                 AttractDemoScene scene = (StockAttractDemoScenes.Get(set, sceneIndex) ?? throw new InvalidOperationException("Verification requires StockAttractDemoScenes.Get(set, sceneIndex)."));
                 // The production input owner has no address-space capability. Room and
                 // presentation initialization are separate from this dispatch contract.
-                var input = new AttractDemoInput((scene ?? throw new InvalidOperationException("Verification requires scene.")));
+                var input = new AttractDemoInput((scene));
                 for (int frame = 0; frame < scene.Duration; frame++)
                     input.StepStock(SuperMetroidGameState.PlayingDemo,
                         frame < 200 ? SamusMovementType.DraygonHeld : SamusMovementType.Standing);

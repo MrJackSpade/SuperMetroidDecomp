@@ -40,7 +40,7 @@ internal static class ChargeFlarePlacementVerification
         var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
         var document = RequiredJson.Parse(json);
         foreach (var entry in document.Required("offsets").AsObject())
-            (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value."))["x"] = (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value.")).Required("x").GetValue<int>() + 7;
+            (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value."))["x"] = entry.Value.Required("x").GetValue<int>() + 7;
         var edited = Load(document);
         Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(stock, edited));
         var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);

@@ -13,6 +13,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Verification.Enemies;
 
 /// <summary>Confirms running-cadence stage five reads the Mode 7 queue residue the Ceres getaway leaves (#1338).</summary>
 internal static class SpeedBoosterStageFiveResidueVerification

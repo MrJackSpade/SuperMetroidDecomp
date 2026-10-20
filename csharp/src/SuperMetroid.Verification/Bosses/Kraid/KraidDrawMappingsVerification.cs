@@ -61,7 +61,7 @@ internal static class KraidDrawMappingsVerification
                 "Kraid draw pointer or default on miss");
         }
         foreach (int index in new[] { int.MinValue, -1, 10, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => KraidRoomPlmDrawDefinitions.PointerAt(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => KraidRoomPlmDrawDefinitions.PointerAt(index),
                 "Kraid draw ordinal bounds");
     }
 
@@ -122,7 +122,7 @@ internal static class KraidDrawMappingsVerification
                     "Kraid materialized export word");
             }
             foreach (int block in new[] { int.MinValue, -1, expected.Count, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(block), "Kraid computed word bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.WordAt(block), "Kraid computed word bounds");
         }
     }
 

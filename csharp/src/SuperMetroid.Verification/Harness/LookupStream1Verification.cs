@@ -890,7 +890,7 @@ internal static class LookupStream1Verification
             .Select(index => new SamusBodyFrameSelection((byte)(index % 13), 0, (byte)(index % 11), 0)).ToArray();
         SamusBodyArtworkCatalog Create(ushort[] selected) => new(new SamusBodyArtworkParts { TopPointers = top, BottomPointers = bottom, PosePointers = selected, GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = frames, Top = topGroups, Bottom = bottomGroups, Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTiles = template.DeathTiles, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() });
         SamusBodyArtworkCatalog stock = Create(native);
-        int Count(SamusBodyArtworkCatalog value) => (value.posePointers).Count;
+        int Count(SamusBodyArtworkCatalog value) => value.posePointers.Count;
         AssertEqual(0, Count(stock), "No stock pose-pointer override survives");
         AssertEqual(CanonicalBodyHash(template, top, bottom, native, frames, topGroups, bottomGroups), stock.ContentIdentity, "Exact old canonical stock pose hash");
         AssertTrue(stock.Frames.SequenceEqual(frames), "Independent frame payload remains intact");
@@ -1018,7 +1018,7 @@ internal static class LookupStream1Verification
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
         SamusBodyArtworkCatalog Create(sbyte[] selected) => new(new SamusBodyArtworkParts { TopPointers = template.TopSetPointers.ToArray(), BottomPointers = template.BottomSetPointers.ToArray(), PosePointers = template.PosePointers.ToArray(), GraphicsYOffsets = selected, Frames = template.Frames.ToArray(), Top = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTiles = template.DeathTiles, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() });
         SamusBodyArtworkCatalog stock = Create(native);
-        int Count(SamusBodyArtworkCatalog value) => (value.graphicsYOffsets).Count;
+        int Count(SamusBodyArtworkCatalog value) => value.graphicsYOffsets.Count;
         AssertEqual(0, Count(stock), "No stock graphics-origin override survives");
         for (int pose = 0; pose < 253; pose++)
         {
@@ -1060,10 +1060,10 @@ internal static class LookupStream1Verification
         SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
         SamusBodyArtworkCatalog stock = SamusBodyArtworkFiles.Load(directory, null);
         sbyte[] native = Enumerable.Range(0, 32).Select(index => unchecked((sbyte)LookupStream1DrainedGeometryRomByte(rom, 0x908def + index))).ToArray();
-        int Stored(SamusBodyArtworkCatalog art) => (art.drainedYOffsets).Count;
+        int Stored(SamusBodyArtworkCatalog art) => art.drainedYOffsets.Count;
         SamusBodyArtworkCatalog Create(sbyte[] offsets, SamusSpritemapArtworkCatalog? maps = null,
             SamusBodyTileDefinition[][]? upper = null, SamusBodyTileDefinition[][]? lower = null, sbyte[]? graphics = null) => new(new SamusBodyArtworkParts { TopPointers = stock.TopSetPointers.ToArray(), BottomPointers = stock.BottomSetPointers.ToArray(), PosePointers = stock.PosePointers.ToArray(), GraphicsYOffsets = graphics ?? stock.GraphicsYOffsets.ToArray(), Frames = stock.Frames.ToArray(), Top = upper ?? Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => stock.TopSet(index).ToArray()).ToArray(), Bottom = lower ?? Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => stock.BottomSet(index).ToArray()).ToArray(), Spritemaps = maps ?? stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = offsets });
-        AssertEqual(0, Stored(stock), "Native drained placement uses no stored offset fallback: " + string.Join(", ", (stock.drainedYOffsets).Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
+        AssertEqual(0, Stored(stock), "Native drained placement uses no stored offset fallback: " + string.Join(", ", stock.drainedYOffsets.Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
         for (int index = 0; index < 32; index++)
         {
             AssertTrue(SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, index, out sbyte direct), "Every native drained phase has a derived default");
@@ -1126,10 +1126,10 @@ internal static class LookupStream1Verification
         SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
         SamusBodyArtworkCatalog stock = SamusBodyArtworkFiles.Load(directory, null);
         sbyte[] native = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1PostureGeometryRomByte(rom, 0x908d80 + index))).ToArray();
-        int Stored(SamusBodyArtworkCatalog art) => (art.postureYOffsets).Count;
+        int Stored(SamusBodyArtworkCatalog art) => art.postureYOffsets.Count;
         SamusBodyArtworkCatalog Create(sbyte[] offsets, SamusSpritemapArtworkCatalog? maps = null,
             SamusBodyTileDefinition[][]? upper = null, SamusBodyTileDefinition[][]? lower = null) => new(new SamusBodyArtworkParts { TopPointers = stock.TopSetPointers.ToArray(), BottomPointers = stock.BottomSetPointers.ToArray(), PosePointers = stock.PosePointers.ToArray(), GraphicsYOffsets = stock.GraphicsYOffsets.ToArray(), Frames = stock.Frames.ToArray(), Top = upper ?? Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => stock.TopSet(index).ToArray()).ToArray(), Bottom = lower ?? Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => stock.BottomSet(index).ToArray()).ToArray(), Spritemaps = maps ?? stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = offsets, DrainedYOffsets = stock.DrainedYOffsets.ToArray() });
-        AssertEqual(0, Stored(stock), "Native posture uses no stored offset fallback: " + string.Join(", ", (stock.postureYOffsets).Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
+        AssertEqual(0, Stored(stock), "Native posture uses no stored offset fallback: " + string.Join(", ", stock.postureYOffsets.Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
         for (int index = 0; index < 24; index++)
         {
             AssertTrue(SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, index, out sbyte direct), "Every native posture has a derived default");
@@ -1328,8 +1328,8 @@ internal static class LookupStream1Verification
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SamusSpritemapPoseDefinitions.TopBase(pose), "Top default excludes adjacent data");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusSpritemapPoseDefinitions.BottomBase(pose), "Bottom default excludes adjacent data");
-            AssertThrows<IndexOutOfRangeException>(() => stock.TopBase(pose), "Original installed top domain exception");
-            AssertThrows<IndexOutOfRangeException>(() => stock.BottomBase(pose), "Original installed bottom domain exception");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.TopBase(pose), "Original installed top domain exception");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.BottomBase(pose), "Original installed bottom domain exception");
         }
         ushort[] invalid = (ushort[])top.Clone(); invalid[0] = 2096;
         AssertThrows<InvalidDataException>(() => Create(invalid, bottom), "Edited base retains original range validation");
@@ -1793,7 +1793,7 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.WiggleOffset(invalid), "Powamp wiggle domain");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             for (int sinking = 0; sinking < 2; sinking++)
-                AssertThrows<IndexOutOfRangeException>(() => PowampMotionDefinitions.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
+                AssertThrows<ArgumentOutOfRangeException>(() => PowampMotionDefinitions.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
         foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
         {
             AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.SpikeXAcceleration(invalid), "Powamp X direction domain");
@@ -1905,7 +1905,7 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0x90d8ed + index * 2), launch.YSpeed.Fraction, "spread native fraction Y");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SamusBombSpreadLaunchDefinitions.ForSlot(invalid), "spread native slot rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunchDefinitions.ForSlot(invalid), "spread native slot rejection");
         for (int index = 0; index < 22; index++)
         {
             var frame = HibashiDefinitions.ActivityFrame(index);
@@ -1998,9 +1998,9 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0x9bb7c9 + index * 2), segments[index].Destination.Encoded, "native death transfer destination");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = initialFrames[invalid], "death movement exact domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = initialFrames[invalid], "death movement exact domain");
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = segments[invalid], "death transfer exact domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = segments[invalid], "death transfer exact domain");
         int frameIndex = 0, segmentIndex = 0;
         foreach (byte frame in initialFrames)
             AssertEqual(initialFrames[frameIndex++], frame, "death frame enumeration preserves ordering");
@@ -2041,9 +2041,9 @@ internal static class LookupStream1Verification
         for (int index = 0; index < nativePointers.Count; index++)
             AssertEqual((ushort)(index < 3 ? 1 : index == 3 ? 4 : 3), Word(0x930000 | nativePointers[index]), "native flare object record sizes");
         foreach (int invalid in new[] { int.MinValue, -1, 54, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = selectors[invalid], "charge flare selector bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = selectors[invalid], "charge flare selector bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = ChargeFlareSpriteDefinitions.NativePointers[invalid], "flare pointer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = ChargeFlareSpriteDefinitions.NativePointers[invalid], "flare pointer bounds");
         for (int digit = 0; digit < 10; digit++)
         {
             ushort pointer = EscapeTimerPresentationDefinitions.DigitSpritemapPointer(digit);
@@ -2129,7 +2129,7 @@ internal static class LookupStream1Verification
         }
         foreach (byte invalid in new byte[] { 28, byte.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => SamusHudDefinitions.MovementHandler((SamusMovementType)invalid), "HUD movement exact domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHudDefinitions.MovementHandler((SamusMovementType)invalid), "HUD movement exact domain");
             AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)invalid), "splash exact movement domain");
         }
         foreach (ushort invalid in new ushort[] { 10, ushort.MaxValue })
@@ -2166,7 +2166,7 @@ internal static class LookupStream1Verification
             AssertEqual(nativeIndex >= 0, sources.Contains((ushort)word), "Calculated cannon membership rejects interior addresses");
         }
         foreach (int invalid in new[] { int.MinValue, -1, expected.Length, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = sources[invalid], "Calculated cannon source index bounds preserve array contract");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = sources[invalid], "Calculated cannon source index bounds preserve array contract");
         using var directory = new TestScratchDirectory("map-catalog");
         SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
@@ -2201,11 +2201,11 @@ internal static class LookupStream1Verification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => stock.SpriteAttributes(invalid), "Cannon OBJ selector bounds remain exact");
-            AssertThrows<IndexOutOfRangeException>(() => stock.TileSource(invalid, 0), "Cannon tile direction bounds remain exact");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.SpriteAttributes(invalid), "Cannon OBJ selector bounds remain exact");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.TileSource(invalid, 0), "Cannon tile direction bounds remain exact");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => stock.TileSource(0, invalid), "Cannon cover frame bounds remain exact");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.TileSource(0, invalid), "Cannon cover frame bounds remain exact");
         Verify(stock, false);
         var image = IndexedPng.Read(new MemoryStream(png), new(checked((ushort)(sources.Length * 8)), 8));
         byte[] pixels = (byte[])image.Pixels.Clone();

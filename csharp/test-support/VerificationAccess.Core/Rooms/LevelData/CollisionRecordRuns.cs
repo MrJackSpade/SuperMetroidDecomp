@@ -62,7 +62,7 @@ internal sealed class CollisionRecordRuns<TElement>
     /// <summary>Walks preceding records to calculate one bounded pointer without storing an address table.</summary>
     private ushort Locate(int index, out TElement[] record)
     {
-        if ((uint)index >= Count) throw new IndexOutOfRangeException();
+        if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
         foreach (CollisionRecordRun<TElement> run in runs)
         {
             if (index >= run.Records.Length)
@@ -76,7 +76,7 @@ internal sealed class CollisionRecordRuns<TElement>
             record = run.Records[index];
             return cursor;
         }
-        throw new IndexOutOfRangeException();
+        throw new ArgumentOutOfRangeException(nameof(index));
     }
 
     /// <summary>Advances past a two-byte count followed by the requested number of elements.</summary>

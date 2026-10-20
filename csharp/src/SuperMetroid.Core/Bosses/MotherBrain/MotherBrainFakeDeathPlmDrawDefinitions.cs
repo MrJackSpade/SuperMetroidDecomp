@@ -74,7 +74,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         /// <summary>Uses one cell for a side-tube's second run and the full authored length elsewhere.</summary>
         internal int Count(int run)
         {
-            if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
             return Side != 0 && run == 1 ? 1 : RunLength;
         }
         /// <summary>Tube clears run vertically except for a side-tube's extra centerward cell.</summary>
@@ -89,7 +89,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         internal ushort WordAt(int run, int block)
         {
             int count = Count(run);
-            if ((uint)block >= count) throw new IndexOutOfRangeException();
+            if ((uint)block >= count) throw new ArgumentOutOfRangeException(nameof(block));
             if (Fill) return Pointer == MotherBrainFakeDeathDraw.BackgroundRowEUnused ? (ushort)0x8319 : (ushort)0x8044;
             if (Side != 0 && run == 1) return 0x00ff;
             return Ceiling ? (block == 0 ? (ushort)0x12fc : (ushort)0x00ff) :
@@ -202,7 +202,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         /// <summary>Combines a selected mural tile with solid collision only on its upper and lower border rows.</summary>
         internal ushort WordAt(int column)
         {
-            if ((uint)column >= 13) throw new IndexOutOfRangeException();
+            if ((uint)column >= 13) throw new ArgumentOutOfRangeException(nameof(column));
             return (ushort)(BackgroundVisuals[Row][column].Raw | (Row is 0 or 11 ? 0x1000 : 0));
         }
     }
@@ -256,7 +256,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         1 => column == 0 ? DoorInteriorLeft : DoorInteriorRight,
         2 => DoorLowerInterior,
         3 => (ushort)(DoorLowerEdgeLeft + column),
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(row)),
     };
 
     /// <summary>
@@ -270,7 +270,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         /// <summary>Chooses four cells per escape-door column or the wall's two-cell and one-cell runs.</summary>
         internal int Count(int run)
         {
-            if ((uint)run >= 2) throw new IndexOutOfRangeException();
+            if ((uint)run >= 2) throw new ArgumentOutOfRangeException(nameof(run));
             return Pointer == MotherBrainFakeDeathDraw.EscapeDoor ? 4 : 2 - run;
         }
         /// <summary>Steps from the escape door's left column to its right air column.</summary>
@@ -288,7 +288,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         /// <summary>Builds solid wall caps or the escape door's parent, extensions and air-backed artwork.</summary>
         internal ushort WordAt(int run, int block)
         {
-            if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
+            if ((uint)block >= Count(run)) throw new ArgumentOutOfRangeException(nameof(block));
             if (Pointer == MotherBrainFakeDeathDraw.FillWall)
                 return (ushort)(0x8000 | (run == 0 && block == 0 ? 0x340 : 0x30f | (run == 1 ? 0x800 : 0)));
             RoomCollisionType collision = run == 1 ? RoomCollisionType.Air :

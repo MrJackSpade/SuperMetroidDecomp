@@ -22,7 +22,7 @@ internal static class NorfairEnvironmentalPaletteFxColorDefinitionsConstants
     internal static ushort Duration(int frame)
     {
         if ((uint)frame >= NorfairEnvironmentalPaletteFxColorDefinitions.FrameCount)
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(frame));
         int distance = Math.Min(frame, NorfairEnvironmentalPaletteFxColorDefinitions.FrameCount - 1 - frame);
         return (ushort)(distance == 0 ? 16 : Math.Clamp(distance + 2, 4, 8));
     }

@@ -203,7 +203,7 @@ public sealed class MotherBrainRoomColorPresentation
         }
         /// <summary>Uses edited paint when present and rejects colors outside the room palette.</summary>
         public Bgr555 this[int color] => (uint)color < Length
-            ? supplied is null ? Calculate(color) : supplied[color] : throw new IndexOutOfRangeException();
+            ? supplied is null ? Calculate(color) : supplied[color] : throw new ArgumentOutOfRangeException(nameof(color));
         /// <summary>Builds room wall and shadow ramps plus the selected panel and lens accents.</summary>
         private static Bgr555 Calculate(int color)
         {

@@ -55,7 +55,7 @@ internal static class SbugMovementDefinitionsVerification
 
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            AssertEqual(selector, (state ?? throw new InvalidOperationException("Verification requires state.")).ForwardFacing,
+            AssertEqual(selector, state.ForwardFacing,
                 $"Sbug production facing {selector}");
             AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovementDefinitions.FacingProgram(selector)), state.Program,
                 $"Sbug production facing animation {selector}");
@@ -75,7 +75,7 @@ internal static class SbugMovementDefinitionsVerification
         for (byte behavior = 0; behavior <= (byte)SbugActivationBehavior.MoveAwayFromSamus; behavior++)
         {
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Function = SbugEnemyFunction.WaitForSamus;
+            state.Function = SbugEnemyFunction.WaitForSamus;
             slot.SetSpawnParameter2((ushort)(behavior << 8 | 1));
             runMain(slot, samus, null);
 

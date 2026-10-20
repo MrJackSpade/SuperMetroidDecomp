@@ -22,8 +22,8 @@ internal static class SpcAllocationAddressesVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.AllocationStateAddress(invalid, SpcAllocationField.VoiceBitset), "invalid library");
-            AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.AllocationStateAddress(0, (SpcAllocationField)invalid), "invalid field");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.AllocationStateAddress(invalid, SpcAllocationField.VoiceBitset), "invalid library");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.AllocationStateAddress(0, (SpcAllocationField)invalid), "invalid field");
         }
     }
 

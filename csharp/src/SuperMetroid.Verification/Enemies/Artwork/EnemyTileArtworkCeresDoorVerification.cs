@@ -113,7 +113,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
         CeresDoorVisualCatalog edited = (EnemyTileArtworkFiles.Load(directory,
             overrides).CeresDoorVisual ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrides).CeresDoorVisual."));
         var editedVram = new SnesVram();
-        (edited ?? throw new InvalidOperationException("Verification requires edited.")).LoadTiles(editedVram);
+        edited.LoadTiles(editedVram);
         AssertEqual((byte)(nativeTiles[0] ^ 0x80),
             editedVram.Bytes[CeresDoorVisualRomData.TileVramDestination],
             "Ceres-door PNG override changes the live first tile pixel");

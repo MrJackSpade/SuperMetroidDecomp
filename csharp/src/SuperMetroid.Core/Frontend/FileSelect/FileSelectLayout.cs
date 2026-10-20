@@ -18,11 +18,11 @@ internal static class FileSelectLayout
     /// Independently reviewed for #1165: save rows start at48 with five-tile spacing;
     /// Copy/Clear/Exit start at163 with three-tile spacing. These two role groups
     /// follow the native text layout. Bounds are checked before arithmetic and preserve
-    /// the former array's IndexOutOfRangeException. X is the separate constant14.
+    /// ArgumentOutOfRangeException. X is the separate constant14.
     /// </remarks>
     public static ushort MainSelectionY(int selection)
     {
-        if ((uint)selection >= MainSelectionCount) throw new IndexOutOfRangeException();
+        if ((uint)selection >= MainSelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
         return (ushort)(selection < SaveSlotCount ? 48 + 40 * selection
             : 163 + 24 * (selection - SaveSlotCount));
     }
@@ -35,7 +35,7 @@ internal static class FileSelectLayout
     /// </remarks>
     public static ushort DataSelectionY(int selection)
     {
-        if ((uint)selection >= DataSelectionCount) throw new IndexOutOfRangeException();
+        if ((uint)selection >= DataSelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
         return selection < SaveSlotCount ? (ushort)(72 + 32 * selection)
             : MainSelectionY(MainSelectionCount - 1);
     }
@@ -47,7 +47,7 @@ internal static class FileSelectLayout
     /// </remarks>
     public static ushort HelmetY(int slot)
     {
-        if ((uint)slot >= SaveSlotCount) throw new IndexOutOfRangeException();
+        if ((uint)slot >= SaveSlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
         return (ushort)(MainSelectionY(slot) - 1);
     }
 
@@ -68,7 +68,7 @@ internal static class FileSelectLayout
     /// <summary>Converts a slot field's row and column on the selected page to a BG1 byte offset.</summary>
     private static int SlotDestination(int slot, FileSelectSlotField field, bool dataPage)
     {
-        if ((uint)slot >= SaveSlotCount) throw new IndexOutOfRangeException();
+        if ((uint)slot >= SaveSlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
         int column = field switch
         {
             FileSelectSlotField.Label => dataPage ? 4 : 3,

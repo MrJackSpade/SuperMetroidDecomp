@@ -111,7 +111,7 @@ internal static class EyeDoorPlmDrawDefinitions
         /// <summary>Calculates one level word with native collision, tile, facing, and bottom-flip bits.</summary>
         internal ushort WordAt(int cell)
         {
-            if ((uint)cell >= (uint)WordCount) throw new IndexOutOfRangeException();
+            if ((uint)cell >= (uint)WordCount) throw new ArgumentOutOfRangeException(nameof(cell));
             int tile, collision;
             bool bottom;
             if (Part == Component.Clear)

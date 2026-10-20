@@ -27,7 +27,7 @@ internal static class ColoredDoorPlmDrawDefinitions
         /// </summary>
         internal ushort WordAt(int cell)
         {
-            if ((uint)cell >= 4) throw new IndexOutOfRangeException();
+            if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
             bool inner = cell is 1 or 2;
             int tile = Color * 4 + (Vertical ? Frame + (inner ? 32 : 0) :
                 0x10 + Frame / 2 * 2 + Frame % 2 * 32 + (inner ? 0 : 1));

@@ -160,7 +160,7 @@ public static class IntroCinematicRomData
                     0 => scene == Scene.Gameplay ? GameplayBackground : GameplayClearBackground,
                     1 => GameplayEnvironment,
                     2 => GameplaySamus,
-                    _ => throw new IndexOutOfRangeException(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(index)),
                 },
                 Scene.Narration => index switch
                 {
@@ -168,13 +168,13 @@ public static class IntroCinematicRomData
                     1 => NarrationBackground,
                     2 => NarrationPortrait,
                     3 => NarrationObjects,
-                    _ => throw new IndexOutOfRangeException(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(index)),
                 },
                 Scene.Discovery => index switch
                 {
                     0 => DiscoveryBackground,
                     1 => DiscoveryObjects,
-                    _ => throw new IndexOutOfRangeException(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(index)),
                 },
                 _ => throw new InvalidOperationException(),
             };

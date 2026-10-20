@@ -49,7 +49,7 @@ public static class CreditsPresentationDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 string id = RoleId(index);
                 bool heading = id.EndsWith("-heading", StringComparison.Ordinal);
                 int blankRows = index == 0 ? InitialBlankRows : index == 17 ? 0

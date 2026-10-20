@@ -51,8 +51,8 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         foreach (var frame in MotherBrainBodyVisualDefinitions.Frames)
             AssertEqual(OriginalMotherBrainFrames[ordinal++], frame, "Mother Brain OAM iteration");
         AssertEqual(17, ordinal, "Mother Brain OAM iteration count");
-        AssertThrows<IndexOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Frame(-1), "negative Mother Brain OAM index");
-        AssertThrows<IndexOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Frame(17), "Mother Brain OAM past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Frame(-1), "negative Mother Brain OAM index");
+        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Frame(17), "Mother Brain OAM past end");
     }
 
     /// <summary>Checks 16 BG2 frames, excluding the dummy, and parity of generated extraction JSON.</summary>
@@ -68,8 +68,8 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         var pointers = expected.Select(frame => frame.Pointer).ToHashSet();
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(pointers.Contains((ushort)pointer), MotherBrainBodyVisualDefinitions.HasBg2((ushort)pointer), "Mother Brain exact BG2 domain including dummy exclusion");
-        AssertThrows<IndexOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Bg2Frame(-1), "negative Mother Brain BG2 index");
-        AssertThrows<IndexOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Bg2Frame(16), "Mother Brain BG2 past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Bg2Frame(-1), "negative Mother Brain BG2 index");
+        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Bg2Frame(16), "Mother Brain BG2 past end");
         byte[] nativeJson = EnemyBg2FrameFiles.Extract(rom, 0xa9, new EnemyBg2FrameDefinitionSequence(expected.Length, index => expected[index]), 1, 10, "Mother Brain body", allowMixedOam: true);
         byte[] generatedJson = MotherBrainBodyBg2FrameFiles.Extract(rom);
         AssertTrue(nativeJson.SequenceEqual(generatedJson), "Mother Brain exact extraction JSON");

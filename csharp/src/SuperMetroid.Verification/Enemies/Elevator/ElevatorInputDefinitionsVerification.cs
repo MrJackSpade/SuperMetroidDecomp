@@ -45,17 +45,18 @@ internal static class ElevatorInputDefinitionsVerification
             var samus = new SamusState();
             samus.Presentation.TileTransfers.BindArtwork(bodyArtwork);
             initialize(slot, samus);
-            AssertEqual(tableByteOffset, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")).DirectionTableByteOffset,
+            ElevatorEnemyState elevator = enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].");
+            AssertEqual(tableByteOffset, elevator.DirectionTableByteOffset,
                 $"elevator doubled direction offset {direction}");
 
             SnesButton opposite = (SnesButton)(SnesLittleEndian.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));
             ElevatorActorStatus before = enemies.ElevatorBehavior.ElevatorStatus;
             enemies.ElevatorBehavior.PublishElevatorDoorContact();
-            wait(slot, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")), samus, opposite, null);
+            wait(slot, elevator, samus, opposite, null);
             AssertEqual(before, enemies.ElevatorBehavior.ElevatorStatus, "opposite elevator direction cannot start departure");
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "opposite elevator input queues no departure sounds");
             enemies.ElevatorBehavior.PublishElevatorDoorContact();
-            wait(slot, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")), samus, native, null);
+            wait(slot, elevator, samus, native, null);
             AssertEqual(ElevatorActorStatus.Departing, enemies.ElevatorBehavior.ElevatorStatus,
                 $"elevator departure input {direction}");
             AssertEqual(ElevatorFrameEvent.DepartureStarted, enemies.LastEnemyFrame.Elevator,

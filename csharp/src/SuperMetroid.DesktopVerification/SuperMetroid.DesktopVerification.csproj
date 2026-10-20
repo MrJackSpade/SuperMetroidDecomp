@@ -11,6 +11,7 @@
   <Import Project="../../test-support/WindowsConsole.projitems" />
   <Import Project="../../test-support/WindowsConsole.Verification.projitems" />
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../test-support/AudioFixtures.projitems" />
   <Import Project="../../test-support/RepositoryInstallation.Verification.projitems" />
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
   <Import Project="../../test-support/VerificationAccess.Tooling.projitems" />

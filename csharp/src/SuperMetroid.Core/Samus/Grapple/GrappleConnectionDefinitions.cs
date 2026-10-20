@@ -36,7 +36,7 @@ internal static class GrappleConnectionDefinitions
     /// <summary>The native record at <paramref name="index"/>: an authored stop or the reflection that follows it.</summary>
     internal static SpecialConnection SpecialAngle(int index)
     {
-        if ((uint)index >= SpecialAngleCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= SpecialAngleCount) throw new ArgumentOutOfRangeException(nameof(index));
         SpecialConnection stop = AuthoredStops[index >> 1];
         return (index & 1) == 0 ? stop : new(SnesAngle.FromRaw(unchecked((ushort)(0x0100 - stop.Angle.RawValue))), MirrorPose(stop.Pose),
             stop.SamusOffset.MirroredX(), stop.Function);
@@ -338,7 +338,7 @@ internal static class GrappleConnectionDefinitions
             SamusMovementType.DamageBoost or
             SamusMovementType.DraygonHeld or
             SamusMovementType.Special => true,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(movement)),
     };
 
     /// <summary>$9B:C9BA/$C9C4 directional standing/crouching poses after the rope drops.</summary>
@@ -352,7 +352,7 @@ internal static class GrappleConnectionDefinitions
         6 => compact ? CrouchingAimDiagonalDownLeftPose : StandingAimDiagonalDownLeftPose,
         8 => compact ? CrouchingAimDiagonalUpLeftPose : StandingAimDiagonalUpLeftPose,
         9 => compact ? CrouchingAimUpLeftPose : StandingAimUpLeftPose,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 
     /// <summary>$9B:C3C6/$C3EE/$C416 default, vertical and crouching directional connection policies.</summary>

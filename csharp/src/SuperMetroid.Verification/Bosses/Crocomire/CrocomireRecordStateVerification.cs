@@ -27,12 +27,14 @@ internal static class CrocomireRecordStateVerification
         AssertEqual(10, state.VerticalSpeed, "the reaction timer and the vertical speed are one record word");
 
         state.DeathSequenceIndex = CrocomireDeathPhase.FirstHopSink;
-        state.FightFlags = (CrocomireFightFlags)1;
+        state.FightFlags = CrocomireFightFlags.Engaged;
+        state.HitCount = 1;
         state.FightFunction = Enum.GetValues<CrocomireFightFunction>()[^1];
         state.ProjectileCounter = 18;
         body.Clear();
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex, "a body kill empties the death phase");
         AssertEqual((CrocomireFightFlags)0, state.FightFlags, "a body kill empties the fight flags");
+        AssertEqual(0, state.HitCount, "a body kill empties the hit count");
         AssertEqual((CrocomireFightFunction)0, state.FightFunction, "a body kill empties the fight function");
         AssertEqual(0, state.StepCounter, "a body kill empties the steps word");
         AssertEqual(0, state.VerticalSpeed, "a body kill empties the speed word");

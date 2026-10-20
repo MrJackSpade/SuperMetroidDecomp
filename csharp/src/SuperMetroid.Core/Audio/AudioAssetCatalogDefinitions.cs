@@ -22,7 +22,7 @@ public static class AudioAssetCatalogDefinitions
         public int Count => 24;
         /// <summary>Converts a zero-based music ordinal to its three-byte pointer-table offset.</summary>
         public AudioUploadAssetDefinition this[int index] => (uint)index < Count
-            ? ResolveDataIndex((byte)(3 * (index + 1))) : throw new IndexOutOfRangeException();
+            ? ResolveDataIndex((byte)(3 * (index + 1))) : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Yields music uploads in cartridge pointer-table order.</summary>
         public IEnumerator<AudioUploadAssetDefinition> GetEnumerator()
         {

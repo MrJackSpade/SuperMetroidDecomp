@@ -48,6 +48,6 @@ internal static class CrocomireSpikeMotionDefinitions
     private static void ValidateSlot(int slot)
     {
         if ((uint)slot >= 18)
-            throw new IndexOutOfRangeException("Crocomire spike physical slot must be zero through seventeen.");
+            throw new ArgumentOutOfRangeException(nameof(slot), slot, "Crocomire spike physical slot must be zero through seventeen.");
     }
 }

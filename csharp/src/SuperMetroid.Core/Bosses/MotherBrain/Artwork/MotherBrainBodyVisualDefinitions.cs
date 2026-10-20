@@ -40,7 +40,7 @@ internal static class MotherBrainBodyVisualDefinitions
     /// preserve the shorter crouched/dummy frames and skipped unselected roots.</summary>
     internal static EnemyExtendedFrameDefinition Frame(int index)
     {
-        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = (ushort)(index == 0 ? Standing
             : index < 4 ? WalkingStart + 0x52 * (index - 1)
             : index < 10 ? LaterWalkingStart + 0x4a * (index - 4)
@@ -63,7 +63,7 @@ internal static class MotherBrainBodyVisualDefinitions
     /// omitting the OAM-only dummy at OAM index twelve.</summary>
     internal static EnemyBg2FrameDefinition Bg2Frame(int index)
     {
-        if ((uint)index >= Bg2FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= Bg2FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         var frame = Frame(index < 12 ? index : index + 1);
         return new(frame.Pointer, frame.Name.Replace("_oam_", "_bg2_", StringComparison.Ordinal));
     }

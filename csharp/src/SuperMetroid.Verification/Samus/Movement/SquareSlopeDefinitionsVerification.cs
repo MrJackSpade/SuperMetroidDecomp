@@ -29,7 +29,7 @@ internal static class SquareSlopeDefinitionsVerification
             AssertEqual(native[i], SquareSlopeDefinitions.ReadSamusQuadrant(i), "Native Samus square quadrant byte");
         }
         foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SquareSlopeDefinitions.ReadSamusQuadrant(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopeDefinitions.ReadSamusQuadrant(invalid),
                 $"Samus square quadrant rejects {invalid}");
 
         var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>(ProjectileMotion.MissileSlopePointReaction);
@@ -71,7 +71,7 @@ internal static class SquareSlopeDefinitionsVerification
                 $"enemy-projectile square quadrant copy {index}");
         }
         foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SquareSlopeDefinitions.ReadEnemyQuadrant(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopeDefinitions.ReadEnemyQuadrant(invalid),
                 $"enemy square quadrant rejects {invalid}");
         Console.WriteLine("Enemy square-slope algorithm: both twenty-byte native copies and bounds pass.");
     }

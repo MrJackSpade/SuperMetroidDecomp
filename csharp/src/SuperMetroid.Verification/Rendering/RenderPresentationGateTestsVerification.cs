@@ -45,7 +45,7 @@ internal static class RenderPresentationGateTestsVerification
         {
             release.Set(); presentation.GetAwaiter().GetResult(); reset?.GetAwaiter().GetResult();
         }
-        AssertTrue(!gate.TryPresent(current, () => throw new Exception("stale presentation")),
+        AssertTrue(!gate.TryPresent(current, () => throw new InvalidOperationException("stale presentation")),
             "completed reset forbids prior generation");
         AssertTrue(gate.TryPresent(new(3, 3, 0), () => { }), "new generation presents after reset");
         Console.WriteLine("  Presentation gate: stale rejection, atomic reset ordering, exception release and independent publication agree.");

@@ -35,7 +35,7 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         /// <summary>Rejects a run outside this frame's native draw-record count.</summary>
         private void CheckRun(int run)
         {
-            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
         /// <summary>Returns the number of level words in one pane or shatter draw run.</summary>
         internal int WordCount(int run)
@@ -71,7 +71,7 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         /// <summary>Calculates the selected block's visual tile, flip bits, and native collision nibble.</summary>
         internal ushort WordAt(int run, int cell)
         {
-            if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
+            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             if (Pointer == MotherBrainGlassDraw.Initial) return 0xc6c0;
             if (Pointer == MotherBrainGlassDraw.Cleared) return 0x00ff;
             if (Pane)

@@ -24,7 +24,7 @@ public static class ProjectileTrailVisualDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 if (index < 34)
                 {
                     int frame = index % 17;

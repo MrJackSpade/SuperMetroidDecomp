@@ -180,11 +180,11 @@ public sealed class IntroNarrationPresentation
         {
             get
             {
-                if (index < 0) throw new IndexOutOfRangeException();
+                Ensure.AtLeastZero(index);
                 if (supplied is not null) return supplied[index];
                 foreach (IntroNarrationLine line in CalculateLines(CalculatedText))
                     if (index-- == 0) return line;
-                throw new IndexOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 

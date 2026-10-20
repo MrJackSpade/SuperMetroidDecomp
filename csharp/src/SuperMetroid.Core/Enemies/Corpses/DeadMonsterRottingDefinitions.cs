@@ -123,7 +123,7 @@ internal static class DeadMonsterRottingDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 return new(index == 0 && firstSize != 0 ? firstSize : stride, 0x7e00,
                     (ushort)(source + stride * index - (index == 0 ? 0 : firstDestinationOffset * 2)),
                     (ushort)(destination + 0x100 * index + (index == 0 ? firstDestinationOffset : 0)));

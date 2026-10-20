@@ -48,7 +48,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
             ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
             AssertEqual((ushort)(0x0010 | (ushort)definition.PropertyMask),
                 slot.Properties.ToNativeWord(), $"Shaktool production properties {index}");
-            AssertEqual(0, (state ?? throw new InvalidOperationException("Verification requires state.")).OwnerSlotIndex,
+            AssertEqual(0, state.OwnerSlotIndex,
                 $"Shaktool production owner {index}");
             AssertEqual(definition.PreInstruction, state.PreInstruction,
                 $"Shaktool production callback {index}");

@@ -28,7 +28,7 @@ internal static class CeresEscapeTileArtworkDefinitions
         {
             0 => WarningText,
             1 => Doors,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         /// <summary>Visits the two pages in their transfer order.</summary>
         public IEnumerator<CeresEscapeTileSheetDefinition> GetEnumerator()

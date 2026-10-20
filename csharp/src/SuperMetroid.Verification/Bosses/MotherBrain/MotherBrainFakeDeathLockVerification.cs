@@ -29,7 +29,7 @@ internal static class MotherBrainFakeDeathLockVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
+        state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
         state.FunctionTimer = NativeCountdown.Start(0);
 
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);

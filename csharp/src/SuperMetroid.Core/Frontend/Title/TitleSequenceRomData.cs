@@ -128,10 +128,10 @@ public static class TitleSequenceRomData
             /// <summary>Returns the source-page number for a zero-based animation phase in the cycle 0,1,2,1.</summary>
             /// <param name="frame">Animation phase 0-3, rather than an unrestricted elapsed-frame count.</param>
             /// <returns>Source-page index 0-2; multiplying it by the character-page byte count gives the source offset.</returns>
-            /// <exception cref="IndexOutOfRangeException">The phase is outside 0-3.</exception>
+            /// <exception cref="ArgumentOutOfRangeException">The phase is outside 0-3.</exception>
             public byte this[int frame] => (uint)frame < Length
                 ? (byte)Math.Min(frame, Length - frame)
-                : throw new IndexOutOfRangeException();
+                : throw new ArgumentOutOfRangeException(nameof(frame));
             /// <summary>Enumerates the four source-page indexes in animation order without retaining a page array.</summary>
             /// <returns>An enumerator yielding 0,1,2,1.</returns>
             public IEnumerator<byte> GetEnumerator()

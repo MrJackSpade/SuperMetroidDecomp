@@ -29,12 +29,12 @@ public static class ChargeFlareSpriteDefinitions
         /// <summary>Returns the bank-$93 composition selected by one native flare-table position without consulting cartridge memory.</summary>
         /// <param name="index">Zero-based selector ordinal 0..53, not a byte offset: 0..29 main flare, then six phases each of right slow, right fast, left slow, and left fast sparks.</param>
         /// <returns>Bank-relative spritemap pointer, with main-flare phase repetitions preserved.</returns>
-        /// <exception cref="IndexOutOfRangeException">The selector ordinal is outside 0..53.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The selector ordinal is outside 0..53.</exception>
         public ushort this[int index]
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 if (index >= 30) return NativePointers[index - 26];
                 int phase = index < 8 ? index % 2 : index < 16 ? 2 - index % 2 : 2 + index % 2;
                 return NativePointers[phase];
@@ -57,12 +57,12 @@ public static class ChargeFlareSpriteDefinitions
         /// <summary>Returns one required composition identity in main-flare, right-spark, then left-spark group order.</summary>
         /// <param name="index">Zero-based identity index 0..27: four main flares, then right slow/fast and left slow/fast groups of six.</param>
         /// <returns>Bank-relative spritemap pointer in bank $93, calculated from its native two-byte header and five-byte OAM-part layout.</returns>
-        /// <exception cref="IndexOutOfRangeException">The identity index is outside 0..27.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The identity index is outside 0..27.</exception>
         public ushort this[int index]
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 if (index < 4) return (ushort)(ProjectileFlareSpritemaps_Flare_Charge_Hyper_Grapple_0 + index * 7);
                 int spark = index - 4;
                 ushort first = spark < 12 ? ProjectileFlareSpritemaps_FlareSlowSparks_FacingRight_0 :

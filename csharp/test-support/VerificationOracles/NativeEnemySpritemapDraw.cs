@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Enemies.Drawing;
 
-namespace SuperMetroid.Core.Enemies.Drawing;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// One enemy spritemap draw as the cartridge names it, by bank and spritemap word: what the reference decoder reads,

@@ -25,7 +25,7 @@ internal static class ChozoStatuePlmDrawDefinitions
         /// <summary>Rejects run indexes outside the selected hand or slope geometry.</summary>
         private void CheckRun(int run)
         {
-            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
         /// <summary>Uses a fourteen-cell ledge, nine-cell fill, two-cell transition, and two single-cell stair runs.</summary>
         internal int WordCount(int run)
@@ -49,7 +49,7 @@ internal static class ChozoStatuePlmDrawDefinitions
         internal ushort WordAt(int run, int cell)
         {
             int count = WordCount(run);
-            if ((uint)cell >= (uint)count) throw new IndexOutOfRangeException();
+            if ((uint)cell >= (uint)count) throw new ArgumentOutOfRangeException(nameof(cell));
             if (Hand) return 0x00ff;
             // Horizontal ledge, lower fill/transition, then the narrow stair wall.
             int tile = run switch

@@ -67,7 +67,7 @@ internal static class RoomPlmStationDrawDefinitions
         /// <summary>Rejects a run outside this layout's native command count.</summary>
         private void CheckRun(int run)
         {
-            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
         /// <summary>Save rows write two adjacent cells; other station runs write one.</summary>
         internal int WordCount(int run) { CheckRun(run); return Kind == LayoutKind.Save ? 2 : 1; }
@@ -89,7 +89,7 @@ internal static class RoomPlmStationDrawDefinitions
         /// <summary>Builds one native level word from the station's frame, tile, flip, and collision rules.</summary>
         internal ushort WordAt(int run, int cell)
         {
-            if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
+            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             int tile, collision, flip = 0;
             switch (Kind)
             {

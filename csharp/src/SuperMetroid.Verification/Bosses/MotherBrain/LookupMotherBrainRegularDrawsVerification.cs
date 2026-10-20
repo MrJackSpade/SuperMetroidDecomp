@@ -67,7 +67,7 @@ internal static class LookupMotherBrainRegularDrawsVerification
                 AssertEqual(nextY, exported[index].Runs.Span[run].Next.Y, "Mother Brain regular export Y");
                 AssertEqual((sbyte)0, nextY, "Mother Brain regular runtime column origin Y");
                 foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(run, invalid), "Mother Brain regular cell bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(run, invalid), "Mother Brain regular cell bounds");
                 run++;
                 if (nextX == 0 && nextY == 0) break;
             }
@@ -78,8 +78,8 @@ internal static class LookupMotherBrainRegularDrawsVerification
                 cursor, "Mother Brain regular original draw end");
             foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
             {
-                AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(invalid, 0), "Mother Brain regular run bounds");
-                AssertThrows<IndexOutOfRangeException>(() => shape.NextX(invalid), "Mother Brain regular offset bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Mother Brain regular run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Mother Brain regular offset bounds");
             }
         }
         AssertEqual(63, cells, "Mother Brain regular sixty-three original physical cells");

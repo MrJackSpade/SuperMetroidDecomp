@@ -2,15 +2,13 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// Crocomire's fight latches in body variable B. The cartridge sets, clears and tests each bit on
-/// its own, so the bits compose. The low nibble is a separate saturating hit count stored in the
-/// same word (see <see cref="CrocomireFightFlagBits"/>). The unused attack branches give some bits
-/// meanings that the retail fight never reaches.
+/// its own, so the bits compose. The word's low nibble is a separate saturating hit count, kept apart
+/// as <see cref="CrocomireEnemyState.HitCount"/> and combined only by <see cref="CrocomireFightFlagBits"/>.
+/// The unused attack branches give some bits meanings that the retail fight never reaches.
 /// </summary>
 [Flags]
 public enum CrocomireFightFlags : ushort
 {
-    /// <summary>The low-nibble hit count field. It is a counter, not a flag.</summary>
-    HitCountField = 0x000f,
     /// <summary>Bit $0100: makes the unused attack chooser at <c>$A4:891B</c> take the move-until-claw-contact branch.</summary>
     UnusedPreferClawAttack = 0x0100,
     /// <summary>Bit $0200: set when the unused attack sequence at <c>$A4:88D2</c> restarts the art.</summary>

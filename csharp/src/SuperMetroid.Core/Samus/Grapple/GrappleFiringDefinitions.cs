@@ -15,11 +15,11 @@ internal static class GrappleFiringDefinitions
     /// Fixed cardinal/diagonal cases avoid runtime trigonometry. Quantization precedes
     /// scaling: 255 and 181 times twelve, not a rounded radius-3072 circle.
     /// Angle is (0x8000+0x2000*q) modulo 65536, q=d for d&lt;=4 else d-1.
-    /// Preserve the former span's IndexOutOfRangeException for unsupported directions.
+    /// throw ArgumentOutOfRangeException for unsupported directions.
     /// </remarks>
     internal static (short XVelocity, short YVelocity, ushort Angle) Launch(byte direction)
     {
-        if (direction >= 10) throw new IndexOutOfRangeException();
+        if (direction >= 10) throw new ArgumentOutOfRangeException(nameof(direction));
         short x = direction switch
         {
             1 or 3 => DiagonalVelocity,

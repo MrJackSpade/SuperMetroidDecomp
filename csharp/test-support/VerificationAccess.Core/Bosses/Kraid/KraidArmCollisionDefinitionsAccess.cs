@@ -16,7 +16,7 @@ internal static class KraidArmCollisionDefinitionsAccess
         /// each; the final two frames have one component. No pointer roster is stored.</remarks>
         internal static ushort FramePointer(int index)
         {
-            if ((uint)index >= KraidArmCollisionDefinitions.FrameCount) throw new IndexOutOfRangeException();
+            if ((uint)index >= KraidArmCollisionDefinitions.FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
             return (ushort)(index < 20 ? KraidArmCollisionDefinitions.FirstGeneralFrame + KraidArmCollisionDefinitions.GeneralFrameBytes * index
                 : KraidArmCollisionDefinitions.FirstSingleComponentFrame + SingleComponentFrameBytes * (index - 20));
         }

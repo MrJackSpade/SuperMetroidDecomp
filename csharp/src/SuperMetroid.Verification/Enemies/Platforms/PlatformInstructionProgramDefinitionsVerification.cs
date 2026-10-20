@@ -80,7 +80,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 $"real {(testCase.IsKamer ? "Kamer" : "Tripper")} initializer " +
                 $"selects {testCase.Direction} still program");
 
-            (testCase.IsMoving ? installMoving : installStill)(slot, (state ?? throw new InvalidOperationException("Verification requires state.")));
+            (testCase.IsMoving ? installMoving : installStill)(slot, (state));
             AssertEqual(AnimationProgramCursor<PlatformProgram>.Start(testCase.Program), state.Program,
                 $"production platform installer selects {testCase.Program}");
 

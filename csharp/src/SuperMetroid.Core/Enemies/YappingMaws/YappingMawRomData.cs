@@ -16,7 +16,7 @@ public static class YappingMawRomData
     /// </summary>
     internal static Offset16<RoomPixels> HeldSamusOffset(int direction)
     {
-        if ((uint)direction >= 8) throw new IndexOutOfRangeException();
+        if ((uint)direction >= 8) throw new ArgumentOutOfRangeException(nameof(direction));
         static short Component(int phase) => (short)(8 * (2 - Math.Abs(phase - 4)));
         return new(Component((direction + 2) & 7), Component(direction));
     }

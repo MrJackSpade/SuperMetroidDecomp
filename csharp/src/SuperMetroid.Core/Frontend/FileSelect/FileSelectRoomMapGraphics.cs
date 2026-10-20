@@ -75,13 +75,12 @@ public sealed class FileSelectRoomMapGraphics
             "Room-map graphics require installed map presentation assets.")).Tiles);
         var system = icons.MapSystem;
         var area = icons.MapArea;
-        screen.BindWorldArtwork(catalog?.WorldArtwork);
-        LoadFrame(catalog?.Screens, area);
+        screen.BindWorldArtwork(catalog.WorldArtwork);
+        LoadFrame(catalog.Screens, area);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         MenuTilemaps.Load(screen.Tilemaps.AreaMap,
-            AreaMapTilemapBuilder.Build((catalog ?? throw new InvalidOperationException(
-                "Room-map graphics require installed map presentation assets.")).Get(area), system, hidden));
+            AreaMapTilemapBuilder.Build(catalog.Get(area), system, hidden));
     }
 
     /// <summary>Composes landmarks, the saved-station marker, and arrows in native order without advancing animations.</summary>

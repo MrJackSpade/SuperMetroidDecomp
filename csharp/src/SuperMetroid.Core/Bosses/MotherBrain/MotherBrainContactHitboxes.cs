@@ -18,7 +18,7 @@ internal readonly record struct MotherBrainContactHitboxes(MotherBrainContactPar
         (MotherBrainContactPart.Brain, 0) => new(-24, -22, 22, 0),
         (MotherBrainContactPart.Brain, 1) => new(-22, 1, 16, 20),
         (MotherBrainContactPart.Neck, 0) => new(-8, -8, 8, 8),
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(region)),
     };
 
     /// <summary>Yields the physical regions in the same order as native collision tests.</summary>

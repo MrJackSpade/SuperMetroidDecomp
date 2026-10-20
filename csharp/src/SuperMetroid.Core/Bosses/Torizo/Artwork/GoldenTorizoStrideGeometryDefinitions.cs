@@ -120,7 +120,7 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 int foot = 0;
                 while (foot < footIndices.Length && footIndices[foot] < index) foot++;
                 if (foot < footIndices.Length && footIndices[foot] == index) return footAppearance[foot].At(phase);

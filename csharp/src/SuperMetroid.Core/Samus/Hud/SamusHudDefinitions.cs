@@ -10,7 +10,7 @@ internal static class SamusHudDefinitions
     /// <summary>$90:DD05: movement-state HUD admission dispatch, preserving all 28 native handler identities.</summary>
     internal static SamusHudHandler MovementHandler(SamusMovementType movement)
     {
-        if ((byte)movement > (byte)SamusMovementType.Special) throw new IndexOutOfRangeException();
+        if ((byte)movement > (byte)SamusMovementType.Special) throw new ArgumentOutOfRangeException(nameof(movement));
         return movement switch
         {
             SamusMovementType.SpinJumping or SamusMovementType.Knockback or SamusMovementType.Unused0D or

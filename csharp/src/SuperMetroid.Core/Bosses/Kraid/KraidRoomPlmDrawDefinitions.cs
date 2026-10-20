@@ -26,7 +26,7 @@ internal static class KraidRoomPlmDrawDefinitions
     /// two six-byte spike draws, then the fifteen- and twenty-two-block clears.</summary>
     internal static ushort PointerAt(int index)
     {
-        if ((uint)index >= DrawCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= DrawCount) throw new ArgumentOutOfRangeException(nameof(index));
         return index switch
         {
             < 6 => (ushort)((ushort)KraidRoomDraw.CrumbleFirst + 6 * index),
@@ -70,7 +70,7 @@ internal static class KraidRoomPlmDrawDefinitions
     /// Full words retain collision nibbles; editable visual overrides are applied later.</remarks>
     private static ushort LevelWord(ushort pointer, int index)
     {
-        if ((uint)index >= (uint)CountFor(pointer)) throw new IndexOutOfRangeException();
+        if ((uint)index >= (uint)CountFor(pointer)) throw new ArgumentOutOfRangeException(nameof(index));
         return LevelWord(ClosedNativeWords.Decode<KraidRoomDraw>(pointer, "Kraid room draw"), index);
     }
 

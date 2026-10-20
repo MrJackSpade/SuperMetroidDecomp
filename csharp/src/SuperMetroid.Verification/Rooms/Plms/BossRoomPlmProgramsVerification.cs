@@ -89,12 +89,12 @@ internal static class BossRoomPlmProgramsVerification
         bool right = cursor < leftStart;
         DraygonCannonProgram Entry(ushort address) => DraygonCannonEntries.Single(entry => entry.Entry == address).Program;
         RoomPlmInstruction instruction = InstructionAt<RoomPlmInstruction>(cartridge, cursor);
-        (DraygonCannonCue Cue, int Length)? decoded = instruction switch
+        (bool known, cue, length) = instruction switch
         {
-            RoomPlmInstruction.LinkInstruction => (DraygonCannonCue.LinkHit, 4),
-            RoomPlmInstruction.InstallPreInstruction => (DraygonCannonCue.ArmMissileWake, 4),
-            RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual => (DraygonCannonCue.CountHit, 5),
-            RoomPlmInstruction.DamageDraygonCannonFacingRight or RoomPlmInstruction.DamageDraygonCannonFacingLeft => (DraygonCannonCue.Damage, 2),
+            RoomPlmInstruction.LinkInstruction => (true, DraygonCannonCue.LinkHit, 4),
+            RoomPlmInstruction.InstallPreInstruction => (true, DraygonCannonCue.ArmMissileWake, 4),
+            RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual => (true, DraygonCannonCue.CountHit, 5),
+            RoomPlmInstruction.DamageDraygonCannonFacingRight or RoomPlmInstruction.DamageDraygonCannonFacingLeft => (true, DraygonCannonCue.Damage, 2),
             RoomPlmInstruction.SetGreyDoorPreInstruction or
                 RoomPlmInstruction.Sleep or
                 RoomPlmInstruction.Delete or
@@ -145,11 +145,10 @@ internal static class BossRoomPlmProgramsVerification
                 RoomPlmInstruction.MoveTourianAccessDown or
                 RoomPlmInstruction.TransformSpikesToSlopes or
                 RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight => null,
-            _ => null,
+                RoomPlmInstruction.SetLoweredAcidHeight => (false, default, 0),
+            _ => (false, default, 0),
         };
-        (cue, length) = decoded ?? default;
-        if (decoded is null)
+        if (!known)
             return false;
         switch (cue)
         {

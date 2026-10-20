@@ -60,7 +60,7 @@ internal static class SandAnimatedTilesVerification
                             (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition? definition),
                         $"sand object {slot} remains catalogued at transfer");
                     int expectedSource = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
-                        (definition ?? throw new InvalidOperationException("Verification requires definition.")), (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames[tick / 10 % 4].InstructionPointer);
+                        (definition ?? throw new InvalidOperationException("Verification requires definition.")), definition.Frames[tick / 10 % 4].InstructionPointer);
                     AssertEqual(expectedSource, queue.Entries[slot].SourceAddress,
                         "sand NMI transfer uses the compiled artwork source identity");
                 }

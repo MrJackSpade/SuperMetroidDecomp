@@ -1,5 +1,8 @@
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core;
+using SuperMetroid.Verification.Enemies;
 
 /// <summary>
 /// Enemy services that record the words an actor writes over BG1 (#1346) and BG2 (#1348), for the Ceres escape's

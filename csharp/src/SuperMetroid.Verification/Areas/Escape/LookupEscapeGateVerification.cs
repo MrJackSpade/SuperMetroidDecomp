@@ -106,7 +106,7 @@ internal static class LookupEscapeGateVerification
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Escape gate DTO final Y");
                 }
                 foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(invalid), "Escape gate calculated row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid), "Escape gate calculated row bounds");
             }
             else for (int row = 0; row < 4; row++)
             {

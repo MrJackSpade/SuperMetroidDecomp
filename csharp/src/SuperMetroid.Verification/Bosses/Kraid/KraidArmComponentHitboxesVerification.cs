@@ -32,13 +32,13 @@ internal static class KraidArmComponentHitboxesVerification
                 checkedComponents++;
             }
             AssertEqual(count, component, "Arm component enumeration ends");
-            AssertThrows<IndexOutOfRangeException>(() => _ = actual[-1], "Negative arm component index");
-            AssertThrows<IndexOutOfRangeException>(() => _ = actual[count], "Past arm component index");
-            AssertThrows<IndexOutOfRangeException>(() => KraidArmCollisionDefinitions.ComponentHitbox(pose, -1), "Negative hitbox component");
-            AssertThrows<IndexOutOfRangeException>(() => KraidArmCollisionDefinitions.ComponentHitbox(pose, count), "Past hitbox component");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = actual[-1], "Negative arm component index");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = actual[count], "Past arm component index");
+            AssertThrows<ArgumentOutOfRangeException>(() => KraidArmCollisionDefinitions.ComponentHitbox(pose, -1), "Negative hitbox component");
+            AssertThrows<ArgumentOutOfRangeException>(() => KraidArmCollisionDefinitions.ComponentHitbox(pose, count), "Past hitbox component");
         }
         AssertEqual(102, checkedComponents, "All native arm component selectors checked");
-        AssertThrows<IndexOutOfRangeException>(() => KraidArmCollisionDefinitions.ComponentHitbox(-1, 0), "Negative arm pose");
-        AssertThrows<IndexOutOfRangeException>(() => KraidArmCollisionDefinitions.ComponentHitbox(12, 0), "Past arm pose");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidArmCollisionDefinitions.ComponentHitbox(-1, 0), "Negative arm pose");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidArmCollisionDefinitions.ComponentHitbox(12, 0), "Past arm pose");
     }
 }

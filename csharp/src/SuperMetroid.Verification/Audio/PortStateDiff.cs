@@ -84,7 +84,7 @@ internal sealed class PortStateDiff
                 return;
             }
             Type element = (type.GetElementType() ?? throw new InvalidOperationException("Verification requires type.GetElementType()."));
-            if ((element ?? throw new InvalidOperationException("Verification requires element.")).IsPrimitive)
+            if (element.IsPrimitive)
             {
                 // Large primitive buffers (WRAM-like images) are summarized, not listed.
                 int count = 0, first = -1;

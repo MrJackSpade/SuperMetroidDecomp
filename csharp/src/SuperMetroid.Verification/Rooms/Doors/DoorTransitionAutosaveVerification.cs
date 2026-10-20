@@ -58,7 +58,7 @@ internal static class DoorTransitionAutosaveVerification
                 typeof(SuperMetroidGame).Module.ModuleVersionId);
             var store = DebuggerSaveStateStore.ForInstalledGame(directory, null, identity);
             string storeDirectory = (Path.GetDirectoryName(store.GetSlotPath(0)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(store.GetSlotPath(0))."));
-            Directory.CreateDirectory((storeDirectory ?? throw new InvalidOperationException("Verification requires storeDirectory.")));
+            Directory.CreateDirectory((storeDirectory));
             for (int slot = 0; slot < DebuggerStateFormat.SlotCount; slot++)
                 File.WriteAllText(store.GetSlotPath(slot), "manual slot " + slot);
             string autoPath = store.GetSlotPath(DebuggerStateFormat.AutomaticSlot);

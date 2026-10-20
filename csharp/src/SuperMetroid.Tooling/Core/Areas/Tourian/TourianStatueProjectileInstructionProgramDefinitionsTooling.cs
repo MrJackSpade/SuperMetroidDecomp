@@ -27,13 +27,13 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitionsTool
     /// <summary>Gets a compiled control word by its order in the native statue instruction range.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
-        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return Select(index, visual: false);
     }
     /// <summary>Gets the bank $86 address of an indexed visual selector without reading its native value.</summary>
     public static ushort PresentationWordAddress(int index)
     {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return Select(index, visual: true).Address;
     }
 

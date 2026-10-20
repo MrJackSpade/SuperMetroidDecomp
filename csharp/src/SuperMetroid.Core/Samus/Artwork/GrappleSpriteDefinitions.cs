@@ -37,9 +37,9 @@ public static class GrappleSpriteDefinitions
         /// <summary>Calculates the full bank-$94 address of a segment's OBJ attribute word, skipping the duration word in each four-byte record.</summary>
         /// <param name="index">Zero-based segment-animation frame, 0..3.</param>
         /// <returns>$94:B18D, $B191, $B195, or $B199; these are visual operands rather than timed-record starts.</returns>
-        /// <exception cref="IndexOutOfRangeException">The frame is outside 0..3.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0..3.</exception>
         public int this[int index] => (uint)index < SegmentFrameCount
-            ? 0x94b18d + 4 * index : throw new IndexOutOfRangeException();
+            ? 0x94b18d + 4 * index : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Enumerates the four segment attribute addresses in native animation-record order without advancing animation.</summary>
         /// <returns>An enumerator yielding the same addresses as indexed access.</returns>
         public IEnumerator<int> GetEnumerator()

@@ -27,7 +27,7 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling 
 
     /// <summary>Locates the artwork selection interleaved between a pose duration and terminal sleep.</summary>
     public static ushort PresentationWordAddress(int index) =>
-        (uint)index < (uint)PresentationWords.Length ? PresentationWords[index] : throw new IndexOutOfRangeException();
+        (uint)index < (uint)PresentationWords.Length ? PresentationWords[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>The three six-byte projectile poses each contribute a duration and terminal sleep word to compiled control.</summary>
     public static int MechanicsWordCount => 6;
@@ -36,7 +36,7 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling 
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(index));
         bool sleep = index % 2 != 0;
         ushort address = (ushort)(FakeKraidProjectileInstructionProgramToolingDefinitions.Spit + PoseListByteCount * (index / 2) + (sleep ? 4 : 0));
         return new(address, sleep

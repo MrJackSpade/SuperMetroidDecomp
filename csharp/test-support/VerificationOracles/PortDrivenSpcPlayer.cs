@@ -1,5 +1,7 @@
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
-namespace SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// Drives a bare <see cref="ManagedSpcPlayer"/> by raw APU port writes for driver-level

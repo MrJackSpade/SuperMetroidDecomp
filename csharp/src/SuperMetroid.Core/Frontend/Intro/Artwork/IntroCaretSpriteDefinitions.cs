@@ -24,7 +24,7 @@ internal static class IntroCaretSpriteDefinitions
         /// <summary>There is one caret composition despite four legacy frame names.</summary>
         public int Count => 1;
         /// <summary>Accepts only index zero because other blink states do not have compositions.</summary>
-        public IntroCaretFrameDefinition this[int index] => index == 0 ? Visible : throw new IndexOutOfRangeException();
+        public IntroCaretFrameDefinition this[int index] => index == 0 ? Visible : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Yields the one visible composition without allocating a stored array.</summary>
         public IEnumerator<IntroCaretFrameDefinition> GetEnumerator()
         {

@@ -149,7 +149,8 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
             crocomireRecord.DeathSequenceIndex = (CrocomireDeathPhase)words.A;
-            crocomireRecord.FightFlags = (CrocomireFightFlags)words.B;
+            crocomireRecord.FightFlags = CrocomireFightFlagBits.Flags(words.B);
+            crocomireRecord.HitCount = CrocomireFightFlagBits.HitCount(words.B);
             crocomireRecord.FightFunction = (CrocomireFightFunction)words.C;
             crocomireRecord.RumbleTableOffset = words.D;
             crocomireRecord.VerticalSpeed = words.E;

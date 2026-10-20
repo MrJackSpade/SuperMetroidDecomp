@@ -38,7 +38,7 @@ internal sealed class CeresDoorWarmTargetPaintDefinitions
     /// <summary>Returns an independently supplied target when present, otherwise computes the matching warm highlight, amber, red, or gold shade.</summary>
     internal Bgr555 ColorAt(int index)
     {
-        if ((uint)index >= 6) throw new IndexOutOfRangeException();
+        if ((uint)index >= 6) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
     }
 

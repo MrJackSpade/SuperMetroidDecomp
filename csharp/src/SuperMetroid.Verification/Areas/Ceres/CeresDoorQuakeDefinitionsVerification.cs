@@ -19,6 +19,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>Checks Ceres Ridley's private door quake offsets and editable overlay art.</summary>
 internal static class CeresDoorQuakeDefinitionsVerification

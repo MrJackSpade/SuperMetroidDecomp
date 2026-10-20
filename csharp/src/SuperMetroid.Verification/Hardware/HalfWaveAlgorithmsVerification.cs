@@ -21,7 +21,7 @@ internal static class HalfWaveAlgorithmsVerification
             AssertEqual(original, decimal.Floor(value + error), $"Byte sine upper bound {index}");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 128, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => EnemyTrigonometryTables.EightBitHalfWave(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => EnemyTrigonometryTables.EightBitHalfWave(invalid),
                 $"Byte sine invalid index {invalid}");
     }
 
@@ -44,7 +44,7 @@ internal static class HalfWaveAlgorithmsVerification
             AssertEqual(original, decimal.Floor(value + error), $"Unsigned sine upper bound {index}");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 128, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => EnemyTrigonometryTables.UnsignedHalfWave(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => EnemyTrigonometryTables.UnsignedHalfWave(invalid),
                 $"Unsigned sine invalid index {invalid}");
     }
 

@@ -98,7 +98,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
         };
 
-        MetareeBehavior.RunMetareeIdle(slot, (state ?? throw new InvalidOperationException("Verification requires state.")), samus);
+        MetareeBehavior.RunMetareeIdle(slot, (state), samus);
         AssertSkreeMetareeHandoff(
                 slot,
                 state.InstalledInstructionListIndex,
@@ -136,7 +136,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         enemies.SkreeBehavior.RunSkreeMain(slot, samus, null);
         AssertSkreeMetareeHandoff(
                 slot,
-                (state ?? throw new InvalidOperationException("Verification requires state.")).InstalledInstructionIndex,
+                state.InstalledInstructionIndex,
                 SkreeMetareeAnimationPhase.PreparingAttack,
                 state.Program,
                 SkreeMetareeAnimationDefinitions.SkreeProgram(SkreeMetareeAnimationPhase.PreparingAttack),

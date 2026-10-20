@@ -25,13 +25,13 @@ public sealed class CeresRevealActorLayout
     /// <summary>Returns the selected initial placement for one actor in the native $8B:C810-C831 Zebes-reveal spawn order.</summary>
     /// <param name="actorIndex">Index 0..5: planet, upper-left stars, upper-right stars, lower-left stars, lower-right stars, then Planet Zebes title.</param>
     /// <returns>Named screen-pixel placement used when creating the actor, without changing its instruction list or motion policy.</returns>
-    /// <exception cref="IndexOutOfRangeException">The actor index is outside 0..5.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The actor index is outside 0..5.</exception>
     public CeresRevealActorPlacement this[int actorIndex]
     {
         get
         {
             if ((uint)actorIndex >= CeresDestructionActorDefinitions.ZebesActorCount)
-                throw new IndexOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(actorIndex));
             return placements is null ? DefaultPlacement(actorIndex) : placements[actorIndex];
         }
     }

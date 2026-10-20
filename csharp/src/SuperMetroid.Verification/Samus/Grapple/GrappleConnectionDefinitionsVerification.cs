@@ -137,7 +137,7 @@ internal static class GrappleConnectionDefinitionsVerification
         AssertEqual(native.Length, GrappleConnectionDefinitions.SpecialAngleCount, "Native special-angle record count");
         for (int record = 0; record < native.Length; record++)
             AssertEqual(native[record], GrappleConnectionDefinitions.SpecialAngle(record), $"Native special-angle record {record}");
-        AssertThrows<IndexOutOfRangeException>(() => GrappleConnectionDefinitions.SpecialAngle(native.Length), "Special-angle bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => GrappleConnectionDefinitions.SpecialAngle(native.Length), "Special-angle bound");
         var samus = new SamusState();
         samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));

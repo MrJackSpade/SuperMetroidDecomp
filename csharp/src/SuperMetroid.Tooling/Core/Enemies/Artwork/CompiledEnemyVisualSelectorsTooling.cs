@@ -23,7 +23,7 @@ internal static class CompiledEnemyVisualSelectorsTooling
     /// <summary>Returns one selector from the bank/address-ordered merge of literal and calculated entries.</summary>
     internal static CompiledEnemyVisualSelector At(int index)
     {
-        if ((uint)index >= Count) throw new IndexOutOfRangeException();
+        if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
         // Calculated entries are ordered by native bank/address. Their merged rank
         // is their own ordinal plus the number of literal entries before them.
         int low = 0, high = CalculatedCount;
@@ -59,6 +59,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
             FuneNamiheFireballFrame fune = new(index);
             return new(0x860000 | EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[fune]), FuneNamiheFireballFrameToolingDefinitions.Spritemap(fune));
         }
-        throw new IndexOutOfRangeException();
+        throw new ArgumentOutOfRangeException(nameof(index));
     }
 }

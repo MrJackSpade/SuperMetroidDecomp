@@ -17,9 +17,9 @@ internal static class SpcNotePercentageAlgorithmsVerification
             AssertEqual(rom.ReadCartridgeByte(SpcMusicTables.EffectLengthReferenceAddress + index),
                 SpcMusicTables.EffectByteLength(index), $"Original SPC opcode {opcode:X2} operand count");
         }
-        AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.EffectByteLength(-1), "Effect negative index");
-        AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.EffectByteLength(31), "Effect upper bound");
-        AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.EffectByteLength(int.MaxValue), "Effect invalid maximum");
+        AssertThrows<ArgumentOutOfRangeException>(() => SpcMusicTables.EffectByteLength(-1), "Effect negative index");
+        AssertThrows<ArgumentOutOfRangeException>(() => SpcMusicTables.EffectByteLength(31), "Effect upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => SpcMusicTables.EffectByteLength(int.MaxValue), "Effect invalid maximum");
     }
 
     /// <summary>Checks that all timing and volume commands use the low nibble to select volume.</summary>
@@ -33,8 +33,8 @@ internal static class SpcNotePercentageAlgorithmsVerification
             AssertEqual(rom.ReadCartridgeByte(SpcMusicTables.NoteVolumeReferenceAddress + index),
                 SpcMusicTables.NoteVolume(index), $"Original SPC volume selector {index}");
         }
-        AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.NoteVolume(-1), "Volume negative index");
-        AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.NoteVolume(16), "Volume upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => SpcMusicTables.NoteVolume(-1), "Volume negative index");
+        AssertThrows<ArgumentOutOfRangeException>(() => SpcMusicTables.NoteVolume(16), "Volume upper bound");
     }
 
     /// <summary>Checks that bits 4 through 6 select the gate-off percentage for note commands.</summary>
@@ -48,7 +48,7 @@ internal static class SpcNotePercentageAlgorithmsVerification
             AssertEqual(rom.ReadCartridgeByte(SpcMusicTables.NoteGateReferenceAddress + index),
                 SpcMusicTables.NoteGateOffPercentage(index), $"Original SPC gate selector {index}");
         }
-        AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.NoteGateOffPercentage(-1), "Gate negative index");
-        AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.NoteGateOffPercentage(8), "Gate upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => SpcMusicTables.NoteGateOffPercentage(-1), "Gate negative index");
+        AssertThrows<ArgumentOutOfRangeException>(() => SpcMusicTables.NoteGateOffPercentage(8), "Gate upper bound");
     }
 }

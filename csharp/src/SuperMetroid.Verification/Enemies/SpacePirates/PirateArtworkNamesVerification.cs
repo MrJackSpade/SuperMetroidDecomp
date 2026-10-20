@@ -60,7 +60,7 @@ internal static class PirateArtworkNamesVerification
         {
             bool rejected = false;
             try { _ = actual(invalid); }
-            catch (IndexOutOfRangeException) { rejected = true; }
+            catch (ArgumentOutOfRangeException) { rejected = true; }
             AssertTrue(rejected, "Pirate artwork key bounds");
         }
     }

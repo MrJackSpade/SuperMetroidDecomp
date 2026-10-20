@@ -185,7 +185,7 @@ internal static class Program
                     last = new(new(i + 1, 1, 0), new Rgba32((byte)i, 73, 129));
                     renderer.Render(last);
                 }
-                PixelComparison.Verify((last ?? throw new InvalidOperationException("Verification requires last.")), SoftwareFrameSnapshotRenderer.Render((last ?? throw new InvalidOperationException("Verification requires last."))), renderer.Readback(),
+                PixelComparison.Verify((last ?? throw new InvalidOperationException("Verification requires last.")), SoftwareFrameSnapshotRenderer.Render((last)), renderer.Readback(),
                     $"{kind}: 64 submissions with deferred readback");
                 PixelComparison.Verify(last, SoftwareFrameSnapshotRenderer.Render(last), renderer.Readback(),
                     $"{kind}: repeat deferred readback");

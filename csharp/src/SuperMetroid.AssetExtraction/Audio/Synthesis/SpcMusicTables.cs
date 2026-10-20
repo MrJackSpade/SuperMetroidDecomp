@@ -13,12 +13,12 @@ internal static class SpcMusicTables
     /// command format directly; numerical fitting has no meaning here. The decoder
     /// pre-reads one operand when count is nonzero, handlers consume the remainder,
     /// and lookahead skips the whole count. SkipByte thus has count2, while the final
-    /// three commands have count0. Preserve IndexOutOfRangeException outside0..30;
+    /// three commands have count0. Throw ArgumentOutOfRangeException outside0..30;
     /// callers with explicit InvalidDataException guards retain those guards.
     /// </remarks>
     internal static byte EffectByteLength(int index)
     {
-        if ((uint)index >= EffectCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= EffectCount) throw new ArgumentOutOfRangeException(nameof(index));
         byte opcode = (byte)(index + (int)SpcMusicEffect.SetInstrument);
         return SuperMetroid.Core.Programs.ClosedNativeWords.Decode<SpcMusicEffect>(opcode, "SPC music effect opcode") switch
         {
@@ -39,7 +39,7 @@ internal static class SpcMusicTables
             SpcMusicEffect.PitchEnvelopeFrom or SpcMusicEffect.EnableEcho or
             SpcMusicEffect.ConfigureEcho or SpcMusicEffect.FadeEchoVolume or
             SpcMusicEffect.PitchSlide => 3,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
     }
     /// <summary>SPC1E1D..1E31 contains21 pan samples. The curve's exact generator remains
@@ -56,7 +56,7 @@ internal static class SpcMusicTables
     /// the caller's pan indices21..255 continue to read mutable SPC RAM separately.</summary>
     internal static byte PanVolume(int index)
     {
-        if ((uint)index > PanSampleCount) throw new IndexOutOfRangeException();
+        if ((uint)index > PanSampleCount) throw new ArgumentOutOfRangeException(nameof(index));
         return index == PanSampleCount ? (byte)sbyte.MaxValue : panVolume[index];
     }
 
@@ -73,7 +73,7 @@ internal static class SpcMusicTables
     /// </remarks>
     internal static ushort BaseNoteFrequency(int semitone)
     {
-        if ((uint)semitone > 12) throw new IndexOutOfRangeException();
+        if ((uint)semitone > 12) throw new ArgumentOutOfRangeException(nameof(semitone));
         const decimal semitoneRatio = 1.0594630943592952645618252949m;
         decimal frequency = 440m * 8192m / 1000m;
         for (int note = 9; note < semitone; note++) frequency *= semitoneRatio;
@@ -92,7 +92,7 @@ internal static class SpcMusicTables
     /// </remarks>
     internal static byte NoteVolume(int index)
     {
-        if ((uint)index >= 16) throw new IndexOutOfRangeException();
+        if ((uint)index >= 16) throw new ArgumentOutOfRangeException(nameof(index));
         int percentage = index < 4 ? 10 * (index + 1) : index == 15 ? 99 : 5 * (index + 5);
         return (byte)((255 * percentage - 1) / 100);
     }
@@ -106,7 +106,7 @@ internal static class SpcMusicTables
     /// </remarks>
     internal static byte NoteGateOffPercentage(int index)
     {
-        if ((uint)index >= 8) throw new IndexOutOfRangeException();
+        if ((uint)index >= 8) throw new ArgumentOutOfRangeException(nameof(index));
         int percentage = index < 2 ? 20 * (index + 1) : index == 7 ? 99 : 10 * (index + 3);
         return (byte)((255 * percentage - 1) / 100);
     }

@@ -38,12 +38,12 @@ public static class PhantoonCasualFlameDefinitions
         /// <summary>Reads a native table word: flame count at 0, 180-update cooldown at 1, or an interval thereafter.</summary>
         /// <param name="index">Zero-based word index, less than <see cref="Count"/>.</param>
         /// <returns>The unsigned count or scheduler-update duration at the requested position.</returns>
-        /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is negative or at least <see cref="Count"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is negative or at least <see cref="Count"/>.</exception>
         public ushort this[int index]
         {
             get
             {
-                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 if (index == 0) return (ushort)(2 * BurstRank + 1);
                 if (index == 1) return 180;
                 return pattern == 3 ? IrregularIntervals[index-2] : (ushort)(16 * BurstRank);

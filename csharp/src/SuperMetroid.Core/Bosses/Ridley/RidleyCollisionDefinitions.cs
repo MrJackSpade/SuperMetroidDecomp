@@ -112,7 +112,7 @@ internal static class RidleyCollisionDefinitions
         /// <summary>Selects a component's authored offset and pose-specific hitbox list.</summary>
         internal RidleyCollisionComponent this[int index] => (uint)index < Length
             ? ComponentAt((BodyFrame)Frame, index)
-            : throw new IndexOutOfRangeException();
+            : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Enumerates component positions without materializing a frame array.</summary>
         public Enumerator GetEnumerator() => new(this);
         /// <summary>Walks the calculated collision components of one extended body frame.</summary>

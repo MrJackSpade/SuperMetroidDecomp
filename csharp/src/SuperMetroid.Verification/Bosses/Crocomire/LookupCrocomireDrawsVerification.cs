@@ -65,7 +65,7 @@ internal static class LookupCrocomireDrawsVerification
                 AssertEqual(nextY, exported[index].Runs.Span[run].Next.Y, "Crocomire export Y");
                 AssertEqual((sbyte)0, nextY, "Crocomire runtime column origin Y");
                 foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(run, invalid), "Crocomire cell bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(run, invalid), "Crocomire cell bounds");
                 run++;
                 if (nextX == 0 && nextY == 0) break;
             }
@@ -76,8 +76,8 @@ internal static class LookupCrocomireDrawsVerification
                 cursor, "Crocomire original draw end");
             foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
             {
-                AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(invalid, 0), "Crocomire run bounds");
-                AssertThrows<IndexOutOfRangeException>(() => shape.NextX(invalid), "Crocomire offset bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Crocomire run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Crocomire offset bounds");
             }
         }
         AssertEqual(60, cells, "Crocomire sixty original physical cells");

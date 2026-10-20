@@ -35,7 +35,7 @@ internal static class AudioUploadCatalogVerification
             if (index != 0) AssertEqual(actual, AudioAssetCatalogDefinitions.Music[index / 3 - 1], "music index view");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 24, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => { _ = AudioAssetCatalogDefinitions.Music[invalid]; }, "music view bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => { _ = AudioAssetCatalogDefinitions.Music[invalid]; }, "music view bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => AudioAssetCatalogDefinitions.Get((AudioBank)25), "undefined bank");
         AssertThrows<InvalidDataException>(() => AudioAssetCatalogDefinitions.ResolveSnesAddress(AudioAssetCatalogDefinitions.Common.SnesAddress + 1), "non-upload address");
     }

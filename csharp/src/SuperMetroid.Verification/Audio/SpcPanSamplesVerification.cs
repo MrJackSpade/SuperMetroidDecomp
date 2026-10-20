@@ -22,6 +22,6 @@ internal static class SpcPanSamplesVerification
         for (int tap = 1; tap < 8; tap++)
             AssertEqual((byte)0, rom.ReadCartridgeByte(0xcf8a3a + tap), "sharp-echo remaining taps");
         foreach (int invalid in new[] { int.MinValue, -1, 22, 255, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.PanVolume(invalid), "bounded pan interpolation view");
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcMusicTables.PanVolume(invalid), "bounded pan interpolation view");
     }
 }

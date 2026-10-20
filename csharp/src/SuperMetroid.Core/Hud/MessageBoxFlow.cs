@@ -169,10 +169,10 @@ internal sealed class MessageBoxFlow
         // rest of the dispatch already ran when the box opened.
         if (_pendingSuitPickup is { } pendingSuit)
         {
-            if (_player.Samus is null || _room.Camera is null)
+            if (_player.Samus is null)
             {
                 throw new InvalidOperationException(
-                    "A pending suit transformation requires an active Samus and room camera.");
+                    "A pending suit transformation requires an active Samus.");
             }
             room.Enemies.Elevator.ResetStatus();
             _suitPickup.Begin(

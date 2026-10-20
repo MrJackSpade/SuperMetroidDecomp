@@ -90,7 +90,7 @@ public static class RoomFxRomData
         public static ushort HorizontalVelocity(int selection)
         {
             if ((uint)selection >= 4)
-                throw new IndexOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(selection));
             int speed = (6 - (selection & 2)) << 8;
             return unchecked((ushort)((selection & 1) == 0 ? -speed : speed));
         }
@@ -133,7 +133,7 @@ public static class RoomFxRomData
         public static short WaveDisplacement(int index)
         {
             if ((uint)index >= WaveDisplacementCount)
-                throw new IndexOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             int position = index & 3;
             int magnitude = Math.Min(position, 3 - position);
             return (short)((index & 4) == 0 ? magnitude : -magnitude);
@@ -190,7 +190,7 @@ public static class RoomFxRomData
         /// </summary>
         public static short HorizontalWaveDisplacement(int index)
         {
-            if ((uint)index >= WaveDisplacementCount) throw new IndexOutOfRangeException();
+            if ((uint)index >= WaveDisplacementCount) throw new ArgumentOutOfRangeException(nameof(index));
             int positivePulse = (uint)(index - 2) < 4 ? 1 : 0;
             int negativePulse = (uint)(index - 8) < 4 ? 1 : 0;
             return (short)(positivePulse - negativePulse);
@@ -255,7 +255,7 @@ public static class RoomFxRomData
                 12 => 0x0300, 13 => 0x0320, 14 => 0x0350, 15 => 0x0378,
                 16 => 0x03c8, 17 => 0x0440, 18 => 0x0460, 19 => 0x0480,
                 20 => 0x0490, 21 => 0x04a8, 22 => 0x04b8,
-                _ => throw new IndexOutOfRangeException(),
+                _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };
             ushort subspeed = (ushort)(index < 17 ? 0x8000 + (index & 1) * 0x4000 :
                 index == 17 ? 0x7000 : index < 20 ? 0xc000 - (index - 18) * 0x4000 : 0);

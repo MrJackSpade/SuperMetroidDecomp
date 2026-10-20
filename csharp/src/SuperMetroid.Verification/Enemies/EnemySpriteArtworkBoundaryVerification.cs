@@ -20,6 +20,7 @@ namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>Checks that enemy OAM and projectile sprite owners use installed artwork after cartridge readers are removed.</summary>
 internal static class EnemySpriteArtworkBoundaryVerification
@@ -79,7 +80,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
             projectileCases++;
         }
         roomSlot.Clear();
-        AssertEqual(0, (projectileArtwork ?? throw new InvalidOperationException("Verification requires projectileArtwork.")).Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap).Length,
+        AssertEqual(0, projectileArtwork.Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap).Length,
             "native initial blank projectile is compiled as a zero-part frame");
         foreach (EnemyProjectileFrameId composition in Enum.GetValues<EnemyProjectileFrameId>().Where(EnemyProjectileFrames.IsComposition))
         {

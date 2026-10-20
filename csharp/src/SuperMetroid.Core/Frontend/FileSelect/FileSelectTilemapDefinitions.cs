@@ -12,7 +12,7 @@ internal static class FileSelectTilemapDefinitions
     /// size includes its terminator; calculation is bounded before multiplication.</remarks>
     public static ushort SlotLabel(int slot)
     {
-        if ((uint)slot >= FileSelectLayout.SaveSlotCount) throw new IndexOutOfRangeException();
+        if ((uint)slot >= FileSelectLayout.SaveSlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
         return (ushort)(0xb436 + slot * 32);
     }
 

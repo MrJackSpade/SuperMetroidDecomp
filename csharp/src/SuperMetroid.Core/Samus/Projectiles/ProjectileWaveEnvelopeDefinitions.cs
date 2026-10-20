@@ -11,7 +11,7 @@ internal static class ProjectileWaveEnvelopeDefinitions
     internal static int AxialLobeDistance(int outwardStep) => outwardStep switch
     {
         0 => 8, 1 => 13, 2 => 15, 3 => 16,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(outwardStep)),
     };
 
     /// <summary>$93:D64A: selected initial Spazer lane distance 4, preceding the four Wave distances.

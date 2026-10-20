@@ -116,8 +116,8 @@ internal static class GeneratedBossBg2CatalogsVerification
         var originalPointers = expected.Select(frame => frame.Pointer).ToHashSet();
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(originalPointers.Contains((ushort)pointer), access.IsFrame((ushort)pointer), $"{family} exact selector domain");
-        AssertThrows<IndexOutOfRangeException>(() => access.FrameAt(-1), $"{family} negative definition index");
-        AssertThrows<IndexOutOfRangeException>(() => access.FrameAt(expected.Length), $"{family} definition past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => access.FrameAt(-1), $"{family} negative definition index");
+        AssertThrows<ArgumentOutOfRangeException>(() => access.FrameAt(expected.Length), $"{family} definition past end");
         byte[] originalJson = EnemyBg2FrameFiles.Extract(rom, bank, new EnemyBg2FrameDefinitionSequence(expected.Length, index => expected[index]), 1,
             family == "Phantoon" ? 2 : 1, family);
         byte[] generatedJson = access.Extract();

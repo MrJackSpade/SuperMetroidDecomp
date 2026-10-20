@@ -94,7 +94,7 @@ internal static class DragonAnimationDefinitionsVerification
             Position = new(new(unchecked((ushort)(body.Position.X.Whole + (facingLeft ? -0x10 : 0x10))), 0), new(0, 0)),
         };
 
-        enemies.DragonBehavior.RunDragonWaitToRise(body, (bodyState ?? throw new InvalidOperationException("Verification requires bodyState.")), samus);
+        enemies.DragonBehavior.RunDragonWaitToRise(body, (bodyState), samus);
         DragonAnimationSelector idle = facingLeft
             ? DragonAnimationSelector.IdleFacingLeft
             : DragonAnimationSelector.IdleFacingRight;
@@ -109,7 +109,7 @@ internal static class DragonAnimationDefinitionsVerification
             expectedInstructionTimer: facingLeft ? (ushort)0 : (ushort)1);
         AssertDragonAnimationHandoff(
             wing,
-            (wingState ?? throw new InvalidOperationException("Verification requires wingState.")),
+            (wingState),
             wings,
             facingLeft ? "live left-facing Dragon wing" : "live right-facing Dragon wing",
             expectedInstructionTimer: facingLeft ? (ushort)0 : (ushort)1);

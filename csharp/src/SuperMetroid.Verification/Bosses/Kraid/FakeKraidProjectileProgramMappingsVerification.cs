@@ -34,7 +34,7 @@ internal static class FakeKraidProjectileProgramMappingsVerification
                 "Fake Kraid projectile rejects other banks");
         }
         foreach (int index in new[] { int.MinValue, -1, 6, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(
+            AssertThrows<ArgumentOutOfRangeException>(
                 () => FakeKraidProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "Fake Kraid projectile control enumeration bounds");
     }
@@ -49,7 +49,7 @@ internal static class FakeKraidProjectileProgramMappingsVerification
             AssertEqual(addresses[index], FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Fake Kraid projectile native visual operand position");
         foreach (int index in new[] { int.MinValue, -1, 3, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(
+            AssertThrows<ArgumentOutOfRangeException>(
                 () => FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Fake Kraid projectile visual enumeration bounds");
     }

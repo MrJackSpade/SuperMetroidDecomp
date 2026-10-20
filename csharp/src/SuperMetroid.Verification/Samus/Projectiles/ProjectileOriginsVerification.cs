@@ -62,20 +62,4 @@ internal static class ProjectileOriginsVerification
         Console.WriteLine("Projectile origins: forty native words and 343872 real position initializations cover all direction words, every pose, coordinate boundaries and adjacent cooldown reads with authored reads forbidden.");
     }
 
-    /// <summary>Forbids physical-origin table reads while substituting sprite presentation bytes to check their separation.</summary>
-    [CpuBusBoundary("exact bus test: serves substitute presentation bytes ($90:C1A8-C203) while forbidding origin rows, proving physical origins ignore presentation data")]
-    internal sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesWritableAddressSpace, IImportCartridgeSource
-    {
-        /// <summary>Rejects compiled origin reads and substitutes presentation bytes to prove independence.</summary>
-        public byte ReadCartridgeByte(int address)
-        {
-            if (address is >= 0x90c204 and < 0x90c28f)
-                throw new InvalidOperationException($"Compiled projectile origin read ROM ${address:X6}.");
-            // Deliberately different presentation bytes cannot affect physical origins.
-            if (address is >= 0x90c1a8 and < 0x90c204) return 0x5a;
-            return source.ReadCartridgeByte(address);
-        }
-        /// <summary>Forwards unrelated bus writes to the wrapped address space.</summary>
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

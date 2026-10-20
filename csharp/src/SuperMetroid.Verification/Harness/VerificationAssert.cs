@@ -1353,7 +1353,7 @@ internal static class VerificationAssert
         VerifyIntroCaretNativePartCount(rom);
         AssertEqual(new IntroCaretFrameDefinition(0x8d68, "caret-visible", 1), IntroCaretSpriteDefinitions.Frames.Single(), "Caret identity and enumeration");
         foreach (int invalid in new[] { -1, 1, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = IntroCaretSpriteDefinitions.Frames[invalid], "Caret index bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = IntroCaretSpriteDefinitions.Frames[invalid], "Caret index bounds");
         Console.WriteLine("Caret registration: native part count, identity, enumeration and bounds pass.");
         return 0;
     }

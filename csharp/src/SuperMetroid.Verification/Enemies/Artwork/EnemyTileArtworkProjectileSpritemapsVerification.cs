@@ -507,7 +507,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         editedOam.BeginFrame();
         originalOam.AddEnemySpritemap(installed.Get(0xb1ba).Span,
             new Position16<OamPixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
-        editedOam.AddEnemySpritemap((edited ?? throw new InvalidOperationException("Verification requires edited.")).Get(0xb1ba).Span,
+        editedOam.AddEnemySpritemap(edited.Get(0xb1ba).Span,
             new Position16<OamPixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
         AssertEqual((byte)(originalOam.LowTable[0] + 1), editedOam.LowTable[0],
             "enemy-projectile composition override moves the live Ceres pad OAM part");

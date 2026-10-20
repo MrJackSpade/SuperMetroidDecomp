@@ -132,7 +132,7 @@ internal static class PaletteJsonContractsVerification
     {
         JsonNode parent = (PaletteContractNode(root, path[..^1]) ?? throw new InvalidOperationException("Verification requires PaletteContractNode(root, path[..^1])."));
         if (parent is JsonArray array) array[int.Parse(path[^1])] = value;
-        else (parent ?? throw new InvalidOperationException("Verification requires parent."))[path[^1]] = value;
+        else (parent)[path[^1]] = value;
     }
 
     /// <summary>Finds representative nested array paths for shape and nullability checks.</summary>

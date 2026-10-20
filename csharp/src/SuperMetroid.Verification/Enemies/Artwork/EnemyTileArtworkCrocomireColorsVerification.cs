@@ -96,7 +96,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         enemies.CrocomireBehavior.InitializeCrocomire(body);
         CrocomireEnemyState state = enemies.CrocomireBehavior.Crocomire ?? throw new InvalidOperationException("Verification requires enemies.CrocomireBehavior.Crocomire.");
-        AssertEqual(CrocomireDeathPhase.Fighting, (state ?? throw new InvalidOperationException("Verification requires state.")).DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
             "installed Crocomire colors leave living fight phase unchanged");
         AssertEqual(AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.Initial),
             state.BodyCursor,

@@ -48,8 +48,8 @@ internal static class CrocomireBodyVisualsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(pointer < 0xca7e && original.Contains((ushort)pointer),
                 CrocomireBodyVisualDefinitions.HasBg2((ushort)pointer), "body exact mixed-frame domain");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(-1), "negative body frame");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(50), "body frame past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(-1), "negative body frame");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(50), "body frame past end");
     }
     /// <summary>Checks generated BG2 keys against retail selectors and confirms the extractor and loader preserve all 42 mixed-frame streams.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire BG2 generated catalog")]
@@ -64,10 +64,10 @@ internal static class CrocomireBodyVisualsVerification
         for (int i = 0; i < expected.Length; i++)
             AssertEqual(expected[i], CrocomireBg2FrameDefinitions.Frame(i), "native BG2 pointer and published artwork name");
         AssertTrue(expected.SequenceEqual(CrocomireBg2FrameDefinitions.Frames.ToArray()), "BG2 sequence materialization");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireBg2FrameDefinitions.Frame(-1), "negative BG2 definition");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireBg2FrameDefinitions.Frame(42), "BG2 definition past end");
-        AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireBg2FrameDefinitions.Frames[-1], "negative generated sequence index");
-        AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireBg2FrameDefinitions.Frames[42], "generated sequence index past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBg2FrameDefinitions.Frame(-1), "negative BG2 definition");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBg2FrameDefinitions.Frame(42), "BG2 definition past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireBg2FrameDefinitions.Frames[-1], "negative generated sequence index");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireBg2FrameDefinitions.Frames[42], "generated sequence index past end");
 
         // Confirm the changed generator boundary through the real extractor and
         // loader, using original-ROM-derived definitions through the span path.

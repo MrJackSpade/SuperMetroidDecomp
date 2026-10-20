@@ -44,7 +44,7 @@ public sealed class EndingPaletteCatalog
     /// <summary>Returns the retained palette resource selected by its ending-scene role.</summary>
     /// <param name="id">Independent static palette or complete logo-crossfade resource to retrieve.</param>
     /// <returns>The same palette instance supplied for that role at construction.</returns>
-    /// <exception cref="IndexOutOfRangeException"><paramref name="id"/> is not a defined palette role.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not a defined palette role.</exception>
     public EndingPalette this[EndingPaletteId id] => id switch
     {
         EndingPaletteId.Escape => escape,
@@ -54,7 +54,7 @@ public sealed class EndingPaletteCatalog
         EndingPaletteId.FinalGunship => finalGunship,
         EndingPaletteId.LogoInitial => logoInitial,
         EndingPaletteId.LogoCrossfade => logoCrossfade,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
     /// <summary>Identity of all selected static colors and every ordered logo-crossfade color.</summary>

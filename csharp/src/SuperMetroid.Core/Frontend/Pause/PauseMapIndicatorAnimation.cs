@@ -10,15 +10,15 @@ internal static class PauseMapIndicatorAnimation
 
     /// <summary>Calculates the triangular sprite pulse at $82:BA2D, phase0..3.</summary>
     /// <remarks>Independently reviewed for #1165: start at5F, rise twice, then fall.
-    /// The bounded triangle is2-abs(2-phase). Invalid indices preserve the former
-    /// array's IndexOutOfRangeException; timer advancement remains caller-owned.</remarks>
+    /// The bounded triangle is2-abs(2-phase). Invalid indices throw
+    /// ArgumentOutOfRangeException; timer advancement remains caller-owned.</remarks>
     public static MapSpriteId SpritemapId(int frame) => frame switch
     {
         0 => MapSpriteId.IndicatorFrame0,
         1 => MapSpriteId.IndicatorFrame1,
         2 => MapSpriteId.IndicatorFrame2,
         3 => MapSpriteId.IndicatorFrame1,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
     /// <summary>Calculates the alternating endpoint/midpoint dwell at $82:BA25.</summary>
@@ -27,7 +27,7 @@ internal static class PauseMapIndicatorAnimation
     /// before loading this delay and decrement on that same tick.</remarks>
     public static int FrameDelay(int frame)
     {
-        if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         return 8 - 4 * (frame & 1);
     }
 }

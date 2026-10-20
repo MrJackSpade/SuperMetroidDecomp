@@ -34,7 +34,7 @@ internal sealed class CeresDoorEscapeSurfacePaintDefinitions
     /// <summary>Returns an authored exception where present or the calculated grey-blue door shade.</summary>
     internal Bgr555 ColorAt(int index)
     {
-        if ((uint)index >= 8) throw new IndexOutOfRangeException();
+        if ((uint)index >= 8) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
     }
 

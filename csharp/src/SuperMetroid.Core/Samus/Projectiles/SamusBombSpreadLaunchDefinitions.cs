@@ -10,7 +10,7 @@ internal static class SamusBombSpreadLaunchDefinitions
     /// </summary>
     internal static BombSpreadLaunchDefinition ForSlot(int index)
     {
-        if ((uint)index >= 5) throw new IndexOutOfRangeException();
+        if ((uint)index >= 5) throw new ArgumentOutOfRangeException(nameof(index));
         int radius = Math.Abs(index - 2);
         return new((ushort)(100 + radius * 10),
             (ushort)((index < 2 ? 0x8000 : 0) | radius * 128),

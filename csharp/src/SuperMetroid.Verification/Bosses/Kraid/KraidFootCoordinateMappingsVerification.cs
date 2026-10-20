@@ -35,8 +35,8 @@ internal static class KraidFootCoordinateMappingsVerification
             var actual = components[component];
             AssertEqual(expected, vertical ? actual.Offset.Y : actual.Offset.X, "Foot coordinate through production view");
         }
-        AssertThrows<IndexOutOfRangeException>(() => calculate(-1), "Negative foot coordinate frame");
-        AssertThrows<IndexOutOfRangeException>(() => calculate(35), "Past foot coordinate frame");
+        AssertThrows<ArgumentOutOfRangeException>(() => calculate(-1), "Negative foot coordinate frame");
+        AssertThrows<ArgumentOutOfRangeException>(() => calculate(35), "Past foot coordinate frame");
     }
 
     /// <summary>Reads one native foot component byte solely as the verification oracle.</summary>
@@ -61,8 +61,8 @@ internal static class KraidFootCoordinateMappingsVerification
         foreach (var box in boxes) { AssertEqual(expected, box, "Shared rectangle enumeration"); count++; }
         AssertEqual(1, count, "One enumerated rectangle");
         AssertEqual(expected, boxes.ToArray()[0], "Shared rectangle materialization");
-        AssertThrows<IndexOutOfRangeException>(() => _ = boxes[-1], "Negative shared rectangle index");
-        AssertThrows<IndexOutOfRangeException>(() => _ = boxes[1], "Past shared rectangle index");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = boxes[-1], "Negative shared rectangle index");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = boxes[1], "Past shared rectangle index");
         AssertThrows<InvalidDataException>(() => KraidFootCollisionDefinitionsConstants.HitboxesAt(0x9454), "Unaligned hitbox rejects");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -80,8 +80,8 @@ internal static class KraidFootCoordinateMappingsVerification
                 count++;
             }
             AssertEqual(2, count, "Two enumerated foot components");
-            AssertThrows<IndexOutOfRangeException>(() => _ = components[-1], "Negative component index");
-            AssertThrows<IndexOutOfRangeException>(() => _ = components[2], "Past component index");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = components[-1], "Negative component index");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = components[2], "Past component index");
         }
     }
 

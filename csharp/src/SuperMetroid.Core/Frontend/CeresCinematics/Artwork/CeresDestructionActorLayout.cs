@@ -24,13 +24,13 @@ public sealed class CeresDestructionActorLayout
     /// <summary>Resolves the selected starting placement of one persistent destruction-scene actor, using native defaults when the complete layout is unchanged.</summary>
     /// <param name="actorIndex">Zero-based $8B:C27C-$C295 spawn-order index: large asteroids, small asteroids, then the stationary vortex.</param>
     /// <returns>The fixed actor identity and encoded whole-pixel starting screen coordinates.</returns>
-    /// <exception cref="IndexOutOfRangeException">The index is outside 0 through 2.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0 through 2.</exception>
     public CeresDestructionActorPlacement this[int actorIndex]
     {
         get
         {
             if ((uint)actorIndex >= CeresDestructionActorDefinitions.InitialActorCount)
-                throw new IndexOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(actorIndex));
             return placements is null ? DefaultPlacement(actorIndex) : placements[actorIndex];
         }
     }

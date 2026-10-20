@@ -8,6 +8,6 @@ internal readonly record struct CrocomireMeltingPassSequence()
     {
         0 => CrocomireMeltingTransferDefinitions.Header((ushort)CrocomireMeltingHeader.First),
         1 => CrocomireMeltingTransferDefinitions.Header((ushort)CrocomireMeltingHeader.Second),
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 }

@@ -45,7 +45,7 @@ internal static class GunshipInstalledCompositionsVerification
         {
             EnemySpritemapPart[] native = EnemySpritemapCatalog.CompileParts(
                 EnemySpritemapFiles.ExtractParts(imported, frame.Bank, frame.Pointer), frame.Name);
-            AssertTrue((compositions ?? throw new InvalidOperationException("Verification requires compositions.")).TryGetDisplay(frame.Bank, frame.Pointer, out var installed),
+            AssertTrue(compositions.TryGetDisplay(frame.Bank, frame.Pointer, out var installed),
                 $"#1154 installed gunship composition {frame.Name} is resolvable");
             AssertTrue(native.SequenceEqual(installed),
                 $"#1154 {frame.Name} retains native offsets, sizes, tiles, priority and flips");

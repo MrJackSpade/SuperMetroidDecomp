@@ -20,7 +20,7 @@ internal static class MapIndicatorAnimationVerification
             AssertEqual(ReadVerificationWord(rom, 0x82ba2d + frame * 2),
                 (ushort)PauseMapIndicatorAnimation.SpritemapId(frame), "original marker sprite phase");
         foreach (int invalid in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => PauseMapIndicatorAnimation.SpritemapId(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => PauseMapIndicatorAnimation.SpritemapId(invalid),
                 "unsupported marker sprite phase");
     }
 
@@ -35,7 +35,7 @@ internal static class MapIndicatorAnimationVerification
             AssertEqual(ReadVerificationWord(rom, 0x82ba25 + frame * 2),
                 PauseMapIndicatorAnimation.FrameDelay(frame), "original marker phase delay");
         foreach (int invalid in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => PauseMapIndicatorAnimation.FrameDelay(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => PauseMapIndicatorAnimation.FrameDelay(invalid),
                 "unsupported marker delay phase");
 
         using var json = new MemoryStream(MapSaveMarkerExtractor.Extract(rom), writable: false);

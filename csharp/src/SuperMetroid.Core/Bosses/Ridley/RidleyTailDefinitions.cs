@@ -69,7 +69,7 @@ internal static class RidleyTailDefinitions
         0 => BaseRestDistance,
         >= 1 and <= 5 => ShaftRestDistance,
         6 => TipRestDistance,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(segmentIndex)),
     };
 
     /// <summary>$A6:D38A..D397 contains seven successive initial link angles, base through tip.</summary>

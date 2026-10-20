@@ -66,9 +66,9 @@ internal static class BombBlockProgramsVerification
             AssertEqual(run, draw.RunCount, "bomb restoration complete calculated runs");
             AssertEqual(run, list.Runs.Length, "bomb restoration complete exported runs");
             foreach (int invalid in new[] {int.MinValue, -1, run, int.MaxValue})
-                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(invalid, 0), "bomb restoration run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.WordAt(invalid, 0), "bomb restoration run bounds");
             foreach (int invalid in new[] {int.MinValue, -1, 2, int.MaxValue})
-                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(0, invalid), "bomb restoration block bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.WordAt(0, invalid), "bomb restoration block bounds");
         }
     }
 

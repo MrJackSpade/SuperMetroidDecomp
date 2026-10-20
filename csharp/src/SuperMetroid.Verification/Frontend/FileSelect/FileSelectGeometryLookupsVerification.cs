@@ -84,7 +84,7 @@ internal static class FileSelectGeometryLookupsVerification
     private static void VerifyFileSelectGeometryBounds(Func<int, ushort> lookup, int count)
     {
         foreach (int index in new[] { int.MinValue, -1, count, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => lookup(index), $"unsupported geometry index {index}");
+            AssertThrows<ArgumentOutOfRangeException>(() => lookup(index), $"unsupported geometry index {index}");
     }
 
     /// <summary>Runs the file-select cursor and helmet geometry checks.</summary>

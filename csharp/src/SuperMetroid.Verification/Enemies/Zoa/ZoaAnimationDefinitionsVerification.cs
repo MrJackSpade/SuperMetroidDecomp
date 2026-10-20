@@ -80,7 +80,7 @@ internal static class ZoaAnimationDefinitionsVerification
         {
             Position = new(new(unchecked((ushort)(slot.Position.X.Whole + (facingRight ? 0x10 : -0x10))), 0), new(slot.Position.Y.Whole, 0)),
         };
-        ZoaBehavior.RunZoaWait(slot, (state ?? throw new InvalidOperationException("Verification requires state.")), samus);
+        ZoaBehavior.RunZoaWait(slot, (state), samus);
         ZoaAnimationSelector direction = facingRight
             ? ZoaAnimationSelector.FacingRight
             : ZoaAnimationSelector.None;

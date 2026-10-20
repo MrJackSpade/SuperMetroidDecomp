@@ -85,7 +85,7 @@ internal static class TorizoInstructionVramArtworkDefinitions
             PageRole.GoldenLeftAttack => GoldenLeftAttack,
             PageRole.GoldenRightAttack => GoldenRightAttack,
             PageRole.ChozoDebris => ChozoDebris,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         /// <summary>Yields every required tile sheet in page-role order.</summary>
         public IEnumerator<TorizoInstructionTileSheetDefinition> GetEnumerator()

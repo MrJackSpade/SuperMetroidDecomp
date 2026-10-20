@@ -59,7 +59,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
         /// </summary>
         internal ushort WordAt(int run, int word)
         {
-            if ((uint)word >= WordCount(run)) throw new IndexOutOfRangeException();
+            if ((uint)word >= WordCount(run)) throw new ArgumentOutOfRangeException(nameof(word));
             if (IsCleared) return 0xff;
             int firstTile = run switch { 0 => 0x65, 1 => 0x64, 2 => 0x45, _ => 0x47 };
             return (ushort)(0x8000 | (firstTile + word));
@@ -67,7 +67,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
         /// <summary>Rejects strip indices outside the selected intact or cleared list.</summary>
         private void CheckRun(int run)
         {
-            if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
     }
 

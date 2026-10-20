@@ -23,7 +23,7 @@ internal static class LookupRainVelocityVerification
             AssertEqual(expected, actual, "Rain complete RNG selection domain");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => RoomFxRomData.Rain.HorizontalVelocity(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxRomData.Rain.HorizontalVelocity(invalid),
                 "Rain rejects selectors outside original four-word span");
     }
 }

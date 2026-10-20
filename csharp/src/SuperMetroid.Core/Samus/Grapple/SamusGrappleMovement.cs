@@ -1509,8 +1509,7 @@ public static class SamusGrappleMovement
                 QueueGrappleSound(samus, SamusGrappleRomData.Sounds.RestartStop);
                 grapple.Phase = GrapplePhase.Inactive;
                 BeginFiring(samus, controllerInput);
-                return new GrappleMovementResult(grapple.Phase, Fired: grapple.Phase == GrapplePhase.Firing,
-                    OwnsMovement: false);
+                return new GrappleMovementResult(GrapplePhase.Firing, Fired: true, OwnsMovement: false);
             }
         }
         // Unlike a cancellation requested inside the extension function, this

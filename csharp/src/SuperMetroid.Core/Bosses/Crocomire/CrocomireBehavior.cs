@@ -669,7 +669,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 // $B951 increments a temporary low-nibble value, then ORs it back into the
                 // flags word instead of replacing the nibble. Preserve that odd instruction
                 // sequence; changing it to an ordinary counter disagrees for several values.
-                state.FightFlags |= CrocomireFightFlagBits.AsHitCountField(state.FightFlags.NextHitCount());
+                state.HitCount |= CrocomireFightFlagBits.NextHitCount(state.HitCount);
                 return;
             }
 
@@ -854,7 +854,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
         {
             state.StepCounter += stepCount;
-            int hitCount = state.FightFlags.NextHitCount();
+            int hitCount = CrocomireFightFlagBits.NextHitCount(state.HitCount);
             if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == 0)
             {
                 // Both regional constants at $A4:8692/$8694 are eight. Keep the branch
@@ -864,8 +864,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                     body.InstructionTimer.RawValue +
                     (state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8))));
             }
-            state.FightFlags = CrocomireFightFlagBits.AsHitCountField(hitCount) |
-                (state.FightFlags & ~(CrocomireFightFlags.HitCountField | CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.ClawTouchedSamus)) |
+            state.HitCount = hitCount;
+            state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.ClawTouchedSamus)) |
                 CrocomireFightFlags.DamageReactionPending;
             state.ReactionTimer = 10;
         }
@@ -896,7 +896,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.FightFunction == CrocomireFightFunction.PowerBombCharge)
             return;
 
-        state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.HitCountField | CrocomireFightFlags.ClawTouchedSamus | CrocomireFightFlags.Engaged)) |
+        state.HitCount = 0;
+        state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.ClawTouchedSamus | CrocomireFightFlags.Engaged)) |
             CrocomireFightFlags.Engaged;
         state.ReactionTimer = 10;
         body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 4)));

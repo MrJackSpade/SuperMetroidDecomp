@@ -42,7 +42,7 @@ internal static class CrocomireSkeletonFrameGeometryVerification
                 "exact skeleton membership including gaps and component interiors");
             AssertTrue(!CrocomireSkeletonVisualDefinitions.IsFrame(0xa5, (ushort)pointer), "other bank excluded");
         }
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireSkeletonVisualDefinitions.Frame(-1), "negative skeleton index");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireSkeletonVisualDefinitions.Frame(33), "skeleton index past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSkeletonVisualDefinitions.Frame(-1), "negative skeleton index");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSkeletonVisualDefinitions.Frame(33), "skeleton index past end");
     }
 }

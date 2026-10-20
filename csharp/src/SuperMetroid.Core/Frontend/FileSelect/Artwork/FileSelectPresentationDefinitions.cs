@@ -28,7 +28,7 @@ public static class FileSelectPresentationDefinitions
     /// <summary>Calculates text glyph selection and left-to-right cell placement for one native patch.</summary>
     internal static FileSelectCompiledPatchCell PatchCell(string name, int index)
     {
-        if ((uint)index >= PatchCellCount(name)) throw new IndexOutOfRangeException();
+        if ((uint)index >= PatchCellCount(name)) throw new ArgumentOutOfRangeException(nameof(index));
         ushort word = name switch
         {
             EnergyPatch => index < 3 ? (ushort)(EnergyLabelFirst + index) : EnergyLabelFinal,

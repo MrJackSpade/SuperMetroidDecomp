@@ -41,12 +41,12 @@ public static class SamusSpecialSequenceRomData
             /// <summary>Returns the source and destination of one authored death-artwork upload without reordering its native schedule.</summary>
             /// <param name="index">Zero-based queue-order segment index 0..4, selecting physical pages 1, 2, 3, 4, then 0.</param>
             /// <returns>Bank-$9B source address and matching VRAM word destination for the selected $0400-byte transfer.</returns>
-            /// <exception cref="IndexOutOfRangeException">The segment index is outside 0..4.</exception>
+            /// <exception cref="ArgumentOutOfRangeException">The segment index is outside 0..4.</exception>
             public SamusDeathTileSegment this[int index]
             {
                 get
                 {
-                    if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                    if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                     int segment = (index + 1) % Count;
                     return new(TileSourceBase + segment * TileSegmentByteCount,
                         GameplayVram.ObjectCharactersDma(segment * (TileSegmentByteCount / 2)));
@@ -71,12 +71,12 @@ public static class SamusSpecialSequenceRomData
             /// <summary>Returns the initial visible death-pose animation index for one prior movement type, without replacing the separately initialized animation timer.</summary>
             /// <param name="index">Native movement-type value $00..$1B, not a death-sequence phase or elapsed-update count.</param>
             /// <returns>One for ordinary ball movement, zero for the two unused glitch-ball types, or five for all other supported movement types.</returns>
-            /// <exception cref="IndexOutOfRangeException">The movement-type index is outside $00..$1B.</exception>
+            /// <exception cref="ArgumentOutOfRangeException">The movement-type index is outside $00..$1B.</exception>
             public byte this[int index]
             {
                 get
                 {
-                    if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                    if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                     return (SamusMovementType)index switch
                     {
                         SamusMovementType.MorphBallGround or SamusMovementType.MorphBallFalling or

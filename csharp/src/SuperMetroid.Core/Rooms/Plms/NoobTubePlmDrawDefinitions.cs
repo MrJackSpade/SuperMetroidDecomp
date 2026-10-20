@@ -30,7 +30,7 @@ internal static class NoobTubePlmDrawDefinitions
         /// <summary>Rejects run indexes outside the selected tube layout before reading row geometry.</summary>
         private void CheckRun(int run)
         {
-            if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
         }
 
         /// <summary>Counts one origin block or a twelve-cell horizontal panel row for the selected run.</summary>
@@ -61,7 +61,7 @@ internal static class NoobTubePlmDrawDefinitions
         /// <summary>Encodes glass, rim, pipe-edge, or air blocks with collision and mirror bits for one tube cell.</summary>
         internal ushort WordAt(int run, int cell)
         {
-            if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
+            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             if (WordCount(run) == 1)
                 return Pointer switch
                 {

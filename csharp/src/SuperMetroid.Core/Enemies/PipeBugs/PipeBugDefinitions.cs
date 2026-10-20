@@ -10,7 +10,7 @@ internal static class PipeBugDefinitions
     /// </summary>
     internal static ushort NorfairStaggerTarget(int member)
     {
-        if ((uint)member >= 5) throw new IndexOutOfRangeException();
+        if ((uint)member >= 5) throw new ArgumentOutOfRangeException(nameof(member));
         int rank = member <= 2 ? -member : member - 2;
         return (ushort)(104 + 8 * rank);
     }
@@ -26,7 +26,7 @@ internal static class PipeBugDefinitions
         2 => PipeBugEnemyFunction.NorfairUpperFarStagger,
         3 => PipeBugEnemyFunction.NorfairLowerNearStagger,
         4 => PipeBugEnemyFunction.NorfairLowerFarStagger,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(member)),
     };
 
     /// <summary>

@@ -66,11 +66,18 @@ public sealed class CrocomireEnemyState
         internal set => _deathPhaseWord = (ushort)value;
     }
 
-    /// <summary>The fight latches and the saturating low-nibble hit count.</summary>
+    /// <summary>The fight latches.</summary>
     public CrocomireFightFlags FightFlags
     {
-        get => (CrocomireFightFlags)checked((ushort)_fightFlagsWord);
-        internal set => _fightFlagsWord = value.ToNativeWord();
+        get => CrocomireFightFlagBits.Flags(checked((ushort)_fightFlagsWord));
+        internal set => _fightFlagsWord = CrocomireFightFlagBits.ToNativeWord(value, HitCount);
+    }
+
+    /// <summary>The saturating count of mouth hits, 0..<see cref="CrocomireFightFlagBits.MaximumHitCount"/>, kept in the fight word beside the latches.</summary>
+    public int HitCount
+    {
+        get => CrocomireFightFlagBits.HitCount(checked((ushort)_fightFlagsWord));
+        internal set => _fightFlagsWord = CrocomireFightFlagBits.ToNativeWord(FightFlags, value);
     }
 
     /// <summary>The fight-AI function, run when the body program's fight-AI cue fires rather than once per main-AI frame.</summary>

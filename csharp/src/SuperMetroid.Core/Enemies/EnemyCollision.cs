@@ -957,46 +957,36 @@ internal sealed class EnemyCollision
         bool skipDeathAnimation = false)
     {
         SamusContactDamageIndex contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
-        if (contactDamageIndex == SamusContactDamageIndex.None)
+        ushort baseDamage;
+        int vulnerabilityOffset;
+        switch (contactDamageIndex)
         {
-            ApplyNormalEnemyTouchDamage(
-                samus,
-                enemy.Definition.Damage,
-                enemy.Position.X.Whole);
-            return;
+            case SamusContactDamageIndex.None:
+                ApplyNormalEnemyTouchDamage(
+                    samus,
+                    enemy.Definition.Damage,
+                    enemy.Position.X.Whole);
+                return;
+            case SamusContactDamageIndex.SpeedBooster:
+                (baseDamage, vulnerabilityOffset) = (500, EnemyVulnerabilityDefinitions.SpeedBoosterOffset);
+                break;
+            case SamusContactDamageIndex.Shinespark:
+                (baseDamage, vulnerabilityOffset) = (300, EnemyVulnerabilityDefinitions.ShinesparkOffset);
+                break;
+            case SamusContactDamageIndex.ScrewAttack:
+                (baseDamage, vulnerabilityOffset) = (2000, EnemyVulnerabilityDefinitions.ScrewAttackOffset);
+                break;
+            case SamusContactDamageIndex.PseudoScrew:
+                // The cartridge consumes charge before checking vulnerability. Even immune
+                // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
+                SamusProjectileSystem projectiles = _frameContext.SamusProjectiles
+                    ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
+                projectiles.Firing.ConsumePseudoScrewCharge(_presentation.Cgram, samus);
+                (baseDamage, vulnerabilityOffset) = (200, EnemyVulnerabilityDefinitions.PseudoScrewOffset);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}.");
         }
-
-        // The cartridge consumes charge before checking vulnerability. Even immune
-        // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
-        if (contactDamageIndex == SamusContactDamageIndex.PseudoScrew)
-        {
-            SamusProjectileSystem projectiles = _frameContext.SamusProjectiles
-                ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
-            projectiles.Firing.ConsumePseudoScrewCharge(_presentation.Cgram, samus);
-        }
-
-        ushort baseDamage = contactDamageIndex switch
-        {
-            SamusContactDamageIndex.SpeedBooster => 500,
-            SamusContactDamageIndex.Shinespark => 300,
-            SamusContactDamageIndex.ScrewAttack => 2000,
-            SamusContactDamageIndex.PseudoScrew => 200,
-            SamusContactDamageIndex.None => throw new InvalidOperationException(
-                $"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}."),
-            _ => throw new InvalidOperationException(
-                $"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}."),
-        };
-        int vulnerabilityOffset = contactDamageIndex switch
-        {
-            SamusContactDamageIndex.SpeedBooster => EnemyVulnerabilityDefinitions.SpeedBoosterOffset,
-            SamusContactDamageIndex.Shinespark => EnemyVulnerabilityDefinitions.ShinesparkOffset,
-            SamusContactDamageIndex.ScrewAttack => EnemyVulnerabilityDefinitions.ScrewAttackOffset,
-            SamusContactDamageIndex.PseudoScrew => EnemyVulnerabilityDefinitions.PseudoScrewOffset,
-            SamusContactDamageIndex.None => throw new InvalidOperationException(
-                $"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}."),
-            _ => throw new InvalidOperationException(
-                $"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}."),
-        };
         ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer
             : EnemyVulnerabilityDefinitions.DefaultPointer;

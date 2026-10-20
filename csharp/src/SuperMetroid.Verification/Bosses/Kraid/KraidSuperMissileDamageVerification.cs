@@ -41,7 +41,7 @@ internal static class KraidSuperMissileDamageVerification
         var state= runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.KraidBehavior.Kraid.");
         state.Parts[0].Function=KraidAiFunction.MainAttackWithMouthOpen;
         state.HeadProgram=RoarPastOpenPose;state.Parts[0].HeadTimer=64;
-        (state ?? throw new InvalidOperationException("Verification requires state.")).DisplayedHeadFrame = FullyOpenRoarFrame();
+        state.DisplayedHeadFrame = FullyOpenRoarFrame();
         var words=new ushort[32*64];for(int i=32*32;i<33*32;i++)words[i]=0x8000;
         var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(words, new byte[2048], new ushort[2048]), new byte[8]);
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });

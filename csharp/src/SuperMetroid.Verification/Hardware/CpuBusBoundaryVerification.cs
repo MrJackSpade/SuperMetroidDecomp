@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 /// <summary>Checks catalog ownership and the WRAM/SRAM cell primitives against the real address-space mapping.</summary>
 internal static class CpuBusBoundaryVerification

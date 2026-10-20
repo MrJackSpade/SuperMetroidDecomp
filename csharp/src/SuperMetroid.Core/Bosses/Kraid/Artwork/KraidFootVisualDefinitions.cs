@@ -20,7 +20,7 @@ internal static class KraidFootVisualDefinitions
     /// the compiled programs; skip it and append the separate initial root.</summary>
     internal static EnemyExtendedFrameDefinition Frame(int index)
     {
-        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = index == FrameCount - 1 ? InitialFrame
             : (ushort)(MovingStart + 18 * (index < 0x21 ? index : index + 1));
         return new(Bank, pointer, $"kraid_foot_oam_{pointer:X4}");

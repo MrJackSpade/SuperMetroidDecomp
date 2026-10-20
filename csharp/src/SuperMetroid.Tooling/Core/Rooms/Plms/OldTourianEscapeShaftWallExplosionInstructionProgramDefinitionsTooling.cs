@@ -53,6 +53,6 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
     static int IDeclaredProgramBank.Bank => EnemyProjectileCodePointers.BankBase;
     /// <summary>Locates the spritemap word following a wall-explosion pose duration.</summary>
     public static ushort PresentationWordAddress(int index) =>
-        (uint)index < (uint)FrameOperands.Length ? FrameOperands[index] : throw new IndexOutOfRangeException();
+        (uint)index < (uint)FrameOperands.Length ? FrameOperands[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
 }

@@ -829,7 +829,7 @@ public static class SamusArmCannonArtworkFormat
         /// <summary>Gets bank-$9A source identity $9A00 plus index times $200 for zero-based index 0–11; each identity resolves to an installed 32-byte character.</summary>
         public ushort this[int index] => (uint)index < Count
             ? (ushort)(FirstTileSource + index * TileSourceStride)
-            : throw new IndexOutOfRangeException();
+            : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Finds the exact bank-relative native tile identity, returning its exported character index 0–11 or -1 if the address is absent or unaligned.</summary>
         public int IndexOf(ushort source)
         {

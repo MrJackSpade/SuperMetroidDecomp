@@ -217,7 +217,7 @@ internal static class SamusEaterVisualsVerification
                         AssertEqual(native, exportedRun.LevelWords.Span[block], "exported plant word");
                     }
                     foreach (int invalid in new[] { int.MinValue, -1, count, 256, int.MaxValue })
-                        AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(run, invalid), "plant block bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => draw.WordAt(run, invalid), "plant block bounds");
                 }
                 else
                 {
@@ -237,10 +237,10 @@ internal static class SamusEaterVisualsVerification
             }
             foreach (int invalid in new[] { int.MinValue, -1, 3, 256, int.MaxValue })
             {
-                AssertThrows<IndexOutOfRangeException>(() => SamusEaterPlmDrawDefinitions.Draw.Count(invalid), "plant run count bounds");
-                AssertThrows<IndexOutOfRangeException>(() => SamusEaterPlmDrawDefinitions.Draw.NextX(invalid), "plant offset X bounds");
-                AssertThrows<IndexOutOfRangeException>(() => draw.NextY(invalid), "plant offset Y bounds");
-                AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(invalid, 0), "plant word run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusEaterPlmDrawDefinitions.Draw.Count(invalid), "plant run count bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusEaterPlmDrawDefinitions.Draw.NextX(invalid), "plant offset X bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.NextY(invalid), "plant offset Y bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.WordAt(invalid, 0), "plant word run bounds");
             }
         }
     }

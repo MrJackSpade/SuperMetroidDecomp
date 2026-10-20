@@ -34,7 +34,7 @@ internal static class GameOverTextLookupsVerification
             AssertEqual(expected, field(enumerated[index]), $"game-over text {name} enumeration {index}");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, 65536, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GameOverRomData.Text.Get((GameOverTextElement)invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOverRomData.Text.Get((GameOverTextElement)invalid),
                 $"invalid game-over text {name} selector {invalid}");
     }
 

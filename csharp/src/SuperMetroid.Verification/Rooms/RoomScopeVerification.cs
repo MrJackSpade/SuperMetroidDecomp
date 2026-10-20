@@ -57,7 +57,7 @@ internal static class RoomScopeVerification
             SetupCodePointer: DoorSetupCode.None);
         runtime.RoomLoader.LoadCartridgeRoom(door, parlor, camera, RoomViewportLoadMode.StreamThroughDoor);
 
-        RoomScope destination = runtime.Room.Scope ?? throw new InvalidOperationException("The door load adopted no scope.");
+        RoomScope destination = runtime.Room.Scope;
         VerificationAssert.AssertTrue(!ReferenceEquals(source, destination) && !ReferenceEquals(previous, destination.Camera),
             "the door load builds a new scope and camera");
         VerificationAssert.AssertTrue(ReferenceEquals(parlor, destination.Room) && ReferenceEquals(door, destination.Door),

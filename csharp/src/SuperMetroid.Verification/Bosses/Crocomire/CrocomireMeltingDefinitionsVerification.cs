@@ -90,8 +90,8 @@ internal static class CrocomireMeltingDefinitionsVerification
             AssertEqual(pass, CrocomireMeltingTransferDefinitions.Transfers(pass.TransferStartOffset), "melt transfer selector");
         }
         AssertEqual(0xb4, CrocomireMeltingTransferDefinitions.Passes[1].NextHeaderOffset, "native melt record extent");
-        AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireMeltingTransferDefinitions.Passes[-1], "negative melt pass");
-        AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireMeltingTransferDefinitions.Passes[2], "melt pass past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireMeltingTransferDefinitions.Passes[-1], "negative melt pass");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireMeltingTransferDefinitions.Passes[2], "melt pass past end");
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.Header(1), "invalid melt header");
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.Transfers(0), "header is not transfer start");
     }
@@ -123,8 +123,8 @@ internal static class CrocomireMeltingDefinitionsVerification
             int enumerated = 0;
             foreach (var copy in pass.Copies) AssertEqual(pass.Copies[enumerated++], copy, "melt copy enumeration");
             AssertEqual(pass.ChunkCount, enumerated, "melt copy enumeration count");
-            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Copies[-1], "negative melt copy");
-            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Copies[pass.ChunkCount], "melt copy past end");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = pass.Copies[-1], "negative melt copy");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = pass.Copies[pass.ChunkCount], "melt copy past end");
         }
     }
 
@@ -169,8 +169,8 @@ internal static class CrocomireMeltingDefinitionsVerification
             int enumerated = 0;
             foreach (var upload in pass.Uploads) AssertEqual(pass.Uploads[enumerated++], upload, "melt upload enumeration");
             AssertEqual(pass.ChunkCount, enumerated, "melt upload enumeration count");
-            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Uploads[-1], "negative melt upload");
-            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Uploads[pass.ChunkCount], "melt upload past end");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = pass.Uploads[-1], "negative melt upload");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = pass.Uploads[pass.ChunkCount], "melt upload past end");
             AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(pass.TransferStartOffset + 1, out _), "misaligned melt upload");
         }
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(0x54, out _), "header is not an upload");

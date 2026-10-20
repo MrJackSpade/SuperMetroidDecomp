@@ -41,7 +41,7 @@ internal static class OptionsGeometryLookupsVerification
             AssertEqual(ReadVerificationWord(rom, address + stride * index), actual(index),
                 $"{name} native word {index}");
         foreach (int index in new[] { int.MinValue, -1, count, count + 1, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => actual(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => actual(index),
                 $"{name} rejects {index}");
     }
 }

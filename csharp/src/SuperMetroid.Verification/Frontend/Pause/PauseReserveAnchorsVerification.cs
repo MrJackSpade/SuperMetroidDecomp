@@ -24,7 +24,7 @@ internal static class PauseReserveAnchorsVerification
         Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, true));
         Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, false));
         foreach (int invalid in new[] { int.MinValue, -1, 6, 256, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => stock.Anchor(invalid), "reserve anchor array boundary preserved");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Anchor(invalid), "reserve anchor array boundary preserved");
     }
 
     /// <summary>Checks one anchor coordinate axis against native words and edited OAM placements.</summary>

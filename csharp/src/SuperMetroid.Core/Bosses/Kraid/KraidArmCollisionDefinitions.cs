@@ -99,21 +99,21 @@ internal static class KraidArmCollisionDefinitions
     /// Hitbox_KraidArm_10..12 and both dying/lunge lists use background touch.</remarks>
     internal static KraidHitboxTouch TouchCallback(int rectangle)
     {
-        if ((uint)rectangle >= RectangleCount) throw new IndexOutOfRangeException();
+        if ((uint)rectangle >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(rectangle));
         return rectangle < FirstBackgroundRectangle ? KraidHitboxTouch.Arm : KraidHitboxTouch.Background;
     }
 
     /// <summary>Every selected arm rectangle uses the arm's shot reaction (EnemyShot_KraidArm).</summary>
     internal static KraidHitboxShot ShotCallback(int rectangle)
     {
-        if ((uint)rectangle >= RectangleCount) throw new IndexOutOfRangeException();
+        if ((uint)rectangle >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(rectangle));
         return KraidHitboxShot.Arm;
     }
 
     /// <summary>Combines one indexed rectangle's bounds with its arm/background touch and arm-shot reactions.</summary>
     internal static KraidArmCollisionHitbox Rectangle(int index)
     {
-        if ((uint)index >= RectangleCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(index));
         KraidArmCollisionGeometry geometry = Geometry[index];
         return new(geometry.Left, geometry.Top, geometry.Right, geometry.Bottom,
             TouchCallback(index), ShotCallback(index));
@@ -145,8 +145,10 @@ internal static class KraidArmCollisionDefinitions
     /// Poses10/11 are the single-component dying/lunge frames. Coordinates are separate.</remarks>
     internal static ushort ComponentHitbox(int pose, int component)
     {
-        if ((uint)pose >= 12 || (uint)component >= (pose < 10 ? 5u : 1u))
-            throw new IndexOutOfRangeException();
+        if ((uint)pose >= 12)
+            throw new ArgumentOutOfRangeException(nameof(pose));
+        if ((uint)component >= (pose < 10 ? 5u : 1u))
+            throw new ArgumentOutOfRangeException(nameof(component));
         if (pose >= 10) return (ushort)(FinalPoseShape + 14 * (pose - 10));
         if (component == 2)
             return pose < 2 ? BodyInitialShape : pose < 4 ? BodyMiddleShape : BodyFinalShape;

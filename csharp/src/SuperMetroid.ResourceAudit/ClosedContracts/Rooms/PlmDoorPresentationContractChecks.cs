@@ -113,7 +113,7 @@ internal static class PlmDoorPresentationContractChecks
             entries => _ = new RoomPlmEscapeGateVisualCatalog(entries));
         RoomPlmShotBlockDrawDefinitions.DrawList[] itemShapes =
             (PlmVisualDomainDefinitions.Get((typeof(RoomPlmCollectibleVisualCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(RoomPlmCollectibleVisualCatalog).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(RoomPlmCollectibleVisualCatalog).FullName ?? thr...."));
-        ConfirmCoverage((itemShapes ?? throw new InvalidOperationException("Verification requires itemShapes.")), frame => {
+        ConfirmCoverage((itemShapes), frame => {
             Require(RoomPlmCollectibleDrawDefinitions.TryGet(frame.Pointer, out var item), "compiled item shape owns its ID");
             return new RoomPlmCollectibleVisualEntry(item.Id, VisualRuns(frame)[0][0]);
         }, entries => _ = new RoomPlmCollectibleVisualCatalog(entries));

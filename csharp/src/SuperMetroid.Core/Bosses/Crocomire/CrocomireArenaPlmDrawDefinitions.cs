@@ -22,14 +22,16 @@ internal static class CrocomireArenaPlmDrawDefinitions
         /// <summary>Offsets the next wall column from the draw origin rather than from the prior column.</summary>
         internal sbyte NextX(int run)
         {
-            if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
+            if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
             return run + 1 < RunCount ? (sbyte)(run + 1) : (sbyte)0;
         }
         /// <summary>Calculates bridge tiles or the wall's alternating rows and final base row, applying solid collision only to the create-wall state.</summary>
         internal ushort WordAt(int run, int block)
         {
-            if ((uint)run >= RunCount || (uint)block >= WordsPerRun)
-                throw new IndexOutOfRangeException();
+            if ((uint)run >= RunCount)
+                throw new ArgumentOutOfRangeException(nameof(run));
+            if ((uint)block >= WordsPerRun)
+                throw new ArgumentOutOfRangeException(nameof(block));
             if (!Wall) return Pointer == CrocomireArenaDraw.CrumbleBridgeBlock ? (ushort)0x810b : (ushort)0x0080;
             int tile = block is 0 or >= 6 ? 0x80 :
                 0x107 + run + (block == 5 ? 2 : (block - 1) % 2) * 0x20;

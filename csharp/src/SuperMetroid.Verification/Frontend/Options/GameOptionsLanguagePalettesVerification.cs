@@ -59,7 +59,7 @@ internal static class GameOptionsLanguagePalettesVerification
             }
         }
         foreach (int setting in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GameOptionsRomData.SpecialToggles.Layout(setting),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRomData.SpecialToggles.Layout(setting),
                 $"invalid toggle layout {setting}");
         Console.WriteLine("Options toggle geometry: all eight native boxes, widths and both highlight states pass through extraction and presentation.");
     }
@@ -81,7 +81,7 @@ internal static class GameOptionsLanguagePalettesVerification
         AreaMapPresentationCatalog installed = RetailPresentationFixture();
         AssertEqual(4, GameOptionsRomData.LanguagePaletteRegionCount, "native language highlight has four regions");
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GameOptionsRomData.LanguagePaletteRegion(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRomData.LanguagePaletteRegion(index),
                 $"unsupported language region {index}");
 
         // Set_Language_Text_Option_Highlight ($82:EDED) chooses palette zero for

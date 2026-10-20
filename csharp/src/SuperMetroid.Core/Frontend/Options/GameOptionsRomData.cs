@@ -82,9 +82,9 @@ public static class GameOptionsRomData
         public const int SpecialCount = 3;
 
         /// <summary>Classifies a controller-page cursor row: assignable action rows precede Exit, then Reset.</summary>
-        /// <exception cref="IndexOutOfRangeException">The row is outside the nine-row page.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The row is outside the nine-row page.</exception>
         public static GameOptionsControllerRowKind ControllerRowKind(int row) =>
-            row is < 0 or >= ControllerCount ? throw new IndexOutOfRangeException()
+            row is < 0 or >= ControllerCount ? throw new ArgumentOutOfRangeException(nameof(row))
             : row < ControllerActionCount ? GameOptionsControllerRowKind.Action
             : row < ControllerReset ? GameOptionsControllerRowKind.Exit
             : GameOptionsControllerRowKind.Reset;
@@ -122,11 +122,11 @@ public static class GameOptionsRomData
         /// For row i=0..4, X=$0018 and Y=$0038+$0020*i-(i&gt;=2 ? 8 : 0).
         /// The eight-pixel shift after row 1 matches the authored layout gap.
         /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all five records;
-        /// PrimaryCount bounds the five rows; unsupported indices keep IndexOutOfRangeException.
+        /// PrimaryCount bounds the five rows; unsupported indices throw ArgumentOutOfRangeException.
         /// </remarks>
         public static ushort PrimaryY(int row)
         {
-            if ((uint)row >= Rows.PrimaryCount) throw new IndexOutOfRangeException();
+            if ((uint)row >= Rows.PrimaryCount) throw new ArgumentOutOfRangeException(nameof(row));
             return (ushort)(0x38 + 0x20 * row - (row >= 2 ? 8 : 0));
         }
         /// <summary>$82:F31D and subsequent Y words are screen-space anchors; END/RESET already account for page scrolling.</summary>
@@ -137,11 +137,11 @@ public static class GameOptionsRomData
         /// The final two rows are Exit and Reset, shifted upward by $20 to account
         /// for the controller-page scroll. Pinned NTSC J/U v1.0 ROM and bank_82.asm
         /// match all nine records; GameOptionsMenuState keeps the selected row in
-        /// 0..8 across the controller scroll transitions. Invalid indices keep IndexOutOfRangeException.
+        /// 0..8 across the controller scroll transitions. Invalid indices throw ArgumentOutOfRangeException.
         /// </remarks>
         public static ushort ControllerY(int row)
         {
-            if ((uint)row >= Rows.ControllerCount) throw new IndexOutOfRangeException();
+            if ((uint)row >= Rows.ControllerCount) throw new ArgumentOutOfRangeException(nameof(row));
             return (ushort)(0x30 + 0x18 * row - (row >= Rows.ControllerExit ? ControllerScrollLimit : 0));
         }
         /// <summary>Special-settings cursor Y for selected row 0..2.</summary>
@@ -151,11 +151,11 @@ public static class GameOptionsRomData
         /// $0040+$0030*i for i=0..2, while X stays $0010. Pinned NTSC J/U v1.0
         /// ROM and bank_82.asm match all three records. GameOptionsMenuState
         /// wraps SpecialCount at three before indexing, and extraction uses the
-        /// same three anchors. Invalid indices keep IndexOutOfRangeException.
+        /// same three anchors. Invalid indices throw ArgumentOutOfRangeException.
         /// </remarks>
         public static ushort SpecialY(int row)
         {
-            if ((uint)row >= Rows.SpecialCount) throw new IndexOutOfRangeException();
+            if ((uint)row >= Rows.SpecialCount) throw new ArgumentOutOfRangeException(nameof(row));
             return (ushort)(0x40 + 0x30 * row);
         }
     }
@@ -175,11 +175,11 @@ public static class GameOptionsRomData
         /// twice the row index to read the word; managed label drawing and asset
         /// extraction use the same seven-row domain. The $C0-byte step places each
         /// 3x2 label box three 32-word tilemap rows below the previous one.
-        /// The adjacent source-pointer region has its own rule. Invalid indices keep IndexOutOfRangeException.
+        /// The adjacent source-pointer region has its own rule. Invalid indices throw ArgumentOutOfRangeException.
         /// </remarks>
         public static ushort Destination(int action)
         {
-            if ((uint)action >= Rows.ControllerActionCount) throw new IndexOutOfRangeException();
+            if ((uint)action >= Rows.ControllerActionCount) throw new ArgumentOutOfRangeException(nameof(action));
             return (ushort)(0x16e + MenuTilemapWidth * sizeof(ushort) * 3 * action);
         }
         /// <summary>Bank-$82 source pointer for each assignable controller-button label.</summary>
@@ -190,11 +190,11 @@ public static class GameOptionsRomData
         /// of six words. Adjacent selectors 7 and 8 both point to the distinct
         /// OFF record at $F6AD; the managed assignable-button view stops at 6.
         /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all nine pointer words.
-        /// Extraction uses the seven-entry domain; invalid indices keep IndexOutOfRangeException.
+        /// Extraction uses the seven-entry domain; invalid indices throw ArgumentOutOfRangeException.
         /// </remarks>
         public static ushort Source(int button)
         {
-            if ((uint)button >= Rows.ControllerActionCount) throw new IndexOutOfRangeException();
+            if ((uint)button >= Rows.ControllerActionCount) throw new ArgumentOutOfRangeException(nameof(button));
             return (ushort)(0xf659 + WidthInTiles * HeightInTiles * sizeof(ushort) * button);
         }
     }
@@ -212,7 +212,7 @@ public static class GameOptionsRomData
     /// </remarks>
     public static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(int index)
     {
-        if ((uint)index >= LanguagePaletteRegionCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= LanguagePaletteRegionCount) throw new ArgumentOutOfRangeException(nameof(index));
         int language = index / 2;
         int row = index % 2;
         return new(0x288 + MenuTilemapWidth * sizeof(ushort) * (row + 3 * language),
@@ -251,7 +251,7 @@ public static class GameOptionsRomData
         /// </summary>
         public static GameOptionsToggleLayout Layout(int setting)
         {
-            if ((uint)setting >= Rows.SpecialExit) throw new IndexOutOfRangeException();
+            if ((uint)setting >= Rows.SpecialExit) throw new ArgumentOutOfRangeException(nameof(setting));
             int rowStride = MenuTilemapWidth * sizeof(ushort);
             int origin = 0x1e0 + 6 * rowStride * setting;
             int choiceStride = 7 * sizeof(ushort);

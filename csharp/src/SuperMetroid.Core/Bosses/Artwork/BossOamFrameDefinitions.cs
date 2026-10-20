@@ -31,7 +31,7 @@ internal static class BossOamFrameDefinitions
     /// <summary>Calculates one selected Ridley root from the fixed-size four-component record run.</summary>
     internal static ushort RidleyPointer(int index)
     {
-        if ((uint)index >= EnemyExtendedFrameDefinitions.RidleyFrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= EnemyExtendedFrameDefinitions.RidleyFrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         return (ushort)(RidleyStart + 34 * index);
     }
 
@@ -42,7 +42,7 @@ internal static class BossOamFrameDefinitions
     /// three-component root. Gaps and BG2 roots are excluded by the run starts.</summary>
     internal static ushort DraygonPointer(int index)
     {
-        if ((uint)index >= EnemyExtendedFrameDefinitions.DraygonOamFrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= EnemyExtendedFrameDefinitions.DraygonOamFrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         bool right = index >= 24;
         int pose = index % 24;
         if (pose < 6) return (ushort)((right ? DraygonRightStart : DraygonLeftStart) + 10 * pose);
@@ -57,7 +57,7 @@ internal static class BossOamFrameDefinitions
     /// roots, then three fully-open roots. The unused middle run is not selected.</summary>
     internal static ushort SporeSpawnPointer(int index)
     {
-        if ((uint)index >= EnemyExtendedFrameDefinitions.SporeSpawnOamFrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= EnemyExtendedFrameDefinitions.SporeSpawnOamFrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         return (ushort)(index < 2 ? SporeSpawnStart + 10 * index
             : index < 9 ? SporeSpawnOpening + 18 * (index - 2)
             : SporeSpawnOpen + 18 * (index - 9));

@@ -200,7 +200,7 @@ internal static class EnemyDropsVerification
         EnemyDropFixture reroll = CreateEnemyDropFixture(rerollSamus, randomValues: [0, 1]);
         RoomEnemyProjectileSlot rerolled = (reroll.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(
             new(50, 50), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires reroll.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable( new(50, 50), NativeDropChan...."));
-        AssertEqual(2, (rerolled ?? throw new InvalidOperationException("Verification requires rerolled.")).Variable0,
+        AssertEqual(2, rerolled.Variable0,
             "zero RNG sample rerolls before selecting small energy");
 
         // `$7E:0E1E` is a stateful critical-energy flag. Energy below 30 enables it,
@@ -215,19 +215,19 @@ internal static class EnemyDropsVerification
 
         RoomEnemyProjectileSlot belowThirty =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChancePointer) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChancePoi...."));
-        AssertEqual(4, (belowThirty ?? throw new InvalidOperationException("Verification requires belowThirty.")).Variable0,
+        AssertEqual(4, belowThirty.Variable0,
             "critical energy suppresses no-drop and renormalizes energy weights");
 
         biasSamus.Health = 40;
         RoomEnemyProjectileSlot graceBand =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(20, 20), biasDropChancePointer) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(20, 20), biasDropChancePoi...."));
-        AssertEqual(4, (graceBand ?? throw new InvalidOperationException("Verification requires graceBand.")).Variable0,
+        AssertEqual(4, graceBand.Variable0,
             "30..49 energy retains the previous critical-drop bias");
 
         biasSamus.Health = 50;
         RoomEnemyProjectileSlot clearedBias =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChancePointer) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChancePoi...."));
-        AssertEqual((ushort)0xefdf, (clearedBias ?? throw new InvalidOperationException("Verification requires clearedBias.")).PreInstructionWord,
+        AssertEqual((ushort)0xefdf, clearedBias.PreInstructionWord,
             "50 energy clears critical bias and permits the table's no-drop weight");
 
         SamusState fullSamus = CreateDropTestSamus();
@@ -238,7 +238,7 @@ internal static class EnemyDropsVerification
         EnemyDropFixture full = CreateEnemyDropFixture(fullSamus, randomValues: [1]);
         RoomEnemyProjectileSlot ineligible =
             (full.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires full.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChanceP...."));
-        AssertEqual((ushort)0xefdf, (ineligible ?? throw new InvalidOperationException("Verification requires ineligible.")).PreInstructionWord,
+        AssertEqual((ushort)0xefdf, ineligible.PreInstructionWord,
             "full resources make the native record's ammo weights ineligible");
     }
 
@@ -251,7 +251,7 @@ internal static class EnemyDropsVerification
 
         RoomEnemyProjectileSlot expiring =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropCh...."));
-        (expiring ?? throw new InvalidOperationException("Verification requires expiring.")).Variable1 = 1;
+        expiring.Variable1 = 1;
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual(0, expiring.Variable1,
             "pickup lifetime decrements before its expiry comparison");
@@ -263,7 +263,7 @@ internal static class EnemyDropsVerification
         RoomEnemyProjectileSlot boundary =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(
-            (boundary ?? throw new InvalidOperationException("Verification requires boundary.")).Position.X.Whole + boundary.Radius.X + samus.Kinematics.Radius.X)), boundary.Position.Y.Whole));
+            boundary.Position.X.Whole + boundary.Radius.X + samus.Kinematics.Radius.X)), boundary.Position.Y.Whole));
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual(50, samus.Health,
             "radius equality is not Samus/pickup contact");
@@ -293,7 +293,7 @@ internal static class EnemyDropsVerification
             AssertEqual(50, samus.Health,
                 $"grapple cannot collect pickup during protected frame {frame + 1}");
         }
-        AssertEqual(384, (pickup ?? throw new InvalidOperationException("Verification requires pickup.")).Variable1,
+        AssertEqual(384, pickup.Variable1,
             "sixteen protected frames still decrement pickup lifetime");
 
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
@@ -318,7 +318,7 @@ internal static class EnemyDropsVerification
         {
             RoomEnemyProjectileSlot pickup =
                 (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
-            AssertEqual(17 - allocation, (pickup ?? throw new InvalidOperationException("Verification requires pickup.")).SlotIndex,
+            AssertEqual(17 - allocation, pickup.SlotIndex,
                 $"enemy projectile allocation {allocation} descends from native $22");
             AssertEqual((ushort)0xefe0, pickup.PreInstructionWord,
                 $"nonzero projectile slot {pickup.SlotIndex} becomes pickup");
@@ -326,7 +326,7 @@ internal static class EnemyDropsVerification
 
         RoomEnemyProjectileSlot slotZero =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
-        AssertEqual(0, (slotZero ?? throw new InvalidOperationException("Verification requires slotZero.")).SlotIndex, "eighteenth allocation reaches physical slot zero");
+        AssertEqual(0, slotZero.SlotIndex, "eighteenth allocation reaches physical slot zero");
         AssertEqual((ushort)0xefe0, slotZero.PreInstructionWord,
             "a directly spawned drop in physical slot zero becomes a pickup");
         AssertEqual<RoomEnemyProjectileSlot?>(null,

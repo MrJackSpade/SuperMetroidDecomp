@@ -40,11 +40,11 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             ushort midpoint = unchecked((ushort)(bucket << 8));
-            (centerState ?? throw new InvalidOperationException("Verification requires centerState.")).MotionFlags = 0;
+            centerState.MotionFlags = 0;
             centerState.OrbitAngle = SnesAngle.FromRaw(unchecked((ushort)(midpoint ^ 0x8000)));
             centerState.AngularVelocity = 0;
             centerState.ResetOrientation();
-            (nextState ?? throw new InvalidOperationException("Verification requires nextState.")).OrbitAngle = SnesAngle.FromRaw(midpoint);
+            nextState.OrbitAngle = SnesAngle.FromRaw(midpoint);
             orient(center, centerState);
             AssertEqual(bucket, centerState.OrientationBucket,
                 $"Shaktool production orientation bucket {bucket:X2}");
@@ -56,7 +56,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         RoomEnemySlot tail = enemies.SlotTable.Slots[6];
         ShaktoolSegmentState tailState = (enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[6]."));
         Action<RoomEnemySlot, ShaktoolSegmentState, Position16<RoomPixels>> reverse = enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision;
-        reverse(tail, (tailState ?? throw new InvalidOperationException("Verification requires tailState.")), tail.Position.Whole);
+        reverse(tail, (tailState), tail.Position.Whole);
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(ShaktoolInstructionDefinitions.CollisionForSegment(index)),

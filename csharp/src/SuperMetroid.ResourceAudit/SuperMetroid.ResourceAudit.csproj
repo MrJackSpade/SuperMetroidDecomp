@@ -7,7 +7,6 @@
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
     <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
-    <Compile Include="../../test-support/CpuBusTestDoubles/SyntheticCartridge.cs" Link="TestSupport/CpuBusTestDoubles/SyntheticCartridge.cs" />
     <!-- A package, not a path into one host's install: Visual Studio's MSBuild has no SDK Roslyn/bincore folder. -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
   </ItemGroup>

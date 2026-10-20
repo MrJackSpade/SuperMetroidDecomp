@@ -18,8 +18,10 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
         /// <summary>Builds the bomb tile's parent or linked-child collision word at a position within the draw shape.</summary>
         internal ushort WordAt(int run, int block)
         {
-            if ((uint)run >= RunCount || (uint)block >= 2)
-                throw new IndexOutOfRangeException();
+            if ((uint)run >= RunCount)
+                throw new ArgumentOutOfRangeException(nameof(run));
+            if ((uint)block >= 2)
+                throw new ArgumentOutOfRangeException(nameof(block));
             int row = Vertical ? block : run;
             int column = Vertical ? 0 : block;
             // Every cell shows the same bomb tile. Children link left on the

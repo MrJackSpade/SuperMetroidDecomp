@@ -41,9 +41,9 @@ internal static class HyperBeamFxColorArtworkVerification
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color), entry.Value.Apply(basis), "Original endpoint shared extrema");
             for (int channel = 0; channel < 3; channel++)
             {
-                object? fieldValue = entry.Value.Component(channel);
-                AssertEqual((independentMask & 1 << channel) != 0, fieldValue is not null, "Only independent original endpoint channels are stored");
-                if (fieldValue is not null) endpointComponentCount++;
+                int? fieldValue = entry.Value.Component(channel);
+                AssertEqual((independentMask & 1 << channel) != 0, fieldValue.HasValue, "Only independent original endpoint channels are stored");
+                if (fieldValue.HasValue) endpointComponentCount++;
             }
         }
         AssertEqual(14, endpointComponentCount, "Fourteen endpoint components replace twenty-four");
@@ -82,9 +82,9 @@ internal static class HyperBeamFxColorArtworkVerification
                 int shift = 5 * channel;
                 int expected = (int)Math.Ceiling(((first >> shift & 31) + (second >> shift & 31)) / 2.0);
                 int? differing = (native >> shift & 31) == expected ? null : native >> shift & 31;
-                object? actual = entry.Value.Component(channel);
-                AssertTrue(Equals(differing, actual), "Only originally differing middle-shade channels are stored");
-                if (actual is not null) shadeComponentCount++;
+                int? actual = entry.Value.Component(channel);
+                AssertEqual(differing, actual, "Only originally differing middle-shade channels are stored");
+                if (actual.HasValue) shadeComponentCount++;
             }
         }
         AssertEqual(6, shadeComponentCount, "Six differing middle-shade components remain under review");

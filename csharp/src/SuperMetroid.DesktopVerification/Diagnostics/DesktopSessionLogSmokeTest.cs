@@ -124,7 +124,7 @@ internal static class DesktopSessionLogSmokeTest
     private static void VerifyGameEntry(string root, string gameAssemblyPath)
     {
         string executable = (Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath))."));
-        string logs = Path.Combine((executable ?? throw new InvalidOperationException("Verification requires executable.")), "logs");
+        string logs = Path.Combine((executable), "logs");
         bool logsExisted = Directory.Exists(logs);
         HashSet<string> before = logsExisted
             ? Directory.GetFiles(logs, "*.zip").ToHashSet(StringComparer.OrdinalIgnoreCase) : [];

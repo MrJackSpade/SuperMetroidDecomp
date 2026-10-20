@@ -62,6 +62,6 @@ public static class RidleyMovementTargets
     /// <summary>Limits health-stage selection to the four entries represented by the native movement tables.</summary>
     private static void ValidateStage(int stage)
     {
-        if ((uint)stage >= 4) throw new IndexOutOfRangeException();
+        if ((uint)stage >= 4) throw new ArgumentOutOfRangeException(nameof(stage));
     }
 }

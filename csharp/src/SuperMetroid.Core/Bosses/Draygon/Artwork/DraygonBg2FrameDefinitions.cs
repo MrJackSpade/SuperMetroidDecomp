@@ -33,7 +33,7 @@ internal static class DraygonBg2FrameDefinitions
     /// count and one eight-byte component. Preserve the published pointer-based key.</summary>
     internal static EnemyBg2FrameDefinition Frame(int index)
     {
-        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         ushort pointer = (ushort)(index < 17 ? FacingLeftStart + 10 * index
             : FacingRightStart + 10 * (index - 17));
         return new(pointer, $"draygon_bg2_{pointer:X4}");

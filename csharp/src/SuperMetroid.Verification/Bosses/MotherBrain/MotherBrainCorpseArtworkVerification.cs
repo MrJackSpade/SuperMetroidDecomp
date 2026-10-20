@@ -126,7 +126,7 @@ internal static class MotherBrainCorpseArtworkVerification
         var reloadedStaging = new EnemyStagingSurfaces();
         RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
             .MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainCorpse."));
-        new MotherBrainCorpseRottingState().Initialize(reloadedStaging, (reloaded ?? throw new InvalidOperationException("Verification requires reloaded.")));
+        new MotherBrainCorpseRottingState().Initialize(reloadedStaging, (reloaded));
         AssertEqual(editedTiles[0], reloadedStaging.MotherBrainCorpseTiles[0],
             "Mother Brain corpse override survives catalog reload");
 

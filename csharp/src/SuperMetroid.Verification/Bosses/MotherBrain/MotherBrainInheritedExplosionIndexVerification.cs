@@ -27,7 +27,7 @@ internal static class MotherBrainInheritedExplosionIndexVerification
         state.BodySubFunctionTimer = NativeCountdown.Start(2);
         runtime.Enemies.MotherBrainBehavior.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, null);
         MotherBrainRainbowBeamAttackSequence sequence = (state.RainbowBeamSequence ?? throw new InvalidOperationException("Verification requires state.RainbowBeamSequence."));
-        AssertEqual((ushort)2, (sequence ?? throw new InvalidOperationException("Verification requires sequence.")).DeathAndEscapeExplosionIndex.RawValue, "the sequence inherits word $0FF2");
+        AssertEqual((ushort)2, sequence.DeathAndEscapeExplosionIndex.RawValue, "the sequence inherits word $0FF2");
 
         var requests = new List<MotherBrainDeathExplosionRequest>();
         sequence.GenerateDeathExplosions(false, () => 0, requests);

@@ -54,6 +54,7 @@
     { "path": "csharp/test-support/CatalogInventories", "namespace": "SuperMetroid.TestSupport.CatalogInventories", "role": "verification-support" },
     { "path": "csharp/test-support/VerificationOracles", "namespace": "SuperMetroid.TestSupport.VerificationOracles", "role": "verification-support" },
     { "path": "csharp/test-support/CpuBusTestDoubles", "namespace": "SuperMetroid.TestSupport.CpuBusTestDoubles", "role": "verification-support" },
+    { "path": "csharp/test-support/AudioFixtures", "namespace": "SuperMetroid.TestSupport.AudioFixtures", "role": "verification-support" },
     { "path": "csharp/test-support/VerificationImporters", "namespace": "SuperMetroid.TestSupport.VerificationImporters", "role": "verification-support" },
     { "path": "csharp/test-support/RoomHeaderImport", "namespace": "SuperMetroid.TestSupport.RoomHeaderImport", "role": "verification-support" },
     { "path": "csharp/test-support/WindowsConsole", "namespace": "SuperMetroid.TestSupport.WindowsConsole", "role": "verification-support" },

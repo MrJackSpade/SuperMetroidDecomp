@@ -60,7 +60,7 @@ internal static class LookupEyeDoorLayoutsVerification
                 AssertEqual(vertical,shape.Vertical,"Eye door original direction");
                 AssertEqual((ushort)0,ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + count * 2)),"Eye door native terminator");
                 foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
-                    AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(bad),"Eye door cell bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(bad),"Eye door cell bounds");
             }
             foreach (var view in views)
             {

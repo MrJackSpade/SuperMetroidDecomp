@@ -14,7 +14,7 @@ internal static class CrocomireBg2ScrollDefinitionsAccess
         /// five moving-claw frames. Each six-component extended frame occupies $32 bytes.</summary>
         internal static CrocomireBg2VerticalCorrection Entry(int index)
         {
-            if ((uint)index >= CrocomireBg2ScrollDefinitions.EntryCount) throw new IndexOutOfRangeException();
+            if ((uint)index >= CrocomireBg2ScrollDefinitions.EntryCount) throw new ArgumentOutOfRangeException(nameof(index));
             ushort frame = (ushort)(index < 12 ? CrocomireBg2ScrollDefinitions.ChargeStepFrameStart + 0x32 * index
                 : CrocomireBg2ScrollDefinitions.MovingClawsFrameStart + 0x32 * (index - 12));
             return new(frame, unchecked((ushort)CrocomireBg2ScrollDefinitions.Correction(frame)));

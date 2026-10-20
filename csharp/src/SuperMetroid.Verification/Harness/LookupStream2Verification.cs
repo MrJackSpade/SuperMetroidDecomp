@@ -259,8 +259,8 @@ internal static class LookupStream2Verification
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Cadence execution avoids native mechanics reads");
         }
-        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.Duration(-1), "Accent duration lower domain");
-        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.Duration(15), "Accent duration upper domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.Duration(-1), "Accent duration lower domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.Duration(15), "Accent duration upper domain");
         Console.WriteLine("Old Tourian accent cadence:30 native durations,90 repeated color words,68 mechanics words and130 actual per-tick CGRAM/loop states pass with mechanics reads blocked.");
     }
     /// <summary>Checks the ninja Space Pirates' typed programs, which carry the native list layout.</summary>
@@ -389,7 +389,7 @@ internal static class LookupStream2Verification
                 calculatedPlasmaShort++;
         AssertEqual(5, calculatedPlasmaShort, "Five horizontal PlasmaWave Short poses calculate cell and lobe geometry");
         var firstCharged = (SpriteComposition)(frames[(ushort)0xec3e] ?? throw new InvalidOperationException("Verification requires frames[(ushort)0xec3e]."));
-        AssertTrue((firstCharged ?? throw new InvalidOperationException("Verification requires firstCharged.")).parts is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
+        AssertTrue(firstCharged.parts is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
         foreach (ushort pointer in expected)
         {
             var native = new OamBuffer();
@@ -460,8 +460,8 @@ internal static class LookupStream2Verification
             flare.Draw(selector, actual, new(255, 255));
             AssertTrue(native.ImageEquals(actual), "Existing flare span caller preserves exact extracted OAM");
         }
-        AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
         Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
     /// <summary>Checks Norfair and Old Tourian palette-FX owner catalogs and native definition identities.</summary>
@@ -772,7 +772,7 @@ internal static class LookupStream2Verification
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(json));
         AssertThrows<InvalidDataException>(() => stock.ApplyLabel(new byte[2048], "unknown"), "Unknown reserve label rejected");
         AssertThrows<ArgumentException>(() => stock.ApplyLabel(new byte[1], "Manual"), "Short reserve destination rejected");
-        AssertThrows<IndexOutOfRangeException>(() => PauseReserveUiDefinitions.StockLabelWord("Auto", 4), "Reserve glyph upper bound rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseReserveUiDefinitions.StockLabelWord("Auto", 4), "Reserve glyph upper bound rejected");
         Console.WriteLine("Reserve labels:22 native words/four destinations,22 independent cell edits,56 actual attribute-preserving/ordinary/moved patches and bounds pass; independent glyph/arrow inputs remain required.");
     }
 
@@ -873,8 +873,8 @@ internal static class LookupStream2Verification
         AssertEqual(115, words, "All native equipment glyph words");
         AssertEqual(106, changedCells, "All ordinary label glyph cells edited independently");
         AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("unknown", 0), "Unknown label rejected");
-        AssertThrows<IndexOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("Beam.Ice", -1), "Negative label cell rejected");
-        AssertThrows<IndexOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("Beam.Ice", 5), "Label cell upper bound rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("Beam.Ice", -1), "Negative label cell rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("Beam.Ice", 5), "Label cell upper bound rejected");
         Console.WriteLine("Pause equipment labels:115 native words/15placements,106 ordinary and five Hyper cell edits, disabled recoloring, exact Plasma/Varia overrun, source hashes and bounds pass; glyph artwork remains independent.");
     }
 
@@ -1051,10 +1051,10 @@ internal static class LookupStream2Verification
             moveRow(state, y, move);
             Compare(expected, "Actual Dead Torizo column row copy/move");
         }
-        AssertThrows<IndexOutOfRangeException>(() => DeadTorizoGeometryDefinitions.InitialCopy(-1), "Crop negative row rejected");
-        AssertThrows<IndexOutOfRangeException>(() => DeadTorizoGeometryDefinitions.InitialCopy(12), "Crop row upper bound rejected");
-        AssertThrows<IndexOutOfRangeException>(() => DeadTorizoGeometryDefinitions.ColumnMinimumY(-1), "Crop negative column rejected");
-        AssertThrows<IndexOutOfRangeException>(() => DeadTorizoGeometryDefinitions.ColumnMinimumY(10), "Crop column upper bound rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadTorizoGeometryDefinitions.InitialCopy(-1), "Crop negative row rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadTorizoGeometryDefinitions.InitialCopy(12), "Crop row upper bound rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadTorizoGeometryDefinitions.ColumnMinimumY(-1), "Crop negative column rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadTorizoGeometryDefinitions.ColumnMinimumY(10), "Crop column upper bound rejected");
         Console.WriteLine("Dead Torizo geometry:12 native MVNs/25-part OAM exact97-tile union,10 column operands/clip limits, actual installed-art staging and192 actual row copy/move operations pass; crop derives from immutable stock composition independently of edited display OAM; artwork ownership remains explicit.");
 
         void Compare(byte[] bytes, string context)
@@ -1195,8 +1195,8 @@ internal static class LookupStream2Verification
             AssertTrue(!artwork.TryResolve(page.SourceAddress, page.ByteCount + 1, out _), "Actual resolver rejects page overrun");
             AssertTrue(!artwork.TryResolve(page.SourceAddress, 0, out _), "Actual resolver rejects empty slice");
         }
-        AssertThrows<IndexOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[-1], "Torizo page lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[8], "Torizo page upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[-1], "Torizo page lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[8], "Torizo page upper bound");
         Console.WriteLine("Torizo page dispatch:eight exact ordered identities, native decoded page resolution/bounds and canonical content hash pass.");
     }
     /// <summary>Checks Kago visual frame pointers and geometry against compiled native frames.</summary>
@@ -1276,9 +1276,9 @@ internal static class LookupStream2Verification
                 "Actual cumulative selection preserves each semantic column");
         }
         Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
-        AssertThrows<IndexOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(-1),
+        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(-1),
             "Drop column lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(6),
+        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(6),
             "Drop column upper bound");
         Console.WriteLine("Enemy drop selection:six native identities and actual cumulative selections, RNG-zero reroll, energy hysteresis and full-resource eligibility pass.");
     }
@@ -1334,8 +1334,8 @@ internal static class LookupStream2Verification
                     "Only leader loop counter resets");
             }
         }
-        AssertThrows<IndexOutOfRangeException>(() => PipeBugDefinitions.NorfairStaggerTarget(-1), "Formation lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => PipeBugDefinitions.NorfairPostRiseFunction(5), "Formation upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugDefinitions.NorfairStaggerTarget(-1), "Formation lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugDefinitions.NorfairPostRiseFunction(5), "Formation upper bound");
         Console.WriteLine("Norfair Pipe Bug formation:ten native immediates, both actual facing formations and leader-only timer resets pass.");
     }
 
@@ -1442,8 +1442,8 @@ internal static class LookupStream2Verification
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
         AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
-        AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[-1], "Calculated trail frame lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[42], "Calculated trail frame upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[-1], "Calculated trail frame lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[42], "Calculated trail frame upper bound");
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
         void StepNative(SamusProjectileTrailSlot pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
         {
@@ -1523,7 +1523,7 @@ internal static class LookupStream2Verification
             ChozoAndTubeColorCatalog.Load(new MemoryStream(ChozoAndTubeColorCatalog.Write(document), writable: false));
         var stock = Load(original);
         Check(stock, original);
-        AssertEqual(8, (stock.tubeColorSeeds).Length,
+        AssertEqual(8, stock.tubeColorSeeds.Length,
             "tube stores only its eight authored seed colors");
         foreach (var (statue, edits) in new[] { ("wreckedShipEdits", stock.wreckedShipEdits), ("lowerNorfairEdits", stock.lowerNorfairEdits) })
             AssertEqual(0, edits.Count, $"stock {statue} store no colors beyond the calculated statue paint");
@@ -1641,8 +1641,8 @@ internal static class LookupStream2Verification
                 AssertEqual(rows[index].SourceAddress, actual.SourceAddress, "Dead Torizo queued live WRAM source");
                 AssertEqual(rows[index].EncodedVramDestination, actual.Destination.Encoded, "Dead Torizo queued VRAM destination");
             }
-            AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "Dead Torizo negative row");
-            AssertThrows<IndexOutOfRangeException>(() => { _ = rows[7]; }, "Dead Torizo past last row");
+            AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[-1]; }, "Dead Torizo negative row");
+            AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[7]; }, "Dead Torizo past last row");
         }
         Console.WriteLine("Dead Torizo: all56 native descriptor fields, two terminators, actual fourteen queued live-WRAM transfers, phase parity, enumeration and bounds pass.");
     }
@@ -1674,8 +1674,8 @@ internal static class LookupStream2Verification
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");
         AssertEqual(0, part.LiftoffTransferIndex, "Gunship completes transfer phase");
         AssertEqual(GunshipFunction.FireUpEngines, part.Function, "Gunship starts engines after fifth transfer");
-        AssertThrows<IndexOutOfRangeException>(() => _ = transfers[-1], "Gunship lower transfer bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = transfers[-1], "Gunship lower transfer bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");
     }
     /// <summary>Checks reserve arrow RGB5 colors, independent edits, and CGRAM placement.</summary>
@@ -1854,8 +1854,8 @@ internal static class LookupStream2Verification
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(9), "Ghost spawn upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(-1), "Ghost flicker lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(17), "Ghost flicker upper bound");
-        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(-1), "Norfair duration lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(16), "Norfair duration upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(-1), "Norfair duration lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(16), "Norfair duration upper bound");
         Console.WriteLine("Ghost appearance: 18 native offset fields, 17 native intervals, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");
     }
     /// <summary>Checks compiled palette instruction mechanics across upper, old, and belly color programs.</summary>

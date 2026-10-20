@@ -27,8 +27,8 @@ internal static class CrocomireBg2ScrollVerification
             AssertEqual(expected, actual, "Crocomire BG2 native pointer order");
             AssertTrue(seen.Add(actual), "Crocomire BG2 pointers are unique");
         }
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireBg2ScrollDefinitions.Entry(-1), "negative BG2 entry");
-        AssertThrows<IndexOutOfRangeException>(() => CrocomireBg2ScrollDefinitions.Entry(17), "BG2 entry past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBg2ScrollDefinitions.Entry(-1), "negative BG2 entry");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBg2ScrollDefinitions.Entry(17), "BG2 entry past end");
     }
 
     /// <summary>Compares per-pose offsets and wrapped body-Y scroll, including all unselected or misaligned pointers in the 16-bit domain.</summary>

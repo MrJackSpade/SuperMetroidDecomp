@@ -38,7 +38,7 @@ internal static class LookupMotherBrainBackgroundVerification
                 AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 29))), run.Next.Y, "Mother Brain background native Y");
             }
             foreach (int bad in new[] {int.MinValue,-1,13,int.MaxValue})
-                AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(bad), "Mother Brain background column bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(bad), "Mother Brain background column bounds");
         }
     }
 

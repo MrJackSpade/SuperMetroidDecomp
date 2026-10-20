@@ -30,7 +30,7 @@ internal static class MotherBrainRingBabyHealthVerification
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
         RoomEnemySlot babySlot = (state.BabyMetroidSlot ?? throw new InvalidOperationException("Verification requires state.BabyMetroidSlot."));
-        AssertEqual(0x0c80, (babySlot ?? throw new InvalidOperationException("Verification requires babySlot.")).Health, "the Baby spawns with 3200 health");
+        AssertEqual(0x0c80, babySlot.Health, "the Baby spawns with 3200 health");
 
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
         RoomEnemyProjectileSlot ring = runtime.Enemies.Projectiles.EnemyProjectiles[16];

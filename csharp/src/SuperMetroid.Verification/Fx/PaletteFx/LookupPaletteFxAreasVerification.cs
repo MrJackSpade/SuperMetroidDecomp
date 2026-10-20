@@ -15,7 +15,7 @@ internal static class LookupPaletteFxAreasVerification
             AssertEqual(ReadVerificationWord(rom, 0x83ac46 + 2 * area),
                 RoomPaletteFxDefinitions.NativeAreaListPointer(area), "Native palette-FX area-list identity");
         foreach (int invalid in new[] { int.MinValue, -1, 8, 255, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => RoomPaletteFxDefinitions.NativeAreaListPointer(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomPaletteFxDefinitions.NativeAreaListPointer(invalid),
                 "Area-list identity preserves indexed-span bounds");
     }
 

@@ -15,7 +15,7 @@ internal static class BotwoonWallPlmDrawDefinitions
     /// the single vertical run. Editable appearance is applied separately.</summary>
     internal static ushort LevelWordAt(int index)
     {
-        if ((uint)index >= BlockCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= BlockCount) throw new ArgumentOutOfRangeException(nameof(index));
         return 0x00ff;
     }
 

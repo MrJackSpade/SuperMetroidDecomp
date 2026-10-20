@@ -97,7 +97,7 @@ internal sealed class GameOverBabyColorCatalog
     internal Bgr555 Read(GameOverBabyPalette palette, int color)
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
-        if ((uint)color >= 16) throw new IndexOutOfRangeException();
+        if ((uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(color));
         int key = (int)palette * 16 + color;
         if (inputs.TryGetValue(key, out Bgr555 value)) return value;
         bool idle = palette == GameOverBabyPalette.Idle;

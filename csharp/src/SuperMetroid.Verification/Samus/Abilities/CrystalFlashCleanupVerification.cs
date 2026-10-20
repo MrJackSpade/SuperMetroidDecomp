@@ -18,6 +18,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Verification.Enemies;
 
 /// <summary>Checks Crystal Flash activation, contact, visibility, resource drain, and movement cleanup in production runtime.</summary>
 internal static class CrystalFlashCleanupVerification

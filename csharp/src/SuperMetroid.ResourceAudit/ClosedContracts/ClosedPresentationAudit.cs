@@ -87,10 +87,10 @@ internal sealed class ClosedPresentationAudit
                 contract.Type is "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog" or "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCatalog")
             {
                 string[] definitions = contract.Type == typeof(EnemySpritemapCatalog).FullName
-                    ? [(typeof(EnemySpritemapDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(EnemySpritemapDefinitions).FullName."))]
-                    : [(typeof(EnemyExtendedFrameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(EnemyExtendedFrameDefinitions).FullName.")), (typeof(EnemyExtendedFrameSequence).FullName ?? throw new InvalidOperationException("Verification requires typeof(EnemyExtendedFrameSequence).FullName.")),
-                        (typeof(BossOamFrameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(BossOamFrameDefinitions).FullName.")), (typeof(PirateArtworkNameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(PirateArtworkNameDefinitions).FullName.")),
-                        (typeof(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitions).FullName."))];
+                    ? [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions))]
+                    : [ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameSequence)),
+                        ContractTypeNames.MetadataName(typeof(BossOamFrameDefinitions)), ContractTypeNames.MetadataName(typeof(PirateArtworkNameDefinitions)),
+                        ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitions))];
                 valid = definitions.All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
                     dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                         source.Path == declaration.SyntaxTree.FilePath)));

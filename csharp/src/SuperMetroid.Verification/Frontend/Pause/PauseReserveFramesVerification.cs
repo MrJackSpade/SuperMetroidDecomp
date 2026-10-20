@@ -56,7 +56,7 @@ internal static class PauseReserveFramesVerification
         }
         foreach (ushort invalid in new ushort[] { 0, 0x1a, 0x1c, 0x1d, 0x1e, 0x28, ushort.MaxValue })
             AssertThrows<InvalidOperationException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), (PauseReserveTankVisual)invalid, 0), "unsupported reserve identity");
-        AssertThrows<IndexOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), 0, -1), "anchor error precedes unknown visual");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), 0, -1), "anchor error precedes unknown visual");
     }
 
     /// <summary>Compares each stock reserve part and independently edited OAM attribute against its native map.</summary>

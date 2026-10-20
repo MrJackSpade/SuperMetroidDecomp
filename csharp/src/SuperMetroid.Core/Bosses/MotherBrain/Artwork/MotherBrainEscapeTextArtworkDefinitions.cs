@@ -32,20 +32,20 @@ public static class MotherBrainEscapeTextArtworkDefinitions
 
     /// <summary>Five source pages from the native $A6:C4CB-$C4FC transfer list.</summary>
     public static uint PageSource(int page) => (uint)page < PageCount
-        ? (uint)(SourceAddress + page * PageBytes) : throw new IndexOutOfRangeException();
+        ? (uint)(SourceAddress + page * PageBytes) : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>Four full $200-byte pages followed by the final $100-byte page.</summary>
     public static ushort PageByteCount(int page) => (uint)page < PageCount
-        ? (ushort)Math.Min(PageBytes, ByteCount - page * PageBytes) : throw new IndexOutOfRangeException();
+        ? (ushort)Math.Min(PageBytes, ByteCount - page * PageBytes) : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>OBJ VRAM word destinations from the same native transfer list.</summary>
     public static ushort PageDestination(int page) => (uint)page < PageCount
-        ? (ushort)(FirstDestinationWord + page * PageBytes / 2) : throw new IndexOutOfRangeException();
+        ? (ushort)(FirstDestinationWord + page * PageBytes / 2) : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>$A6:C4CB-$C4FB selects timer-number tiles, then the escape message's five pages.</summary>
     public static MotherBrainSpriteTileTransferRequest Transfer(int index)
     {
-        if ((uint)index >= TransferCount) throw new IndexOutOfRangeException();
+        if ((uint)index >= TransferCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < TimerPageCount)
             return new((ushort)index, (ushort)Math.Min(PageBytes, TimerByteCount - index * PageBytes),
                 (uint)(TimerSourceAddress + index * PageBytes), (ushort)(TimerFirstDestinationWord + index * PageBytes / 2));

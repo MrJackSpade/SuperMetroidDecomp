@@ -1795,7 +1795,7 @@ internal static class EnemySpritemapDefinitions
                 NamedFrameId.draygon_breath_bubble_7 =>
                 (RoomSpriteObjectBank, (ushort)(0xc927 + ((int)frame - (int)NamedFrameId.draygon_breath_bubble_1) * NativeFrameBytes(3))),
             NamedFrameId.draygon_breath_bubble_8 => (RoomSpriteObjectBank, (ushort)0xc999),
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(frame)),
         };
         return new(bank, pointer, frame.ToString());
     }
@@ -1918,7 +1918,7 @@ internal static class EnemySpritemapDefinitions
         internal int Length => Count;
         /// <summary>Reads one current-schema frame with an explicit bounds check.</summary>
         public EnemySpritemapDefinition this[int index] => (uint)index < Count
-            ? frames.Value[index] : throw new IndexOutOfRangeException();
+            ? frames.Value[index] : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Copies a contiguous schema prefix or family range for compatibility checks.</summary>
         internal EnemySpritemapDefinition[] this[Range range] => frames.Value[range];
         /// <summary>Traverses the materialized frame sequence in installed-schema order.</summary>

@@ -24,13 +24,13 @@ public sealed class CeresFlightActorLayout
     /// <summary>Resolves one selected rear-view actor's starting screen placement, using its native default when the complete layout is unchanged.</summary>
     /// <param name="actorIndex">Zero-based native spawn-order index: large asteroids, station under attack, small asteroids, vortex, then rear stars.</param>
     /// <returns>The fixed actor identity and encoded whole-pixel X/Y coordinates for that slot.</returns>
-    /// <exception cref="IndexOutOfRangeException">The index is outside 0 through 4.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0 through 4.</exception>
     public CeresFlightActorPlacement this[int actorIndex]
     {
         get
         {
             if ((uint)actorIndex >= CeresFlightActorDefinitions.RearViewActorCount)
-                throw new IndexOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(actorIndex));
             return placements is null ? DefaultPlacement(actorIndex) : placements[actorIndex];
         }
     }

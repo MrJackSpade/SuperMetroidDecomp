@@ -75,7 +75,7 @@ public static class PauseReserveUiDefinitions
     /// <summary>Compose reserve text from named consecutive glyph runs. Independent glyph pixels remain artwork.</summary>
     internal static ushort StockLabelWord(string name, int index)
     {
-        if ((uint)index >= StockLabelWords(name)) throw new IndexOutOfRangeException();
+        if ((uint)index >= StockLabelWords(name)) throw new ArgumentOutOfRangeException(nameof(index));
         if (name == "Mode")
             return index < ModePrefixWords ? Word(ModeGlyph + index, 1)
                 : Word(ManualGlyph + index - ModePrefixWords, 7);

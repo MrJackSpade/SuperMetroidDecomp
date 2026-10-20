@@ -23,7 +23,7 @@ internal readonly ref struct EnemyBg2FrameDefinitionSequence
     {
         get
         {
-            if ((uint)index >= Length) throw new IndexOutOfRangeException();
+            if ((uint)index >= Length) throw new ArgumentOutOfRangeException(nameof(index));
             return generate is null ? stored[index] : generate(index);
         }
     }

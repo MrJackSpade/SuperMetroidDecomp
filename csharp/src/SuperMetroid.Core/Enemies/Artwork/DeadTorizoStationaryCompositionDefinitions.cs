@@ -35,7 +35,7 @@ internal static class DeadTorizoStationaryCompositionDefinitions
     /// <summary>Maps one native part ordinal to its source tile and small or large tile extent.</summary>
     internal static DeadTorizoStockPart Part(int index)
     {
-        if ((uint)index >= Count) throw new IndexOutOfRangeException();
+        if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
         if (index == 0) return new(AnkleTile, 1);
         if (index <= HeadParts)
         {

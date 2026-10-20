@@ -12,7 +12,7 @@ internal static class SpcSoundEffectTables
         0 => 66,
         1 => 127,
         2 => 47,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
     };
 
     /// <summary>Selects the native instruction-list set for a one-based sound command.</summary>
@@ -21,7 +21,7 @@ internal static class SpcSoundEffectTables
         0 => Library1Stream(command),
         1 => Library2Stream(command),
         2 => Library3Stream(command),
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
     };
     /// <summary>Maps a one-based library-one command to its resident SPC instruction stream.</summary>
     private static ushort Library1Stream(int command) => command switch
@@ -92,7 +92,7 @@ internal static class SpcSoundEffectTables
         0x40 => SpcSoundStreamDefinitions.Library1.Sound40MotherBrainSRainbowBeam,
         0x41 => SpcSoundStreamDefinitions.Library1.Sound41ResumeChargingBeam,
         0x42 => SpcSoundStreamDefinitions.Library1.Sound42,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(command)),
     };
 
     /// <summary>Maps a one-based library-two command to its resident SPC instruction stream.</summary>
@@ -225,7 +225,7 @@ internal static class SpcSoundEffectTables
         0x7d => SpcSoundStreamDefinitions.Library2.Sound7D,
         0x7e => SpcSoundStreamDefinitions.Library2.Sound7EMotherBrainSCryHighPitch,
         0x7f => SpcSoundStreamDefinitions.Library2.Sound7FMotherBrainChargingHerRainbow,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(command)),
     };
 
     /// <summary>Maps a one-based library-three command to its resident SPC instruction stream.</summary>
@@ -278,7 +278,7 @@ internal static class SpcSoundEffectTables
         0x2d => SpcSoundStreamDefinitions.Library3.Sound2DGainingLosingIncrementalHealth,
         0x2e => SpcSoundStreamDefinitions.Library3.Sound2EMotherBrainSGlassShattering,
         0x2f => SpcSoundStreamDefinitions.Library3.Sound2FEmpty,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(command)),
     };
 
     /// <summary>
@@ -291,7 +291,7 @@ internal static class SpcSoundEffectTables
         0 => (byte)Library1Configuration(command),
         1 => (byte)Library2Configuration(command),
         2 => (byte)Library3Configuration(command),
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
     };
     /// <summary>Selects the native voice count and priority handler for a library-one command.</summary>
     private static SpcLibrary1Policy Library1Configuration(int command) => command switch
@@ -308,7 +308,7 @@ internal static class SpcSoundEffectTables
         0x40 => SpcLibrary1Policy.ThreeVoicesHighPriority,
         0x2e => SpcLibrary1Policy.FourVoicesLowPriority,
         0x01 => SpcLibrary1Policy.PowerBombFourVoices,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(command)),
     };
 
     /// <summary>Selects the native voice count and priority handler for a library-two command.</summary>
@@ -331,7 +331,7 @@ internal static class SpcSoundEffectTables
         0x78 or 0x79 or 0x7a or 0x7b or 0x7f => SpcLibrary2Policy.TwoVoicesLowPriority,
         0x1e or 0x27 or 0x2c or 0x2e or 0x4e or 0x50 or 0x51 or 0x59 or
         0x6e or 0x6f or 0x72 or 0x73 or 0x74 or 0x75 or 0x77 => SpcLibrary2Policy.TwoVoicesHighPriority,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(command)),
     };
 
     /// <summary>Selects library-three allocation, including low-health and cancellation policies.</summary>
@@ -347,7 +347,7 @@ internal static class SpcSoundEffectTables
         0x07 or 0x08 or 0x0e or 0x14 or 0x15 or 0x19 or 0x1b or 0x2c or
         0x2e => SpcLibrary3Policy.TwoVoicesHighPriority,
         0x0a or 0x12 or 0x20 or 0x21 or 0x24 => SpcLibrary3Policy.OneVoiceHighPriority,
-        _ => throw new IndexOutOfRangeException(),
+        _ => throw new ArgumentOutOfRangeException(nameof(command)),
     };
 
     /// <summary>
@@ -362,14 +362,14 @@ internal static class SpcSoundEffectTables
             0 => (0x03a6, 4),
             1 => (0x0446, 2),
             2 => (0x047e, 2),
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
         };
         int offset = field switch
         {
             SpcAllocationField.VoiceBitset => 0,
             SpcAllocationField.ChannelMask => channelCount,
             SpcAllocationField.VoiceIndex => 2 * channelCount + 1,
-            _ => throw new IndexOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(field)),
         };
         return (ushort)(baseAddress + offset);
     }

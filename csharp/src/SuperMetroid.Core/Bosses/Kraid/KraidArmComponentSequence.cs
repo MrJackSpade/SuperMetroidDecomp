@@ -8,7 +8,7 @@ internal readonly record struct KraidArmComponentSequence(int Pose, int Length)
     {
         get
         {
-            if ((uint)index >= (uint)Length) throw new IndexOutOfRangeException();
+            if ((uint)index >= (uint)Length) throw new ArgumentOutOfRangeException(nameof(index));
             return KraidArmCollisionDefinitions.Component(Pose, index);
         }
     }

@@ -36,7 +36,7 @@ internal static class KraidHealthThresholdsVerification
             }
         }
         foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => actual(state, invalid), "Threshold index preserves array bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => actual(state, invalid), "Threshold index preserves array bounds");
     }
 
     /// <summary>Reads one retail instruction byte to confirm the initializer uses accumulator LSR.</summary>

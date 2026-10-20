@@ -39,6 +39,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Enemies;
 
 /// <summary>Checks native PLM population order, resident doors, stations and escape-room controllers.</summary>
 internal static class RoomPlmPopulationVerification

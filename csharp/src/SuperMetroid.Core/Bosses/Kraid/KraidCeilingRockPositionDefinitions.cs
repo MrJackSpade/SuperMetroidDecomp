@@ -16,11 +16,11 @@ public static class KraidCeilingRockPositionDefinitions
     /// Alternate gaps at block columns2..6 and10..13, taking each gap's right
     /// then left remaining edge inward. Convert to rock centers with16*column+8.
     /// Independently verified for #1165 against all nineteen original byte windows;
-    /// offsets0..18 are accepted, and all other int inputs throw IndexOutOfRangeException.
+    /// offsets0..18 are accepted, and all other int inputs throw ArgumentOutOfRangeException.
     /// </remarks>
     public static ushort AtByteOffset(int offset)
     {
-        if ((uint)offset > 18) throw new IndexOutOfRangeException();
+        if ((uint)offset > 18) throw new ArgumentOutOfRangeException(nameof(offset));
         int index = offset >> 1;
         return (offset & 1) == 0 ? Word(index)
             : SnesLittleEndian.Word(SnesLittleEndian.HighByte(Word(index)), unchecked((byte)Word(index + 1)));

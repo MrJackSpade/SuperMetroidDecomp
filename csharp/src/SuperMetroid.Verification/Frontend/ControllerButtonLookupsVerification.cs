@@ -27,7 +27,7 @@ internal static class ControllerButtonLookupsVerification
                 $"assignable inverse {button:X4}");
         }
         foreach (int index in new[] { int.MinValue, -1, 7, 8, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => ControllerBindings.AssignableButton(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => ControllerBindings.AssignableButton(index),
                 $"unsupported button index {index}");
 
         var bindings = new ControllerBindings(original[0], original[1], original[2],

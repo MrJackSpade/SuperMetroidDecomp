@@ -130,7 +130,7 @@ public static class PauseWireframeDefinitions
     internal static bool TryStockTile(PauseWireframeKind kind, int cell, out int tile)
     {
         if ((uint)kind >= Count) throw new ArgumentOutOfRangeException(nameof(kind));
-        if ((uint)cell >= Cells) throw new IndexOutOfRangeException();
+        if ((uint)cell >= Cells) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / Columns, column = cell % Columns;
         bool varia = kind is PauseWireframeKind.VariaSuit or PauseWireframeKind.VariaSuitHiJump;
         bool hiJump = kind is PauseWireframeKind.PowerSuitHiJump or PauseWireframeKind.VariaSuitHiJump;

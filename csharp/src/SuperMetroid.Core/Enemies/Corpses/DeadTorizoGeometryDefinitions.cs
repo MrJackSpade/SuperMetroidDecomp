@@ -45,7 +45,7 @@ internal static class DeadTorizoGeometryDefinitions
     internal static DeadTorizoGraphicsCopy InitialCopy(int row)
     {
         var bounds = Bounds;
-        if ((uint)row >= bounds.Bottom - bounds.Top) throw new IndexOutOfRangeException();
+        if ((uint)row >= bounds.Bottom - bounds.Top) throw new ArgumentOutOfRangeException(nameof(row));
         int sourceRow = bounds.Top + row, left = int.MaxValue, right = 0;
         for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
         {
@@ -60,7 +60,7 @@ internal static class DeadTorizoGeometryDefinitions
     /// <summary>$A9:E27F-E383/E398-E458: each tile column advances sixteen planar words.</summary>
     internal static int ColumnWordOffset(int column)
     {
-        if ((uint)column >= Columns) throw new IndexOutOfRangeException();
+        if ((uint)column >= Columns) throw new ArgumentOutOfRangeException(nameof(column));
         return column * TileBytes / sizeof(ushort);
     }
 
@@ -68,7 +68,7 @@ internal static class DeadTorizoGeometryDefinitions
     internal static int ColumnMinimumY(int column)
     {
         var bounds = Bounds;
-        if ((uint)column >= bounds.Right - bounds.Left) throw new IndexOutOfRangeException();
+        if ((uint)column >= bounds.Right - bounds.Left) throw new ArgumentOutOfRangeException(nameof(column));
         int sourceColumn = bounds.Left + column, firstRow = bounds.Bottom;
         for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
         {

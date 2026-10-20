@@ -76,7 +76,7 @@ internal static class KraidFootCollisionDefinitions
     /// <summary>Rejects an extended foot-frame index outside the authored walk sequence.</summary>
     private static void CheckFrame(int frame)
     {
-        if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
+        if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
     }
 
     /// <summary>Maps an initial or 18-byte extended frame pointer to its two collision components.</summary>

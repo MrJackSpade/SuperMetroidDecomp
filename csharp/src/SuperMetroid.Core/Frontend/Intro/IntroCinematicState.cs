@@ -1324,7 +1324,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             subtitles,
             audio,
             NarrationPresentation,
-            characterArtwork?.EyeFrames);
+            characterArtwork.EyeFrames);
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
             MusicCommand.LoadData(IntroCinematicRomData.Music.DiscoveryDataIndex));

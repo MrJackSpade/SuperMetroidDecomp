@@ -29,18 +29,18 @@ internal static class FileSelectMapEntryVerification
         json.Position = 0;
         MapStaticPalettes palettes = MapStaticPalettes.Load(json);
         var entry = new FileSelectMapEntry(palettes);
-        AssertEqual(0x7fff, entry.Cgram.Colors[14], "entry setup does not prematurely fade palette");
+        AssertEqual(0x7fff, entry.Palette.Colors[14], "entry setup does not prematurely fade palette");
         AssertEqual(FileSelectMapEntryPhase.PaletteFade, entry.Phase, "entry starts in its forced-black palette fade");
         entry.Step();
-        AssertEqual(0x739c, entry.Cgram.Colors[14], "gradual palette begins at step one, not global-fade no-op");
-        AssertEqual(0x739c, entry.Cgram.Colors[30], "both blank-cell palette entries fade together");
+        AssertEqual(0x739c, entry.Palette.Colors[14], "gradual palette begins at step one, not global-fade no-op");
+        AssertEqual(0x739c, entry.Palette.Colors[30], "both blank-cell palette entries fade together");
         for (int tick = 2; tick <= 16; tick++) entry.Step();
-        AssertEqual(0, entry.Cgram.Colors[14], "sixteenth gradual step reaches exact black");
+        AssertEqual(0, entry.Palette.Colors[14], "sixteenth gradual step reaches exact black");
         AssertEqual(FileSelectMapEntryPhase.PaletteFade, entry.Phase, "palette endpoint retains native completion boundary");
         entry.Step();
         AssertEqual(FileSelectMapEntryPhase.LoadForeground, entry.Phase, "seventeenth call completes gradual palette fade");
         for (int color = 0; color < 256; color++)
-            AssertEqual(color is 14 or 30 ? 0 : 0x7fff, entry.Cgram.Colors[color], "entry changes only the two target colors");
+            AssertEqual(color is 14 or 30 ? 0 : 0x7fff, entry.Palette.Colors[color], "entry changes only the two target colors");
         entry.Step();
         AssertEqual(FileSelectMapEntryPhase.LoadBackground, entry.Phase, "foreground transfer has its own entry boundary");
         entry.Step();

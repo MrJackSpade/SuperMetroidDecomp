@@ -4,8 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Cartridge values and helpers of <see cref="FrontendOamDraws"/> that only verification reads.</summary>
-internal static class FrontendOamDrawsConstants
+/// <summary>Cartridge values and helpers of <see cref="ObjCharacterImage"/> that only verification reads.</summary>
+internal static class ObjCharacterImageConstants
 {
     /// <summary>The values of OAM's nine-bit X: the upper half lies left of the screen.</summary>
     internal const int XRange = 512;
@@ -25,7 +25,7 @@ internal static class FrontendOamDrawsConstants
         byte obsel = checked((byte)objectSelection);
         if (oam.LastFinalizedSpriteCount == 0)
             return null;
-        SpriteArtwork page = FrontendOamDraws.Page(vram.Bytes, obsel);
+        SpriteArtwork page = ObjCharacterImage.Page(vram.Bytes, obsel);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(obsel);
         (int smallWidth, int smallHeight, int largeWidth, int largeHeight) = (sizes.Small.X, sizes.Small.Y, sizes.Large.X, sizes.Large.Y);
         var parts = ImmutableArray.CreateBuilder<SpriteFramePart>();
@@ -45,7 +45,7 @@ internal static class FrontendOamDrawsConstants
                 for (int column = 0; column < columns; column++)
                 {
                     // Names occupy a sixteen-wide grid; the ninth name-select bit stays fixed when the low byte wraps.
-                    int name = (entry.TileNumber & FrontendOamDraws.NameSelectBit) | unchecked((byte)(entry.TileNumber + row * 16 + column));
+                    int name = (entry.TileNumber & ObjCharacterImage.NameSelectBit) | unchecked((byte)(entry.TileNumber + row * 16 + column));
                     int shownColumn = entry.FlipX ? columns - 1 - column : column;
                     int shownRow = entry.FlipY ? rows - 1 - row : row;
                     parts.Add(new SpriteFramePart(

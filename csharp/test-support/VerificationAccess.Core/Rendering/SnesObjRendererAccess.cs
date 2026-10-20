@@ -27,7 +27,7 @@ internal static class SnesObjRendererAccess
             Ensure.NotNull(cgram);
             Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
             var output = new Rgba32[frame.X * frame.Y];
-            SnesObjRendererConstants.Render(output, FrontendOamDrawsConstants.Draws(oam, vram, obsel), cgram, frame, priority);
+            SnesObjRendererConstants.Render(output, ObjCharacterImageConstants.Draws(oam, vram, obsel), cgram, frame, priority);
             return output;
         }
 
@@ -57,7 +57,7 @@ internal static class SnesObjRendererAccess
 
             var pixels = new Rgba32[frame.X * frame.Y];
             var priorities = new byte[pixels.Length];
-            SnesObjRenderer.RenderResolved(FrontendOamDrawsConstants.Draws(oam, vram, obsel), cgram, new ObjRasterTargets(pixels, priorities), frame);
+            SnesObjRenderer.RenderResolved(ObjCharacterImageConstants.Draws(oam, vram, obsel), cgram, new ObjRasterTargets(pixels, priorities), frame);
 
             return new ResolvedObjFrame(pixels, priorities);
         }

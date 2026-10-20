@@ -180,7 +180,7 @@ internal sealed class EndingCreditsPresentation
     /// <summary>Places the scene's sprite entries at the simulation display boundary without advancing sprite state.</summary>
     internal ScreenSprites PrepareSprites(byte objectSelection)
     {
-        var objects = new ScreenSprites(FrontendOamDraws.Page(_ending.Image(), objectSelection), ObjectSelectionCodec.Sizes(objectSelection));
+        var objects = new ScreenSprites(ObjCharacterImage.Page(_ending.Image(), objectSelection), ObjectSelectionCodec.Sizes(objectSelection));
         objects.BeginFrame();
         if (_ending.endingLogo is not null) _ending.endingLogo.Draw(objects, _ending.objectArtwork?.LogoSprites);
         else if (_ending.rewardGesture is not null) _ending.rewardGesture.Draw(objects, _ending.objectArtwork?.RewardSprites);

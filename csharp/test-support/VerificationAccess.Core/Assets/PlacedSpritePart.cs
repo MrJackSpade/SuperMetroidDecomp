@@ -44,9 +44,9 @@ internal readonly record struct PlacedSpritePart(SpriteArtworkId Artwork, Sprite
     }
 
     /// <summary>
-    /// The parts a frontend screen's finalized OAM shows once captured, converted as <see cref="FrontendOamDraws"/>
+    /// The parts a frontend screen's finalized OAM shows once captured, converted as <see cref="ObjCharacterImage"/>
     /// converts it. Parts name characters, so the conversion reads no character pixels.
     /// </summary>
     internal static PlacedSpritePart[] OfOam(OamBuffer oam, int objectSelection) =>
-        Of(FrontendOamDrawsConstants.Draws(oam, new SnesVram(), objectSelection));
+        Of(ObjCharacterImageConstants.Draws(oam, new SnesVram(), objectSelection));
 }

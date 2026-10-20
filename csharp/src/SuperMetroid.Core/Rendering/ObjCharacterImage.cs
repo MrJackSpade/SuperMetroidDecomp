@@ -4,13 +4,11 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Converts a frontend screen's OAM storage into the whole-frame draw it stands for, so both backends draw sprites only
-/// from draws. Frontend screens still write OAM records until #1358 moves them onto sprite entries; this bridge then
-/// goes. Each record becomes its 8x8 character cells, read through OBSEL from the screen's VRAM with the native name
-/// wrap, so addressing, flips, palettes and priorities match the record, and the first record stays frontmost.
+/// Reads the OBJ characters a memory image holds through OBSEL's name base and name-select displacement (#1358), as the
+/// page a screen's sprite entries draw from when its characters come from its own transfers rather than one artwork sheet.
 /// </summary>
-[PpuLayoutBoundary("bridge: frontend OAM records and their OBSEL-addressed VRAM characters, until #1358 moves the frontend writers")]
-public static class FrontendOamDraws
+[PpuLayoutBoundary("codec: OBSEL-addressed OBJ characters of a composed memory image")]
+public static class ObjCharacterImage
 {
     /// <summary>The ninth OBJ character-name bit, selecting the second name table.</summary>
     internal const int NameSelectBit = 1 << 8;

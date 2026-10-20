@@ -25,6 +25,6 @@ internal static class PpuMemorySnapshotConstants
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
-        return new(vram.CaptureImage(), cgram.Colors, FrontendOamDrawsConstants.Draws(oam, vram, objectSelection));
+        return new(vram.CaptureImage(), cgram.Colors, ObjCharacterImageConstants.Draws(oam, vram, objectSelection));
     }
 }

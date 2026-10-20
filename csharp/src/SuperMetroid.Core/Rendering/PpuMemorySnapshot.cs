@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rendering;
 /// Capture on the simulation owner, after its ordered DMA preparation. This is not an atomic reader of concurrently
 /// changing hardware. Once captured, neither later simulation writes nor software-render scratch buffers can change
 /// this image. Complete images deliberately avoid dependencies on discarded intermediate frames. Sprites are whole-frame
-/// draws only; a frontend screen's OAM storage is converted when it is captured (<see cref="FrontendOamDraws"/>).
+/// draws only; a frontend screen's OAM storage is converted when it is captured (<see cref="ObjCharacterImage"/>).
 /// </remarks>
 [PpuLayoutBoundary("codec: immutable VRAM/CGRAM render snapshot")]
 public sealed class PpuMemorySnapshot

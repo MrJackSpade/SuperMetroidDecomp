@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -12,8 +13,8 @@ public sealed class FileSelectMapEntry
     /// <summary>Number of eight-pixel expansion updates applied to the centered reveal.</summary>
     private int revealSteps;
 
-    /// <summary>Gets the live 256-color memory used by the entry palette fade.</summary>
-    public SnesCgram Cgram { get; } = new();
+    /// <summary>Gets the live 256 colors the entry palette fade writes (#1358).</summary>
+    public ScreenPalette Palette { get; } = new();
 
     /// <summary>Gets the current native entry-coroutine stage.</summary>
     public FileSelectMapEntryPhase Phase { get; private set; } = FileSelectMapEntryPhase.PaletteFade;
@@ -38,15 +39,15 @@ public sealed class FileSelectMapEntry
     public FileSelectMapEntry(MapStaticPalettes mapPalettes)
     {
         Ensure.NotNull(mapPalettes);
-        new CgramPalettes(Cgram).LoadImage(mapPalettes.FileSelect);
-        Bgr555[] target = new CgramPalettes(Cgram).Image.ToArray();
+        new CgramPalettes(Palette).LoadImage(mapPalettes.FileSelect);
+        Bgr555[] target = new CgramPalettes(Palette).Image.ToArray();
         target[14] = target[30] = Bgr555.Black;
         // File select runs outside gameplay; no other fade advances the counter meanwhile.
         palette = new CartridgePaletteTransition(
             target, FileSelectMapRomData.EntryPaletteDenominator, new GradualColorChangeCounter());
         // The gradual first-two-palettes routine starts at transition number one,
         // unlike the global door/death fade. Consume only the shared helper's no-op.
-        palette.Step(Cgram);
+        palette.Step(Palette);
     }
 
     /// <summary>Changes the fade destination while retaining its current colors and counter.</summary>
@@ -65,7 +66,7 @@ public sealed class FileSelectMapEntry
         switch (Phase)
         {
             case FileSelectMapEntryPhase.PaletteFade:
-                if (palette.Step(Cgram)) Phase = FileSelectMapEntryPhase.LoadForeground;
+                if (palette.Step(Palette)) Phase = FileSelectMapEntryPhase.LoadForeground;
                 break;
             case FileSelectMapEntryPhase.LoadForeground:
                 Phase = FileSelectMapEntryPhase.LoadBackground;

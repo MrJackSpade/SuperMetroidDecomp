@@ -82,7 +82,7 @@ internal static class MapStaticPalettesVerification
             AssertEqual(controlEntry.Phase, entry.Phase, "palette replacement does not restart entry fade or reveal");
         }
         for (int color = 0; color < SnesCgram.ColorCount; color++)
-            AssertEqual(color is 14 or 30 ? Bgr555.Black : edited.Palettes.FileSelect[color], entry.Cgram.Colors[color], "ongoing fade reaches newly bound palette target");
+            AssertEqual(color is 14 or 30 ? Bgr555.Black : edited.Palettes.FileSelect[color], entry.Palette.Colors[color], "ongoing fade reaches newly bound palette target");
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");

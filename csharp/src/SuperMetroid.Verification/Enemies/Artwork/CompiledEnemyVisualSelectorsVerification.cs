@@ -3,51 +3,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.CatalogInventories;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks that the compiled enemy sprite-selector catalog covers the native inventory.</summary>
-internal static class EnemyVisualSelectorInventoryVerification
+/// <summary>Checks the frozen compiled enemy sprite-selector catalog against the pinned cartridge (#1367).</summary>
+internal static class CompiledEnemyVisualSelectorsVerification
 {
-    /// <summary>Collects bank-resolved selector addresses and reports any differences from the generated catalog.</summary>
-    internal static void InspectEnemyVisualSelectors()
-    {
-        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
-        var owners = new Dictionary<int, string>();
-        var (keyed, unresolved) = EnemyVisualSelectorInventory.Collect(rom, owners);
-        Console.WriteLine($"Enemy visual selectors: {keyed.Count} unique bank-resolved addresses.");
-        if (keyed.Count != CompiledEnemyVisualSelectorsTooling.Count)
-        {
-            for (int index = 0; index < CompiledEnemyVisualSelectorsTooling.Count; index++)
-            {
-                CompiledEnemyVisualSelector entry = CompiledEnemyVisualSelectorsTooling.At(index);
-                if (!keyed.ContainsKey(entry.Address))
-                    Console.WriteLine($"CATALOG-ONLY ${entry.Address:X6} -> ${entry.Pointer:X4}");
-            }
-            var cataloged = Enumerable.Range(0, CompiledEnemyVisualSelectorsTooling.Count)
-                .Select(index => CompiledEnemyVisualSelectorsTooling.At(index).Address).ToHashSet();
-            foreach ((int address, ushort pointer) in keyed.Where(pair => !cataloged.Contains(pair.Key)).OrderBy(pair => pair.Key))
-                Console.WriteLine($"INVENTORY-ONLY ${address:X6} -> ${pointer:X4} ({owners[address]})");
-        }
-        AssertEqual(4364, keyed.Count, "distinct native sprite-selector addresses");
-        AssertEqual(keyed.Count, CompiledEnemyVisualSelectorsTooling.Count,
-            "generated catalog covers every bank-resolved inventory address");
-        int catalogIndex = 0;
-        foreach ((int address, ushort pointer) in keyed.OrderBy(pair => pair.Key))
-        {
-            CompiledEnemyVisualSelector entry =
-                CompiledEnemyVisualSelectorsTooling.At(catalogIndex++);
-            AssertEqual(address, entry.Address,
-                "generated visual selector address matches catalog inventory");
-            AssertEqual(pointer, entry.Pointer,
-                "generated visual selector target matches catalog inventory");
-        }
-        foreach (string item in unresolved)
-            Console.WriteLine($"UNRESOLVED {item}");
-    }
-
     /// <summary>Checks every checked-in selector directly against the pinned cartridge.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy visual selectors")]
     internal static void VerifyCompiledEnemyVisualSelectors()
@@ -82,14 +43,6 @@ internal static class EnemyVisualSelectorInventoryVerification
         Console.WriteLine(
             $"Compiled enemy visuals: {CompiledEnemyVisualSelectorsTooling.Count:N0} distinct sprite selectors match the cartridge; " +
             "sorted lookup and unknown-key rejection pass.");
-    }
-
-    /// <summary>Runs the diagnostic native selector inventory comparison.</summary>
-    [VerificationCommand("--enemy-visual-selector-inventory")]
-    internal static int EnemyVisualSelectorInventoryCommand()
-    {
-        InspectEnemyVisualSelectors();
-        return 0;
     }
 
     /// <summary>Runs the full compiled selector lookup and cartridge identity verification.</summary>

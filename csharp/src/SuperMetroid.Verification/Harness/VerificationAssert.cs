@@ -91,7 +91,7 @@ using static SuperMetroid.Verification.Enemies.EnemyQuadraticSpeedsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDraygonBg2FramesVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDraygonOamCollisionVerification;
 using static SuperMetroid.Verification.Enemies.EnemyTrigonometryVerification;
-using static SuperMetroid.Verification.Enemies.Artwork.EnemyVisualSelectorInventoryVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelectorsVerification;
 using static SuperMetroid.Verification.Enemies.Animals.EscapeEtecoonDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Escape.EscapeGateVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedFrameSequenceVerification;

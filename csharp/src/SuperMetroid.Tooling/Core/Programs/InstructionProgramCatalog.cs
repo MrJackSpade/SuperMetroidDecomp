@@ -15,14 +15,13 @@ internal sealed record InstructionProgramCatalog(
     IReadOnlyList<InstructionMechanicsWord>? MechanicsWords,
     IReadOnlyList<ushort>? PresentationOperands,
     ushort? SinglePresentationOperand,
-    Func<int, bool>? CompiledMechanicsByteProbe,
     int? DeclaredBank)
 {
     /// <summary>The contracts recognized when discovering development-tool adapters.</summary>
     private static readonly Type[] Contracts =
     [
         typeof(IInstructionProgramCatalog), typeof(IPresentationOperandCatalog), typeof(ISinglePresentationOperand),
-        typeof(ICompiledMechanicsByteProbe), typeof(IDeclaredProgramBank),
+        typeof(IDeclaredProgramBank),
     ];
 
     /// <summary>Shipped catalog type to the development type implementing its contracts.</summary>
@@ -42,7 +41,6 @@ internal sealed record InstructionProgramCatalog(
             Bind<IReadOnlyList<InstructionMechanicsWord>>(nameof(MechanicsWordsOf), typeof(IInstructionProgramCatalog), implementation),
             Bind<IReadOnlyList<ushort>>(nameof(PresentationOperandsOf), typeof(IPresentationOperandCatalog), implementation),
             Bind<ushort?>(nameof(SinglePresentationOperandOf), typeof(ISinglePresentationOperand), implementation),
-            Bind<Func<int, bool>>(nameof(CompiledMechanicsByteProbeOf), typeof(ICompiledMechanicsByteProbe), implementation),
             Bind<int?>(nameof(DeclaredBankOf), typeof(IDeclaredProgramBank), implementation));
     }
 
@@ -68,10 +66,6 @@ internal sealed record InstructionProgramCatalog(
     /// <summary>Boxes a catalog's sole sprite-pointer operand for the optional view.</summary>
     private static ushort? SinglePresentationOperandOf<TCatalog>()
         where TCatalog : ISinglePresentationOperand => TCatalog.PresentationWord;
-
-    /// <summary>Adapts a catalog's static ownership check to a callable bank-address predicate.</summary>
-    private static Func<int, bool> CompiledMechanicsByteProbeOf<TCatalog>()
-        where TCatalog : ICompiledMechanicsByteProbe => address => TCatalog.IsCompiledMechanicsByte(address);
 
     /// <summary>Boxes the native program bank for the optional development-tool view.</summary>
     private static int? DeclaredBankOf<TCatalog>()

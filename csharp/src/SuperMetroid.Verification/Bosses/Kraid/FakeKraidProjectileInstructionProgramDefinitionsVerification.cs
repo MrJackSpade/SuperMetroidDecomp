@@ -33,7 +33,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         Suite(nameof(VerifyFakeKraidProjectilePresentationAddresses), () => VerifyFakeKraidProjectilePresentationAddresses());
 
         var guard = new CartridgeReadGuard(rom)
-            .Forbid(FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            .Forbid(FakeKraidProjectileInstructionProgramDefinitionsToolingConstants.IsCompiledMechanicsByte,
                 address => $"Production read compiled Fake Kraid mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase,
                 FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordCount,

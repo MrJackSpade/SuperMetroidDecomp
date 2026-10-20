@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 

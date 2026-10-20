@@ -180,7 +180,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
     /// <summary>Rejects compiled projectile mechanics reads and records presentation operands used by production.</summary>
     private static CartridgeReadGuard NewSpacePirateProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(SpacePirateProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            .Forbid(SpacePirateProjectileInstructionProgramDefinitionsToolingConstants.IsCompiledMechanicsByte,
                 address => $"Production read compiled Space Pirate mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, SpacePirateProjectileInstructionProgramDefinitionsTooling.PresentationWordCount, SpacePirateProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress);
 

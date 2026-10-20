@@ -25,12 +25,12 @@ internal static class FakeKraidProjectileProgramMappingsVerification
         {
             bool expected = words.Contains((ushort)(address & ~1));
             AssertEqual(expected,
-                FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address),
+                FakeKraidProjectileInstructionProgramDefinitionsToolingConstants.IsCompiledMechanicsByte(0x860000 | address),
                 "Fake Kraid projectile complete bank ownership");
             AssertEqual(expected,
-                FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x12860000 | address),
+                FakeKraidProjectileInstructionProgramDefinitionsToolingConstants.IsCompiledMechanicsByte(0x12860000 | address),
                 "Fake Kraid projectile preserves high-address-bit masking");
-            AssertTrue(!FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa60000 | address),
+            AssertTrue(!FakeKraidProjectileInstructionProgramDefinitionsToolingConstants.IsCompiledMechanicsByte(0xa60000 | address),
                 "Fake Kraid projectile rejects other banks");
         }
         foreach (int index in new[] { int.MinValue, -1, 6, int.MaxValue })

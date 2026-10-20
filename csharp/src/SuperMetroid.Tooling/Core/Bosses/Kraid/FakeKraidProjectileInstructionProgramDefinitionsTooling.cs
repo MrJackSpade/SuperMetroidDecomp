@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Development-tool members of <see cref="FakeKraidProjectileInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
 [ToolingFor(typeof(FakeKraidProjectileInstructionProgramDefinitions))]
-internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog
 {
     /// <summary>Bytes in one pose list: its duration, visual operand and terminal sleep.</summary>
     private const int PoseListByteCount = 6;
@@ -40,14 +40,5 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling 
         return new(address, sleep
             ? (ushort)EnemyProjectileInstruction.Sleep
             : checked((ushort)FakeKraidProjectileInstructionProgramDefinitions.PoseDuration));
-    }
-
-    /// <summary>Matches the first and last two bytes of each six-byte pose in bank $86, leaving the spritemap operand editable.</summary>
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)
-            return false;
-        int offset = (ushort)address - FakeKraidProjectileInstructionProgramToolingDefinitions.Spit;
-        return (uint)offset < 18 && offset % 6 is 0 or 1 or 4 or 5;
     }
 }

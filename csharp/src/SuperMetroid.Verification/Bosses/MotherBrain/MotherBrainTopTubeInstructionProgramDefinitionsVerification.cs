@@ -123,7 +123,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
     /// <summary>Blocks private and shared control bytes and observes visual operand reads.</summary>
     private static CartridgeReadGuard NewMotherBrainTopTubeInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(MotherBrainTopTubeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            .Forbid(MotherBrainTopTubeInstructionProgramDefinitionsToolingConstants.IsCompiledMechanicsByte,
                 address => $"Production read compiled Mother Brain ceiling-tube mechanics byte " +
                     $"${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordCount, MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordAddress);

@@ -83,7 +83,7 @@ internal sealed class InstructionProgramLayout
         /// <summary>Positions of control and artwork words within the ordered word array.</summary>
         internal readonly int[] Mechanics, Presentation;
         /// <summary>Maps an exact native word address to its ordered position.</summary>
-        private readonly Dictionary<ushort, int> byAddress = [];
+        internal readonly Dictionary<ushort, int> byAddress = [];
 
         /// <summary>Indexes one walk of the immutable program layout by address and word kind.</summary>
         internal WordIndex(WordWalker walker)
@@ -100,14 +100,6 @@ internal sealed class InstructionProgramLayout
             Words = [.. words];
             Mechanics = [.. mechanics];
             Presentation = [.. presentation];
-        }
-
-        /// <summary>Finds an owned word without scanning the program's item sequence.</summary>
-        internal bool TryGet(ushort address, out InstructionWord word)
-        {
-            bool found = byAddress.TryGetValue(address, out int position);
-            word = found ? Words[position].Word : default;
-            return found;
         }
     }
 

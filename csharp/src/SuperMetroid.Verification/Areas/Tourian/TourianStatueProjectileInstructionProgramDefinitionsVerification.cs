@@ -177,7 +177,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
     /// <summary>Forbids compiled Tourian statue mechanics reads and observes visual operands.</summary>
     private static CartridgeReadGuard NewTourianStatueProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(TourianStatueProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            .Forbid(TourianStatueProjectileInstructionProgramDefinitionsToolingConstants.IsCompiledMechanicsByte,
                 address => $"Production read compiled Tourian statue mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TourianStatueProjectileInstructionProgramDefinitionsTooling.PresentationWordCount, TourianStatueProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress);
 

@@ -115,7 +115,7 @@ using static SuperMetroid.Verification.Enemies.EnemyRomTablePointersVerification
 using static SuperMetroid.Verification.Enemies.EnemyRoomListsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkVerification;
 using static SuperMetroid.Verification.Enemies.EnemyTrigonometryVerification;
-using static SuperMetroid.Verification.Enemies.Artwork.EnemyVisualSelectorInventoryVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelectorsVerification;
 using static SuperMetroid.Verification.Areas.Escape.EscapeGateVisualsVerification;
 using static SuperMetroid.Verification.Areas.Escape.EscapeTimerFloorVerification;
 using static SuperMetroid.Verification.Enemies.Evir.EvirInitTimerVerification;

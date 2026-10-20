@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Development-tool members of <see cref="OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
 [ToolingFor(typeof(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions))]
-internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog
 {
     /// <summary>The six pose operands, in list order.</summary>
     private static readonly ushort[] FrameOperands =
@@ -43,9 +43,6 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
     /// <summary>The scatter command's packed operand word for one axis: its mask in the low byte, its centre in the high.</summary>
     private static ushort ScatterWord(int mask, int center) => SnesLittleEndian.Word(checked((byte)mask), checked((byte)center));
 
-    /// <summary>The control words' addresses.</summary>
-    private static readonly ushort[] WordAddresses = [.. Words.Select(word => word.Address)];
-
     /// <summary>Includes fixed control words and one duration before each wall-explosion pose.</summary>
     public static int MechanicsWordCount => Words.Length;
     /// <summary>Pairs a selected $86 instruction address with the value the typed program plays.</summary>
@@ -56,22 +53,4 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
     public static ushort PresentationWordAddress(int index) =>
         (uint)index < (uint)FrameOperands.Length ? FrameOperands[index] : throw new IndexOutOfRangeException();
 
-    /// <summary>Matches both bytes of each enumerated control or duration word in bank $86.</summary>
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        foreach (ushort wordAddress in WordAddresses)
-        {
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

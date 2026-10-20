@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>Development-tool members of <see cref="TourianStatueProjectileInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
 [ToolingFor(typeof(TourianStatueProjectileInstructionProgramDefinitions))]
-internal abstract class TourianStatueProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class TourianStatueProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog
 {
     /// <summary>$86:B7B3-B7D9: eye-pose holds, slowing 8/7/6/5 before the 48-tick stare. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] EyeHolds = [8, 8, 8, 7, 7, 7, 6, 6, 5, 48];
@@ -117,18 +117,5 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitionsTool
         {
             Word((ushort)EnemyProjectileInstruction.GotoY); Word(target);
         }
-    }
-    /// <summary>Matches either byte of a statue projectile mechanics word in bank $86.</summary>
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            var word = MechanicsWord(index);
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
     }
 }

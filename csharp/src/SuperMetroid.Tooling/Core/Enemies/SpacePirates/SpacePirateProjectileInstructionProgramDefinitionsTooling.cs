@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>Development-tool members of <see cref="SpacePirateProjectileInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
 [ToolingFor(typeof(SpacePirateProjectileInstructionProgramDefinitions))]
-internal abstract class SpacePirateProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
+internal abstract class SpacePirateProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog
 {
     /// <summary>Laser startup dwell at $86:9F41/9F45/9F49 and the right-facing equivalents: each muzzle pose shows two updates.</summary>
     private const ushort LaserStartupFrames = 2;
@@ -66,22 +66,4 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
     public static ushort PresentationWordAddress(int index) => (uint)index < (uint)PresentationWordCount
         ? EnemyProjectileFrames.ProgramFrameKey(SpacePirateProjectileFrameDefinitions.ShownProjectileFrames[new(index)])
         : throw new ArgumentOutOfRangeException(nameof(index));
-
-    /// <summary>Matches either byte of a compiled pirate projectile word in bank $86.</summary>
-    public static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < MechanicsWordCount; index++)
-        {
-            ushort wordAddress = MechanicsWord(index).Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 }

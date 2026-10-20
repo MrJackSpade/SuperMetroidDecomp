@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Development-tool members of <see cref="MotherBrainTopTubeInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
 [ToolingFor(typeof(MotherBrainTopTubeInstructionProgramDefinitions))]
-internal abstract class MotherBrainTopTubeInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
+internal abstract class MotherBrainTopTubeInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, IDeclaredProgramBank
 {
     /// <summary>Four one-frame top-tube poses, each followed by a sleep command.</summary>
-    private static readonly InstructionProgramLayout Layout = new(MotherBrainTopTubeInstructionProgramToolingDefinitions.Bank,
+    internal static readonly InstructionProgramLayout Layout = new(MotherBrainTopTubeInstructionProgramToolingDefinitions.Bank,
         Origin(MotherBrainTopTubeInstructionProgramDefinitions.TopRight),
         Entry(MotherBrainTopTubeInstructionProgramDefinitions.TopRight),
         Frame(1),
@@ -39,6 +39,4 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitionsTooling :
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
-    /// <summary>Distinguishes compiled top-tube mechanics bytes from presentation data.</summary>
-    public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

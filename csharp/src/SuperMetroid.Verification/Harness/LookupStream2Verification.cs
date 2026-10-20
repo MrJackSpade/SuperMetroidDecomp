@@ -295,7 +295,7 @@ internal static class LookupStream2Verification
         var frames = (System.Collections.IDictionary)selected.frames;
         int calculatedCompositions = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (composition.parts is ProjectileSpriteDefinitions.SingleBeamParts)
+            if (ProjectileSpriteDefinitions.SingleBeamPoses.Any(pose => ReferenceEquals(pose, composition.parts)))
                 calculatedCompositions++;
         AssertEqual(12, calculatedCompositions, "Eight Power and four Ice compositions calculate without cached part arrays");
         int calculatedQuads = 0;
@@ -305,7 +305,7 @@ internal static class LookupStream2Verification
         AssertEqual(19, calculatedQuads, "Nineteen charged Power/Ice quadrant compositions calculate without cached part arrays");
         int calculatedWaves = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (composition.parts is ProjectileSpriteDefinitions.WaveParts)
+            if (ProjectileSpriteDefinitions.WavePoses.Any(pose => ReferenceEquals(pose, composition.parts)))
                 calculatedWaves++;
         AssertEqual(33, calculatedWaves, "All33 stock Wave compositions share directional geometry without cached parts");
         int calculatedLobes = 0;

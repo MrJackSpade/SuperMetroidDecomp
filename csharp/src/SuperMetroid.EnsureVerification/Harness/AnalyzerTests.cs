@@ -200,6 +200,54 @@ internal static class AnalyzerTests
             throw new InvalidOperationException($"#region and #endregion must each be reported once: {string.Join("; ", regions)}");
     }
 
+    /// <summary>Checks numbered member families, index-to-member switches and hand-written list types (#1369).</summary>
+    internal static void VerifyNumberedSequenceAnalyzer()
+    {
+        var analyzer = new NumberedSequenceAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) => VerifySnippet(source, id, message, analyzer);
+        const string attribute = "[System.AttributeUsage(System.AttributeTargets.All)] sealed class NumberedIdentitiesAttribute(string reason) : System.Attribute { }";
+
+        // SME6415: a same-typed family whose ordinals run gap-free from 0, or from 1.
+        Expect("record Neck { public int Segment0Distance { get; init; } public int Segment1Distance { get; init; } public int Segment2Distance { get; init; } }",
+            NumberedSequenceAnalyzer.FamilyId, "'Segment0Distance'..'Segment2Distance'");
+        Expect("class Shutter { int level1; int level2; int level3; int level4; }", NumberedSequenceAnalyzer.FamilyId, "4 elements");
+        // A gapped family, a mixed-type family, two members, and a justified family pass.
+        Expect("class C { int Sound01; int Sound03; int Sound07; }");
+        Expect("class C { int Part0; long Part1; int Part2; }");
+        Expect("class C { int Joint0; int Joint1; }");
+        Expect(attribute + " class Poses { [NumberedIdentities(\"each pose is its own animation\")] int Pose0; int Pose1; int Pose2; }");
+
+        // SME6416: consecutive integer arms that each pick one member of a family.
+        Expect("class Shutter { int Level0Y; int Level1Y; int Y(int level) => level switch { 0 => Level0Y, 1 => Level1Y, _ => throw new System.Exception() }; }",
+            NumberedSequenceAnalyzer.IndexSwitchId, "indices 0..1");
+        Expect("class C { int A0; int A1; void Set(int i, int v) { switch (i) { case 0: A0 = v; break; case 1: A1 = v; break; } } }",
+            NumberedSequenceAnalyzer.IndexSwitchId);
+        // Arms that pick unrelated members or skip an index pass.
+        Expect("class C { int Surface; int Dark; int Y(int i) => i switch { 0 => Surface, 1 => Dark, _ => 0 }; }");
+        Expect("class C { int A0; int A2; int Y(int i) => i switch { 0 => A0, 2 => A2, _ => 0 }; }");
+
+        // SME6417: an indexer that switches over constant indices, or ignores its index, beside a hand-written enumerator.
+        Expect("using System.Collections; using System.Collections.Generic; class Pair : IReadOnlyList<int> { public int Count => 2; " +
+            "public int this[int index] => index switch { 0 => 1, 1 => 2, _ => throw new System.ArgumentOutOfRangeException() }; " +
+            "public IEnumerator<int> GetEnumerator() { yield return this[0]; yield return this[1]; } IEnumerator IEnumerable.GetEnumerator() => GetEnumerator(); }",
+            NumberedSequenceAnalyzer.HandWrittenListId, "switches over constant indices");
+        Expect("using System.Collections; using System.Collections.Generic; class Same : IEnumerable<int> { public int this[int index] { get { if (index < 0) throw new System.ArgumentOutOfRangeException(nameof(index)); return 7; } } " +
+            "public IEnumerator<int> GetEnumerator() { yield return this[0]; } IEnumerator IEnumerable.GetEnumerator() => GetEnumerator(); }",
+            NumberedSequenceAnalyzer.HandWrittenListId, "same value for every index");
+        // An indexer that computes its value from the index, past a bounds check, passes.
+        Expect("using System.Collections; using System.Collections.Generic; class Computed : IEnumerable<int> { public int this[int index] { get { if (index < 0) throw new System.ArgumentOutOfRangeException(); int doubled = index * 2; return doubled; } } " +
+            "public IEnumerator<int> GetEnumerator() { yield return this[0]; } IEnumerator IEnumerable.GetEnumerator() => GetEnumerator(); }");
+        // A returned choice between two values by the index is a two-element list; a comparison inside a calculation is not.
+        Expect("using System.Collections; using System.Collections.Generic; class Two : IEnumerable<int> { int a; int b; public int this[int index] => index == 0 ? a : b; " +
+            "public IEnumerator<int> GetEnumerator() { yield return this[0]; } IEnumerator IEnumerable.GetEnumerator() => GetEnumerator(); }",
+            NumberedSequenceAnalyzer.HandWrittenListId, "switches over constant indices");
+        Expect("using System.Collections; using System.Collections.Generic; class Calc : IEnumerable<int> { public int this[int index] { get { int x = index == 0 ? 8 : 0; return x + index; } } " +
+            "public IEnumerator<int> GetEnumerator() { yield return this[0]; } IEnumerator IEnumerable.GetEnumerator() => GetEnumerator(); }");
+        // An indexer over real storage passes.
+        Expect("using System.Collections; using System.Collections.Generic; class Wrap : IEnumerable<int> { int[] items = [1, 2]; public int this[int index] => items[index]; " +
+            "public IEnumerator<int> GetEnumerator() => ((IEnumerable<int>)items).GetEnumerator(); IEnumerator IEnumerable.GetEnumerator() => GetEnumerator(); }");
+    }
+
     /// <summary>Checks that every pragma warning disable is reported and the sanctioned per-site form is not (#1396).</summary>
     internal static void VerifyPragmaWarningDisableAnalyzer()
     {

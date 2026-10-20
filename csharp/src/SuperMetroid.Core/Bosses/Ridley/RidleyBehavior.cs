@@ -198,8 +198,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
-            SpritemapPaletteIndex = SnesObjPalettes.Index7,
-            CommonDrawPaletteIndex = SnesObjPalettes.Index7,
+            SpritemapPaletteIndex = SnesObjPalettes.Palette(7),
+            CommonDrawPaletteIndex = SnesObjPalettes.Palette(7),
             MovementAnimationEnabled = true,
             FacingDirection = RidleyFacing.Right,
             IdleTailWhipEnabled = false,

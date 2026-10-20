@@ -59,6 +59,8 @@ internal static class DebuggerObjectGraphSerializer
         Delegate,
         /// <summary>Ordered private and public instance fields.</summary>
         Fields,
+        /// <summary>Every element of an inline-array struct, after their count.</summary>
+        InlineArray,
     }
 
     /// <summary>Serializes one graph with reference IDs and strict type/member identities.</summary>
@@ -111,6 +113,16 @@ internal static class DebuggerObjectGraphSerializer
             if (value is Delegate callback)
             {
                 WriteDelegate(callback);
+                return;
+            }
+
+            if (InlineArrayElements.Length(type) is not null)
+            {
+                object?[] elements = InlineArrayElements.Read(value);
+                writer.Write((byte)PayloadKind.InlineArray);
+                writer.Write(elements.Length);
+                foreach (object? element in elements)
+                    Write(element);
                 return;
             }
 
@@ -293,6 +305,7 @@ internal static class DebuggerObjectGraphSerializer
                 PayloadKind.Array => ReadArray(type, referenceId),
                 PayloadKind.Delegate => ReadDelegate(type, referenceId),
                 PayloadKind.Fields => ReadFields(type, referenceId),
+                PayloadKind.InlineArray => ReadInlineArray(type),
                 _ => throw new InvalidDataException(
                     $"Unknown debugger-state payload kind {(byte)kind} for {type.FullName}."),
             };
@@ -452,6 +465,15 @@ internal static class DebuggerObjectGraphSerializer
             if (instance is SuperMetroid.AssetExtraction.Installation.IRestoredSharedContent shared)
                 shared.ReattachSharedContent();
             return instance;
+        }
+
+        /// <summary>Rebuilds an inline-array struct from its saved elements.</summary>
+        private object ReadInlineArray(Type type)
+        {
+            var elements = new object?[ReadNonnegativeLength("inline-array element")];
+            for (int index = 0; index < elements.Length; index++)
+                elements[index] = Read();
+            return InlineArrayElements.Create(type, elements);
         }
 
         /// <summary>Rejects negative serialized counts before allocating or iterating.</summary>

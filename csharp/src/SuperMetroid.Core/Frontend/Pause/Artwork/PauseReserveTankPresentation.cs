@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
@@ -38,13 +39,13 @@ public sealed class PauseReserveTankPresentation
             PauseReserveTankVisual.Full => frames.Full,
             PauseReserveTankVisual.EndCap => frames.EndCap,
             PauseReserveTankVisual.Empty => frames.Empty,
-            PauseReserveTankVisual.Fill1 => frames.Fill1,
-            PauseReserveTankVisual.Fill2 => frames.Fill2,
-            PauseReserveTankVisual.Fill3 => frames.Fill3,
-            PauseReserveTankVisual.Fill4 => frames.Fill4,
-            PauseReserveTankVisual.Fill5 => frames.Fill5,
-            PauseReserveTankVisual.Fill6 => frames.Fill6,
-            PauseReserveTankVisual.Fill7 => frames.Fill7,
+            PauseReserveTankVisual.Fill1 => frames.Fills[0],
+            PauseReserveTankVisual.Fill2 => frames.Fills[1],
+            PauseReserveTankVisual.Fill3 => frames.Fills[2],
+            PauseReserveTankVisual.Fill4 => frames.Fills[3],
+            PauseReserveTankVisual.Fill5 => frames.Fills[4],
+            PauseReserveTankVisual.Fill6 => frames.Fills[5],
+            PauseReserveTankVisual.Fill7 => frames.Fills[6],
             _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {nativeIdentity}."),
         };
         Position16<OamPixels> origin = anchor;
@@ -71,7 +72,7 @@ public sealed class PauseReserveTankPresentation
             if (point.X is < 0 or > 255 || point.Y is < 0 or > 223)
                 throw new InvalidDataException("Reserve tank anchor requires screen coordinates X=0..255/Y=0..223.");
         var frames = new FrameSet(Require("Full", PauseReserveTankVisual.Full), Require("EndCap", PauseReserveTankVisual.EndCap), Require("Empty", PauseReserveTankVisual.Empty),
-            Require("Fill1", PauseReserveTankVisual.Fill1), Require("Fill2", PauseReserveTankVisual.Fill2), Require("Fill3", PauseReserveTankVisual.Fill3), Require("Fill4", PauseReserveTankVisual.Fill4), Require("Fill5", PauseReserveTankVisual.Fill5), Require("Fill6", PauseReserveTankVisual.Fill6), Require("Fill7", PauseReserveTankVisual.Fill7));
+            [Require("Fill1", PauseReserveTankVisual.Fill1), Require("Fill2", PauseReserveTankVisual.Fill2), Require("Fill3", PauseReserveTankVisual.Fill3), Require("Fill4", PauseReserveTankVisual.Fill4), Require("Fill5", PauseReserveTankVisual.Fill5), Require("Fill6", PauseReserveTankVisual.Fill6), Require("Fill7", PauseReserveTankVisual.Fill7)]);
         SpriteComposition? Require(string name, PauseReserveTankVisual identity)
         {
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null)
@@ -90,9 +91,12 @@ public sealed class PauseReserveTankPresentation
         return new(anchorOverrides, frames, document.Palette);
     }
     /// <summary>Distinct reserve strip roles selected by the native fill renderer.</summary>
+    /// <param name="Full">The full strip.</param>
+    /// <param name="EndCap">The strip's end cap.</param>
+    /// <param name="Empty">The empty strip.</param>
+    /// <param name="Fills">The seven partial-fill frames, indexed by fill level less one.</param>
     internal sealed record FrameSet(SpriteComposition? Full, SpriteComposition? EndCap, SpriteComposition? Empty,
-        SpriteComposition? Fill1, SpriteComposition? Fill2, SpriteComposition? Fill3, SpriteComposition? Fill4,
-        SpriteComposition? Fill5, SpriteComposition? Fill6, SpriteComposition? Fill7);
+        ImmutableArray<SpriteComposition?> Fills);
     /// <summary>Validates and writes an editable reserve-tank presentation document as JSON.</summary>
     /// <param name="output">The caller-owned destination stream.</param>
     /// <param name="document">The presentation document to validate and serialize.</param>

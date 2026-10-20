@@ -53,8 +53,8 @@ internal static class KraidArmCallbackMappingsVerification
             AssertEqual(count, index, "Arm rectangle enumeration ends");
             AssertTrue(actual.SequenceEqual(Enumerable.Range(0, count).Select(i => actual[i])),
                 "Arm rectangle materialization");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = actual[-1], "Negative arm rectangle index");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = actual[count], "Past arm rectangle index");
+            AssertThrows<IndexOutOfRangeException>(() => _ = actual[-1], "Negative arm rectangle index");
+            AssertThrows<IndexOutOfRangeException>(() => _ = actual[count], "Past arm rectangle index");
         }
         AssertEqual(24, rectangle, "All native arm callback records");
         AssertThrows<ArgumentOutOfRangeException>(() => calculate(-1), "Negative callback record");

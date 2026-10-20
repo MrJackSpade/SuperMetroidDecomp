@@ -1,6 +1,5 @@
 using SuperMetroid.Tooling;
 using System.Reflection;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core;

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Map;
@@ -8,14 +9,22 @@ public static class MapLandmarkDefinitions
     /// <summary>$82:C853 first save coordinate is also the unconditional Crateria gunship icon.</summary>
     public const string Gunship = "Crateria.Gunship";
 
-    /// <summary>$82:C7CB..C7D7 selects native boss slot lists; Crateria's three FFFE slots still consume bits.</summary>
-    public static BossSequence Bosses(AreaId area) => new(area, area switch
+    /// <summary>
+    /// $82:C7CB..C7D7 selects native boss slot lists ($82:C83B/C89D/C90B/C981/C9DB/CA9B for
+    /// Crateria/Kraid/Ridley/Phantoon/Draygon/Ceres); Crateria's three FFFE slots still consume bits.
+    /// </summary>
+    /// <remarks>Each slot is a boss landmark identity, or null for a reserved native slot.</remarks>
+    public static ImmutableArray<string?> Bosses(AreaId area) => area switch
     {
-        AreaId.Crateria => 3,
-        AreaId.Brinstar or AreaId.Norfair or AreaId.WreckedShip or AreaId.Maridia or AreaId.Ceres => 1,
-        AreaId.Tourian => 0,
+        AreaId.Crateria => [null, null, null],
+        AreaId.Brinstar => ["Boss.Kraid"],
+        AreaId.Norfair => ["Boss.Ridley"],
+        AreaId.WreckedShip => ["Boss.Phantoon"],
+        AreaId.Maridia => ["Boss.Draygon"],
+        AreaId.Ceres => ["Boss.CeresRidley"],
+        AreaId.Tourian => [],
         _ => throw new ArgumentOutOfRangeException(nameof(area)),
-    });
+    };
 
     /// <summary>$82:C74D..C757 selects the six Zebes elevator destination lists; Ceres has no list.</summary>
     public static ElevatorSequence Elevators(AreaId area) => new(area, area switch
@@ -27,51 +36,6 @@ public static class MapLandmarkDefinitions
         AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have elevator map labels."),
         _ => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have elevator map labels."),
     });
-
-    /// <summary>$82:C83B/C89D/C90B/C981/C9DB/CA9B are Crateria/Kraid/Ridley/Phantoon/Draygon/Ceres boss slots.</summary>
-    public readonly struct BossSequence : IReadOnlyList<string?>
-    {
-        /// <summary>Area selecting the native boss slot list, including Crateria's reserved entries.</summary>
-        private readonly AreaId area;
-        /// <summary>Number of native boss bit slots consumed by this area's map list.</summary>
-        private readonly int count;
-        /// <summary>Binds an area to its native boss slot count.</summary>
-        internal BossSequence(AreaId area, int count) { this.area = area; this.count = count; }
-        /// <summary>Gets the number of native boss slots consumed by the area.</summary>
-        public int Count => count;
-        /// <summary>Gets the sequence length for array-style consumers.</summary>
-        public int Length => Count;
-        /// <summary>Gets whether the area consumes no boss-map slots.</summary>
-        public bool IsEmpty => Count == 0;
-        /// <summary>Gets a boss landmark identity, or <see langword="null"/> for a reserved native slot.</summary>
-        /// <param name="index">Zero-based native slot index.</param>
-        public string? this[int index]
-        {
-            get
-            {
-                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                return area switch
-                {
-                    AreaId.Crateria => null,
-                    AreaId.Brinstar => "Boss.Kraid",
-                    AreaId.Norfair => "Boss.Ridley",
-                    AreaId.WreckedShip => "Boss.Phantoon",
-                    AreaId.Maridia => "Boss.Draygon",
-                    AreaId.Ceres => "Boss.CeresRidley",
-                    AreaId.Tourian => throw new ArgumentOutOfRangeException(nameof(area)),
-                    _ => throw new ArgumentOutOfRangeException(nameof(area)),
-                };
-            }
-        }
-        /// <summary>Enumerates boss identities and reserved slots in native order.</summary>
-        /// <returns>An enumerator over the area's fixed slot sequence.</returns>
-        public IEnumerator<string?> GetEnumerator()
-        {
-            for (int i = 0; i < Count; i++) yield return this[i];
-        }
-        /// <summary>Exposes native boss slot order through the non-generic collection interface.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 
     /// <summary>
     /// $82:C759/C779/C799/C7A1/C7AF/C7C3 are area-ordered native destination

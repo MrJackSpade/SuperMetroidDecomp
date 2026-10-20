@@ -52,9 +52,8 @@ internal sealed class CartridgeAudioEventSource
             events.Add(AudioEvent.DriverTick(tick.DspCycleOffset, tick.Ticks, tick.SoundEffectsPolled));
             if (!tick.SoundEffectsPolled)
                 continue;
-            AddStart(events, tick, SoundEffectLibrary.Library1, tick.Library1);
-            AddStart(events, tick, SoundEffectLibrary.Library2, tick.Library2);
-            AddStart(events, tick, SoundEffectLibrary.Library3, tick.Library3);
+            for (int library = 0; library < SoundEffectLibraries.Count; library++)
+                AddStart(events, tick, SoundEffectLibraries.FromQueueIndex(library), tick.LibraryPolls[library]);
         }
         Acknowledgements = new CartridgeAudioAcknowledgements(
             0,

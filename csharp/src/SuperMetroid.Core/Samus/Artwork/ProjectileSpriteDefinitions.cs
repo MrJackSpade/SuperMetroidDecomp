@@ -1058,30 +1058,16 @@ public static class ProjectileSpriteDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:A24D..A27E: eight centered one-tile Power poses (also the first four Ice poses at $93:EDF6) traverse a triangular three-glyph cycle and rotate its horizontal/vertical reflection phases.</summary>
-    internal readonly struct SingleBeamParts(int phase) : IReadOnlyList<CompiledSpritePart>
+    internal static readonly IReadOnlyList<IReadOnlyList<CompiledSpritePart>> SingleBeamPoses =
+        [.. Enumerable.Range(0, 8).Select(phase => (IReadOnlyList<CompiledSpritePart>)[SingleBeamPart(phase)])];
+    /// <summary>Selects the cyclic glyph and reflection flags for a pose's one centered beam cell.</summary>
+    private static CompiledSpritePart SingleBeamPart(int phase)
     {
-        /// <summary>Each ordinary Power or Ice pose has one centered OBJ cell.</summary>
-        public int Count => 1;
-        /// <summary>Selects the cyclic glyph and reflection flags for the centered beam cell.</summary>
-        public CompiledSpritePart this[int index]
-        {
-            get
-            {
-                ArgumentOutOfRangeException.ThrowIfNotEqual(index, 0);
-                int tile = PowerTile + 2 - Math.Abs(2 - (phase & 3));
-                var flips = (phase is >= 3 and <= 5 ? SnesTileFlipFlags.Horizontal : 0) |
-                    (phase >= 4 ? SnesTileFlipFlags.Vertical : 0);
-                return new(SnesSpritemapXWord.Create(-8 / 2, false), SnesSpritemapYByte.Create(-8 / 2),
-                    SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
-            }
-        }
-        /// <summary>Yields the sole centered beam part.</summary>
-        public IEnumerator<CompiledSpritePart> GetEnumerator()
-        {
-            yield return this[0];
-        }
-        /// <summary>Exposes the centered single-beam cell through the non-generic collection interface.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        int tile = PowerTile + 2 - Math.Abs(2 - (phase & 3));
+        var flips = (phase is >= 3 and <= 5 ? SnesTileFlipFlags.Horizontal : 0) |
+            (phase >= 4 ? SnesTileFlipFlags.Vertical : 0);
+        return new(SnesSpritemapXWord.Create(-8 / 2, false), SnesSpritemapYByte.Create(-8 / 2),
+            SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
     }
     /// <summary>$93:EC54..ED88 and ED9E..EDE0 mirror one glyph across a centered two-by-two cell square; Power uses column order and Ice row order.</summary>
     internal readonly struct ChargedBeamParts(int phase, bool ice) : IReadOnlyList<CompiledSpritePart>
@@ -1138,58 +1124,47 @@ public static class ProjectileSpriteDefinitions
         DownRight,
     }
     /// <summary>$93:AE65..AF4B: one centered pose then four stages in each of eight signed directional displacement groups.</summary>
-    internal readonly struct WaveParts(int phase) : IReadOnlyList<CompiledSpritePart>
+    internal static readonly IReadOnlyList<IReadOnlyList<CompiledSpritePart>> WavePoses =
+        [.. Enumerable.Range(0, 33).Select(phase => (IReadOnlyList<CompiledSpritePart>)[WavePart(phase)])];
+    /// <summary>Places a pose's one Wave glyph at the required axial or diagonal travel distance.</summary>
+    private static CompiledSpritePart WavePart(int phase)
     {
-        /// <summary>Each selected Wave displacement has one OBJ cell.</summary>
-        public int Count => 1;
-        /// <summary>Places a Wave glyph at the required axial or diagonal travel distance.</summary>
-        public CompiledSpritePart this[int index]
+        int x = -8 / 2, y = -8 / 2, tile = PowerTile;
+        if (phase != 0)
         {
-            get
+            int step = (phase - 1) % 4;
+            WaveDirection direction = ((phase - 1) / 4) switch
             {
-                ArgumentOutOfRangeException.ThrowIfNotEqual(index, 0);
-                int x = -8 / 2, y = -8 / 2, tile = PowerTile;
-                if (phase != 0)
-                {
-                    int step = (phase - 1) % 4;
-                    WaveDirection direction = ((phase - 1) / 4) switch
-                    {
-                        0 => WaveDirection.Up,
-                        1 => WaveDirection.Down,
-                        2 => WaveDirection.UpRight,
-                        3 => WaveDirection.DownLeft,
-                        4 => WaveDirection.Right,
-                        5 => WaveDirection.Left,
-                        6 => WaveDirection.UpLeft,
-                        7 => WaveDirection.DownRight,
-                        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-                    };
-                    (int dx, int dy) = direction switch
-                    {
-                        WaveDirection.Up => (0, -1),
-                        WaveDirection.Down => (0, 1),
-                        WaveDirection.UpRight => (1, -1),
-                        WaveDirection.DownLeft => (-1, 1),
-                        WaveDirection.Right => (1, 0),
-                        WaveDirection.Left => (-1, 0),
-                        WaveDirection.UpLeft => (-1, -1),
-                        WaveDirection.DownRight => (1, 1),
-                        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-                    };
-                    int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(step);
-                    if (dx != 0 && dy != 0) distance = distance * WaveDiagonalNumerator / WaveDiagonalDenominator;
-                    x += dx * distance;
-                    y += dy * distance;
-                    tile += (step + 1) / 2;
-                }
-                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
-                    SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, 0), false);
-            }
+                0 => WaveDirection.Up,
+                1 => WaveDirection.Down,
+                2 => WaveDirection.UpRight,
+                3 => WaveDirection.DownLeft,
+                4 => WaveDirection.Right,
+                5 => WaveDirection.Left,
+                6 => WaveDirection.UpLeft,
+                7 => WaveDirection.DownRight,
+                _ => throw new ArgumentOutOfRangeException(nameof(phase)),
+            };
+            (int dx, int dy) = direction switch
+            {
+                WaveDirection.Up => (0, -1),
+                WaveDirection.Down => (0, 1),
+                WaveDirection.UpRight => (1, -1),
+                WaveDirection.DownLeft => (-1, 1),
+                WaveDirection.Right => (1, 0),
+                WaveDirection.Left => (-1, 0),
+                WaveDirection.UpLeft => (-1, -1),
+                WaveDirection.DownRight => (1, 1),
+                _ => throw new ArgumentOutOfRangeException(nameof(phase)),
+            };
+            int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(step);
+            if (dx != 0 && dy != 0) distance = distance * WaveDiagonalNumerator / WaveDiagonalDenominator;
+            x += dx * distance;
+            y += dy * distance;
+            tile += (step + 1) / 2;
         }
-        /// <summary>Yields the selected single-cell Wave pose.</summary>
-        public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
-        /// <summary>Exposes the selected Wave cell to non-generic sprite composition readers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
+            SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, 0), false);
     }
     /// <summary>Recognizes charged Wave or IceWave vertical paired-lobe composition phases.</summary>
     internal static bool TryVerticalChargedWavePhase(ushort pointer, out int phase) =>

@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// each terminator govern linked slot allocation and the room enemy-death quota.
 /// This is gameplay data, not an editable visual asset.
 /// </remarks>
+[NumberedIdentities("Each numbered member is the enemy population of one numbered room or room state, named for it; no caller indexes the populations by number.")]
 public static class RoomEnemyPopulationDefinitions
 {
     /// <summary>Retail populations in the cartridge's list order.</summary>

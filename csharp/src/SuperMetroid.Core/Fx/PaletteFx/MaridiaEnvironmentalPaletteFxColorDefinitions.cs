@@ -27,27 +27,11 @@ public static class MaridiaEnvironmentalPaletteFxColorDefinitions
     internal const int WaterfallRotationColors = 8;
 
     /// <summary>The sand-pit, sand-fall, and waterfall programs in native definition order, calculated without cached records.</summary>
-    public static IReadOnlyList<MaridiaEnvironmentalPaletteFxColorDefinition> All { get; } = new DefinitionSequence();
+    public static IReadOnlyList<MaridiaEnvironmentalPaletteFxColorDefinition> All { get; } =
+    [
+        new(MaridiaEnvironmentalPaletteOwner.SandPits),
+        new(MaridiaEnvironmentalPaletteOwner.SandFalls),
+        new(MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls),
+    ];
 
-    /// <summary>Creates Maridia owner definitions on demand in native definition order.</summary>
-    private sealed class DefinitionSequence : IReadOnlyList<MaridiaEnvironmentalPaletteFxColorDefinition>
-    {
-        /// <summary>Sand pits, sand falls, and background waterfalls are the three compiled owners.</summary>
-        public int Count => 3;
-        /// <summary>Constructs the program definition at its native owner-order index.</summary>
-        public MaridiaEnvironmentalPaletteFxColorDefinition this[int index] => index switch
-        {
-            0 => new(MaridiaEnvironmentalPaletteOwner.SandPits),
-            1 => new(MaridiaEnvironmentalPaletteOwner.SandFalls),
-            2 => new(MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls),
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        /// <summary>Enumerates the three owner definitions without retaining cached records.</summary>
-        public IEnumerator<MaridiaEnvironmentalPaletteFxColorDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Shares the typed owner-order enumerator with non-generic callers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 }

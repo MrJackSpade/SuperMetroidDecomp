@@ -1354,21 +1354,21 @@ level, samus, NmiFrameWord(elapsedUpdates));
     }
 
     /// <summary>Clears selected CGRAM spans before an incoming scene palette begins crossfading.</summary>
-    private void ClearPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
+    private void ClearPaletteSpans(IReadOnlyList<IntroPaletteSpan> spans)
     {
         foreach (IntroPaletteSpan span in spans)
             PaletteFader.Clear(span);
     }
 
     /// <summary>Raises selected CGRAM components toward the prepared palette target for the incoming scene.</summary>
-    private void FadeInPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
+    private void FadeInPaletteSpans(IReadOnlyList<IntroPaletteSpan> spans)
     {
         foreach (IntroPaletteSpan span in spans)
             PaletteFader.FadeIn(span);
     }
 
     /// <summary>Reduces selected palette components during a scene-to-text or text-to-scene fade.</summary>
-    private void FadeOutPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
+    private void FadeOutPaletteSpans(IReadOnlyList<IntroPaletteSpan> spans)
     {
         foreach (IntroPaletteSpan span in spans)
             PaletteFader.FadeOut(span);

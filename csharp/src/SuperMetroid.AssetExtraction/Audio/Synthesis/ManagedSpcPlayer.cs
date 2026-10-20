@@ -1614,9 +1614,8 @@ public sealed class ManagedSpcPlayer
         int ticks = tick.Ticks;
         if (tick.SoundEffectsPolled)
         {
-            HandleSoundLibraryCommand(0, tick.Library1);
-            HandleSoundLibraryCommand(1, tick.Library2);
-            HandleSoundLibraryCommand(2, tick.Library3);
+            for (int library = 0; library < SoundEffectLibraries.Count; library++)
+                HandleSoundLibraryCommand(library, tick.LibraryPolls[library]);
             if (echoStoredTime != echoDelay)
                 echoStoredTime = SpcDriverWrap.Byte(echoStoredTime + 1);
         }

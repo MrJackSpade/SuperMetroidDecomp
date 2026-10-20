@@ -24,34 +24,8 @@ public static class RoomFxLayer3TilemapFormat
     /// The six even type identities $02..0C at $83:ABF2..ABFC, in page order.
     /// Index0..5 names Lava, Acid, Water, Spores, Rain and Fog in page order.
     /// </summary>
-    public static IReadOnlyList<RoomFxType> Types { get; } = new CalculatedTypes();
-
-    /// <summary>Exposes the six native room-FX page identities in transfer order without storing an array.</summary>
-    private sealed class CalculatedTypes : IReadOnlyList<RoomFxType>
-    {
-        /// <summary>Six FX types own authored BG3 pages; the statue effect aliases water.</summary>
-        public int Count => 6;
-        /// <summary>Maps a transfer-page index to its lava-through-fog effect type.</summary>
-        public RoomFxType this[int index] => index switch
-        {
-            0 => RoomFxType.Lava,
-            1 => RoomFxType.Acid,
-            2 => RoomFxType.Water,
-            3 => RoomFxType.Spores,
-            4 => RoomFxType.Rain,
-            5 => RoomFxType.Fog,
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-
-        /// <summary>Walks the six page identities in their bank-$8A transfer order.</summary>
-        public IEnumerator<RoomFxType> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-
-        /// <summary>Provides the same ordered page traversal through the non-generic collection interface.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    public static IReadOnlyList<RoomFxType> Types { get; } =
+        [RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Spores, RoomFxType.Rain, RoomFxType.Fog];
 
     /// <summary>
     /// Returns $8A:8000 + (type/2-1)*$840 for the six even types $02..0C.

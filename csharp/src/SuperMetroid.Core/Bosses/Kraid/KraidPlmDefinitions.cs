@@ -29,28 +29,7 @@ public static class KraidPlmDefinitions
     /// <c>$A7:C168</c> (<c>Kraid_SpawnPlmToClearCeiling</c>) and <c>$A7:C171</c>
     /// (<c>Kraid_ClearSomeSpikes</c>), in native call order.
     /// </summary>
-    public static IReadOnlyList<KraidPlmRequest> DefeatedRoom { get; } = new DefeatedRoomSequence();
-
-    /// <summary>Enumerates the ceiling and spike cleanup requests in defeated-room call order.</summary>
-    private sealed class DefeatedRoomSequence : IReadOnlyList<KraidPlmRequest>
-    {
-        /// <summary>Defeated-room initialization issues two hardcoded PLM requests.</summary>
-        public int Count => 2;
-        /// <summary>Selects ceiling cleanup before spike cleanup.</summary>
-        public KraidPlmRequest this[int index] => index switch
-        {
-            0 => ClearCeiling,
-            1 => ClearSpikes,
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        /// <summary>Visits the two cleanup requests in native call order.</summary>
-        public IEnumerator<KraidPlmRequest> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same cleanup order through non-generic enumeration.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    public static IReadOnlyList<KraidPlmRequest> DefeatedRoom { get; } = [ClearCeiling, ClearSpikes];
 
     /// <summary>
     /// $A7:ACC5 selects the ceiling callbacks at ACD7..AD3A. Each block lies

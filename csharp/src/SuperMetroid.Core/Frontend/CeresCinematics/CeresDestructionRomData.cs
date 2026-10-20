@@ -152,7 +152,7 @@ public static class CeresDestructionRomData
         /// <summary>$8B:C29B: second automatic allocation reserves slot 14 for invisible CF33.</summary>
         public const int SpawnerSlot = 14;
         /// <summary>OBJ palette used by the Ceres explosion sprites.</summary>
-        public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Index5;
+        public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Palette(5);
         /// <summary>Initial horizontal background coordinate of the Zebes approach.</summary>
         public const ushort ZebesInitialBackgroundX = 0x0080;
     }

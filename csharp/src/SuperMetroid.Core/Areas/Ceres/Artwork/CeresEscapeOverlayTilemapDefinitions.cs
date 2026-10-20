@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Ridley;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -75,32 +76,7 @@ internal static class CeresEscapeOverlayTilemapDefinitions
             ? JapaneseUpperTile + glyph : JapaneseTrailingUpperTile + glyph - MainGlyphCount;
         return (ushort)(JapaneseStyle | tile);
     }
-    /// <summary>Five fixed overlays in English-title then Japanese row-half order.</summary>
-    internal static PageSequence All => default;
-
-    /// <summary>Enumerates the fixed warning pages without retaining a descriptor array.</summary>
-    internal readonly struct PageSequence : IReadOnlyList<CeresEscapeOverlayTilemapDefinition>
-    {
-        /// <summary>One English title and four Japanese subtitle tilemaps.</summary>
-        public int Count => 5;
-        /// <summary>List length used by the editable document validator.</summary>
-        public int Length => Count;
-        /// <summary>Selects a named overlay and native source range by page ordinal.</summary>
-        public CeresEscapeOverlayTilemapDefinition this[int index] => index switch
-        {
-            0 => Emergency,
-            1 => JapaneseFirst,
-            2 => JapaneseSecond,
-            3 => JapaneseThird,
-            4 => JapaneseFourth,
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        /// <summary>Yields the five warning pages in transfer order.</summary>
-        public IEnumerator<CeresEscapeOverlayTilemapDefinition> GetEnumerator()
-        {
-            for (int i = 0; i < Count; i++) yield return this[i];
-        }
-        /// <summary>Uses the same transfer-order traversal for non-generic callers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    /// <summary>The five fixed overlays in transfer order: the English title, then the four Japanese row halves.</summary>
+    internal static ImmutableArray<CeresEscapeOverlayTilemapDefinition> All { get; } =
+        [Emergency, JapaneseFirst, JapaneseSecond, JapaneseThird, JapaneseFourth];
 }

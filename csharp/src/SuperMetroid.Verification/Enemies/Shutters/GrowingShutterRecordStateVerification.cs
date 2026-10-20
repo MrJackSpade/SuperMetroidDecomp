@@ -20,13 +20,13 @@ internal static class GrowingShutterRecordStateVerification
         state.Function = Enum.GetValues<GrowingShutterFunction>()[^1];
         state.PlaceSectionOrigins(growsUp: true);
         state.GrowthLevel = 3;
-        AssertEqual(new Position16<RoomPixels>(0x0100, 0x0200 - 24), state.GrowthLevel3Origin,
+        AssertEqual(new Position16<RoomPixels>(0x0100, 0x0200 - 24), state.SectionOrigin(3),
             "the fourth section sits 24 pixels above the spawn in the shutter's column");
 
         slot.Clear();
         AssertEqual<GrowingShutterFunction?>(null, state.Function, "a kill empties the behaviour");
-        AssertEqual(Position16<RoomPixels>.Zero, state.GrowthLevel0Origin, "a kill empties the first origin");
-        AssertEqual(Position16<RoomPixels>.Zero, state.GrowthLevel3Origin, "a kill empties the last origin");
+        AssertEqual(Position16<RoomPixels>.Zero, state.SectionOrigin(0), "a kill empties the first origin");
+        AssertEqual(Position16<RoomPixels>.Zero, state.SectionOrigin(3), "a kill empties the last origin");
         AssertEqual(0, state.GrowthLevel, "a kill empties the growth level");
         Console.WriteLine("Growing shutter record state: a kill empties every value the record holds.");
     }

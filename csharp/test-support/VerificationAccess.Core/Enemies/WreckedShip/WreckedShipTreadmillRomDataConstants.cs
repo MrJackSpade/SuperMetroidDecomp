@@ -1,24 +1,13 @@
-
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>Cartridge values of <see cref="WreckedShipTreadmillRomData"/> that only verification reads.</summary>
 internal static class WreckedShipTreadmillRomDataConstants
 {
-    /// <summary>Second 32-byte graphics frame at $87:8E84.</summary>
-    public const int Frame1Source = WreckedShipTreadmillRomData.Frame0Source + WreckedShipTreadmillRomData.TransferByteCount;
-    /// <summary>Third 32-byte graphics frame at $87:8EA4.</summary>
-    public const int Frame2Source = WreckedShipTreadmillRomData.Frame0Source + 2 * WreckedShipTreadmillRomData.TransferByteCount;
-    /// <summary>Fourth 32-byte graphics frame at $87:8EC4.</summary>
-    public const int Frame3Source = WreckedShipTreadmillRomData.Frame0Source + 3 * WreckedShipTreadmillRomData.TransferByteCount;
-
-    /// <summary>Provides the three native Wrecked Ship treadmill frame sources for tile animation checks.</summary>
+    /// <summary>Provides the native Wrecked Ship treadmill frame sources for tile animation checks.</summary>
     extension(WreckedShipTreadmillRomData)
     {
-        /// <inheritdoc cref="WreckedShipTreadmillRomDataConstants.Frame1Source"/>
-        internal static int Frame1Source => WreckedShipTreadmillRomDataConstants.Frame1Source;
-        /// <inheritdoc cref="WreckedShipTreadmillRomDataConstants.Frame2Source"/>
-        internal static int Frame2Source => WreckedShipTreadmillRomDataConstants.Frame2Source;
-        /// <inheritdoc cref="WreckedShipTreadmillRomDataConstants.Frame3Source"/>
-        internal static int Frame3Source => WreckedShipTreadmillRomDataConstants.Frame3Source;
+        /// <summary>The source of 32-byte graphics frame <paramref name="frame"/>: frame 0's, then one transfer further per frame.</summary>
+        /// <param name="frame">The frame, 0 through 3.</param>
+        internal static int FrameSource(int frame) => WreckedShipTreadmillRomData.Frame0Source + frame * WreckedShipTreadmillRomData.TransferByteCount;
     }
 }

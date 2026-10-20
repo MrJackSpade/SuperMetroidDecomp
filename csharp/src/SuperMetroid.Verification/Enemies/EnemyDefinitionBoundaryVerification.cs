@@ -84,7 +84,7 @@ internal static class EnemyDefinitionBoundaryVerification
         var seenLists = new Dictionary<int, TorizoHitboxList>();
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         {
-            TorizoCollisionComponents components = TorizoCollisionDefinitions.ComponentsAt(frame);
+            ReadOnlySpan<GoldenTorizoCollisionComponent> components = TorizoCollisionDefinitions.ComponentsAt(frame);
             AssertEqual(rom.ReadCartridgeWordFixedBank(bank | frame), components.Length, "Torizo component count");
             for (int i = 0; i < components.Length; i++)
             {

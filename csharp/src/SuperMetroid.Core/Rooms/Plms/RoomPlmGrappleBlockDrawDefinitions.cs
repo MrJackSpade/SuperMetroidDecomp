@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
@@ -9,14 +11,6 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
 {
     /// <summary>Initial Grapple collision/appearance, $84:A4F9.</summary>
     internal const ushort Grapple = 0xa4f9;
-    /// <summary>First breakup appearance, $84:A4FF.</summary>
-    internal const ushort BreakFrame0 = 0xa4ff;
-    /// <summary>Second breakup appearance, $84:A505.</summary>
-    internal const ushort BreakFrame1 = 0xa505;
-    /// <summary>Third breakup appearance, $84:A50B.</summary>
-    internal const ushort BreakFrame2 = 0xa50b;
-    /// <summary>Blank air appearance, $84:A511.</summary>
-    internal const ushort Blank = 0xa511;
 
     /// <summary>A single Grapple-block PLM draw record carrying both its native pointer and installed level word.</summary>
     internal readonly record struct DrawList(ushort Pointer, ushort LevelWord)
@@ -35,48 +29,39 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
         get
         {
             // Five adjacent six-byte records in the original publication order.
-            for (int frame = 0; frame < 5; frame++)
+            for (int frame = 0; frame < LevelWords.Length; frame++)
             {
-                TryGet((ushort)(Grapple + 6 * frame), out DrawList draw);
+                TryGet((ushort)(Grapple + RecordBytes * frame), out DrawList draw);
                 yield return draw;
             }
         }
     }
 
-    /// <summary>The five draw-list records, valued by bank-$84 pointer.</summary>
-    private enum DrawRecord : ushort
-    {
-        /// <summary>$84:A4F9, initial Grapple collision/appearance.</summary>
-        Grapple = RoomPlmGrappleBlockDrawDefinitions.Grapple,
-        /// <summary>$84:A4FF, first breakup appearance.</summary>
-        BreakFrame0 = RoomPlmGrappleBlockDrawDefinitions.BreakFrame0,
-        /// <summary>$84:A505, second breakup appearance.</summary>
-        BreakFrame1 = RoomPlmGrappleBlockDrawDefinitions.BreakFrame1,
-        /// <summary>$84:A50B, third breakup appearance.</summary>
-        BreakFrame2 = RoomPlmGrappleBlockDrawDefinitions.BreakFrame2,
-        /// <summary>$84:A511, blank air appearance.</summary>
-        Blank = RoomPlmGrappleBlockDrawDefinitions.Blank,
-    }
+    /// <summary>Six-byte native length of each one-block draw record.</summary>
+    private const int RecordBytes = 6;
+    /// <summary>
+    /// Installed level words of the five adjacent records in native order: the Grapple block, the three
+    /// consecutive breakup tiles as air, and blank air.
+    /// </summary>
+    private static readonly RoomLevelWord[] LevelWords =
+    [
+        RoomLevelWord.Create(0x0b7, LevelBlockFlipFlags.None, RoomCollisionType.GrappleBlock),
+        RoomLevelWord.Create(0x053, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        RoomLevelWord.Create(0x054, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        RoomLevelWord.Create(0x055, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        RoomLevelWord.Create(0x0ff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+    ];
 
     /// <summary>Resolves only the five compiled draw-list pointers; unknown pointers produce a default record.</summary>
     internal static bool TryGet(ushort pointer, out DrawList definition)
     {
-        if (!Enum.IsDefined((DrawRecord)pointer))
+        int relative = pointer - Grapple;
+        if (relative < 0 || relative % RecordBytes != 0 || relative / RecordBytes >= LevelWords.Length)
         {
             definition = default;
             return false;
         }
-        ushort levelWord = (DrawRecord)pointer switch
-        {
-            DrawRecord.Grapple => 0xe0b7,
-            // Three consecutive breakup tiles in six-byte one-block draw records.
-            DrawRecord.BreakFrame0 => 0x0053,
-            DrawRecord.BreakFrame1 => 0x0054,
-            DrawRecord.BreakFrame2 => 0x0055,
-            DrawRecord.Blank => 0x00ff,
-            var record => throw new InvalidOperationException($"Undefined {nameof(DrawRecord)} {(int)record}."),
-        };
-        definition = new(pointer, levelWord);
+        definition = new(pointer, LevelWords[relative / RecordBytes].Raw);
         return true;
     }
 }

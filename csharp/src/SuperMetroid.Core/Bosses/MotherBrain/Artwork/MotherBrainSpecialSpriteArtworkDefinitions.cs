@@ -19,9 +19,8 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
     public static readonly MotherBrainSpecialSpriteSheetDefinition ExplodedDoor =
         new("mother-brain-exploded-door-tiles.png", 0xabf400, 2, 0x7000);
 
-    /// <summary>All four separate editable source sheets.</summary>
-    public static IReadOnlyList<MotherBrainSpecialSpriteSheetDefinition> All { get; } =
-        new SheetList();
+    /// <summary>All four separate editable source sheets, in the native transfer lists' order: legs, Baby Metroid, attack, escape door.</summary>
+    public static IReadOnlyList<MotherBrainSpecialSpriteSheetDefinition> All { get; } = [Legs, BabyMetroid, Attack, ExplodedDoor];
 
     /// <summary>Looks up the sheet containing one native source address.</summary>
     public static bool TryForSource(uint sourceAddress,
@@ -35,27 +34,5 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
         }
         definition = default;
         return false;
-    }
-    /// <summary>Keeps the four fixed transfer sources in their native list order without a mutable backing array.</summary>
-    private sealed class SheetList : IReadOnlyList<MotherBrainSpecialSpriteSheetDefinition>
-    {
-        /// <summary>The leg, Baby Metroid, attack, and escape-door lists each have one source sheet.</summary>
-        public int Count => 4;
-        /// <summary>Maps a native list index to its corresponding fixed source sheet.</summary>
-        public MotherBrainSpecialSpriteSheetDefinition this[int index] => index switch
-        {
-            0 => Legs,
-            1 => BabyMetroid,
-            2 => Attack,
-            3 => ExplodedDoor,
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        /// <summary>Visits the fixed sheets in the same order as the native transfer lists.</summary>
-        public IEnumerator<MotherBrainSpecialSpriteSheetDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same sheet order to non-generic collection consumers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

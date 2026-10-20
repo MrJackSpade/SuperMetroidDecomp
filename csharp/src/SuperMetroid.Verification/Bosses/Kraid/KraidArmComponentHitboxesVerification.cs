@@ -32,8 +32,8 @@ internal static class KraidArmComponentHitboxesVerification
                 checkedComponents++;
             }
             AssertEqual(count, component, "Arm component enumeration ends");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = actual[-1], "Negative arm component index");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = actual[count], "Past arm component index");
+            AssertThrows<IndexOutOfRangeException>(() => _ = actual[-1], "Negative arm component index");
+            AssertThrows<IndexOutOfRangeException>(() => _ = actual[count], "Past arm component index");
             AssertThrows<ArgumentOutOfRangeException>(() => KraidArmCollisionDefinitions.ComponentHitbox(pose, -1), "Negative hitbox component");
             AssertThrows<ArgumentOutOfRangeException>(() => KraidArmCollisionDefinitions.ComponentHitbox(pose, count), "Past hitbox component");
         }

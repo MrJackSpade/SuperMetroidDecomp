@@ -111,11 +111,11 @@ public static class GameOverRomData
         /// <summary>Fixed screen-pixel Y anchor $50 used for both Baby and container spritemaps by $82:BBC2/$BBD4; animation changes art, not this position.</summary>
         public const ushort BabyY = 0x50;
         /// <summary>Packed OBJ palette-four attribute bits $0800 selected at $82:BBB7, matching the animated colors copied to CGRAM $C0..CF.</summary>
-        public static readonly SnesObjAttributeWord BabyPalette = SnesObjPalettes.Index4;
+        public static readonly SnesObjAttributeWord BabyPalette = SnesObjPalettes.Palette(4);
         /// <summary>Menu spritemap ID $64 selected at $82:BBCE; table entry $82:C631 resolves to <c>TitleMenuSpritemaps_64_GameOverBabyMetroidContainer</c> at $82:CFE0.</summary>
         public const ushort EggSpritemap = 0x64;
         /// <summary>Packed OBJ palette-five attribute bits $0A00 selected at $82:BBC9 for the stationary Baby container.</summary>
-        public static readonly SnesObjAttributeWord EggPalette = SnesObjPalettes.Index5;
+        public static readonly SnesObjAttributeWord EggPalette = SnesObjPalettes.Palette(5);
         /// <summary>Screen-pixel X anchor 40 for the selection missile, shared by the Yes and No choices.</summary>
         public const ushort MissileX = 40;
         /// <summary>Screen-pixel missile Y anchor 160 for selection zero, Yes/return to game.</summary>

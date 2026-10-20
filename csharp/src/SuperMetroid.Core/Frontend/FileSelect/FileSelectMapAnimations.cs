@@ -101,7 +101,7 @@ public sealed class FileSelectMapAnimations
         {
             if (!arrow.Visible) continue;
             installed.Draw(arrow.Base, entries, arrow.Position + new Offset16<OamPixels>(0, unchecked((short)verticalOffset)),
-                SnesObjPalettes.Index3.PaletteBits);
+                SnesObjPalettes.Palette(3).PaletteBits);
         }
     }
 

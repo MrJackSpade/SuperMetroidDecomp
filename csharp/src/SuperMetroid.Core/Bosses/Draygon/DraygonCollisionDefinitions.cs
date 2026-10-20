@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -34,37 +35,33 @@ internal static class DraygonCollisionDefinitions
     /// <summary>The empty list of the BG2 frames in which the body cannot be hit or touched.</summary>
     private static readonly DraygonCollisionHitbox[] EmptyHitboxes = [];
 
-    /// <summary>A BG2 frame's single zero-offset collision component, or no component for ordinary OAM art.</summary>
-    internal readonly record struct ComponentSequence(bool HasComponent, IReadOnlyList<DraygonCollisionHitbox> Hitboxes)
-        : IEnumerable<DraygonCollisionComponent>
-    {
-        /// <summary>Yields one body component only when the BG2 frame owns a hitbox list.</summary>
-        public IEnumerator<DraygonCollisionComponent> GetEnumerator()
-        {
-            if (HasComponent) yield return new(Offset16<RoomPixels>.Zero, Hitboxes);
-        }
-        /// <summary>Exposes the same optional component through the non-generic interface.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    /// <summary>Ordinary OAM art has no collision components.</summary>
+    private static readonly ImmutableArray<DraygonCollisionComponent> NoComponents = [];
+    /// <summary>The left-facing body's one zero-offset component.</summary>
+    private static readonly ImmutableArray<DraygonCollisionComponent> FirstBodyComponents = [new(Offset16<RoomPixels>.Zero, FirstBodyHitboxes)];
+    /// <summary>The right-facing body's one zero-offset component.</summary>
+    private static readonly ImmutableArray<DraygonCollisionComponent> SecondBodyComponents = [new(Offset16<RoomPixels>.Zero, SecondBodyHitboxes)];
+    /// <summary>The one zero-offset component of a BG2 frame in which the body cannot be hit or touched.</summary>
+    private static readonly ImmutableArray<DraygonCollisionComponent> EmptyBodyComponents = [new(Offset16<RoomPixels>.Zero, EmptyHitboxes)];
 
     /// <summary>
     /// $A5:A31B..A3BB / A643..A6E3: each BG2 frame has one zero-offset component.
     /// The first eight and final frame of each facing use its body hitboxes;
     /// intervening frames use the empty list. Ordinary OAM frames have no collision components.
     /// </summary>
-    internal static ComponentSequence ComponentsAt(ushort pointer)
+    internal static ImmutableArray<DraygonCollisionComponent> ComponentsAt(ushort pointer)
     {
         if (!DraygonBg2FrameDefinitions.IsFrame(pointer))
         {
             _ = OamComponentsAt(pointer);
-            return new(false, EmptyHitboxes);
+            return NoComponents;
         }
 
         bool right = pointer >= FirstRightBodyFrame;
         int phase = (pointer - (right ? FirstRightBodyFrame : FirstLeftBodyFrame)) / 10;
-        DraygonCollisionHitbox[] hitboxes = phase is < 8 or 16
-            ? right ? SecondBodyHitboxes : FirstBodyHitboxes : EmptyHitboxes;
-        return new(true, hitboxes);
+        return phase is < 8 or 16
+            ? right ? SecondBodyComponents : FirstBodyComponents
+            : EmptyBodyComponents;
     }
 
     /// <summary><c>ExtendedSpritemap_Draygon_4</c> at $A5:A2DF: first of six one-component frames.</summary>

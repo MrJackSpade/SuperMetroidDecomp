@@ -281,10 +281,9 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)
         {
             growingShutterRecord.Function = words.A == 0 ? null : (GrowingShutterFunction)words.A;
-            growingShutterRecord.GrowthLevel0Origin = new(0, words.B);
-            growingShutterRecord.GrowthLevel1Origin = new(0, words.C);
-            growingShutterRecord.GrowthLevel2Origin = new(0, words.D);
-            growingShutterRecord.GrowthLevel3Origin = new(0, words.E);
+            ushort[] originRows = [words.B, words.C, words.D, words.E];
+            for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
+                growingShutterRecord.SetSectionOrigin(level, new(0, originRows[level]));
             growingShutterRecord.GrowthLevel = words.F;
         }
         if (slot.SpeciesState<FirefleaEnemyState>() is { } firefleaRecord)

@@ -158,7 +158,7 @@ public sealed class FileSelectAreaMapGraphics
         void DrawArea(ushort area)
         {
             Draw(MapSpriteDefinitions.WorldLabel((AreaId)area), labels.Get(area),
-                area == SelectedArea ? (ushort)0 : SnesObjPalettes.Index1.PaletteBits);
+                area == SelectedArea ? (ushort)0 : SnesObjPalettes.Palette(1).PaletteBits);
         }
 
         void Draw(MapSpriteId id, Position16<OamPixels> origin, ushort palette)

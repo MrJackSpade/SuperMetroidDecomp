@@ -45,14 +45,11 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
             if (drawOffset >= 0 && drawOffset % 4 == 0 && drawOffset / 4 < program.FrameCount)
             {
                 int frame = drawOffset / 4;
-                // Three breakup poses, blank, then the same poses in reverse.
-                value = (frame < 4 ? frame : 6 - frame) switch
-                {
-                    0 => RoomPlmGrappleBlockDrawDefinitions.BreakFrame0,
-                    1 => RoomPlmGrappleBlockDrawDefinitions.BreakFrame1,
-                    2 => RoomPlmGrappleBlockDrawDefinitions.BreakFrame2,
-                    _ => RoomPlmGrappleBlockDrawDefinitions.Blank,
-                };
+                // Three breakup poses, blank, then the same poses in reverse; each pose's six-byte draw record
+                // follows the Grapple record in that order.
+                const int drawRecordBytes = 6;
+                int pose = frame < 4 ? frame : 6 - frame;
+                value = (ushort)(RoomPlmGrappleBlockDrawDefinitions.Grapple + drawRecordBytes * (pose + 1));
                 return true;
             }
         }

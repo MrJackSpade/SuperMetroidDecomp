@@ -591,10 +591,10 @@ internal static class LookupStream5Verification
             AssertTrue(!CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(page.SourceAddress, page.WordCount * 2 - 1), "Partial overlay extent rejected");
             AssertTrue(CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(page.SourceAddress) && CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(page.SourceAddress + page.WordCount * 2 - 1), "Overlay byte endpoints admitted");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[-1], "Tile page lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[2], "Tile page upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[-1], "Overlay lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[5], "Overlay upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[-1], "Tile page lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[2], "Tile page upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[-1], "Overlay lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[5], "Overlay upper bound");
         Console.WriteLine("Ceres source page cases: two character sheets/five overlays preserve exact identities, order, extents, enumeration and range domains.");
     }
     /// <summary>Checks authored area-map landmark tiles and their native reveal cases.</summary>
@@ -634,10 +634,10 @@ internal static class LookupStream5Verification
                     }
                     count++;
                 }
-            AssertEqual(count, bosses.Count, "Native boss slot count");
+            AssertEqual(count, bosses.Length, "Native boss slot count");
             AssertEqual(count, bosses.ToArray().Length, "Boss enumeration count");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = bosses[-1], "Boss lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = bosses[count], "Boss upper bound");
+            AssertThrows<IndexOutOfRangeException>(() => _ = bosses[-1], "Boss lower bound");
+            AssertThrows<IndexOutOfRangeException>(() => _ = bosses[count], "Boss upper bound");
             bossSlots += count;
             if (area == AreaId.Ceres) continue;
             var elevators = MapLandmarkDefinitions.Elevators(area);
@@ -718,8 +718,8 @@ internal static class LookupStream5Verification
         {
             int root = 0xa70000 | frame.Pointer;
             var components = PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
-            AssertEqual(ReadVerificationWord(rom, root), components.Count, "Native component extent");
-            for (int index = 0; index < components.Count; index++)
+            AssertEqual(ReadVerificationWord(rom, root), components.Length, "Native component extent");
+            for (int index = 0; index < components.Length; index++)
             {
                 int record = root + 2 + index * 8;
                 PhantoonCollisionComponent component = components[index];
@@ -746,8 +746,8 @@ internal static class LookupStream5Verification
                     AssertEqual(expected, compiled, "Native shape and callback pair");
                 }
             }
-            AssertEqual(components.Count, components.ToArray().Length, "Component enumeration compatibility");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = components[components.Count], "Component upper bound");
+            AssertEqual(components.Length, components.ToArray().Length, "Component enumeration compatibility");
+            AssertThrows<IndexOutOfRangeException>(() => _ = components[components.Length], "Component upper bound");
         }
         AssertEqual(25, componentCount, "All native components");
         AssertEqual(3, lists.Count, "All native hitbox lists");
@@ -1640,8 +1640,8 @@ internal static class LookupStream5Verification
                 expected.Add(row);
             }
             AssertEqual(rows.Length, index, "corpse DMA enumeration count");
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[-1]; }, "corpse DMA negative index");
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[rows.Length]; }, "corpse DMA past end");
+            AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "corpse DMA negative index");
+            AssertThrows<IndexOutOfRangeException>(() => { _ = rows[rows.Length]; }, "corpse DMA past end");
         }
         AssertTrue(expected.SequenceEqual(DeadMonsterRottingDefinitionsAccess.AllTransfers), "audit DMA order matches all native lists");
         AssertThrows<InvalidDataException>(() => DeadMonsterRottingDefinitions.ForTransferTable(0xe0e1), "unaligned DMA list rejected");

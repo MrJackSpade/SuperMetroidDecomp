@@ -193,10 +193,10 @@ internal static class MotherBrainEncodingDomainsVerification
                     MotherBrainLegTileTransferDefinitions.PageCount * MotherBrainLegTileTransferDefinitionsConstants.RecordByteCount)),
             "the leg-transfer terminator is not a page");
 
-        AssertEqual(SnesObjPalettes.Index7, SnesObjAttributeWord.FromPaletteBits(SnesObjPalettes.Index7.PaletteBits),
+        AssertEqual(SnesObjPalettes.Palette(7), SnesObjAttributeWord.FromPaletteBits(SnesObjPalettes.Palette(7).PaletteBits),
             "a palette-only word decodes to its palette selection");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SnesObjAttributeWord.FromPaletteBits(checked((ushort)(SnesObjPalettes.Index1.PaletteBits + 1))),
+            () => SnesObjAttributeWord.FromPaletteBits(checked((ushort)(SnesObjPalettes.Palette(1).PaletteBits + 1))),
             "a palette word carrying tile bits is rejected");
     }
 

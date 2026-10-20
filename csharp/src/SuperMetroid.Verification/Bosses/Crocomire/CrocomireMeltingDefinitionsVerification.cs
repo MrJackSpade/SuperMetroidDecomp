@@ -119,8 +119,8 @@ internal static class CrocomireMeltingDefinitionsVerification
             int enumerated = 0;
             foreach (var copy in pass.Copies) AssertEqual(pass.Copies[enumerated++], copy, "melt copy enumeration");
             AssertEqual(pass.ChunkCount, enumerated, "melt copy enumeration count");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = pass.Copies[-1], "negative melt copy");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = pass.Copies[pass.ChunkCount], "melt copy past end");
+            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Copies[-1], "negative melt copy");
+            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Copies[pass.ChunkCount], "melt copy past end");
         }
     }
 

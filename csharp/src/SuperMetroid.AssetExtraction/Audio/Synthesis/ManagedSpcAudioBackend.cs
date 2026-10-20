@@ -59,7 +59,7 @@ public sealed class ManagedSpcAudioBackend
                     if (ticks == schedule.Length)
                         throw new InvalidDataException($"An update holds more than {schedule.Length} driver ticks.");
                     schedule[ticks++] = new SpcDriverTick(audioEvent.DspCycleOffset, audioEvent.Ticks,
-                        audioEvent.SoundEffectsPolled, default, default, default);
+                        audioEvent.SoundEffectsPolled, default);
                     break;
                 case AudioEventKind.StartSoundEffect:
                     if (ticks == 0 || !schedule[ticks - 1].SoundEffectsPolled ||
@@ -95,11 +95,8 @@ public sealed class ManagedSpcAudioBackend
     private static SpcDriverTick StartAt(SpcDriverTick tick, SoundEffectId soundEffect)
     {
         var start = new SpcSoundEffectPoll(soundEffect.Value, Changed: true);
-        return SoundEffectLibraries.ToQueueIndex(soundEffect.Library) switch
-        {
-            0 => tick with { Library1 = start },
-            1 => tick with { Library2 = start },
-            _ => tick with { Library3 = start },
-        };
+        SoundLibraryPolls polls = tick.LibraryPolls;
+        polls[SoundEffectLibraries.ToQueueIndex(soundEffect.Library)] = start;
+        return tick with { LibraryPolls = polls };
     }
 }

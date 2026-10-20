@@ -41,25 +41,6 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
         new(TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays);
 
     /// <summary>The two semantic palette owners in native definition order.</summary>
-    public static IReadOnlyList<TitleScreenAmbientPaletteFxColorDefinition> All { get; } = new ProgramList();
+    public static IReadOnlyList<TitleScreenAmbientPaletteFxColorDefinition> All { get; } = [TubeLight, Displays];
 
-    /// <summary>Indexable two-program title palette set in native definition order.</summary>
-    private sealed class ProgramList : IReadOnlyList<TitleScreenAmbientPaletteFxColorDefinition>
-    {
-        /// <summary>Tube light and display flicker are the two native ambient owners.</summary>
-        public int Count => 2;
-        /// <summary>Selects the tube or display program by its native definition ordinal.</summary>
-        public TitleScreenAmbientPaletteFxColorDefinition this[int index] => index switch
-        {
-            0 => TubeLight, 1 => Displays, _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        /// <summary>Enumerates tube light before display flicker.</summary>
-        public IEnumerator<TitleScreenAmbientPaletteFxColorDefinition> GetEnumerator()
-        {
-            yield return TubeLight;
-            yield return Displays;
-        }
-        /// <summary>Uses the typed program enumeration for nongeneric callers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 }

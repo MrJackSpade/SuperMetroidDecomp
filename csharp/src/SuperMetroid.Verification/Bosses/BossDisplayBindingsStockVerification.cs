@@ -8,7 +8,6 @@ using static SuperMetroid.Verification.Bosses.BossDisplayBindingsOracleVerificat
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;

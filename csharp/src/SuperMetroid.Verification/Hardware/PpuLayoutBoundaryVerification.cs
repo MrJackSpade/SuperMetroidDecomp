@@ -180,7 +180,7 @@ internal static class PpuLayoutBoundaryVerification
         var color = new Bgr555(31, 7, 19);
         row.Write(9, color);
         AssertEqual(color, row[9], "a Bgr555 colour round-trips through an OBJ palette row");
-        AssertEqual(color, cgram.Colors[PpuMemoryLayout.ObjPalette7.Offset + 9], "OBJ row 7 colour 9 is CGRAM slot $F9");
+        AssertEqual(color, cgram.Colors[PpuMemoryLayout.ObjectPaletteRows[7].Offset + 9], "OBJ row 7 colour 9 is CGRAM slot $F9");
         AssertEqual(color.ToRgba32(), row.Rgba(9), "the view's RGBA matches the colour's expansion");
 
         var oam = new OamBuffer();
@@ -222,7 +222,7 @@ internal static class PpuLayoutBoundaryVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new PpuLayoutCell("Past", PpuLayoutRegion.Vram, 0x7ff0, 0x20, "words"),
             "a VRAM cell must fit in $8000 words");
         AssertThrows<ArgumentOutOfRangeException>(() => PpuMemoryLayout.Colors("Past", 0xf8, 9, "colours"), "a CGRAM cell must fit in 256 colours");
-        AssertThrows<ArgumentException>(() => new VramRegion(vram, PpuMemoryLayout.ObjPalette0), "a VRAM view rejects a CGRAM cell");
+        AssertThrows<ArgumentException>(() => new VramRegion(vram, PpuMemoryLayout.ObjectPaletteRows[0]), "a VRAM view rejects a CGRAM cell");
         AssertThrows<ArgumentException>(() => new CgramPalette(cgram, GameplayVramLayoutConstants.Bg1Tilemap), "a palette view rejects a VRAM cell");
         AssertThrows<ArgumentOutOfRangeException>(() => VramDmaDestination.At(GameplayVramLayout.HudTilemap, GameplayVramLayout.HudTilemap.Count),
             "a queued destination must start inside its cell");

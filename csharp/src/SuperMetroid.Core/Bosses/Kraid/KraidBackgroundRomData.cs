@@ -52,15 +52,15 @@ public static class KraidBackgroundRomData
     /// <summary>The cartridge source of standard-BG3 quarter <paramref name="quarter"/>.</summary>
     public static int StandardBg3QuarterAddress(int quarter) => StandardBg3TilesAddress + quarter * StandardBg3TransferBytes;
 
+    /// <summary>The installed art of each of the four cartridge-authored restoration phases, indexed by quarter.</summary>
+    private static readonly VramAssetId[] StandardBg3QuarterAssets =
+    [
+        VramAssetId.KraidBg3RestoreQuarter0, VramAssetId.KraidBg3RestoreQuarter1,
+        VramAssetId.KraidBg3RestoreQuarter2, VramAssetId.KraidBg3RestoreQuarter3,
+    ];
+
     /// <summary>Maps the four cartridge-authored restoration phases to installed art.</summary>
-    public static VramAssetId StandardBg3AssetForQuarter(int index) => index switch
-    {
-        0 => VramAssetId.KraidBg3RestoreQuarter0,
-        1 => VramAssetId.KraidBg3RestoreQuarter1,
-        2 => VramAssetId.KraidBg3RestoreQuarter2,
-        3 => VramAssetId.KraidBg3RestoreQuarter3,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+    public static VramAssetId StandardBg3AssetForQuarter(int index) => StandardBg3QuarterAssets[index];
 
     /// <summary>
     /// <c>Tiles_KraidRoomBackground</c> at <c>$A7:A716</c>, uploaded both when Kraid

@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Rooms;
 /// The initialization settings of each of the 323 retail room states, named by the disassembly's RoomState_ labels.
 /// Each field preserves its native byte/word width from LoadStateHeader ($82:DEF2).
 /// </summary>
+[NumberedIdentities("Each numbered state is one state of its room, chosen by its own event condition; the number tells the states apart and no caller indexes them.")]
 public static class RoomStateDefinitions
 {
     /// <summary>The disassembly's RoomState_LandingSite_0.</summary>

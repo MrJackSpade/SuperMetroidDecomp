@@ -24,8 +24,8 @@ internal static class MotherBrainLaterContactVerification
         body.Bind(body.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(body.EnemyDefinitionPointer));
         var state = new MotherBrainEnemyState(body) { Head = enemies.SlotTable.Slots[1], Form = MotherBrainForm.SecondPhase, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
-        state.NeckSegment1 = new(250, 80);
-        state.NeckSegment2 = state.NeckSegment3 = new(500, 500);
+        state.NeckJoints[1] = new(250, 80);
+        state.NeckJoints[2] = state.NeckJoints[3] = new(500, 500);
         enemies.MotherBrainEncounter.MotherBrain = state;
         Action<RoomEnemySlot, SamusState?, SamusBombProjectileSystem?> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })

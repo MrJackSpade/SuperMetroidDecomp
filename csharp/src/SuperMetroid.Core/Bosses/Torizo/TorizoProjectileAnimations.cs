@@ -572,26 +572,18 @@ internal static class TorizoProjectileAnimations
     });
 
     /// <summary>The program of statue fragment <paramref name="index"/>, of the sixteen the breaking statue hand emits.</summary>
-    internal static TorizoProjectileProgram StatueFragment(int index) => index switch
-    {
-        0 => P.StatueFragment0,
-        1 => P.StatueFragment1,
-        2 => P.StatueFragment2,
-        3 => P.StatueFragment3,
-        4 => P.StatueFragment4,
-        5 => P.StatueFragment5,
-        6 => P.StatueFragment6,
-        7 => P.StatueFragment7,
-        8 => P.StatueFragment8,
-        9 => P.StatueFragment9,
-        10 => P.StatueFragment10,
-        11 => P.StatueFragment11,
-        12 => P.StatueFragment12,
-        13 => P.StatueFragment13,
-        14 => P.StatueFragment14,
-        15 => P.StatueFragment15,
-        _ => throw new ArgumentOutOfRangeException(nameof(index), index, "Bomb Torizo's statue hand emits sixteen fragments."),
-    };
+    internal static TorizoProjectileProgram StatueFragment(int index) => (uint)index < (uint)StatueFragments.Length
+        ? StatueFragments[index]
+        : throw new ArgumentOutOfRangeException(nameof(index), index, "Bomb Torizo's statue hand emits sixteen fragments.");
+
+    /// <summary>The sixteen statue fragments' programs, indexed by fragment.</summary>
+    private static readonly TorizoProjectileProgram[] StatueFragments =
+    [
+        P.StatueFragment0, P.StatueFragment1, P.StatueFragment2, P.StatueFragment3,
+        P.StatueFragment4, P.StatueFragment5, P.StatueFragment6, P.StatueFragment7,
+        P.StatueFragment8, P.StatueFragment9, P.StatueFragment10, P.StatueFragment11,
+        P.StatueFragment12, P.StatueFragment13, P.StatueFragment14, P.StatueFragment15,
+    ];
 
     /// <summary>The program a sleeping egg resumes into when its hatch timer steps the list past the sleep.</summary>
     internal static TorizoProjectileProgram AfterSleep(TorizoProjectileProgram program) => program switch

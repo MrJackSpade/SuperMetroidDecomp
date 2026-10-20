@@ -40,20 +40,21 @@ internal static class TorizoCollisionDefinitions
     /// <summary>The list of every component without collision; it is its own right-facing counterpart.</summary>
     internal static readonly TorizoHitboxList Empty = new([]);
 
-    /// <summary>Right-facing first awakening body, narrower on the left than its left-facing counterpart.</summary>
-    private static readonly TorizoHitboxList AwakeningStep1Right = new([new(-15, -27, 13, 27, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]);
-    /// <summary>Right-facing second awakening body, spanning X -13 through 13.</summary>
-    private static readonly TorizoHitboxList AwakeningStep2Right = new([new(-13, -27, 13, 27, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]);
-    /// <summary>Right-facing third awakening rectangle, grown upward to Y -32.</summary>
-    private static readonly TorizoHitboxList AwakeningStep3Right = new([new(-14, -32, 13, 33, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]);
-    /// <summary>Right-facing fourth awakening rectangle, reaching Y -35 through 39.</summary>
-    private static readonly TorizoHitboxList AwakeningStep4Right = new([new(-14, -35, 11, 39, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]);
-    /// <summary>Right-facing fifth awakening rectangle, its upper reach shifted toward positive X.</summary>
-    private static readonly TorizoHitboxList AwakeningStep5Right = new([new(-6, -42, 13, 47, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]);
-    /// <summary>Right-facing sixth awakening rectangle, keeping a 47-pixel lower extent.</summary>
-    private static readonly TorizoHitboxList AwakeningStep6Right = new([new(-7, -41, 11, 47, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]);
-    /// <summary>Right-facing final awakening rectangle, expanded to X 22.</summary>
-    private static readonly TorizoHitboxList AwakeningStep7Right = new([new(-8, -41, 22, 47, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]);
+    /// <summary>
+    /// The seven right-facing awakening bodies, indexed by awakening step, each fitted separately from its left-facing
+    /// counterpart: narrower on the left at first, growing upward to Y -32 and then -35 through 39, shifting the upper reach
+    /// toward positive X, and finally expanding to X 22.
+    /// </summary>
+    private static readonly TorizoHitboxList[] AwakeningStepsRight =
+    [
+        new([new(-15, -27, 13, 27, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]),
+        new([new(-13, -27, 13, 27, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]),
+        new([new(-14, -32, 13, 33, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]),
+        new([new(-14, -35, 11, 39, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]),
+        new([new(-6, -42, 13, 47, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]),
+        new([new(-7, -41, 11, 47, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]),
+        new([new(-8, -41, 22, 47, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)]),
+    ];
     /// <summary>Right-facing active body.</summary>
     private static readonly TorizoHitboxList ActiveBodyRight = new([new(-10, -38, 13, 23, TorizoHitboxTouch.Body, TorizoHitboxShot.Body)]);
     /// <summary>Right-facing standing body, extending farther down and right than the right-facing jump-back body.</summary>
@@ -61,20 +62,21 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Compact right-facing jump-back body, fitted separately from its left counterpart; the right-facing jump-back frames use it directly.</summary>
     private static readonly TorizoHitboxList JumpBackBodyRight = new([new(-8, -37, 15, 14, TorizoHitboxTouch.Body, TorizoHitboxShot.Body)]);
 
-    /// <summary>First awakening body, 32 by 54 pixels, with the stand-up/sit-down shot reaction.</summary>
-    private static readonly TorizoHitboxList AwakeningStep1 = new([new(-16, -27, 16, 27, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStep1Right);
-    /// <summary>Second awakening body, narrowed on the left while retaining full height.</summary>
-    private static readonly TorizoHitboxList AwakeningStep2 = new([new(-14, -27, 13, 27, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStep2Right);
-    /// <summary>Third awakening rectangle, taller before the upper reach expands.</summary>
-    private static readonly TorizoHitboxList AwakeningStep3 = new([new(-13, -34, 9, 33, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStep3Right);
-    /// <summary>Fourth awakening rectangle, centered and extending farther vertically.</summary>
-    private static readonly TorizoHitboxList AwakeningStep4 = new([new(-11, -38, 11, 39, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStep4Right);
-    /// <summary>Fifth awakening rectangle, its upper reach shifted left, from Y -44 through 47.</summary>
-    private static readonly TorizoHitboxList AwakeningStep5 = new([new(-15, -44, 8, 47, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStep5Right);
-    /// <summary>Sixth awakening rectangle, shortened below the center while its left side expands.</summary>
-    private static readonly TorizoHitboxList AwakeningStep6 = new([new(-18, -43, 3, 24, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStep6Right);
-    /// <summary>Final awakening rectangle, retaining the tall upper reach and narrowing below.</summary>
-    private static readonly TorizoHitboxList AwakeningStep7 = new([new(-17, -42, 5, 15, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStep7Right);
+    /// <summary>
+    /// The seven awakening bodies with the stand-up/sit-down shot reaction, indexed by awakening step: a 32-by-54 body,
+    /// narrowed on the left, taller, centered and extending farther vertically, its upper reach shifted left, shortened
+    /// below the center, and finally narrowing below under the tall upper reach.
+    /// </summary>
+    private static readonly TorizoHitboxList[] AwakeningSteps =
+    [
+        new([new(-16, -27, 16, 27, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStepsRight[0]),
+        new([new(-14, -27, 13, 27, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStepsRight[1]),
+        new([new(-13, -34, 9, 33, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStepsRight[2]),
+        new([new(-11, -38, 11, 39, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStepsRight[3]),
+        new([new(-15, -44, 8, 47, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStepsRight[4]),
+        new([new(-18, -43, 3, 24, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStepsRight[5]),
+        new([new(-17, -42, 5, 15, TorizoHitboxTouch.Body, TorizoHitboxShot.StandUpSitDown)], AwakeningStepsRight[6]),
+    ];
     /// <summary>Left-facing active body, with the ordinary body shot reaction.</summary>
     private static readonly TorizoHitboxList ActiveBody = new([new(-15, -39, 7, 21, TorizoHitboxTouch.Body, TorizoHitboxShot.Body)], ActiveBodyRight);
     /// <summary>Compact left-facing jump-back body with its lower edge at Y 9.</summary>
@@ -135,13 +137,13 @@ internal static class TorizoCollisionDefinitions
     /// <summary>The seven awakening frames from $AA:AA12, in native order.</summary>
     internal static readonly GoldenTorizoCollisionComponent[][] AwakeningFrames =
     [
-        [new(new(0, 0), AwakeningStep1)],
-        [new(new(0, 0), AwakeningStep2)],
-        [new(new(0, 0), AwakeningStep3)],
-        [new(new(0, 0), AwakeningStep4)],
-        [new(new(-5, -24), Empty), new(new(0, 0), AwakeningStep5)],
-        [new(new(-5, -24), Empty), new(new(0, 0), AwakeningStep6)],
-        [new(new(-5, -24), Empty), new(new(0, 0), AwakeningStep7)],
+        [new(new(0, 0), AwakeningSteps[0])],
+        [new(new(0, 0), AwakeningSteps[1])],
+        [new(new(0, 0), AwakeningSteps[2])],
+        [new(new(0, 0), AwakeningSteps[3])],
+        [new(new(-5, -24), Empty), new(new(0, 0), AwakeningSteps[4])],
+        [new(new(-5, -24), Empty), new(new(0, 0), AwakeningSteps[5])],
+        [new(new(-5, -24), Empty), new(new(0, 0), AwakeningSteps[6])],
     ];
 
     /// <summary>The six jump-back frames ending the right-facing run (three per facing).</summary>
@@ -158,23 +160,30 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Number of left and awakening frames whose right-facing counterparts derive by reflection.</summary>
     internal static int MirroredCount => LeftFrames.Length + AwakeningFrames.Length;
 
-    /// <summary>Components of <paramref name="frame"/>; right-facing frames mirror on read.</summary>
-    internal static TorizoCollisionComponents ComponentsAt(ushort frame)
+    /// <summary>
+    /// The right-facing counterparts of the left and awakening frames, in mirror order: each component's X reflected and
+    /// each hitbox list replaced by its right-facing counterpart.
+    /// </summary>
+    private static readonly GoldenTorizoCollisionComponent[][] MirroredFrames =
+        [.. Enumerable.Range(0, MirroredCount).Select(index => LeftFacing(index)
+            .Select(part => part with { Offset = part.Offset.MirroredX(), Hitboxes = part.Hitboxes.RightFacing }).ToArray())];
+
+    /// <summary>Components of <paramref name="frame"/>; right-facing frames are the precomputed mirror images.</summary>
+    internal static ReadOnlySpan<GoldenTorizoCollisionComponent> ComponentsAt(ushort frame)
     {
-        if (Enum.IsDefined((EmptyFrame)frame)) return new(SingleEmpty, false);
+        if (Enum.IsDefined((EmptyFrame)frame)) return SingleEmpty;
         if (TryFind(LeftFrames, LeftStart, frame, out GoldenTorizoCollisionComponent[]? left) ||
             TryFind(AwakeningFrames, AwakeningStart, frame, out left))
-            return new(left, false);
+            return left;
         ushort cursor = RightStart;
-        for (int index = 0; index < MirroredCount; index++)
+        foreach (GoldenTorizoCollisionComponent[] mirrored in MirroredFrames)
         {
-            GoldenTorizoCollisionComponent[] source = LeftFacing(index);
-            if (cursor == frame) return new(source, true);
-            cursor = Next(cursor, source.Length);
+            if (cursor == frame) return mirrored;
+            cursor = Next(cursor, mirrored.Length);
         }
         foreach (GoldenTorizoCollisionComponent[] jump in JumpBackFrames)
         {
-            if (cursor == frame) return new(jump, false);
+            if (cursor == frame) return jump;
             cursor = Next(cursor, jump.Length);
         }
         throw new InvalidDataException($"Torizo frame $AA:{frame:X4} is not compiled.");

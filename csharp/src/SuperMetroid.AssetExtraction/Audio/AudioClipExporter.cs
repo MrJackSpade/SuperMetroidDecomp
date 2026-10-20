@@ -222,11 +222,7 @@ internal static class AudioClipExporter
     }
 
     /// <summary>The library identity of the manifest's one-based library number.</summary>
-    private static SoundEffectLibrary LibraryOf(int library) => library switch
-    {
-        1 => SoundEffectLibrary.Library1,
-        2 => SoundEffectLibrary.Library2,
-        3 => SoundEffectLibrary.Library3,
-        _ => throw new InvalidDataException($"Unknown sound library {library}."),
-    };
+    private static SoundEffectLibrary LibraryOf(int library) => library is >= 1 and <= SoundEffectLibraries.Count
+        ? SoundEffectLibraries.FromQueueIndex(library - 1)
+        : throw new InvalidDataException($"Unknown sound library {library}.");
 }

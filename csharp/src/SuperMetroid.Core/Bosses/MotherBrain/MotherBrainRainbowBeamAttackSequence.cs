@@ -1900,7 +1900,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     WriteSmallPurpleBreathGeneration(false);
                     BrainPaletteHandlingEnabled = false;
                     HealthBasedPaletteHandlingEnabled = false;
-                    BrainPalette = SnesObjPalettes.Index7;
+                    BrainPalette = SnesObjPalettes.Palette(7);
                     paletteRequested = true;
                     // `$AF91/$AF94` clear words $0FF0 and $0FF2 before the fade-out explosions.
                     DeathExplosionIntervalTimer = NativeCountdown.Start(0);

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 ﻿using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Corpses;
@@ -40,7 +41,7 @@ internal sealed class DeadMonsterFrame
         _room.Staging.CorpseTiles.WriteWord(wordOffset * 2, value);
 
     /// <summary>Appends the source, size, and destination of each rot DMA record of a corpse's upload list.</summary>
-    internal void AppendVramTransfers(DeadMonsterRottingDefinitions.TransferRows transfers)
+    internal void AppendVramTransfers(ImmutableArray<DeadMonsterVramTransferDefinition> transfers)
     {
         foreach (DeadMonsterVramTransferDefinition record in transfers)
             VramTransfers.Add(new VramWriteEntry(

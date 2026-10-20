@@ -67,13 +67,7 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
     {
         tickSample = MusicTrackAnalysis.NativeSample(MusicTrackAnalysis.Required(renderer), tick);
         polled = tick.SoundEffectsPolled;
-        SpcSoundEffectPoll poll = libraryIndex switch
-        {
-            0 => tick.Library1,
-            1 => tick.Library2,
-            2 => tick.Library3,
-            _ => throw new InvalidOperationException($"Unknown sound library index {libraryIndex}."),
-        };
+        SpcSoundEffectPoll poll = tick.LibraryPolls[libraryIndex];
         requested = polled && poll.Changed && poll.Command == command;
     }
 

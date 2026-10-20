@@ -123,6 +123,21 @@ reviewed same-line `// cartridge-encoding: allow(Class) - reason` and `// magic-
 allowances. Repository generators emit only that marker and document their provenance on the generated type. Files
 the .NET SDK writes into a project's `obj` directory are not repository source and are not analyzed.
 
+## Sequences are collections
+
+**SME6415** reports a type whose fields or properties spell one sequence as numbered siblings (#1369): at least three
+members of the same type whose names differ only by one digit run, with ordinals running gap-free from 0 or 1
+(`Segment0Distance`..`Segment4Distance`). The type holds one array or indexed collection instead, and its XML summary
+says what the index means; an element with its own role gets a named index or a named accessor over the collection.
+**SME6416** reports a switch whose consecutive integer arms each return or assign one member of such a family, from
+two members up, since it is an indexer written by hand. **SME6417** reports a hand-written list type: an integer
+indexer that switches over constant indices or returns the same value for every index, beside a hand-written
+`GetEnumerator`. It becomes an array, an `ImmutableArray`, or one value.
+
+A gap-free numbered family that is a set of distinct identities, not a sequence, says so at its site with
+`[NumberedIdentities(reason)]` on its members or its type. Gapped or mixed-type numbering (hex sound IDs, sparse pose
+IDs) is not reported.
+
 ## Diagnostics are resolved, not disabled
 
 **SME6414** reports every `#pragma warning disable`, whatever diagnostic it names and whatever reason follows it

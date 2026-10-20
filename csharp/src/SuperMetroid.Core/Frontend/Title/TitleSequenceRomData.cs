@@ -47,7 +47,7 @@ public static class TitleSequenceRomData
     {
         /// <summary>$8B:9CBC initializes the $8B:A03D Year text at (129,112) with OBJ palette 1 ($0200).</summary>
         public static readonly TitleTextSequenceDefinition Year =
-            new(TitleSequencePhase.YearText, 0x8ba03d, new(129, 112), SnesObjPalettes.Index1.Raw);
+            new(TitleSequencePhase.YearText, 0x8ba03d, new(129, 112), SnesObjPalettes.Palette(1).Raw);
         /// <summary>$8B:A055 Nintendo scrolling-text list, initialized by $8B:9D4A at (129,112) screen pixels with OBJ palette one.</summary>
         public static readonly TitleTextSequenceDefinition Nintendo =
             new(TitleSequencePhase.NintendoText, 0x8ba055, new(129, 112), 0x0200);
@@ -108,9 +108,9 @@ public static class TitleSequenceRomData
         /// <summary>Nintendo copyright drawing origin in screen pixels, below the title logo.</summary>
         public static Position16<ScreenPixels> CopyrightOrigin => new(128, 196);
         /// <summary>OBJ palette-two attribute bits passed as the logo's legacy character-offset argument; this value is not a character count.</summary>
-        public static readonly SnesObjAttributeWord TitleCharacterOffset = SnesObjPalettes.Index2;
+        public static readonly SnesObjAttributeWord TitleCharacterOffset = SnesObjPalettes.Palette(2);
         /// <summary>OBJ palette-four attribute bits applied when drawing the Nintendo copyright composition.</summary>
-        public static readonly SnesObjAttributeWord CopyrightPalette = SnesObjPalettes.Index4;
+        public static readonly SnesObjAttributeWord CopyrightPalette = SnesObjPalettes.Palette(4);
         /// <summary>Native OBSEL value $03: title OBJ character base at VRAM byte $C000 with the small/large sprite-size selector zero.</summary>
         public const byte ObjectSizeAndBaseSelector = 0x03;
     }

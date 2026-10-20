@@ -117,9 +117,11 @@ public sealed class SpcCommandPorts
         (soundEffectTimer, bool polls) = soundEffectTimer.Advance(
             ticks * SpcPortDefinitions.SoundEffectTimerStep % TickAccumulator.Period);
         if (!polls)
-            return new SpcDriverTick(dspCycleOffset, ticks, SoundEffectsPolled: false, default, default, default);
-        return new SpcDriverTick(dspCycleOffset, ticks, SoundEffectsPolled: true,
-            PollSoundLibrary(0), PollSoundLibrary(1), PollSoundLibrary(2));
+            return new SpcDriverTick(dspCycleOffset, ticks, SoundEffectsPolled: false, default);
+        SoundLibraryPolls libraryPolls = default;
+        for (int library = 0; library < SoundEffectLibraries.Count; library++)
+            libraryPolls[library] = PollSoundLibrary(library);
+        return new SpcDriverTick(dspCycleOffset, ticks, SoundEffectsPolled: true, libraryPolls);
     }
 
     /// <summary>

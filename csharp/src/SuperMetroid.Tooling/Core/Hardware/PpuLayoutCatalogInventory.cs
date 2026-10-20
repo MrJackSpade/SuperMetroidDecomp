@@ -24,7 +24,7 @@ internal static class PpuLayoutCatalogInventory
         typeof(PpuLayoutCatalogInventory).Assembly,
     ];
 
-    /// <summary>Every static <see cref="PpuLayoutCell"/> field or property, ordered by owner then member.</summary>
+    /// <summary>Every static <see cref="PpuLayoutCell"/> field or property, and each element of a cell-array field, ordered by owner then member.</summary>
     [ReflectionAudit("inventory generation: every static PPU layout cell declared anywhere in the production assemblies is the subject")]
     internal static IReadOnlyList<PpuLayoutCatalogEntry> Enumerate(IEnumerable<Assembly> assemblies)
     {
@@ -37,6 +37,13 @@ internal static class PpuLayoutCatalogInventory
                 if (field.FieldType == typeof(PpuLayoutCell) && !field.Name.Contains('<'))
                     entries.Add(new(type, field.Name, (PpuLayoutCell)(field.GetValue(null) ??
                         throw new InvalidOperationException($"{type.FullName}.{field.Name} is a null PPU layout cell."))));
+                else if (field.FieldType == typeof(PpuLayoutCell[]))
+                {
+                    var cells = (PpuLayoutCell[])(field.GetValue(null) ??
+                        throw new InvalidOperationException($"{type.FullName}.{field.Name} is a null PPU layout cell array."));
+                    for (int index = 0; index < cells.Length; index++)
+                        entries.Add(new(type, $"{field.Name}[{index}]", cells[index]));
+                }
             foreach (PropertyInfo property in type.GetProperties(flags))
                 if (property.PropertyType == typeof(PpuLayoutCell) && property.GetIndexParameters().Length == 0)
                     entries.Add(new(type, property.Name, (PpuLayoutCell)(property.GetValue(null) ??

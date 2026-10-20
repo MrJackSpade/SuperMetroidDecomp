@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
@@ -23,8 +24,26 @@ internal readonly record struct CrocomireMeltingPass(
     int NextHeaderOffset,
     int ChunkCount)
 {
-    /// <summary>Consecutive source-to-scratch pairs for this pass's six or seven chunks.</summary>
-    internal CrocomireMeltingCopySequence Copies => new(this);
+    /// <summary>
+    /// The pass's graphics chunks in copy order, each landing one scratch stride after the last. The second pass's seventh
+    /// chunk is palette and adjacent data rather than tiles; it is preserved, as is the caller's inclusive $0201-word copy.
+    /// </summary>
+    internal ImmutableArray<CrocomireMeltingCopy> Copies
+    {
+        get
+        {
+            CrocomireMeltingHeader header = HeaderOffset == (ushort)CrocomireMeltingHeader.First
+                ? CrocomireMeltingHeader.First
+                : CrocomireMeltingHeader.Second;
+            var copies = ImmutableArray.CreateBuilder<CrocomireMeltingCopy>(ChunkCount);
+            for (int index = 0; index < ChunkCount; index++)
+            {
+                copies.Add(new(header, index,
+                    CrocomireMeltingTransferDefinitions.ScratchStart + index * CrocomireMeltingTransferDefinitions.ChunkByteStride));
+            }
+            return copies.MoveToImmutable();
+        }
+    }
     /// <summary>Scratch-to-VRAM transfers for the same chunks after the copy sentinel.</summary>
     internal CrocomireMeltingUploadSequence Uploads => new(this);
 }

@@ -494,7 +494,7 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(objEntry, encodedObj, "OBJ attribute encode/decode round trip");
     AssertEqual(0x63ab, encodedObj.WithPaletteIndex(1),
         "OBJ palette replacement preserves tile, priority, and flips");
-    AssertEqual(0x6e00, SnesObjPalettes.Index7.Or(
+    AssertEqual(0x6e00, SnesObjPalettes.Palette(7).Or(
             SnesObjAttributeWord.Create(0, 0, 2, SnesTileFlipFlags.Horizontal)),
         "typed OBJ palette fragment composes with priority and flip fields");
     SnesOamHighTablePair highPair = SnesOamHighTablePair.FromSprite(

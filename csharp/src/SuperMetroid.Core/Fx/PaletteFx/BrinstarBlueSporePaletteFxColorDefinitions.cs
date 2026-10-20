@@ -23,27 +23,6 @@ public static class BrinstarBlueSporePaletteFxColorDefinitions
     private static readonly BrinstarBlueSporePaletteFxColorDefinition SporeSpawn =
         new(BrinstarBlueSporePaletteOwner.SporeSpawnRoom);
 
-    /// <summary>Exposes both room owners in their native definition order.</summary>
-    private sealed class ProgramOwners : IReadOnlyList<BrinstarBlueSporePaletteFxColorDefinition>
-    {
-        /// <summary>Ordinary Brinstar and Spore Spawn have separate entry lists.</summary>
-        public int Count => 2;
-        /// <summary>Maps zero to the standard loop and one to the mini-boss-aware variant.</summary>
-        public BrinstarBlueSporePaletteFxColorDefinition this[int index] => index switch
-        {
-            0 => Standard,
-            1 => SporeSpawn,
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        /// <summary>Visits the standard loop before the Spore Spawn variant.</summary>
-        public IEnumerator<BrinstarBlueSporePaletteFxColorDefinition> GetEnumerator()
-        {
-            yield return Standard;
-            yield return SporeSpawn;
-        }
-        /// <summary>Uses the same definition order for nongeneric collection callers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
     /// <summary>Fourteen ten-frame records form one complete spore-color cycle.</summary>
     public const int FrameCount = 14;
 
@@ -51,5 +30,5 @@ public static class BrinstarBlueSporePaletteFxColorDefinitions
     public const int ColorsPerFrame = 3;
 
     /// <summary>The standard-room and Spore Spawn variants in definition order.</summary>
-    public static IReadOnlyList<BrinstarBlueSporePaletteFxColorDefinition> All { get; } = new ProgramOwners();
+    public static IReadOnlyList<BrinstarBlueSporePaletteFxColorDefinition> All { get; } = [Standard, SporeSpawn];
 }

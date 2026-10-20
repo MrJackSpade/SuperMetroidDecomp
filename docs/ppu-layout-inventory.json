@@ -19,7 +19,7 @@
       "offset": "$0029",
       "count": 6,
       "encoding": "Bgr555 door animation",
-      "aliasOf": "PpuMemoryLayout.BgPalette2",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[2]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
@@ -43,7 +43,7 @@
       "offset": "$0070",
       "count": 8,
       "encoding": "Bgr555 body inks",
-      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs",
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
@@ -80,7 +80,7 @@
       "offset": "$0090",
       "count": 16,
       "encoding": "Bgr555 OBJ palette 1",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
@@ -92,7 +92,7 @@
       "offset": "$00B0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette 3",
-      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
@@ -104,7 +104,7 @@
       "offset": "$0050",
       "count": 16,
       "encoding": "Bgr555 BG palette 5",
-      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[5]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
@@ -116,7 +116,7 @@
       "offset": "$0059",
       "count": 4,
       "encoding": "Bgr555 health band",
-      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[5]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
@@ -140,7 +140,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette 7",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
@@ -152,7 +152,7 @@
       "offset": "$00A0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette 2",
-      "aliasOf": "PpuMemoryLayout.ObjPalette2",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
@@ -164,7 +164,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette 7",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
@@ -176,7 +176,7 @@
       "offset": "$00F9",
       "count": 4,
       "encoding": "Bgr555 eye glow",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
@@ -188,7 +188,7 @@
       "offset": "$0041",
       "count": 15,
       "encoding": "Bgr555 body",
-      "aliasOf": "PpuMemoryLayout.BgPalette4",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[4]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -200,7 +200,7 @@
       "offset": "$0091",
       "count": 15,
       "encoding": "Bgr555 body mirror",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -212,7 +212,7 @@
       "offset": "$00B4",
       "count": 5,
       "encoding": "Bgr555 rear-leg fade",
-      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -224,7 +224,7 @@
       "offset": "$0091",
       "count": 3,
       "encoding": "Bgr555 brain fade",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -236,7 +236,7 @@
       "offset": "$00B1",
       "count": 15,
       "encoding": "Bgr555 glass shards",
-      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -248,7 +248,7 @@
       "offset": "$00A1",
       "count": 15,
       "encoding": "Bgr555 attack sprites",
-      "aliasOf": "PpuMemoryLayout.ObjPalette2",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -260,7 +260,7 @@
       "offset": "$00B1",
       "count": 15,
       "encoding": "Bgr555 rear legs",
-      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -272,7 +272,7 @@
       "offset": "$00B1",
       "count": 15,
       "encoding": "Bgr555 rear legs",
-      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -284,7 +284,7 @@
       "offset": "$0031",
       "count": 14,
       "encoding": "Bgr555 room lights",
-      "aliasOf": "PpuMemoryLayout.BgPalette3",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -296,7 +296,7 @@
       "offset": "$0051",
       "count": 14,
       "encoding": "Bgr555 room lights",
-      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[5]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -308,7 +308,7 @@
       "offset": "$0034",
       "count": 12,
       "encoding": "Bgr555 room flash",
-      "aliasOf": "PpuMemoryLayout.BgPalette3",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -320,7 +320,7 @@
       "offset": "$0053",
       "count": 12,
       "encoding": "Bgr555 room flash",
-      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[5]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -332,7 +332,7 @@
       "offset": "$0073",
       "count": 12,
       "encoding": "Bgr555 room flash",
-      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -344,7 +344,7 @@
       "offset": "$00F1",
       "count": 15,
       "encoding": "Bgr555 tube projectiles",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainPalettes.cs"
       ]
@@ -356,7 +356,7 @@
       "offset": "$0061",
       "count": 3,
       "encoding": "Bgr555 alarm text",
-      "aliasOf": "PpuMemoryLayout.BgPalette6",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[6]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -368,7 +368,7 @@
       "offset": "$00B1",
       "count": 15,
       "encoding": "Bgr555 Baby shade",
-      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -380,7 +380,7 @@
       "offset": "$00F1",
       "count": 11,
       "encoding": "Bgr555 body fade",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -392,7 +392,7 @@
       "offset": "$0091",
       "count": 11,
       "encoding": "Bgr555 body fade",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -404,7 +404,7 @@
       "offset": "$00FC",
       "count": 3,
       "encoding": "Bgr555 eye shade",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -416,7 +416,7 @@
       "offset": "$0051",
       "count": 15,
       "encoding": "Bgr555 zoom shade",
-      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[5]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -428,7 +428,7 @@
       "offset": "$0051",
       "count": 15,
       "encoding": "Bgr555 getaway backdrop",
-      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[5]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -440,7 +440,7 @@
       "offset": "$0021",
       "count": 8,
       "encoding": "Bgr555 retreat shade",
-      "aliasOf": "PpuMemoryLayout.BgPalette2",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[2]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -452,7 +452,7 @@
       "offset": "$00F1",
       "count": 8,
       "encoding": "Bgr555 retreat shade",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -476,7 +476,7 @@
       "offset": "$00F1",
       "count": 14,
       "encoding": "Bgr555 health shade",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -500,7 +500,7 @@
       "offset": "$0071",
       "count": 14,
       "encoding": "Bgr555 reveal fade",
-      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyPalettes.cs"
       ]
@@ -512,7 +512,7 @@
       "offset": "$00F1",
       "count": 15,
       "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -524,7 +524,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -536,7 +536,7 @@
       "offset": "$00F1",
       "count": 15,
       "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -548,7 +548,7 @@
       "offset": "$0091",
       "count": 15,
       "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -560,7 +560,7 @@
       "offset": "$007D",
       "count": 2,
       "encoding": "Bgr555 BG palette colours",
-      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -572,7 +572,7 @@
       "offset": "$009D",
       "count": 2,
       "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -584,7 +584,7 @@
       "offset": "$0070",
       "count": 16,
       "encoding": "Bgr555 BG palette",
-      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -596,7 +596,7 @@
       "offset": "$0071",
       "count": 3,
       "encoding": "Bgr555 BG palette colours",
-      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -608,7 +608,7 @@
       "offset": "$0060",
       "count": 16,
       "encoding": "Bgr555 BG palette",
-      "aliasOf": "PpuMemoryLayout.BgPalette6",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[6]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -620,7 +620,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -632,7 +632,7 @@
       "offset": "$00B0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -644,7 +644,7 @@
       "offset": "$0041",
       "count": 14,
       "encoding": "Bgr555 BG palette colours",
-      "aliasOf": "PpuMemoryLayout.BgPalette4",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[4]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -656,7 +656,7 @@
       "offset": "$0091",
       "count": 15,
       "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -668,7 +668,7 @@
       "offset": "$00F1",
       "count": 15,
       "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -680,7 +680,7 @@
       "offset": "$00B1",
       "count": 14,
       "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -692,7 +692,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -704,7 +704,7 @@
       "offset": "$0071",
       "count": 15,
       "encoding": "Bgr555 BG palette colours",
-      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -716,7 +716,7 @@
       "offset": "$00F1",
       "count": 15,
       "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -728,7 +728,7 @@
       "offset": "$0070",
       "count": 16,
       "encoding": "Bgr555 BG palette",
-      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -740,7 +740,7 @@
       "offset": "$00A0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette2",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -752,7 +752,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -764,7 +764,7 @@
       "offset": "$00A5",
       "count": 4,
       "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjPalette2",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -776,7 +776,7 @@
       "offset": "$0090",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -788,7 +788,7 @@
       "offset": "$0090",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -800,7 +800,7 @@
       "offset": "$0070",
       "count": 16,
       "encoding": "Bgr555 BG palette",
-      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -812,7 +812,7 @@
       "offset": "$0040",
       "count": 16,
       "encoding": "Bgr555 BG palette",
-      "aliasOf": "PpuMemoryLayout.BgPalette4",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[4]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -824,7 +824,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -836,7 +836,7 @@
       "offset": "$00A0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette2",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -848,7 +848,7 @@
       "offset": "$0090",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -860,7 +860,7 @@
       "offset": "$00B0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -872,7 +872,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -1190,7 +1190,7 @@
       "offset": "$0000",
       "count": 1,
       "encoding": "Bgr555 backdrop",
-      "aliasOf": "PpuMemoryLayout.BgPalette0",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[0]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ]
@@ -1202,7 +1202,7 @@
       "offset": "$00FE",
       "count": 1,
       "encoding": "Bgr555 OBJ palette 7 colour 14",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ]
@@ -1214,7 +1214,7 @@
       "offset": "$0010",
       "count": 16,
       "encoding": "Bgr555 BG palette 1",
-      "aliasOf": "PpuMemoryLayout.BgPalette1",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ]
@@ -1226,7 +1226,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette 7",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ]
@@ -1238,7 +1238,7 @@
       "offset": "$0080",
       "count": 1,
       "encoding": "Bgr555 OBJ colour 0",
-      "aliasOf": "PpuMemoryLayout.ObjPalette0",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[0]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ]
@@ -1250,7 +1250,7 @@
       "offset": "$0091",
       "count": 7,
       "encoding": "Bgr555 rotating arrow colours",
-      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ]
@@ -1262,7 +1262,7 @@
       "offset": "$000E",
       "count": 1,
       "encoding": "Bgr555 BG palette 0 colour 14",
-      "aliasOf": "PpuMemoryLayout.BgPalette0",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[0]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ]
@@ -1274,7 +1274,7 @@
       "offset": "$001E",
       "count": 1,
       "encoding": "Bgr555 BG palette 1 colour 14",
-      "aliasOf": "PpuMemoryLayout.BgPalette1",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ]
@@ -1286,7 +1286,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette 7",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ]
@@ -1298,7 +1298,7 @@
       "offset": "$00B0",
       "count": 16,
       "encoding": "Bgr555 animated map highlights",
-      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FileSelect/FileSelectRoomMapGraphics.cs",
         "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseMenuState.cs"
@@ -1311,7 +1311,7 @@
       "offset": "$006B",
       "count": 1,
       "encoding": "Bgr555 animated reserve arrow",
-      "aliasOf": "PpuMemoryLayout.BgPalette6",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[6]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseMenuState.cs"
       ]
@@ -1323,7 +1323,7 @@
       "offset": "$0066",
       "count": 1,
       "encoding": "Bgr555 animated reserve arrow",
-      "aliasOf": "PpuMemoryLayout.BgPalette6",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[6]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseMenuState.cs"
       ]
@@ -1335,7 +1335,7 @@
       "offset": "$00C9",
       "count": 2,
       "encoding": "Bgr555 white, red",
-      "aliasOf": "PpuMemoryLayout.ObjPalette4",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[4]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/FrontendPalettes.cs"
       ]
@@ -1347,7 +1347,7 @@
       "offset": "$00C0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette 4",
-      "aliasOf": "PpuMemoryLayout.ObjPalette4",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[4]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/GameOver/Artwork/GameOverPalettes.cs"
       ]
@@ -1612,7 +1612,7 @@
       "offset": "$0019",
       "count": 3,
       "encoding": "Bgr555 layer-3 blend",
-      "aliasOf": "PpuMemoryLayout.BgPalette1",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxPalettes.cs"
       ]
@@ -1624,7 +1624,7 @@
       "offset": "$001B",
       "count": 1,
       "encoding": "Bgr555 layer-3 blend colour",
-      "aliasOf": "PpuMemoryLayout.BgPalette1",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[1]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxPalettes.cs"
       ]
@@ -1648,7 +1648,7 @@
       "offset": "$00DF",
       "count": 1,
       "encoding": "Bgr555 colour",
-      "aliasOf": "PpuMemoryLayout.ObjPalette5",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[5]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Gameplay/NewGamePalettes.cs"
       ]
@@ -1941,19 +1941,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "BackgroundPalettes",
-      "region": "Cgram",
-      "offset": "$0000",
-      "count": 128,
-      "encoding": "Bgr555 background palettes",
-      "aliasOf": "PpuMemoryLayout.Cgram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/CgramPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "BgPalette0",
+      "name": "BackgroundPaletteRows[0]",
       "region": "Cgram",
       "offset": "$0000",
       "count": 16,
@@ -1963,7 +1951,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "BgPalette1",
+      "name": "BackgroundPaletteRows[1]",
       "region": "Cgram",
       "offset": "$0010",
       "count": 16,
@@ -1973,7 +1961,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "BgPalette2",
+      "name": "BackgroundPaletteRows[2]",
       "region": "Cgram",
       "offset": "$0020",
       "count": 16,
@@ -1983,7 +1971,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "BgPalette3",
+      "name": "BackgroundPaletteRows[3]",
       "region": "Cgram",
       "offset": "$0030",
       "count": 16,
@@ -1993,7 +1981,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "BgPalette4",
+      "name": "BackgroundPaletteRows[4]",
       "region": "Cgram",
       "offset": "$0040",
       "count": 16,
@@ -2003,7 +1991,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "BgPalette5",
+      "name": "BackgroundPaletteRows[5]",
       "region": "Cgram",
       "offset": "$0050",
       "count": 16,
@@ -2013,7 +2001,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "BgPalette6",
+      "name": "BackgroundPaletteRows[6]",
       "region": "Cgram",
       "offset": "$0060",
       "count": 16,
@@ -2023,13 +2011,25 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "BgPalette7",
+      "name": "BackgroundPaletteRows[7]",
       "region": "Cgram",
       "offset": "$0070",
       "count": 16,
       "encoding": "Bgr555 4-bpp palette row",
       "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
       "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "BackgroundPalettes",
+      "region": "Cgram",
+      "offset": "$0000",
+      "count": 128,
+      "encoding": "Bgr555 background palettes",
+      "aliasOf": "PpuMemoryLayout.Cgram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/CgramPalettes.cs"
+      ]
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
@@ -2046,19 +2046,17 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "ObjPalette0",
+      "name": "ObjectPaletteRows[0]",
       "region": "Cgram",
       "offset": "$0080",
       "count": 16,
       "encoding": "Bgr555 4-bpp palette row",
       "aliasOf": "PpuMemoryLayout.ObjectPalettes",
-      "consumers": [
-        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
-      ]
+      "consumers": []
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "ObjPalette1",
+      "name": "ObjectPaletteRows[1]",
       "region": "Cgram",
       "offset": "$0090",
       "count": 16,
@@ -2068,7 +2066,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "ObjPalette2",
+      "name": "ObjectPaletteRows[2]",
       "region": "Cgram",
       "offset": "$00A0",
       "count": 16,
@@ -2078,7 +2076,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "ObjPalette3",
+      "name": "ObjectPaletteRows[3]",
       "region": "Cgram",
       "offset": "$00B0",
       "count": 16,
@@ -2088,7 +2086,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "ObjPalette4",
+      "name": "ObjectPaletteRows[4]",
       "region": "Cgram",
       "offset": "$00C0",
       "count": 16,
@@ -2098,7 +2096,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "ObjPalette5",
+      "name": "ObjectPaletteRows[5]",
       "region": "Cgram",
       "offset": "$00D0",
       "count": 16,
@@ -2108,7 +2106,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "ObjPalette6",
+      "name": "ObjectPaletteRows[6]",
       "region": "Cgram",
       "offset": "$00E0",
       "count": 16,
@@ -2118,15 +2116,13 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "ObjPalette7",
+      "name": "ObjectPaletteRows[7]",
       "region": "Cgram",
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 4-bpp palette row",
       "aliasOf": "PpuMemoryLayout.ObjectPalettes",
-      "consumers": [
-        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
-      ]
+      "consumers": []
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
@@ -2222,7 +2218,7 @@
       "offset": "$00E0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette6",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[6]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorTransitionPalettes.cs",
         "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"
@@ -2235,7 +2231,7 @@
       "offset": "$00E0",
       "count": 10,
       "encoding": "Bgr555 Crystal Flash body",
-      "aliasOf": "PpuMemoryLayout.ObjPalette6",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[6]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"
       ]
@@ -2247,7 +2243,7 @@
       "offset": "$00EA",
       "count": 6,
       "encoding": "Bgr555 Crystal Flash bubble",
-      "aliasOf": "PpuMemoryLayout.ObjPalette6",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[6]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"
       ]
@@ -2283,7 +2279,7 @@
       "offset": "$00DF",
       "count": 1,
       "encoding": "Bgr555 OBJ palette colour",
-      "aliasOf": "PpuMemoryLayout.ObjPalette5",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[5]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"
       ]
@@ -2295,7 +2291,7 @@
       "offset": "$00C0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette4",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[4]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"
       ]
@@ -2307,7 +2303,7 @@
       "offset": "$00F0",
       "count": 16,
       "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"
       ]
@@ -2319,7 +2315,7 @@
       "offset": "$00C4",
       "count": 1,
       "encoding": "Bgr555 OBJ palette colour",
-      "aliasOf": "PpuMemoryLayout.ObjPalette4",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[4]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorTransitionPalettes.cs",
         "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"

@@ -1031,7 +1031,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int randomEnemyCounter)
     {
         segment.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)segment.GraphicsIndex))
-            .WithPaletteBits(SnesObjPalettes.Index7.PaletteBits);
+            .WithPaletteBits(SnesObjPalettes.Palette(7).PaletteBits);
         RoomEnemySlot head = _slotTable.Slots[0];
         if (!head.FlashTimer.IsZero && (randomEnemyCounter & 2) != 0)
             segment.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)segment.GraphicsIndex))

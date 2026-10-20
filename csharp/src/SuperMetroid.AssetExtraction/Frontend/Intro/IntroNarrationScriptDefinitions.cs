@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -32,16 +33,18 @@ internal static class IntroNarrationScriptDefinitions
     /// <summary>Malformed-stream bound; retail's longest page is well below this count.</summary>
     internal const int MaximumRecords = 512;
 
-    /// <summary>Page-one list $8C:C383, bounded by callbacks $AE43/$AE5B.</summary>
-    internal static readonly IntroNarrationScriptPage Page1 = new(IntroNarrationPageId.Page1, 0xc383, 0xae43, 0xae5b);
-    /// <summary>Page-two list $8C:C797, bounded by callbacks $AE79/$AE91.</summary>
-    internal static readonly IntroNarrationScriptPage Page2 = new(IntroNarrationPageId.Page2, 0xc797, 0xae79, 0xae91);
-    /// <summary>Page-three list $8C:CB45, bounded by callbacks $B074/$B08C.</summary>
-    internal static readonly IntroNarrationScriptPage Page3 = new(IntroNarrationPageId.Page3, 0xcb45, 0xb074, 0xb08c);
-    /// <summary>Page-four list $8C:CE33, bounded by callbacks $B0B3/$B0CB.</summary>
-    internal static readonly IntroNarrationScriptPage Page4 = new(IntroNarrationPageId.Page4, 0xce33, 0xb0b3, 0xb0cb);
-    /// <summary>Page-five list $8C:D15D, bounded by callbacks $B19B/$B1B3.</summary>
-    internal static readonly IntroNarrationScriptPage Page5 = new(IntroNarrationPageId.Page5, 0xd15d, 0xb19b, 0xb1b3);
-    /// <summary>Page-six list $8C:D511, bounded by callbacks $B228/$B240.</summary>
-    internal static readonly IntroNarrationScriptPage Page6 = new(IntroNarrationPageId.Page6, 0xd511, 0xb228, 0xb240);
+    /// <summary>
+    /// The six pages' stock scripts in narrative order, page one through page six: the lists at $8C:C383, $C797, $CB45,
+    /// $CE33, $D15D and $D511, bounded by callbacks $AE43/$AE5B, $AE79/$AE91, $B074/$B08C, $B0B3/$B0CB, $B19B/$B1B3 and
+    /// $B228/$B240.
+    /// </summary>
+    internal static ImmutableArray<IntroNarrationScriptPage> Pages { get; } =
+    [
+        new(IntroNarrationPageId.Page1, 0xc383, 0xae43, 0xae5b),
+        new(IntroNarrationPageId.Page2, 0xc797, 0xae79, 0xae91),
+        new(IntroNarrationPageId.Page3, 0xcb45, 0xb074, 0xb08c),
+        new(IntroNarrationPageId.Page4, 0xce33, 0xb0b3, 0xb0cb),
+        new(IntroNarrationPageId.Page5, 0xd15d, 0xb19b, 0xb1b3),
+        new(IntroNarrationPageId.Page6, 0xd511, 0xb228, 0xb240),
+    ];
 }

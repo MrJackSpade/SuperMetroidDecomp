@@ -10,6 +10,9 @@ SME6302 | Design | Warning | FrontendPpuMemoryAnalyzer
 SME6303 | Design | Warning | PlmSlotAllocationAnalyzer
 SME6413 | Architecture | Error | LooseCommentAnalyzer
 SME6414 | Architecture | Error | PragmaWarningDisableAnalyzer
+SME6415 | Design | Error | NumberedSequenceAnalyzer
+SME6416 | Design | Error | NumberedSequenceAnalyzer
+SME6417 | Design | Error | NumberedSequenceAnalyzer
 SME6340 | Design | Warning | CartridgeEncodingAnalyzer
 SME6341 | Design | Warning | CartridgeEncodingAnalyzer
 SME6342 | Design | Warning | CartridgeEncodingAnalyzer

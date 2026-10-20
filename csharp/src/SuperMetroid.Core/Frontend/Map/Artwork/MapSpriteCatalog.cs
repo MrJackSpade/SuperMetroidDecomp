@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
@@ -47,9 +48,9 @@ public sealed class MapSpriteCatalog
         MapSpriteId.MarkerDefeatedBoss => frames.MarkerDefeatedBoss,
         MapSpriteId.MarkerGunship => frames.MarkerGunship,
         MapSpriteId.IndicatorBacking => frames.IndicatorBacking,
-        MapSpriteId.IndicatorFrame0 => frames.IndicatorFrame0,
-        MapSpriteId.IndicatorFrame1 => frames.IndicatorFrame1,
-        MapSpriteId.IndicatorFrame2 => frames.IndicatorFrame2,
+        MapSpriteId.IndicatorFrame0 => frames.IndicatorFrames[0],
+        MapSpriteId.IndicatorFrame1 => frames.IndicatorFrames[1],
+        MapSpriteId.IndicatorFrame2 => frames.IndicatorFrames[2],
         MapSpriteId.ElevatorCrateria => frames.ElevatorCrateria,
         MapSpriteId.ElevatorBrinstar => frames.ElevatorBrinstar,
         MapSpriteId.ElevatorNorfair => frames.ElevatorNorfair,
@@ -84,7 +85,10 @@ public sealed class MapSpriteCatalog
         _ => throw new InvalidOperationException($"Undefined MapSpriteId {id}."),
     };
 
-    /// <summary>Retains the 26 named compositions in their drawing roles after JSON validation.</summary>
+    /// <summary>
+    /// Retains the 26 named compositions in their drawing roles after JSON validation; the three indicator animation
+    /// frames are one list indexed by frame.
+    /// </summary>
     private sealed record FrameSet(
         SpriteComposition? ArrowRight,
         SpriteComposition? ArrowLeft,
@@ -97,9 +101,7 @@ public sealed class MapSpriteCatalog
         SpriteComposition? MarkerDefeatedBoss,
         SpriteComposition? MarkerGunship,
         SpriteComposition? IndicatorBacking,
-        SpriteComposition? IndicatorFrame0,
-        SpriteComposition? IndicatorFrame1,
-        SpriteComposition? IndicatorFrame2,
+        ImmutableArray<SpriteComposition?> IndicatorFrames,
         SpriteComposition? ElevatorCrateria,
         SpriteComposition? ElevatorBrinstar,
         SpriteComposition? ElevatorNorfair,
@@ -134,9 +136,8 @@ public sealed class MapSpriteCatalog
             Require("Marker.DefeatedBoss", MapSpriteId.MarkerDefeatedBoss),
             Require("Marker.Gunship", MapSpriteId.MarkerGunship),
             Require("Indicator.Backing", MapSpriteId.IndicatorBacking),
-            Require("Indicator.Frame0", MapSpriteId.IndicatorFrame0),
-            Require("Indicator.Frame1", MapSpriteId.IndicatorFrame1),
-            Require("Indicator.Frame2", MapSpriteId.IndicatorFrame2),
+            [Require("Indicator.Frame0", MapSpriteId.IndicatorFrame0), Require("Indicator.Frame1", MapSpriteId.IndicatorFrame1),
+             Require("Indicator.Frame2", MapSpriteId.IndicatorFrame2)],
             Require("Elevator.Crateria", MapSpriteId.ElevatorCrateria),
             Require("Elevator.Brinstar", MapSpriteId.ElevatorBrinstar),
             Require("Elevator.Norfair", MapSpriteId.ElevatorNorfair),

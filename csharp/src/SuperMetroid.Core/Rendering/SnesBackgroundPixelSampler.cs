@@ -14,8 +14,8 @@ internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
 {
     /// <summary>Tile word and source row of the cached decode; minus one forces the first fetch.</summary>
     private int cachedKey = -1;
-    /// <summary>Two or four fetched bitplane bytes for the cached source row, reused across its eight pixels.</summary>
-    private int plane0, plane1, plane2, plane3;
+    /// <summary>The cached source row's bitplane bytes, reused across its eight pixels; a 2-bpp row leaves the upper two zero.</summary>
+    private SnesBitplaneBytes planes;
 
     /// <summary>Samples the plane pixel at a scrolled position; transparent where the background shows nothing.</summary>
     internal (Rgba32 Color, bool High) Sample(Position16<BgPlanePixels> pixel, bool opaqueZero = false)
@@ -28,15 +28,15 @@ internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
         if (key != cachedKey)
         {
             int row = ((characters + tile.CharacterIndex * (fourBit ? 16 : 8)) * 2 + py * 2) & (SnesVram.ByteCount - 1);
-            plane0 = vram.ReadByte(row);
-            plane1 = vram.ReadByte((row + 1) & (SnesVram.ByteCount - 1));
-            plane2 = fourBit ? vram.ReadByte((row + 16) & (SnesVram.ByteCount - 1)) : 0;
-            plane3 = fourBit ? vram.ReadByte((row + 17) & (SnesVram.ByteCount - 1)) : 0;
+            // Bitplanes pair up within a row's two bytes; a 4-bpp character's second pair follows sixteen bytes later.
+            for (int plane = 0; plane < 4; plane++)
+                planes[plane] = plane < 2 || fourBit ? vram.ReadByte((row + plane % 2 + plane / 2 * 16) & (SnesVram.ByteCount - 1)) : 0;
             cachedKey = key;
         }
         int shift = tile.FlipHorizontally ? sample.Pixel.X : 7 - sample.Pixel.X;
-        int color = (plane0 >> shift & 1) | (plane1 >> shift & 1) << 1 |
-            (plane2 >> shift & 1) << 2 | (plane3 >> shift & 1) << 3;
+        int color = 0;
+        for (int plane = 0; plane < 4; plane++)
+            color |= (planes[plane] >> shift & 1) << plane;
         return (color == 0 && !opaqueZero ? default : colors[tile.PaletteIndex * (fourBit ? 16 : 4) + color], tile.HasPriority);
     }
 }

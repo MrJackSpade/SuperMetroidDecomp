@@ -24,27 +24,6 @@ public static class PaletteFxHeatProgramMechanicsDefinitions
     private static readonly PaletteFxHeatProgramDefinition Gravity = new(PaletteFxHeatSuit.Gravity, 331);
 
     /// <summary>The Power, Varia, and Gravity programs in native selection order.</summary>
-    public static IReadOnlyList<PaletteFxHeatProgramDefinition> All { get; } = new ProgramList();
+    public static IReadOnlyList<PaletteFxHeatProgramDefinition> All { get; } = [Power, Varia, Gravity];
 
-    /// <summary>Exposes the three fixed suit programs in native selection order without a mutable array.</summary>
-    private sealed class ProgramList : IReadOnlyList<PaletteFxHeatProgramDefinition>
-    {
-        /// <summary>Gets the number of native Samus-in-heat suit programs.</summary>
-        public int Count => 3;
-        /// <summary>Gets the Power, Varia, or Gravity program at its native selection index.</summary>
-        public PaletteFxHeatProgramDefinition this[int index] => index switch
-        {
-            0 => Power, 1 => Varia, 2 => Gravity,
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        /// <summary>Yields Power, Varia, and Gravity heat programs in native order.</summary>
-        public IEnumerator<PaletteFxHeatProgramDefinition> GetEnumerator()
-        {
-            yield return Power;
-            yield return Varia;
-            yield return Gravity;
-        }
-        /// <summary>Exposes the same suit order to non-generic collection consumers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 }

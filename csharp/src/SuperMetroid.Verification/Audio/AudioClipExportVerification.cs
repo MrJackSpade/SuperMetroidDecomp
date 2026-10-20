@@ -115,13 +115,7 @@ internal static class AudioClipExportVerification
     }
 
     /// <summary>The input port that carries <paramref name="library"/>'s requests.</summary>
-    private static ApuPort PortOf(SoundEffectLibrary library) => library switch
-    {
-        SoundEffectLibrary.Library1 => ApuPort.SoundLibrary1,
-        SoundEffectLibrary.Library2 => ApuPort.SoundLibrary2,
-        SoundEffectLibrary.Library3 => ApuPort.SoundLibrary3,
-        _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound library."),
-    };
+    private static ApuPort PortOf(SoundEffectLibrary library) => ApuPorts.ForLibrary(library);
 
     /// <summary>A tampered clip, an escaping path and a wrong format version are each rejected.</summary>
     private static void VerifyLoaderRejections(string directory, ClipAudioCatalog clips)

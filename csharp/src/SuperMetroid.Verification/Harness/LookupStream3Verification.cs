@@ -987,7 +987,7 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBeamRomData.DirectionForQuadrants(invalid),
                 "stream 3 beam dispatcher preserves span index bounds");
-        IntroCinematicRomData.Palette.Regions[] introRegions =
+        IReadOnlyList<IntroPaletteSpan>[] introRegions =
         [IntroCinematicRomData.Palette.Gameplay, IntroCinematicRomData.Palette.GameplayClear,
          IntroCinematicRomData.Palette.Narration, IntroCinematicRomData.Palette.Discovery];
         IntroPaletteSpan[][] expectedIntroRegions =
@@ -1016,7 +1016,7 @@ internal static class LookupStream3Verification
                     CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 4), "stream 3 intro native count");
             }
             foreach (int invalid in new[] { -1, introRegions[group].Count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => _ = introRegions[group][invalid], "stream 3 intro region bounds");
+                AssertThrows<IndexOutOfRangeException>(() => _ = introRegions[group][invalid], "stream 3 intro region bounds");
         }
         ushort[] motherBrainRoots =
         [
@@ -1054,7 +1054,7 @@ internal static class LookupStream3Verification
                 AssertEqual(sheet, found, "stream 3 special sheet source owner");
             }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = MotherBrainSpecialSpriteArtworkDefinitions.All[invalid],
+            AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainSpecialSpriteArtworkDefinitions.All[invalid],
                 "stream 3 special sheet original index exception");
         // Confirm the identified copy-list conversion against native STA operands.
         int[][] nativeDoorCopies =
@@ -1259,7 +1259,7 @@ internal static class LookupStream3Verification
         AssertEqual(2, escapePrograms.Count, "stream 3 escape lightning owner count");
         AssertTrue(escapePrograms.Select(program => program.Owner).SequenceEqual(new[] { CrateriaEscapeLightningPaletteOwner.YellowLightning, CrateriaEscapeLightningPaletteOwner.CreBlockPixel }), "stream 3 escape lightning owner order");
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = escapePrograms[invalid], "stream 3 escape lightning owner bounds");
+            AssertThrows<IndexOutOfRangeException>(() => _ = escapePrograms[invalid], "stream 3 escape lightning owner bounds");
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.Duration(invalid), "stream 3 escape lightning duration bounds");
         Suite(nameof(VerifyGrappleConnectionDefinitions), () => VerifyGrappleConnectionDefinitions((SuperMetroidAddressSpace)rom));
@@ -2541,7 +2541,7 @@ internal static class LookupStream3Verification
         ];
         AssertTrue(definitions.SequenceEqual(EnemyAuxiliaryColorDefinitions.All), "stream 3 auxiliary definition fields/order");
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = EnemyAuxiliaryColorDefinitions.All[invalid], "stream 3 auxiliary definition bounds");
+            AssertThrows<IndexOutOfRangeException>(() => _ = EnemyAuxiliaryColorDefinitions.All[invalid], "stream 3 auxiliary definition bounds");
         var words = definitions.ToDictionary(definition => definition.Id, definition =>
             Enumerable.Range(0, definition.FrameCount).Select(frame =>
                 Enumerable.Range(0, definition.ColorCount).Select(color =>
@@ -3333,8 +3333,8 @@ internal static class LookupStream3Verification
             else AssertEqual(NintendoLogoFadePaletteFxColorDefinitions.FirstFramePointer,
                 (ushort)(entry.ProgramStart + 4), "boot actually falls through");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = entries[-1], "fade entry lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = entries[2], "fade entry upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = entries[-1], "fade entry lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = entries[2], "fade entry upper bound");
         AssertTrue(entries.SequenceEqual(new[] { entries[0], entries[1] }), "fade enumeration and indexing agree");
         Console.WriteLine("Nintendo fade entries: both native definition/slot/fallthrough-or-branch contracts, order and bounds pass; timing/colors unchanged.");
     }

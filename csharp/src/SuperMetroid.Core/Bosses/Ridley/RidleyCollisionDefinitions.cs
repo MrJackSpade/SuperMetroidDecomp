@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
@@ -104,28 +105,10 @@ internal static class RidleyCollisionDefinitions
     private static readonly Offset16<RoomPixels>[] LeftBase =
         [new(15, 22), new(-8, 7), new(16, 0), new(-3, -24)];
 
-    /// <summary>Exposes the one forward or four side-facing collision components of a body frame without allocating a list.</summary>
-    internal readonly record struct ComponentSequence(ushort Frame)
-    {
-        /// <summary>Forward Ridley has one body component; side-facing poses have four.</summary>
-        internal int Length => Frame == (ushort)BodyFrame.Forward ? 1 : 4;
-        /// <summary>Selects a component's authored offset and pose-specific hitbox list.</summary>
-        internal RidleyCollisionComponent this[int index] => (uint)index < Length
-            ? ComponentAt((BodyFrame)Frame, index)
-            : throw new ArgumentOutOfRangeException(nameof(index));
-        /// <summary>Enumerates component positions without materializing a frame array.</summary>
-        public Enumerator GetEnumerator() => new(this);
-        /// <summary>Walks the calculated collision components of one extended body frame.</summary>
-        internal struct Enumerator(ComponentSequence sequence)
-        {
-            /// <summary>Current component index; starts before the first component.</summary>
-            private int index = -1;
-            /// <summary>Collision component at the current iterator position.</summary>
-            public readonly RidleyCollisionComponent Current => sequence[index];
-            /// <summary>Advances through the one or four components of this body frame.</summary>
-            public bool MoveNext() => ++index < sequence.Length;
-        }
-    }
+    /// <summary>Each body frame's components in native order: one for forward Ridley, four for each side-facing pose.</summary>
+    private static readonly Dictionary<BodyFrame, ImmutableArray<RidleyCollisionComponent>> FrameComponents =
+        Enum.GetValues<BodyFrame>().ToDictionary(frame => frame, frame => Enumerable.Range(0, frame == BodyFrame.Forward ? 1 : 4)
+            .Select(component => ComponentAt(frame, component)).ToImmutableArray());
 
     /// <summary>Selects a component's offset and hitbox list from Ridley's pose, reflecting offsets but keeping the authored right-facing rectangles.</summary>
     private static RidleyCollisionComponent ComponentAt(BodyFrame frame, int component)
@@ -169,7 +152,7 @@ internal static class RidleyCollisionDefinitions
         && frame <= (ushort)BodyFrame.Forward && (frame - (ushort)BodyFrame.Left) % SideFrameBytes == 0;
 
     /// <summary>Gets a validated body's computed collision components for the native collision walker.</summary>
-    internal static ComponentSequence ComponentsAt(ushort frame) => HasFrame(frame)
-        ? new(frame)
+    internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(ushort frame) => HasFrame(frame)
+        ? FrameComponents[(BodyFrame)frame]
         : throw new InvalidDataException($"Ridley frame $A6:{frame:X4} has no compiled collision.");
 }

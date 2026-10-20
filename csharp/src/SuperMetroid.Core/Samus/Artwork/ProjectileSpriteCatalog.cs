@@ -76,11 +76,11 @@ public sealed class ProjectileSpriteCatalog
             }
             var composition = new SpriteComposition(compiled);
             if (ProjectileSpriteDefinitions.TrySingleBeamPhase(id, out int phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SingleBeamParts(phase));
+                composition = composition.CalculateIfMatching(ProjectileSpriteDefinitions.SingleBeamPoses[phase]);
             else if (ProjectileSpriteDefinitions.TryChargedBeamPhase(id, out phase, out bool ice))
                 composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.ChargedBeamParts(phase, ice));
             else if (ProjectileSpriteDefinitions.TryWavePhase(id, out phase))
-                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.WaveParts(phase));
+                composition = composition.CalculateIfMatching(ProjectileSpriteDefinitions.WavePoses[phase]);
             else if (ProjectileSpriteDefinitions.TryVerticalChargedWavePhase(id, out phase))
                 composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.VerticalChargedWaveParts(phase));
             else if (ProjectileSpriteDefinitions.TryAxialSuperMissilePose(id, out phase))

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
@@ -42,6 +43,16 @@ internal static class PhantoonCollisionDefinitions
     /// <summary>The vulnerable eye alone, repeating the full body's eye rectangle.</summary>
     private static readonly PhantoonCollisionHitbox[] EyeOnlyList = [BodyHitbox(EyeRectangle)];
 
+    /// <summary>The one inert point component most frames carry.</summary>
+    private static readonly ImmutableArray<PhantoonCollisionComponent> PointComponents = [new(Offset16<RoomPixels>.Zero, PointList)];
+    /// <summary>The full body's one component.</summary>
+    private static readonly ImmutableArray<PhantoonCollisionComponent> FullBodyComponents = [new(Offset16<RoomPixels>.Zero, FullBodyList)];
+    /// <summary>The eye-only body's one component.</summary>
+    private static readonly ImmutableArray<PhantoonCollisionComponent> EyeOnlyComponents = [new(Offset16<RoomPixels>.Zero, EyeOnlyList)];
+    /// <summary>A tentacle frame's two inert point components.</summary>
+    private static readonly ImmutableArray<PhantoonCollisionComponent> TentacleComponents =
+        [new(Offset16<RoomPixels>.Zero, PointList), new(Offset16<RoomPixels>.Zero, PointList)];
+
     /// <summary>
     /// One of the body's rectangles. Centered intervals have left=-right-1; side tentacle intervals reflect exactly
     /// around that same pixel-centered axis, while their chosen vertical bounds remain independent.
@@ -63,40 +74,22 @@ internal static class PhantoonCollisionDefinitions
         static (short Left, short Right) Centered(short halfWidth) => ((short)-halfWidth, (short)(halfWidth - 1));
     }
     /// <summary>Maps a BG2 frame to its active body/eye hitbox or inert point components.</summary>
-    internal static ComponentSequence ComponentsAt(ushort pointer)
+    internal static ImmutableArray<PhantoonCollisionComponent> ComponentsAt(ushort pointer)
     {
         if (!PhantoonBg2FrameDefinitions.IsFrame(pointer))
             throw new InvalidDataException($"Phantoon frame $A7:{pointer:X4} has no compiled hitbox identity.");
         // Every other frame carries one inert point component.
         if (!Enum.IsDefined((PhantoonCollisionFrame)pointer))
-            return new(PointList, 1);
+            return PointComponents;
         return (PhantoonCollisionFrame)pointer switch
         {
-            PhantoonCollisionFrame.BodyFullHitbox => new(FullBodyList, 1),
-            PhantoonCollisionFrame.BodyEyeHitboxOnly => new(EyeOnlyList, 1),
+            PhantoonCollisionFrame.BodyFullHitbox => FullBodyComponents,
+            PhantoonCollisionFrame.BodyEyeHitboxOnly => EyeOnlyComponents,
             PhantoonCollisionFrame.Tentacles0 or
                 PhantoonCollisionFrame.Tentacles1 or
-                PhantoonCollisionFrame.Tentacles2 => new(PointList, 2),
+                PhantoonCollisionFrame.Tentacles2 => TentacleComponents,
             _ => throw new InvalidOperationException($"Undefined Phantoon collision frame $A7:{pointer:X4}."),
         };
     }
 
-    /// <summary>Native frame components use their actor origin; tentacle frames have two inert components.</summary>
-    /// <param name="hitboxes">The one hitbox list every component of the frame holds.</param>
-    /// <param name="count">The number of components in the frame.</param>
-    internal readonly struct ComponentSequence(IReadOnlyList<PhantoonCollisionHitbox> hitboxes, int count) : IReadOnlyList<PhantoonCollisionComponent>
-    {
-        /// <summary>Gets the number of frame components, including both inert tentacle components.</summary>
-        public int Count => count;
-        /// <summary>Gets a zero-offset component holding the frame's hitbox list.</summary>
-        public PhantoonCollisionComponent this[int index] => (uint)index < Count
-            ? new(Offset16<RoomPixels>.Zero, hitboxes) : throw new ArgumentOutOfRangeException(nameof(index));
-        /// <summary>Yields the frame's collision components in native order.</summary>
-        public IEnumerator<PhantoonCollisionComponent> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same component order to non-generic collection consumers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 }

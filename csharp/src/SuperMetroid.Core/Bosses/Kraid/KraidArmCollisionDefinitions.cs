@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -10,46 +11,26 @@ internal static class KraidArmCollisionDefinitions
     /// <summary>Collision geometry belongs to Kraid arm's bank-$A7 extended frames.</summary>
     internal const byte Bank = 0xa7;
 
-    /// <summary>Articulated offsets for the initial five-component pose; the body remains at the enemy origin.</summary>
-    private static readonly Offset16<RoomPixels>[] Phase0 =
-        [new(-36, -33), new(-28, -24),
-         new(-36, -40), new(-28, -31)];
-    /// <summary>Articulated offsets for the second pose before the arm rises.</summary>
-    private static readonly Offset16<RoomPixels>[] Phase1 =
-        [new(-38, -33), new(-30, -26),
-         new(-36, -40), new(-28, -31)];
-    /// <summary>Articulated offsets for the first outward, raised arm pose.</summary>
-    private static readonly Offset16<RoomPixels>[] Phase2 =
-        [new(-48, -13), new(-38, -13),
-         new(-45, -27), new(-37, -19)];
-    /// <summary>Articulated offsets for the following raised pose with shifted hand and connector.</summary>
-    private static readonly Offset16<RoomPixels>[] Phase3 =
-        [new(-46, -13), new(-37, -13),
-         new(-45, -19), new(-36, -18)];
-    /// <summary>Articulated offsets as the arm lowers beside Kraid's body.</summary>
-    private static readonly Offset16<RoomPixels>[] Phase4 =
-        [new(-45, 8), new(-38, 2),
-         new(-46, 3), new(-39, -3)];
-    /// <summary>Articulated offsets for the next lowered pose, retaining the shared body origin.</summary>
-    private static readonly Offset16<RoomPixels>[] Phase5 =
-        [new(-44, 8), new(-37, 2),
-         new(-46, 4), new(-39, -2)];
-    /// <summary>Articulated offsets near the low pose's stable connector position.</summary>
-    private static readonly Offset16<RoomPixels>[] Phase6 =
-        [new(-39, 10), new(-38, 0),
-         new(-43, 10), new(-41, -2)];
-    /// <summary>Low-pose offsets with the outer connector one pixel above phase six.</summary>
-    private static readonly Offset16<RoomPixels>[] Phase7 =
-        [new(-39, 10), new(-38, 0),
-         new(-43, 9), new(-41, -2)];
-    /// <summary>Repeats phase seven's physical component positions despite distinct frame artwork.</summary>
-    private static readonly Offset16<RoomPixels>[] Phase8 =
-        [new(-39, 10), new(-38, 0),
-         new(-43, 9), new(-41, -2)];
-    /// <summary>Final low-pose offsets shift the two outer components toward one another.</summary>
-    private static readonly Offset16<RoomPixels>[] Phase9 =
-        [new(-39, 10), new(-38, 0),
-         new(-42, 9), new(-42, -2)];
+    /// <summary>
+    /// The four articulated component offsets of each of the ten shared five-component poses, indexed by pose; the body
+    /// component stays at the enemy origin. Pose 0 is the initial pose and pose 1 the next before the arm rises; poses 2
+    /// and 3 raise it outward, the second shifting hand and connector; poses 4 and 5 lower it beside Kraid's body;
+    /// poses 6 through 9 hold the low pose, 7 lifting the outer connector a pixel above 6, 8 repeating 7's positions under
+    /// distinct artwork, and 9 shifting the two outer components toward one another.
+    /// </summary>
+    private static readonly Offset16<RoomPixels>[][] PosePositions =
+    [
+        [new(-36, -33), new(-28, -24), new(-36, -40), new(-28, -31)],
+        [new(-38, -33), new(-30, -26), new(-36, -40), new(-28, -31)],
+        [new(-48, -13), new(-38, -13), new(-45, -27), new(-37, -19)],
+        [new(-46, -13), new(-37, -13), new(-45, -19), new(-36, -18)],
+        [new(-45, 8), new(-38, 2), new(-46, 3), new(-39, -3)],
+        [new(-44, 8), new(-37, 2), new(-46, 4), new(-39, -2)],
+        [new(-39, 10), new(-38, 0), new(-43, 10), new(-41, -2)],
+        [new(-39, 10), new(-38, 0), new(-43, 9), new(-41, -2)],
+        [new(-39, 10), new(-38, 0), new(-43, 9), new(-41, -2)],
+        [new(-39, 10), new(-38, 0), new(-42, 9), new(-42, -2)],
+    ];
 
     /// <summary>$A7:8F59, ExtendedSpritemap_KraidArm_General_0; twenty five-component frames follow.</summary>
     internal const ushort FirstGeneralFrame = 0x8f59;
@@ -170,15 +151,11 @@ internal static class KraidArmCollisionDefinitions
     /// articulated positions have separate, unfinished review scope.</remarks>
     internal static KraidArmCollisionComponent Component(int pose, int component)
     {
-        KraidArmHitboxSequence hitbox = HitboxesAt(ComponentHitbox(pose, component));
+        ImmutableArray<KraidArmCollisionHitbox> hitbox = HitboxesAt(ComponentHitbox(pose, component));
         // The central body component and both single-component poses are anchored
         // at the enemy origin. Only the four articulated positions are stored.
         if (pose >= 10 || component == 2) return new(Offset16<RoomPixels>.Zero, hitbox);
-        Offset16<RoomPixels>[] positions = pose switch
-        {
-            0 => Phase0, 1 => Phase1, 2 => Phase2, 3 => Phase3, 4 => Phase4,
-            5 => Phase5, 6 => Phase6, 7 => Phase7, 8 => Phase8, _ => Phase9,
-        };
+        Offset16<RoomPixels>[] positions = PosePositions[pose];
         return new(positions[component < 2 ? component : component - 1], hitbox);
     }
     /// <summary>The two single-component arm frames, valued by their bank-$A7 spritemap pointer.</summary>
@@ -200,22 +177,22 @@ internal static class KraidArmCollisionDefinitions
 
     /// <summary>Normalizes either ten-frame artwork group to its shared physical pose and recognizes the two one-component dying frames.</summary>
     internal static bool TryGetComponents(ushort pointer,
-        out KraidArmComponentSequence components)
+        out ImmutableArray<KraidArmCollisionComponent> components)
     {
         // Both five-component groups select the same physical pose ordinal. Their
         // artwork identities differ, so this normalization applies only to collision.
         int distance = pointer - FirstGeneralFrame;
         if (distance >= 0 && distance < 20 * GeneralFrameBytes && distance % GeneralFrameBytes == 0)
         {
-            components = new(distance / GeneralFrameBytes % 10, 5);
+            components = PoseComponents[distance / GeneralFrameBytes % 10];
             return true;
         }
         if (Enum.IsDefined((SingleComponentFrame)pointer))
         {
-            components = new(PoseOrdinal((SingleComponentFrame)pointer), 1);
+            components = PoseComponents[PoseOrdinal((SingleComponentFrame)pointer)];
             return true;
         }
-        components = default;
+        components = [];
         return false;
     }
 
@@ -230,26 +207,37 @@ internal static class KraidArmCollisionDefinitions
     /// domain, not native byte offsets; lengths match each original count word.
     /// Shape7, B..E, foot/lint lists, record interiors and every other ushort
     /// identity remain rejected. Rectangle-edge data has a separate disposition.</remarks>
-    internal static KraidArmHitboxSequence HitboxesAt(ushort pointer) =>
-        pointer switch
-        {
-            0x92d1 => new(0, 2),
-            0x92eb => new(2, 1),
-            0x92f9 => new(3, 2),
-            0x9313 => new(5, 1),
-            0x9321 => new(6, 2),
-            0x933b => new(8, 1),
-            0x9349 => new(9, 2),
-            0x9371 => new(11, 1),
-            0x937f => new(12, 2),
-            0x9399 => new(14, 1),
-            0x93f7 => new(15, 2),
-            0x9411 => new(17, 1),
-            0x941f => new(18, 2),
-            0x9439 => new(20, 2),
-            0x946f => new(22, 1),
-            0x947d => new(23, 1),
-            _ => throw new InvalidDataException(
-                $"Kraid-arm hitbox list $A7:{pointer:X4} is not compiled."),
-        };
+    internal static ImmutableArray<KraidArmCollisionHitbox> HitboxesAt(ushort pointer) =>
+        HitboxLists.TryGetValue(pointer, out ImmutableArray<KraidArmCollisionHitbox> list)
+            ? list
+            : throw new InvalidDataException($"Kraid-arm hitbox list $A7:{pointer:X4} is not compiled.");
+
+    /// <summary>Each compiled hitbox list's pointer and its slice of the rectangle geometry: first rectangle and count.</summary>
+    private static readonly (ushort List, int First, int Count)[] HitboxListSlices =
+    [
+        (0x92d1, 0, 2),
+        (0x92eb, 2, 1),
+        (0x92f9, 3, 2),
+        (0x9313, 5, 1),
+        (0x9321, 6, 2),
+        (0x933b, 8, 1),
+        (0x9349, 9, 2),
+        (0x9371, 11, 1),
+        (0x937f, 12, 2),
+        (0x9399, 14, 1),
+        (0x93f7, 15, 2),
+        (0x9411, 17, 1),
+        (0x941f, 18, 2),
+        (0x9439, 20, 2),
+        (0x946f, 22, 1),
+        (0x947d, 23, 1),
+    ];
+
+    /// <summary>Each compiled hitbox list's rectangles in collision order, keyed by list pointer.</summary>
+    private static readonly Dictionary<ushort, ImmutableArray<KraidArmCollisionHitbox>> HitboxLists = HitboxListSlices.ToDictionary(
+        slice => slice.List, slice => Enumerable.Range(slice.First, slice.Count).Select(Rectangle).ToImmutableArray());
+
+    /// <summary>Each physical pose's components in native order: five for the ten shared poses, one for the two dying poses.</summary>
+    private static readonly ImmutableArray<KraidArmCollisionComponent>[] PoseComponents =
+        [.. Enumerable.Range(0, 12).Select(pose => Enumerable.Range(0, pose < 10 ? 5 : 1).Select(component => Component(pose, component)).ToImmutableArray())];
 }

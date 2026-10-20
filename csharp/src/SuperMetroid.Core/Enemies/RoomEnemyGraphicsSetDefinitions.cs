@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// cartridge. Palette rows and staging blocks are fixed engine staging metadata;
 /// editable pixel/color content is loaded separately through enemy artwork assets.
 /// </remarks>
+[NumberedIdentities("Each numbered member is the enemy graphics set of one numbered room or room state, named for it; no caller indexes the sets by number.")]
 public static class RoomEnemyGraphicsSetDefinitions
 {
     /// <summary>Retail sets in the cartridge's list order.</summary>

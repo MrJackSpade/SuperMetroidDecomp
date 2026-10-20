@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
@@ -24,7 +25,7 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>The corpse's (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row.</summary>
     internal CorpseRotTable RotTable { get; init; }
     /// <summary>The corpse tile uploads submitted after every rotting call, including the call that finishes the corpse.</summary>
-    internal DeadMonsterRottingDefinitions.TransferRows VramTransfers { get; init; }
+    internal ImmutableArray<DeadMonsterVramTransferDefinition> VramTransfers { get; init; } = [];
     /// <summary>Sprite height less one, 39: a moved pixel row completes when its next Y reaches this boundary; also identifies the final entry.</summary>
     public int YLimit { get; }
     /// <summary>Sprite height less two, 38: this entry and the final entry use destructive moves even during the last three delay calls.</summary>

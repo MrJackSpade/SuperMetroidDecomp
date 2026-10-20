@@ -44,7 +44,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
             installedSlot.SpritemapPointer =
                 frame.Pointer;
             int root = ((int)new SnesAddress(frame.Bank, frame.Pointer));
-            SporeSpawnCollisionDefinitions.ComponentSequence components =
+            ReadOnlySpan<SporeSpawnCollisionComponent> components =
                 SporeSpawnCollisionDefinitions.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadCartridgeByte(root), components.Length,
                 $"Spore Spawn frame {frame.Pointer:X4} native component count");
@@ -95,11 +95,8 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
             AssertThrows<InvalidDataException>(() => SporeSpawnCollisionDefinitions.ComponentsAt(invalid),
                 "Spore invalid or unused component root rejected");
         }
-        var closedSpore = SporeSpawnCollisionDefinitions.ComponentsAt(0xee6f);
-        var openSpore = SporeSpawnCollisionDefinitions.ComponentsAt(0xef3d);
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = closedSpore[1], "Spore closed frame has no inner point");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = openSpore[-1], "Spore component rejects negative index");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = openSpore[2], "Spore open frame has exactly two components");
+        AssertEqual(1, SporeSpawnCollisionDefinitions.ComponentsAt(0xee6f).Length, "Spore closed frame has no inner point");
+        AssertEqual(2, SporeSpawnCollisionDefinitions.ComponentsAt(0xef3d).Length, "Spore open frame has exactly two components");
         Console.WriteLine($"  Spore Spawn collision: {frameCount} roots, {seenLists.Count} lists and {callbackComparisons} live touch/shot comparisons match the cartridge with installed ROM reads denied.");
 
         // Compares one compiled hitbox list with the cartridge list its component names.

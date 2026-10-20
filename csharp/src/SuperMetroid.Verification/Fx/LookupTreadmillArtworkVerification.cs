@@ -12,8 +12,8 @@ internal static class LookupTreadmillArtworkVerification
     {
         var right = WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards);
         var left = WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Leftwards);
-        int[] aliases = [WreckedShipTreadmillRomData.Frame0Source, WreckedShipTreadmillRomData.Frame1Source,
-            WreckedShipTreadmillRomData.Frame2Source, WreckedShipTreadmillRomData.Frame3Source];
+        int[] aliases = [WreckedShipTreadmillRomData.Frame0Source, WreckedShipTreadmillRomData.FrameSource(1),
+            WreckedShipTreadmillRomData.FrameSource(2), WreckedShipTreadmillRomData.FrameSource(3)];
         for (int index = 0; index < 4; index++)
         {
             int source = 0x870000 | ReadVerificationWord(rom, 0x8781e5 + 4 * index);

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Import provenance and bounded dimensions; runtime AI owns cadence and frame selection.</summary>
@@ -17,30 +18,6 @@ internal static class EnemyAuxiliaryColorDefinitions
         EnemyAuxiliaryPalette.GoldenTorizoBelly, 0x848132, 8, 16, 16);
 
     /// <summary>Four imported palette families in stable face-block, corpse, body, and belly order.</summary>
-    internal static DefinitionSet All { get; } = new();
-
-    /// <summary>Read-only ordered view of the four auxiliary palette source definitions.</summary>
-    internal sealed class DefinitionSet : IReadOnlyList<EnemyAuxiliaryPaletteDefinition>
-    {
-        /// <summary>Face block, dead Sidehopper, and two Golden Torizo palette families.</summary>
-        public int Count => 4;
-        /// <summary>Alias for the fixed family count used by definition consumers.</summary>
-        public int Length => Count;
-        /// <summary>Maps a bounded family ordinal to its native source and dimensions.</summary>
-        public EnemyAuxiliaryPaletteDefinition this[int index] => index switch
-        {
-            0 => FaceBlock,
-            1 => DeadSidehopper,
-            2 => GoldenTorizoBody,
-            3 => GoldenTorizoBelly,
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        /// <summary>Yields the four native palette source definitions in stable order.</summary>
-        public IEnumerator<EnemyAuxiliaryPaletteDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same family order through non-generic enumeration.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    internal static ImmutableArray<EnemyAuxiliaryPaletteDefinition> All { get; } =
+        [FaceBlock, DeadSidehopper, GoldenTorizoBody, GoldenTorizoBelly];
 }

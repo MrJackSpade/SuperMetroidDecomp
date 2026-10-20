@@ -62,7 +62,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementSour
     /// </summary>
     public CartridgeAudioAcknowledgements ForUpdate(CartridgeAudioAcknowledgements spc, NativeCheckpointMemory nativeAfter)
     {
-        int[] ports = [spc.Port1, spc.Port2, spc.Port3];
+        int[] ports = [.. ApuPorts.SoundLibraryPorts.Select(port => spc[port])];
         for (int library = 0; library < LibraryCount; library++)
         {
             byte before = states[library];
@@ -78,7 +78,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementSour
                 // unless it already matches.
                 ports[library] = unchecked((byte)(compared + 1));
         }
-        return new CartridgeAudioAcknowledgements(spc.Port0, ports[0], ports[1], ports[2]);
+        return new CartridgeAudioAcknowledgements(spc[ApuPort.Music], ports[0], ports[1], ports[2]);
     }
 
     /// <summary>Records the native sound-handler state after an update.</summary>

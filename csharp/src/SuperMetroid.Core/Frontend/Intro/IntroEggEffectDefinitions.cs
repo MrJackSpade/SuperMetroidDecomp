@@ -47,19 +47,15 @@ internal static class IntroEggEffectDefinitions
     {
         if ((uint)index >= ParticleCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return new(
-            CinematicSpritePreInstruction.MetroidEggParticle,
-            index switch
-            {
-                0 => CinematicSpriteProgram.MetroidEggParticle1,
-                1 => CinematicSpriteProgram.MetroidEggParticle2,
-                2 => CinematicSpriteProgram.MetroidEggParticle3,
-                3 => CinematicSpriteProgram.MetroidEggParticle4,
-                4 => CinematicSpriteProgram.MetroidEggParticle5,
-                5 => CinematicSpriteProgram.MetroidEggParticle6,
-                _ => throw new ArgumentOutOfRangeException(nameof(index)),
-            });
+        return new(CinematicSpritePreInstruction.MetroidEggParticle, ParticlePrograms[index]);
     }
+
+    /// <summary>The six particles' programs, indexed by particle.</summary>
+    private static readonly CinematicSpriteProgram[] ParticlePrograms =
+    [
+        CinematicSpriteProgram.MetroidEggParticle1, CinematicSpriteProgram.MetroidEggParticle2, CinematicSpriteProgram.MetroidEggParticle3,
+        CinematicSpriteProgram.MetroidEggParticle4, CinematicSpriteProgram.MetroidEggParticle5, CinematicSpriteProgram.MetroidEggParticle6,
+    ];
 
     /// <summary><c>$8B:CEF1</c>, the shared egg-slime initialization, motion, and list definition.</summary>
     /// <remarks>

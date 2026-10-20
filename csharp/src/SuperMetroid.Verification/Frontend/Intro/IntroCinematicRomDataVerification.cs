@@ -89,10 +89,14 @@ internal static class IntroCinematicRomDataVerification
             .ToArray();
         // The native list of every typed cinematic sprite program (#641).
         ushort[] bank8BLists = [.. CinematicSpriteNativeListAddresses.Entries.Select(entry => entry.Entry)];
-        ushort[] bank8CLists = GetUshortConstants(typeof(CinematicCodePointers.BackgroundLists))
-            .Concat(GetUshortConstants(typeof(CinematicCodePointersIndirectData)))
-            .Select(field => field.RequiredConstant<ushort>())
-            .ToArray();
+        // The narration pages' lists are named by the narration script definitions, not by loose constants.
+        ushort[] bank8CLists =
+        [
+            .. GetUshortConstants(typeof(CinematicCodePointers.BackgroundLists))
+                .Concat(GetUshortConstants(typeof(CinematicCodePointersIndirectData)))
+                .Select(field => field.RequiredConstant<ushort>()),
+            .. SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationScriptDefinitions.Pages.Select(page => checked((ushort)page.InstructionPointer)),
+        ];
 
         AssertTrue(bank8BCodePointers.Length >= 50,
             "cinematic callback catalog covers translated bank-$8B code");
@@ -129,10 +133,10 @@ internal static class IntroCinematicRomDataVerification
     /// <summary>Checks that a cinematic palette span is aligned, nonempty, and inside CGRAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertIntroPaletteSpans(
-        IntroCinematicRomData.Palette.Regions spans,
+        IReadOnlyList<IntroPaletteSpan> spans,
         string context)
     {
-        AssertTrue(!spans.IsEmpty, $"intro {context} palette span list is nonempty");
+        AssertTrue(spans.Count != 0, $"intro {context} palette span list is nonempty");
         foreach (IntroPaletteSpan span in spans)
         {
             AssertTrue(span.FirstColor >= 0, $"intro {context} span starts inside CGRAM");

@@ -116,76 +116,13 @@ public static class IntroCinematicRomData
         /// <summary>Mask that advances a palette step once every four updates.</summary>
         public const ushort StepEveryFourFramesMask = 0x0003;
         /// <summary>Palette spans faded for the gameplay flashback.</summary>
-        public static Regions Gameplay { get; } = new(Scene.Gameplay);
+        public static IReadOnlyList<IntroPaletteSpan> Gameplay { get; } = [GameplayBackground, GameplayEnvironment, GameplaySamus];
         /// <summary>Palette spans cleared when gameplay flashback initialization begins.</summary>
-        public static Regions GameplayClear { get; } = new(Scene.GameplayClear);
+        public static IReadOnlyList<IntroPaletteSpan> GameplayClear { get; } = [GameplayClearBackground, GameplayEnvironment, GameplaySamus];
         /// <summary>Palette spans faded for narration screens.</summary>
-        public static Regions Narration { get; } = new(Scene.Narration);
+        public static IReadOnlyList<IntroPaletteSpan> Narration { get; } = [NarrationText, NarrationBackground, NarrationPortrait, NarrationObjects];
         /// <summary>Palette spans faded for the Metroid discovery scene.</summary>
-        public static Regions Discovery { get; } = new(Scene.Discovery);
-
-        /// <summary>Mutually exclusive intro palette-region selections.</summary>
-        public enum Scene
-        {
-            /// <summary>The Mother Brain gameplay-flashback palette.</summary>
-            Gameplay,
-            /// <summary>The subset cleared before the gameplay flashback.</summary>
-            GameplayClear,
-            /// <summary>The narration-screen palette.</summary>
-            Narration,
-            /// <summary>The Metroid discovery-scene palette.</summary>
-            Discovery,
-        }
-
-        /// <summary>Ordered scene operations, selected without a stored region table.</summary>
-        public sealed class Regions : System.Collections.Generic.IReadOnlyList<IntroPaletteSpan>
-        {
-            /// <summary>Scene whose palette spans this view resolves without storing another table.</summary>
-            private readonly Scene scene;
-            /// <summary>Creates a scene-relative view that resolves palette spans on demand.</summary>
-            internal Regions(Scene scene) => this.scene = scene;
-            /// <summary>Gets the number of palette spans in the selected scene.</summary>
-            public int Count => scene switch
-            {
-                Scene.Narration => 4,
-                Scene.Discovery => 2,
-                Scene.Gameplay or Scene.GameplayClear => 3,
-                _ => throw new InvalidOperationException($"Undefined intro palette scene {scene}."),
-            };
-            /// <summary>Gets the palette span at the specified scene-relative index.</summary>
-            public IntroPaletteSpan this[int index] => scene switch
-            {
-                Scene.Gameplay or Scene.GameplayClear => index switch
-                {
-                    0 => scene == Scene.Gameplay ? GameplayBackground : GameplayClearBackground,
-                    1 => GameplayEnvironment,
-                    2 => GameplaySamus,
-                    _ => throw new ArgumentOutOfRangeException(nameof(index)),
-                },
-                Scene.Narration => index switch
-                {
-                    0 => NarrationText,
-                    1 => NarrationBackground,
-                    2 => NarrationPortrait,
-                    3 => NarrationObjects,
-                    _ => throw new ArgumentOutOfRangeException(nameof(index)),
-                },
-                Scene.Discovery => index switch
-                {
-                    0 => DiscoveryBackground,
-                    1 => DiscoveryObjects,
-                    _ => throw new ArgumentOutOfRangeException(nameof(index)),
-                },
-                _ => throw new InvalidOperationException(),
-            };
-            /// <summary>Returns an enumerator over the selected scene's palette spans.</summary>
-            public System.Collections.Generic.IEnumerator<IntroPaletteSpan> GetEnumerator()
-            {
-                for (int index = 0; index < Count; index++) yield return this[index];
-            }
-            /// <summary>Enumerates the same ordered spans through the non-generic collection interface.</summary>
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-        }
+        public static IReadOnlyList<IntroPaletteSpan> Discovery { get; } = [DiscoveryBackground, DiscoveryObjects];
 
         /// <summary>$8B:B258/B25B, CrossFadeToSamusGameplay: first background row and four colors of the next.</summary>
         private static IntroPaletteSpan GameplayBackground => new(0, 16 + 4);
@@ -245,11 +182,11 @@ public static class IntroCinematicRomData
     public static class Objects
     {
         /// <summary>Object palette used by discovery-scene actors.</summary>
-        public static readonly SnesObjAttributeWord DiscoveryPalette = SnesObjPalettes.Index7;
+        public static readonly SnesObjAttributeWord DiscoveryPalette = SnesObjPalettes.Palette(7);
         /// <summary>Object palette used by scientist actors.</summary>
-        public static readonly SnesObjAttributeWord ScientistPalette = SnesObjPalettes.Index6;
+        public static readonly SnesObjAttributeWord ScientistPalette = SnesObjPalettes.Palette(6);
         /// <summary>Object palette used by cinematic explosions.</summary>
-        public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Index5;
+        public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Palette(5);
         /// <summary>Maximum sound effects the intro queues for one library.</summary>
         public const byte MaximumQueuedSounds = 6;
         /// <summary>First baby Metroid cry sound.</summary>

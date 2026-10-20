@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -157,8 +158,12 @@ internal static class MotherBrainNeckKinematics
         }
     }
 
-    /// <summary>Ports all five signed sine/cosine position writes at $A9:91B8-$92AA.</summary>
-    internal static MotherBrainNeckGeometry CalculateGeometry(Position16<RoomPixels> body, SnesAngle lowerAngle, SnesAngle upperAngle, MotherBrainNeckSegmentDistances distances)
+    /// <summary>Ports all five signed sine/cosine position writes at $A9:91B8-$92AA: each joint's room-pixel position, indexed by joint.</summary>
+    /// <param name="body">The body's position.</param>
+    /// <param name="lowerAngle">The angle the lower joints hang at.</param>
+    /// <param name="upperAngle">The angle the upper joints hang at.</param>
+    /// <param name="distances">Each joint's distance from its anchor, indexed by joint.</param>
+    internal static ImmutableArray<Position16<RoomPixels>> CalculateGeometry(Position16<RoomPixels> body, SnesAngle lowerAngle, SnesAngle upperAngle, IReadOnlyList<int> distances)
     {
         // `$7E:7814/16` is a deliberately offset body reference point. Adding $70/$FFA0
         // below reduces it to body+($20,-$32), but retaining the two native stages makes the
@@ -167,12 +172,12 @@ internal static class MotherBrainNeckKinematics
         byte lower = lowerAngle.TableIndex;
         byte upper = upperAngle.TableIndex;
 
-        Position16<RoomPixels> segment0 = CalculateLowerSegment(reference, new SnesByteAngle(lower), distances.Segment0Distance);
-        Position16<RoomPixels> segment1 = CalculateLowerSegment(reference, new SnesByteAngle(lower), distances.Segment1Distance);
-        Position16<RoomPixels> segment2 = CalculateLowerSegment(reference, new SnesByteAngle(lower), distances.Segment2Distance);
-        Position16<RoomPixels> segment3 = segment2 + CalculatePolarOffset(new SnesByteAngle(upper), distances.Segment3Distance);
-        Position16<RoomPixels> segment4 = segment2 + CalculatePolarOffset(new SnesByteAngle(upper), distances.Segment4Distance);
-        return new MotherBrainNeckGeometry(segment0, segment1, segment2, segment3, segment4);
+        var joints = new Position16<RoomPixels>[MotherBrainNeckJointDefinitions.Count];
+        for (int joint = 0; joint < MotherBrainNeckJointDefinitions.LowerCount; joint++)
+            joints[joint] = CalculateLowerSegment(reference, new SnesByteAngle(lower), distances[joint]);
+        for (int joint = MotherBrainNeckJointDefinitions.LowerCount; joint < MotherBrainNeckJointDefinitions.Count; joint++)
+            joints[joint] = joints[MotherBrainNeckJointDefinitions.UpperAnchor] + CalculatePolarOffset(new SnesByteAngle(upper), distances[joint]);
+        return [.. joints];
     }
 
     /// <summary>Places a lower-neck joint from the body-relative reference point and its signed polar displacement.</summary>

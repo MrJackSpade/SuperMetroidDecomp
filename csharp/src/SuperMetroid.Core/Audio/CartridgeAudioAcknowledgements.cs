@@ -4,35 +4,23 @@ namespace SuperMetroid.Core.Audio;
 /// What the sound driver last echoed back on each of the four APU ports: the request each port's
 /// library acted on, which the sound dispatcher compares with the request it is waiting on.
 /// </summary>
-/// <param name="Port0">The music port's echo, 0 through 255; gameplay never reads it.</param>
-/// <param name="Port1">Library one's echoed request, 0 through 255.</param>
-/// <param name="Port2">Library two's echoed request, 0 through 255.</param>
-/// <param name="Port3">Library three's echoed request, 0 through 255.</param>
-public readonly record struct CartridgeAudioAcknowledgements(
-    int Port0,
-    int Port1,
-    int Port2,
-    int Port3)
+public readonly record struct CartridgeAudioAcknowledgements
 {
-    /// <summary>The music port's echo, validated to the range a port carries.</summary>
-    public int Port0 { get; } = Ensure.BetweenInclusive(0, byte.MaxValue, Port0);
+    /// <summary>Each port's echo, 0 through 255, indexed in register order.</summary>
+    private readonly ApuPortEchoes echoes;
 
-    /// <summary>Library one's echoed request, validated to the range a port carries.</summary>
-    public int Port1 { get; } = Ensure.BetweenInclusive(0, byte.MaxValue, Port1);
-
-    /// <summary>Library two's echoed request, validated to the range a port carries.</summary>
-    public int Port2 { get; } = Ensure.BetweenInclusive(0, byte.MaxValue, Port2);
-
-    /// <summary>Library three's echoed request, validated to the range a port carries.</summary>
-    public int Port3 { get; } = Ensure.BetweenInclusive(0, byte.MaxValue, Port3);
-
-    /// <summary>Gets the echo on APU output port zero through three.</summary>
-    public int this[ApuPort port] => port switch
+    /// <summary>Records each port's echo, validated to the range a port carries.</summary>
+    /// <param name="music">The music port's echo; gameplay never reads it.</param>
+    /// <param name="library1">Library one's echoed request.</param>
+    /// <param name="library2">Library two's echoed request.</param>
+    /// <param name="library3">Library three's echoed request.</param>
+    public CartridgeAudioAcknowledgements(int music, int library1, int library2, int library3)
     {
-        ApuPort.Music => Port0,
-        ApuPort.SoundLibrary1 => Port1,
-        ApuPort.SoundLibrary2 => Port2,
-        ApuPort.SoundLibrary3 => Port3,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ApuPort)} {(int)port}."),
-    };
+        int[] values = [music, library1, library2, library3];
+        for (int port = 0; port < values.Length; port++)
+            echoes[port] = Ensure.BetweenInclusive(0, byte.MaxValue, values[port]);
+    }
+
+    /// <summary>Gets the echo on APU output port <paramref name="port"/>.</summary>
+    public int this[ApuPort port] => echoes[ApuPorts.RegisterIndex(port)];
 }

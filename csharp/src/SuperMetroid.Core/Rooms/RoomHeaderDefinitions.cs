@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Rooms;
 /// scrolling thresholds and CRE flags, with the unsigned byte/word
 /// interpretation of the native eleven-byte header. Each room is named by the pinned
 /// disassembly's label for its header; the developer area-seven room is not compiled.</remarks>
+[NumberedIdentities("Rooms such as Metroids1-4 and TourianEscape1-4 are distinct rooms with their own headers; the number is part of each room's name, not a position callers index.")]
 public static class RoomHeaderDefinitions
 {
     /// <summary>Retail rooms in the cartridge's header order.</summary>

@@ -49,15 +49,7 @@ internal sealed class SpcAudioClipRenderer
 
     /// <summary>Queues a sound-effect request on <paramref name="library"/>'s port for the next frame; the port keeps the value until rewritten.</summary>
     internal void WriteSoundEffectPort(SoundEffectLibrary library, int command) =>
-        pending.Add(CartridgeAudioCommand.WritePort(
-            library switch
-            {
-                SoundEffectLibrary.Library1 => ApuPort.SoundLibrary1,
-                SoundEffectLibrary.Library2 => ApuPort.SoundLibrary2,
-                SoundEffectLibrary.Library3 => ApuPort.SoundLibrary3,
-                _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound library."),
-            },
-            command));
+        pending.Add(CartridgeAudioCommand.WritePort(ApuPorts.ForLibrary(library), command));
 
     /// <summary>Advances one frame and writes its native interleaved stereo PCM to <paramref name="native"/>.</summary>
     /// <exception cref="ArgumentException"><paramref name="native"/> is shorter than <see cref="NativeSamplesPerFrame"/>.</exception>

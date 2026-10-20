@@ -299,6 +299,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         AlignPowampBalloonY(body, balloon);
     }
 
+    /// <summary>The program a fatally hit sinking balloon restarts, indexed by the poses it had shown less two.</summary>
+    private static readonly PowampProgram[] PowampDeathBalloonPrograms = [PowampProgram.BalloonInflate1, PowampProgram.BalloonInflate0];
+
     /// <summary>Selects a balloon inflation frame for fatal damage and primes the 32-frame death delay.</summary>
     private static void BeginPowampDeathSequence(
         RoomEnemySlot body,
@@ -310,13 +313,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The native pointer table is indexed by the byte offset left in Y, twice the poses shown less one. Two
             // shown poses select inflate stage one and three restart stage zero; one pose (entry zero) is skipped.
-            PowampProgram replacement = shownPoses switch
-            {
-                2 => PowampProgram.BalloonInflate1,
-                3 => PowampProgram.BalloonInflate0,
-                _ => throw new InvalidDataException(
-                    $"Powamp death saw a sinking balloon with {shownPoses} poses shown."),
-            };
+            PowampProgram replacement = shownPoses - 2 is int entry && (uint)entry < (uint)PowampDeathBalloonPrograms.Length
+                ? PowampDeathBalloonPrograms[entry]
+                : throw new InvalidDataException($"Powamp death saw a sinking balloon with {shownPoses} poses shown.");
             SetPowampProgram(balloon.Slot, balloon.State, replacement);
         }
 

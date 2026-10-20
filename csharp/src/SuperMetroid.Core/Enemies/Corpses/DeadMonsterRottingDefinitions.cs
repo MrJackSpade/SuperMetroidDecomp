@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>Bounded, pinned bank-$A9 corpse-copy geometry and live-WRAM DMA descriptors.</summary>
@@ -77,13 +78,13 @@ internal static class DeadMonsterRottingDefinitions
     }
 
     /// <summary>Calculates live-WRAM DMA rows for supported Sidehopper, Zoomer, Ripper, and Skree variant tables.</summary>
-    internal static TransferRows ForTransferTable(ushort table)
+    internal static ImmutableArray<DeadMonsterVramTransferDefinition> ForTransferTable(ushort table)
     {
         int offset = table - SidehopperTransfers;
         if (offset >= 0 && offset < 84 && offset % 42 == 0)
         {
             int variant = offset / 42;
-            return new(5, 0xa0, (ushort)(0x2040 + variant * 0x2e0),
+            return Rows(5, 0xa0, (ushort)(0x2040 + variant * 0x2e0),
                 (ushort)(0x7000 + variant * 0x90), variant == 0 ? (ushort)0x60 : (ushort)0x40,
                 variant == 0 ? (ushort)0x20 : (ushort)0);
         }
@@ -91,13 +92,13 @@ internal static class DeadMonsterRottingDefinitions
         if (offset >= 0 && offset < 54 && offset % 18 == 0)
         {
             int variant = offset / 18;
-            return new(2, 0x60, (ushort)(0x2940 + variant * 0xc0), (ushort)(0x7530 + variant * 0x30));
+            return Rows(2, 0x60, (ushort)(0x2940 + variant * 0xc0), (ushort)(0x7530 + variant * 0x30));
         }
         offset = table - RipperTransfers;
         if (offset >= 0 && offset < 36 && offset % 18 == 0)
         {
             int variant = offset / 18;
-            return new(2, 0x60, (ushort)(0x2b80 + variant * 0xc0), (ushort)(0x7500 + variant * 0xc0));
+            return Rows(2, 0x60, (ushort)(0x2b80 + variant * 0xc0), (ushort)(0x7500 + variant * 0xc0));
         }
         offset = table - SkreeTransfers;
         if (offset >= 0 && offset < 102 && offset % 34 == 0)
@@ -105,35 +106,26 @@ internal static class DeadMonsterRottingDefinitions
             int variant = offset / 34;
             // The first corpse begins on the next VRAM tile row; later variants occupy row zero.
             int destination = variant == 0 ? 0x7150 : 0x7000 + variant * 0x70;
-            return new(4, 0x40, (ushort)(0x2640 + variant * 0x100), (ushort)destination);
+            return Rows(4, 0x40, (ushort)(0x2640 + variant * 0x100), (ushort)destination);
         }
         throw new InvalidDataException($"Corpse transfer table $A9:{table:X4} has no compiled definition.");
     }
 
-    /// <summary>Consecutive live-WRAM tile rows placed in32-tile VRAM rows; sidehoppers clip their first row.</summary>
-    internal readonly struct TransferRows(int count, ushort stride, ushort source, ushort destination,
-        ushort firstSize = 0, ushort firstDestinationOffset = 0) : IReadOnlyList<DeadMonsterVramTransferDefinition>
+    /// <summary>
+    /// Consecutive live-WRAM tile rows placed in 32-tile VRAM rows, in native descriptor order; sidehoppers clip their
+    /// first row to <paramref name="firstSize"/> bytes and shift it by <paramref name="firstDestinationOffset"/>.
+    /// </summary>
+    private static ImmutableArray<DeadMonsterVramTransferDefinition> Rows(int count, ushort stride, ushort source, ushort destination,
+        ushort firstSize = 0, ushort firstDestinationOffset = 0)
     {
-        /// <summary>Number of live corpse tile rows uploaded by the selected variant.</summary>
-        public int Count => count;
-        /// <summary>Calculates one WRAM-to-VRAM row, including Sidehopper's clipped first-row adjustment.</summary>
-        public DeadMonsterVramTransferDefinition this[int index]
+        var rows = ImmutableArray.CreateBuilder<DeadMonsterVramTransferDefinition>(count);
+        for (int index = 0; index < count; index++)
         {
-            get
-            {
-                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                return new(index == 0 && firstSize != 0 ? firstSize : stride, 0x7e00,
-                    (ushort)(source + stride * index - (index == 0 ? 0 : firstDestinationOffset * 2)),
-                    (ushort)(destination + 0x100 * index + (index == 0 ? firstDestinationOffset : 0)));
-            }
+            rows.Add(new(index == 0 && firstSize != 0 ? firstSize : stride, 0x7e00,
+                (ushort)(source + stride * index - (index == 0 ? 0 : firstDestinationOffset * 2)),
+                (ushort)(destination + 0x100 * index + (index == 0 ? firstDestinationOffset : 0))));
         }
-        /// <summary>Visits calculated row transfers in native descriptor order.</summary>
-        public IEnumerator<DeadMonsterVramTransferDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same native row order to non-generic consumers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        return rows.MoveToImmutable();
     }
 
     /// <summary>$A9:D67C: eight words per sand strip, second strip displaced by$120 staging bytes.</summary>

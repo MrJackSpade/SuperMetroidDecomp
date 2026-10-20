@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Programs;
@@ -14,16 +16,8 @@ public sealed class RoomPlmKraidVisualCatalog
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmKraidVisualCatalog), content =>
     {
-        Append(KraidRoomDraw.CrumbleFirst, crumbleFirst);
-        Append(KraidRoomDraw.CrumbleSecond, crumbleSecond);
-        Append(KraidRoomDraw.CrumbleThird, crumbleThird);
-        Append(KraidRoomDraw.CeilingBackground1, ceilingBackground1);
-        Append(KraidRoomDraw.CeilingBackground2, ceilingBackground2);
-        Append(KraidRoomDraw.CeilingBackground3, ceilingBackground3);
-        Append(KraidRoomDraw.SpikeFirst, spikeFirst);
-        Append(KraidRoomDraw.SpikeSecond, spikeSecond);
-        Append(KraidRoomDraw.ClearCeiling, clearCeiling);
-        Append(KraidRoomDraw.ClearSpikes, clearSpikes);
+        foreach (KraidRoomDraw draw in ContentOrder)
+            Append(draw, frames[draw]);
 
         void Append(KraidRoomDraw draw, ushort[] words)
         {
@@ -33,26 +27,20 @@ public sealed class RoomPlmKraidVisualCatalog
         }
     });
 
-    /// <summary>First visual block exposed as Kraid's ceiling begins to crumble.</summary>
-    private ushort[] crumbleFirst = [];
-    /// <summary>Second ceiling-crumble visual stage.</summary>
-    private ushort[] crumbleSecond = [];
-    /// <summary>Final ceiling-crumble visual stage.</summary>
-    private ushort[] crumbleThird = [];
-    /// <summary>First ceiling background draw during Kraid's room sequence.</summary>
-    private ushort[] ceilingBackground1 = [];
-    /// <summary>Second ceiling background draw during Kraid's room sequence.</summary>
-    private ushort[] ceilingBackground2 = [];
-    /// <summary>Third ceiling background draw during Kraid's room sequence.</summary>
-    private ushort[] ceilingBackground3 = [];
-    /// <summary>First floor-spike appearance frame.</summary>
-    private ushort[] spikeFirst = [];
-    /// <summary>Second floor-spike appearance frame.</summary>
-    private ushort[] spikeSecond = [];
-    /// <summary>Room-clearing layout that replaces the ceiling blocks after Kraid is defeated.</summary>
-    private ushort[] clearCeiling = [];
-    /// <summary>Room-clearing layout that replaces the floor spikes after Kraid is defeated.</summary>
-    private ushort[] clearSpikes = [];
+    /// <summary>
+    /// The ten draw roles in content-identity order: the three ceiling-crumble stages, the three ceiling background draws
+    /// of Kraid's room sequence, the two floor-spike appearances, and the two room-clearing layouts that replace the
+    /// ceiling blocks and the floor spikes after Kraid is defeated.
+    /// </summary>
+    private static readonly KraidRoomDraw[] ContentOrder =
+    [
+        KraidRoomDraw.CrumbleFirst, KraidRoomDraw.CrumbleSecond, KraidRoomDraw.CrumbleThird,
+        KraidRoomDraw.CeilingBackground1, KraidRoomDraw.CeilingBackground2, KraidRoomDraw.CeilingBackground3,
+        KraidRoomDraw.SpikeFirst, KraidRoomDraw.SpikeSecond, KraidRoomDraw.ClearCeiling, KraidRoomDraw.ClearSpikes,
+    ];
+
+    /// <summary>Each draw role's installed block words; empty until its entry is copied.</summary>
+    private readonly Dictionary<KraidRoomDraw, ushort[]> frames = ContentOrder.ToDictionary(draw => draw, _ => Array.Empty<ushort>());
 
     /// <summary>Selects one of the ten named $84:9367..93BF Kraid draw roles.</summary>
     /// <remarks>Installed block values stay editable. The fixed pointer-to-role mapping
@@ -60,20 +48,10 @@ public sealed class RoomPlmKraidVisualCatalog
     private ref ushort[] Frame(ushort pointer)
     {
         KraidRoomDraw draw = ClosedNativeWords.Decode<KraidRoomDraw>(pointer, "Kraid room visual draw");
-        switch (draw)
-        {
-            case KraidRoomDraw.CrumbleFirst: return ref crumbleFirst;
-            case KraidRoomDraw.CrumbleSecond: return ref crumbleSecond;
-            case KraidRoomDraw.CrumbleThird: return ref crumbleThird;
-            case KraidRoomDraw.CeilingBackground1: return ref ceilingBackground1;
-            case KraidRoomDraw.CeilingBackground2: return ref ceilingBackground2;
-            case KraidRoomDraw.CeilingBackground3: return ref ceilingBackground3;
-            case KraidRoomDraw.SpikeFirst: return ref spikeFirst;
-            case KraidRoomDraw.SpikeSecond: return ref spikeSecond;
-            case KraidRoomDraw.ClearCeiling: return ref clearCeiling;
-            case KraidRoomDraw.ClearSpikes: return ref clearSpikes;
-            default: throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {pointer:X4}.");
-        }
+        ref ushort[] frame = ref CollectionsMarshal.GetValueRefOrNullRef(frames, draw);
+        if (Unsafe.IsNullRef(ref frame))
+            throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {pointer:X4}.");
+        return ref frame;
     }
 
     /// <summary>Validates and copies all ten Kraid ceiling and spike layouts without changing collision words, crumble timing, or movement callbacks.</summary>

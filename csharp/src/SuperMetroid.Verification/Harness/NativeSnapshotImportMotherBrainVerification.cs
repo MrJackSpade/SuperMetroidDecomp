@@ -56,18 +56,12 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.RainbowPaletteCursor = W(MotherBrainMemory.RainbowPaletteIndex);
         state.DrawNeck = state.BrainFunction == MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn;
-        state.NeckSegment0Distance = W(MotherBrainMemory.NeckSegments + 4);
-        state.NeckSegment1Distance = W(MotherBrainMemory.NeckSegments + 10);
-        state.NeckSegment2Distance = W(MotherBrainMemory.NeckSegments + 16);
-        state.NeckSegment3Distance = W(MotherBrainMemory.NeckSegments + 22);
-        state.NeckSegment4Distance = W(MotherBrainMemory.NeckSegments + 28);
-        Position16<RoomPixels> Segment(int index) => new(
-            W(MotherBrainMemory.NeckSegments + index * 6), W(MotherBrainMemory.NeckSegments + index * 6 + 2));
-        state.NeckSegment0 = Segment(0);
-        state.NeckSegment1 = Segment(1);
-        state.NeckSegment2 = Segment(2);
-        state.NeckSegment3 = Segment(3);
-        state.NeckSegment4 = Segment(4);
+        for (int joint = 0; joint < MotherBrainNeckJointDefinitions.Count; joint++)
+        {
+            int record = MotherBrainMemory.NeckSegments + joint * 6;
+            state.NeckJoints[joint] = new(W(record), W(record + 2));
+            state.NeckJointDistances[joint] = W(record + 4);
+        }
         state.LowerNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
         state.UpperNeckAngle = SnesAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
         state.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);

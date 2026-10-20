@@ -106,6 +106,13 @@ internal static class CeresDestructionActorDefinitions
         new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.ZebesTitle,
             new(128, 186), 0, 0, false, 0, null, false);
 
+    /// <summary>The four star sheets' programs, indexed by row-major quadrant.</summary>
+    private static readonly CinematicSpriteProgram[] ZebesStarSheets =
+    [
+        CinematicSpriteProgram.ZebesStarSheet0, CinematicSpriteProgram.ZebesStarSheet1,
+        CinematicSpriteProgram.ZebesStarSheet2, CinematicSpriteProgram.ZebesStarSheet3,
+    ];
+
     /// <summary>Constructs a star-sheet definition for an already validated row-major quadrant 0..3.</summary>
     private static CeresDestructionActorDefinition ZebesStarSheet(int quadrant)
     {
@@ -113,14 +120,7 @@ internal static class CeresDestructionActorDefinitions
         CinematicSpritePreInstruction wait = completesScene ? CinematicSpritePreInstruction.ZebesStarsCompletionWait : CinematicSpritePreInstruction.ZebesStarsWait;
         return new(
 wait,
-            quadrant switch
-            {
-                0 => CinematicSpriteProgram.ZebesStarSheet0,
-                1 => CinematicSpriteProgram.ZebesStarSheet1,
-                2 => CinematicSpriteProgram.ZebesStarSheet2,
-                3 => CinematicSpriteProgram.ZebesStarSheet3,
-                _ => throw new ArgumentOutOfRangeException(nameof(quadrant)),
-            },
+            ZebesStarSheets[quadrant],
             new((ushort)(48 + 160 * (quadrant & 1)), (ushort)(47 + 160 * (quadrant >> 1))),
             0x0800, 0, false, 32,
             completesScene ? CinematicSpritePreInstruction.ZebesStarsCompletionSlideSceneAway : CinematicSpritePreInstruction.ZebesStarsSlideSceneAway,

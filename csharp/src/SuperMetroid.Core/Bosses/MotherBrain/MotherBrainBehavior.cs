@@ -202,8 +202,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
         head.PaletteIndex = EnemyPaletteBits.Palette1;
         state.Head = head;
-        state.NeckPalette = SnesObjPalettes.Index1;
-        state.BrainPalette = SnesObjPalettes.Index1;
+        state.NeckPalette = SnesObjPalettes.Palette(1);
+        state.BrainPalette = SnesObjPalettes.Palette(1);
         SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
     }
 
@@ -419,7 +419,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     samus ?? throw new InvalidOperationException(
                         "Mother Brain's articulated neck requires the live Samus actor."));
-                head.Position = head.Position.WithWhole(new(state.NeckSegment4.X, unchecked((ushort)(state.NeckSegment4.Y - 21))));
+                Position16<RoomPixels> brainAnchor = state.NeckJoints[MotherBrainNeckJointDefinitions.BrainAnchor];
+                head.Position = head.Position.WithWhole(new(brainAnchor.X, unchecked((ushort)(brainAnchor.Y - 21))));
                 state.DrawBrain = true;
                 state.DrawNeck = true;
                 return;
@@ -476,14 +477,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // last. Equal-priority overlap therefore follows the same drawing precedence.
         int shakeIndex = (head.FlashTimer.RawValue & 6) >> 1;
         Offset16<RoomPixels> neckShake = MotherBrainShakeOffsets[shakeIndex];
-        Position16<RoomPixels>[] segments =
-        [
-            state.NeckSegment0,
-            state.NeckSegment1,
-            state.NeckSegment2,
-            state.NeckSegment3,
-            state.NeckSegment4,
-        ];
+        Position16<RoomPixels>[] segments = state.NeckJoints;
         for (int index = segments.Length - 1; index >= 0; index--)
         {
             Position16<RoomPixels> segment = segments[index];
@@ -562,12 +556,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             state.UpperNeckMovementIndex = upperIndex;
         }
 
-        MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(state.Body.Position.Whole, state.LowerNeckAngle, state.UpperNeckAngle, new MotherBrainNeckSegmentDistances { Segment0Distance = state.NeckSegment0Distance, Segment1Distance = state.NeckSegment1Distance, Segment2Distance = state.NeckSegment2Distance, Segment3Distance = state.NeckSegment3Distance, Segment4Distance = state.NeckSegment4Distance });
-        state.NeckSegment0 = geometry.Segment0;
-        state.NeckSegment1 = geometry.Segment1;
-        state.NeckSegment2 = geometry.Segment2;
-        state.NeckSegment3 = geometry.Segment3;
-        state.NeckSegment4 = geometry.Segment4;
+        MotherBrainNeckKinematics.CalculateGeometry(state.Body.Position.Whole, state.LowerNeckAngle, state.UpperNeckAngle, state.NeckJointDistances)
+            .CopyTo(state.NeckJoints);
     }
 
     /// <summary>Ports <c>SetMotherBrainHeadInstList</c> ($A9:C447): restarts the brain on <paramref name="program"/>.</summary>
@@ -1312,8 +1302,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Native tests only middle joints one, two, and three. Joint zero is buried in
             // the body and joint four is already covered by the separate brain rectangles.
-            Position16<RoomPixels>[] collisionSegments =
-                [state.NeckSegment1, state.NeckSegment2, state.NeckSegment3];
+            Position16<RoomPixels>[] collisionSegments = state.NeckJoints[MotherBrainNeckJointDefinitions.CollisionJoints];
             foreach (Position16<RoomPixels> segment in collisionSegments)
             {
                 if (ResolveMotherBrainSamusCollisionPart(
@@ -2413,11 +2402,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // `$A9:903F` is part of the main-tube landing path, not phase-two setup. These
         // lengths and starting angles must exist before `$87A2` gets installed several
         // frames later or the first visible neck frame collapses every joint onto zero.
-        state.NeckSegment0Distance = 2;
-        state.NeckSegment1Distance = 10;
-        state.NeckSegment2Distance = 20;
-        state.NeckSegment3Distance = 10;
-        state.NeckSegment4Distance = 20;
+        MotherBrainNeckJointDefinitions.InitialDistances.CopyTo(state.NeckJointDistances);
         state.LowerNeckAngle = SnesAngle.FromRaw(18432);
         state.UpperNeckAngle = SnesAngle.FromRaw(20480);
         state.NeckAngleDelta = 256;

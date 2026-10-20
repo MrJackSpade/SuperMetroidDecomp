@@ -59,6 +59,7 @@ internal static class Program
                 (nameof(VerifyPlmSlotAllocationAnalyzer), VerifyPlmSlotAllocationAnalyzer),
                 (nameof(VerifyLooseCommentAnalyzer), VerifyLooseCommentAnalyzer),
                 (nameof(VerifyPragmaWarningDisableAnalyzer), VerifyPragmaWarningDisableAnalyzer),
+                (nameof(VerifyNumberedSequenceAnalyzer), VerifyNumberedSequenceAnalyzer),
                 (nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),
                 (nameof(VerifySpcMemoryAccessAnalyzer), VerifySpcMemoryAccessAnalyzer),
                 (nameof(VerifyParameterListAnalyzer), VerifyParameterListAnalyzer),

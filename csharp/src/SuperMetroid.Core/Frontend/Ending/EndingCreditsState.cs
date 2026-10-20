@@ -918,20 +918,18 @@ internal sealed class EndingCreditsState
     }
 
     /// <summary>The program showing clear-time <paramref name="digit"/>.</summary>
-    private static CinematicSpriteProgram ClearTimeDigitProgram(int digit) => digit switch
-    {
-        0 => CinematicSpriteProgram.ClearTimeDigit0,
-        1 => CinematicSpriteProgram.ClearTimeDigit1,
-        2 => CinematicSpriteProgram.ClearTimeDigit2,
-        3 => CinematicSpriteProgram.ClearTimeDigit3,
-        4 => CinematicSpriteProgram.ClearTimeDigit4,
-        5 => CinematicSpriteProgram.ClearTimeDigit5,
-        6 => CinematicSpriteProgram.ClearTimeDigit6,
-        7 => CinematicSpriteProgram.ClearTimeDigit7,
-        8 => CinematicSpriteProgram.ClearTimeDigit8,
-        9 => CinematicSpriteProgram.ClearTimeDigit9,
-        _ => throw new ArgumentOutOfRangeException(nameof(digit), digit, "A clear-time digit is 0..9."),
-    };
+    private static CinematicSpriteProgram ClearTimeDigitProgram(int digit) => (uint)digit < (uint)ClearTimeDigitPrograms.Length
+        ? ClearTimeDigitPrograms[digit]
+        : throw new ArgumentOutOfRangeException(nameof(digit), digit, "A clear-time digit is 0..9.");
+
+    /// <summary>The programs showing the clear-time digits, indexed by digit.</summary>
+    private static readonly CinematicSpriteProgram[] ClearTimeDigitPrograms =
+    [
+        CinematicSpriteProgram.ClearTimeDigit0, CinematicSpriteProgram.ClearTimeDigit1, CinematicSpriteProgram.ClearTimeDigit2,
+        CinematicSpriteProgram.ClearTimeDigit3, CinematicSpriteProgram.ClearTimeDigit4, CinematicSpriteProgram.ClearTimeDigit5,
+        CinematicSpriteProgram.ClearTimeDigit6, CinematicSpriteProgram.ClearTimeDigit7, CinematicSpriteProgram.ClearTimeDigit8,
+        CinematicSpriteProgram.ClearTimeDigit9,
+    ];
 
     /// <summary>Installs the two-piece Samus reward art selected by clear-time thresholds.</summary>
     private void SpawnEndingRewardActors()

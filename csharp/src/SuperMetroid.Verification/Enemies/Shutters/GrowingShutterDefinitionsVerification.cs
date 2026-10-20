@@ -36,10 +36,8 @@ internal static class GrowingShutterDefinitionsVerification
                     AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), state.GrowthSpeed.WholePixels, "Shutter native whole speed");
                     AssertEqual(Word(0xa2ea58 + speed * 4), state.GrowthSpeed.Fraction, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;
-                    AssertEqual(slot.Position.Y.Whole, state.GrowthLevel0Origin.Y, "Shutter base origin");
-                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 8)), state.GrowthLevel1Origin.Y, "Shutter wrapped origin one");
-                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 16)), state.GrowthLevel2Origin.Y, "Shutter wrapped origin two");
-                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 24)), state.GrowthLevel3Origin.Y, "Shutter wrapped origin three");
+                    for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
+                        AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 8 * level)), state.SectionOrigin(level).Y, $"Shutter wrapped origin {level}");
                     AssertEqual((ushort)0, slot.ExtraProperties.ToNativeWord(), "Shutter consumes initial direction word");
                 }
             }

@@ -47,17 +47,17 @@ internal static class AnimatedTileInstructionCodesVerification
             WreckedShipTreadmillDirection.Rightwards,
             [
                 WreckedShipTreadmillRomData.Frame0Source,
-                WreckedShipTreadmillRomData.Frame1Source,
-                WreckedShipTreadmillRomData.Frame2Source,
-                WreckedShipTreadmillRomData.Frame3Source,
+                WreckedShipTreadmillRomData.FrameSource(1),
+                WreckedShipTreadmillRomData.FrameSource(2),
+                WreckedShipTreadmillRomData.FrameSource(3),
             ]));
         Suite(nameof(VerifyRetailTreadmillStream), () => VerifyRetailTreadmillStream(
             bus,
             WreckedShipTreadmillDirection.Leftwards,
             [
-                WreckedShipTreadmillRomData.Frame3Source,
-                WreckedShipTreadmillRomData.Frame2Source,
-                WreckedShipTreadmillRomData.Frame1Source,
+                WreckedShipTreadmillRomData.FrameSource(3),
+                WreckedShipTreadmillRomData.FrameSource(2),
+                WreckedShipTreadmillRomData.FrameSource(1),
                 WreckedShipTreadmillRomData.Frame0Source,
             ]));
 

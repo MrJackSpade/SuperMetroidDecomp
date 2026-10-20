@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -81,11 +82,11 @@ internal static class KraidFootCollisionDefinitions
 
     /// <summary>Maps an initial or 18-byte extended frame pointer to its two collision components.</summary>
     internal static bool TryGetComponents(ushort pointer,
-        out KraidFootComponentSequence components)
+        out ImmutableArray<KraidFootCollisionComponent> components)
     {
         if (pointer == InitialFrame)
         {
-            components = new(0, 2);
+            components = FrameComponents[0];
             return true;
         }
 
@@ -93,14 +94,20 @@ internal static class KraidFootCollisionDefinitions
         if (distance < 0 || distance % FrameByteCount != 0 ||
             distance / FrameByteCount >= FrameCount)
         {
-            components = default;
+            components = [];
             return false;
         }
 
-        components = new(distance / FrameByteCount, 2);
+        components = FrameComponents[distance / FrameByteCount];
         return true;
     }
 
     /// <summary>The single shared rectangle every foot component collides with.</summary>
-    internal static KraidFootHitboxSequence SharedHitboxes => new(1);
+    internal static ImmutableArray<KraidFootCollisionHitbox> SharedHitboxes { get; } =
+        [new(-6, -6, 6, 6, KraidHitboxTouch.Background, KraidHitboxShot.Inert)];
+
+    /// <summary>Each walk frame's fixed and moving components, both colliding with the shared rectangle.</summary>
+    private static readonly ImmutableArray<KraidFootCollisionComponent>[] FrameComponents =
+        [.. Enumerable.Range(0, FrameCount).Select(frame => ImmutableArray.Create<KraidFootCollisionComponent>(
+            new(new(FirstX(frame), FirstY(frame)), SharedHitboxes), new(new(SecondX(frame), SecondY(frame)), SharedHitboxes)))];
 }

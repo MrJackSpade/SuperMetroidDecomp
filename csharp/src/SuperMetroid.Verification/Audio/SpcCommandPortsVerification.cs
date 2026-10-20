@@ -73,8 +73,9 @@ internal static class SpcCommandPortsVerification
             pcm.AppendData(MemoryMarshal.AsBytes(samples.AsSpan()));
             CartridgeAudioAcknowledgements sessionAcknowledgements = session.Acknowledgements;
             // Port zero is the sequencer's music echo, which gameplay never reads; the recording took it from the driver.
-            acknowledgementBytes.AddRange([checked((byte)session.PlayerForVerification.musicPortToSnes), checked((byte)sessionAcknowledgements.Port1),
-                checked((byte)sessionAcknowledgements.Port2), checked((byte)sessionAcknowledgements.Port3)]);
+            acknowledgementBytes.Add(checked((byte)session.PlayerForVerification.musicPortToSnes));
+            foreach (ApuPort port in ApuPorts.SoundLibraryPorts)
+                acknowledgementBytes.Add(checked((byte)sessionAcknowledgements[port]));
 
             List<AudioEvent> expected = ExpectedEvents(ports, commands, out modeledAcknowledgements);
             AssertSequenceEqual(expected, events, $"frame {frame} events equal the port model's writes, ticks and polls");
@@ -145,13 +146,11 @@ internal static class SpcCommandPortsVerification
             expected.Add(AudioEvent.DriverTick(tick.DspCycleOffset, tick.Ticks, tick.SoundEffectsPolled));
             if (!tick.SoundEffectsPolled)
                 continue;
-            (SoundEffectLibrary Library, SpcSoundEffectPoll Poll)[] polls =
-                [(SoundEffectLibrary.Library1, tick.Library1), (SoundEffectLibrary.Library2, tick.Library2),
-                 (SoundEffectLibrary.Library3, tick.Library3)];
-            foreach ((SoundEffectLibrary library, SpcSoundEffectPoll poll) in polls)
+            for (int library = 0; library < SoundEffectLibraries.Count; library++)
             {
+                SpcSoundEffectPoll poll = tick.LibraryPolls[library];
                 if (poll.Changed && poll.Command != 0)
-                    expected.Add(AudioEvent.StartSoundEffect(new SoundEffectId(library, poll.Command), tick.DspCycleOffset));
+                    expected.Add(AudioEvent.StartSoundEffect(new SoundEffectId(SoundEffectLibraries.FromQueueIndex(library), poll.Command), tick.DspCycleOffset));
             }
         }
         acknowledgements = new CartridgeAudioAcknowledgements(0,

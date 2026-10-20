@@ -12,30 +12,15 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// </summary>
 public sealed class IntroNarrationPresentation
 {
-    /// <summary>First opening text page in typewriter order.</summary>
-    private readonly NarrationPage page1;
-    /// <summary>Second opening text page in typewriter order.</summary>
-    private readonly NarrationPage page2;
-    /// <summary>Third opening text page in typewriter order.</summary>
-    private readonly NarrationPage page3;
-    /// <summary>Fourth opening text page in typewriter order.</summary>
-    private readonly NarrationPage page4;
-    /// <summary>Fifth opening text page in typewriter order.</summary>
-    private readonly NarrationPage page5;
-    /// <summary>Sixth opening text page in typewriter order.</summary>
-    private readonly NarrationPage page6;
+    /// <summary>The six opening text pages, keyed by page in typewriter order.</summary>
+    private readonly Dictionary<IntroNarrationPageId, NarrationPage> pages;
 
     /// <summary>Retains six validated pages and the hash of their original JSON bytes.</summary>
     private IntroNarrationPresentation(
         Dictionary<IntroNarrationPageId, NarrationPage> pages,
         string contentIdentity)
     {
-        page1 = pages[IntroNarrationPageId.Page1];
-        page2 = pages[IntroNarrationPageId.Page2];
-        page3 = pages[IntroNarrationPageId.Page3];
-        page4 = pages[IntroNarrationPageId.Page4];
-        page5 = pages[IntroNarrationPageId.Page5];
-        page6 = pages[IntroNarrationPageId.Page6];
+        this.pages = pages;
         ContentIdentity = contentIdentity;
     }
 
@@ -43,17 +28,10 @@ public sealed class IntroNarrationPresentation
     public string ContentIdentity { get; }
 
     /// <summary>Ordered editable lines for one of the six narration pages.</summary>
-    public IReadOnlyList<IntroNarrationLine> GetLines(IntroNarrationPageId page) => page switch
-    {
-        IntroNarrationPageId.Page1 => page1,
-        IntroNarrationPageId.Page2 => page2,
-        IntroNarrationPageId.Page3 => page3,
-        IntroNarrationPageId.Page4 => page4,
-        IntroNarrationPageId.Page5 => page5,
-        IntroNarrationPageId.Page6 => page6,
-        _ => throw new ArgumentOutOfRangeException(nameof(page), page,
-            "The narration catalog does not contain this page."),
-    };
+    public IReadOnlyList<IntroNarrationLine> GetLines(IntroNarrationPageId page) =>
+        pages.TryGetValue(page, out NarrationPage? lines)
+            ? lines
+            : throw new ArgumentOutOfRangeException(nameof(page), page, "The narration catalog does not contain this page.");
     /// <summary>Compiles a narration page into its ordered typewriter character placements.</summary>
     public IntroNarrationCharacter[] Compile(IntroNarrationPageId page)
     {

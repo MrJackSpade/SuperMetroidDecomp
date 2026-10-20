@@ -2,6 +2,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>Typed view of the pause screen's composed memory image (#630, #1358).</summary>
 [PpuLayoutBoundary("rendering view: pause screen VRAM")]
+[NumberedIdentities("BG1, BG2 and BG3 are the PPU's distinct background layers, each with its own pause-screen role and size: the 64x32 map or equipment page, the 32x32 frame and the 32x64 HUD plane. The number names the hardware layer, not a position.")]
 public readonly struct PauseVram(SnesVram vram)
 {
     /// <summary>The shared map characters.</summary>

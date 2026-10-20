@@ -20,7 +20,7 @@ internal static class LookupFxTilemapSourcesVerification
         for (int index = 0; index < OriginalFxTilemapTypes.Length; index++)
             AssertEqual(OriginalFxTilemapTypes[index], RoomFxLayer3TilemapFormat.Types[index], "Original indexed page identity");
         foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = RoomFxLayer3TilemapFormat.Types[invalid]; },
+            AssertThrows<IndexOutOfRangeException>(() => { _ = RoomFxLayer3TilemapFormat.Types[invalid]; },
                 "Original read-only type list bounds");
     }
 

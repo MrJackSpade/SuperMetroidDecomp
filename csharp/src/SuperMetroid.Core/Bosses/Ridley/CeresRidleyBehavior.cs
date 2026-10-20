@@ -175,8 +175,8 @@ internal sealed class CeresRidleyBehavior
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
             HitCounter = 0,
-            SpritemapPaletteIndex = SnesObjPalettes.Index7,
-            CommonDrawPaletteIndex = SnesObjPalettes.Index7,
+            SpritemapPaletteIndex = SnesObjPalettes.Palette(7),
+            CommonDrawPaletteIndex = SnesObjPalettes.Palette(7),
             MovementAnimationEnabled = false,
             FacingDirection = RidleyFacing.Left,
             IdleTailWhipEnabled = true,
@@ -523,7 +523,7 @@ internal sealed class CeresRidleyBehavior
         state.SpritemapPaletteIndex = slot.FlashTimer.RawValue > 1 &&
             (unchecked((ushort)(enemyMainExecutionCounter + 1)) & 2) != 0
                 ? HurtFlashSpritemapPalette
-                : SnesObjPalettes.Index7;
+                : SnesObjPalettes.Palette(7);
     }
 
     /// <summary>

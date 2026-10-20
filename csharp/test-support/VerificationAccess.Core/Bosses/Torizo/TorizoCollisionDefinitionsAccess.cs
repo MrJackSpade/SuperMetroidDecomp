@@ -47,7 +47,7 @@ internal static class TorizoCollisionDefinitionsAccess
         internal static bool HasFrame(ushort frame) => TorizoCollisionDefinitions.TryGetComponents(frame, out _);
 
         /// <summary>Finds components only after a pointer matches a compiled native frame root.</summary>
-        internal static bool TryGetComponents(ushort frame, out TorizoCollisionComponents components)
+        internal static bool TryGetComponents(ushort frame, out ReadOnlySpan<GoldenTorizoCollisionComponent> components)
         {
             foreach (ushort pointer in TorizoCollisionDefinitions.FramePointers)
             {

@@ -43,10 +43,10 @@ internal static class TreadmillVisualVerification
             var palette = new SnesCgram();
             for (int color = 0; color < 16; color++) palette.SetColor(color, Bgr555.FromWord((ushort)(color * 2)));
             int[] sources = (bits & 4) != 0
-                ? [WreckedShipTreadmillRomData.Frame0Source, WreckedShipTreadmillRomData.Frame1Source,
-                    WreckedShipTreadmillRomData.Frame2Source, WreckedShipTreadmillRomData.Frame3Source]
-                : [WreckedShipTreadmillRomData.Frame3Source, WreckedShipTreadmillRomData.Frame2Source,
-                    WreckedShipTreadmillRomData.Frame1Source, WreckedShipTreadmillRomData.Frame0Source];
+                ? [WreckedShipTreadmillRomData.Frame0Source, WreckedShipTreadmillRomData.FrameSource(1),
+                    WreckedShipTreadmillRomData.FrameSource(2), WreckedShipTreadmillRomData.FrameSource(3)]
+                : [WreckedShipTreadmillRomData.FrameSource(3), WreckedShipTreadmillRomData.FrameSource(2),
+                    WreckedShipTreadmillRomData.FrameSource(1), WreckedShipTreadmillRomData.Frame0Source];
             for (int frame = 0; frame < 12; frame++)
             {
                 runtime.StepFrame(0);

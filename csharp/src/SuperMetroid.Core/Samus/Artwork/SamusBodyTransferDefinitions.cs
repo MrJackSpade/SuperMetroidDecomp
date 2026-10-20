@@ -9,75 +9,24 @@ internal static class SamusBodyTransferDefinitions
     /// <summary>Number of 8-pixel tiles across one large 16-pixel Samus sprite part.</summary>
     private const int LargeObjTilesAcross = 16 / 8;
 
-    /// <summary>$9E:8000, SamusTiles_Top_Set0_Entry0, packed general upper artwork.</summary>
-    private const int Top0 = 0x9e8000;
-    /// <summary>$9E:A660, SamusTiles_Top_Set1_Entry0, packed general upper artwork.</summary>
-    private const int Top1 = 0x9ea660;
-    /// <summary>$9E:C820, SamusTiles_Top_Set2_Entry0, packed general upper artwork.</summary>
-    private const int Top2 = 0x9ec820;
-    /// <summary>$9C:9B00, SamusTiles_Top_Set3_Entry0, clockwise upright grappling artwork.</summary>
-    private const int Top3 = 0x9c9b00;
-    /// <summary>$9C:B2C0, SamusTiles_Top_Set4_Entry0, anticlockwise upright grappling artwork.</summary>
-    private const int Top4 = 0x9cb2c0;
-    /// <summary>$9D:C980, SamusTiles_Top_Set5_Entry0, clockwise inverted grappling artwork.</summary>
-    private const int Top5 = 0x9dc980;
-    /// <summary>$9D:E140, SamusTiles_Top_Set6_Entry0, first inverted anticlockwise allocation.</summary>
-    private const int Top6 = 0x9de140;
     /// <summary>$9F:ED80, SamusTiles_Top_Set6_EntryC, relocated continuation of the same artwork group.</summary>
     private const int Top6Continuation = 0x9fed80;
     /// <summary>$92:D039 selects upper set6 entryC as the first record in the relocated source allocation.</summary>
     private const int Top6ContinuationPosition = 12;
-    /// <summary>$9C:D2C0, SamusTiles_Top_Set7_Entry0, standing/shinespark artwork.</summary>
-    private const int Top7 = 0x9cd2c0;
-    /// <summary>$9B:E000, SamusTiles_Top_Set8_Entry0, appearance electricity.</summary>
-    private const int Top8 = 0x9be000;
-    /// <summary>$9B:EE20, SamusTiles_Top_Set9_Entry0, running horizontal cannon artwork.</summary>
-    private const int Top9 = 0x9bee20;
-    /// <summary>$9C:8000, SamusTiles_Top_SetA_Entry0, morph/spin/screw artwork.</summary>
-    private const int TopA = 0x9c8000;
-    /// <summary>$9C:9620, SamusTiles_Top_SetB_Entry0, morph transitions and bounce artwork.</summary>
-    private const int TopB = 0x9c9620;
-    /// <summary>$9F:DB80, SamusTiles_Top_SetC_Entry0, vertical shinespark/crystal-flash artwork.</summary>
-    private const int TopC = 0x9fdb80;
-    /// <summary>$9D:8000, SamusTiles_Bottom_Set0_Entry0, general lower artwork.</summary>
-    private const int Bottom0 = 0x9d8000;
-    /// <summary>$9D:A7E0, SamusTiles_Bottom_Set1_Entry0, general lower artwork.</summary>
-    private const int Bottom1 = 0x9da7e0;
-    /// <summary>$9F:8000, SamusTiles_Bottom_Set2_Entry0, clockwise upright grappling artwork.</summary>
-    private const int Bottom2 = 0x9f8000;
-    /// <summary>$9E:E9C0, UNUSED_SamusTiles_Bottom_Set3_Entry0, preserved cable glyph allocation.</summary>
-    private const int Bottom3 = 0x9ee9c0;
-    /// <summary>$9F:9780, SamusTiles_Bottom_Set4_Entry0, clockwise inverted grappling artwork.</summary>
-    private const int Bottom4 = 0x9f9780;
-    /// <summary>$9F:ADC0, SamusTiles_Bottom_Set5_Entry0, anticlockwise upright grappling artwork.</summary>
-    private const int Bottom5 = 0x9fadc0;
-    /// <summary>$9F:C540, SamusTiles_Bottom_Set6_Entry0, anticlockwise inverted grappling artwork.</summary>
-    private const int Bottom6 = 0x9fc540;
-    /// <summary>$9F:E680, SamusTiles_Bottom_Set7_Entry0, crystal-flash lower artwork.</summary>
-    private const int Bottom7 = 0x9fe680;
-    /// <summary>$9B:EA00, SamusTiles_Bottom_Set8_Entry0, forward-facing lower artwork.</summary>
-    private const int Bottom8 = 0x9bea00;
-    /// <summary>$9C:EA80, SamusTiles_Bottom_Set9_Entry0, space-jump/screw rotational body artwork.</summary>
-    private const int Bottom9 = 0x9cea80;
-    /// <summary>$9F:EB00, SamusTiles_Bottom_SetA_Entry0, general lower artwork.</summary>
-    private const int BottomA = 0x9feb00;
+
+    /// <summary>Each upper-body set's first tile allocation, indexed by set. 0: $9E:8000 packed general upper artwork; 1: $9E:A660 packed general upper artwork; 2: $9E:C820 packed general upper artwork; 3: $9C:9B00 clockwise upright grappling artwork; 4: $9C:B2C0 anticlockwise upright grappling artwork; 5: $9D:C980 clockwise inverted grappling artwork; 6: $9D:E140 first inverted anticlockwise allocation; 7: $9C:D2C0 standing/shinespark artwork; 8: $9B:E000 appearance electricity; 9: $9B:EE20 running horizontal cannon artwork; 10: $9C:8000 morph/spin/screw artwork; 11: $9C:9620 morph transitions and bounce artwork; 12: $9F:DB80 vertical shinespark/crystal-flash artwork.</summary>
+    private static readonly SnesAddress[] TopSources =
+        [SnesAddress.FromBusAddress(0x9e8000), SnesAddress.FromBusAddress(0x9ea660), SnesAddress.FromBusAddress(0x9ec820), SnesAddress.FromBusAddress(0x9c9b00), SnesAddress.FromBusAddress(0x9cb2c0), SnesAddress.FromBusAddress(0x9dc980), SnesAddress.FromBusAddress(0x9de140), SnesAddress.FromBusAddress(0x9cd2c0), SnesAddress.FromBusAddress(0x9be000), SnesAddress.FromBusAddress(0x9bee20), SnesAddress.FromBusAddress(0x9c8000), SnesAddress.FromBusAddress(0x9c9620), SnesAddress.FromBusAddress(0x9fdb80)];
+
+    /// <summary>Each lower-body set's first tile allocation, indexed by set. 0: $9D:8000 general lower artwork; 1: $9D:A7E0 general lower artwork; 2: $9F:8000 clockwise upright grappling artwork; 3: $9E:E9C0 preserved cable glyph allocation; 4: $9F:9780 clockwise inverted grappling artwork; 5: $9F:ADC0 anticlockwise upright grappling artwork; 6: $9F:C540 anticlockwise inverted grappling artwork; 7: $9F:E680 crystal-flash lower artwork; 8: $9B:EA00 forward-facing lower artwork; 9: $9C:EA80 space-jump/screw rotational body artwork; 10: $9F:EB00 general lower artwork.</summary>
+    private static readonly SnesAddress[] BottomSources =
+        [SnesAddress.FromBusAddress(0x9d8000), SnesAddress.FromBusAddress(0x9da7e0), SnesAddress.FromBusAddress(0x9f8000), SnesAddress.FromBusAddress(0x9ee9c0), SnesAddress.FromBusAddress(0x9f9780), SnesAddress.FromBusAddress(0x9fadc0), SnesAddress.FromBusAddress(0x9fc540), SnesAddress.FromBusAddress(0x9fe680), SnesAddress.FromBusAddress(0x9bea00), SnesAddress.FromBusAddress(0x9cea80), SnesAddress.FromBusAddress(0x9feb00)];
 
     /// <summary>Locates a body tile allocation by summing earlier payload lengths, including set six's relocated continuation.</summary>
     internal static int SourceAddress(SamusBodyArtworkCatalog body, bool upper, int set, int position)
     {
-        int start = (upper, set) switch
-        {
-            (true, 0) => Top0, (true, 1) => Top1, (true, 2) => Top2,
-            (true, 3) => Top3, (true, 4) => Top4, (true, 5) => Top5,
-            (true, 6) => Top6, (true, 7) => Top7, (true, 8) => Top8,
-            (true, 9) => Top9, (true, 10) => TopA, (true, 11) => TopB,
-            (true, 12) => TopC,
-            (false, 0) => Bottom0, (false, 1) => Bottom1, (false, 2) => Bottom2,
-            (false, 3) => Bottom3, (false, 4) => Bottom4, (false, 5) => Bottom5,
-            (false, 6) => Bottom6, (false, 7) => Bottom7, (false, 8) => Bottom8,
-            (false, 9) => Bottom9, (false, 10) => BottomA,
-            _ => throw new ArgumentOutOfRangeException(nameof(set)),
-        };
+        SnesAddress[] sources = upper ? TopSources : BottomSources;
+        int start = (uint)set < (uint)sources.Length ? sources[set].Value : throw new ArgumentOutOfRangeException(nameof(set));
         int first = 0;
         if (upper && set == 6 && position >= Top6ContinuationPosition)
         {

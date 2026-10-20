@@ -336,15 +336,15 @@ public static class EndingCreditsRomData
     public static class Sprites
     {
         /// <summary>OBJ palette two used by the operation-success text actors ($8B:F037 native palette word $0400).</summary>
-        public static readonly SnesObjAttributeWord TextPalette = SnesObjPalettes.Index2;
+        public static readonly SnesObjAttributeWord TextPalette = SnesObjPalettes.Palette(2);
         /// <summary>OBJ palette one used by the clear-time label, separate from digit actors' zero palette override.</summary>
-        public static readonly SnesObjAttributeWord TimeLabelPalette = SnesObjPalettes.Index1;
+        public static readonly SnesObjAttributeWord TimeLabelPalette = SnesObjPalettes.Palette(1);
         /// <summary>OBJ palette five used by atmospheric clouds, explosion overlays, and suitless reward actors.</summary>
-        public static readonly SnesObjAttributeWord ScenePalette = SnesObjPalettes.Index5;
+        public static readonly SnesObjAttributeWord ScenePalette = SnesObjPalettes.Palette(5);
         /// <summary>OBJ palette six used by explosion afterglow and armored Samus reward actors.</summary>
-        public static readonly SnesObjAttributeWord AlternatePalette = SnesObjPalettes.Index6;
+        public static readonly SnesObjAttributeWord AlternatePalette = SnesObjPalettes.Palette(6);
         /// <summary>OBJ palette seven used by the exploding planet, glow, and star actors.</summary>
-        public static readonly SnesObjAttributeWord PlanetPalette = SnesObjPalettes.Index7;
+        public static readonly SnesObjAttributeWord PlanetPalette = SnesObjPalettes.Palette(7);
         /// <summary>$8B:EEEB / F0F9, yellow-cloud right actor: origin (320,192) pixels, OBJ palette five, instruction list $8B:ED0D.</summary>
         internal static readonly EndingSpriteDefinition EscapeACloudRightTop =
             new(new(0x0140, 0x00c0), ScenePalette, CinematicSpriteProgram.EndingCloud4);

@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <remarks>Each entry holds a door's destination room, orientation, PLM block, destination screen, Samus distance
 /// and setup routine. Each door is named by the pinned disassembly's label for its record. The elevator pseudo-doors
 /// are door-list entries (<see cref="RoomDoorListDefinitions"/>), not doors.</remarks>
+[NumberedIdentities("Each numbered door is one door of its room, named by its place in that room's door list; every door has its own destination and is used by name, never iterated or indexed.")]
 public static class DoorDefinitions
 {
     /// <summary>Retail doors in the cartridge's record order.</summary>

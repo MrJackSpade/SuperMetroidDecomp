@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -28,13 +30,13 @@ internal static class MotherBrainNeckSineVerification
 
             ushort lowerAngle = SnesAngle.FromTableIndex(unchecked((byte)angle)).RawValue;
             ushort upperAngle = SnesAngle.FromTableIndex(unchecked((byte)(255 - angle))).RawValue;
-            MotherBrainNeckGeometry expectedGeometry = ReferenceMotherBrainNeckGeometry(
+            Position16<RoomPixels>[] expectedGeometry = ReferenceMotherBrainNeckGeometry(
                 rom,
                 body: new(0x0038, 0x00b6),
                 lowerAngle,
                 upperAngle);
-            MotherBrainNeckGeometry actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(body: new(0x0038, 0x00b6), SnesAngle.FromRaw(lowerAngle), SnesAngle.FromRaw(upperAngle), new MotherBrainNeckSegmentDistances());
-            AssertEqual(expectedGeometry, actualGeometry,
+            ImmutableArray<Position16<RoomPixels>> actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(body: new(0x0038, 0x00b6), SnesAngle.FromRaw(lowerAngle), SnesAngle.FromRaw(upperAngle), MotherBrainNeckJointDefinitions.InitialDistances);
+            AssertSequenceEqual(expectedGeometry, actualGeometry,
                 $"Mother Brain complete neck geometry lower angle {angle:X2}");
         }
 
@@ -43,7 +45,7 @@ internal static class MotherBrainNeckSineVerification
     }
 
     /// <summary>Builds five neck joints using native body offsets and ROM-backed signed sine products.</summary>
-    private static MotherBrainNeckGeometry ReferenceMotherBrainNeckGeometry(
+    private static Position16<RoomPixels>[] ReferenceMotherBrainNeckGeometry(
         SuperMetroidAddressSpace rom,
         Position16<RoomPixels> body,
         ushort lowerAngle,
@@ -75,12 +77,7 @@ internal static class MotherBrainNeckSineVerification
                     unchecked((byte)(upper + 0x40)),
                     distance))));
 
-        return new(
-            segment0,
-            segment1,
-            segment2,
-            Upper(10),
-            Upper(20));
+        return [segment0, segment1, segment2, Upper(10), Upper(20)];
     }
 
     /// <summary>Reads the native signed sine word and applies SNES 8.8 multiplication for the reference component.</summary>

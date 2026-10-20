@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Fixed hidden-wall rumble schedule from <c>$A4:98CA-$A4:9909</c>.</summary>
@@ -56,43 +57,23 @@ internal static class CrocomireRumbleDefinitions
     /// targets. After the initial zero, seven oscillations each occupy eight bytes:
     /// one positive return target followed by the negative target and next timing.
     /// </summary>
-    internal static TargetSequence All => default;
+    internal static ImmutableArray<CrocomireRumbleDefinition> All { get; } = Targets();
 
-    /// <summary>Calculates prefix, oscillation, and terminator targets in native table order.</summary>
-    internal readonly struct TargetSequence : IReadOnlyList<CrocomireRumbleDefinition>
+    /// <summary>Calculates the prefix, oscillation and terminator targets in native table order.</summary>
+    private static ImmutableArray<CrocomireRumbleDefinition> Targets()
     {
-        /// <summary>Two prefix targets, seven positive/negative pairs, and two terminators.</summary>
-        public int Count => 4 + PhaseCount * 2;
-        /// <summary>Derives an indexed native target and the following cooldown and delta where applicable.</summary>
-        public CrocomireRumbleDefinition this[int index]
+        var targets = ImmutableArray.CreateBuilder<CrocomireRumbleDefinition>(4 + PhaseCount * 2);
+        targets.Add(new(CopiedPrefixTarget0, 2, 0, 0, false));
+        targets.Add(new(CopiedPrefixTarget1, 4, 0, 0, false));
+        for (int phase = 0; phase < PhaseCount; phase++)
         {
-            get
-            {
-                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                if (index < 2)
-                    return new(index == 0 ? CopiedPrefixTarget0 : CopiedPrefixTarget1, (ushort)(index * 2 + 2),
-                        0, 0, false);
-                if (index >= Count - 2)
-                    return new(unchecked((short)EndMarker), CompletedCursor,
-                        0, 0, true);
-                int phase = (index - 2) / 2;
-                bool negative = (index & 1) != 0;
-                ushort offset = (ushort)(4 + phase * 8 + (negative ? 2 : 0));
-                if (!negative)
-                    return new(phase == 0 ? (short)0 : (short)ApproachDelta(phase - 1),
-                        (ushort)(offset + 2), 0, 0, false);
-                return new(NegativeTarget(phase), (ushort)(offset + 6),
-                    Cooldown(phase), ApproachDelta(phase), false);
-            }
+            int offset = 4 + phase * 8;
+            targets.Add(new(phase == 0 ? (short)0 : (short)ApproachDelta(phase - 1), (ushort)(offset + 2), 0, 0, false));
+            targets.Add(new(NegativeTarget(phase), (ushort)(offset + 8), Cooldown(phase), ApproachDelta(phase), false));
         }
-
-        /// <summary>Visits every target word without allocating a stored waveform table.</summary>
-        public IEnumerator<CrocomireRumbleDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same waveform order to non-generic readers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        targets.Add(new(unchecked((short)EndMarker), CompletedCursor, 0, 0, true));
+        targets.Add(new(unchecked((short)EndMarker), CompletedCursor, 0, 0, true));
+        return targets.MoveToImmutable();
     }
 
     /// <summary>Rejects the timing operands while resolving every native target cursor.</summary>
@@ -101,7 +82,7 @@ internal static class CrocomireRumbleDefinitions
         if (tableOffset is 0 or 2) return All[tableOffset / 2];
         int terminatorOffset = 4 + PhaseCount * 8;
         if (tableOffset == terminatorOffset || tableOffset == terminatorOffset + 2)
-            return All[All.Count - 2 + (tableOffset - terminatorOffset) / 2];
+            return All[All.Length - 2 + (tableOffset - terminatorOffset) / 2];
         int offset = tableOffset - 4;
         if (offset >= 0 && offset < PhaseCount * 8 && offset % 8 is 0 or 2)
             return All[2 + offset / 8 * 2 + offset % 8 / 2];

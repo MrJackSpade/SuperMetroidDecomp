@@ -263,7 +263,7 @@ internal static class PaletteFxInstructionCodesVerification
         for (int index = 0; index < 3; index++)
             AssertTrue(ReferenceEquals(programs[index], programs.ElementAt(index)), "Indexed and enumerated named owner agree");
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = programs[invalid], "Loading roster retains index bounds");
+            AssertThrows<IndexOutOfRangeException>(() => _ = programs[invalid], "Loading roster retains index bounds");
     }
 
     /// <summary>Checks the unused cinematic fade's compiled program through its delete instruction.</summary>

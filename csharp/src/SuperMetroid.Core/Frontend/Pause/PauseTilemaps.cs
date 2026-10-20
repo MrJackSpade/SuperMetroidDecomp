@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// button-label rows, and the BG3 plane holding the retained gameplay HUD rows over the cleared FX rows. The screen owns
 /// their words; its capture places them.
 /// </summary>
+[NumberedIdentities("BG1, BG2 and BG3 are the PPU's distinct background layers, each with its own pause-screen role and size: the 64x32 map or equipment page, the 32x32 frame and the 32x64 HUD plane. The number names the hardware layer, not a position.")]
 internal sealed class PauseTilemaps
 {
     /// <summary>Words in one 32x32 screen.</summary>

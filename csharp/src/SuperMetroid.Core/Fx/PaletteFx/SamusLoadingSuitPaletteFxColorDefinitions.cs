@@ -46,29 +46,6 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
     /// The view preserves original order/count/index rejection; runtime mechanics
     /// dispatches directly to the same three named owners without enumeration.
     /// Native header words and all program ownership are independently checked for1165.</remarks>
-    public static IReadOnlyList<SamusLoadingSuitPaletteFxColorDefinition> All { get; } = new ProgramList();
+    public static IReadOnlyList<SamusLoadingSuitPaletteFxColorDefinition> All { get; } = [Power, Varia, Gravity];
 
-    /// <summary>Exposes the three named program owners in native definition order without an indexed descriptor array.</summary>
-    private sealed class ProgramList : IReadOnlyList<SamusLoadingSuitPaletteFxColorDefinition>
-    {
-        /// <summary>One program each for Power, Varia, and Gravity suit loading.</summary>
-        public int Count => 3;
-        /// <summary>Maps native definition ordinal zero through two to its named suit program.</summary>
-        public SamusLoadingSuitPaletteFxColorDefinition this[int index] => index switch
-        {
-            0 => Power,
-            1 => Varia,
-            2 => Gravity,
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        /// <summary>Yields Power, Varia, then Gravity to match the compiled definition order.</summary>
-        public IEnumerator<SamusLoadingSuitPaletteFxColorDefinition> GetEnumerator()
-        {
-            yield return Power;
-            yield return Varia;
-            yield return Gravity;
-        }
-        /// <summary>Uses the same suit order for non-generic enumeration.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 }

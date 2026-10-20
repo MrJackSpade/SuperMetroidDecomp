@@ -183,7 +183,7 @@ internal static class LookupStream4Verification
             AssertEqual(Pack(supplied), value, "independent title ambient edit and every unchanged neighbor preserved");
         }
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleScreenAmbientPaletteFxColorDefinitions.All[invalid],
+            AssertThrows<IndexOutOfRangeException>(() => _ = TitleScreenAmbientPaletteFxColorDefinitions.All[invalid],
                 "title ambient owner list domain");
     }
 
@@ -1720,7 +1720,7 @@ internal static class LookupStream4Verification
             AssertEqual(frame, RidleyCollisionDefinitions.FramePointers[ordinal++], "Frame identity indexing preserves order");
             var components = RidleyCollisionDefinitions.ComponentsAt(frame);
             foreach (int invalid in new[] { -1, components.Length })
-                AssertThrows<ArgumentOutOfRangeException>(() => _ = components[invalid], "Calculated component view rejects out-of-range indices");
+                AssertThrows<IndexOutOfRangeException>(() => _ = components[invalid], "Calculated component view rejects out-of-range indices");
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(nativeFrames.Contains((ushort)pointer), RidleyCollisionDefinitions.HasFrame((ushort)pointer), "Calculated frame membership preserves complete native identity domain");

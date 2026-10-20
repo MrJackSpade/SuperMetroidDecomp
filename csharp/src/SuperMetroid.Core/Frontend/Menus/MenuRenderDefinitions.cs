@@ -10,5 +10,5 @@ internal static class MenuRenderDefinitions
     internal const byte ObjectSelection = 0x03;
 
     /// <summary>OBJ palette seven bits used by shared menu spritemaps.</summary>
-    internal static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
+    internal static ushort ObjectPaletteBits => SnesObjPalettes.Palette(7).PaletteBits;
 }

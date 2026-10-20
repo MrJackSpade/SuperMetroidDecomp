@@ -141,27 +141,19 @@ public sealed class MotherBrainEnemyState
     /// <summary>Whether the active bank-$A9 draw hook appends five articulated neck joints.</summary>
     public bool DrawNeck { get; internal set; }
 
-    /// <summary>Lower-neck joint 0's pixel distance from the shared body anchor, initialized to two by <c>$A9:903F</c>.</summary>
-    public int NeckSegment0Distance { get; internal set; }
-    /// <summary>Lower-neck joint 1's pixel distance from the shared body anchor, initialized to ten by $A9:903F.</summary>
-    public int NeckSegment1Distance { get; internal set; }
-    /// <summary>Lower-neck joint 2's pixel distance from the shared body anchor, initialized to twenty; joint 2 also anchors the upper half.</summary>
-    public int NeckSegment2Distance { get; internal set; }
-    /// <summary>Upper-neck joint 3's pixel distance from joint 2, initialized to ten by $A9:903F.</summary>
-    public int NeckSegment3Distance { get; internal set; }
-    /// <summary>Upper-neck joint 4's pixel distance from joint 2, initialized to twenty; its resulting position anchors the brain.</summary>
-    public int NeckSegment4Distance { get; internal set; }
+    /// <summary>
+    /// Each neck joint's pixel distance from its anchor, indexed by joint (<see cref="MotherBrainNeckJointDefinitions"/>):
+    /// the lower joints' from the shared body anchor, the upper joints' from the upper-neck anchor. <c>$A9:903F</c>
+    /// initializes them.
+    /// </summary>
+    public int[] NeckJointDistances { get; } = new int[MotherBrainNeckJointDefinitions.Count];
 
-    /// <summary>Five current world-space neck joints; segment four anchors the brain.</summary>
-    public Position16<RoomPixels> NeckSegment0 { get; internal set; }
-    /// <summary>Joint 1's wrapping world-pixel position, calculated with the lower angle and its distance; used by neck drawing and collision.</summary>
-    public Position16<RoomPixels> NeckSegment1 { get; internal set; }
-    /// <summary>Joint 2's wrapping world-pixel position, shared by lower-neck drawing/collision and upper-neck geometry as its anchor.</summary>
-    public Position16<RoomPixels> NeckSegment2 { get; internal set; }
-    /// <summary>Joint 3's wrapping world-pixel position relative to joint 2, calculated with the upper angle and used by neck drawing/collision.</summary>
-    public Position16<RoomPixels> NeckSegment3 { get; internal set; }
-    /// <summary>Joint 4's wrapping world-pixel position relative to joint 2; the articulated head follows its X and its Y minus twenty-one pixels.</summary>
-    public Position16<RoomPixels> NeckSegment4 { get; internal set; }
+    /// <summary>
+    /// The neck joints' wrapping world-pixel positions, indexed by joint (<see cref="MotherBrainNeckJointDefinitions"/>):
+    /// the lower joints hang from the body on the lower angle, the upper joints from the upper-neck anchor on the upper
+    /// angle. Neck drawing and collision use them, and the brain anchor places the head.
+    /// </summary>
+    public Position16<RoomPixels>[] NeckJoints { get; } = new Position16<RoomPixels>[MotherBrainNeckJointDefinitions.Count];
 
     /// <summary>Lower-neck angle; the neck dispatchers add and subtract the angular speed with full-turn wraparound, and its table index places joints 0 through 2.</summary>
     public SnesAngle LowerNeckAngle { get; internal set; }

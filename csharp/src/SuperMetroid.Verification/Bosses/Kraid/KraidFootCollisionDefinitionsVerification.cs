@@ -43,7 +43,7 @@ internal static class KraidFootCollisionDefinitionsVerification
             AssertTrue(KraidFootCollisionDefinitions.TryGetComponents(selectedFrame, out _),
                 $"Kraid foot frame $A7:{selectedFrame:X4} is a compiled physical frame");
 
-        KraidFootHitboxSequence hitboxes =
+        System.Collections.Immutable.ImmutableArray<KraidFootCollisionHitbox> hitboxes =
             KraidFootCollisionDefinitionsConstants.HitboxesAt(KraidFootCollisionDefinitionsConstants.HitboxList);
         KraidFootCollisionHitbox box = hitboxes[0];
 

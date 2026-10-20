@@ -16,13 +16,12 @@ public static class CeresMode7TransferDefinitions
     {
         if ((uint)phase >= 4) throw new ArgumentOutOfRangeException(nameof(phase));
         int reflectedPhase = Math.Min(phase, 4 - phase);
-        return reflectedPhase switch
-        {
-            0 => CeresMode7TransferList.BabyFrame0,
-            1 => CeresMode7TransferList.BabyFrame1,
-            _ => CeresMode7TransferList.BabyFrame2,
-        };
+        return BabyFrames[reflectedPhase];
     }
+
+    /// <summary>The three capsule transfer records, indexed by reflected phase.</summary>
+    private static readonly CeresMode7TransferList[] BabyFrames =
+        [CeresMode7TransferList.BabyFrame0, CeresMode7TransferList.BabyFrame1, CeresMode7TransferList.BabyFrame2];
 
     /// <summary>Mode7 maps have128 tiles per row. Transfer destinations name low bytes of VRAM words.</summary>
     private const int MapColumns = 128;

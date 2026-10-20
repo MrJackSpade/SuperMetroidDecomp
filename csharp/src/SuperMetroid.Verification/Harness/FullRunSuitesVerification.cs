@@ -59,6 +59,7 @@ using static SuperMetroid.Verification.Frontend.Intro.CinematicTextGlowVerificat
 using static SuperMetroid.Verification.Rooms.Plms.CollectibleMessageTimingVerification;
 using static SuperMetroid.Verification.Rooms.Plms.CollectibleVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
+using static SuperMetroid.Verification.Rooms.Plms.SaveStationSoundVerification;
 using static SuperMetroid.Verification.Hardware.ColorWindowSnapshotTestsVerification;
 using static SuperMetroid.Verification.Samus.Movement.CompactWalkOffCollisionVerification;
 using static SuperMetroid.Verification.Hardware.CompressionVerification;
@@ -608,6 +609,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyContactCrumblePrograms), () => VerifyContactCrumblePrograms()),
         new(nameof(VerifyStationAnimationProgramDefinitions), () => VerifyStationAnimationProgramDefinitions()),
         new(nameof(VerifyCollectibleMessageTiming), () => VerifyCollectibleMessageTiming()),
+        new(nameof(VerifySaveStationSound), () => VerifySaveStationSound()),
         new(nameof(VerifyPermanentCollectibles), () => VerifyPermanentCollectibles()),
         new(nameof(VerifyCollectibleVisuals), () => VerifyCollectibleVisuals()),
         new(nameof(VerifyEnemyDrops), () => VerifyEnemyDrops()),

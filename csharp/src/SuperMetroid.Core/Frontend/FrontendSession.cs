@@ -206,6 +206,9 @@ internal sealed class FrontendSession
             audio.QueueSound(SoundEffectLibrary1Sounds.Saving, maximumQueued: 6);
         if (runtime?.MessageBoxes.ConsumeGunshipExitSoundRequest() == true)
             audio.QueueSound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
+        // An accepted save station resumes from the message close boundary too.
+        if (runtime?.Room.Scope?.Plms.Stations.ConsumeSavingSoundRequest() is { } saving)
+            audio.QueueSoundAndGetAccumulator(saving.SoundEffect, saving.MaximumQueued, soundSuppressed: saving.SoundSuppressed);
         // Suit setup resumes from the message close boundary, outside normal gameplay
         // publication generations. Consume once so HDMA-only frames cannot repeat it.
         if (runtime?.SuitPickup.ConsumeTransformationSoundRequest() == true)

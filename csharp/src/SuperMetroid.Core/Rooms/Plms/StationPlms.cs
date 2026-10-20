@@ -50,6 +50,21 @@ internal sealed class StationPlms : IPlmFamilySource
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
     internal bool SaveStationLockedOut { get; private set; }
 
+    /// <summary>
+    /// The saving sound <c>$84:AFF4</c> queued when the save was accepted, until the frontend publishes it. The
+    /// acceptance runs at the message-close boundary, which completes no gameplay audio publication, so the sound
+    /// cannot ride the PLM sound list: the next PLM pass would clear it unheard.
+    /// </summary>
+    private PlmSoundRequest? _pendingSavingSound;
+
+    /// <summary>Returns and clears the saving sound an accepted save queued, once.</summary>
+    internal PlmSoundRequest? ConsumeSavingSoundRequest()
+    {
+        PlmSoundRequest? request = _pendingSavingSound;
+        _pendingSavingSound = null;
+        return request;
+    }
+
     /// <summary>Frame start: drops the previous pass's activation events.</summary>
     internal void BeginFrame() => _stationActivationEvents.Clear();
 
@@ -118,7 +133,7 @@ internal sealed class StationPlms : IPlmFamilySource
         station.SaveAnimationLoopsRemaining =
             NativeCountdown.Start(SaveStationAnimationDefinitions.SaveAnimationLoops);
         // `$84:AFF4` queues library-one sound $2E right after centring Samus.
-        _sounds.Queue(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6);
+        _pendingSavingSound = _sounds.CreateSoundRequest(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6);
         DrawSaveStationFrame(level, activation.BlockIndex, station);
         return true;
     }

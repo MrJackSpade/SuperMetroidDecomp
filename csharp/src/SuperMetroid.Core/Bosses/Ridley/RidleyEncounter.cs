@@ -23,6 +23,9 @@ internal sealed class RidleyEncounter
     /// <summary>The session that holds Ceres's escape progress across rooms.</summary>
     private readonly EnemySession _session;
 
+    /// <summary>Ridley's body, which both encounters keep in slot zero.</summary>
+    internal RoomEnemySlot Body => _slotTable.Slots[0];
+
     /// <summary>
     /// Ridley's bank-$A6 state extension while either encounter owns slot zero. The native actor
     /// extends far beyond the common $40-byte enemy record, so exposing a deliberately named

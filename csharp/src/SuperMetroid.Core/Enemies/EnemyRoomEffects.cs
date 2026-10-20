@@ -45,6 +45,12 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
+    /// Starts the Ceres escape timer: <c>$A6:C117</c> starts it on the same EnemyMain call that changes ceres_status
+    /// from one to two.
+    /// </summary>
+    internal void StartCeresEscape() => _escapeTimer.RequestCeresStart();
+
+    /// <summary>
     /// Applies the hardcoded PLMs and room effects that enemy AI requested during its pass.
     /// </summary>
     /// <remarks>

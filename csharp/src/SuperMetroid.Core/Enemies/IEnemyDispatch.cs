@@ -20,6 +20,13 @@ internal interface IEnemyDispatch
     void RunInitializationAi(RoomEnemySlot slot, RoomLevelData? level = null, SamusState? samus = null,
         SnesButton controllerInput = SnesButton.None, ushort cameraX = 0);
 
+    /// <summary>
+    /// Native <c>SpawnEnemy</c> ($A0:92DB): installs <paramref name="population"/> in the first free slot, runs its
+    /// initialization AI, starts its instruction list when it processes instructions and extends the live enemy range.
+    /// Returns null without spawning when all 32 slots are occupied.
+    /// </summary>
+    RoomEnemySlot? SpawnEnemy(RoomEnemyPopulationRecord population);
+
     /// <summary>Runs the slot's main AI inside the supplied frame.</summary>
     void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame);
 

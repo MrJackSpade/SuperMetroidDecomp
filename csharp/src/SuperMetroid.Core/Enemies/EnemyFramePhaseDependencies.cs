@@ -31,8 +31,6 @@ internal sealed record EnemyFramePhaseDependencies
     /// <summary>Enemy room effects.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }
 
-    /// <summary>Escape timer.</summary>
-    public required EscapeTimer EscapeTimer { get; init; }
 
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }

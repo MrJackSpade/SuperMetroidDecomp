@@ -67,7 +67,7 @@ internal static class MiscDustProjectileDefinitionsVerification
         }
 
         var ridley = CreateMiscDustEnemySystem();
-        Action<Position16<RoomPixels>, ushort> spawnRidley = ridley.RidleyBehavior.SpawnRidleyDust;
+        Action<Position16<RoomPixels>, ushort> spawnRidley = ridley.RidleyProjectiles.SpawnRidleyDust;
         spawnRidley(new(0x1234, 0x5678), ushort.MaxValue);
         AssertTrue(ridley.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive).Animation is
                 MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.BigExplosion },

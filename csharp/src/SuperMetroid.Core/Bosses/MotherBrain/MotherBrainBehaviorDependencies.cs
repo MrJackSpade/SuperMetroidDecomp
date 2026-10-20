@@ -29,8 +29,6 @@ internal sealed record MotherBrainBehaviorDependencies
     /// <summary>Audio.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
 
     /// <summary>Presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }
@@ -47,18 +45,7 @@ internal sealed record MotherBrainBehaviorDependencies
     /// <summary>Mother brain encounter.</summary>
     public required MotherBrainEncounter MotherBrainEncounter { get; init; }
 
-    /// <summary>Baby metroid cutscene behavior.</summary>
-    public required BabyMetroidCutsceneBehavior BabyMetroidCutsceneBehavior { get; init; }
+    /// <summary>The other actors in the room that Mother Brain asks to spawn, fire or stop.</summary>
+    public required IMotherBrainRoomActors RoomActors { get; init; }
 
-    /// <summary>Rinka behavior.</summary>
-    public required RinkaBehavior RinkaBehavior { get; init; }
-
-    /// <summary>Walking space pirate behavior.</summary>
-    public required WalkingSpacePirateBehavior WalkingSpacePirateBehavior { get; init; }
-
-    /// <summary>Ridley projectiles.</summary>
-    public required RidleyProjectiles RidleyProjectiles { get; init; }
-
-    /// <summary>Room status.</summary>
-    public required EnemyRoomStatus RoomStatus { get; init; }
 }

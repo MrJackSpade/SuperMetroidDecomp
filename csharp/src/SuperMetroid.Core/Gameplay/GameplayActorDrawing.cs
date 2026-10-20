@@ -25,8 +25,6 @@ internal sealed class GameplayActorDrawing
     private readonly RuntimeArtwork _artwork;
     /// <summary>Provides the attract-demo state that can alter ordinary Samus presentation.</summary>
     private readonly IAttractDemoState _attractSession;
-    /// <summary>Supplies active background offsets for the drawing phase.</summary>
-    private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Receives the palette writes that the software PPU will read for this frame.</summary>
     private readonly SnesCgram _cgram;
     /// <summary>Supplies the current input state used by presentation handlers.</summary>
@@ -49,15 +47,12 @@ internal sealed class GameplayActorDrawing
     private readonly SamusFrameState _player;
     /// <summary>Provides the camera and Ceres arrival actors for this draw pass.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Receives actor graphics transfers requested during presentation.</summary>
-    private readonly VramWriteQueue _vramWrites;
 
     /// <summary>Binds the shared runtime owners whose state determines each actor drawing pass.</summary>
     internal GameplayActorDrawing(GameplayActorDrawingDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
         _attractSession = dependencies.AttractSession;
-        _backgroundScroll = dependencies.BackgroundScroll;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
@@ -67,7 +62,6 @@ internal sealed class GameplayActorDrawing
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _vramWrites = dependencies.VramWrites;
     }
 
     /// <summary>What Samus's projectile, bomb, flare and trail draws bind: compositions and the page of the beam last loaded.</summary>

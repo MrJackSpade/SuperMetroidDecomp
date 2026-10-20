@@ -26,8 +26,6 @@ internal sealed record SamusFramePhasesDependencies
     public required ControllerInputState Controller1 { get; init; }
 
 
-    /// <summary>Enemy phase.</summary>
-    public required EnemyFramePhase EnemyPhase { get; init; }
 
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
@@ -54,8 +52,6 @@ internal sealed record SamusFramePhasesDependencies
     public required Bank80SystemState System { get; init; }
 
 
-    /// <summary>Suit pickup.</summary>
-    public required SamusSuitPickupState SuitPickup { get; init; }
     /// <summary>Xray.</summary>
     public required XrayReveal Xray { get; init; }
 }

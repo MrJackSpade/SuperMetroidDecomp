@@ -15,8 +15,6 @@ internal sealed record PlmFramePhaseDependencies
     /// <summary>Artwork.</summary>
     public required RuntimeArtwork Artwork { get; init; }
 
-    /// <summary>Background scroll.</summary>
-    public required BackgroundScrollState BackgroundScroll { get; init; }
 
 
     /// <summary>Cgram.</summary>
@@ -48,8 +46,6 @@ internal sealed record PlmFramePhaseDependencies
     /// <summary>Suit pickup.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }
 
-    /// <summary>Vram.</summary>
-    public required SnesVram Vram { get; init; }
 
     /// <summary>Vram writes.</summary>
     public required VramWriteQueue VramWrites { get; init; }

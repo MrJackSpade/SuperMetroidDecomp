@@ -18,6 +18,9 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The collaborators a <see cref="RoomLoader"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[ArchitectureReview("wide-dependencies", "The room composer: a room load builds every room-lifetime owner (level, " +
+    "camera, FX, palette FX, backgrounds, projectiles, PLMs, enemies, Tourian statues) over the session owners each one " +
+    "outlives, as $82:E7D3 initializes them in one pass; each member is one of those session owners.")]
 internal sealed record RoomLoaderDependencies
 {
     /// <summary>Artwork.</summary>

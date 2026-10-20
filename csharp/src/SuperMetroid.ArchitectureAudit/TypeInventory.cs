@@ -22,6 +22,9 @@ internal static class TypeInventory
     /// <summary>A context-bag candidate: this many service-typed members on a type that only carries them.</summary>
     internal const int ContextBagMembers = 8;
 
+    /// <summary>A dependencies record with more members than this hands its consumer more than it should reach (#1362).</summary>
+    internal const int WideDependenciesMembers = 12;
+
     /// <summary>Finding key for an owner that stores a collaborator constructed with itself.</summary>
     internal const string BackReference = "back-reference";
     /// <summary>Finding key for a generic service lookup API.</summary>
@@ -30,6 +33,8 @@ internal static class TypeInventory
     internal const string ContextBag = "context-bag";
     /// <summary>Finding key for a product class exceeding the source-line review threshold.</summary>
     internal const string Large = "large";
+    /// <summary>Finding key for a <c>*Dependencies</c> record with more than <see cref="WideDependenciesMembers"/> members.</summary>
+    internal const string WideDependencies = "wide-dependencies";
 
     /// <summary>Collects source types across projects and describes each type's scope, disposition, and flags.</summary>
     public static IReadOnlyList<TypeEntry> Collect(LoadedSolution solution)
@@ -89,6 +94,8 @@ internal static class TypeInventory
             handWritten.Sum(declaration => declaration.GetLocation().GetLineSpan().EndLinePosition.Line -
                                            declaration.GetLocation().GetLineSpan().StartLinePosition.Line + 1) > LargeClassLines)
             flags.Add(Large);
+        if (IsWideDependencies(type))
+            flags.Add(WideDependencies);
         var reviews = type.GetAttributes()
             .Where(attribute => attribute.AttributeClass?.Name == ReviewAttributeName && attribute.ConstructorArguments.Length == 2)
             .Select(attribute => new ArchitectureReview(
@@ -226,6 +233,15 @@ internal static class TypeInventory
         bool behavior = members.OfType<IMethodSymbol>().Any(method => method.MethodKind == MethodKind.Ordinary && !method.IsImplicitlyDeclared);
         return services >= ContextBagMembers && !behavior;
     }
+
+    /// <summary>
+    /// A record named <c>*Dependencies</c>, the collaborators one consumer is constructed with, holding more than
+    /// <see cref="WideDependenciesMembers"/> instance properties.
+    /// </summary>
+    private static bool IsWideDependencies(INamedTypeSymbol type) =>
+        type.IsRecord && type.Name.EndsWith("Dependencies", StringComparison.Ordinal) &&
+        type.GetMembers().OfType<IPropertySymbol>().Count(property => !property.IsStatic && !property.IsImplicitlyDeclared) >
+            WideDependenciesMembers;
 
     /// <summary>Identifies project interface or class references counted as context-bag services.</summary>
     private static bool IsService(ITypeSymbol type) =>

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -95,6 +96,22 @@ internal sealed class RidleyProjectiles
         // identity. Standalone fixtures without a room owner retain the default row.
         AreaId area = _deathsAndDrops.SamusForEnemyDrops?.LiquidPhysics.AreaIndex ?? AreaId.Crateria;
         projectile.Damage = RidleyProjectileDamageDefinitions.ForArea(area);
+    }
+
+    /// <summary>Allocates enemy projectile $E509 with one ROM-authored dust variant.</summary>
+    internal void SpawnRidleyDust(Position16<RoomPixels> position, ushort variant)
+    {
+        RoomEnemyProjectileSlot? dust = _projectiles.AllocateEnemyProjectile();
+        if (dust is null)
+            return;
+
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            dust,
+            RoomEnemyProjectileKind.MiscDustExplosion,
+            graphicsIndex: 0);
+        dust.Position = dust.Position.WithWhole(position);
+        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileDefinitions.Program(
+            (MiscDustAnimation)Math.Min(variant, (ushort)MiscDustAnimation.BigExplosion))));
     }
 
     /// <summary>Creates the stationary impact center that later emits a perpendicular afterburn pair.</summary>

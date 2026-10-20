@@ -15,8 +15,6 @@ internal sealed record RidleyBehaviorDependencies
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Projectiles.</summary>
-    public required EnemyProjectileEngine Projectiles { get; init; }
 
     /// <summary>Earthquake.</summary>
     public required RoomEarthquake Earthquake { get; init; }
@@ -24,8 +22,6 @@ internal sealed record RidleyBehaviorDependencies
     /// <summary>Audio.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
 
     /// <summary>Presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }

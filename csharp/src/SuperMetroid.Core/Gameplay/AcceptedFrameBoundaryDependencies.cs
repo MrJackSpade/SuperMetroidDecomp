@@ -13,8 +13,14 @@ using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>The collaborators a <see cref="AcceptedFrameBoundary"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[ArchitectureReview("wide-dependencies", "The display snapshot boundary: each member is an owner whose state becomes " +
+    "visible at this NMI (scroll, windows, sprites, HUD, room layers, FX colors, X-ray, eye beam) and is read once to " +
+    "latch it; narrowing would only move the same reads into a second boundary.")]
 internal sealed record AcceptedFrameBoundaryDependencies
 {
+    /// <summary>The input half of the accepted NMI: the controller latches and the frame counters.</summary>
+    public required AcceptedFrameInput Input { get; init; }
+
     /// <summary>Artwork.</summary>
     public required RuntimeArtwork Artwork { get; init; }
 
@@ -25,11 +31,7 @@ internal sealed record AcceptedFrameBoundaryDependencies
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
 
-    /// <summary>Controller1.</summary>
-    public required ControllerInputState Controller1 { get; init; }
 
-    /// <summary>Physical controller-1 latch.</summary>
-    public required ControllerInputState PhysicalController1 { get; init; }
 
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
@@ -43,14 +45,10 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>Gameplay windows.</summary>
     public required GameplayWindowRegisters GameplayWindows { get; init; }
 
-    /// <summary>Nmi.</summary>
-    public required FrameClock Clock { get; init; }
 
     /// <summary>Sprite frame the main loop finalized.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }
 
-    /// <summary>Options.</summary>
-    public required GameplayOptions Options { get; init; }
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
@@ -65,8 +63,6 @@ internal sealed record AcceptedFrameBoundaryDependencies
     public required RoomFxSession RoomFx { get; init; }
 
 
-    /// <summary>Vram.</summary>
-    public required SnesVram Vram { get; init; }
 
     /// <summary>Xray.</summary>
     public required XrayReveal Xray { get; init; }

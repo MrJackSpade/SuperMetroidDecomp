@@ -45,8 +45,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues the encounter's music and sound effects in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Retains the native body, head, and falling-tube slot layout.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Draws encounter artwork and applies installed palette data.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus and camera state for the current enemy frame.</summary>
@@ -59,18 +57,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
-    /// <summary>Coordinates the Baby Metroid transfer and rainbow-beam rescue sequence.</summary>
-    private readonly BabyMetroidCutsceneBehavior _babyMetroidCutsceneBehavior;
-
-    /// <summary>Provides Rinka behavior activated by the encounter.</summary>
-    private readonly RinkaBehavior _rinkaBehavior;
-
-    /// <summary>Provides the space-pirate behavior selected during encounter setup.</summary>
-    private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
-    /// <summary>Provides shared projectile movement used by the encounter.</summary>
-    private readonly RidleyProjectiles _ridleyProjectiles;
-    /// <summary>Tracks room completion and boss status across the fight.</summary>
-    private readonly EnemyRoomStatus _roomStatus;
+    /// <summary>The other actors in the room: the Baby, the Rinkas, the Pirate laser and the afterburn.</summary>
+    private readonly IMotherBrainRoomActors _roomActors;
 
     /// <summary>Binds the encounter's room services while keeping one state owner for body and head.</summary>
     internal MotherBrainBehavior(MotherBrainBehaviorDependencies dependencies)
@@ -81,17 +69,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
         _audio = dependencies.Audio;
-        _slotTable = dependencies.SlotTable;
         _presentation = dependencies.Presentation;
         _frameContext = dependencies.FrameContext;
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
-        _babyMetroidCutsceneBehavior = dependencies.BabyMetroidCutsceneBehavior;
-        _rinkaBehavior = dependencies.RinkaBehavior;
-        _walkingSpacePirateBehavior = dependencies.WalkingSpacePirateBehavior;
-        _ridleyProjectiles = dependencies.RidleyProjectiles;
-        _roomStatus = dependencies.RoomStatus;
+        _roomActors = dependencies.RoomActors;
     }
 
 
@@ -392,7 +375,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.DeleteTurretsAndRinkas = true;
                 // Mother Brain and Rinka alias native slot-zero variable $1D. Publish the
                 // shared word before later enemy slots can keep drawing replaced tile art.
-                _rinkaBehavior.RequestTermination();
+                _roomActors.TerminateRinkas();
                 state.Form = MotherBrainForm.FakeDeath;
                 state.RequestMusic(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames);
 
@@ -832,7 +815,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // definition `$A17B`. The source header remains the head record, so shared
         // initializer `$86:A009` obtains Mother Brain's authored contact damage and
         // her parameter-one speed flag without any encounter-specific substitute.
-        RoomEnemyProjectileSlot? laser = _walkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(
+        RoomEnemyProjectileSlot? laser = _roomActors.SpawnPirateLaser(
             head,
             head.Position.Whole + new Offset16<RoomPixels>(16, 4),
             movingRight: true);
@@ -1262,7 +1245,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // `$C50B-$C54B` clears the source slot before both allocations. They therefore use
         // the normal descending shared-pool competition, including legitimate same-slot
         // replacement that the outer scheduler will continue processing on this pass.
-        _ridleyProjectiles.SpawnAfterburnCenter(
+        _roomActors.SpawnAfterburnCenter(
             RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter,
             impact,
             afterburnCount);
@@ -2226,10 +2209,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>
     internal void SpawnMotherBrainFallingTube(MotherBrainTubePiece piece)
     {
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
-            return; // SpawnEnemy silently fails when all 32 native records are occupied.
-
         // The bound source supplies the fixed cutscene placement; retail rooms resolve it without touching bank $A9.
         RoomEnemyPopulationRecord population = _room.LoadedDefinitions.ReadFallingTubePopulation(piece);
         if (population.DefinitionPointer != EnemyDefinitionId.MotherBrainTubes)
@@ -2239,15 +2218,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"${(int)population.DefinitionPointer:X4}, not the falling tube.");
         }
 
-        RoomEnemySlot tube = _slotTable.Slots[slotIndex];
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
-        _dispatch.InitializeSlotFromDefinition(tube, population, definition);
-        _dispatch.RunInitializationAi(tube);
-        tube.Frame = tube.Properties.HasAny(EnemyProperties.ProcessInstructions)
-            ? EnemyFrameId.Empty
-            : null;
-        _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
+        // SpawnEnemy silently fails when all 32 native records are occupied.
+        if (_dispatch.SpawnEnemy(population) is null)
+            return;
         if (_motherBrainEncounter.MotherBrain is not null)
             _motherBrainEncounter.MotherBrain.SpawnedFallingTubeCount++;
     }
@@ -4074,7 +4047,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 WriteZebesTypewriterGlyph(typed);
             if (text.ClickRequested) state.LastSoundEffectLibrary3 = SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EscapeTypewriterRomData.ZebesClick);
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _roomStatus.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer });
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer });
         _frameResults.MotherBrainDeathStep = step;
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
@@ -4233,7 +4206,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (current.SpriteTileTransfer is { } transfer)
             _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(transfer);
         if (current.BabySpawnRequested)
-            _babyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
+            _roomActors.SpawnBabyMetroid(state);
         if (current.Explosion is { } explosion)
         {
             // `$BC76` runs before `$B9F1/$BA0C/$BA4F` moves Samus. The reusable sequence

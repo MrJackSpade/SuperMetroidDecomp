@@ -32,8 +32,6 @@ internal sealed class SamusFramePhases
     private readonly SnesCgram _cgram;
     /// <summary>Supplies held and newly pressed controller bits to Samus phase handlers.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>Preserves the enemy-main ordering seam relative to Samus movement.</summary>
-    private readonly EnemyFramePhase _enemyPhase;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Supplies elapsed gameplay frames to the Shinespark movement handler.</summary>
@@ -48,8 +46,6 @@ internal sealed class SamusFramePhases
     private readonly ActiveRoomState _room;
     /// <summary>Supplies persistent bank-$80 state consulted by movement handlers.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Whether suit command $15's empty beta owns Samus.</summary>
-    private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Builds X-ray's reveal tilemap at its setup stage.</summary>
     private readonly XrayReveal _xray;
     /// <summary>UpdateSamusPose after normal beta's animation.</summary>
@@ -60,11 +56,9 @@ internal sealed class SamusFramePhases
     {
         _artwork = dependencies.Artwork;
         _attractDemo = dependencies.AttractDemo;
-        _suitPickup = dependencies.SuitPickup;
         _xray = dependencies.Xray;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
-        _enemyPhase = dependencies.EnemyPhase;
         _freeze = dependencies.Freeze;
         _gameTime = dependencies.GameTime;
         _clock = dependencies.Clock;

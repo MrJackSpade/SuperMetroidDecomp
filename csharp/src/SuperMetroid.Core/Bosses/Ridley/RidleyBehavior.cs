@@ -23,14 +23,10 @@ internal sealed class RidleyBehavior : IEnemySpecies
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Room services, level state, and native RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Spawns Ridley's fireballs and breakup projectiles.</summary>
-    private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Publishes tail-impact tremors to the room earthquake state.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues roars, tail impacts, and other enemy-bank sounds.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Resolves Ridley's physical enemy records and multipart slots.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Publishes Ridley's health and transition palettes.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Handles common combat damage and enemy drops.</summary>
@@ -57,10 +53,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
         _ridleyTail = dependencies.RidleyTail;
         _dispatch = dependencies.Dispatch;
         _room = dependencies.Room;
-        _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
         _audio = dependencies.Audio;
-        _slotTable = dependencies.SlotTable;
         _presentation = dependencies.Presentation;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _ridleyEncounter = dependencies.RidleyEncounter;
@@ -785,7 +779,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             return;
 
         RidleyTailSegment tip = state.TailSegments[6];
-        SpawnRidleyDust(tip.Position + new Offset16<RoomPixels>(0, 12), variant: 9);
+        _ridleyProjectiles.SpawnRidleyDust(tip.Position + new Offset16<RoomPixels>(0, 12), variant: 9);
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.RidleyTailTerrainImpact, maximumQueued: 6);
         _earthquake.EarthquakeType = 13;
         _earthquake.EarthquakeTimer = NativeCountdown.Start(4);
@@ -1129,7 +1123,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     internal void RunRidleyExplosionInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
         InitializeNorfairRidleyExplosion(
             slot,
-            _slotTable.Slots[0],
+            _ridleyEncounter.Body,
             _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
                 "A Ridley breakup actor has no shared Ridley owner."));
 
@@ -1241,21 +1235,6 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Allocates enemy projectile $E509 with one ROM-authored dust variant.</summary>
-    internal void SpawnRidleyDust(Position16<RoomPixels> position, ushort variant)
-    {
-        RoomEnemyProjectileSlot? dust = _projectiles.AllocateEnemyProjectile();
-        if (dust is null)
-            return;
-
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            dust,
-            RoomEnemyProjectileKind.MiscDustExplosion,
-            graphicsIndex: 0);
-        dust.Position = dust.Position.WithWhole(position);
-        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileDefinitions.Program(
-            (MiscDustAnimation)Math.Min(variant, (ushort)MiscDustAnimation.BigExplosion))));
-    }
     /// <summary>Last item-drop request published by Ridley's terminal routine.</summary>
     public bool RidleyDeathDropRequested { get; private set; }
 
@@ -1339,7 +1318,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             ReleaseNorfairRidleyGrab(state, samus);
         state.Function = RidleyAiFunction.NorfairDeathImpact;
         state.Velocity = new EightEightVector<RoomPixels>(0, 0);
-        SpawnNorfairRidleyBreakupActors(body, state);
+        SpawnNorfairRidleyBreakupActors(state);
     }
 
     /// <summary>
@@ -1412,32 +1391,22 @@ internal sealed class RidleyBehavior : IEnemySpecies
         if (state.DeathExplosionCount >= 10)
             state.DeathExplosionCount = 0;
 
-        SpawnRidleyDust(
+        _ridleyProjectiles.SpawnRidleyDust(
             body.Position.Whole + RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount),
             variant: 3);
         state.LastDeathSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, RidleySoundDefinitions.DeathExplosion);
     }
     /// <summary>Allocates the body and tail pieces that continue moving after the intact body hides.</summary>
-    internal void SpawnNorfairRidleyBreakupActors(
-        RoomEnemySlot body,
-        RidleyEnemyState state)
+    internal void SpawnNorfairRidleyBreakupActors(RidleyEnemyState state)
     {
         if (state.DeathBreakupSpawned)
             return;
         state.DeathBreakupSpawned = true;
 
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.RidleyExplosion);
         RidleyExplosionDefinitions.SpawnInNativeOrder(SpawnPart);
 
         void SpawnPart(ushort parameter)
         {
-            int slotIndex = _slotTable.FindFreeSlotIndex();
-            if (slotIndex < 0)
-            {
-                throw new InvalidOperationException(
-                    "Lower Norfair Ridley breakup exhausted the 32-slot enemy pool.");
-            }
-
             // The embedded records at $A6:C987-$CA46 all use the same zero position,
             // property $2C00, and one even parameter. Initialization replaces position and
             // instruction from the still-live shared Ridley joints below.
@@ -1452,13 +1421,12 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 ExtraProperties: new EnemyExtraPropertyWord(EnemyExtraProperties.None),
                 Parameter1: parameter,
                 Parameter2: 0);
-            RoomEnemySlot fragment = _slotTable.Slots[slotIndex];
-            _dispatch.InitializeSlotFromDefinition(fragment, population, definition);
-            InitializeNorfairRidleyExplosion(fragment, body, state);
-            // SpawnEnemy's post-init $A0:93D9 write precedes the first instruction tick.
-            fragment.Frame = EnemyFrameId.Empty;
-            _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-            _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
+            // The explosion's initialization AI ($A6:C696) starts each part from the still-live shared Ridley joints.
+            if (_dispatch.SpawnEnemy(population) is null)
+            {
+                throw new InvalidOperationException(
+                    "Lower Norfair Ridley breakup exhausted the 32-slot enemy pool.");
+            }
         }
     }
 

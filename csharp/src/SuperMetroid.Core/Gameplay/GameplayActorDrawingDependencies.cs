@@ -17,8 +17,6 @@ internal sealed record GameplayActorDrawingDependencies
     /// <summary>Attract session.</summary>
     public required IAttractDemoState AttractSession { get; init; }
 
-    /// <summary>Background scroll.</summary>
-    public required BackgroundScrollState BackgroundScroll { get; init; }
 
 
     /// <summary>Cgram.</summary>
@@ -50,6 +48,4 @@ internal sealed record GameplayActorDrawingDependencies
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>Vram writes.</summary>
-    public required VramWriteQueue VramWrites { get; init; }
 }

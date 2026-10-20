@@ -18,8 +18,6 @@ internal sealed class PlmFramePhase
 {
     /// <summary>Installed beam artwork staged when a collected beam changes projectile graphics.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>BG1 offset supplied to PLM view calculations.</summary>
-    private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Live palette memory updated after beam collection.</summary>
     private readonly SnesCgram _cgram;
     /// <summary>Current and newly pressed buttons passed to PLM and message handlers.</summary>
@@ -38,8 +36,6 @@ internal sealed class PlmFramePhase
     private readonly ActiveRoomState _room;
     /// <summary>Prevents a second suit transformation from replacing an active one.</summary>
     private readonly SamusSuitPickupState _suitPickup;
-    /// <summary>Receives tilemap updates emitted by PLM draw lists.</summary>
-    private readonly SnesVram _vram;
     /// <summary>Queues PLM tile transfers and collected-beam character uploads.</summary>
     private readonly VramWriteQueue _vramWrites;
 
@@ -48,7 +44,6 @@ internal sealed class PlmFramePhase
     internal PlmFramePhase(PlmFramePhaseDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
-        _backgroundScroll = dependencies.BackgroundScroll;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
@@ -58,7 +53,6 @@ internal sealed class PlmFramePhase
         _player = dependencies.Player;
         _room = dependencies.Room;
         _suitPickup = dependencies.SuitPickup;
-        _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
 
     }

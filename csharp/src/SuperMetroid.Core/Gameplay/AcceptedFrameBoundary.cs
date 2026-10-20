@@ -31,14 +31,12 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 internal sealed class AcceptedFrameBoundary
 {
+    /// <summary>Latches the controllers and advances the frame counters after publication.</summary>
+    private readonly AcceptedFrameInput _input;
     /// <summary>Publishes rebound HUD, beam, and trail art after accepted VRAM transfers.</summary>
     private readonly RuntimeArtwork _artwork;
     /// <summary>Captures the BG1 and BG2 scroll registers visible with the accepted NMI.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Latches remapped controller input only for a main-loop-requested NMI.</summary>
-    private readonly ControllerInputState _controller1;
-    /// <summary>Physical controller-1 latch, for code that reads raw <c>$8B/$8F</c> bits.</summary>
-    private readonly ControllerInputState _physicalController1;
     /// <summary>Retains the accepted-NMI display latch.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Sprite frame made visible at each accepted NMI.</summary>
@@ -53,12 +51,8 @@ internal sealed class AcceptedFrameBoundary
     private IEnemyDisplaySources? Displays => _room.Enemies?.DisplaySources;
     /// <summary>Window register cache latched with the accepted frame.</summary>
     private readonly GameplayWindowRegisters _gameplayWindows;
-    /// <summary>Owns accepted, lagged, and all-NMI frame counters.</summary>
-    private readonly FrameClock _clock;
     /// <summary>Sprite frame the main loop finalized for the next NMI.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>Controller bindings used to normalize physical buttons before the shared input latch.</summary>
-    private readonly GameplayOptions _options;
     /// <summary>Supplies Samus graphics DMA for accepted NMI transfers.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Supplies the session COLDATA shadows.</summary>
@@ -69,8 +63,6 @@ internal sealed class AcceptedFrameBoundary
     private readonly ActiveRoomState _room;
     /// <summary>Supplies the suit pickup whose COLDATA color is latched.</summary>
     private readonly SamusSuitPickupState _suitPickup;
-    /// <summary>Receives Samus tile DMA and drained video-queue writes.</summary>
-    private readonly SnesVram _vram;
     /// <summary>Supplies the frozen X-ray reveal map the publication latches.</summary>
     private readonly XrayReveal _xray;
     /// <summary>Executes the queued video transfers, whose address-sourced entries read live memory.</summary>
@@ -79,23 +71,19 @@ internal sealed class AcceptedFrameBoundary
     /// <summary>Connects controller, PPU, sprite, video-queue, and frame-clock owners to the NMI boundary.</summary>
     internal AcceptedFrameBoundary(AcceptedFrameBoundaryDependencies dependencies)
     {
+        _input = dependencies.Input;
         _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _controller1 = dependencies.Controller1;
-        _physicalController1 = dependencies.PhysicalController1;
         _display = dependencies.Display;
         _displayedSprites = dependencies.DisplayedSprites;
         _enemySession = dependencies.EnemySession;
         _gameplayWindows = dependencies.GameplayWindows;
-        _clock = dependencies.Clock;
         _sprites = dependencies.Sprites;
-        _options = dependencies.Options;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _roomFx = dependencies.RoomFx;
         _hud = dependencies.Hud;
         _suitPickup = dependencies.SuitPickup;
-        _vram = dependencies.Vram;
         _xray = dependencies.Xray;
         _drainQueuedVramWrites = dependencies.DrainQueuedVramWrites;
     }
@@ -120,14 +108,7 @@ internal sealed class AcceptedFrameBoundary
     public void BeginAcceptedFrame(SnesButton controller1Input)
     {
         PublishAcceptedFrameTransfers();
-        // Bank-$90/$91 action checks use the seven configurable WRAM masks. Canonicalizing
-        // here preserves one shared rising-edge latch and prevents different movement
-        // subsystems from interpreting a remap on different frames. Code that tests fixed
-        // bits of $8B/$8F instead (the pause menu's L/R and A) reads the physical latch.
-        _physicalController1.Latch(controller1Input);
-        _controller1.Latch(_options.ControllerBindings.Normalize(controller1Input));
-
-        _clock.AdvanceAcceptedFrame();
+        _input.Latch(controller1Input);
     }
 
     /// <summary>

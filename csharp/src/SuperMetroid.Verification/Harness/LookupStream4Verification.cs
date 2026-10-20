@@ -3044,8 +3044,7 @@ internal static class LookupStream4Verification
             for (int index = 1; index <= freeSlots; index++) enemies.SlotTable.Slots[index].Clear();
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(0x100 + 0x10 * randomCalls++));
-            Action<RoomEnemySlot, RidleyEnemyState> spawn = enemies.RidleyBehavior.SpawnNorfairRidleyBreakupActors;
-            RoomEnemySlot body = enemies.SlotTable.Slots[0];
+            Action<RidleyEnemyState> spawn = enemies.RidleyBehavior.SpawnNorfairRidleyBreakupActors;
             var state = new RidleyEnemyState
             {
                 TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
@@ -3053,9 +3052,11 @@ internal static class LookupStream4Verification
                     Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index)),
                 }).ToArray(),
             };
+            // Each part's initialization AI starts it from the encounter's shared Ridley state.
+            enemies.RidleyEncounter.Ridley = state;
             if (freeSlots < expected.Length)
-                AssertThrows<InvalidOperationException>(() => spawn(body, state), "Breakup preserves partial allocation before pool exhaustion");
-            else spawn(body, state);
+                AssertThrows<InvalidOperationException>(() => spawn(state), "Breakup preserves partial allocation before pool exhaustion");
+            else spawn(state);
             AssertTrue(state.DeathBreakupSpawned, "Breakup commits its one-shot guard before allocation");
             AssertEqual(freeSlots, randomCalls, "Breakup consumes RNG once per successfully allocated fragment only");
             for (int index = 0; index < freeSlots; index++)
@@ -3067,7 +3068,7 @@ internal static class LookupStream4Verification
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.RawValue, "Actual breakup preserves each unresolved native lifetime");
             }
-            spawn(body, state);
+            spawn(state);
             AssertEqual(freeSlots, randomCalls, "Breakup retry after success or failure does not repeat allocation or RNG");
         }
         Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion and one-shot retry behavior pass.");

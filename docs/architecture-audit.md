@@ -24,7 +24,7 @@ Each type's disposition comes from its shape:
 
 ## Findings
 
-The audit reports four structural findings:
+The audit reports five structural findings:
 
 | Flag | Meaning |
 | --- | --- |
@@ -32,6 +32,7 @@ The audit reports four structural findings:
 | `service-locator` | The type implements `IServiceProvider` or has a generic `Get<T>()`/`Resolve<T>()`. |
 | `context-bag` | The type carries eight or more service-typed members and has no behaviour. |
 | `large` | A product class has more than 1,500 hand-written lines. |
+| `wide-dependencies` | A `*Dependencies` record hands its consumer more than 12 collaborators (#1362). |
 
 Every finding fails the audit unless the type itself justifies it:
 
@@ -40,7 +41,7 @@ Every finding fails the audit unless the type itself justifies it:
 public sealed record EnemyTileArtworkParts
 ```
 
-The attribute names the finding kind (`back-reference`, `context-bag`, `service-locator`, `large`) and a reason
+The attribute names the finding kind (`back-reference`, `context-bag`, `service-locator`, `large`, `wide-dependencies`) and a reason
 specific to that type. The audit requires one per current finding and fails on a review whose finding is gone, so
 justifications cannot outlive the shape they excuse. There is no central list: nothing outside the type can
 justify its finding, and the audit never accepts a finding in bulk.

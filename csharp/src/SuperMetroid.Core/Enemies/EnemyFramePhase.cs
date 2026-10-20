@@ -29,8 +29,6 @@ internal sealed class EnemyFramePhase
     private readonly GameplayDisplayState _display;
     /// <summary>Applies room effects requested by enemies after their AI pass.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
-    /// <summary>Starts the Ceres escape countdown on the EnemyMain transition that requests it.</summary>
-    private readonly EscapeTimer _escapeTimer;
     /// <summary>Controls whether frozen-time encounters advance presentation effects.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Supplies frame counters consumed by enemy AI and animation.</summary>
@@ -55,7 +53,6 @@ internal sealed class EnemyFramePhase
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
-        _escapeTimer = dependencies.EscapeTimer;
         _freeze = dependencies.Freeze;
         _clock = dependencies.Clock;
         _sprites = dependencies.Sprites;
@@ -142,7 +139,7 @@ internal sealed class EnemyFramePhase
             {
                 // $A6:C117 starts the escape timer on the same EnemyMain call that changes
                 // ceres_status from one to two; the actor sets the boss bit itself.
-                _escapeTimer.RequestCeresStart();
+                _enemyRoomEffects.StartCeresEscape();
             }
             if (result.LayerOneXOverride is int layerOneX)
             {

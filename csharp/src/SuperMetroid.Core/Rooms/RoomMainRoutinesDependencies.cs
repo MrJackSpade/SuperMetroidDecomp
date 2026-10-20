@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Rooms;
 

@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// #1287: Ridley's typed body, breakup-fragment and fireball programs against the retail cartridge. Each typed

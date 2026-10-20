@@ -16,6 +16,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Gameplay;
 

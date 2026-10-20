@@ -1,9 +1,8 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 
-namespace SuperMetroid.Core.Areas.Tourian;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="TourianStatueSequence"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record TourianStatueSequenceDependencies

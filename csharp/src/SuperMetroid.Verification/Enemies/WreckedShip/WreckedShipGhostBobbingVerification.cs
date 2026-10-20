@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.WreckedShip;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>The visible ghost's typed bobbing speed and origin keep the cartridge's carry and wrapped comparison.</summary>
 internal static class WreckedShipGhostBobbingVerification

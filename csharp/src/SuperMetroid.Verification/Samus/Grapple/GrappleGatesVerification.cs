@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that rejected Grapple shots leave both green gate sprites visible.</summary>
 internal static class GrappleGatesVerification

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>An airborne Work Robot's typed falling speed keeps the cartridge's gravity carry and wraparound.</summary>
 internal static class WorkRobotFallVerification

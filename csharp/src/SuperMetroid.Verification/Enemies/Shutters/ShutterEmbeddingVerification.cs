@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Enemies.Shutters;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Records shutter activation, rider carry, and support gaps for the reported Brinstar overlap scenario.</summary>

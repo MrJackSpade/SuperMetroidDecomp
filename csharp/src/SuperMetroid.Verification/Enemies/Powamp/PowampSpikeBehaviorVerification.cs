@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Powamp;
 

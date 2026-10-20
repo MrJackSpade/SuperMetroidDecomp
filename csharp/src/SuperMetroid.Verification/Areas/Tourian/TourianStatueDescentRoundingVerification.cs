@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Areas.Tourian;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

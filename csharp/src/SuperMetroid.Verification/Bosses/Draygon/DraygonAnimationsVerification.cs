@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// #1283: Draygon's typed body, eye, tail, arms and projectile programs against the retail cartridge. The typed

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 namespace SuperMetroid.Verification.Rooms.SpriteObjects;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks every spawned room sprite-object kind's typed program against its native bank-$B4 list.</summary>
 internal static class RoomSpriteObjectDefinitionsVerification

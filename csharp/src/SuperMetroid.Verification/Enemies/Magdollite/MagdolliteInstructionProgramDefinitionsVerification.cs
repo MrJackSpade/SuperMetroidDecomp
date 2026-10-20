@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled Magdollite animation programs through real head, hand, and pillar behavior.</summary>
 internal static class MagdolliteInstructionProgramDefinitionsVerification

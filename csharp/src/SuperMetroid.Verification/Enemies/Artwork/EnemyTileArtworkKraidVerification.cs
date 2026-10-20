@@ -20,6 +20,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

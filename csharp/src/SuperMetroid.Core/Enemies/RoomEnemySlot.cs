@@ -19,7 +19,7 @@ public sealed class RoomEnemySlot
     [IntegerQuantity("position of the slot in the enemy table")]
     public int SlotIndex { get; }
     /// <summary>Native byte index into EnemyData, equal to <see cref="SlotIndex"/> times $40, rather than a WRAM address.</summary>
-    public int NativeIndex => SlotIndex * RoomEnemySystem.NativeSlotSize;
+    public int NativeIndex => SlotIndex * EnemySlotTable.NativeSlotSize;
     /// <summary>Enemy.ID at slot +$00: bank-$A0 header identity; zero denotes a cleared/inactive slot.</summary>
     public EnemyDefinitionId EnemyDefinitionPointer { get; private set; }
     /// <summary>Immutable resolved header for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Enemies.Shutters;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Reports observed Samus/platform overlap in the Brinstar shutter room under repeated bombs.</summary>

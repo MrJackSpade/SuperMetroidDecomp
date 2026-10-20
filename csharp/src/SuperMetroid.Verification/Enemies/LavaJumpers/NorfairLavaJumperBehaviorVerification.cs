@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.LavaJumpers;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Norfair lava jumper parent's hidden and jump animations and the follower's loop.</summary>
 internal static class NorfairLavaJumperBehaviorVerification

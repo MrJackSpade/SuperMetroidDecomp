@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies.Hoppers;
 
 /// <summary>Checks the hoppers' animation selection and the side effects of their typed programs.</summary>

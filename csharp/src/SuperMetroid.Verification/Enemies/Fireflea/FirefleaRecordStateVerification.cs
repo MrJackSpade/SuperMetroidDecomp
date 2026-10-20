@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Fireflea;
 namespace SuperMetroid.Verification.Enemies.Fireflea;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that a kill empties the Fireflea values the cartridge keeps in the enemy's common record.</summary>
 internal static class FirefleaRecordStateVerification

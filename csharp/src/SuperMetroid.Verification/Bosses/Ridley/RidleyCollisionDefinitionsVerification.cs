@@ -8,6 +8,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Retail oracle checks for Ceres and Norfair Ridley body hitboxes and both production collision walkers.</summary>
 internal static class RidleyCollisionDefinitionsVerification

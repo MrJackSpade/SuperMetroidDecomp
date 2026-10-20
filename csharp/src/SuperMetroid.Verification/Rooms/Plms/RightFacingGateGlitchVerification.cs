@@ -18,6 +18,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks two reported right-facing gate activations against captured native success and control records.</summary>

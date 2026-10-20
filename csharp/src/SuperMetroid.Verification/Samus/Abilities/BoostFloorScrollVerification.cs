@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Abilities;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks the camera after Samus breaks through the Dachora speed-boost floor.</summary>

@@ -8,6 +8,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Baby Metroid's fatal blackout, palette recovery, and one-shot SPC death cry.</summary>
 internal static class BabyMetroidDeathCryVerification

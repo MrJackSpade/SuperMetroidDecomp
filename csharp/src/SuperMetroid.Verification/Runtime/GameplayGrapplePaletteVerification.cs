@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Runtime;
+
 using SuperMetroid.Verification.Harness;
 /// <summary>Checks Grapple firing palette selection and beam-palette restoration in gameplay.</summary>
 internal static class GameplayGrapplePaletteVerification

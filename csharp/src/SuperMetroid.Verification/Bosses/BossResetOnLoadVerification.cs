@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks the opt-in boss reset policy when a saved game is loaded.</summary>

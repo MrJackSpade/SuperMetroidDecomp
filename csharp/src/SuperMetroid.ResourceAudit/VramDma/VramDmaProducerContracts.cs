@@ -22,9 +22,9 @@ internal static class VramDmaProducerContracts
             "SuperMetroid.Core.Samus.Death.SamusDeathSequenceState.QueueSegment" => "death",
             "SuperMetroid.Core.Samus.Grapple.SamusGrappleMovement.DrawConnectedBeam" => "grapple-native",
             "SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.QueueBeamTilesAndLoadPalette" => "beam",
-            "SuperMetroid.Core.Areas.Tourian.TourianStatueSequence.StepTiles" => "statues",
+            "SuperMetroid.Core.World.TourianStatueSequence.StepTiles" => "statues",
             "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillAnimatedTilesState.Step" => "treadmill",
-            "SuperMetroid.Core.Rooms.Plms.PlmFramePhase.RunPlmHandlerCore" => "plm",
+            "SuperMetroid.Core.World.PlmFramePhase.RunPlmHandlerCore" => "plm",
             _ => null,
         };
         return family is not null;

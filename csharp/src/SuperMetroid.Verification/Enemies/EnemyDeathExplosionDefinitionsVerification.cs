@@ -9,6 +9,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the five enemy death explosion selectors and production spawn behavior.</summary>
 internal static class EnemyDeathExplosionDefinitionsVerification

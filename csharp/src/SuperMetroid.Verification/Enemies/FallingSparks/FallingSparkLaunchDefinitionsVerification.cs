@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.FallingSparks;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled falling-spark launch speeds and spawned projectile motion.</summary>
 internal static class FallingSparkLaunchDefinitionsVerification

@@ -41,7 +41,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static DeadTourianExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new DeadTourianExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new DeadTourianExtensionWords())];
 
     /// <summary>Recognizes the three Tourian corpse enemy headers handled by this owner.</summary>
     internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionPointer) =>

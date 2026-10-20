@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.FaceBlocks;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the signed horizontal distance the face block's main AI records once Samus is in vertical range.</summary>
 internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification

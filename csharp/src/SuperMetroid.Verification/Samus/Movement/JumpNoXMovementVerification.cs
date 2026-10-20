@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Movement;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

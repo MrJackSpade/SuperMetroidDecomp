@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// Checks the Yapping Maw's signed 16.16 curl through the production extension update: the fraction's carry into the

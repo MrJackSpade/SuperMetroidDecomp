@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.MamaTurtles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled Mama and Baby Turtle headers in their retail room population.</summary>
 internal static class MamaTurtleEnemyDefinitionsVerification

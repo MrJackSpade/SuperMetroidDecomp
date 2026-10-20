@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that a kill empties the Ridley explosion fragment values the cartridge keeps in the enemy's common record.</summary>
 internal static class RidleyExplosionFragmentRecordStateVerification

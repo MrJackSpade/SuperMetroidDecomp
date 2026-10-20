@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Yard;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Yard landing, kick, airborne motion, and room trajectory behavior.</summary>
 internal static class YardTrajectoriesVerification

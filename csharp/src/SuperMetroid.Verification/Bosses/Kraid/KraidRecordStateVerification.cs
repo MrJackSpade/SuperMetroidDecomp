@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks a Kraid part's shared record words and that a kill empties them.</summary>
 internal static class KraidRecordStateVerification

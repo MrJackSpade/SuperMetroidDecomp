@@ -1,6 +1,6 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.MamaTurtles;
-using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -22,7 +22,7 @@ public sealed class BabyTurtleEnemyState
     public int ParentSlotIndex
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue / RoomEnemySystem.NativeSlotSize, value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue / EnemySlotTable.NativeSlotSize, value);
     }
 
     /// <summary>

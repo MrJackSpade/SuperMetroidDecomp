@@ -6,6 +6,7 @@ using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Verification.Areas.Maridia;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus;
 

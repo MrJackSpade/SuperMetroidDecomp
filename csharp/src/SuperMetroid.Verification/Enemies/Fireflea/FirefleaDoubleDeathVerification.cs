@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Verification.Enemies.Fireflea;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

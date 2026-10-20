@@ -364,8 +364,8 @@ static (ushort X, ushort Y) ObserveSolidEnemyProbeTarget(
                 Radius = new(samus.Radius.X, samus.Radius.Y),
             };
             var enemy = new SolidEnemyCollisionBody(
-                Index: 0x0040, Position: new(unchecked((ushort)enemyX), unchecked((ushort)enemyY)),
-                Radius: new(1, 1), Frozen: false, Properties: EnemyPropertyWord.FromNativeWord(0x8000));
+                Slot: 1, Index: 0x0040, Position: new(unchecked((ushort)enemyX), unchecked((ushort)enemyY)),
+                Radius: new(1, 1), Solid: true);
             if (!SamusSolidEnemyCollision.Probe(
                     probeState, [enemy], direction, distance, distanceSubposition).Collided)
                 continue;
@@ -461,8 +461,8 @@ internal static void VerifySamusSolidEnemyCollision()
         Position = new(new(0x00c5, 0), new(0x0085, 0x9800)), Radius = new(5, 0x13),
     };
     var frozenRinka = new SolidEnemyCollisionBody(
-        Index: 0x00c0, Position: new(0x00c8, 0x00a3), Radius: new(8, 8),
-        Frozen: true, Properties: EnemyPropertyWord.FromNativeWord(0x2800));
+        Slot: 3, Index: 0x00c0, Position: new(0x00c8, 0x00a3), Radius: new(8, 8),
+        Solid: true);
     SolidEnemyCollisionResult landing = SamusSolidEnemyCollision.Probe(
         falling, [frozenRinka], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
     AssertTrue(landing.Collided, "a falling Samus lands on the frozen Rinka");
@@ -470,8 +470,8 @@ internal static void VerifySamusSolidEnemyCollision()
 
     samus.Position = samus.Position.WithFractionX(0).WithFractionY(0x7777);
     var decorative = new SolidEnemyCollisionBody(
-        Index: 0x0040, Position: new(110, 100), Radius: new(5, 5),
-        Frozen: false, Properties: EnemyPropertyWord.FromNativeWord(0));
+        Slot: 1, Index: 0x0040, Position: new(110, 100), Radius: new(5, 5),
+        Solid: false);
     SolidEnemyCollisionResult ignored = SamusSolidEnemyCollision.Probe(
         samus, [decorative], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
     AssertTrue(!ignored.Collided, "non-solid unfrozen enemy is ignored");
@@ -480,9 +480,10 @@ internal static void VerifySamusSolidEnemyCollision()
     // the future box overlaps and the routine clips the requested distance to exactly one.
     SolidEnemyCollisionBody frozen = decorative with
     {
+        Slot = 2,
         Index = 0x0080,
         Position = decorative.Position.WithX(111),
-        Frozen = true,
+        Solid = true,
     };
     SolidEnemyCollisionResult frozenHit = SamusSolidEnemyCollision.Probe(
         samus, [frozen], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
@@ -496,8 +497,9 @@ internal static void VerifySamusSolidEnemyCollision()
     // whose STZ $0AFC bug clears Y subposition even though this is a horizontal probe.
     SolidEnemyCollisionBody solidTouch = decorative with
     {
+        Slot = 3,
         Index = 0x00c0,
-        Properties = EnemyPropertyWord.FromNativeWord(0x8000),
+        Solid = true,
     };
     SolidEnemyCollisionResult touching = SamusSolidEnemyCollision.Probe(
         samus, [solidTouch], SamusCollisionDirection.Right, distance: 1, distanceSubposition: 0);

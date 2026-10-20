@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Rooms.Backgrounds;
+﻿using SuperMetroid.Core.World;
+
+namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
 /// The background scroll phase: scroll registers from the camera and layer-1 position adoption. Backgrounds render from

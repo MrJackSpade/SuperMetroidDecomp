@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Pause;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 

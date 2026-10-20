@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Ripper;
 namespace SuperMetroid.Verification.Enemies.Ripper;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the GRipper and Ripper II state the variants own: the 16.16 velocity from the speed record and the cleared record.</summary>
 internal static class RipperVariantOwnedStateVerification

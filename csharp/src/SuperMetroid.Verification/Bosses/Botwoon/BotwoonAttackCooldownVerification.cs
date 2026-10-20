@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// Botwoon's spit cooldown is a countdown that expires by wrapping below zero (DEC then BMI): the expiring step pins

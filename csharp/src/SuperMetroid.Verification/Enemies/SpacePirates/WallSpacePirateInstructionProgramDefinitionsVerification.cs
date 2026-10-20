@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled wall Space Pirate attack and climbing programs through production enemy behavior.</summary>
 internal static class WallSpacePirateInstructionProgramDefinitionsVerification

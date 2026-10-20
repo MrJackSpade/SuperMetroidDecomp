@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Platforms;
 namespace SuperMetroid.Verification.Enemies.Platforms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Tripper and Kamer state the platforms own: speeds, resting height, acceleration and the cleared record.</summary>
 internal static class PlatformOwnedStateVerification

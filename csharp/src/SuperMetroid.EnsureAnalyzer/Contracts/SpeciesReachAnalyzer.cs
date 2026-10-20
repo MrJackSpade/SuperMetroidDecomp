@@ -18,7 +18,7 @@ public sealed class SpeciesReachAnalyzer : DiagnosticAnalyzer
     public const string Id = "SME6407";
 
     /// <summary>The enemy system whose species properties are guarded.</summary>
-    internal const string EnemySystemMetadataName = "SuperMetroid.Core.Enemies.RoomEnemySystem";
+    internal const string EnemySystemMetadataName = "SuperMetroid.Core.World.RoomEnemySystem";
 
     /// <summary>The Core modules that own species and may reach them directly.</summary>
     private static readonly ImmutableHashSet<string> OwningModules = ImmutableHashSet.Create(StringComparer.Ordinal, "Enemies", "Bosses");
@@ -64,6 +64,9 @@ public sealed class SpeciesReachAnalyzer : DiagnosticAnalyzer
             return;
         string module = ModuleOf(reference.Syntax.SyntaxTree.FilePath);
         if (OwningModules.Contains(module))
+            return;
+        // The enemy system composes the species it holds; its own members build and wire them.
+        if (SymbolEqualityComparer.Default.Equals(context.ContainingSymbol.ContainingType, enemySystem))
             return;
         context.ReportDiagnostic(Diagnostic.Create(Rule, reference.Syntax.GetLocation(), property.Name, module));
     }

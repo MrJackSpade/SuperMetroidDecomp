@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Hud;
 

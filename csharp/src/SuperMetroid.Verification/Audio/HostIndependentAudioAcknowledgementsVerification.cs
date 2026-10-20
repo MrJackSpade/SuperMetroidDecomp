@@ -12,6 +12,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Audio;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 

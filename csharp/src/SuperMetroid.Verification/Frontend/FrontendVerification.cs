@@ -22,6 +22,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Focused cartridge and rendering checks for frontend presentation and demo input.</summary>

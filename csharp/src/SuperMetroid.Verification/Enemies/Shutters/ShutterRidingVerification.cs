@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Enemies.Shutters;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks that Morph Ball rides and rolls off both bomb-raised shutters in the retail room.</summary>

@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Enemies.Ripper;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that each Ripper variant starts, runs and reverses its typed flying loop as the cartridge does.</summary>
 internal static class RipperBehaviorVerification

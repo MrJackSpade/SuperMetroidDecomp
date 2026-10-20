@@ -19,6 +19,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Grapple;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Gameplay;
 

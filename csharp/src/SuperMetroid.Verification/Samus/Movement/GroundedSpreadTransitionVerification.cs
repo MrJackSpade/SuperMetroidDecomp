@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Movement;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks charged bomb-spread input through grounded morph and unmorph transitions.</summary>

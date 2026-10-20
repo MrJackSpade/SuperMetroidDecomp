@@ -16,6 +16,7 @@ namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.World;
 
 /// <summary>Post-Ceres gunship descent, landing, entry-sound, and escape-takeoff fixtures.</summary>
 internal static class GunshipLandingVerification

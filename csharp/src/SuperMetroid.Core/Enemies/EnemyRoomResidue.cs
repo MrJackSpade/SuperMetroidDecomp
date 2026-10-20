@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies;
 

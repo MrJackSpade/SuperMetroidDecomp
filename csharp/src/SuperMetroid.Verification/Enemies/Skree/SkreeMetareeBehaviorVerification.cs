@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Skree;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Skree's and Metaree's idle, wind-up, dive and stop animations and the cues they hand to main AI.</summary>
 internal static class SkreeMetareeBehaviorVerification

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Puyo;
 namespace SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Puyo state the species owns: the airborne index's two sign-bit restarts and the cleared record.</summary>
 internal static class PuyoOwnedStateVerification

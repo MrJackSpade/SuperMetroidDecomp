@@ -2,6 +2,7 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
 

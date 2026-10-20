@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Rooms.Doors;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Fune's waiting count against its cooldown time, including the count's wrap and signed comparison.</summary>
 internal static class FuneNamiheCooldownVerification

@@ -9,6 +9,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Kraid mouth hitbox geometry and lower-bank bus behavior against retail cartridge and live address-space reads.</summary>
 internal static class KraidMouthHitboxesVerification

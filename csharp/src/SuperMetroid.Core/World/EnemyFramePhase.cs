@@ -1,13 +1,13 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The enemy phase of a gameplay frame: preparing the enemy frame, running EnemyMain, and resolving beam hits
@@ -116,14 +116,14 @@ internal sealed class EnemyFramePhase
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
             }
-            if (!_freeze.TimeIsFrozen && room.Enemies.MotherBrainEncounter.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
+            if (!_freeze.TimeIsFrozen && room.Enemies.DisplaySources.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
             {
                 rainbowBrain.RainbowBeamHdma.PresentationColors = room.Enemies.Presentation.MotherBrainRainbowColors;
                 rainbowBrain.RainbowBeamHdma.Step(rainbowBrain.RainbowBeamHdmaActive,
                     rainbowHead.Position.Whole,
                     rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
             }
-            if (room.Enemies.PhantoonBehavior.Combat.Phantoon is { } phantoon)
+            if (room.Enemies.DisplaySources.Phantoon is { } phantoon)
             {
                 // Phantoon's body is BG2 artwork anchored by the bank-$A7 scroll writes,
                 // while eye/tentacle collision follows enemy positions. Publish those

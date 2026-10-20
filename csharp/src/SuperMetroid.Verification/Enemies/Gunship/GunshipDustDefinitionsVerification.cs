@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Gunship;
 

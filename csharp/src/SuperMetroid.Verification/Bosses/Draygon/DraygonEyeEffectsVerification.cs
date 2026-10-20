@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Bosses.Draygon;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks Draygon eye dust emission timing and facing-relative spawn position.</summary>

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Kraid;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that a kill empties the FakeKraid values the cartridge keeps in the enemy's common record.</summary>
 internal static class FakeKraidRecordStateVerification

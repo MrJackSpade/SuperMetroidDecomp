@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Skultera;
 namespace SuperMetroid.Verification.Enemies.Skultera;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Skultera state the species owns: its oscillation phase wrap, speeds and the cleared record.</summary>
 internal static class SkulteraOwnedStateVerification

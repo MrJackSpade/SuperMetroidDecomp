@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Sbug;
 namespace SuperMetroid.Verification.Enemies.Sbug;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that a kill empties the Sbug values the cartridge keeps in the enemy's common record.</summary>
 internal static class SbugRecordStateVerification

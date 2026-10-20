@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidNailContourMappingsVeri
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

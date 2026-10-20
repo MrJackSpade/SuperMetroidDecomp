@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks shared enemy linear-speed windows and direct family initialization against cartridge data.</summary>
 internal static class EnemyLinearSpeedsVerification

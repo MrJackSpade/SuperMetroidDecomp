@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Owtch;
 namespace SuperMetroid.Verification.Enemies.Owtch;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Owtch's typed patrol speeds and burial depth keep the cartridge's carry, wraparound and slot words.</summary>
 internal static class OwtchPatrolStateVerification

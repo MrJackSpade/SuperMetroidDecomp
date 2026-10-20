@@ -11,6 +11,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// Checks #1343's enemy-format draws: an ordinary enemy, an extended enemy and an enemy projectile publish whole-frame
@@ -76,7 +77,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.SpritemapPointer = extendedFrame.Pointer;
         extended.InstructionTimer = NativeCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
-        enemies.Drawing.Enqueue(1, RoomEnemySystem.NativeSlotSize);
+        enemies.Drawing.Enqueue(1, EnemySlotTable.NativeSlotSize);
 
         // Enemy projectile in the high-priority pass.
         EnemyProjectileFrameId projectileFrame = EnemyProjectilePresentationFrameSets.All.ToArray()

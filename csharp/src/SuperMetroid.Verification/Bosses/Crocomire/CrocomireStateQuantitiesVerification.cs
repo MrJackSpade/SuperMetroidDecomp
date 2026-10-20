@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// Crocomire's encounter quantities stored as ordinary integers and typed fixed-point values instead of the body

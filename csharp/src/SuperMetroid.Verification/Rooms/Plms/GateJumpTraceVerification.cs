@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Rooms.Plms;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Compares gate-jump trajectories and switch activation with recorded native CPU traces.</summary>

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Areas.Escape;
 

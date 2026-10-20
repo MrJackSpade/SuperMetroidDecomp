@@ -31,6 +31,7 @@ namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.World;
 
 /// <summary>Compares installed ROM-free frontend execution with a cartridge-backed reference.</summary>
 internal static class FrontendRomFreeVerification

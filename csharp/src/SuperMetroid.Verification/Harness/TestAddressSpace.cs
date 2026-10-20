@@ -3,6 +3,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Harness;
+
 using SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>
@@ -78,14 +79,14 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     {
         int cursor = RoomEnemyRomLayout.PopulationBank | pointer;
         var records = new List<RoomEnemyPopulationRecord>();
-        for (int slot = 0; slot <= RoomEnemySystem.MaximumEnemyCount; slot++)
+        for (int slot = 0; slot <= EnemySlotTable.MaximumEnemyCount; slot++)
         {
             ushort definitionPointerWord = ReadFixtureWord(cursor);
             if (definitionPointerWord == 0xffff)
                 return new RoomEnemyPopulationDefinition(
                     $"fixture population ${pointer:X4}", records.ToArray(), ReadByte(cursor + 2));
             EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
-            if (slot == RoomEnemySystem.MaximumEnemyCount)
+            if (slot == EnemySlotTable.MaximumEnemyCount)
                 throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");
             records.Add(new RoomEnemyPopulationRecord(definitionPointer, new(ReadFixtureWord(cursor + 2), ReadFixtureWord(cursor + 4)), ReadFixtureWord(cursor + 6), EnemyPropertyWord.FromNativeWord(ReadFixtureWord(cursor + 8)), EnemyExtraPropertyWord.FromNativeWord(ReadFixtureWord(cursor + 10)), ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
             cursor += 16;

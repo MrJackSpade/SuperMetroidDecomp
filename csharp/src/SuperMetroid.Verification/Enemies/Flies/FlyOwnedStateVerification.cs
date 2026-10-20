@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Flies;
 namespace SuperMetroid.Verification.Enemies.Flies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the fly state the family owns: the circling phase's revolution and wrap, and the cleared record.</summary>
 internal static class FlyOwnedStateVerification

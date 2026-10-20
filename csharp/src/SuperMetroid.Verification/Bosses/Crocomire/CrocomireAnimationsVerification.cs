@@ -13,6 +13,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// #1282: Crocomire's typed body, tongue and projectile programs against the retail cartridge. Minimal readers walk

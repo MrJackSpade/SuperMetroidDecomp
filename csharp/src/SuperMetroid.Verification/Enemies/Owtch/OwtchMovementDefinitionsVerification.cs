@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies.Owtch;
 /// <summary>Checks Owtch timer and travel-distance definitions through real initialization.</summary>
 internal static class OwtchMovementDefinitionsVerification

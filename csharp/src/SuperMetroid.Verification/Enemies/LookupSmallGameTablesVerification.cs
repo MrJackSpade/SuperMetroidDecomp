@@ -3,8 +3,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies;
 

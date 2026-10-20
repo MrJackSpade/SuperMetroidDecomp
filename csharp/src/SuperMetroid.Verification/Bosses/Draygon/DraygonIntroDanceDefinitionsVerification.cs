@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Draygon intro latency and movement definitions against ROM and the full Evir trajectory.</summary>
 internal static class DraygonIntroDanceDefinitionsVerification

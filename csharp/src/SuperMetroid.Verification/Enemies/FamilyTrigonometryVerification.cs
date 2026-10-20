@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies;
 

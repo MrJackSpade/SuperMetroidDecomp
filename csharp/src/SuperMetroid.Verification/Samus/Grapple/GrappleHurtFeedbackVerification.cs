@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Samus.Grapple;
+
 using SuperMetroid.Verification.Harness;
 /// <summary>Checks damage feedback when Samus remains attached to a Grapple swing.</summary>
 internal static class GrappleHurtFeedbackVerification

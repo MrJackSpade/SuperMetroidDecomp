@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Mini-Kraid's typed programs and their cues through its real initializer, walks and spits.</summary>
 internal static class FakeKraidInstructionProgramDefinitionsVerification

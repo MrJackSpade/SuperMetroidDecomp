@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Verification.Enemies.Shutters;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

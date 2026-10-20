@@ -13,6 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// #1284: Kraid's typed foot, arm, lint, fingernail and rock programs against the retail cartridge. The typed part

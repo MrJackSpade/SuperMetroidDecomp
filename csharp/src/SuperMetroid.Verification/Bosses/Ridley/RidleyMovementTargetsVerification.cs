@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Ridley's compiled movement targets and health divisors through live motion.</summary>
 internal static class RidleyMovementTargetsVerification

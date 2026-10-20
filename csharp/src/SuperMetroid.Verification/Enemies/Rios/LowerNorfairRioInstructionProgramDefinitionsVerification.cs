@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Rios;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Lower Norfair Rio's (Holtz's) typed parent and flame animations.</summary>
 internal static class LowerNorfairRioInstructionProgramDefinitionsVerification

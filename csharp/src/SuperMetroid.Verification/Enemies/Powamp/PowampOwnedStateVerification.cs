@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Powamp;
 namespace SuperMetroid.Verification.Enemies.Powamp;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Powamp state each half owns: the balloon's spawn and grapple rise, the body's velocity, and the cleared record.</summary>
 internal static class PowampOwnedStateVerification

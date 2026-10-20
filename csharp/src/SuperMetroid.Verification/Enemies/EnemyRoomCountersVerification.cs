@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// Checks the room-wide enemy counters stored as ordinary quantities: each accepts exactly the range its producers can
@@ -21,14 +22,14 @@ internal static class EnemyRoomCountersVerification
         AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.FirefleaDarknessLevel = -1,
             "darkness rejects a negative level");
 
-        enemies.SlotTable.EnemyCount = RoomEnemySystem.MaximumEnemyCount;
+        enemies.SlotTable.EnemyCount = EnemySlotTable.MaximumEnemyCount;
         AssertEqual(32, enemies.SlotTable.EnemyCount, "a full population fills every slot");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.SlotTable.EnemyCount = RoomEnemySystem.MaximumEnemyCount + 1,
+        AssertThrows<ArgumentOutOfRangeException>(() => enemies.SlotTable.EnemyCount = EnemySlotTable.MaximumEnemyCount + 1,
             "the population count cannot exceed the slot table");
-        enemies.SlotTable.FirstFreeEnemyIndex = RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize;
+        enemies.SlotTable.FirstFreeEnemyIndex = EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize;
         AssertEqual(2048, enemies.SlotTable.FirstFreeEnemyIndex, "a full population puts the frontier past the last slot");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => enemies.SlotTable.FirstFreeEnemyIndex = RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize + 1,
+            () => enemies.SlotTable.FirstFreeEnemyIndex = EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize + 1,
             "the allocation frontier cannot pass the slot table");
 
         enemies.RoomStatus.EnemiesKilled = ushort.MaxValue;

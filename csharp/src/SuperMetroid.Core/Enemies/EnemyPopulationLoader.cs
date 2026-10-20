@@ -43,7 +43,7 @@ internal sealed class EnemyPopulationLoader
         {
             RoomEnemyPopulationRecord population = records[slotIndex];
             EnemyDefinitionId definitionPointer = population.DefinitionPointer;
-            if (slotIndex == RoomEnemySystem.MaximumEnemyCount)
+            if (slotIndex == EnemySlotTable.MaximumEnemyCount)
             {
                 throw new InvalidDataException(
                     $"Enemy population {populationDefinition.Name} has more than 32 records.");
@@ -75,6 +75,6 @@ internal sealed class EnemyPopulationLoader
             return;
         DeathQuota = populationDefinition.DeathQuota;
         _slotTable.EnemyCount = unchecked((ushort)records.Length);
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)(records.Length * RoomEnemySystem.NativeSlotSize));
+        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)(records.Length * EnemySlotTable.NativeSlotSize));
     }
 }

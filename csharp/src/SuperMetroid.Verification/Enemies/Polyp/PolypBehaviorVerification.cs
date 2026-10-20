@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Enemies.Polyp;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that Polyp starts its stationary pose and holds it.</summary>
 internal static class PolypBehaviorVerification

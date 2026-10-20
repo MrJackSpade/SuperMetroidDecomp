@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.Beetom;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Beetom state the species owns: its arc speed index at the apex and the floor, and the cleared record.</summary>
 internal static class BeetomOwnedStateVerification

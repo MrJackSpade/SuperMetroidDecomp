@@ -7,6 +7,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Shaktool orientation and collision selectors alongside compiled segment instruction programs.</summary>
 internal static class ShaktoolInstructionDefinitionsVerification

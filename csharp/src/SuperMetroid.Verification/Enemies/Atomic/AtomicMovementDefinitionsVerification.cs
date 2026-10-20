@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Atomic.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Atomic;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Retail-word and guarded-execution checks for Atomic movement and animation selectors.</summary>
 internal static class AtomicMovementDefinitionsVerification

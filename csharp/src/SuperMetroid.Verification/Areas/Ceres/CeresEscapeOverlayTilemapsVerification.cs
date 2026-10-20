@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 

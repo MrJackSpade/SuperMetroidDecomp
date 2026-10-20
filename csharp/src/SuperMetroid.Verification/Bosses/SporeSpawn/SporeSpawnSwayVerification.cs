@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Spore Spawn's sway phase, stored as a turn angle, wraps around the turn exactly as the cartridge's byte phase does.</summary>
 internal static class SporeSpawnSwayVerification

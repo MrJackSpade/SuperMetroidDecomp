@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Enemies.Metroids;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks the frozen Mochtroid pipe clip and its one-pixel failure case against native Botwoon Hallway checkpoints.</summary>

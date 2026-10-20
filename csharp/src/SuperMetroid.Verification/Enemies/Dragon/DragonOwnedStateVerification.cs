@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Dragon;
 namespace SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Dragon state each record owns: the body/wing selection and the cleared record.</summary>
 internal static class DragonOwnedStateVerification

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Rios;
 namespace SuperMetroid.Verification.Enemies.Rios;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Rio and Norfair Rio state the species own: the follower selection and the cleared record.</summary>
 internal static class RioOwnedStateVerification

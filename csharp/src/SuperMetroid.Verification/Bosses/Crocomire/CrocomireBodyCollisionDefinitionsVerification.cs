@@ -8,6 +8,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Crocomire's compiled body collision records and production hitbox walker against the cartridge.</summary>
 internal static class CrocomireBodyCollisionDefinitionsVerification

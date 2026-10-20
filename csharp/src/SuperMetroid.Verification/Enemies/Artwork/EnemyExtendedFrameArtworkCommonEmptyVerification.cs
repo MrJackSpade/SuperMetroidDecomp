@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks bank-local shared empty enemy frames across ordinary draw, extended draw, and collision.</summary>
 internal static class EnemyExtendedFrameArtworkCommonEmptyVerification

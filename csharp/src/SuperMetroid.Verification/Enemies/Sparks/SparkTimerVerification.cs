@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Sparks;
 namespace SuperMetroid.Verification.Enemies.Sparks;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Spark's owned countdown: the cartridge's <c>DEC; BEQ</c> expiry, its wrap from zero, and the cleared record.</summary>
 internal static class SparkTimerVerification

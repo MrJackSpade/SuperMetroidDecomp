@@ -16,6 +16,7 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Draygon's full BG2 staging and DMA output from a fresh room.</summary>
 internal static class DraygonTilemapProductionVerification

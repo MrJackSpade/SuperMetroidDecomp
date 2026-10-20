@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Grapple;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

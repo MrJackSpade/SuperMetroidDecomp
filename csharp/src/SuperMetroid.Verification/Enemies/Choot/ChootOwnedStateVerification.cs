@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Choot;
 namespace SuperMetroid.Verification.Enemies.Choot;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Choot state the species owns: the ascent index's apex underflow and the cleared record.</summary>
 internal static class ChootOwnedStateVerification

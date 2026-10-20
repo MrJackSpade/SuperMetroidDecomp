@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Runtime;
 /// Ordinary non-elevator state-$0B coroutine from <c>$82:E29E-$82:E76A</c>.
 /// </summary>
 /// <remarks>
-/// Room construction remains in <see cref="SuperMetroid.Core.Rooms.RoomLoader.LoadPendingDoorDestination"/>;
+/// Room construction remains in <see cref="SuperMetroid.Core.World.RoomLoader.LoadPendingDoorDestination"/>;
 /// this owner restores the observable stages that surround it: three-library drain, shared
 /// palette fade, source-camera alignment, black-screen opening scroll, music drain, final
 /// nudge ownership, and destination palette fade-in.

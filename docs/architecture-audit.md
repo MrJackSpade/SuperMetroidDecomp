@@ -72,6 +72,17 @@ slice of lines out (#1395):
   A component never receives its creator: dependencies between components run one way, passed at construction,
   so the split introduces no `back-reference` finding.
 
+## Composition sits above what it composes
+
+A Core module cycle is broken by moving each dependency to the side it belongs on, never by merging modules or
+recording the cycle (#1395). Code that assembles a room from every domain (the enemy system that constructs each
+species, room loading, door transitions, the room scope and the per-frame phases that step enemies, PLMs and effects
+together) lives in the `World` module, above the domains it composes. A domain below it never names the composition:
+it states what it needs as a capability interface in its own module (`IEnemyPlmSpawns`, `IEnemyPlmRequests`,
+`IEnemyDisplaySources`), and `World` implements it over the species. Shared facts a lower domain needs move to the
+lowest type that owns them: the enemy slot limits are `EnemySlotTable`'s, and a solid enemy body carries its slot and
+whether it blocks Samus instead of the raw enemy words Samus would have to decode.
+
 ## Partial types
 
 The build analyzer enforces partial-type rules in every project:

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 /// <summary>Checks Fune and Namihe animation selectors against native words and production installs.</summary>
 internal static class FuneNamiheDefinitionsVerification

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks ordinary and special Rinka instruction loops, fire callbacks, and visual selectors.</summary>
 internal static class RinkaInstructionProgramDefinitionsVerification

@@ -11,6 +11,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

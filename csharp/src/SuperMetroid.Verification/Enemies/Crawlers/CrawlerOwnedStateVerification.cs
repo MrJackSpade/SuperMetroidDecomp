@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the crawler state the families own: the initial velocity reset and the cleared record.</summary>
 internal static class CrawlerOwnedStateVerification

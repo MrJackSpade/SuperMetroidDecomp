@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Ending;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Reproduces main-loop RNG timing through the ending's initial NMI waits.</summary>

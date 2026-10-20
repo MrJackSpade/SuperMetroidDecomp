@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that a missile hit resets Mother Brain's sequence-owned walk counter.</summary>
 internal static class MotherBrainMissileWalkResetVerification

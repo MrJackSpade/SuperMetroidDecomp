@@ -16,6 +16,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.World;
 
 /// <summary>Constructed-room checks for both eye-door facings, their linked PLMs and spawned enemy projectiles.</summary>
 internal static class EyeDoorPlmsVerification

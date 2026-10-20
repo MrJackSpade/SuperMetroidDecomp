@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

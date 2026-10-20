@@ -1,12 +1,10 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 
-namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="DoorTransitionRunner"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record DoorTransitionRunnerDependencies

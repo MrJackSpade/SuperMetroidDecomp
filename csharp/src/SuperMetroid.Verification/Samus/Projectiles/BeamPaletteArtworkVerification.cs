@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Verification.Samus.Projectiles;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks beam palette extraction, live ownership, and editable color changes.</summary>

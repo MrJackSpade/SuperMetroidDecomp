@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Gunship;
 

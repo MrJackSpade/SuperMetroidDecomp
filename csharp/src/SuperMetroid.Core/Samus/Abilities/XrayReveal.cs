@@ -1,8 +1,8 @@
-﻿using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Progression;
+﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Xray;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 

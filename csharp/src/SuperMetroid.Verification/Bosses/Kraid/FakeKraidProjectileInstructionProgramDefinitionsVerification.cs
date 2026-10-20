@@ -10,6 +10,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Fake Kraid's typed spit and spike programs against the retail lists through the real producers.</summary>
 internal static class FakeKraidProjectileInstructionProgramDefinitionsVerification

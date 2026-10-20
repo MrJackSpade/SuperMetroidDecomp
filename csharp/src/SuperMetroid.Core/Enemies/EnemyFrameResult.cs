@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies;
 

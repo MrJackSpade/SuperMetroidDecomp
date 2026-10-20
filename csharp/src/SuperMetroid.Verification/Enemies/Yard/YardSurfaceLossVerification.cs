@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Enemies.Yard;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>A crawling Yard's typed missing-surface count drops it on the fourth consecutive miss, as the cartridge's does.</summary>
 internal static class YardSurfaceLossVerification

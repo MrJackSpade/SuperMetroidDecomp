@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Sbug;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Retail-word and guarded-execution checks for compiled Sbug movement programs.</summary>
 internal static class SbugMovementDefinitionsVerification

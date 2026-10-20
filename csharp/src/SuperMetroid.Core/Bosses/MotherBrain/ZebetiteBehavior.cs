@@ -259,7 +259,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _dispatch.InitializeSlotFromDefinition(spawned, population, definition);
         _dispatch.RunInitializationAi(spawned, EnemySpawnSurroundings.None);
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)Math.Max(_slotTable.FirstFreeEnemyIndex, (slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
+        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)Math.Max(_slotTable.FirstFreeEnemyIndex, (slotIndex + 1) * EnemySlotTable.NativeSlotSize));
         return spawned;
     }
 
@@ -268,8 +268,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         LastZebetiteSoundEffect = ZebetiteShotSound;
         ushort linkedIndex = checked((ushort)struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex);
-        if (linkedIndex >= RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize ||
-            linkedIndex % RoomEnemySystem.NativeSlotSize != 0)
+        if (linkedIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize ||
+            linkedIndex % EnemySlotTable.NativeSlotSize != 0)
         {
             throw new InvalidDataException(
                 $"Zebetite slot {struck.SlotIndex} contains invalid linked index " +

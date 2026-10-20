@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Bosses.Kraid;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks Kraid arm contact through extended-spritemap rectangles instead of its header radius.</summary>

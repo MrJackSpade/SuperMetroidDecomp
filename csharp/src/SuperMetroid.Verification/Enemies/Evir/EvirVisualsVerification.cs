@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Evir;
 

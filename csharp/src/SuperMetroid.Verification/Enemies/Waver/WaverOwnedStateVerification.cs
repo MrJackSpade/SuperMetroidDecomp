@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Waver;
 namespace SuperMetroid.Verification.Enemies.Waver;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Waver state the species owns: its 16.16 velocity, the wave phase's wraps and the cleared record.</summary>
 internal static class WaverOwnedStateVerification

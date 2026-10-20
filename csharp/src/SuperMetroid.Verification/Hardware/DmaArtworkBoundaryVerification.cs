@@ -16,6 +16,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks installed artwork ownership for Kraid background and death-sequence DMA transfers.</summary>
 internal static class DmaArtworkBoundaryVerification

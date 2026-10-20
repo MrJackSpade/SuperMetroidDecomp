@@ -7,6 +7,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Areas.Tourian;
 
 /// <summary>Compares Tourian statue animated-object initialization with the

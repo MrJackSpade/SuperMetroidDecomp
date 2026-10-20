@@ -31,7 +31,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static RipperExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new RipperExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new RipperExtensionWords())];
 
     /// <summary>Ports <c>InitAI_GRipper</c> at $A2:E1D3.</summary>
     internal void InitializeGRipper(RoomEnemySlot slot)

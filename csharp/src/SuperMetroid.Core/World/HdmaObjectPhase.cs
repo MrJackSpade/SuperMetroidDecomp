@@ -1,9 +1,8 @@
 ﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Advances the HDMA objects' pre-instructions each frame: the shared layer-3 HDMA state and the Tourian statue

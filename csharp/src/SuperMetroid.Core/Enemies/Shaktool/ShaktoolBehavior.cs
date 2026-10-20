@@ -63,7 +63,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TargetAngle = SnesAngle.Zero;
         state.ResetOrientation();
         slot.Properties = slot.Properties.With(definition.PropertyMask);
-        state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerNativeOffset / RoomEnemySystem.NativeSlotSize;
+        state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerNativeOffset / EnemySlotTable.NativeSlotSize;
         state.PreInstruction = definition.PreInstruction;
         // Native initialization subtracts the parallel all-zero table; synchronization
         // uses the same authored velocity directly.
@@ -364,7 +364,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The slot of the chain's first segment, which must be one of the room's enemy slots.</summary>
     private RoomEnemySlot OwnerSlot(ShaktoolSegmentState state)
     {
-        if (state.OwnerSlotIndex is < 0 or >= RoomEnemySystem.MaximumEnemyCount)
+        if (state.OwnerSlotIndex is < 0 or >= EnemySlotTable.MaximumEnemyCount)
             throw new ArgumentOutOfRangeException(nameof(state), $"Shaktool owner slot {state.OwnerSlotIndex} is not an enemy slot.");
         return _slotTable.Slots[state.OwnerSlotIndex];
     }

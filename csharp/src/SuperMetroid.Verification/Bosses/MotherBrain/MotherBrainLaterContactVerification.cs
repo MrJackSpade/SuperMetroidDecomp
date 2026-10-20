@@ -10,6 +10,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks later-form Mother Brain contact and projectile blocking.</summary>
 internal static class MotherBrainLaterContactVerification

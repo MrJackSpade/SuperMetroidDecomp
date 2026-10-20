@@ -3,6 +3,9 @@
 /// <summary>The room's bank-$B4 enemy graphics set: the staged tiles and palettes, their uploads, and each enemy's tile and palette indexes.</summary>
 internal sealed class EnemyGraphicsSet
 {
+    /// <summary>Maximum four enemy graphics-set entries accepted by the native room tileset arrays.</summary>
+    public const int MaximumGraphicsSetCount = 4;
+
     /// <summary>Supplies the selected enemy artwork and guards room-bound operations.</summary>
     private readonly EnemyRoomBinding _room;
 
@@ -51,7 +54,7 @@ internal sealed class EnemyGraphicsSet
         foreach (RoomEnemyGraphicsSetHeader source in graphicsSet.Records.Span)
         {
             EnemyDefinitionId definitionPointer = source.DefinitionPointer;
-            if (Entries.Count == RoomEnemySystem.MaximumGraphicsSetCount)
+            if (Entries.Count == EnemyGraphicsSet.MaximumGraphicsSetCount)
             {
                 throw new InvalidDataException(
                     $"Enemy graphics set {graphicsSet.Name} exceeds the native four-entry arrays.");

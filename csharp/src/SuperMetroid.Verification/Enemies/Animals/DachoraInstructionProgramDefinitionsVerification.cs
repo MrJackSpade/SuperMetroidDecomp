@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Dachora's and its echoes' typed animations.</summary>
 internal static class DachoraInstructionProgramDefinitionsVerification

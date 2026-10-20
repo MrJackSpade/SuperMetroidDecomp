@@ -1,5 +1,6 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Super Missile impact earthquakes: the last requested quake type and duration, published to the room's shared earthquake owner when one is bound.</summary>
@@ -11,11 +12,11 @@ internal sealed class ProjectileEarthquakes
     /// in the shared room owner rather than in a second emulated state store.
     /// </summary>
     [NonSerialized]
-    private RoomEnemySystem? _roomEarthquakeOwner;
+    private RoomEarthquake? _roomEarthquake;
 
     /// <summary>Reconnects the shared room quake owner before projectile collision can request an impact.</summary>
-    internal void BindRoomEarthquakeOwner(RoomEnemySystem owner)
-        => _roomEarthquakeOwner = Ensure.NotNull(owner);
+    internal void BindRoomEarthquake(RoomEarthquake earthquake)
+        => _roomEarthquake = Ensure.NotNull(earthquake);
 
     /// <summary>
     /// Records the Super Missile impact quake and publishes it at the collision call when a
@@ -28,12 +29,12 @@ internal sealed class ProjectileEarthquakes
     {
         EarthquakeType = earthquakeType;
         EarthquakeTimer = SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration;
-        if (_roomEarthquakeOwner is { } room)
+        if (_roomEarthquake is { } earthquake)
         {
             // Publish at the native collision call, not at frame end: later enemy/room
             // producers may replace this request, and earlier draw owners may read it.
-            room.Earthquake.EarthquakeType = EarthquakeType;
-            room.Earthquake.EarthquakeTimer = NativeCountdown.Start(EarthquakeTimer);
+            earthquake.EarthquakeType = EarthquakeType;
+            earthquake.EarthquakeTimer = NativeCountdown.Start(EarthquakeTimer);
         }
     }
 

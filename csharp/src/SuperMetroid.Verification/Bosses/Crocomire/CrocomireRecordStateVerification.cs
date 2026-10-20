@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Crocomire's shared record words and that kills empty the body's and the tongue's records.</summary>
 internal static class CrocomireRecordStateVerification

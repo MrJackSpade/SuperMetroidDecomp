@@ -21,6 +21,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Confirms the compiled enemy catalog closes its references and keeps editable enemy art outside gameplay state.</summary>
 internal static class EnemyGameplayAcceptanceVerification
@@ -83,13 +84,13 @@ internal static class EnemyGameplayAcceptanceVerification
         RoomEnemyPopulationDefinition population = state.EnemyPopulation;
         (RoomEnemySystem baseline, SnesVram beforeVram, SnesCgram beforeColors) = Load(stock);
         AssertEqual(population.Records.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
-        AssertEqual(population.Records.Length * RoomEnemySystem.NativeSlotSize, baseline.SlotTable.FirstFreeEnemyIndex,
+        AssertEqual(population.Records.Length * EnemySlotTable.NativeSlotSize, baseline.SlotTable.FirstFreeEnemyIndex,
             "compiled population publishes its physical first-free offset");
         AssertEqual(population.DeathQuota, baseline.PopulationLoader.DeathQuota, "compiled population publishes its authored death quota");
         for (int index = 0; index < population.Records.Length; index++)
         {
             RoomEnemySlot slot = baseline.SlotTable.Slots[index];
-            AssertEqual(index * RoomEnemySystem.NativeSlotSize, slot.NativeIndex, "linked population physical slot order");
+            AssertEqual(index * EnemySlotTable.NativeSlotSize, slot.NativeIndex, "linked population physical slot order");
             AssertEqual(population.Records.Span[index], slot.Spawn.Population, "linked population preserves every spawn word");
             AssertEqual(RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer), slot.Definition, "linked slot uses compiled header");
             AssertEqual(slot.Definition.Health, slot.Health, "linked slot starts at compiled health");

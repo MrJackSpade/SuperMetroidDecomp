@@ -5,8 +5,9 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Room-main routines: Ceres falling debris, the Crocomire comeback, animated tiles, and elevator drawing rules.

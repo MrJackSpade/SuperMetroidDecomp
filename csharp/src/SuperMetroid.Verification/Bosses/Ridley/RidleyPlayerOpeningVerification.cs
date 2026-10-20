@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the reported first Ridley-room trajectory against a captured player movie segment.</summary>
 internal static class RidleyPlayerOpeningVerification

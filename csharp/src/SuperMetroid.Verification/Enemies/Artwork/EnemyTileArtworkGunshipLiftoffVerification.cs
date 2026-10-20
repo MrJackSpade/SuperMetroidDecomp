@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed gunship takeoff PNGs against five native DMA

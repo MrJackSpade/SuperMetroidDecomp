@@ -5,15 +5,15 @@ using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rooms.Doors;
 
-namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Door transitions: the door setup programs (Wrecked Ship treadmill, Maridia elevatube, scroll writes) and the

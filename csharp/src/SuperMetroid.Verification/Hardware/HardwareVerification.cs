@@ -21,6 +21,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Hardware;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks hardware math, timing, controller input, memory, DMA, and OAM contracts.</summary>

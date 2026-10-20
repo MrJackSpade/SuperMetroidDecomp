@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

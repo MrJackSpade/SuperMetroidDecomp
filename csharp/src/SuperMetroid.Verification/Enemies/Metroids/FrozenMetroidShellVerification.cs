@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that freezing during an empty Metroid shell frame immediately selects visible frozen artwork.</summary>
 internal static class FrozenMetroidShellVerification

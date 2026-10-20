@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Samus;
 

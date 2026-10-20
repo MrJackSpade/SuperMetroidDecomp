@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Zoa;
 namespace SuperMetroid.Verification.Enemies.Zoa;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that a kill empties the Zoa values the cartridge keeps in the enemy's common record.</summary>
 internal static class ZoaRecordStateVerification

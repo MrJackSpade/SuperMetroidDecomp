@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Torizo.Artwork;
 

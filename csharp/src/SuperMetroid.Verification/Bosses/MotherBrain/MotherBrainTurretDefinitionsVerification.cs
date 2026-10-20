@@ -7,6 +7,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Mother Brain turret placement, rotation, direction, and bullet tables against bank 86.</summary>
 internal static class MotherBrainTurretDefinitionsVerification

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WreckedShip;
 namespace SuperMetroid.Verification.Enemies.WreckedShip;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Wrecked Ship ghost state the species owns: the cleared record and the extension that outlives it.</summary>
 internal static class WreckedShipGhostOwnedStateVerification

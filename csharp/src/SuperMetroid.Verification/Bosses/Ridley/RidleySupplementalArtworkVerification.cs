@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 

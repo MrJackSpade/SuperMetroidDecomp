@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies;
 

@@ -9,8 +9,8 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Verification.Samus;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Audio;
 
@@ -336,11 +336,11 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     enemyEligible.Kinematics.InteractiveEnemies =
     [
         new SolidEnemyCollisionBody(
+            Slot: 9,
             Index: 0x0240,
             Position: new(69, 48),
             Radius: new(5, 5),
-            Frozen: false,
-            Properties: EnemyPropertyWord.FromNativeWord(0x8000)),
+            Solid: true),
     ];
     AerialMovementResult enemyTrigger = SamusAerialMovement.StepSpinJump(
 

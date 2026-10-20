@@ -8,6 +8,7 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Ceres steam selector definitions against native words and actual enemy initialization.</summary>
 internal static class CeresSteamDefinitionsVerification

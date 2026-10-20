@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Yard;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Yard turn lookahead and animation records against the cartridge and live branch behavior.</summary>
 internal static class YardTurnDefinitionsVerification

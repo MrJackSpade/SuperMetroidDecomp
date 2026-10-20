@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

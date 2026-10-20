@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Verification.Enemies.Corpses;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the corpse pre-rot contact counters, whose cartridge word wraps from 65535 to zero.</summary>
 internal static class DeadCorpseCounterVerification

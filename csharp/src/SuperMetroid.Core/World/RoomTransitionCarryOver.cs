@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// What a destination room reads from the room it replaces, captured before the destination's construction begins.

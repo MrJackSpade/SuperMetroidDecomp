@@ -29,9 +29,9 @@ internal static class SpeciesReachAnalyzerTests
     /// <summary>Positive and negative cases for SME6407.</summary>
     internal static void VerifySpeciesReachAnalyzer()
     {
-        const string speciesRead = "namespace SuperMetroid.Core.Runtime { class R { int M(SuperMetroid.Core.Enemies.RoomEnemySystem e) => e.KraidBehavior.Kraid; } }";
-        const string encounterWrite = "namespace SuperMetroid.Core.Rooms { class R { object M(SuperMetroid.Core.Enemies.RoomEnemySystem e) => e.RidleyEncounter; } }";
-        const string capabilityRead = "namespace SuperMetroid.Core.Runtime { class R { int M(SuperMetroid.Core.Enemies.RoomEnemySystem e) => e.Elevator.ElevatorStatus; } }";
+        const string speciesRead = "namespace SuperMetroid.Core.Runtime { class R { int M(SuperMetroid.Core.World.RoomEnemySystem e) => e.KraidBehavior.Kraid; } }";
+        const string encounterWrite = "namespace SuperMetroid.Core.Rooms { class R { object M(SuperMetroid.Core.World.RoomEnemySystem e) => e.RidleyEncounter; } }";
+        const string capabilityRead = "namespace SuperMetroid.Core.Runtime { class R { int M(SuperMetroid.Core.World.RoomEnemySystem e) => e.Elevator.ElevatorStatus; } }";
 
         Expect("Runtime/R.cs", speciesRead, "'KraidBehavior' reaches a species from module 'Runtime'");
         Expect("Rooms/R.cs", encounterWrite, "'RidleyEncounter' reaches a species from module 'Rooms'");

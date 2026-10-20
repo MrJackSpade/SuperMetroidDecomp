@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Corpses;
 

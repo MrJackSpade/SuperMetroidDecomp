@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Yard;
 namespace SuperMetroid.Verification.Enemies.Yard;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Yard's crawling, turning, hiding, and airborne instruction entries against bank A3.</summary>
 internal static class YardInstructionProgramDefinitionsVerification

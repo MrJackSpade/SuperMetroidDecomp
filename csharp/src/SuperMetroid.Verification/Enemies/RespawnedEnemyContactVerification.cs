@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Grapple;
 namespace SuperMetroid.Verification.Enemies;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Reproduces the Hellway Zebbo respawn's delayed contact and grapple eligibility.</summary>

@@ -4,8 +4,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// EnemyMain's draw phase (<c>WriteEnemyOams</c>): the per-layer queues the enemy pass fills, the common
@@ -171,7 +172,7 @@ internal sealed class EnemyDrawList
             {
                 PreparedEnemyDraw draw = prepared[next];
                 RoomEnemySlot slot = draw.Slot;
-                var source = new SpriteSource(SpriteSourceKind.Enemy, draw.NativeIndex / RoomEnemySystem.NativeSlotSize);
+                var source = new SpriteSource(SpriteSourceKind.Enemy, draw.NativeIndex / EnemySlotTable.NativeSlotSize);
                 // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
                 // and wings), preserving both that drawing order and the enemy's normal layer queue.
                 if (slot.Entity is IEnemyDrawHooks drawHooks)

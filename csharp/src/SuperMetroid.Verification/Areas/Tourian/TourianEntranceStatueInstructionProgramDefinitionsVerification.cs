@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Tourian entrance statue delete programs and their initializer selections.</summary>
 internal static class TourianEntranceStatueInstructionProgramDefinitionsVerification

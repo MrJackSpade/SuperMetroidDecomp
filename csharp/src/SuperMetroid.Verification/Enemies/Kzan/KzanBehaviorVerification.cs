@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Enemies.Polyp;
 namespace SuperMetroid.Verification.Enemies.Kzan;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that the Kzan top starts its idle pose and holds it.</summary>
 internal static class KzanBehaviorVerification

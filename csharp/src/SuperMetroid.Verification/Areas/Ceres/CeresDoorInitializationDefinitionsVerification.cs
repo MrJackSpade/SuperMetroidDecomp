@@ -10,6 +10,7 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks seven Ceres door initializer variants against their native selectors.</summary>
 internal static class CeresDoorInitializationDefinitionsVerification

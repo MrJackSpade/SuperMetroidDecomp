@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Verification.Bosses.Draygon;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks cannon processing and door exit after Draygon has already been defeated.</summary>

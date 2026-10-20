@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks Botwoon's initial body history and intangible head collision property.</summary>

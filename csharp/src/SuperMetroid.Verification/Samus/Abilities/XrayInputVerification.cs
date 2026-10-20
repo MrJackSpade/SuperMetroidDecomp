@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Abilities;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks X-Ray activation, beam display, release, and excluded-room input routes.</summary>

@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Spike;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -16,6 +15,7 @@ namespace SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Samus's block collision, grounded physics, reversal, Moonwalk and wall-contact routes.</summary>
 internal static class SamusTerrainMovementVerification
@@ -544,11 +544,10 @@ internal static void VerifySamusGroundedMovement()
     forward.Kinematics.InteractiveEnemies =
     [
         new SolidEnemyCollisionBody(
-            Index: 0x01c0,
+            Slot: 7, Index: 0x01c0,
             Position: new(100, 116),
             Radius: new(5, 5),
-            Frozen: false,
-            Properties: EnemyPropertyWord.FromNativeWord(0x8000)),
+            Solid: true),
     ];
     forward.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
     BlockMoveResult? elevatorMove = SamusGroundedMovement.StepFacingForward(
@@ -1905,8 +1904,8 @@ internal static void VerifySamusRanIntoWall()
     enemyAhead.Kinematics.Radius = new(5, 5);
     enemyAhead.Kinematics.InteractiveEnemies =
     [
-        new SolidEnemyCollisionBody(Index: 0x40, Position: new(89, 27), Radius: new(4, 8),
-            Frozen: false, Properties: new EnemyPropertyWord(EnemyProperties.SolidToSamus)),
+        new SolidEnemyCollisionBody(Slot: 1, Index: 0x40, Position: new(89, 27), Radius: new(4, 8),
+            Solid: true),
     ];
     SamusPoseId? enemyResult = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(enemyAhead, 
 

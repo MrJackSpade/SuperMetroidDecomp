@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks what Draygon's grab (`$A5:8EA9`, `$90:E23B`) resets and what it leaves alone.</summary>

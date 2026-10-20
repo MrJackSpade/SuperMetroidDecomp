@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks boss-map marker pixels as area-boss progress crosses save and room-load boundaries.</summary>

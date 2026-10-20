@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Cross-checks compiled Spore Spawn component lists and collision callbacks against cartridge data.</summary>
 internal static class EnemyTileArtworkSporeSpawnCollisionVerification

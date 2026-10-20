@@ -37,6 +37,7 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped
@@ -144,7 +145,7 @@ internal static void VerifyRoomEnemyLoading()
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram));
 
     AssertEqual(1, enemies.SlotTable.EnemyCount, "enemy population count");
-    AssertEqual(RoomEnemySystem.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
+    AssertEqual(EnemySlotTable.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
         "first free enemy keeps native byte offset");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "population terminator death quota");
     AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "room load clears killed-enemy count");
@@ -247,7 +248,7 @@ internal static void VerifyRoomEnemyLoading()
 
     AssertEqual(0, enemies.SlotTable.EnemyCount, "empty population clears enemy count");
     AssertEqual(0, enemies.GraphicsSet.Entries.Count, "empty population skips graphics set");
-    AssertEqual(RoomEnemySystem.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
+    AssertEqual(EnemySlotTable.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
         "empty population preserves native first-free quirk");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
     AssertEqual(0, enemies.RoomStatus.BossId, "room load clears boss ID before empty population");

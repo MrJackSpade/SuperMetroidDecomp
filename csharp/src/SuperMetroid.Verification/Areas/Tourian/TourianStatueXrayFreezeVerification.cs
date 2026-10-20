@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Verification.Areas.Tourian;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

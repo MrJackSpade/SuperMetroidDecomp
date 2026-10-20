@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Shutters;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.ScenarioFixtures;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the shutters' and Kamer's typed animations, their initial function tables and their export frames.</summary>
 internal static class ShutterBehaviorVerification

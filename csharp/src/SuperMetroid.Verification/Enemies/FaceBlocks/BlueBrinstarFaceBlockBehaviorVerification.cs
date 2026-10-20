@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.FaceBlocks;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks which face-block animation each activation side starts and how long each pose holds.</summary>
 internal static class BlueBrinstarFaceBlockBehaviorVerification

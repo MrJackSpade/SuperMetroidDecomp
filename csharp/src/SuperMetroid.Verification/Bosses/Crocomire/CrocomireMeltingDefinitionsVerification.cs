@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Crocomire's typed melt selectors, transfer records, and production output against the cartridge.</summary>
 internal static class CrocomireMeltingDefinitionsVerification

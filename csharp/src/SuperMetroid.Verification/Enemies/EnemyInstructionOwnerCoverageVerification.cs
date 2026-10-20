@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Audits instruction ownership for every named retail enemy definition and population variant.</summary>
 internal static class EnemyInstructionOwnerCoverageVerification
@@ -209,7 +210,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         {
             int cursor = RoomEnemyRomLayout.PopulationBank | populationPointer;
             for (int recordIndex = 0;
-                 recordIndex < RoomEnemySystem.MaximumEnemyCount;
+                 recordIndex < EnemySlotTable.MaximumEnemyCount;
                  recordIndex++, cursor += 16)
             {
                 ushort definitionPointerWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);

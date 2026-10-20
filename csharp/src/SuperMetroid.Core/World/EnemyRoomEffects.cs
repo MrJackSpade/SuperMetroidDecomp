@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
@@ -7,8 +6,9 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Room effects enemy AI requests during a pass: the hardcoded PLM spawns of Botwoon, Spore Spawn, Crocomire,
@@ -246,7 +246,7 @@ internal sealed class EnemyRoomEffects
     {
         plms.ChozoStatue.BindChozoStatueContext(enemies, roomLayer3Fx);
         if (_room.LevelData is not null)
-            enemies.ChozoStatueBehavior.ApplyPendingChozoStatuePlms(_room.LevelData, plms.ChozoStatue);
+            enemies.PlmRequests.ApplyPendingChozoStatuePlms(_room.LevelData, plms.ChozoStatue);
     }
 
     /// <summary>Transfers bank-$84 downward-gate spawn/wake work into bank $86.</summary>
@@ -259,7 +259,7 @@ internal sealed class EnemyRoomEffects
         {
             if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true)
                 continue;
-            enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(request, _room.LevelData.Size.X);
+            enemies.PlmRequests.ApplyDownwardGateProjectileRequest(request, _room.LevelData.Size.X);
         }
     }
 }

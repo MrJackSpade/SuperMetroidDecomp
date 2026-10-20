@@ -5,8 +5,8 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Checks the #623 required-value wrappers and representative lifecycle contracts.</summary>

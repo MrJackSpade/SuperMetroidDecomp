@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Rooms;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks compiled room definitions through the production post-Ceres landing path.</summary>

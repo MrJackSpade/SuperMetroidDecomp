@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -16,6 +15,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks options, door opening, reserve recovery, and ending handoffs in the playable frontend.</summary>
 internal static class FrontendCompletionVerification

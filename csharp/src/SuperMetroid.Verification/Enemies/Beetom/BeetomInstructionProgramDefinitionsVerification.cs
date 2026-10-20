@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Beetom;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Beetom's typed crawl, hop and drain animations and its distant-action choice.</summary>
 internal static class BeetomInstructionProgramDefinitionsVerification

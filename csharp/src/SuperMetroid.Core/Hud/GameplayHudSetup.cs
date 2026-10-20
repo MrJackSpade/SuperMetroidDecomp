@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Hud;
 

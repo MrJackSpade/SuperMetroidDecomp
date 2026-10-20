@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 /// <summary>Checks Magdollite's nine rise/fall phases and overlay offsets.</summary>
 internal static class MagdollitePhaseDefinitionsVerification

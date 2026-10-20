@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Dachora's shared record words and that a kill empties them.</summary>
 internal static class DachoraRecordStateVerification

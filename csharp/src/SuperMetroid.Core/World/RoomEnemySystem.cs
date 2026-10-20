@@ -81,8 +81,9 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Room-enemy loader, scheduler, instruction interpreter, and draw queues. Retail
@@ -483,12 +484,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The <see cref="EnemyTerrain"/> owner of this RoomEnemySystem.</summary>
     internal EnemyTerrain Terrain { get; }
 
-    /// <summary>Thirty-two fixed physical enemy records in the native bank-$A0 scheduler, including unused and multipart slots.</summary>
-    public const int MaximumEnemyCount = 32;
-    /// <summary>Native enemy-record stride in bytes ($0040), used to translate host slot numbers into cartridge indexes $0000..$07C0.</summary>
-    public const int NativeSlotSize = 64;
-    /// <summary>Maximum four enemy graphics-set entries accepted by the native room tileset arrays.</summary>
-    public const int MaximumGraphicsSetCount = 4;
     /// <summary>Post-AI collision snapshots for active physical enemy slots.</summary>
     private readonly List<SolidEnemyCollisionBody> _interactiveCollisionBodies = new();
 
@@ -519,6 +514,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     [field: NonSerialized]
     internal IEnemyPlmSpawns PlmSpawns => field ??= new EnemyPlmSpawns(NoobTubeBehavior, EyeDoorBehavior, OldTourianEscapeShaftWallBehavior,
         DraygonBehavior, MotherBrainBehavior, BombTorizoBehavior, EscapeExplosionsBehavior);
+
+    /// <summary>The PLM work the Chozo statues and downward gates exchange with their PLMs each frame.</summary>
+    internal IEnemyPlmRequests PlmRequests => field ??= new EnemyPlmRequests(ChozoStatueBehavior, DownwardGateBehavior);
 
     /// <summary>The Tourian statue sequence's operations.</summary>
     [field: NonSerialized]
@@ -1006,11 +1004,12 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         {
             RoomEnemySlot slot = SlotTable.SlotFromNativeIndex(nativeIndex);
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
+                slot.SlotIndex,
                 nativeIndex,
                 slot.Position.Whole,
                 new(slot.Radius.X, slot.Radius.Y),
-                !slot.FrozenTimer.IsZero,
-                slot.Properties));
+                // `$A0:A9D2-$A0:A9E8`: a frozen enemy blocks Samus whatever its properties say.
+                !slot.FrozenTimer.IsZero || slot.Properties.HasAny(EnemyProperties.SolidToSamus)));
         }
         FrameContext.AdvanceRandomEnemyCounter();
         DeadTorizoBehavior.QueueDeadTorizoFrameVramTransfers(frame.VramWriteQueue);

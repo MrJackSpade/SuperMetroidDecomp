@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies.Yard;
 
 /// <summary>Checks Yard kick distance publication and airborne fixed-point trajectories.</summary>

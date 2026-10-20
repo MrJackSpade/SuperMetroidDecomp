@@ -7,6 +7,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the six authored Puyo positions and staggered first-hop timers in the Maridia pile.</summary>
 internal static class MaridiaPuyoPileVerification

@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks a placed bomb detaching a Metroid and its subsequent escape motion.</summary>
 internal static class MetroidBombPlacementVerification

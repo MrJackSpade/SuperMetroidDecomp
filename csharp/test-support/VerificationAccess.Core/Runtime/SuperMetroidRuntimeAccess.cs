@@ -8,11 +8,11 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Maridia;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Runtime;
 

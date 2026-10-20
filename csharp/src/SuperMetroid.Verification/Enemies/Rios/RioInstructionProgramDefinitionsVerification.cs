@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Rios.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Rios;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Rio's typed idle, swoop and cooldown animations.</summary>
 internal static class RioInstructionProgramDefinitionsVerification

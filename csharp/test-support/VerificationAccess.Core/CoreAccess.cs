@@ -27,6 +27,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core;
 

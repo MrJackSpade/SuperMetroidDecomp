@@ -71,7 +71,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static BeetomExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new BeetomExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new BeetomExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, SnesButton controllerInput)

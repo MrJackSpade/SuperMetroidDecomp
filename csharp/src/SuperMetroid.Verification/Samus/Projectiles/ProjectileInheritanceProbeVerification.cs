@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Samus.Projectiles;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks Samus projectile launch velocity against native overlapping movement records and live runtime shots.</summary>

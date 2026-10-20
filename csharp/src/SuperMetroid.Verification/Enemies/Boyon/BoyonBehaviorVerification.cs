@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Boyon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Boyon's idle and bouncing loops and the cues each hands to main AI.</summary>
 internal static class BoyonBehaviorVerification

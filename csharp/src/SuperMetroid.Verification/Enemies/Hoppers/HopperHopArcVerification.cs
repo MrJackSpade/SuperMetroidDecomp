@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.Hoppers;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>The hop arc's quadratic-speed record steps, clamps at the apex and caps on the way back as the cartridge's do.</summary>
 internal static class HopperHopArcVerification

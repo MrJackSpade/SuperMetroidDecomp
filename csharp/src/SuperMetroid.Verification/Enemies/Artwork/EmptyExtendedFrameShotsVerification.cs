@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Enemies.Artwork;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

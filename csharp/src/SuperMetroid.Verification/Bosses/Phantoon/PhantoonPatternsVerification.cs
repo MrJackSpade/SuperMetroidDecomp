@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Phantoon rain placement, eye direction, and shot reaction tables against the ROM.</summary>
 internal static class PhantoonPatternsVerification

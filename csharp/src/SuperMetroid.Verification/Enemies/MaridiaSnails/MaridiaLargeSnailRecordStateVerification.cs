@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 namespace SuperMetroid.Verification.Enemies.MaridiaSnails;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that a kill empties the MaridiaLargeSnail values the cartridge keeps in the enemy's common record.</summary>
 internal static class MaridiaLargeSnailRecordStateVerification

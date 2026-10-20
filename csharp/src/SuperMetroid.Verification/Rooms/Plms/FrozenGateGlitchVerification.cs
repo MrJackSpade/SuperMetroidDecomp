@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Rooms.Plms;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Compares the Caterpillar frozen-Zero gate clip and nearby controls with native CPU collision results.</summary>
@@ -114,11 +115,12 @@ internal static class FrozenGateGlitchVerification
         samus.Kinematics.InteractiveEnemies =
         [
             new SolidEnemyCollisionBody(
+                zero.SlotIndex,
                 zero.NativeIndex,
                 new(expected.EnemyX, FrozenGateY),
                 new(zero.Radius.X, zero.Radius.Y),
-                expected.Frozen,
-                zero.Properties),
+                expected.Frozen ||
+                zero.Properties.HasAny(EnemyProperties.SolidToSamus)),
         ];
 
         BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SnesSixteenSixteen.FromWhole(expected.Distance) });

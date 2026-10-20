@@ -38,6 +38,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Compares installed enemy-projectile drawing compositions with native OAM and guards their runtime visual reads.</summary>

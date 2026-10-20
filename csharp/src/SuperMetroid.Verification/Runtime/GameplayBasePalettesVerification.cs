@@ -11,6 +11,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Runtime;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks installed gameplay CGRAM base colors, room-entry sprite restoration, and palette edits.</summary>

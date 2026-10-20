@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Harness;
 

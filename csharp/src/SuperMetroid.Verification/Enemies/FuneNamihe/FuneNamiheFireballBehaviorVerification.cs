@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 

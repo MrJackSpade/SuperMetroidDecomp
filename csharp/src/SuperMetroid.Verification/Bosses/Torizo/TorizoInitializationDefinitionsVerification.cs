@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks both Torizo wake records and their use by the actual enemy initializer.</summary>
 internal static class TorizoInitializationDefinitionsVerification

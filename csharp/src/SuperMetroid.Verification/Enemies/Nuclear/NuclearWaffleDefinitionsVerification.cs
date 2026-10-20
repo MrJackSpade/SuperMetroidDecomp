@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Nuclear;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Nuclear Waffle sweep geometry and body-loop mechanics against bank-$A6 ROM and production enemy state.</summary>
 internal static class NuclearWaffleDefinitionsVerification

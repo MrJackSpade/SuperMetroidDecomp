@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.KiHunters;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks KiHunter body and wing instruction programs, acid spawning, and compiled visual selectors.</summary>
 internal static class KiHunterInstructionProgramDefinitionsVerification

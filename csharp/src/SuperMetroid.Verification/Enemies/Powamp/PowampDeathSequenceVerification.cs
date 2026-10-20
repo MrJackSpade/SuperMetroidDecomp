@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Powamp;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

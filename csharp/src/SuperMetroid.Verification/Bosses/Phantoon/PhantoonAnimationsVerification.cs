@@ -15,6 +15,7 @@ namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// #1286: Phantoon's typed body, eye, tentacle, mouth and flame programs against the retail cartridge. The part

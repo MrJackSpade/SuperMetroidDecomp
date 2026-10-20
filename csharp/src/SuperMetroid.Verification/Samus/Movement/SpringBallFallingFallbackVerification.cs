@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Movement;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks the reported Spring Ball falling input fallback and horizontal speed reset.</summary>

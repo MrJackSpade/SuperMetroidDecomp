@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The loader hooks over Rinka and the pre-Phantoon room.</summary>
 /// <param name="rinka">Rinka.</param>

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.Scrolling;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks compiled explicit and implicit room scroll grids across every retail room state.</summary>

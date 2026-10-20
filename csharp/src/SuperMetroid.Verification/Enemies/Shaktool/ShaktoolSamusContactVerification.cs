@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.Shaktool;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

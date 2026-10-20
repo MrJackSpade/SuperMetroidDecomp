@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Bomb Torizo's drool velocity against native sine indexes for both facing modes and all random bytes.</summary>
 internal static class BombTorizoDroolSineVerification

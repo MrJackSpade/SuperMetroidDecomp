@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.LavaJumpers;
 namespace SuperMetroid.Verification.Enemies.LavaJumpers;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Squeept state the parts own: the gravity word's wrap and the follower reading its parent's velocity.</summary>
 internal static class NorfairLavaJumperOwnedStateVerification

@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Production-execution checks for the Fune's and Namihe's eight typed programs.</summary>
 internal static class FuneNamiheInstructionProgramDefinitionsVerification

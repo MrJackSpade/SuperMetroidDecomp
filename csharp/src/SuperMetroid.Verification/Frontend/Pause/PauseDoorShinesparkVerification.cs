@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Pause;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 /// <summary>Checks open-door contact during pause fade while Samus remains in a horizontal shinespark.</summary>

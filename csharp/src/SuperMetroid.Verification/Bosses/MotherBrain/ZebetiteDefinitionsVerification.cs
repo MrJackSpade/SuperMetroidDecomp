@@ -9,6 +9,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled Zebetite generation, health, and spawn definitions against retail tables.</summary>
 internal static class ZebetiteDefinitionsVerification

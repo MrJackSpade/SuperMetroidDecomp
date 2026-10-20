@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Baby Metroid's fatal-stop and theme-start music requests through the cutscene transition.</summary>
 internal static class BabyMetroidThemeVerification

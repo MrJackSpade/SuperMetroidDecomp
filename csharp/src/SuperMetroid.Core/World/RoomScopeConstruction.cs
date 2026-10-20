@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -7,11 +6,11 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Areas.Maridia;
+using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The room scope while <c>RoomLoader.LoadCartridgeRoom</c> builds it. Each load step sets its part in the cartridge's

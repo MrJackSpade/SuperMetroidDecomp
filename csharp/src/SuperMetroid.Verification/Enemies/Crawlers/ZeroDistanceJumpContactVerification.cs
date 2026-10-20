@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -28,9 +27,8 @@ internal static class ZeroDistanceJumpContactVerification
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x8000).WithFractionY(0xffff);
             samus.Kinematics.InteractiveEnemies =
             [
-                new SolidEnemyCollisionBody(Index: 0, Position: new((ushort)(100 + (left ? -1 : 1) * (10 + gap)), 100),
-                    Radius: new(5, 8), Frozen: frozen,
-                    Properties: EnemyPropertyWord.FromNativeWord((ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus))),
+                new SolidEnemyCollisionBody(Slot: 0, Index: 0, Position: new((ushort)(100 + (left ? -1 : 1) * (10 + gap)), 100),
+                    Radius: new(5, 8), Solid: true),
             ];
             uint initialX = unchecked(samus.Kinematics.Position.X.RawValue);
             SamusAerialMovement.StepNormalJump(level, samus, SnesButton.A, 0);

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Verification.Enemies.Rios;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled Norfair Rio parent and flame instruction programs.</summary>
 internal static class NorfairRioInstructionProgramDefinitionsVerification

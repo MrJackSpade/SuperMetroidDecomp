@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Hibashi;
 namespace SuperMetroid.Verification.Enemies.Hibashi;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Hibashi state each part owns: its captured population parameters, spawn height and the cleared record.</summary>
 internal static class HibashiOwnedStateVerification

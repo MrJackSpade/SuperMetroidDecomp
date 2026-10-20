@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Bosses.Ridley;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

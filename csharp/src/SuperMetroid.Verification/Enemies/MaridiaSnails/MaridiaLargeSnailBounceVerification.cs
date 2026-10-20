@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.MaridiaSnails;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Oum's bounce record steps, caps, goes below zero on a late impact and clamps on the rise as the cartridge's does.</summary>
 internal static class MaridiaLargeSnailBounceVerification

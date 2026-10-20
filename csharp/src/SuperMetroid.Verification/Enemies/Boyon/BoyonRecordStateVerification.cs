@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boyon;
 namespace SuperMetroid.Verification.Enemies.Boyon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that a kill empties the Boyon values the cartridge keeps in the enemy's common record.</summary>
 internal static class BoyonRecordStateVerification

@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Gameplay;
 

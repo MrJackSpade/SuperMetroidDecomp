@@ -5,8 +5,9 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The PLM-triggered spawns over the species that own them.</summary>
 /// <param name="noobTube">The n00b tube.</param>

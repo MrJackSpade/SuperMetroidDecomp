@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon;
 namespace SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Alcoon state the species owns: its whole-pixel horizontal velocity and the cleared record.</summary>
 internal static class AlcoonOwnedStateVerification

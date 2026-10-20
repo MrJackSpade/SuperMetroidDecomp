@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Fireflea;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks walking Space Pirate movement, flinch, look, and laser lists against bank B2.</summary>
 internal static class WalkingSpacePirateInstructionProgramDefinitionsVerification

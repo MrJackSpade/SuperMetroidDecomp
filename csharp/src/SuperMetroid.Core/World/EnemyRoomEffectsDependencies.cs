@@ -1,10 +1,9 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="EnemyRoomEffects"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record EnemyRoomEffectsDependencies

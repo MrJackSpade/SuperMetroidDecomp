@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Enemies.Kago.Artwork;
 namespace SuperMetroid.Verification.Enemies.Kago;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Kago state the species owns: its cleared record and the hit counter that outlives it.</summary>
 internal static class KagoOwnedStateVerification

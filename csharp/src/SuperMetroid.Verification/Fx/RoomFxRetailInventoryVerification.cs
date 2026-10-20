@@ -12,6 +12,7 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Fx;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
 

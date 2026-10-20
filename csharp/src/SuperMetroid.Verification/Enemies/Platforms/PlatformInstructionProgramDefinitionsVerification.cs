@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Platforms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Tripper and Kamer platform instruction loops, selectors, and native visual exports.</summary>
 internal static class PlatformInstructionProgramDefinitionsVerification

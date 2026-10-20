@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The attract demo hooks over Kraid.</summary>
 /// <param name="kraid">Kraid.</param>

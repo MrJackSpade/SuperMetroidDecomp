@@ -38,6 +38,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Bosses.Ridley;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.ScenarioFixtures;

@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies.Shutters;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies;
 

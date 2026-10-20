@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Choot;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Choot path sources, initializers, fall loops, and invalid pattern indexes.</summary>
 internal static class ChootPatternDefinitionsVerification

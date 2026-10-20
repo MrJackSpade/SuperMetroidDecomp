@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Stoke;
 namespace SuperMetroid.Verification.Enemies.Stoke;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Stoke state the species owns: its 16.16 walking speeds and the cleared record.</summary>
 internal static class StokeOwnedStateVerification

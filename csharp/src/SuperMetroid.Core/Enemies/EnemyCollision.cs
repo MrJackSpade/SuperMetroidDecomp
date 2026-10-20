@@ -650,7 +650,7 @@ internal sealed class EnemyCollision
         // The native pass walks all 32 physical slots from $07C0 down to zero, independent
         // of the ordinary active list. That matters while a power bomb reaches off-screen
         // actors and then sets their process-off-screen property below.
-        for (int slotIndex = RoomEnemySystem.MaximumEnemyCount - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = EnemySlotTable.MaximumEnemyCount - 1; slotIndex >= 0; slotIndex--)
         {
             // A death inside the previous reaction overwrote `$12`, the horizontal radius
             // this walker never reloads: zero for an ordinary kill and $4000 for a

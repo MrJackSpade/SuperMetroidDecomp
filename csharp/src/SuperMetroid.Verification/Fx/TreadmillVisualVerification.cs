@@ -11,6 +11,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Fx;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 

@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 

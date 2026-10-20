@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Puromi;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

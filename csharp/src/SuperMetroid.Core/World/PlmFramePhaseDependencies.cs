@@ -1,11 +1,10 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Gameplay;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="PlmFramePhase"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record PlmFramePhaseDependencies

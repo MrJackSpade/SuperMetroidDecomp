@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Shaktool segment state the chain owns: wrapping orbit angles, the centre's orientation split from the saw's curl, and the cleared record.</summary>
 internal static class ShaktoolOwnedStateVerification

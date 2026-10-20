@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Gameplay;
 

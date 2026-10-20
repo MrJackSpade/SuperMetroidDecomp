@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Reproduces Magdollite's slot-indexed apex threshold read from the native overrun table.</summary>
 internal static class MagdolliteApexThresholdVerification

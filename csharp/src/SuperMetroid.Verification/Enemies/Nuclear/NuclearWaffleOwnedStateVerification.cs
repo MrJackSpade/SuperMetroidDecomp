@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Nuclear;
 namespace SuperMetroid.Verification.Enemies.Nuclear;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Nuclear Waffle state the species owns: its initial wait and the cleared record.</summary>
 internal static class NuclearWaffleOwnedStateVerification

@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Bosses.Ridley.RidleyInertiaVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 

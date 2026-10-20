@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -55,10 +54,7 @@ public static class SamusSolidEnemyCollision
 
         foreach (SolidEnemyCollisionBody enemy in interactiveEnemies)
         {
-            // `$A0:A9D2-$A0:A9E8`: frozen enemies behave as solid regardless of properties;
-            // otherwise enemy property bit 15 is the solid-to-Samus flag.
-            if (!enemy.Frozen &&
-                !enemy.Properties.HasAny(EnemyProperties.SolidToSamus))
+            if (!enemy.Solid)
                 continue;
 
             // `$A0:A9EB-$A0:AA30`: the rounded future center must overlap on both axes.
@@ -107,6 +103,7 @@ public static class SamusSolidEnemyCollision
             return new SolidEnemyCollisionResult(
                 Collided: true,
                 Distance: gap,
+                EnemySlot: enemy.Slot,
                 EnemyIndex: enemy.Index,
                 WasTouching: wasTouching);
         }
@@ -116,6 +113,7 @@ public static class SamusSolidEnemyCollision
         return new SolidEnemyCollisionResult(
             Collided: false,
             Distance: distance,
+            EnemySlot: null,
             EnemyIndex: null,
             WasTouching: false);
     }

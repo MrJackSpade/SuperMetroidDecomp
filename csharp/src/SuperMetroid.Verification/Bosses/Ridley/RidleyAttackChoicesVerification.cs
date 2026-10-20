@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Norfair Ridley's situation-dependent attack table and same-frame selection behavior.</summary>
 internal static class RidleyAttackChoicesVerification

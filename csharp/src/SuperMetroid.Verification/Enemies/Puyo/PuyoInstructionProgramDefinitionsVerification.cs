@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Puyo's initial animation, its grounded loops and its one-pose airborne programs.</summary>
 internal static class PuyoInstructionProgramDefinitionsVerification

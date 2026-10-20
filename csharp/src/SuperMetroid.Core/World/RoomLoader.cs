@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Areas.Maridia;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
@@ -26,8 +24,9 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Room loading: saved games and new sessions, cartridge rooms and doors, room setup, palettes, the HUD minimap,
@@ -1010,7 +1009,7 @@ internal sealed class RoomLoader
         // projectile and first-free words the outgoing room's enemies left.
         var enemies = new RoomEnemySystem(_enemySession, carryOver.EnemyResidue, CompiledRoomEnemyDefinitions.Instance, areaServices);
         scope.Enemies = enemies;
-        projectiles.Earthquakes.BindRoomEarthquakeOwner(enemies);
+        projectiles.Earthquakes.BindRoomEarthquake(enemies.Earthquake);
         enemies.Load(new RoomEnemyLoadRequest(
             room.State.EnemyPopulation,
             room.State.EnemyGraphicsSet,

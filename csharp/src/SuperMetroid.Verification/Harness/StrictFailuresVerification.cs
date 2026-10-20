@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Harness;
 

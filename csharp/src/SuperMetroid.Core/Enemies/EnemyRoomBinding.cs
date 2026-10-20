@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies;
 

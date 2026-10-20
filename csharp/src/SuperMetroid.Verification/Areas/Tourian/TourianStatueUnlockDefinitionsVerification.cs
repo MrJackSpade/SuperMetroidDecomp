@@ -21,6 +21,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks migrated Tourian statue eye positions and animated-tile control against the cartridge.</summary>
 internal static class TourianStatueUnlockDefinitionsVerification

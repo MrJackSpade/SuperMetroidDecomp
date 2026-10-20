@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Polyp;
 namespace SuperMetroid.Verification.Enemies.Polyp;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Polyp state the species owns: its initial behaviour and the cleared record.</summary>
 internal static class PolypOwnedStateVerification

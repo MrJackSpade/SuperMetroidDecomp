@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Metaree;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.Metaree;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Metaree's owned dive speed, including the wrapped distance when Samus is above it.</summary>
 internal static class MetareeDiveSpeedVerification

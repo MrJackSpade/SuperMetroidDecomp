@@ -9,6 +9,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.MaridiaSnails;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Oum's extracted display selectors and compiled collision records against ROM and the installed runtime.</summary>
 internal static class MaridiaLargeSnailCollisionDefinitionsVerification

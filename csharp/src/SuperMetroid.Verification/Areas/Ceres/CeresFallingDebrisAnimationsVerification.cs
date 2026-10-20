@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 

@@ -1,9 +1,9 @@
 ﻿using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Areas.Escape;
 
-namespace SuperMetroid.Core.Areas.Escape;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Escape-sequence room effects: their setup on room entry and their per-frame step.

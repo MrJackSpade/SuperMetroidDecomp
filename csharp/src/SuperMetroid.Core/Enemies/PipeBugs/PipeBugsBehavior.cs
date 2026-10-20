@@ -434,7 +434,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Finds the leader's four following physical slots and rejects an incomplete or unrelated formation.</summary>
     private RoomEnemySlot[] RequireNorfairPipeBugFormation(RoomEnemySlot leader)
     {
-        if (leader.SlotIndex + NorfairFormationSize > RoomEnemySystem.MaximumEnemyCount)
+        if (leader.SlotIndex + NorfairFormationSize > EnemySlotTable.MaximumEnemyCount)
             throw new InvalidDataException("Norfair Pipe Bug formation overruns the physical enemy pool.");
         var formation = new RoomEnemySlot[NorfairFormationSize];
         for (int index = 0; index < formation.Length; index++)

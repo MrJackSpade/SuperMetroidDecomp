@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks that a wrapping tile shot does not redirect its enemy collision to a remote block alias.</summary>

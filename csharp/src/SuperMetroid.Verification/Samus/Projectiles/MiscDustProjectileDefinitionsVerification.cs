@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks misc-dust instruction and smoke-placement tables through their production projectile consumers.</summary>
 internal static class MiscDustProjectileDefinitionsVerification

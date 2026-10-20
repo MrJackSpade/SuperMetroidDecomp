@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.PipeBugs;
 namespace SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that a kill empties the Pipe Bug values the cartridge keeps in the enemy's common record.</summary>
 internal static class PipeBugRecordStateVerification

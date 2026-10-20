@@ -69,7 +69,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static DeadSidehopperExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new DeadSidehopperExtensionWords())];
+        [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new DeadSidehopperExtensionWords())];
 
     /// <summary>Remembers level data for the private power-bomb callback, which has no level argument.</summary>
     private RoomLevelData? _deadSidehopperLevel;

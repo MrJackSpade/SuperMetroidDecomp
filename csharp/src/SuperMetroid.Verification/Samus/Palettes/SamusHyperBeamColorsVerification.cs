@@ -18,6 +18,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Palettes;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 

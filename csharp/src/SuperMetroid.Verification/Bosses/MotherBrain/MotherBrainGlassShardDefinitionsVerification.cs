@@ -7,6 +7,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled Mother Brain glass-shard selection and spawn placement.</summary>
 internal static class MotherBrainGlassShardDefinitionsVerification

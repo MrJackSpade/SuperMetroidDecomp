@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Zoa;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled Zoa velocity windows and shooting movement against cartridge words.</summary>
 internal static class ZoaSpeedDefinitionsVerification

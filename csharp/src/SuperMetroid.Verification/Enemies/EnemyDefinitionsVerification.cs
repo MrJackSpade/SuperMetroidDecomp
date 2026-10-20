@@ -11,6 +11,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled enemy headers and auxiliary Mother Brain tube placements against retail records.</summary>
 internal static class EnemyDefinitionsVerification
@@ -25,7 +26,7 @@ internal static class EnemyDefinitionsVerification
         {
             int populationAddress = RoomEnemyRomLayout.PopulationBank |
                 RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation);
-            for (int slot = 0; slot < RoomEnemySystem.MaximumEnemyCount; slot++)
+            for (int slot = 0; slot < EnemySlotTable.MaximumEnemyCount; slot++)
             {
                 ushort pointerWord = ReadVerificationWord(bus, populationAddress);
                 if (pointerWord == 0xffff) break;

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Fx;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 

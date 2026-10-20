@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the Alcoon's typed animations through a retail room's movement and fire cues.</summary>
 internal static class AlcoonInstructionProgramDefinitionsVerification

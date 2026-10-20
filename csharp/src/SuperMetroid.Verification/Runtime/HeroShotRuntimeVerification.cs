@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Runtime;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks a fired beam's lifetime against Samus movement, camera tracking, and a native trace.</summary>

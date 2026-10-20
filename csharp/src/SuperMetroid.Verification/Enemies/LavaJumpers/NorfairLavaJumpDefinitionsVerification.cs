@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.LavaJumpers;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.LavaJumpers;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Norfair lava-jumper takeoff velocities and RNG selection against the native four-word table.</summary>
 internal static class NorfairLavaJumpDefinitionsVerification

@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -23,9 +22,8 @@ internal static class ShinesparkEnemyStopVerification
             samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkVerticalLeftPose);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ushort.MaxValue);
             samus.Kinematics.InteractiveEnemies =
-            [new SolidEnemyCollisionBody(Index: 0, Position: new(100, (ushort)(100 - 19 - 8 - gap)),
-                Radius: new(8, 8), Frozen: frozen,
-                Properties: EnemyPropertyWord.FromNativeWord((ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)))];
+            [new SolidEnemyCollisionBody(Slot: 0, Index: 0, Position: new(100, (ushort)(100 - 19 - 8 - gap)),
+                Radius: new(8, 8), Solid: true)];
             uint initialY = samus.Kinematics.Position.Y.RawValue;
             samus.Shinespark.Step(new SamusTerrain { Level = level }, samus, new ShinesparkFrame { NmiFrameCounter = 0 });
             if (gap == 4)

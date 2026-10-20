@@ -19,6 +19,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Ridley's death breakup fragments, instruction programs, installed OAM, and expiry.</summary>
 internal static class RidleyBreakupProgramsVerification

@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Areas.Escape;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend;
 

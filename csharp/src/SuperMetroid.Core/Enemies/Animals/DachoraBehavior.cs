@@ -500,7 +500,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Finds the four consecutive Dachora echoes following the body and rejects a malformed formation.</summary>
     private RoomEnemySlot[] RequireDachoraEchoSlots(RoomEnemySlot body)
     {
-        if (body.SlotIndex + 4 >= RoomEnemySystem.MaximumEnemyCount)
+        if (body.SlotIndex + 4 >= EnemySlotTable.MaximumEnemyCount)
             throw new InvalidDataException("Dachora body does not have four following physical echo slots.");
 
         var echoes = new RoomEnemySlot[4];

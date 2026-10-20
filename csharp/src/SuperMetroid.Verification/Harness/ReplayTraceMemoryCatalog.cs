@@ -1,8 +1,9 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Harness;
+
 using SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>
@@ -160,7 +161,7 @@ internal static class ReplayTraceMemoryCatalog
         WorkRamRange.Between(SamusHorizontalSpeedsStart, SamusHorizontalSpeedsEnd),
         WorkRamRange.Between(SamusProjectileArraysStart, SamusProjectileArraysEnd),
         WorkRamRange.Between(SamusSlopeAndTotalSpeedStart, SamusSlopeAndTotalSpeedEnd),
-        .. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(slot =>
+        .. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(slot =>
             new WorkRamRange(MovieDesyncMemory.EnemyBase + slot * MovieDesyncMemory.EnemyStride, MovieEnemySlotPrefix)),
         WorkRamRange.Between(RidleySlotWordsStart, RidleySlotWordsEnd),
         WorkRamRange.Between(BabyMetroidVelocityStart, BabyMetroidVelocityEnd),
@@ -211,7 +212,7 @@ internal static class ReplayTraceMemoryCatalog
         WorkRamRange.Words(NativeSnapshotMemory.PowerBombArmedFlag),
         WorkRamRange.Between(NativeSnapshotMemory.CameraSpeedX, CameraSpeedToChargeEnd),
         WorkRamRange.Words(NativeSnapshotMemory.SamusFilteredHeld, 2),
-        new(NativeSnapshotMemory.EnemyBase, RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize),
+        new(NativeSnapshotMemory.EnemyBase, EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize),
         WorkRamRange.Words(NativeSnapshotMemory.SamusSolidEnemyIndices, 4),
         WorkRamRange.Between(SamusTimersStart, SamusTimersEnd),
         WorkRamRange.Words(NativeSnapshotMemory.AcidSurface),

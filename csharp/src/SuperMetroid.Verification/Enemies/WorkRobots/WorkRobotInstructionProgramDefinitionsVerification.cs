@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Work Robot's powered and unpowered instruction lists against bank A8.</summary>
 internal static class WorkRobotInstructionProgramDefinitionsVerification

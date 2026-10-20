@@ -6,10 +6,9 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The loaded room's live state: room, door and assets, level data, camera, background streamer and scrolling

@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>
 /// Draygon's encounter quantities stored as domain types instead of native words: the goop attachment countdown, the

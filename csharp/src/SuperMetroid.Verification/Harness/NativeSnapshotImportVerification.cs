@@ -233,7 +233,7 @@ internal static class NativeSnapshotImportVerification
         for (int index = 0; index < initialPlms.Count; index++)
         {
             AssertTrue(W(NativeSnapshotMemory.PlmHeaders + index * 2) == 0, "native initial PLM pool is empty");
-            initialPlms[index].Active = false;
+            initialPlms[index].Delete();
         }
         foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
             ImportNativeEnemyProjectile(projectile, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);

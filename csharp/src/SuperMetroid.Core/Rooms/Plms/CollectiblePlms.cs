@@ -342,13 +342,13 @@ internal sealed class CollectiblePlms : IPlmFamilySource
 
             case CollectiblePhase.EmptyAwaitingDelete:
                 // InstList_PLM_EmptyItem's Instruction_PLM_Delete ($84:DFAD).
-                slot.Active = false;
+                slot.Delete();
                 slot.HeaderPointer = 0;
                 return true;
 
             case CollectiblePhase.CollectedEmpty:
                 DrawCollectible(level, slot, RoomPlmCollectibleDrawDefinitions.Empty);
-                slot.Active = false;
+                slot.Delete();
                 slot.HeaderPointer = 0;
                 return true;
 

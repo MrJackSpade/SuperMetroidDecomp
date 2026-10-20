@@ -108,21 +108,11 @@ internal sealed class GatePlms : IPlmFamilySource
         // Spawn_PLM still probes the fixed pool even though every trigger setup deletes its
         // temporary slot synchronously. A saturated pool therefore drops the collision just
         // as the cartridge does.
-        PlmSlot? temporary = null;
-        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
-        {
-            if (_slotTable.Slots[index].Active)
-                continue;
-            temporary = _slotTable.Slots[index];
-            temporary.Clear();
-            temporary.Active = true;
-            temporary.HeaderPointer = HeaderForGateTrigger(trigger);
-            temporary.BlockIndex = blockIndex;
-            temporary.LoopTimer = projectileType.Raw;
-            break;
-        }
-        if (temporary is null)
+        if (_slotTable.SpawnAtCurrentBlock() is not { } temporary)
             return true;
+        temporary.HeaderPointer = HeaderForGateTrigger(trigger);
+        temporary.BlockIndex = blockIndex;
+        temporary.LoopTimer = projectileType.Raw;
 
         bool accepted = GateTriggerAcceptsProjectile(trigger, projectileType);
         if (!accepted)

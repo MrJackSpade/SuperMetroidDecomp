@@ -47,34 +47,26 @@ internal sealed class BossRoomMutationPlms
         // Validate through RoomLevelData rather than allowing a malformed fixture to install
         // a PLM whose later vertical draws would address unrelated host memory.
         int blockIndex = level.GetBlockIndex(new(15, 4));
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
 
-            slot.Clear();
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            // SpawnHardcodedPlm stores the header before setup. Keep identity intact
-            // for owner queries and mixed populations, not just instruction dispatch.
-            slot.HeaderPointer = header;
-            slot.LoopTimer = 0;
-            slot.StartAnimation(new BotwoonWallPlmAnimation(header == PlmHeaderId.ClearBotwoonWall
-                ? BotwoonWallProgram.Clear
-                : BotwoonWallProgram.Crumble));
+        slot.BlockIndex = blockIndex;
+        slot.RestoreLevelWord = 0;
+        // SpawnHardcodedPlm stores the header before setup. Keep identity intact
+        // for owner queries and mixed populations, not just instruction dispatch.
+        slot.HeaderPointer = header;
+        slot.LoopTimer = 0;
+        slot.StartAnimation(new BotwoonWallPlmAnimation(header == PlmHeaderId.ClearBotwoonWall
+            ? BotwoonWallProgram.Clear
+            : BotwoonWallProgram.Crumble));
 
-            // SpawnHardcodedPLM initializes a new slot's instruction timer to one. Only the
-            // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
-            // PLM instruction-timer allocation before returning to the enemy initializer.
-            slot.InstructionTimer = NativeCountdown.FromRaw(header == PlmHeaderId.CrumbleBotwoonWall
-                ? (ushort)64
-                : (ushort)1);
-            return true;
-        }
-
-        return false;
+        // SpawnHardcodedPLM initializes a new slot's instruction timer to one. Only the
+        // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
+        // PLM instruction-timer allocation before returning to the enemy initializer.
+        slot.InstructionTimer = NativeCountdown.FromRaw(header == PlmHeaderId.CrumbleBotwoonWall
+            ? (ushort)64
+            : (ushort)1);
+        return true;
     }
 
     /// <summary>
@@ -97,25 +89,17 @@ internal sealed class BossRoomMutationPlms
         }
 
         int blockIndex = level.GetBlockIndex(new(7, 30));
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
 
-            slot.Clear();
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            slot.LoopTimer = 0;
-            slot.StartAnimation(new SporeSpawnCeilingPlmAnimation(header == PlmHeaderId.CrumbleSporeSpawnCeiling
-                ? SporeSpawnCeilingProgram.Crumble
-                : SporeSpawnCeilingProgram.Clear));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            return true;
-        }
-
-        return false;
+        slot.BlockIndex = blockIndex;
+        slot.RestoreLevelWord = 0;
+        slot.LoopTimer = 0;
+        slot.StartAnimation(new SporeSpawnCeilingPlmAnimation(header == PlmHeaderId.CrumbleSporeSpawnCeiling
+            ? SporeSpawnCeilingProgram.Crumble
+            : SporeSpawnCeilingProgram.Clear));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        return true;
     }
 
     /// <summary>
@@ -148,27 +132,19 @@ internal sealed class BossRoomMutationPlms
         };
 
         int blockIndex = level.GetBlockIndex(block);
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
 
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = blockIndex;
-            slot.StartAnimation(new KraidRoomPlmAnimation(program));
-            slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.HeaderPointer = header;
+        slot.BlockIndex = blockIndex;
+        slot.StartAnimation(new KraidRoomPlmAnimation(program));
+        slot.InstructionTimer = NativeCountdown.Start(1);
 
-            // PlmSetup_DeactivatePlm clears level-word bits 12..14, not all four collision
-            // bits. Bit 15 is the independent tile priority flag and survives setup.
-            ushort authored = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
-            level.SetForegroundEntry(blockIndex, new RoomLevelWord(authored).WithPlmDeactivation().Raw);
-            return true;
-        }
-
-        return false;
+        // PlmSetup_DeactivatePlm clears level-word bits 12..14, not all four collision
+        // bits. Bit 15 is the independent tile priority flag and survives setup.
+        ushort authored = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
+        level.SetForegroundEntry(blockIndex, new RoomLevelWord(authored).WithPlmDeactivation().Raw);
+        return true;
     }
 
     /// <summary>
@@ -200,24 +176,16 @@ internal sealed class BossRoomMutationPlms
         };
 
         int blockIndex = level.GetBlockIndex(block);
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
 
-            slot.Clear();
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            slot.LoopTimer = 0;
-            slot.StartAnimation(new CrocomireArenaPlmAnimation(program));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.HeaderPointer = header;
-            return true;
-        }
-
-        return false;
+        slot.BlockIndex = blockIndex;
+        slot.RestoreLevelWord = 0;
+        slot.LoopTimer = 0;
+        slot.StartAnimation(new CrocomireArenaPlmAnimation(program));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.HeaderPointer = header;
+        return true;
     }
 
     /// <summary>
@@ -243,39 +211,31 @@ internal sealed class BossRoomMutationPlms
                 "Shitroid wall header must be $B763 or $B767.");
         }
 
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
+
+        slot.HeaderPointer = header;
+        slot.BlockIndex = level.GetBlockIndex(block);
+        slot.RestoreLevelWord = 0;
+        slot.LoopTimer = 0;
+        slot.PreInstruction = PlmPreInstructions.Inert;
+        slot.RoomArgument = 0;
+        PlmProgramStart.Delete.StartOn(slot);
+        slot.InstructionTimer = NativeCountdown.Start(1);
+
+        // Both setup routines walk downward through ten blocks in the same column.
+        // The mutation is part of setup, so it must occur before the PLM handler's
+        // instruction timer is allowed to consume and delete this allocated slot.
+        for (int rowOffset = 0; rowOffset < 10; rowOffset++)
         {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = level.GetBlockIndex(block);
-            slot.RestoreLevelWord = 0;
-            slot.LoopTimer = 0;
-            slot.PreInstruction = PlmPreInstructions.Inert;
-            slot.RoomArgument = 0;
-            PlmProgramStart.Delete.StartOn(slot);
-            slot.InstructionTimer = NativeCountdown.Start(1);
-
-            // Both setup routines walk downward through ten blocks in the same column.
-            // The mutation is part of setup, so it must occur before the PLM handler's
-            // instruction timer is allowed to consume and delete this allocated slot.
-            for (int rowOffset = 0; rowOffset < 10; rowOffset++)
-            {
-                int blockIndex = level.GetBlockIndex(block + new Offset16<RoomBlocks>(0, checked((short)rowOffset)));
-                ushort current = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
-                ushort replacement = new RoomLevelWord(current).WithCollisionType(header == PlmHeaderId.CreateBabyMetroidInvisibleWall
-                    ? RoomCollisionType.SolidBlock
-                    : RoomCollisionType.Air).Raw;
-                level.SetForegroundEntry(blockIndex, replacement);
-            }
-            return true;
+            int blockIndex = level.GetBlockIndex(block + new Offset16<RoomBlocks>(0, checked((short)rowOffset)));
+            ushort current = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
+            ushort replacement = new RoomLevelWord(current).WithCollisionType(header == PlmHeaderId.CreateBabyMetroidInvisibleWall
+                ? RoomCollisionType.SolidBlock
+                : RoomCollisionType.Air).Raw;
+            level.SetForegroundEntry(blockIndex, replacement);
         }
-
-        return false;
+        return true;
     }
 
     /// <summary>
@@ -321,32 +281,24 @@ internal sealed class BossRoomMutationPlms
 
         // SpawnHardcodedPLM probes native slots $4E,$4C,...,$00. Do not reserve a boss
         // slot or coalesce adjacent row requests: their allocation order is observable.
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
+
+        slot.BlockIndex = level.GetBlockIndex(block);
+        slot.RestoreLevelWord = 0;
+        slot.LoopTimer = 0;
+        slot.StartAnimation(new MotherBrainFakeDeathPlmAnimation(program));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.HeaderPointer = header;
+        if (header == PlmHeaderId.MotherBrainsRoomEscapeDoor)
         {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            slot.Clear();
-            slot.Active = true;
-            slot.BlockIndex = level.GetBlockIndex(block);
-            slot.RestoreLevelWord = 0;
-            slot.LoopTimer = 0;
-            slot.StartAnimation(new MotherBrainFakeDeathPlmAnimation(program));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.HeaderPointer = header;
-            if (header == PlmHeaderId.MotherBrainsRoomEscapeDoor)
-            {
-                // B5F8 installs the door-list index and three upward-linked extensions
-                // synchronously, before the first draw instruction changes their artwork.
-                RoomPlmSystem.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, MotherBrainDeathRomData.EscapeDoorCollision);
-                for (int row = 1; row < 4; row++)
-                    RoomPlmSystem.WritePlmCollisionTypeAndBts(level, slot.BlockIndex + row * level.Size.X,
-                        MotherBrainDeathRomData.EscapeDoorExtension);
-            }
-            return true;
+            // B5F8 installs the door-list index and three upward-linked extensions
+            // synchronously, before the first draw instruction changes their artwork.
+            RoomPlmSystem.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, MotherBrainDeathRomData.EscapeDoorCollision);
+            for (int row = 1; row < 4; row++)
+                RoomPlmSystem.WritePlmCollisionTypeAndBts(level, slot.BlockIndex + row * level.Size.X,
+                    MotherBrainDeathRomData.EscapeDoorExtension);
         }
-
-        return false;
+        return true;
     }
 }

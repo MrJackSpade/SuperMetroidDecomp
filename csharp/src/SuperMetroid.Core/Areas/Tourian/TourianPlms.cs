@@ -57,24 +57,17 @@ internal sealed class TourianPlms
         Ensure.NotNull(level);
         int blockIndex = level.GetBlockIndex(
             new(OldTourianEscapeShaftWallPlmDefinitions.BlockX, OldTourianEscapeShaftWallPlmDefinitions.BlockY));
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
 
-            slot.Clear();
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            slot.HeaderPointer = PlmHeaderId.OldTourianEscapeShaftFakeWall;
-            slot.LoopTimer = 0;
-            DoorPlms.SetupDoorTransitionDeactivatedSlot(level, slot);
-            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.OldTourianWallWait));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            return true;
-        }
-        return false;
+        slot.BlockIndex = blockIndex;
+        slot.RestoreLevelWord = 0;
+        slot.HeaderPointer = PlmHeaderId.OldTourianEscapeShaftFakeWall;
+        slot.LoopTimer = 0;
+        DoorPlms.SetupDoorTransitionDeactivatedSlot(level, slot);
+        slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.OldTourianWallWait));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        return true;
     }
 
     /// <summary>
@@ -102,18 +95,13 @@ internal sealed class TourianPlms
     public bool TrySpawnTourianAccess(RoomLevelData level, bool clear)
     {
         TourianAccessPlmDefinition definition = TourianAccessPlmDefinitions.ForState(clear);
-        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
-        {
-            var slot = _slotTable.Slots[index];
-            if (slot.Active) continue;
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = definition.HeaderPointer;
-            slot.BlockIndex = level.GetBlockIndex(new(6, 12));
-            slot.StartAnimation(new TourianAccessPlmAnimation(definition.Program));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            return true;
-        }
-        return false;
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
+
+        slot.HeaderPointer = definition.HeaderPointer;
+        slot.BlockIndex = level.GetBlockIndex(new(6, 12));
+        slot.StartAnimation(new TourianAccessPlmAnimation(definition.Program));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        return true;
     }
 }

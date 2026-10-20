@@ -7,8 +7,11 @@ internal sealed class PlmSlot
 {
     /// <summary>Samus position saved by the Brinstar plant setup (native <c>PLM_Vars</c> X, <c>PLMExtra_Vars</c> Y).</summary>
     public Position16<RoomPixels> PlantHeldPosition { get; set; }
-    /// <summary>Marks whether this physical PLM slot participates in the room update.</summary>
-    public bool Active { get; set; }
+    /// <summary>
+    /// Whether this physical PLM slot holds a PLM and participates in the room update. Only <see cref="PlmSlotTable"/>'s
+    /// spawn operations claim a slot; <see cref="Delete"/> and <see cref="Clear"/> free it.
+    /// </summary>
+    public bool Active { get; private set; }
     /// <summary>Bank-$84 header selecting the resident PLM's setup and behavior.</summary>
     public PlmHeaderId HeaderPointer { get; set; }
     /// <summary>Index of the room block owned by this PLM.</summary>
@@ -57,6 +60,24 @@ internal sealed class PlmSlot
         LoopTimer = 0;
         Family = null;
     }
+
+    /// <summary>
+    /// Claims this free slot for a new PLM: every word is reset and the slot is active. Only <see cref="PlmSlotTable"/>'s
+    /// spawn operations call it, which analyzer SME6303 enforces.
+    /// </summary>
+    internal void Claim()
+    {
+        if (Active)
+            throw new InvalidOperationException("An occupied PLM slot cannot be claimed.");
+        Clear();
+        Active = true;
+    }
+
+    /// <summary>
+    /// Deletes the PLM, as the delete instruction does: only the PLM ID is cleared, and the other words stay until the
+    /// slot is claimed again.
+    /// </summary>
+    internal void Delete() => Active = false;
 
     /// <summary>Runs <paramref name="animation"/>; the caller keeps the slot's timer.</summary>
     internal void StartAnimation(PlmAnimation animation) => Animation = Ensure.NotNull(animation);

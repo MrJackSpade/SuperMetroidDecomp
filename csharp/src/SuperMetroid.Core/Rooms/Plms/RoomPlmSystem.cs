@@ -210,7 +210,7 @@ public sealed class RoomPlmSystem
     /// </summary>
     internal void DeletePlm(PlmSlot slot)
     {
-        slot.Active = false;
+        slot.Delete();
         BombTorizoHandPlms.MarkBombTorizoHandDeleted(slot);
         MotherBrainGlass.OnPlmDeleted(slot);
         // Semantic family references are discriminators, not retained debug

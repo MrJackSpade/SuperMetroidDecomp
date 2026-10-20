@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using SuperMetroid.Core;
 using SuperMetroid.EnsureAnalyzer.Contracts;
 using SuperMetroid.EnsureAnalyzer.Hardware;
+using SuperMetroid.EnsureAnalyzer.Rooms;
 
 namespace SuperMetroid.EnsureVerification.Harness;
 
@@ -170,6 +171,23 @@ internal static class AnalyzerTests
         Expect(api + "namespace SuperMetroid.Core.Frontend.Title { using SuperMetroid.Core.Hardware; readonly struct TitleVram(SnesVram vram) { public SnesVram Memory => vram; } }");
         Expect(api + "namespace SuperMetroid.Core.Frontend.Title { using SuperMetroid.Core.Hardware; static class Codec { public static int Compose() { var vram = new SnesVram(); return vram.GetHashCode(); } } }");
         Expect(api + "namespace SuperMetroid.Core.Gameplay { using SuperMetroid.Core.Hardware; sealed class Runtime { private readonly SnesVram vram = new(); } }");
+    }
+
+    /// <summary>Checks that only the PLM slot table claims a PLM slot (#1361).</summary>
+    internal static void VerifyPlmSlotAllocationAnalyzer()
+    {
+        var analyzer = new PlmSlotAllocationAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer);
+        const string api =
+            "namespace SuperMetroid.Core.Rooms.Plms { sealed class PlmSlot { public bool Active { get; private set; } internal void Claim() => Active = true; } " +
+            "sealed class PlmSlotTable { private readonly PlmSlot[] slots = new PlmSlot[40]; internal PlmSlot? SpawnHardcoded() { foreach (PlmSlot slot in slots) if (!slot.Active) { slot.Claim(); return slot; } return null; } } } ";
+
+        // SME6303: an open-coded free-slot search claims its slot directly.
+        Expect(api + "namespace SuperMetroid.Core.Rooms.Doors { using SuperMetroid.Core.Rooms.Plms; sealed class DoorPlms { void M(PlmSlot[] slots) { foreach (PlmSlot slot in slots) if (!slot.Active) { slot.Claim(); return; } } } }",
+            PlmSlotAllocationAnalyzer.OpenCodedClaimId, "DoorPlms claims a PLM slot directly");
+        // The slot table's spawn operations, and callers that use them, pass.
+        Expect(api + "namespace SuperMetroid.Core.Rooms.Doors { using SuperMetroid.Core.Rooms.Plms; sealed class DoorPlms { PlmSlot? M(PlmSlotTable table) => table.SpawnHardcoded(); } }");
     }
 
     /// <summary>Checks DSP register-write and numeric-register diagnostics against typed control exceptions.</summary>

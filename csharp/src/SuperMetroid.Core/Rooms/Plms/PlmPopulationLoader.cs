@@ -118,22 +118,14 @@ internal sealed class PlmPopulationLoader
         RoomPlmPopulationRecord record,
         int blockIndex)
     {
-        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
-        {
-            PlmSlot slot = _slotTable.Slots[index];
-            if (slot.Active)
-                continue;
+        if (_slotTable.SpawnRoomPlm() is not { } slot)
+            return null;
 
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = record.HeaderPointer;
-            slot.BlockIndex = blockIndex;
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.RoomArgument = record.RoomArgument;
-            return slot;
-        }
-
-        return null;
+        slot.HeaderPointer = record.HeaderPointer;
+        slot.BlockIndex = blockIndex;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.RoomArgument = record.RoomArgument;
+        return slot;
     }
 
     /// <summary>Dispatches translated room-population headers to their family setup; returns false for an unsupported header so loading can fail with record context.</summary>

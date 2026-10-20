@@ -28,21 +28,17 @@ internal sealed class SamusEaterPlms
         int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Kinematics.Radius.Y
             : samus.Position.Y.Whole + samus.Kinematics.Radius.Y - 1;
         if ((edge & 15) != (definition.Ceiling ? 0 : 15)) return;
-        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
-        {
-            var slot = _slotTable.Slots[index];
-            if (slot.Active) continue;
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = block.Index;
-            slot.StartAnimation(new SamusEaterPlmAnimation(definition.Program));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.PlantHeldPosition = new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1))));
-            level.SetForegroundEntry(block.Index, (ushort)(block.PackedWord.Raw & SamusEaterPlmRomData.DeactivatedTriggerMask));
-            return;
-        }
         // Native descending allocation simply returns when all slots are occupied.
+        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+            return;
+
+        slot.HeaderPointer = header;
+        slot.BlockIndex = block.Index;
+        slot.StartAnimation(new SamusEaterPlmAnimation(definition.Program));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.PlantHeldPosition = new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1))));
+        level.SetForegroundEntry(block.Index, (ushort)(block.PackedWord.Raw & SamusEaterPlmRomData.DeactivatedTriggerMask));
+        return;
     }
 
     /// <summary>Requires the live Samus instance associated with the plant's room.</summary>

@@ -358,73 +358,65 @@ internal static class RoomPlmSystemAccess
 
             // Spawn_PLM's descending free-slot search happens before any setup routine. A full
             // pool must therefore leave both level data and BTS completely untouched.
-            for (int slotIndex = self.SlotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
+            if (self.SlotTable.SpawnAtCurrentBlock() is not { } slot)
+                return false;
+
+            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            slot.BlockIndex = blockIndex;
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.RestoreLevelWord = 0;
+
+            if (areaDependent)
             {
-                PlmSlot slot = self.SlotTable.Slots[slotIndex];
-                if (slot.Active)
-                    continue;
-
-                RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-                slot.Clear();
-                slot.Active = true;
-                slot.BlockIndex = blockIndex;
-                slot.InstructionTimer = NativeCountdown.Start(1);
-                slot.RestoreLevelWord = 0;
-
-                if (areaDependent)
-                {
-                    // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
-                    // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
-                    PlmProgramStart.Delete.StartOn(slot);
-                    return true;
-                }
-
-                if (bts.IsRespawningReaction)
-                {
-                    // CE6B throws away the original visual/BTS low twelve bits. The generated
-                    // `$x052` word is both PLM_Vars and the source of the temporary collision
-                    // word, exactly like the retail setup's two consecutive stores.
-                    slot.RestoreLevelWord = unchecked((ushort)((block.PackedWord.Raw & 0xf000) | 0x0052));
-                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.RespawningShot(bts.NormalReactionIndex)));
-                    level.SetForegroundEntry(
-                        blockIndex,
-                        unchecked((ushort)(slot.RestoreLevelWord.Raw & 0x8fff)));
-                    return true;
-                }
-
-                if (bts.IsPermanentReaction)
-                {
-                    // Setup_DeactivatePLM does not synthesize a restore word. Clearing bits
-                    // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
-                    // solid until the same-frame list draws its first breaking frame.
-                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.PermanentShot(bts.NormalReactionIndex - 4)));
-                    level.SetForegroundEntry(
-                        blockIndex,
-                        unchecked((ushort)(block.PackedWord.Raw & 0x8fff)));
-                    return true;
-                }
-
-                if (bts.RequiresPowerBombReaction)
-                {
-                    // CF2E sees projectile family `$0500` and replaces the entry's normal
-                    // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmProgram.BombedPowerBombBlockUnused));
-                    return true;
-                }
-
-                if (bts.RequiresSuperMissileReaction)
-                {
-                    // CF67 performs the analogous redirect to visible super-missile word
-                    // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmProgram.BombedSuperMissileBlockUnused));
-                    return true;
-                }
-
+                // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
+                // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
                 PlmProgramStart.Delete.StartOn(slot);
                 return true;
             }
 
-            return false;
+            if (bts.IsRespawningReaction)
+            {
+                // CE6B throws away the original visual/BTS low twelve bits. The generated
+                // `$x052` word is both PLM_Vars and the source of the temporary collision
+                // word, exactly like the retail setup's two consecutive stores.
+                slot.RestoreLevelWord = unchecked((ushort)((block.PackedWord.Raw & 0xf000) | 0x0052));
+                slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.RespawningShot(bts.NormalReactionIndex)));
+                level.SetForegroundEntry(
+                    blockIndex,
+                    unchecked((ushort)(slot.RestoreLevelWord.Raw & 0x8fff)));
+                return true;
+            }
+
+            if (bts.IsPermanentReaction)
+            {
+                // Setup_DeactivatePLM does not synthesize a restore word. Clearing bits
+                // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
+                // solid until the same-frame list draws its first breaking frame.
+                slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.PermanentShot(bts.NormalReactionIndex - 4)));
+                level.SetForegroundEntry(
+                    blockIndex,
+                    unchecked((ushort)(block.PackedWord.Raw & 0x8fff)));
+                return true;
+            }
+
+            if (bts.RequiresPowerBombReaction)
+            {
+                // CF2E sees projectile family `$0500` and replaces the entry's normal
+                // power-bomb animation pointer with the one-frame visible `$C057` reveal.
+                slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmProgram.BombedPowerBombBlockUnused));
+                return true;
+            }
+
+            if (bts.RequiresSuperMissileReaction)
+            {
+                // CF67 performs the analogous redirect to visible super-missile word
+                // `$C09F`; it neither clears collision nor queues the shot-block sound.
+                slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmProgram.BombedSuperMissileBlockUnused));
+                return true;
+            }
+
+            PlmProgramStart.Delete.StartOn(slot);
+            return true;
         }
 
         /// <summary>

@@ -56,6 +56,7 @@ internal static class Program
                 (nameof(VerifyCartridgeEncodingAnalyzer), VerifyCartridgeEncodingAnalyzer),
                 (nameof(VerifyPpuLayoutAccessAnalyzer), VerifyPpuLayoutAccessAnalyzer),
                 (nameof(VerifyFrontendPpuMemoryAnalyzer), VerifyFrontendPpuMemoryAnalyzer),
+                (nameof(VerifyPlmSlotAllocationAnalyzer), VerifyPlmSlotAllocationAnalyzer),
                 (nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),
                 (nameof(VerifySpcMemoryAccessAnalyzer), VerifySpcMemoryAccessAnalyzer),
                 (nameof(VerifyParameterListAnalyzer), VerifyParameterListAnalyzer),

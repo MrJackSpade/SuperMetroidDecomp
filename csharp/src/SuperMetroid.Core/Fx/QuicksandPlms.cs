@@ -14,7 +14,7 @@ internal sealed class QuicksandPlms
         _slotTable = slotTable;
     }
     /// <summary>True when all forty cartridge PLM slots are occupied.</summary>
-    public bool IsAllocationFull => _slotTable.ActiveCount == PlmSlotTable.SlotCount;
+    public bool IsAllocationFull => _slotTable.IsFull;
 
     /// <summary>
     /// Allocates one transient sand-reaction PLM and leaves its setup effects to the
@@ -35,21 +35,13 @@ internal sealed class QuicksandPlms
         QuicksandReactionDefinition definition =
             QuicksandDefinitions.ResolveReaction(header);
 
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
+        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+            return false;
 
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = blockIndex;
-            definition.Program.StartOn(slot);
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            return true;
-        }
-
-        return false;
+        slot.HeaderPointer = header;
+        slot.BlockIndex = blockIndex;
+        definition.Program.StartOn(slot);
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        return true;
     }
 }

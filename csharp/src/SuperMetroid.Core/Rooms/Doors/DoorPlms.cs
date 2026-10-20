@@ -89,23 +89,15 @@ internal sealed class DoorPlms : IPlmFamilySource
         if (DoorClosingPlmRomData.GetDefinition(door.Orientation) is not { } fallback)
             return false;
 
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
+        if (_slotTable.SpawnRoomPlm() is not { } slot)
+            return false;
 
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = fallback.Header;
-            slot.BlockIndex = blockIndex;
-            fallback.Start.StartOn(slot);
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            SetupDoorTransitionDeactivatedSlot(level, slot);
-            return true;
-        }
-
-        return false;
+        slot.HeaderPointer = fallback.Header;
+        slot.BlockIndex = blockIndex;
+        fallback.Start.StartOn(slot);
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        SetupDoorTransitionDeactivatedSlot(level, slot);
+        return true;
     }
 
 
@@ -316,32 +308,24 @@ internal sealed class DoorPlms : IPlmFamilySource
                 "Validated blue-door BTS escaped its four-way header table."),
         };
 
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
+        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+            return false;
 
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = headerPointer;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Opening(orientation)));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.PreInstruction = PlmPreInstructions.Inert;
-            slot.RoomArgument = 0;
-            slot.LoopTimer = 0;
-            slot.Family = null;
+        slot.HeaderPointer = headerPointer;
+        slot.BlockIndex = blockIndex;
+        slot.RestoreLevelWord = 0;
+        slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Opening(orientation)));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.PreInstruction = PlmPreInstructions.Inert;
+        slot.RoomArgument = 0;
+        slot.LoopTimer = 0;
+        slot.Family = null;
 
-            // `$84:C7D3-$C7DD` is a direct LevelData write, not a PLM draw. The first
-            // animated draw occurs on this actor's next handler pass and owns the VRAM
-            // update, while collision observes the type-$8 origin immediately.
-            ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
-            level.SetForegroundEntry(blockIndex, new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.SolidBlock).Raw);
-            return true;
-        }
-
-        return false;
+        // `$84:C7D3-$C7DD` is a direct LevelData write, not a PLM draw. The first
+        // animated draw occurs on this actor's next handler pass and owns the VRAM
+        // update, while collision observes the type-$8 origin immediately.
+        ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
+        level.SetForegroundEntry(blockIndex, new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.SolidBlock).Raw);
+        return true;
     }
 }

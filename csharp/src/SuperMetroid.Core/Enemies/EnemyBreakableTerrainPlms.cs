@@ -22,21 +22,16 @@ internal sealed class EnemyBreakableTerrainPlms
     {
         Ensure.NotNull(level);
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
-        {
-            PlmSlot slot = _slotTable.Slots[index];
-            if (slot.Active) continue;
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = PlmHeaderId.EnemyBreakableBlock;
-            slot.BlockIndex = blockIndex;
-            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EnemyBreakableTerrain));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            level.SetForegroundEntry(blockIndex, block.PackedWord
-                .WithCollisionType(RoomCollisionType.Air).Raw);
-            return true;
-        }
         // Native full-pool allocation skips setup. Its caller still returns carry clear.
-        return false;
+        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+            return false;
+
+        slot.HeaderPointer = PlmHeaderId.EnemyBreakableBlock;
+        slot.BlockIndex = blockIndex;
+        slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EnemyBreakableTerrain));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        level.SetForegroundEntry(blockIndex, block.PackedWord
+            .WithCollisionType(RoomCollisionType.Air).Raw);
+        return true;
     }
 }

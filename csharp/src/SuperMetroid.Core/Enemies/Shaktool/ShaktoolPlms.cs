@@ -24,22 +24,17 @@ internal sealed class ShaktoolPlms
     public bool TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
-        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
-        {
-            PlmSlot slot = _slotTable.Slots[index];
-            if (slot.Active) continue;
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = PlmHeaderId.ShaktoolsRoom;
-            slot.BlockIndex = 0;
-            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ShaktoolRoomController));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
-                scrolls.SetStorage(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);
-            return true;
-        }
         // Native hardcoded spawning leaves the scrolls untouched when its pool is full.
-        return false;
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
+
+        slot.HeaderPointer = PlmHeaderId.ShaktoolsRoom;
+        slot.BlockIndex = 0;
+        slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ShaktoolRoomController));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
+            scrolls.SetStorage(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);
+        return true;
     }
 
     /// <summary>Opens all scroll cells during a power bomb and retires the controller after Samus passes the cleared-path boundary.</summary>
@@ -58,6 +53,6 @@ internal sealed class ShaktoolPlms
         _bindings.Events.Set(EventNumber.ShaktoolClearedPath);
         // B8D2 clears only the ID; inactive instruction/timer words remain in RAM.
         slot.HeaderPointer = 0;
-        slot.Active = false;
+        slot.Delete();
     }
 }

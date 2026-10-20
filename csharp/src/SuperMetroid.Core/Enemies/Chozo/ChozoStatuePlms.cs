@@ -54,26 +54,21 @@ internal sealed class ChozoStatuePlms
             ? (_bindings.System ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
                 .HasAnyBossBits(_bindings.Area, BossBits.AreaBoss)
             : (samus.CollectedItems & SamusEquipmentFlags.SpaceJump) != 0;
-        for (int i = _slotTable.Slots.Count - 1; i >= 0; i--)
-        {
-            PlmSlot reaction = _slotTable.Slots[i];
-            if (reaction.Active) continue;
-            reaction.Clear();
-            reaction.Active = true;
-            reaction.HeaderPointer = wreckedShip ? PlmHeaderId.CollisionWreckedShipChozoHandCheck
-                : PlmHeaderId.CollisionLowerNorfairChozoHandCheck;
-            reaction.BlockIndex = block.Index;
-            if (eligible)
-            {
-                RoomEnemySystem enemies = _chozoEnemies ??
-                    throw new InvalidOperationException("Chozo hand has no bound enemy owner.");
-                enemies.ChozoStatueBehavior.ActivateChozoStatueHandTrigger(level, block.Index);
-                // The nested hardcoded spawn occurs while the reaction slot is occupied.
-                enemies.ChozoStatueBehavior.ApplyPendingChozoStatuePlms(level, this);
-            }
-            reaction.Clear();
+        if (_slotTable.SpawnAtCurrentBlock() is not { } reaction)
             return;
+
+        reaction.HeaderPointer = wreckedShip ? PlmHeaderId.CollisionWreckedShipChozoHandCheck
+            : PlmHeaderId.CollisionLowerNorfairChozoHandCheck;
+        reaction.BlockIndex = block.Index;
+        if (eligible)
+        {
+            RoomEnemySystem enemies = _chozoEnemies ??
+                throw new InvalidOperationException("Chozo hand has no bound enemy owner.");
+            enemies.ChozoStatueBehavior.ActivateChozoStatueHandTrigger(level, block.Index);
+            // The nested hardcoded spawn occurs while the reaction slot is occupied.
+            enemies.ChozoStatueBehavior.ApplyPendingChozoStatuePlms(level, this);
         }
+        reaction.Clear();
     }
 
     /// <summary>Allocates the native descending PLM slot, runs setup, then leaves its ROM list live.</summary>
@@ -82,29 +77,24 @@ internal sealed class ChozoStatuePlms
         ChozoStatuePlmDefinition definition =
             ChozoStatuePlmDefinitions.Resolve(request.HeaderPointer);
         int index = level.GetBlockIndex(request.Block);
-        for (int i = _slotTable.Slots.Count - 1; i >= 0; i--)
+        if ((request.IsHardcoded ? _slotTable.SpawnHardcoded() : _slotTable.SpawnAtCurrentBlock()) is not { } slot)
+            return false;
+
+        slot.HeaderPointer = definition.HeaderPointer;
+        slot.BlockIndex = index;
+        definition.Program.StartOn(slot);
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        if (request.HeaderPointer == PlmHeaderId.WreckedShipChozoHand)
+            WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
+                ChozoStatuePlmRomData.WreckedShipHandBts.Value);
+        else if (request.HeaderPointer == PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug)
         {
-            PlmSlot slot = _slotTable.Slots[i];
-            if (slot.Active) continue;
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = definition.HeaderPointer;
-            slot.BlockIndex = index;
-            definition.Program.StartOn(slot);
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            if (request.HeaderPointer == PlmHeaderId.WreckedShipChozoHand)
-                WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
-                    ChozoStatuePlmRomData.WreckedShipHandBts.Value);
-            else if (request.HeaderPointer == PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug)
-            {
-                // Native D108 omits LDA: the two spawn entry points leave different A
-                // values, so preserve that quirk rather than reading the previous tile.
-                level.SetForegroundEntry(index, request.IsHardcoded
-                    ? ChozoStatuePlmRomData.HardcodedCrumbleSetupLevelWord : (ushort)0);
-            }
-            return true;
+            // Native D108 omits LDA: the two spawn entry points leave different A
+            // values, so preserve that quirk rather than reading the previous tile.
+            level.SetForegroundEntry(index, request.IsHardcoded
+                ? ChozoStatuePlmRomData.HardcodedCrumbleSetupLevelWord : (ushort)0);
         }
-        return false;
+        return true;
     }
 
     /// <summary>Changes a hand or plug block's collision type and BTS while preserving its visual word.</summary>
@@ -151,6 +141,6 @@ internal sealed class ChozoStatuePlms
         if (level.GetCollisionBlockByIndex(index).PackedWord.Raw != ChozoStatuePlmRomData.BlankAirLevelWord) return;
         WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
             ChozoStatuePlmRomData.LowerNorfairHandBts.Value);
-        slot.Active = false;
+        slot.Delete();
     }
 }

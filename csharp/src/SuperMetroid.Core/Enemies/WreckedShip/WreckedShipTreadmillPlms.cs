@@ -60,31 +60,23 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             new(WreckedShipTreadmillPlmRomData.BlockX, WreckedShipTreadmillPlmRomData.BlockY));
         EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillPlmRomData.BlockCount);
 
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
+
+        slot.HeaderPointer = header;
+        slot.BlockIndex = origin;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Family = new WreckedShipTreadmillPlmState(
+            direction,
+            areaBossDefeated);
+
+        // Setup $84:B04A writes exact level words and deliberately leaves BTS alone.
+        for (int offset = 0; offset < WreckedShipTreadmillPlmRomData.BlockCount; offset++)
         {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = origin;
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.Family = new WreckedShipTreadmillPlmState(
-                direction,
-                areaBossDefeated);
-
-            // Setup $84:B04A writes exact level words and deliberately leaves BTS alone.
-            for (int offset = 0; offset < WreckedShipTreadmillPlmRomData.BlockCount; offset++)
-            {
-                int blockIndex = origin + offset;
-                level.SetForegroundEntry(blockIndex, WreckedShipTreadmillPlmRomData.BlankAirWord);
-            }
-            return true;
+            int blockIndex = origin + offset;
+            level.SetForegroundEntry(blockIndex, WreckedShipTreadmillPlmRomData.BlankAirWord);
         }
-
-        return false;
+        return true;
     }
 
     /// <summary>
@@ -99,22 +91,14 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
         int blockIndex = level.GetBlockIndex(
             new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
 
-        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (slot.Active)
-                continue;
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
 
-            slot.Clear();
-            slot.Active = true;
-            slot.HeaderPointer = PlmHeaderId.MaridiaElevatube;
-            slot.BlockIndex = blockIndex;
-            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.MaridiaElevatube));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            return true;
-        }
-
-        return false;
+        slot.HeaderPointer = PlmHeaderId.MaridiaElevatube;
+        slot.BlockIndex = blockIndex;
+        slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.MaridiaElevatube));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        return true;
     }
 
     /// <summary>Consumes the native first-pass boss test for one treadmill PLM.</summary>
@@ -149,7 +133,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
         }
 
         // Both branches terminate in $84:86BC during this same handler pass.
-        slot.Active = false;
+        slot.Delete();
         slot.Family = null;
         return true;
     }

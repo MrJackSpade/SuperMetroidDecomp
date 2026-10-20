@@ -25,7 +25,7 @@ internal sealed class EscapeAnimalPlms
     public void SetupCrittersEscapeBlock(RoomLevelData level, int blockIndex)
     {
         // Hardcoded spawn cannot execute setup when every native PLM slot is occupied.
-        if (_slotTable.Slots.All(slot => slot.Active))
+        if (_slotTable.IsFull)
             throw new InvalidOperationException("Animal rescue wall setup has no free PLM slot.");
         RoomPlmSystem.WritePlmCollisionTypeAndBts(level, blockIndex, EscapeAnimalPlmRomData.OriginCollision);
         for (int row = 1; row <= 2; row++)
@@ -44,27 +44,21 @@ internal sealed class EscapeAnimalPlms
         Ensure.NotNull(level);
         IGlobalEventFlags events = _bindings.Events ?? throw new InvalidOperationException(
             "Crateria mainstreet escape passage requires the room event owner.");
-        if (_slotTable.Slots.All(slot => slot.Active))
+        if (_slotTable.IsFull)
             return false;
         if (!events.Has(EventNumber.CrittersEscaped))
             return false;
-        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
-        {
-            PlmSlot slot = _slotTable.Slots[index];
-            if (slot.Active)
-                continue;
-            slot.Clear();
-            slot.Active = true;
-            slot.BlockIndex = level.GetBlockIndex(
-                new(CrateriaMainstreetEscapePassagePlmDefinitions.BlockX, CrateriaMainstreetEscapePassagePlmDefinitions.BlockY));
-            slot.RestoreLevelWord = 0;
-            slot.HeaderPointer = PlmHeaderId.CrateriaMainstreetEscapePassage;
-            slot.LoopTimer = 0;
-            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.CrateriaPassage));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            return true;
-        }
-        return false;
+        if (_slotTable.SpawnHardcoded() is not { } slot)
+            return false;
+
+        slot.BlockIndex = level.GetBlockIndex(
+            new(CrateriaMainstreetEscapePassagePlmDefinitions.BlockX, CrateriaMainstreetEscapePassagePlmDefinitions.BlockY));
+        slot.RestoreLevelWord = 0;
+        slot.HeaderPointer = PlmHeaderId.CrateriaMainstreetEscapePassage;
+        slot.LoopTimer = 0;
+        slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.CrateriaPassage));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        return true;
     }
 
     /// <summary>Runs $84:B978 and schedules its ROM animation/event list in native slot order.</summary>
@@ -75,20 +69,15 @@ internal sealed class EscapeAnimalPlms
         // grapple word is rejected; ordinary nonzero beams and bombs are accepted.
         if (projectileType == (SamusProjectileTypeWord)0)
             return false;
-        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
-        {
-            PlmSlot slot = _slotTable.Slots[index];
-            if (slot.Active) continue;
-            slot.Clear();
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EscapeAnimalReaction));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            slot.RestoreLevelWord = (ushort)((block.PackedWord.Raw & EscapeAnimalPlmRomData.ReactionCollisionMask) | EscapeAnimalPlmRomData.ReactionVisualBlock);
-            level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord.Raw & EscapeAnimalPlmRomData.ReactionTemporaryCollisionMask));
-            return true;
-        }
-        return false;
+        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+            return false;
+
+        slot.BlockIndex = blockIndex;
+        slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EscapeAnimalReaction));
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+        slot.RestoreLevelWord = (ushort)((block.PackedWord.Raw & EscapeAnimalPlmRomData.ReactionCollisionMask) | EscapeAnimalPlmRomData.ReactionVisualBlock);
+        level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord.Raw & EscapeAnimalPlmRomData.ReactionTemporaryCollisionMask));
+        return true;
     }
 }
